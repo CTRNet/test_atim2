@@ -567,7 +567,7 @@ SELECT name '### MESSAGE ### Check following custom lists are used and inactivat
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_drug_type"), (SELECT id FROM structure_permissible_values WHERE value="experimental treatment" AND language_alias="experimental treatment"), "", "1");
 REPLACE INTO i18n (id,en,fr)
 VALUES 
-('procure_help_treatment_drug', 'Experimental Treatment/Chemotherapy/Radiotherapy drug', 'Molécule ou médicament de chimiothérapie/radiothérapie/traitement expérimental');
+('procure_help_treatment_drug', 'Experimental Treatment / Chemotherapy / Hormonotherapy drug', 'Molécule ou médicament de chimiothérapie / hormonothérapie / traitement expérimental');
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Data Integrity Controls (based on custom hook and custom model)
@@ -858,6 +858,38 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
 ("OCT", "OCT", "OCT"),
 ('block freezing type OCT has not to be used anymore',"Block freezing type 'OCT' has not to be used anymore","Le type de congélation 'OCT' pour un bloc ne doit plus être utilisé");
+
+-- Deleted Clnical Event Exam Site
+
+SELECT Participant.participant_identifier AS '### MESSAGE ### Pariticpant with a clinical event site (Site will be deleted)', EventMaster.event_date, EventDetail.type, EventDetail.sites 
+FROM participants Participant
+INNER JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id
+INNER JOIN procure_ed_clinical_followup_worksheet_clinical_events EventDetail ON EventDetail.event_master_id = EventMaster.id
+WHERE EventMaster.deleted <> 1 AND EventDetail.sites IS NOT NULL AND EventDetail.sites NOT LIKE '';
+
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_event') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='sites' AND `language_label`='site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_sites') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='sites' AND `language_label`='site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_sites') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='sites' AND `language_label`='site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_sites') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events DROP COLUMN sites;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP COLUMN sites;
+DELETE FROM structure_value_domains WHERE domain_name = 'procure_followup_exam_sites';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam Sites');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Manage launch of procure report from databrowser
+
+DELETE FROM datamart_structure_functions WHERE label = 'procure summary';
+SET @datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+INSERT INTO `datamart_structure_functions` (`datamart_structure_id`, `label`, `link`, `flag_active`)
+(SELECT @datamart_structure_id, name, CONCAT("/Datamart/Reports/manageReport/",id), '1' FROM datamart_reports WHERE name like 'procure % summary');
+
+
+
+
+
+
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Version

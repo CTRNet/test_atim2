@@ -716,7 +716,7 @@ SET results = 'positive', modified = @modified, modified_by = @modified_by
 WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : positif' OR event_summary LIKE '% : positif, en progression');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'suspicious', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : suspect');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : suspect' OR event_summary LIKE '% : incertain');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'negative', modified = @modified, modified_by = @modified_by
 WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'negatif%' OR event_summary LIKE 'négatif%');
@@ -733,20 +733,17 @@ SET @ev_note_control_id = (SELECT id FROM event_controls WHERE event_type = 'pro
 INSERT INTO event_masters (participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, created, created_by, modified, modified_by)
 (SELECT participant_id, @ev_note_control_id, procure_form_identification,  event_date, event_date_accuracy, event_summary, created, created_by, @modified, @modified_by
 FROM event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
-WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%'));
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%' OR EventDetail.type IN ('other', 'other imaging')));
 INSERT INTO procure_ed_followup_worksheet_clinical_notes (event_master_id) (SELECT id FROM event_masters WHERE event_control_id = @ev_note_control_id AND id NOT IN (SELECT event_master_id FROM procure_ed_followup_worksheet_clinical_notes));
 INSERT INTO event_masters_revs (id, participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, version_created, modified_by)
 (SELECT id, participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, modified, modified_by FROM event_masters WHERE event_control_id = @ev_note_control_id AND modified = @modified AND modified_by = @modified_by);
 INSERT INTO procure_ed_followup_worksheet_clinical_notes_revs (event_master_id, version_created) (SELECT id, modified FROM event_masters WHERE event_control_id = @ev_note_control_id AND modified = @modified AND modified_by = @modified_by);
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET deleted = '1', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%');
-
-SELECT 'TODO finir clean up autre exam clinique?' as msg;
-SELECT 'TODO veut on compléter le site a partir de la liste?' as msg;
--- type other and other imaging
-SELECT distinct type, event_summary FROM event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail 
-WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND type IN ('other', 'other imaging');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%' OR EventDetail.type IN ('other', 'other imaging'));
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="procure_followup_exam_types" AND spv.value="other" AND spv.language_alias="other";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="procure_followup_exam_types" AND spv.value="other imaging" AND spv.language_alias="other imaging";
+DELETE FROM structure_permissible_values WHERE value="other imaging" AND language_alias="other imaging" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
 
 -- revs table
 
@@ -812,11 +809,17 @@ ORDER BY procure_form_identification;
 
 
 
+
+
+
+
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 -- Report
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 
 //TODO: Revoir le rapport Dx & tx en incluant curithérapie dans PROCURE trunk
+Supprimer formilaire suivi et mdt vide
+Sand ETA... pas de storage pas dein stocjk
 
 
 
