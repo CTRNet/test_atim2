@@ -885,11 +885,20 @@ SET @datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = '
 INSERT INTO `datamart_structure_functions` (`datamart_structure_id`, `label`, `link`, `flag_active`)
 (SELECT @datamart_structure_id, name, CONCAT("/Datamart/Reports/manageReport/",id), '1' FROM datamart_reports WHERE name like 'procure % summary');
 
+-- Changed Diagnosis And Treatment Report
 
-
-
-
-
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_post_op_brachy', 'yes_no',  NULL , '0', '', '', '', 'brachytherapy', ''), 
+('Datamart', '0', '', 'procure_pre_op_brachy', 'yes_no',  NULL , '0', '', '', '', 'brachytherapy', ''), 
+('Datamart', '0', '', 'procure_first_bcr_date', 'date',  NULL , '0', '', '', '', 'first bcr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_post_op_brachy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='brachytherapy' AND `language_tag`=''), '0', '43', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_brachy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='brachytherapy' AND `language_tag`=''), '0', '23', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_first_bcr_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='first bcr' AND `language_tag`=''), '0', '39', 'psa', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('psa', 'PSA', 'APS'),
+('first bcr', '1st BCR', '1ere Rechute');
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Version
