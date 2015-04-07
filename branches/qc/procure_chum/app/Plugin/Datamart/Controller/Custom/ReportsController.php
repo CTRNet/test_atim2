@@ -182,11 +182,14 @@ class ReportsControllerCustom extends ReportsController {
 				'procure_post_op_hormono' => '',
 				'procure_post_op_chemo' => '',
 				'procure_post_op_radio' => '',
+				'procure_post_op_brachy' => '',
 				'procure_pre_op_hormono' => '',
 				'procure_pre_op_chemo' => '',
 				'procure_pre_op_radio' => '',
+				'procure_pre_op_brachy' => '',
 				'procure_inaccurate_date_use' => '',
-				'procure_pre_op_psa_date' => ''
+				'procure_pre_op_psa_date' => '',
+				'procure_first_bcr_date' => ''
 			);
 			$data[$participant_id]['EventDetail']['total_ngml'] = '';
 		}
@@ -228,7 +231,7 @@ class ReportsControllerCustom extends ReportsController {
 				'TreatmentMaster.participant_id' => $participant_ids,
 				'TreatmentMaster.treatment_control_id' => $followup_treatment_control_id,
 				'TreatmentMaster.start_date IS NOT NULL',
-				'OR' => array("TreatmentDetail.treatment_type LIKE '%radiotherapy%'", "TreatmentDetail.treatment_type LIKE '%hormonotherapy%'", "TreatmentDetail.treatment_type LIKE '%chemotherapy%'"));
+				'OR' => array("TreatmentDetail.treatment_type LIKE '%radiotherapy%'", "TreatmentDetail.treatment_type LIKE '%hormonotherapy%'", "TreatmentDetail.treatment_type LIKE '%chemotherapy%'", "TreatmentDetail.treatment_type LIKE '%brachytherapy%'"));
 		$all_participants_treatment = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
 		foreach($all_participants_treatment as $new_treatment) {
 			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
@@ -239,6 +242,7 @@ class ReportsControllerCustom extends ReportsController {
 				if(preg_match('/chemotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'chemo';
 				if(preg_match('/hormonotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'hormono';
 				if(preg_match('/radiotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'radio';
+				if(preg_match('/brachytherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'brachy';
 				if($administrated_treatment_types) {
 					if($prostatectomy_date_accuracy != 'c' || $new_treatment['TreatmentMaster']['start_date_accuracy'] != 'c') {
 						$inaccurate_date = true;
@@ -256,7 +260,7 @@ class ReportsControllerCustom extends ReportsController {
 		//Analyze participants psa
 		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
 		$event_control_id = $event_controls['procure follow-up worksheet - aps']['id'];
-		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL')));
+		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL'), 'order' => array('EventMaster.event_date ASC')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
 			//Use pathology report date to set pre op psa list
@@ -267,7 +271,8 @@ class ReportsControllerCustom extends ReportsController {
 					$inaccurate_date = true;
 					$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
 				}
-				if($new_psa['EventMaster']['event_date'] < $prostatectomy_date) {
+				if($new_psa['EventMaster']['event_date'] <= $prostatectomy_date) {
+					//PSA pre-surgery
 					$lengh = strlen($new_psa['EventMaster']['event_date']);
 					switch($new_psa['EventMaster']['event_date_accuracy']) {
 						case 'c':
@@ -283,6 +288,22 @@ class ReportsControllerCustom extends ReportsController {
 					$new_psa['EventMaster']['event_date'] = substr($new_psa['EventMaster']['event_date'], 0, $lengh);
 					$data[$participant_id]['0']['procure_pre_op_psa_date'] = $new_psa['EventMaster']['event_date'];
 					$data[$participant_id]['EventDetail']['total_ngml'] = $new_psa['EventDetail']['total_ngml'];
+				}
+				if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && empty($data[$participant_id]['0']['procure_first_bcr_date'])) {
+					//1st BCR
+					$lengh = strlen($new_psa['EventMaster']['event_date']);
+					switch($new_psa['EventMaster']['event_date_accuracy']) {
+						case 'c':
+							break;
+						case 'd':
+							$lengh = strrpos($new_psa['EventMaster']['event_date'], '-');
+							break;
+						case 'm':
+						case 'y':
+							$lengh = strpos($new_psa['EventMaster']['event_date'], '-');
+							break;
+					}
+					$data[$participant_id]['0']['procure_first_bcr_date'] =  substr($new_psa['EventMaster']['event_date'], 0, $lengh);
 				}
 			}
 		}
