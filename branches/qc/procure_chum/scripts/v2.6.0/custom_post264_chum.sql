@@ -748,9 +748,9 @@ DELETE FROM structure_permissible_values WHERE value="other imaging" AND languag
 -- revs table
 
 INSERT INTO event_masters_revs (id, event_control_id, event_summary, version_created,modified_by) (SELECT id, event_control_id, event_summary, modified,modified_by FROM event_masters WHERE event_control_id = @clinical_ev_control_id AND  modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_ed_clinical_followup_worksheet_clinical_events_revs (type,event_master_id,version_created,results,sites ) (SELECT type,id, modified,results,sites FROM event_masters INNER JOIN procure_ed_clinical_followup_worksheet_clinical_events ON id = event_master_id WHERE event_control_id = @clinical_ev_control_id AND  modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_ed_clinical_followup_worksheet_clinical_events_revs (type,event_master_id,version_created,results) (SELECT type,id, modified,results FROM event_masters INNER JOIN procure_ed_clinical_followup_worksheet_clinical_events ON id = event_master_id WHERE event_control_id = @clinical_ev_control_id AND  modified = @modified AND modified_by = @modified_by);
 
- -- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 -- SET Followup - Missing Date  & Fiche des médicaments - missing date
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -790,6 +790,30 @@ INSERT INTO procure_txd_medications_revs (patient_identity_verified,medication_f
 (SELECT patient_identity_verified,medication_for_prostate_cancer,medication_for_benign_prostatic_hyperplasia,medication_for_prostatitis,benign_hyperplasia,benign_hyperplasia_place_and_date,benign_hyperplasia_notes,prescribed_drugs_for_other_diseases,list_of_drugs_for_other_diseases,photocopy_of_drugs_for_other_diseases,dosages_of_drugs_for_other_diseases,open_sale_drugs,treatment_master_id, modified
 FROM treatment_masters INNER JOIN procure_txd_medications ON id = treatment_master_id WHERE treatment_control_id = @tx_control_id AND modified = @modified AND modified_by = @modified_by);
 
+UPDATE event_masters, procure_ed_clinical_followup_worksheets
+SET event_summary = '***TO DELETE***'
+WHERE id = event_master_id
+AND event_control_id = @ev_control_id
+AND (patient_identity_verified IS NULL OR patient_identity_verified LIKE '0')
+AND (event_date IS NULL OR event_date LIKE '')
+AND (method IS NULL OR method LIKE '')
+AND (biochemical_recurrence IS NULL OR biochemical_recurrence LIKE '')
+AND (clinical_recurrence IS NULL OR clinical_recurrence LIKE '')
+AND (clinical_recurrence_type IS NULL OR clinical_recurrence_type LIKE '')
+AND (clinical_recurrence_site_bones IS NULL OR clinical_recurrence_site_bones LIKE '0')
+AND (clinical_recurrence_site_liver IS NULL OR clinical_recurrence_site_liver LIKE '0')
+AND (clinical_recurrence_site_lungs IS NULL OR clinical_recurrence_site_lungs LIKE '0')
+AND (clinical_recurrence_site_others IS NULL OR clinical_recurrence_site_others LIKE '0')
+AND (surgery_for_metastases IS NULL OR surgery_for_metastases LIKE '')
+AND (surgery_site IS NULL OR surgery_site LIKE '')
+AND (surgery_date IS NULL OR surgery_date LIKE '')
+AND (refusing_treatments IS NULL OR refusing_treatments LIKE '')
+AND (event_summary IS NULL OR event_summary LIKE '');
+DELETE FROM procure_ed_clinical_followup_worksheets WHERE event_master_id IN (SELECT id FROM event_masters WHERE event_summary = '***TO DELETE***' AND event_control_id = @ev_control_id);
+DELETE FROM procure_ed_clinical_followup_worksheets_revs WHERE event_master_id IN (SELECT id FROM event_masters WHERE event_summary = '***TO DELETE***' AND event_control_id = @ev_control_id);
+DELETE FROM event_masters_revs WHERE id IN (SELECT id FROM event_masters WHERE event_summary = '***TO DELETE***' AND event_control_id = @ev_control_id);
+DELETE FROM event_masters WHERE event_summary = '***TO DELETE***' AND event_control_id = @ev_control_id;
+
 SELECT procure_form_identification AS '### MESSAGE ### Follow-up Worksheet with no date (after clean up) to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet') AND (EventMaster.event_date IS NULL OR EventMaster.event_date LIKE '')
@@ -800,29 +824,90 @@ FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentCo
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet' AND (TreatmentMaster.start_date IS NULL OR TreatmentMaster.start_date LIKE '')
 ORDER BY procure_form_identification;
 
+-- Clean diagnosis and treatment report
 
-
-
-
-
-
-
-
-
-
-
-
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_aborted_prostatectomy' AND `language_label`='aborted prostatectomy' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_curietherapy' AND `language_label`='curietherapy' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_aborted_prostatectomy' AND `language_label`='aborted prostatectomy' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_curietherapy' AND `language_label`='curietherapy' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_aborted_prostatectomy' AND `language_label`='aborted prostatectomy' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_curietherapy' AND `language_label`='curietherapy' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
--- Report
+-- Blood tube storage data clean up
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 
-//TODO: Revoir le rapport Dx & tx en incluant curithérapie dans PROCURE trunk
-Supprimer formilaire suivi et mdt vide
-Sand ETA... pas de storage pas dein stocjk
+SET @modified_by = (SELECT id FROM users WHERE username = 'Migration');
+SET @modified = (SELECT NOW() FROM users WHERE username = 'Migration');
 
+SET @blood_tube_control_id = (SELECT AliquotControl.id FROM aliquot_controls AliquotControl, sample_controls SampleControl WHERE AliquotControl.aliquot_type = 'tube' AND AliquotControl.sample_control_id = SampleControl.id AND SampleControl.sample_type = 'blood');
 
+-- Record box and position
 
+UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail, sd_spe_bloods SampleDetail, storage_masters StorageMaster
+SET AliquotMaster.notes = CONCAT(AliquotMaster.notes, ' Storage was defined as [box: ', StorageMaster.selection_label,' - position: ', AliquotMaster.storage_coord_x,']')
+WHERE AliquotMaster.aliquot_control_id = @blood_tube_control_id
+AND AliquotMaster.deleted <> 1
+AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+AND SampleDetail.sample_master_id = AliquotMaster.sample_master_id
+AND SampleDetail.blood_type != 'paxgene'
+AND AliquotMaster.in_stock != 'no'
+AND AliquotMaster.storage_master_id = StorageMaster.id
+AND AliquotMaster.storage_coord_x IS NOT NULL AND AliquotMaster.storage_coord_x NOT LIKE ''
+AND AliquotMaster.notes NOT LIKE '' AND AliquotMaster.notes IS NOT NULL;
 
+UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail, sd_spe_bloods SampleDetail, storage_masters StorageMaster
+SET AliquotMaster.notes = CONCAT('Storage was defined as [box: ', StorageMaster.selection_label,' - position: ', AliquotMaster.storage_coord_x,']')
+WHERE AliquotMaster.aliquot_control_id = @blood_tube_control_id
+AND AliquotMaster.deleted <> 1
+AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+AND SampleDetail.sample_master_id = AliquotMaster.sample_master_id
+AND SampleDetail.blood_type != 'paxgene'
+AND AliquotMaster.in_stock != 'no'
+AND AliquotMaster.storage_master_id = StorageMaster.id
+AND AliquotMaster.storage_coord_x IS NOT NULL AND AliquotMaster.storage_coord_x NOT LIKE ''
+AND (AliquotMaster.notes LIKE '' OR AliquotMaster.notes IS NULL);
 
+-- Record box and position
 
+UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail, sd_spe_bloods SampleDetail, storage_masters StorageMaster
+SET AliquotMaster.notes = CONCAT(AliquotMaster.notes, ' Storage was defined as [box: ', StorageMaster.selection_label,']')
+WHERE AliquotMaster.aliquot_control_id = @blood_tube_control_id
+AND AliquotMaster.deleted <> 1
+AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+AND SampleDetail.sample_master_id = AliquotMaster.sample_master_id
+AND SampleDetail.blood_type != 'paxgene'
+AND AliquotMaster.in_stock != 'no'
+AND AliquotMaster.storage_master_id = StorageMaster.id
+AND (AliquotMaster.storage_coord_x IS NULL OR AliquotMaster.storage_coord_x LIKE '')
+AND AliquotMaster.notes NOT LIKE '' AND AliquotMaster.notes IS NOT NULL;
+
+UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail, sd_spe_bloods SampleDetail, storage_masters StorageMaster
+SET AliquotMaster.notes = CONCAT('Storage was defined as [box: ', StorageMaster.selection_label,']')
+WHERE AliquotMaster.aliquot_control_id = @blood_tube_control_id
+AND AliquotMaster.deleted <> 1
+AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+AND SampleDetail.sample_master_id = AliquotMaster.sample_master_id
+AND SampleDetail.blood_type != 'paxgene'
+AND AliquotMaster.in_stock != 'no'
+AND AliquotMaster.storage_master_id = StorageMaster.id
+AND (AliquotMaster.storage_coord_x IS NULL OR AliquotMaster.storage_coord_x LIKE '')
+AND (AliquotMaster.notes LIKE '' OR AliquotMaster.notes IS NULL);
+
+-- Remove storage data
+
+UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail, sd_spe_bloods SampleDetail
+SET AliquotMaster.in_stock = 'no', AliquotMaster.storage_master_id = null, AliquotMaster.storage_coord_x = null, AliquotMaster.storage_coord_y = null, modified = @modified, modified_by = @modified_by
+WHERE AliquotMaster.aliquot_control_id = @blood_tube_control_id
+AND AliquotMaster.deleted <> 1
+AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+AND SampleDetail.sample_master_id = AliquotMaster.sample_master_id
+AND SampleDetail.blood_type != 'paxgene'
+AND AliquotMaster.in_stock != 'no';
+INSERT INTO aliquot_masters_revs( id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id, initial_volume,current_volume,in_stock,in_stock_detail,use_counter,study_summary_id,storage_datetime,
+storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,qc_nd_stored_by,version_created,modified_by)
+(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id, initial_volume,current_volume,in_stock,in_stock_detail,use_counter,study_summary_id,storage_datetime,
+storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,qc_nd_stored_by,modified,modified_by FROM aliquot_masters WHERE aliquot_control_id = @blood_tube_control_id AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO ad_tubes_revs (aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,procure_concentration_nanodrop,procure_concentration_unit_nanodrop,procure_total_quantity_ug_nanodrop,version_created)
+(SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,procure_concentration_nanodrop,procure_concentration_unit_nanodrop,procure_total_quantity_ug_nanodrop,modified
+FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE aliquot_control_id = @blood_tube_control_id AND modified = @modified AND modified_by = @modified_by);

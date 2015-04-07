@@ -153,17 +153,17 @@ class ReportsControllerCustom extends ReportsController {
 			EventDetail.aps_pre_surgery_free_ng_ml,
 			EventDetail.aps_pre_surgery_date,
 			EventDetail.aps_pre_surgery_date_accuracy,
-//*** PROCURE CHUM *****************************************************
+-- *** PROCURE CHUM *****************************************************
 			MiscIdentifier.identifier_value
-//*** END PROCURE CHUM *****************************************************
+-- *** END PROCURE CHUM *****************************************************
 			FROM participants Participant
 			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $diagnosis_event_control_id AND EventMaster.deleted <> 1
 			LEFT JOIN $diagnosis_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
 			LEFT JOIN event_masters PathologyEventMaster ON PathologyEventMaster.participant_id = Participant.id AND PathologyEventMaster.event_control_id = $pathology_event_control_id AND PathologyEventMaster.deleted <> 1
 			LEFT JOIN $pathology_event_detail_tablename PathologyEventDetail ON PathologyEventDetail.event_master_id = PathologyEventMaster.id
-//*** PROCURE CHUM *****************************************************
+-- *** PROCURE CHUM *****************************************************
 			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
-//*** END PROCURE CHUM *****************************************************
+-- *** END PROCURE CHUM *****************************************************
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
 		$display_warning = false;
