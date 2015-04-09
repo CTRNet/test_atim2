@@ -156,7 +156,12 @@ class ReportsControllerCustom extends ReportsController {
 				'procure_pre_op_brachy' => '',
 				'procure_inaccurate_date_use' => '',
 				'procure_pre_op_psa_date' => '',
-				'procure_first_bcr_date' => ''
+				'procure_pre_op_psa_date_accuracy' => '',
+				'procure_first_bcr_date' => '',
+				'procure_first_bcr_date_accuracy' => '',
+				'procure_first_clinical_recurrence_date' => '',
+				'procure_first_clinical_recurrence_date_accuracy' => '',
+				'procure_first_clinical_recurrence_test' => ''
 			);
 			$data[$participant_id]['EventDetail']['total_ngml'] = '';
 		}
@@ -230,7 +235,6 @@ class ReportsControllerCustom extends ReportsController {
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL'), 'order' => array('EventMaster.event_date ASC')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
-			//Use pathology report date to set pre op psa list
 			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
 			$prostatectomy_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
 			if($prostatectomy_date) {
@@ -240,37 +244,34 @@ class ReportsControllerCustom extends ReportsController {
 				}
 				if($new_psa['EventMaster']['event_date'] <= $prostatectomy_date) {
 					//PSA pre-surgery
-					$lengh = strlen($new_psa['EventMaster']['event_date']);
-					switch($new_psa['EventMaster']['event_date_accuracy']) {
-						case 'c':
-							break;
-						case 'd':
-							$lengh = strrpos($new_psa['EventMaster']['event_date'], '-');
-							break;
-						case 'm':
-						case 'y':
-							$lengh = strpos($new_psa['EventMaster']['event_date'], '-');
-							break;
-					}
-					$new_psa['EventMaster']['event_date'] = substr($new_psa['EventMaster']['event_date'], 0, $lengh);
-					$data[$participant_id]['0']['procure_pre_op_psa_date'] = $new_psa['EventMaster']['event_date'];
+					$data[$participant_id]['0']['procure_pre_op_psa_date'] = $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
+					$data[$participant_id]['0']['procure_pre_op_psa_date_accuracy'] = $new_psa['EventMaster']['event_date_accuracy'];
 					$data[$participant_id]['EventDetail']['total_ngml'] = $new_psa['EventDetail']['total_ngml'];
 				}
 				if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && empty($data[$participant_id]['0']['procure_first_bcr_date'])) {
 					//1st BCR
-					$lengh = strlen($new_psa['EventMaster']['event_date']);
-					switch($new_psa['EventMaster']['event_date_accuracy']) {
-						case 'c':
-							break;
-						case 'd':
-							$lengh = strrpos($new_psa['EventMaster']['event_date'], '-');
-							break;
-						case 'm':
-						case 'y':
-							$lengh = strpos($new_psa['EventMaster']['event_date'], '-');
-							break;
-					}
-					$data[$participant_id]['0']['procure_first_bcr_date'] =  substr($new_psa['EventMaster']['event_date'], 0, $lengh);
+					$data[$participant_id]['0']['procure_first_bcr_date'] =  $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
+					$data[$participant_id]['0']['procure_first_bcr_date_accuracy'] =  $new_psa['EventMaster']['event_date_accuracy'];
+				}
+			}
+		}
+		
+		//Analyze participants 1st clinical recurrence
+		$event_control_id = $event_controls['procure follow-up worksheet - clinical event']['id'];
+		$all_participants_test = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL', 'EventDetail.results' => 'positive'), 'order' => array('EventMaster.event_date ASC')));	
+		foreach($all_participants_test as $new_test) {
+			$participant_id = $new_test['EventMaster']['participant_id'];
+			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
+			$prostatectomy_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
+			if($prostatectomy_date) {
+				if($prostatectomy_date_accuracy != 'c' || $new_test['EventMaster']['event_date_accuracy'] != 'c') {
+					$inaccurate_date = true;
+					$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
+				}
+				if($new_test['EventMaster']['event_date'] > $prostatectomy_date && empty($data[$participant_id]['0']['procure_first_clinical_recurrence_test'])) {
+					$data[$participant_id]['0']['procure_first_clinical_recurrence_date'] = $this->procureFormatDate($new_test['EventMaster']['event_date'], $new_test['EventMaster']['event_date_accuracy']);
+					$data[$participant_id]['0']['procure_first_clinical_recurrence_date_accuracy'] = $new_test['EventMaster']['event_date_accuracy'];
+					$data[$participant_id]['0']['procure_first_clinical_recurrence_test'] = $new_test['EventDetail']['type'];
 				}
 			}
 		}
@@ -329,12 +330,38 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($participant_model->query($query) as $res) $tx_controls[$res['treatment_controls']['tx_method']] = array('id' => $res['treatment_controls']['id'], 'detail_tablename' => $res['treatment_controls']['detail_tablename']);
 		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
 		$treatment_control_detail_tablename = $tx_controls['procure follow-up worksheet - treatment']['detail_tablename'];
+		$medication_treatment_control_id = $tx_controls['procure medication worksheet']['id'];
+		$medication_treatment_control_detail_tablename = $tx_controls['procure medication worksheet']['detail_tablename'];
 		$query = "SELECT id, detail_tablename, sample_type FROM sample_controls WHERE sample_type IN ('blood','urine', 'tissue');";
 		$sample_controls = array();
 		$blood_detail_tablename = '';
 		foreach($participant_model->query($query) as $res) {
 			$sample_controls[$res['sample_controls']['id']] = $res['sample_controls']['sample_type'];
 			if($res['sample_controls']['sample_type'] == 'blood') $blood_detail_tablename = $res['sample_controls']['detail_tablename'];
+		}
+		
+		$empty_form_array = array(
+			'procure_prostatectomy_date' => '',
+			'procure_prostatectomy_date_accuracy' => '',
+			'procure_last_collection_date' => '',
+			'procure_last_collection_date_accuracy' => '',
+			'procure_time_from_last_collection_months' => '',
+			'procure_followup_worksheets_nbr' => array(),
+			'procure_medication_worksheets_nbr' => array(),
+			'procure_number_of_visit_with_collection' => array());
+		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
+			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
+			$empty_form_array["procure_".$visit_id."_followup_worksheet_date"]= null;
+			$empty_form_array["procure_".$visit_id."_followup_worksheet_date_accuracy"]= null;
+			$empty_form_array["procure_".$visit_id."_medication_worksheet_date"]= null;
+			$empty_form_array["procure_".$visit_id."_medication_worksheet_date_accuracy"]= null;
+			$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
+			$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= null;
+			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_k2_EDTA_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_tissue_collected"]= '';
 		}
 		
 		//Get participants data + followup
@@ -349,27 +376,6 @@ class ReportsControllerCustom extends ReportsController {
 			LEFT JOIN $followup_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
-		$empty_form_array = array(
-			'procure_prostatectomy_date' => '',
-			'procure_prostatectomy_date_accuracy' => '',
-			'procure_last_collection_date' => '',
-			'procure_last_collection_date_accuracy' => '',
-			'procure_time_from_last_collection_months' => '',
-			'procure_followup_worksheets_nbr' => array(), 
-			'procure_number_of_visit_with_collection' => array());
-		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
-			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
-			$empty_form_array["procure_".$visit_id."_procure_form_identification"]= '';
-			$empty_form_array["procure_".$visit_id."_event_date"]= null;
-			$empty_form_array["procure_".$visit_id."_event_date_accuracy"]= '';
-			$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
-			$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= '';
-			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
-			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
-			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
-			$empty_form_array["procure_".$visit_id."_k2_EDTA_collected"]= '';
-			$empty_form_array["procure_".$visit_id."_tissue_collected"]= '';
-		}
 		$display_warning_1 = false;
 		$display_warning_2 = false;
 		foreach($participant_model->query($query) as $res) {
@@ -379,13 +385,12 @@ class ReportsControllerCustom extends ReportsController {
 				'0' => $empty_form_array);
 			$procure_form_identification = $res['EventMaster']['procure_form_identification'];
 			if($procure_form_identification) {
-				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+$/", $procure_form_identification, $matches)) {
+				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(FSP)[0-9]+$/", $procure_form_identification, $matches)) {
 					$visit_id = $matches[1];
 					if($visit_id != '0') {
-						if(empty($data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"])) {
-							$data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"] = $res['EventMaster']['procure_form_identification'];
-							$data[$participant_id][0]["procure_".$visit_id."_event_date"]= $res['EventMaster']['event_date'];
-							$data[$participant_id][0]["procure_".$visit_id."_event_date_accuracy"]= $res['EventMaster']['event_date_accuracy'];
+						if(empty($data[$participant_id][0]["procure_".$visit_id."_followup_worksheet_date"])) {
+							$data[$participant_id][0]["procure_".$visit_id."_followup_worksheet_date"] = $this->procureFormatDate($res['EventMaster']['event_date'], $res['EventMaster']['event_date_accuracy']);
+							$data[$participant_id][0]["procure_".$visit_id."_followup_worksheet_date_accuracy"]= $res['EventMaster']['event_date_accuracy'];
 							$data[$participant_id][0]['procure_followup_worksheets_nbr'][$visit_id] = '-';
 						} else {
 							$display_warning_1 = true;
@@ -406,6 +411,33 @@ class ReportsControllerCustom extends ReportsController {
 		if($display_warning_1) AppController::addWarningMsg(__('at least one patient is linked to more than one followup worksheet for the same visit'));
 		if($display_warning_2) AppController::addWarningMsg(__('at least one procure form identification format is not supported'));
 		
+		//Get medication
+		$query = "SELECT
+			TreatmentMaster.participant_id,
+			TreatmentMaster.procure_form_identification,
+			TreatmentMaster.start_date,
+			TreatmentMaster.start_date_accuracy
+			FROM treatment_masters TreatmentMaster 
+			WHERE TreatmentMaster.deleted <> 1 AND TreatmentMaster.treatment_control_id = $medication_treatment_control_id AND TreatmentMaster.participant_id IN (".implode(',',array_keys($data)).")
+			AND TreatmentMaster.start_date IS NOT NULL AND TreatmentMaster.start_date NOT LIKE ''
+			ORDER BY TreatmentMaster.start_date ASC;";
+		foreach($participant_model->query($query) as $res) {
+			$participant_id = $res['TreatmentMaster']['participant_id'];
+			$procure_form_identification = $res['TreatmentMaster']['procure_form_identification'];
+			if($procure_form_identification) {
+				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(MED)[0-9]+$/", $procure_form_identification, $matches)) {
+					$visit_id = $matches[1];
+					if($visit_id != '0') {
+						if(empty($data[$participant_id][0]["procure_".$visit_id."_medication_worksheet_date"])) {
+								$data[$participant_id][0]["procure_".$visit_id."_medication_worksheet_date"] = $this->procureFormatDate($res['TreatmentMaster']['start_date'], $res['TreatmentMaster']['start_date_accuracy']);
+								$data[$participant_id][0]["procure_".$visit_id."_medication_worksheet_date_accuracy"]= $res['TreatmentMaster']['start_date_accuracy'];
+								$data[$participant_id][0]['procure_medication_worksheets_nbr'][$visit_id] = '-';
+						}
+					}
+				}
+			}
+		}
+		
 		//Get prostatectomy
 		if($data) {
 			$query = "SELECT
@@ -421,7 +453,7 @@ class ReportsControllerCustom extends ReportsController {
 			foreach($participant_model->query($query) as $res) {
 				$participant_id = $res['TreatmentMaster']['participant_id'];
 				if(!strlen($data[$participant_id][0]["procure_prostatectomy_date"])) {
-					$data[$participant_id][0]["procure_prostatectomy_date"] = $res['TreatmentMaster']['start_date'];
+					$data[$participant_id][0]["procure_prostatectomy_date"] = $this->procureFormatDate($res['TreatmentMaster']['start_date'], $res['TreatmentMaster']['start_date_accuracy']);
 					$data[$participant_id][0]["procure_prostatectomy_date_accuracy"] = $res['TreatmentMaster']['start_date_accuracy'];
 				}
 			}
@@ -454,12 +486,14 @@ class ReportsControllerCustom extends ReportsController {
 					if($record_collection_date) {
 						$first_collection_date_accuracy = $res['Collection']['collection_datetime_accuracy'];
 						if(!in_array($first_collection_date_accuracy, array('y', 'm', 'd'))) $first_collection_date_accuracy = 'c';
-						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date"] = $res['Collection']['collection_datetime'];
+						$res['Collection']['collection_datetime_accuracy'] = str_replace(array('h', 'i'), array('c','c'), $res['Collection']['collection_datetime_accuracy']);
+						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date"] = $this->procureFormatDate(substr($res['Collection']['collection_datetime'], 0, 10), $res['Collection']['collection_datetime_accuracy']);
 						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
 						$data[$participant_id][0]['procure_number_of_visit_with_collection'][$visit_id] = '-';
 					}
 					if(empty($data[$participant_id][0]["procure_last_collection_date"]) || $data[$participant_id][0]["procure_last_collection_date"] < $res['Collection']['collection_datetime']) {
-						$data[$participant_id][0]["procure_last_collection_date"] = $res['Collection']['collection_datetime'];
+						$res['Collection']['collection_datetime_accuracy'] = str_replace(array('h', 'i'), array('c','c'), $res['Collection']['collection_datetime_accuracy']);
+						$data[$participant_id][0]["procure_last_collection_date"] = $this->procureFormatDate(substr($res['Collection']['collection_datetime'], 0, 10), $res['Collection']['collection_datetime_accuracy']);
 						$data[$participant_id][0]["procure_last_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
 					}
 				}				
@@ -492,6 +526,7 @@ class ReportsControllerCustom extends ReportsController {
 				if(!$interval->invert) $data[$participant_id][0]["procure_time_from_last_collection_months"] = $progression_time_in_months;
 			}
 			$data[$participant_id][0]['procure_followup_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_followup_worksheets_nbr']);
+			$data[$participant_id][0]['procure_medication_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_medication_worksheets_nbr']);
 			$data[$participant_id][0]['procure_number_of_visit_with_collection'] = sizeof($data[$participant_id][0]['procure_number_of_visit_with_collection']);
 		}
 		
@@ -641,9 +676,489 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		return array(
-				'header' => $header,
-				'data' => $data,
+			'header' => $header,
+			'data' => $data,
+			'columns_names' => null,
+			'error_msg' => null);
+	}
+	
+	function procureBcrDetection($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+	
+		$header = null;
+		$conditions = array('TRUE');
+		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
+			//From databrowser
+			$participant_ids  = array_filter($parameters['Participant']['id']);
+			if($participant_ids) $conditions[] = "Participant.id IN ('".implode("','",$participant_ids)."')";
+		} else if(isset($parameters['Participant']['participant_identifier_start'])) {
+			$participant_identifier_start = (!empty($parameters['Participant']['participant_identifier_start']))? $parameters['Participant']['participant_identifier_start']: null;
+			$participant_identifier_end = (!empty($parameters['Participant']['participant_identifier_end']))? $parameters['Participant']['participant_identifier_end']: null;
+			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
+			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
+		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
+			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		$procure_psa_level = 0.2;
+		if(isset($parameters['0']['procure_psa_level']['0']) && $parameters['0']['procure_psa_level']['0']) {
+			$parameters['0']['procure_psa_level']['0'] = str_replace(',','.', $parameters['0']['procure_psa_level']['0']);
+			if(!preg_match('/^([0-9]+(\.[0-9]*){0,1}){0,1}$/', $parameters['0']['procure_psa_level']['0'])) {
+				return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'wrong procure_psa_level value');
+			}
+			$procure_psa_level = $parameters['0']['procure_psa_level']['0'];
+		}
+		$procure_nbr_of_succesive_psa = 2;
+		if(isset($parameters['0']['procure_nbr_of_succesive_psa']['0']) && $parameters['0']['procure_nbr_of_succesive_psa']['0']) {
+			$procure_nbr_of_succesive_psa = $parameters['0']['procure_nbr_of_succesive_psa']['0'];
+		}
+		
+		$header = array('title' => __('report parameters'),
+			'description' => __('psa level').' : '.$procure_psa_level.' ng/ml & '.__('number of successive PSA').' : '.$procure_nbr_of_succesive_psa);
+		
+		//Get Controls Data
+		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
+		$event_controls = array();
+		foreach($participant_model->query($query) as $res) $event_controls[$res['event_controls']['event_type']] = array('id' => $res['event_controls']['id'], 'detail_tablename' => $res['event_controls']['detail_tablename']);
+		$query = "SELECT id,tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
+		$tx_controls = array();
+		foreach($participant_model->query($query) as $res) {
+			$tx_controls[$res['treatment_controls']['tx_method']] = array('id' => $res['treatment_controls']['id'], 'detail_tablename' => $res['treatment_controls']['detail_tablename']);
+		}
+		$followup_treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
+		$followup_treatment_detail_tablename = $tx_controls['procure follow-up worksheet - treatment']['detail_tablename'];
+		
+		//Get participants data
+		$query = "SELECT
+			Participant.id,
+			Participant.participant_identifier
+			FROM participants Participant
+			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
+		$data = array();
+		foreach($participant_model->query($query) as $res) {
+			$participant_id = $res['Participant']['id'];
+			$data[$participant_id]['Participant'] = $res['Participant'];
+			$data[$participant_id]['TreatmentMaster']['start_date'] = null;
+			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = null;
+			$data[$participant_id]['0'] = array(
+				'procure_detected_pre_bcr_psa' => '',
+				'procure_detected_pre_bcr_psa_date' => '',
+				'procure_detected_pre_bcr_psa_date_accuracy' => '',
+				'procure_detected_bcr_psa' => '',
+				'procure_detected_bcr_psa_date' => '',
+				'procure_detected_bcr_psa_date_accuracy' => '',
+				'procure_detected_post_bcr_psa' => '',
+				'procure_detected_post_bcr_psa_date' => '',
+				'procure_detected_post_bcr_psa_date_accuracy' => '',
+				'procure_atim_bcr_psa' => '',
+				'procure_atim_bcr_psa_date' => '',
+				'procure_atim_bcr_psa_date_accuracy' => '',
+				'procure_detected_bcr_conclusion' => 'n/a'
+			);
+			$data[$participant_id]['tmp_all_psa'] = array();
+		}
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
+		return array(
+			'header' => null,
+			'data' => null,
 				'columns_names' => null,
-				'error_msg' => null);
+				'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		
+		$participant_ids = array_keys($data);
+		$inaccurate_date = false;
+		
+		//Analyze participants treatments
+		$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+		$tx_join = array(
+			'table' => $followup_treatment_detail_tablename,
+			'alias' => 'TreatmentDetail',
+			'type' => 'INNER',
+			'conditions' => array('TreatmentDetail.treatment_master_id = TreatmentMaster.id'));
+		//Get prostatectomy date
+		$conditions = array(
+			'TreatmentMaster.participant_id' => $participant_ids,
+			'TreatmentMaster.treatment_control_id' => $followup_treatment_control_id,
+			'TreatmentMaster.start_date IS NOT NULL',
+			"TreatmentDetail.treatment_type" => 'prostatectomy');
+		$all_participants_prostatectomy = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join), 'order' => array('TreatmentMaster.start_date ASC')));
+		foreach($all_participants_prostatectomy as $new_prostatectomy) {
+			$participant_id = $new_prostatectomy['TreatmentMaster']['participant_id'];
+			if(!$data[$participant_id]['TreatmentMaster']['start_date']) {
+				$data[$participant_id]['TreatmentMaster']['start_date'] = $new_prostatectomy['TreatmentMaster']['start_date'];
+				$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = $new_prostatectomy['TreatmentMaster']['start_date_accuracy'];
+			}
+		}
+		
+		//Analyze participants psa
+		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+		$event_control_id = $event_controls['procure follow-up worksheet - aps']['id'];
+		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL'), 'order' => array('EventMaster.event_date ASC')));
+		foreach($all_participants_psa as $new_psa) {
+			$participant_id = $new_psa['EventMaster']['participant_id'];
+			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
+			$prostatectomy_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
+			if($prostatectomy_date && $new_psa['EventMaster']['event_date'] >= $prostatectomy_date) {
+				//Check ATiM BCR
+				if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && !strlen($data[$participant_id]['0']['procure_atim_bcr_psa'])) {
+					$data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['total_ngml'];
+					$data[$participant_id]['0']['procure_atim_bcr_psa_date'] = $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
+					$data[$participant_id]['0']['procure_atim_bcr_psa_date_accuracy'] = $new_psa['EventMaster']['event_date_accuracy'];
+					$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
+				}
+				//Work on BCR detection
+				if($prostatectomy_date_accuracy != 'c' || $new_psa['EventMaster']['event_date_accuracy'] != 'c') {
+					$inaccurate_date = true;
+					$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
+				}
+				array_unshift($data[$participant_id]['tmp_all_psa'], array($new_psa['EventDetail']['total_ngml'], $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']), $new_psa['EventMaster']['event_date_accuracy']));
+				switch($procure_nbr_of_succesive_psa) {
+					case '1':
+						if(!strlen($data[$participant_id]['0']['procure_detected_bcr_psa'])) {
+							if($data[$participant_id]['tmp_all_psa']['0']['0'] >= $procure_psa_level) {
+								//BCR
+								list($data[$participant_id]['0']['procure_detected_bcr_psa'], $data[$participant_id]['0']['procure_detected_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['0'];
+								$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
+								//Pre BCR
+								if(isset($data[$participant_id]['tmp_all_psa']['1'])) list($data[$participant_id]['0']['procure_detected_pre_bcr_psa'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['1'];
+							}
+						} else {
+							if(!strlen($data[$participant_id]['0']['procure_detected_post_bcr_psa'])) {
+								//Post BCR
+								list($data[$participant_id]['0']['procure_detected_post_bcr_psa'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['0'];
+							}
+						}
+						break;
+					case '2':
+						if(sizeof($data[$participant_id]['tmp_all_psa']) > 1) {
+							if(!strlen($data[$participant_id]['0']['procure_detected_bcr_psa'])) {
+								if($data[$participant_id]['tmp_all_psa']['0']['0'] >= $procure_psa_level && $data[$participant_id]['tmp_all_psa']['1']['0'] >= $procure_psa_level) {
+									//Pre BCR
+									if(sizeof($data[$participant_id]['tmp_all_psa']) > 2) list($data[$participant_id]['0']['procure_detected_pre_bcr_psa'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_pre_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['2'];
+									//BCR
+									list($data[$participant_id]['0']['procure_detected_bcr_psa'], $data[$participant_id]['0']['procure_detected_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['1'];
+									$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
+									//Post BCR
+									list($data[$participant_id]['0']['procure_detected_post_bcr_psa'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date'], $data[$participant_id]['0']['procure_detected_post_bcr_psa_date_accuracy']) = $data[$participant_id]['tmp_all_psa']['0'];
+								}
+							}								
+						}
+						break;
+					default:
+						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+			}
+		}
+	
+		if($inaccurate_date) AppController::addWarningMsg(__('at least one participant summary is based on inaccurate date'));
+
+		return array(
+			'header' => $header,
+			'data' => $data,
+			'columns_names' => null,
+			'error_msg' => null);
+	}
+	
+	function procureSetBcrDetectionCcl(&$bcr_participant_data) {
+		if(!strlen($bcr_participant_data['procure_detected_bcr_psa'].$bcr_participant_data['procure_atim_bcr_psa'])) {
+			$bcr_participant_data['procure_detected_bcr_conclusion'] = 'n/a';
+		} else if($bcr_participant_data['procure_detected_bcr_psa'] == $bcr_participant_data['procure_atim_bcr_psa'] 
+		&& $bcr_participant_data['procure_detected_bcr_psa_date'] == $bcr_participant_data['procure_atim_bcr_psa_date']
+		&& $bcr_participant_data['procure_detected_bcr_psa_date_accuracy'] == $bcr_participant_data['procure_atim_bcr_psa_date_accuracy']) {
+			$bcr_participant_data['procure_detected_bcr_conclusion'] = 'identical';
+		} else {
+			$bcr_participant_data['procure_detected_bcr_conclusion'] = 'different';
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	function procureNextFollowupReport($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+	
+		$header = null;
+		$conditions = array('TRUE');
+		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
+			//From databrowser
+			$participant_ids  = array_filter($parameters['Participant']['id']);
+			if($participant_ids) $conditions[] = "Participant.id IN ('".implode("','",$participant_ids)."')";
+		} else if(isset($parameters['Participant']['participant_identifier_start'])) {
+			$participant_identifier_start = (!empty($parameters['Participant']['participant_identifier_start']))? $parameters['Participant']['participant_identifier_start']: null;
+			$participant_identifier_end = (!empty($parameters['Participant']['participant_identifier_end']))? $parameters['Participant']['participant_identifier_end']: null;
+			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
+			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
+		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
+			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		$last_record_nbr = 3;
+		
+		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+		$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+		$drug_model = AppModel::getInstance("Drug", "Drug", true);
+		$flag_show_confidential = $this->Session->read('flag_show_confidential');
+		
+		//Get list of all drug
+		$all_drugs = array();
+		foreach($drug_model->find('all') as $new_drug) $all_drugs[$new_drug['Drug']['id']] = $new_drug['Drug']['generic_name'];
+		
+		//Get participants data
+		$query = "SELECT
+			Participant.id,
+			Participant.participant_identifier,
+			Participant.first_name,
+			Participant.last_name,
+			Participant.date_of_birth,
+			Participant.date_of_birth_accuracy
+			FROM participants Participant
+			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
+		$participant_data = $participant_model->query($query);
+		if(sizeof($participant_data) > 4) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		$data = array();
+		//array('' => , 
+		foreach($participant_data as $new_participant) {
+			$new_participant_id = $new_participant['Participant']['id'];
+			$record_template = array(
+				'Participant' => array('participant_identifier' => $new_participant['Participant']['participant_identifier']),
+				'0' => array('procure_next_followup_data' => '', 'procure_next_followup_value' => '', 'procure_next_followup_date' => '', 'procure_next_followup_date_accuracy' => ''));
+			
+			//*** Patient Profile ***
+			
+			$new_data = $record_template;
+			$new_data['0']['procure_next_followup_data'] = __('first name');
+			$new_data['0']['procure_next_followup_value'] = $flag_show_confidential? $new_participant['Participant']['first_name'] : CONFIDENTIAL_MARKER;
+			$data[] = $new_data;
+			$new_data = $record_template;
+			$new_data['0']['procure_next_followup_data'] = __('last name');
+			$new_data['0']['procure_next_followup_value'] = $flag_show_confidential? $new_participant['Participant']['last_name'] : CONFIDENTIAL_MARKER;
+			$data[] = $new_data;
+			$new_data = $record_template;
+			$new_data['0']['procure_next_followup_data'] = __('date of birth');
+			if(!$flag_show_confidential) {
+				$new_data['0']['procure_next_followup_date'] = CONFIDENTIAL_MARKER;
+			} else {
+				$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($new_participant['Participant']['date_of_birth'], $new_participant['Participant']['date_of_birth_accuracy']);
+				$new_data['0']['procure_next_followup_date_accuracy'] = $new_participant['Participant']['date_of_birth_accuracy'];
+			}
+			$data[] = $new_data;
+			
+			//*** Patient Identifiers ***
+			
+			foreach($misc_identifier_model->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $new_participant_id, 'MiscIdentifierControl.misc_identifier_name' => array('hospital number', 'ramq')))) as $new_identifier) {
+				$new_data = $record_template;
+				$new_data['0']['procure_next_followup_data'] = __($new_identifier['MiscIdentifierControl']['misc_identifier_name']);
+				$new_data['0']['procure_next_followup_value'] = (!$flag_show_confidential && $new_identifier['MiscIdentifierControl']['flag_confidential'])? CONFIDENTIAL_MARKER  : $new_identifier['MiscIdentifier']['identifier_value'];
+				$data[] = $new_data;
+			}
+			
+			//*** Last visit ***
+			
+			$new_data = $record_template;
+			$new_data['0']['procure_next_followup_data'] = __('last visit');
+			$last_data = $event_model->find('first', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'procure follow-up worksheet'), 'order' => 'EventMaster.event_date DESC'));
+			if(!$last_data) {
+				$new_data['0']['procure_next_followup_value'] = __('n/a');
+			} else {
+				$new_data['0']['procure_next_followup_value'] = $last_data['EventMaster']['procure_form_identification'];
+				$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($last_data['EventMaster']['event_date'], $last_data['EventMaster']['event_date_accuracy']);
+				$new_data['0']['procure_next_followup_date_accuracy'] = $last_data['EventMaster']['event_date_accuracy'];
+			}
+			$data[] = $new_data;
+			
+			//*** Last PSA ***
+			
+			$all_atim_data = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'procure follow-up worksheet - aps'), 'order' => 'EventMaster.event_date DESC', 'limit' => $last_record_nbr));
+			if(!$all_atim_data) {
+				$new_data = $record_template;
+				$new_data['0']['procure_next_followup_data'] = __('last psa').' - '.__('total ng/ml');
+				$new_data['0']['procure_next_followup_value'] = __('n/a');
+				$data[] = $new_data;
+			} else {
+				foreach($all_atim_data as $atim_data) {
+					$new_data = $record_template;
+					$new_data['0']['procure_next_followup_data'] = __('last psa').' - '.__('total ng/ml');
+					$new_data['0']['procure_next_followup_value'] = $atim_data['EventDetail']['total_ngml'].(($atim_data['EventDetail']['biochemical_relapse'] == 'y')? ' (BCR)': '');
+					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['EventMaster']['event_date'], $atim_data['EventMaster']['event_date_accuracy']);
+					$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['EventMaster']['event_date_accuracy'];
+					$data[] = $new_data;
+				}
+			}			
+			
+			//*** Last clinical event ***
+				
+			$all_atim_data = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'procure follow-up worksheet - clinical event'), 'order' => 'EventMaster.event_date DESC', 'limit' => $last_record_nbr));
+			if(!$all_atim_data) {
+				$new_data = $record_template;
+				$new_data['0']['procure_next_followup_data'] = __('last clinical event');
+				$new_data['0']['procure_next_followup_value'] = __('n/a');
+				$data[] = $new_data;
+			} else {
+				foreach($all_atim_data as $atim_data) {
+					$new_data = $record_template;
+					$new_data['0']['procure_next_followup_data'] = __('last clinical event');
+					$new_data['0']['procure_next_followup_value'] = __($atim_data['EventDetail']['type']);
+					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['EventMaster']['event_date'], $atim_data['EventMaster']['event_date_accuracy']);
+					$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['EventMaster']['event_date_accuracy'];
+					$data[] = $new_data;
+				}
+			}			
+			
+			//*** Last completed treatment ***
+			
+			$all_atim_data = $treatment_model->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $new_participant_id, 'TreatmentControl.tx_method' => 'procure follow-up worksheet - treatment', 'TreatmentMaster.finish_date IS NOT NULL'), 'order' => 'TreatmentMaster.finish_date DESC', 'limit' => $last_record_nbr));
+			if(!$all_atim_data) {
+				$new_data = $record_template;
+				$new_data['0']['procure_next_followup_data'] = __('last completed treatment');
+				$new_data['0']['procure_next_followup_value'] = __('n/a');
+				$data[] = $new_data;
+			} else {
+				foreach($all_atim_data as $atim_data) {
+					$new_data = $record_template;
+					$new_data['0']['procure_next_followup_data'] = __('last completed treatment');
+					$new_data['0']['procure_next_followup_value'] = __($atim_data['TreatmentDetail']['treatment_type']);
+					if($atim_data['TreatmentDetail']['drug_id']) $new_data['0']['procure_next_followup_value'] .= ' ('. $all_drugs[$atim_data['TreatmentDetail']['drug_id']].')';
+					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['finish_date_accuracy']);
+					$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['TreatmentMaster']['finish_date_accuracy'];
+					$data[] = $new_data;
+				}
+			}
+			
+			//*** Last drug ***
+			
+			$all_atim_data = $treatment_model->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $new_participant_id, 'TreatmentControl.tx_method' => 'procure medication worksheet - drug', 'TreatmentMaster.finish_date IS NOT NULL'), 'order' => 'TreatmentMaster.finish_date DESC', 'limit' => $last_record_nbr));
+			if(!$all_atim_data) {
+				$new_data = $record_template;
+				$new_data['0']['procure_next_followup_data'] = __('last recorded drug');
+				$new_data['0']['procure_next_followup_value'] = __('n/a');
+				$data[] = $new_data;
+			} else {
+				foreach($all_atim_data as $atim_data) {
+					if($atim_data['TreatmentDetail']['drug_id']) {
+						$new_data = $record_template;
+						$new_data['0']['procure_next_followup_data'] = __('last recorded drug');
+						$new_data['0']['procure_next_followup_value'] = $all_drugs[$atim_data['TreatmentDetail']['drug_id']];
+						$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['finish_date_accuracy']);
+						$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['TreatmentMaster']['finish_date_accuracy'];
+						$data[] = $new_data;
+					}
+				}
+			}
+			
+			//*** Ongoing treatment : tx ***
+			
+			$ongoing_tx_display = false;
+			$all_atim_data = $treatment_model->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $new_participant_id, 'TreatmentControl.tx_method' => 'procure follow-up worksheet - treatment', 'TreatmentMaster.finish_date IS NULL'), 'order' => 'TreatmentMaster.start_date DESC'));
+			if($all_atim_data) {
+				foreach($all_atim_data as $atim_data) {
+					$new_data = $record_template;
+					$new_data['0']['procure_next_followup_data'] = __('ongoing treatment');
+					$new_data['0']['procure_next_followup_value'] = __($atim_data['TreatmentDetail']['treatment_type']);
+					if($atim_data['TreatmentDetail']['drug_id']) $new_data['0']['procure_next_followup_value'] .= ' ('. $all_drugs[$atim_data['TreatmentDetail']['drug_id']].')';
+					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['start_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
+					$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['TreatmentMaster']['start_date_accuracy'];
+					$data[] = $new_data;
+					$ongoing_tx_display = true;
+				}
+			}
+				
+			//*** Ongoing treatment : drug ***
+				
+			$all_atim_data = $treatment_model->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $new_participant_id, 'TreatmentControl.tx_method' => 'procure medication worksheet - drug', 'TreatmentMaster.finish_date IS NULL'), 'order' => 'TreatmentMaster.start_date DESC'));
+			if($all_atim_data) {
+				foreach($all_atim_data as $atim_data) {
+					if($atim_data['TreatmentDetail']['drug_id']) {
+						$new_data = $record_template;
+						$new_data['0']['procure_next_followup_data'] = __('ongoing treatment');
+						$new_data['0']['procure_next_followup_value'] = $all_drugs[$atim_data['TreatmentDetail']['drug_id']];
+						$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['start_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
+						$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['TreatmentMaster']['start_date_accuracy'];
+						$data[] = $new_data;
+						$ongoing_tx_display = true;
+					}
+				}
+			}
+			
+			if(!$ongoing_tx_display) {
+				$new_data = $record_template;
+				$new_data['0']['procure_next_followup_data'] = __('ongoing treatment');
+				$new_data['0']['procure_next_followup_value'] = __('n/a');
+				$data[] = $new_data;				
+			}
+		}
+		
+		return array(
+			'header' => $header,
+			'data' => $data,
+			'columns_names' => null,
+			'error_msg' => null);
+	}
+	
+	function procureFormatDate($date, $accuracy) {
+		$lengh = strlen($date);
+		switch($accuracy) {
+			case 'd':
+				$lengh = strrpos($date, '-');
+				break;
+			case 'm':
+			case 'y':
+				$lengh = strpos($date, '-');
+				break;
+		}
+		return substr($date, 0, $lengh);
 	}
 }
