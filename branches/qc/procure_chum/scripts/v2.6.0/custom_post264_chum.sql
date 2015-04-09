@@ -797,14 +797,14 @@ AND event_control_id = @ev_control_id
 AND (patient_identity_verified IS NULL OR patient_identity_verified LIKE '0')
 AND (event_date IS NULL OR event_date LIKE '')
 AND (method IS NULL OR method LIKE '')
-AND (biochemical_recurrence IS NULL OR biochemical_recurrence LIKE '')
-AND (clinical_recurrence IS NULL OR clinical_recurrence LIKE '')
+AND (biochemical_recurrence IS NULL OR biochemical_recurrence IN ('','no'))
+AND (clinical_recurrence IS NULL OR clinical_recurrence IN ('','no'))
 AND (clinical_recurrence_type IS NULL OR clinical_recurrence_type LIKE '')
 AND (clinical_recurrence_site_bones IS NULL OR clinical_recurrence_site_bones LIKE '0')
 AND (clinical_recurrence_site_liver IS NULL OR clinical_recurrence_site_liver LIKE '0')
 AND (clinical_recurrence_site_lungs IS NULL OR clinical_recurrence_site_lungs LIKE '0')
 AND (clinical_recurrence_site_others IS NULL OR clinical_recurrence_site_others LIKE '0')
-AND (surgery_for_metastases IS NULL OR surgery_for_metastases LIKE '')
+AND (surgery_for_metastases IS NULL OR surgery_for_metastases IN ('','no'))
 AND (surgery_site IS NULL OR surgery_site LIKE '')
 AND (surgery_date IS NULL OR surgery_date LIKE '')
 AND (refusing_treatments IS NULL OR refusing_treatments LIKE '')
@@ -911,3 +911,16 @@ storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,prod
 INSERT INTO ad_tubes_revs (aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,procure_concentration_nanodrop,procure_concentration_unit_nanodrop,procure_total_quantity_ug_nanodrop,version_created)
 (SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,procure_concentration_nanodrop,procure_concentration_unit_nanodrop,procure_total_quantity_ug_nanodrop,modified
 FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE aliquot_control_id = @blood_tube_control_id AND modified = @modified AND modified_by = @modified_by);
+
+-- Report clean up
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND language_heading = 'prostatectomy in atim';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_bcr_detection_report_criteria'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '0', '1', 'prostate bank no lab', '0', '', '0', '', '0', '', '1', 'size=20,class=range file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_bcr_detection_report_criteria') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_bcr_detection_result'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '0', '1', 'prostate bank no lab', '0', '', '0', '', '0', '', '1', 'size=20,class=range file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+
+
+
