@@ -562,7 +562,7 @@ class ReportsControllerCustom extends ReportsController {
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-	
+		
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$query = "SELECT id, sample_type FROM sample_controls WHERE sample_type IN ('blood', 'serum', 'plasma', 'pbmc','centrifuged urine', 'tissue', 'rna', 'dna');";
@@ -757,6 +757,7 @@ class ReportsControllerCustom extends ReportsController {
 			$data[$participant_id]['TreatmentMaster']['start_date'] = null;
 			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = null;
 			$data[$participant_id]['0'] = array(
+				'procure_inaccurate_date_use' => '',
 				'procure_detected_pre_bcr_psa' => '',
 				'procure_detected_pre_bcr_psa_date' => '',
 				'procure_detected_pre_bcr_psa_date_accuracy' => '',
@@ -814,7 +815,7 @@ class ReportsControllerCustom extends ReportsController {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
 			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
 			$prostatectomy_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
-			if($prostatectomy_date && $new_psa['EventMaster']['event_date'] >= $prostatectomy_date) {
+			if($prostatectomy_date && $new_psa['EventMaster']['event_date'] > $prostatectomy_date) {
 				//Check ATiM BCR
 				if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && !strlen($data[$participant_id]['0']['procure_atim_bcr_psa'])) {
 					$data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['total_ngml'];
@@ -886,28 +887,6 @@ class ReportsControllerCustom extends ReportsController {
 			$bcr_participant_data['procure_detected_bcr_conclusion'] = 'different';
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	function procureNextFollowupReport($parameters) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
