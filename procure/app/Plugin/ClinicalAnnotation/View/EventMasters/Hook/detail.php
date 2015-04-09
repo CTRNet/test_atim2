@@ -45,6 +45,8 @@
 					'actions'	=> false),
 				'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/listallBasedOnControlId/'.$atim_menu_variables['Participant.id']."/$treatment_control_id/$interval_start_date/$interval_start_date_accuracy/$interval_finish_date/$interval_finish_date_accuracy")
 			);
+			$this->Structures->build( $final_atim_structure, $final_options );
+			$main_header = null;
 		}
 		//------------------------------------------------------------------------------
 		// Other Diagnosis - Clinical Data
