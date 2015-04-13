@@ -21,7 +21,6 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 			$drugs_list_conditions = array(
 				'TreatmentMaster.participant_id' => $participant_id, 
 				'TreatmentMaster.treatment_control_id' => $treatment_control_id);
-			$msg = '';
 			if($interval_start_date && $interval_finish_date) {
 				$drugs_list_conditions[]['OR'] = array(
 					"TreatmentMaster.start_date IS NULL AND TreatmentMaster.finish_date IS NULL",
@@ -30,21 +29,15 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 					"TreatmentMaster.start_date IS NULL AND TreatmentMaster.finish_date IS NOT NULL AND '$interval_finish_date' < TreatmentMaster.finish_date",
 					"TreatmentMaster.finish_date IS NULL AND TreatmentMaster.start_date IS NOT NULL AND TreatmentMaster.start_date < '$interval_start_date'",
 					"TreatmentMaster.start_date < $interval_start_date AND '$interval_finish_date' < TreatmentMaster.finish_date");
-				$msg = "treatments list from %start% to %end%";
 			} else if($interval_start_date){
 				$drugs_list_conditions[]['OR'] = array(
 					"TreatmentMaster.start_date IS NULL AND TreatmentMaster.finish_date IS NULL",
 					"TreatmentMaster.finish_date IS NOT NULL AND TreatmentMaster.finish_date >= '$interval_start_date'");
-				$msg = "treatments list after %start%";
 			} else if($interval_finish_date){
 				$drugs_list_conditions[]['OR'] = array(
 					"TreatmentMaster.start_date IS NULL AND TreatmentMaster.finish_date IS NULL",
 					"TreatmentMaster.start_date IS NOT NULL AND TreatmentMaster.start_date <= '$interval_finish_date'");
-				$msg = "treatments list before %end%";
-			} else {
-				$msg = "unable to limit treatments list to a dates interval";				
 			}
-			AppController::addWarningMsg(str_replace(array('%start%', '%end%'), array($interval_start_date,$interval_finish_date),__($msg)));
 			if(($interval_finish_date_accuracy.$interval_start_date_accuracy) != 'cc') AppController::addWarningMsg(__("at least one of the studied interval date is inaccurate"));				
 			$this->request->data = $this->paginate($this->TreatmentMaster, $drugs_list_conditions);
 		}
