@@ -24,9 +24,24 @@
 				$interval_start_date_accuracy = $previous_medication_woksheet_data['TreatmentMaster']['start_date_accuracy'];
 			}
 		}
+		$interval_finish_date = empty($treatment_master_data['TreatmentMaster']['start_date'])? '-1': $treatment_master_data['TreatmentMaster']['start_date'];
+		$interval_finish_date_accuracy = empty($treatment_master_data['TreatmentMaster']['start_date'])? 'c': $treatment_master_data['TreatmentMaster']['start_date_accuracy'];
 		$this->set('interval_start_date', $interval_start_date);
 		$this->set('interval_start_date_accuracy', $interval_start_date_accuracy);
-		$this->set('interval_finish_date', (empty($treatment_master_data['TreatmentMaster']['start_date'])? '-1': $treatment_master_data['TreatmentMaster']['start_date']));
-		$this->set('interval_finish_date_accuracy', (empty($treatment_master_data['TreatmentMaster']['start_date'])? 'c': $treatment_master_data['TreatmentMaster']['start_date_accuracy']));
+		$this->set('interval_finish_date', $interval_finish_date);
+		$this->set('interval_finish_date_accuracy', $interval_finish_date_accuracy);
+		$interval_start_date = preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $interval_start_date)? $interval_start_date : '';
+		$interval_finish_date = preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $interval_finish_date)? $interval_finish_date : '';
+		$msg = '';
+		if($interval_start_date && $interval_finish_date) {
+			$msg = "treatments list from %start% to %end%";
+		} else if($interval_start_date){
+			$msg = "treatments list after %start%";
+		} else if($interval_finish_date){
+			$msg = "treatments list before %end%";
+		} else {
+			$msg = "unable to limit treatments list to a dates interval";
+		}
+		AppController::addWarningMsg(str_replace(array('%start%', '%end%'), array($interval_start_date,$interval_finish_date),__($msg)));	
 	}
 	

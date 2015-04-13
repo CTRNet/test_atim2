@@ -5,9 +5,9 @@
 		//Re-order for display
 		$tm_controls_for_subform_display = array(
 			'procure follow-up worksheet - treatment' => array(),
+			'procure follow-up worksheet - other tumor tx' => array(),
 			'procure medication worksheet' => array(),
-			'procure medication worksheet - drug' => array(),
-			'other tumor treatment' => array(),
+			'procure medication worksheet - drug' => array()
 		);
 		foreach($controls_for_subform_display as $new_control_for_subform_display)  $tm_controls_for_subform_display[$new_control_for_subform_display['TreatmentControl']['tx_method']] = $new_control_for_subform_display; 
 		$this->set('controls_for_subform_display', $tm_controls_for_subform_display);
