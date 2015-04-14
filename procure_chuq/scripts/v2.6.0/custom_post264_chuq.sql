@@ -153,3 +153,30 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES ('visual quality', 'Visual quality', 'Qualité visuelle');
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='quality_control_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="spectrophotometer" AND language_alias="spectrophotometer");
 
+-- Cause of death detail
+
+UPDATE structure_fields SET  `type`='textarea',  `setting`='rows=3,cols=30',  `language_label`='cause of death (details)',  `language_tag`='' WHERE model='Participant' AND tablename='participants' AND field='procure_chuq_cause_of_death_details' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_chuq_cause_of_death_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('cause of death (details)', 'Details (Cause of Death)', 'Détails (Cause du décès)');
+
+-- Consent version
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Consent Form Versions');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('2006-02-20', '', '',  '1', @control_id, NOW(), NOW(), 1, 1),
+('2009-11-12', '', '',  '1', @control_id, NOW(), NOW(), 1, 1),
+('2011-03-14', '', '',  '1', @control_id, NOW(), NOW(), 1, 1);
+
+
+
+
+
+
+
+
+
+
+
+
+

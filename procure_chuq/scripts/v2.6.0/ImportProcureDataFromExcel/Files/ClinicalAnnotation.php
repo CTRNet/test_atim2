@@ -10,23 +10,26 @@ function loadVitalStatus(&$XlsReader, $files_path, $file_name) {
 	$line_counter = 0;
 	$headers = array();
 	$vital_status_data = array();
-	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('décès')]]['cells'] as $line => $new_line) {
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Feuil1')]]['cells'] as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
 			$headers = $new_line;
-		} else if($line_counter > 2) {
+		} else  {
 			$new_line_data = formatNewLineData($headers, $new_line);
 			if($new_line_data['DÉCÈS - Procure']) {
 				$participant_identifier = $new_line_data['DÉCÈS - Procure'];
 				if(array_key_exists($participant_identifier, $vital_status_data)) die('ERR3728726862');
-				$last_followup_date = getDateAndAccuracy($new_line_data, 'Date de la dernière visite HDQ venu  selon ADT', 'Profile', $file_name, $line_counter);
+//Not in excel anymore				$last_followup_date = getDateAndAccuracy($new_line_data, 'Date de la dernière visite HDQ venu  selon ADT', 'Profile', $file_name, $line_counter);
 				$date_of_death = getDateAndAccuracy($new_line_data, 'date décès', 'Profile', $file_name, $line_counter);
+				$details = array($new_line_data['cause'], $new_line_data['Formulaire SP-3'], $new_line_data['notes']);
+				$details = implode ('. ', array_filter($details));
+				$details = strlen($details)? $details.'.' : ''; 
 				$vital_status_data[$participant_identifier] = array(
-					'procure_chuq_last_contact_date' => $last_followup_date['date'],
-					'procure_chuq_last_contact_date_accuracy' => $last_followup_date['accuracy'],
+					'procure_chuq_last_contact_date' => '', 			//$last_followup_date['date'],
+					'procure_chuq_last_contact_date_accuracy' => '', 	//$last_followup_date['accuracy'],
 					'date_of_death' => $date_of_death['date'],
 					'date_of_death_accuracy' => $date_of_death['accuracy'],
-					'procure_chuq_cause_of_death_details' => $new_line_data['reason']);
+					'procure_chuq_cause_of_death_details' =>$details);
 				if($vital_status_data[$participant_identifier]['date_of_death']) {
 					$vital_status_data[$participant_identifier]['vital_status'] = 'deceased';
 				} else if(strlen($vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details'])) {
@@ -59,6 +62,14 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 		} else {
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$participant_identifier = $new_line_data['Patients'];
+//TODO Remove
+// if(!in_array($participant_identifier, array('PS2P0034', 'PS2P0001', 'PS2P0077', 'PS2P0017', 'PS2P0187', 'PS2P0203', 
+// 'PS2P0163', 'PS2P0287', 'PS2P0349', 'PS2P0145', 'PS2P0133', 'PS2P0145', 'PS2P0008', 'PS2P0233', 'PS2P0247'
+		
+// ))) {
+	unset($patients_status[$participant_identifier]);
+	continue;			
+}
 			if(preg_match('/^PS2P[0-9]{4}$/', $participant_identifier)) {
 				//Load profile
 				$date_of_birth_tmp = getDateAndAccuracy($new_line_data, 'Date de naissance', 'Profile', $file_name, $line_counter);
@@ -73,7 +84,7 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 				if(array_key_exists($participant_identifier, $patients_status)) {
 					$data = array_merge($data, $patients_status[$participant_identifier]);
 					unset($patients_status[$participant_identifier]);
-				}				
+				}
 				$atim_participant_id  = customInsert($data, 'participants', __FILE__, __LINE__);
 				//Load identifiers
 				if(strlen($new_line_data['RAMQ'])) {
@@ -103,7 +114,7 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 			}
 		}
 	}
-	if(!empty($patients_status)) die('ERR2372687326873268732');
+	if(!empty($patients_status)) die('ERR2372687326873268732 - All patient status not parsed....');
 	return $psp_nbr_to_participant_id_and_patho;
 }
 
@@ -131,7 +142,11 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 				$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
 				//Consent
 				$consent_signed_date = getDateAndAccuracy($new_line_data, 'Date de signature', 'Consent & Questionnaire', $file_name, $line_counter);
-				$revised_date = getDateAndAccuracy($new_line_data, 'Date de révision (version) du consentement', 'Consent & Questionnaire', $file_name, $line_counter);
+				$form_version = getDateAndAccuracy($new_line_data, 'Date de révision (version) du consentement', 'Consent & Questionnaire', $file_name, $line_counter);
+				if($form_version['date'] && !in_array($form_version['date'], array('2006-02-20','2009-11-12','2011-03-14'))) {
+					$import_summary['Consent & Questionnaire']['@@ERROR@@']['Consent version unknown'][] = "See value '".$form_version['date']."' for patient '$participant_identifier'! Value won't be migrated! [field 'Date de remise du questionnaire au participant' - file '$file_name' - line: $line_counter]";
+					$form_version['date'] = '';
+				}		
 				$data = array(
 					'ConsentMaster' => array(
 						'participant_id' => $participant_id,
@@ -139,15 +154,13 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 						'consent_control_id' => $consent_control['id'],
 						'consent_signed_date' => $consent_signed_date['date'],
 						'consent_signed_date_accuracy' => $consent_signed_date['accuracy'],
-						'form_version' => null),
-					'ConsentDetail' => array(
-						'revised_date' => $revised_date['date'],
-						'revised_date_accuracy' => $revised_date['accuracy']));
+						'form_version' => $form_version['date']),
+					'ConsentDetail' => array());
 				if(empty($consent_signed_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Consent Signature Date'][] = "System is creating a consent with no signature date. See patient '$participant_identifier'! [field 'Date de signature' - file '$file_name' - line: $line_counter]";	
 				switch($new_line_data['Version du consentement']) {
 					case 'française':
 					case 'française ':
-						$data['ConsentMaster']['form_version'] = 'french';
+						$data['ConsentMaster']['procure_language'] = 'french';
 						break;
 					default:
 						die('ERR 237 6287 632 '.$new_line_data['Version du consentement']);
@@ -206,10 +219,10 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
-	//LoadConsentAndQuestionnaireData
+	//LoadPSAs
 	$line_counter = 0;
 	$headers = array();
-	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('par ordre chronologique')]]['cells'] as $line => $new_line) {
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('30 mars 2015, tous aps')]]['cells'] as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
 			$headers = $new_line;
@@ -237,11 +250,11 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 					$procure_chuq_minimum = str_replace(array(' ', ','), array('', '.'), $new_line_data['Minimum']);
 					if(!preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $total_ngml)) die('ERR23873287328732 '.$total_ngml);
 					if(strlen($procure_chuq_minimum) && !preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $procure_chuq_minimum)) die('ERR23873287328733 '.$procure_chuq_minimum);
-					$biochemical_relapse = (strlen(str_replace(' ', '', $new_line_data['date de récidive biochimique selon déf. procure'])))? 'y' : '';
+					$biochemical_relapse = (strlen(str_replace(' ', '', $new_line_data['récidive procure selon définition strcte (2 mesure consécut.  >0,2 )'])))? 'y' : '';
 					$data = array(
 						'EventMaster' => array(
 							'participant_id' => $participant_id,
-							'procure_form_identification' => "$participant_identifier  Vx -FSPx",
+							'procure_form_identification' => "$participant_identifier Vx -FSPx",
 							'event_control_id' => $psa_control['event_control_id'],
 							'event_date' => $event_date['date'],
 							'event_date_accuracy' => $event_date['accuracy'],),
@@ -286,21 +299,42 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
-	//LoadConsentAndQuestionnaireData
+	//LoadTreatment
 	$line_counter = 0;
 	$headers = array();
-	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Procure_Patient_Traitement 2013')]]['cells'] as $line => $new_line) {
+	$created_prostatectomy = array();
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('traitements')]]['cells'] as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
 			$headers = $new_line;
 		} else {
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$participant_identifier = $new_line_data['. patients'];
+			$participant_identifier = $new_line_data['NoProcure'];
 			if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
 				$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
+				//***** NEW TREATMENT (!= Prostatectomy) *****
 				if(strlen($new_line_data['Type'])) {
 					$start_date = getDateAndAccuracy($new_line_data, 'DDebut', 'Treatment', $file_name, $line_counter);
 					$finish_date = getDateAndAccuracy($new_line_data, 'DFin', 'Treatment', $file_name, $line_counter);
+					switch($new_line_data['DDebut_P']) {
+						case 'j':
+							$start_date['accuracy'] = 'd';
+							$finish_date['accuracy'] = 'd';
+							break;
+						case 'jm':
+							$start_date['accuracy'] = 'm';
+							$finish_date['accuracy'] = 'm';
+							break;
+						case 'jma':
+							$start_date['accuracy'] = 'y';
+							$finish_date['accuracy'] = 'y';
+							break;
+						default:
+					}
+					$dose = array();
+					if(strlen($new_line_data['QteDose'])) $dose[] = 'Dose: '.$new_line_data['QteDose'];
+					if(strlen($new_line_data['Fraction'])) $dose[] = 'Fraction: '.$new_line_data['Fraction'];
+					$dose = implode(' & ', $dose);
 					$treatment_controls = null;
 					$treatment_notes = '';
 					$detail_data = array();
@@ -310,13 +344,15 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 							$treatment_controls = $tx_control['procure follow-up worksheet - treatment'];
 							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
 						 	$drug_ids = array();
-							foreach(explode('-',$new_line_data['Med']) as $generic_name) $drug_ids[] = getDrugId($generic_name, 'chemotherapy', $drugs);
+							foreach(explode('-',$new_line_data['Med']) as $generic_name) $drug_ids[] = getDrugId($generic_name, $new_line_data['Protocole'], 'chemotherapy', $drugs);
 						 	if(empty($drug_ids)) $drug_ids[] = null;
 						 	foreach($drug_ids as $drug_id) {
 						 		$detail_data[] = array(
 						 			'treatment_type' => 'chemotherapy',
 						 			'drug_id' => $drug_id,
-						 			'procure_chuq_period' => $period);
+						 			'procure_chuq_period' => $period,
+						 			'dosage' => $dose
+						 		);
 						 	}
 						 	break;
 						case 'Hx-AA':
@@ -328,46 +364,48 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
 							$drug_ids = array();
 							if(preg_match('/^((LHRH)|(MDV))\-/', $new_line_data['Med'])) {
-								$drug_ids[] = getDrugId($new_line_data['Med'], 'hormonotherapy', $drugs);
+								$drug_ids[] = getDrugId($new_line_data['Med'], $new_line_data['Protocole'], 'hormonotherapy', $drugs);
 							} else {
-								foreach(explode('-',$new_line_data['Med']) as $generic_name) $drug_ids[] = getDrugId($generic_name, 'hormonotherapy', $drugs);
+								foreach(explode('-',$new_line_data['Med']) as $generic_name) $drug_ids[] = getDrugId($generic_name, $new_line_data['Protocole'], 'hormonotherapy', $drugs);
 							}
 							if(empty($drug_ids)) $drug_ids[] = null;
 							foreach($drug_ids as $drug_id) {
 								$detail_data[] = array(
 									'treatment_type' => 'hormonotherapy',
 									'drug_id' => $drug_id,
-									'procure_chuq_period' => $period);
+									'procure_chuq_period' => $period,
+						 			'dosage' => $dose);
 							}
 							break;
 						case 'Rx-Ext':
+						case 'Rx-Cur':
 							$treatment_controls = $tx_control['procure follow-up worksheet - treatment'];
-							$treatment_notes = 'Radio-Ext';
+							if(strlen($new_line_data['Protocole'])) $treatment_notes = 'Protocole : '.$new_line_data['Protocole'];
 							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
 							$detail_data = array(array(
-								'treatment_type' => 'radiotherapy',
-								'procure_chuq_period' => $period));
+								'treatment_type' => ($new_line_data['Type'] == 'Rx-Ext')? 'radiotherapy' : 'brachytherapy',
+								'procure_chuq_period' => $period,
+						 		'dosage' => $dose));
+							if(strlen($new_line_data['Med']) && $new_line_data['Med'] != 'Curiethérapie HDR') die('ERR77 838339');
 							break;
 						case 'HBP-AI':
 						case 'HBP-AB':
-							$drug_id = getDrugId($new_line_data['Med'], 'prostate', $drugs);
+							$drug_id = getDrugId($new_line_data['Med'], $new_line_data['Protocole'], 'prostate', $drugs);
 							if($drug_id) {
 								$treatment_controls = $tx_control['procure medication worksheet - drug'];
 								preg_match('/^HBP\-(.+)$/',  $new_line_data['Type'], $matches);
-								$treatment_notes = 'HypBegPro-'.$matches[1];
+								$treatment_notes = 'Hyp. Beg. Pro. - '.$matches[1];
 								$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
 								$detail_data = array(array(
 									'drug_id' => $drug_id, 
-									'procure_chuq_period' => $period));
+									'procure_chuq_period' => $period,
+						 			'dose' => $dose));
 							} else {
-								$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been recorded. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file '$file_name' - line: $line_counter]";
+								$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been associated to this one (field 'Med'). No treatment will be created. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file '$file_name' - line: $line_counter]";
 							}
 							break;
-						case 'Autres':
-							$import_summary['Treatment']['@@WARNING@@']["Treatment 'Autre' To Create Manually"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file '$file_name' - line: $line_counter]";
-							break;
 						default:
-							die('ERR23873287238723');
+							$import_summary['Treatment']['@@WARNING@@']["Treatment To Create Manually"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file '$file_name' - line: $line_counter]";
 					}
 					if($treatment_controls)  {
 						if(empty($start_date['date'])) $import_summary['Treatment']['@@WARNING@@']['No Treatment Start Date'][] = "System is creating a treatment with no tratment date. See patient '$participant_identifier'! [field 'DDebut' - file '$file_name' - line: $line_counter]";
@@ -375,7 +413,7 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 							$data = array(
 								'TreatmentMaster' => array(
 									'participant_id' => $participant_id,
-									'procure_form_identification' => "$participant_identifier  Vx -FSPx",
+									'procure_form_identification' => ($treatment_controls['detail_tablename'] != 'procure_txd_medication_drugs')? "$participant_identifier Vx -FSPx" : "$participant_identifier Vx -MEDx",
 									'treatment_control_id' => $treatment_controls['treatment_control_id'],
 									'start_date' => $start_date['date'],
 									'start_date_accuracy' => $start_date['accuracy'],
@@ -387,21 +425,57 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 							customInsert($data['TreatmentDetail'], $treatment_controls['detail_tablename'], __FILE__, __LINE__, true);
 						}
 					}
-				}				
+				} else if(strlen(str_replace(' ', '', ($new_line_data['DDebut'].$new_line_data['DDebut_P'].$new_line_data['DFin'].$new_line_data['Type'].$new_line_data['Med'].$new_line_data['QteDose'].$new_line_data['Fraction'].$new_line_data['Protocole'].$new_line_data['EnCours'].$new_line_data['Periode'])))) {
+					$not_empty_data = array();
+					foreach(array('DDebut','DDebut_P','DFin','Type','Med','QteDose','Fraction','Protocole','EnCours','Periode') as $field) {
+						if(strlen($new_line_data[$field])) $not_empty_data[] = $field.' : '.$new_line_data[$field];
+					}
+					$not_empty_data = implode (' & ', $not_empty_data);
+					$import_summary['Treatment']['@@WARNING@@']["Treatment field 'Type' empty but other fields compelted"][$participant_identifier] = "See values [$not_empty_data] for '$participant_identifier'! No treatment will be created! [field '. patients' - file '$file_name' - line: $line_counter]";
+				}
+				//***** CREATE PROSTATECTOMY *****
+				if(strlen($new_line_data['Date Prostatec']) && !isset($created_prostatectomy[$participant_identifier])) {
+					$date_of_prostatectomy = getDateAndAccuracy($new_line_data, 'Date Prostatec', 'Treatment', $file_name, $line_counter);
+					if($date_of_prostatectomy) {
+						$prostatectomy_data = array(
+							'TreatmentMaster' => array(
+								'participant_id' => $participant_id,
+								'procure_form_identification' => "$participant_identifier Vx -FSPx",
+								'treatment_control_id' => $tx_control['procure follow-up worksheet - treatment']['treatment_control_id'],
+								'start_date' => $date_of_prostatectomy['date'],
+								'start_date_accuracy' => $date_of_prostatectomy['accuracy']),
+							'TreatmentDetail' => array(
+								'treatment_type' => 'prostatectomy'));
+						$prostatectomy_data['TreatmentDetail']['treatment_master_id'] = customInsert($prostatectomy_data['TreatmentMaster'], 'treatment_masters', __FILE__, __LINE__, false);
+						customInsert($prostatectomy_data['TreatmentDetail'], $tx_control['procure follow-up worksheet - treatment']['detail_tablename'], __FILE__, __LINE__, true);
+						$created_prostatectomy[$participant_identifier] = 'done';
+					}
+				}
 			} else {
 				$import_summary['Treatment']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field '. patients' - file '$file_name' - line: $line_counter]";
 			}
 		}
 	}
-	//TODO: Voire avec claire si on peut remplire les case: palliatif, etc...
 }
 
-function getDrugId($generic_name, $type, &$drugs) {
-	$generic_name = trim($generic_name);
+function getDrugId($drug_name, $protocole, $type, &$drugs) {
+	global $import_summary;
+	$drug_name = trim($drug_name);
+	$protocole = trim($protocole);
+	$generic_name = '';
+	if(strlen($protocole) && strlen($drug_name)) {
+		$generic_name = "$protocole ($drug_name)";
+	} else if(strlen($protocole)) {
+		$generic_name = $protocole;
+	} else if(strlen($drug_name)) {
+		$generic_name = $drug_name;
+	}
 	$generic_name_key = strtolower($generic_name);
 	if(!strlen($generic_name_key)) return null;
+	$procure_study = (preg_match('/(placebo)|([ée]tude)/', $generic_name_key))? '1' : '';
 	if(!isset($drugs[$type]) || !isset($drugs[$type][$generic_name_key])) {
-		$drugs[$type][$generic_name_key] = customInsert(array('generic_name' => $generic_name, 'type' => $type), 'drugs', __FILE__, __LINE__, false, true);
+		$drugs[$type][$generic_name_key] = customInsert(array('generic_name' => $generic_name, 'type' => $type, 'procure_study' => $procure_study), 'drugs', __FILE__, __LINE__, false, true);
+		$import_summary['Treatment']['@@MESSAGE@@']["New Drug"]['-1'] = "Created $type drug [$generic_name]".($procure_study? ' flagged as study': '')."!";
 	}
 	return $drugs[$type][$generic_name_key];	
 }

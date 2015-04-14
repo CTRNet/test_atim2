@@ -737,10 +737,11 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 	if($new_line_data['chirurgie fait'] == '1') {
 		//Set prostatectomy data
 		$date_of_prostatectomy = getDateAndAccuracy($new_line_data, 'date chirurgie', 'Inventory - Tissue', $file_name, $line_counter);
+//TODO.... a été fait avant. A confirmer...		
 		$prostatectomy_data = array(
 			'TreatmentMaster' => array(
 				'participant_id' => $participant_id,
-				'procure_form_identification' => "$participant_identifier  Vx -FSPx",
+				'procure_form_identification' => "$participant_identifier Vx -FSPx",
 				'treatment_control_id' => $treatment_controls['treatment_control_id'],
 				'start_date' => $date_of_prostatectomy['date'],
 				'start_date_accuracy' => $date_of_prostatectomy['accuracy']),
