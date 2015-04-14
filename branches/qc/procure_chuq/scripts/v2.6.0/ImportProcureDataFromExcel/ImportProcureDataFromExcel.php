@@ -10,11 +10,13 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_name = array(
-	'patient' => 'Patients_short.xls',
-	'patient_status' => utf8_decode('décès_short.xls'),
-	'consent' => 'consentement_short.xls',
-	'psa' => 'ReqPSAPatientProcure_short.xls',
-	'treatment' => 'Procure Patient Traitements_short.xls',
+	'patient' => 'Patients.xls',
+	'patient_status' => utf8_decode('décès mars 2015.xls'),
+	'consent' => 'consentement.xls',
+	'psa' => utf8_decode('révis. 30 mars 2015 APS et traitements.xls'),	
+	'treatment' => utf8_decode('révis. 30 mars 2015 APS et traitements.xls'),	
+		
+//TODO	
 	
 	'inventory' => utf8_decode('inventaire procure CHU Québec_20141202_short.xls'),
 	'frozen block' => 'taille tissus_short.xls',
@@ -86,7 +88,7 @@ $import_date<br>
 echo "<br><FONT COLOR=\"red\" ><b>Check all dates in excel have been formated to date format 2000-00-00 (including treatment worksheet)</b></FONT><br><br>";
 
 //TODO remove
-//TODO truncate();
+truncate();
 
 //==============================================================================================
 //Clinical Annotation
@@ -114,6 +116,8 @@ echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) :
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
 
+//TODO generate BCR automatically
+
 //==============================================================================================
 //Inventory
 //==============================================================================================
@@ -135,24 +139,24 @@ if(false) {
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['frozen block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-$psp_nbr_to_frozen_blocks_data = loadFrozenBlock($XlsReader, $files_path, $files_name['frozen block']);
+//TODO $psp_nbr_to_frozen_blocks_data = loadFrozenBlock($XlsReader, $files_path, $files_name['frozen block']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['paraffin block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-$psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $files_name['paraffin block']);
+//TODO $psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $files_name['paraffin block']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['inventory']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho);
+//TODO loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho);
 unset($psp_nbr_to_frozen_blocks_data);
 unset($psp_nbr_to_paraffin_blocks_data);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['arn']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadRNA($XlsReader, $files_path, $files_name['arn']);
+//TODO loadRNA($XlsReader, $files_path, $files_name['arn']);
 
 //codes and barcodes update
 
@@ -173,7 +177,7 @@ while($row = $results->fetch_assoc()){
 //Pathology report
 //==============================================================================================
 
-loadPathologyReprot($psp_nbr_to_participant_id_and_patho);
+//TODO loadPathologyReprot($psp_nbr_to_participant_id_and_patho);
 
 //==============================================================================================
 //End of the process
@@ -377,8 +381,8 @@ function customInsert($data, $table_name, $file, $line, $is_detail_table = false
 function getDateAndAccuracy($data, $field, $data_type, $file, $line) {
 	global $import_summary;
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$date = str_replace(array(' ', 'N/A', 'n/a', '-', 'x', '??'), array('', '', '', '', '', ''), $data[$field]);
-	if(empty($date)) {
+	$date = str_replace(array(' ', 'N/A', 'n/a', 'x', '??'), array('', '', '', '', '', ''), $data[$field]);
+	if(empty($date) || $date == '-') {
 		return array('date' => null, 'accuracy' =>null);
 	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {
 		//format excel date integer representation
@@ -408,17 +412,17 @@ function getDateAndAccuracy($data, $field, $data_type, $file, $line) {
 function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $file, $line) {
 	global $import_summary;
 	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$time = str_replace(array(' ', 'N/A', 'n/a', '-', 'x', '??'), array('', '', '', '', '', ''), $data[$field_time]);
+	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??'), array('', '', '', '', '', ''), $data[$field_time]);
 	//Get Date
 	$tmp_date = getDateAndAccuracy($data, $field_date, $data_type, $file, $line);
 	if(!$tmp_date['date']) {
-		if(!empty($time)) $import_summary[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "See following fields details. [fields '$field_date' & '$field_time' - file '$file' - line: $line]";
+		if(!empty($time) && $time != '-') $import_summary[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "See following fields details. [fields '$field_date' & '$field_time' - file '$file' - line: $line]";
 		return array('datetime' => null, 'accuracy' =>null);
 	} else {
 		$formatted_date = $tmp_date['date'];
 		$formatted_date_accuracy = $tmp_date['accuracy'];
 		//Combine date and time
-		if(empty($time)) {
+		if(empty($time) || $time == '-') {
 			return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
 		} else {
 			if($formatted_date_accuracy != 'c') {
@@ -448,8 +452,8 @@ function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $fi
 function getTime($data, $field_time, $data_type, $file, $line) {
 	global $import_summary;
 	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$time = str_replace(array(' ', 'N/A', 'n/a', '-', 'x', '??'), array('', '', '', '', '', ''), $data[$field_time]);
-	if(empty($time)) {
+	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??'), array('', '', '', '', '', ''), $data[$field_time]);
+	if(empty($time)|| $time == '-') {
 		return null;
 	} else {
 		if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
@@ -481,9 +485,10 @@ function getDecimal($data, $field, $data_type, $file_name, $line_counter) {
 			return str_replace(',', '.', $decimal_value);
 		} else {
 			$import_summary[$data_type]['@@ERROR@@']["Wrong decimal format for field '$field'"][] = "See value [$decimal_value]. [field '$field' - file '$file_name' - line: $line_counter]";
+			return '';
 		}
 	} else {
-		return null;
+		return '';
 	}	
 }
 
@@ -570,6 +575,11 @@ function truncate() {
 			'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
 			'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
 
+			
+			
+			
+			
+			
 			'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
 			'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
 
@@ -577,6 +587,7 @@ function truncate() {
 			'DELETE FROM participants;','DELETE FROM participants_revs;'
 	);
 	//TODO
+	/*
 	$truncate_queries = array(
 			'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
 			'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
@@ -597,8 +608,10 @@ function truncate() {
 			"DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
 			'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null  WHERE sample_control_id = 13;',
 			"DELETE FROM sample_masters WHERE sample_control_id = 13;"
-					);
-					foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
+		);*/
+		
+					
+	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
 }
 
 function populateViewsAndLftRght() {
