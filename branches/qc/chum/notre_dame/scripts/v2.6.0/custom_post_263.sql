@@ -2018,3 +2018,16 @@ ALTER TABLE lab_type_laterality_match
 	MODIFY `laterality_matching` varchar(10) NOT NULL DEFAULT '';
 
 UPDATE versions SET branch_build_number = '6091' WHERE version_number = '2.6.3';
+
+-- 20150415 ---------------------------------------------------------------
+
+UPDATE structure_fields SET  `type`='float_positive' WHERE model='EventDetail' AND tablename='qc_nd_ed_prostate_pathology_reviews' AND field='maximal_dimension_cm' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='float_positive' WHERE model='EventDetail' AND tablename='qc_nd_ed_prostate_pathology_reviews' AND field='weight_g' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+ALTER TABLE qc_nd_ed_prostate_pathology_reviews
+   	MODIFY `maximal_dimension_cm` float(8,1) DEFAULT NULL,
+   	MODIFY `weight_g` float(8,1) DEFAULT NULL; 
+ALTER TABLE qc_nd_ed_prostate_pathology_reviews_revs
+   	MODIFY `maximal_dimension_cm` float(8,1) DEFAULT NULL,
+   	MODIFY `weight_g` float(8,1) DEFAULT NULL; 	
+   	
+UPDATE versions SET branch_build_number = '6158' WHERE version_number = '2.6.3';
