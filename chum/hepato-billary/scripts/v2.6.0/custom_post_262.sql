@@ -94,3 +94,84 @@ INSERT INTO i18n (id,en,fr) VALUES ('more than %s','More than %s','Plus de %s');
 
 UPDATE versions SET branch_build_number = '6134' WHERE version_number = '2.6.2';
   
+-- 20150326 --------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES
+('core_installname', 'Hepatopancreatobiliary', 'Hépatopancréatobiliaire');
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_tx_chemoembolizations') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-53' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='num_cycles' AND `language_label`='number cycles' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_num_cycles' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
+
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`) 
+VALUES
+(null, 'radio-embolization', 'hepatobiliary', 1, 'qc_hb_txd_radioembolizations', 'qc_hb_tx_radioembolizations', 0, (SELECT id FROM protocol_controls WHERE type = 'radiotherapy'), NULL, 'hepatobiliary|radio-embolization', 0, NULL);
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_radioembolizations` (
+  `treatment_master_id` int(11) NOT NULL,
+  `complication` varchar(50) NOT NULL DEFAULT '',
+  `complication_date` date DEFAULT NULL,
+  `complication_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `complication_treatment` varchar(150) DEFAULT NULL,
+  `catheterism_type` varchar(50) DEFAULT NULL,
+  `arterioportal_fistula` char(1) DEFAULT '',
+  `pulmonary_shunt` char(1) DEFAULT '',
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_radioembolizations_revs` (
+  `treatment_master_id` int(11) NOT NULL,
+  `complication` varchar(50) NOT NULL DEFAULT '',
+  `complication_date` date DEFAULT NULL,
+  `complication_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `complication_treatment` varchar(150) DEFAULT NULL,
+  `catheterism_type` varchar(50) DEFAULT NULL,
+  `arterioportal_fistula` char(1) DEFAULT '',
+  `pulmonary_shunt` char(1) DEFAULT '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3042 ;
+ALTER TABLE `qc_hb_txd_radioembolizations`
+  ADD CONSTRAINT `qc_hb_txd_radioembolizations_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('qc_hb_radioembolization_complications', "StructurePermissibleValuesCustom::getCustomDropdown('Radio-Embolization - Complication : Type')"),
+('qc_hb_radioembolization_complication_treatments', "StructurePermissibleValuesCustom::getCustomDropdown('Radio-Embolization - Complication : Treatment')"),
+('qc_hb_radioembolization_catheterism_types', "StructurePermissibleValuesCustom::getCustomDropdown('Radio-Embolization : Catheterism Type')");
+INSERT INTO structures(`alias`) VALUES ('qc_hb_tx_radioembolizations');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_radioembolizations', 'complication', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_radioembolization_complications') , '0', '', '', '', 'complication type', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_radioembolizations', 'complication_date', 'date',  NULL , '0', '', '', '', 'complication date', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_radioembolizations', 'complication_treatment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_radioembolization_complication_treatments') , '0', '', '', '', 'complication treatment', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_radioembolizations', 'catheterism_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_radioembolization_catheterism_types') , '0', '', '', '', 'catheterism type', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_radioembolizations', 'arterioportal_fistula', 'yes_no',  NULL , '0', '', '', '', 'arterioportal fistula', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_radioembolizations', 'pulmonary_shunt', 'yes_no',  NULL , '0', '', '', '', 'pulmonary shunt', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_protocol_name' AND `language_label`='protocol' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_radioembolizations' AND `field`='complication' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_radioembolization_complications')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='complication type' AND `language_tag`=''), '1', '40', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_radioembolizations' AND `field`='complication_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='complication date' AND `language_tag`=''), '1', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_radioembolizations' AND `field`='complication_treatment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_radioembolization_complication_treatments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='complication treatment' AND `language_tag`=''), '1', '42', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '100', 'other', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_radioembolizations' AND `field`='catheterism_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_radioembolization_catheterism_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='catheterism type' AND `language_tag`=''), '1', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_radioembolizations' AND `field`='arterioportal_fistula' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='arterioportal fistula' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_tx_radioembolizations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_radioembolizations' AND `field`='pulmonary_shunt' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pulmonary shunt' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Radio-Embolization - Complication : Type', 1, 50, 'clinical - treatment'),
+('Radio-Embolization - Complication : Treatment', 1, 150, 'clinical - treatment'),
+('Radio-Embolization : Catheterism Type', 1, 50, 'clinical - treatment');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radio-Embolization : Catheterism Type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('total' ,'', '', '1', @control_id),
+('selective' ,'', '', '1', @control_id),
+('supraselective' ,'', '', '1', @control_id);
+INSERT IGNORE INTO i18n (id,en)
+VALUES 
+('radio-embolization', 'Radio-Embolization'),
+('catheterism type','Catheterism Type'),
+('arterioportal fistula', 'Arterioportal Fistula'),
+('pulmonary shunt', 'Pulmonary Shunt');
+
+UPDATE versions SET branch_build_number = '6157' WHERE version_number = '2.6.2';
+  
