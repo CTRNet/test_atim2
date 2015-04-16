@@ -922,3 +922,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_bcr_detection_result'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '0', '1', 'prostate bank no lab', '0', '', '0', '', '0', '', '1', 'size=20,class=range file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 UPDATE versions SET site_branch_build_number = '6153' WHERE version_number = '2.6.4';
+
+UPDATE versions SET site_branch_build_number = '6160' WHERE version_number = '2.6.4';

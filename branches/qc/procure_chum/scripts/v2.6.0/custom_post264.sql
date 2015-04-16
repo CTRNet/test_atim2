@@ -1059,3 +1059,17 @@ VALUES
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6137' WHERE version_number = '2.6.4';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2015-04-14
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Rename chemo to treatment line
+
+ALTER TABLE procure_txd_followup_worksheet_treatments CHANGE chemotherapy_line treatment_line varchar(3) default null;
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs CHANGE chemotherapy_line treatment_line varchar(3) default null;
+UPDATE structure_fields SET field = 'treatment_line', language_help = 'procure_help_treatment_line' WHERE field = 'chemotherapy_line' AND tablename = 'procure_txd_followup_worksheet_treatments';
+UPDATE structure_value_domains SET domain_name = 'procure_treatment_line' WHERE domain_name = 'procure_chemotherapy_line';
+INSERT INTO i18n (id,en,fr) VALUES ('procure_help_treatment_line', 'Chemotherpay / Hormonotherapy Line', 'Ligne de chimiothérapie & hormonothérapie');
+
+UPDATE versions SET branch_build_number = '6159' WHERE version_number = '2.6.4';
