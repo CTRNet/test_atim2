@@ -29,7 +29,7 @@
 		case 'procure follow-up worksheet - other tumor tx':
 			$treatment_details = array();
 			$treatment_details[] = $tx['TreatmentDetail']['tumor_site']? $procure_other_tumor_sites_values[$tx['TreatmentDetail']['tumor_site']] : '?';
-			$treatment_details[] = $tx['TreatmentDetail']['treatment_type']? $procure_followup_treatment_types_values[$tx['TreatmentDetail']['treatment_type']] : '?';
+			$treatment_details[] = $tx['TreatmentDetail']['treatment_type']? $procure_other_tumor_treatment_types_values[$tx['TreatmentDetail']['treatment_type']] : '?';
 			$treatment_details = array_filter($treatment_details);
 			$treatment_details = implode(' - ', $treatment_details);
 			$chronolgy_data_treatment_start['event'] = __('other tumor - treatment')." (".__("start").")";
