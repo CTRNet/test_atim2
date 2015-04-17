@@ -3,8 +3,8 @@
 class StudySummariesController extends StudyAppController {
 
 	var $uses = array(
-		'Study.StudySummary',	
-			
+		'Study.StudySummary',
+		
 		'InventoryManagement.AliquotMaster',
 		'InventoryManagement.AliquotInternalUse',
 		'Order.Order',
