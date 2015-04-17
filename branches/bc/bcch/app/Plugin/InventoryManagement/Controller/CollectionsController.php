@@ -10,6 +10,7 @@ class CollectionsController extends InventoryManagementAppController {
 		'InventoryManagement.SampleMaster',
 		'InventoryManagement.SampleControl',
 		'InventoryManagement.AliquotMaster',
+		'InventoryManagement.ViewAliquot',
 		'InventoryManagement.SpecimenReviewMaster',
 		'InventoryManagement.ParentToDerivativeSampleControl',
 		'InventoryManagement.SpecimenDetail',//here for collection template validation

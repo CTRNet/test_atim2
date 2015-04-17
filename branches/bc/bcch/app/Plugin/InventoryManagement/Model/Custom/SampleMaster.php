@@ -111,10 +111,10 @@ class SampleMasterCustom extends SampleMaster {
 		// For each collecton, find number of samples in each collection
 		$total_sample_count = 0;
 		$collection_sample_count = 0;
-
+		
 		foreach ($participant_collection_ids as $collection_id) {
 			$collection_sample_count =
-				$this->find('count', array('conditions' => array('SampleMaster.collection_id' => $participant_collection_ids[$collection_id])));
+				$this->find('count', array('conditions' => array('SampleMaster.collection_id' => $participant_collection_ids[$collection_id], 'SampleMaster.deleted' => array(0,1)))); //Eventum ID: 3215
 
 			// Add current collection sample count to total sample count
 			$total_sample_count = $total_sample_count + $collection_sample_count;

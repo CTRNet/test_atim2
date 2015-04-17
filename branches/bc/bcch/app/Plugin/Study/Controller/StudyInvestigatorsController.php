@@ -6,9 +6,10 @@ class StudyInvestigatorsController extends StudyAppController {
 	var $paginate = array('StudyInvestigator'=>array('limit' => pagination_amount,'order'=>'StudyInvestigator.last_name'));
 	
 	function listall( $study_summary_id ) {
+		/*
 pr('Has to be reviewed before to be used in prod.');
 $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
-exit;
+exit;*/
 		// Missing or empty function variable, send to ERROR page
 		if ( !$study_summary_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
@@ -30,9 +31,10 @@ exit;
 	}
 
 	function detail( $study_summary_id, $study_investigator_id ) {
+		/*
 pr('Has to be reviewed before to be used in prod.');
 $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
-exit;
+exit;*/
 		if ( !$study_summary_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
@@ -52,9 +54,10 @@ exit;
 
 
 	function add( $study_summary_id ) {
+		/*
 pr('Has to be reviewed before to be used in prod.');
 $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
-exit;
+exit;*/
 		if ( !$study_summary_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 	
         // MANAGE DATA
@@ -77,7 +80,6 @@ exit;
 
 			// LAUNCH SAVE PROCESS
 			// 1- SET ADDITIONAL DATA
-
 			$this->request->data['StudyInvestigator']['study_summary_id'] = $study_summary_id;
 
 			// 2- LAUNCH SPECIAL VALIDATION PROCESS
@@ -109,9 +111,10 @@ exit;
 
 
 	function edit( $study_summary_id, $study_investigator_id ) {
+		/*
 pr('Has to be reviewed before to be used in prod.');
 $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
-exit;
+exit;*/
 		if ( !$study_summary_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
@@ -165,9 +168,10 @@ exit;
 
   
 	function delete( $study_summary_id, $study_investigator_id ) {
+		/*
 pr('Has to be reviewed before to be used in prod.');
 $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
-exit;
+exit;*/
 		if ( !$study_summary_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
