@@ -62,14 +62,6 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 		} else {
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$participant_identifier = $new_line_data['Patients'];
-//TODO Remove
-// if(!in_array($participant_identifier, array('PS2P0034', 'PS2P0001', 'PS2P0077', 'PS2P0017', 'PS2P0187', 'PS2P0203', 
-// 'PS2P0163', 'PS2P0287', 'PS2P0349', 'PS2P0145', 'PS2P0133', 'PS2P0145', 'PS2P0008', 'PS2P0233', 'PS2P0247'
-		
-// ))) {
-	unset($patients_status[$participant_identifier]);
-	continue;			
-}
 			if(preg_match('/^PS2P[0-9]{4}$/', $participant_identifier)) {
 				//Load profile
 				$date_of_birth_tmp = getDateAndAccuracy($new_line_data, 'Date de naissance', 'Profile', $file_name, $line_counter);
@@ -475,7 +467,7 @@ function getDrugId($drug_name, $protocole, $type, &$drugs) {
 	$procure_study = (preg_match('/(placebo)|([ée]tude)/', $generic_name_key))? '1' : '';
 	if(!isset($drugs[$type]) || !isset($drugs[$type][$generic_name_key])) {
 		$drugs[$type][$generic_name_key] = customInsert(array('generic_name' => $generic_name, 'type' => $type, 'procure_study' => $procure_study), 'drugs', __FILE__, __LINE__, false, true);
-		$import_summary['Treatment']['@@MESSAGE@@']["New Drug"]['-1'] = "Created $type drug [$generic_name]".($procure_study? ' flagged as study': '')."!";
+		$import_summary['Treatment']['@@MESSAGE@@']["New Drug"][] = "Created $type drug [$generic_name]".($procure_study? ' flagged as study': '')."!";
 	}
 	return $drugs[$type][$generic_name_key];	
 }

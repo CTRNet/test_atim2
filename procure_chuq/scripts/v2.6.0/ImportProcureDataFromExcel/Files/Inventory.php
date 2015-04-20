@@ -1,6 +1,5 @@
 <?php
 
-//TODO Dans l'onglet v01 vérifier que le libellé 'urine concentrée' est bien ajoutée dans la ligne 2: 'urine concentrée vol. après conc.', 'urine concentrée ratio conc.'
 //TODO: Supprimer le contenu de toute cellule = '¯'
 
 function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {	
@@ -12,6 +11,7 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 	$dublicated_aliquots_check = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	//Load data
+	$MO_CM_message_display = false;
 	foreach($XlsReader->sheets[$sheets_nbr['Taille des blocs']]['cells'] as $line_counter => $new_line) {
 		//$line_counter++;
 		if($line_counter == 8) {
@@ -39,6 +39,8 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 							break;
 						case '':
 						case 'x':
+						case 'X':
+						case '?':
 							break;
 						default:
 							$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'ISO/OCT' value format"][] = "See patient '$patient_identifier' value [".$new_line_data['i=iso  O=OCT']."]. This value won't be migrated. [field 'i=iso  O=OCT' - file '$file_name' - line $line_counter]";
@@ -57,7 +59,8 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 						case '':
 							break;
 						default:
-							$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'quadrants' value format"][] = "See patient '$patient_identifier' value [".$new_line_data['quadrants']."]. This value won't be migrated. [field 'quadrants' - file '$file_name' - line $line_counter]";
+							//$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'quadrants' value format"][] = "See patient '$patient_identifier' value [".$new_line_data['quadrants']."]. This value won't be migrated. [field 'quadrants' - file '$file_name' - line $line_counter]";
+							$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'quadrants' value format"][$new_line_data['quadrants']] = "See value [".$new_line_data['quadrants']."]. This value won't be migrated. [field 'quadrants' - file '$file_name']";
 					}
 					$new_line_data['quadrants'] = $procure_origin_of_slice;
 					//procure_dimensions
@@ -71,7 +74,9 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 							break;
 						case 'MO-CM':
 							$new_line_data['Coupe réalisée par'] = 'CM';
-							$import_summary['Inventory - Tissue']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See patient '$patient_identifier'. [field 'Coupe réalisée par' - file '$file_name' - line $line_counter]";	
+							//$import_summary['Inventory - Tissue']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See patient '$patient_identifier'. [field 'Coupe réalisée par' - file '$file_name' - line $line_counter]";	
+							if(!$MO_CM_message_display) $import_summary['Inventory - Tissue']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See field 'Coupe réalisée par' - file '$file_name'";	
+							$MO_CM_message_display = true;
 							break;
 						default:
 							$import_summary['Inventory - Tissue']['@@ERROR@@']["Unknown lab staff"][] = "Lab staff '".$new_line_data['Coupe réalisée par']."' is unknown. Value won't be migrated. See patient '$patient_identifier'. [field 'Coupe réalisée par' - file '$file_name' - line $line_counter]";
@@ -125,16 +130,16 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	//LoadConsentAndQuestionnaireData
 	$headers = array();
-	for($id=1;$id<10;$id++) {
+	for($visit_id=1;$visit_id<10;$visit_id++) {	
 //TODO
-if(!in_array($id, array(1,2))) continue;		
-		$worksheet = "V0".$id;
+if(!in_array($visit_id, array(1))) continue;		
+		$worksheet = "V0".$visit_id;
 		$duplicated_participants_check = array();
 		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
 			//$line_counter++;
-			if($line_counter == 2) {
+			if($line_counter == 4) {
 				$headers = $new_line;
-			} else if($line_counter > 2){		
+			} else if($line_counter > 4){		
 				$new_line_data = formatNewLineData($headers, $new_line);
 				$participant_identifier = $new_line_data['# patient'];
 				if(strlen($participant_identifier)) {
@@ -167,10 +172,10 @@ if(!in_array($id, array(1,2))) continue;
 	}
 	//Check unmigrated block data
 	foreach($psp_nbr_to_frozen_blocks_data['blocks'] as $participant_identifier => $data) {
-		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated frozen blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' :: $worksheet - line: $line_counter && ".$psp_nbr_to_frozen_blocks_data['file_name']."]  ";
+		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated frozen blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' && ".$psp_nbr_to_frozen_blocks_data['file_name']."]  ";
 	}
 	foreach($psp_nbr_to_paraffin_blocks_data['blocks'] as $participant_identifier => $data) {
-		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated paraffin blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' :: $worksheet - line: $line_counter && ".$psp_nbr_to_paraffin_blocks_data['file_name']."]  ";
+		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated paraffin blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' && ".$psp_nbr_to_paraffin_blocks_data['file_name']."]  ";
 	}
 }
 
@@ -178,6 +183,15 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 	global $import_summary;
 	global $controls;
 
+	if(!array_key_exists('date prélèv. urine', $new_line_data) || empty($new_line_data['date prélèv. urine'])) {
+		if(str_replace('x','', $new_line_data['URN-1 vol. ml']) || str_replace('x','', $new_line_data['vol URN-3 non clarifié']) || ($new_line_data == 'V01' && str_replace('x','', $new_line_data['vol URC-1']))) {
+			$new_line_data['date prélèv. urine'] = $new_line_data['date prélèv. sang'];
+			$import_summary['Inventory - Urine']['@@WARNING@@']["Use blood collection date for urine"]['-1'] = "Field 'date prélèv. urine' is missing. Used value of field 'date prélèv. sang'. Please confirm. [See file '$file_name :: $worksheet']";
+		} else {
+			$new_line_data['date prélèv. urine'] = '';
+		}
+	}
+	
 	if($new_line_data['date prélèv. urine']) {
 		//Collection
 		$date_of_collection = getDateTimeAndAccuracy($new_line_data, 'date prélèv. urine', "hre de prélèvement urine", 'Inventory - Urine', "$file_name ($worksheet)", $line_counter);
@@ -326,65 +340,67 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 		} else if(str_replace('x','',$new_line_data['bte rangement URN-1']) || str_replace('x','',$new_line_data['position urn-1'])) {
 			$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN1 is empty but a storage information is set (".$new_line_data['bte rangement URN-1']." : ".$new_line_data['position urn-1']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
 		}
-		//... && concentrated aliquots
-		if(strlen(str_replace('x','',$new_line_data['vol URC-1']))) {
-			$sample_data = array(
-				'SampleMaster' => array(
-					'collection_id' => $collection_id,
-					'sample_control_id' => $controls['sample_aliquot_controls']['centrifuged urine']['sample_control_id'],
-					'initial_specimen_sample_type' => 'urine',
-					'initial_specimen_sample_id' => $urine_sample_master_id,
-					'parent_sample_type' => 'urine',
-					'parent_id' => $urine_sample_master_id,
-					'notes' => ''),
-				'DerivativeDetail' => array(
-					'creation_datetime' => $date_of_derivative_creation['datetime'],
-					'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
-				'SampleDetail' => array(
-					'procure_aspect_after_refrigeration' => $urine_aspect,
-					'procure_other_aspect_after_refrigeration' => $procure_other_aspect_after_refrigeration,
-					'procure_chuq_pellet' => $procure_chuq_pellet,
-					'procure_chuq_concentrated' => 'y',
-					'procure_chuq_concentration_ratio' => preg_match('/^x$/', $new_line_data['urine concentrée ratio conc.'])? '' : $new_line_data['urine concentrée ratio conc.']));
-			$derivative_sample_master_id = createSample($sample_data, $controls['sample_aliquot_controls']['centrifuged urine']['detail_tablename']);
-			$initial_volume = getDecimal($new_line_data, 'vol URC-1', 'Inventory - Urine', "$file_name ($worksheet)", $line_counter);
-			if($initial_volume) {
-				//Storage data
-				$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement urine concentrée'], 'concentrated urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
-				$storage_coordinates = getPosition($participant_identifier, $new_line_data['positio urine concentrée dans bte rangement'], $new_line_data['bte rangement urine concentrée'], 'concentrated urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
-				//Create aliquot
-				$aliquot_data = array(
-					'AliquotMaster' => array(
+		//... && concentrated aliquots (Just in V01
+		if($new_line_data == 'V01') {
+			if(strlen(str_replace('x','',$new_line_data['vol URC-1']))) {
+				$sample_data = array(
+					'SampleMaster' => array(
 						'collection_id' => $collection_id,
-						'sample_master_id' => $derivative_sample_master_id,
-						'aliquot_control_id' => $controls['sample_aliquot_controls']['centrifuged urine']['aliquots']['tube']['aliquot_control_id'],
-						'barcode' => "$participant_identifier $worksheet -URC1",
-						'in_stock' => 'yes - available',
-						'initial_volume' => $initial_volume,
-						'current_volume' => $initial_volume,
-						'use_counter' => '0',
-						'storage_datetime' => $storage_date['datetime'],
-						'storage_datetime_accuracy' => $storage_date['accuracy'],
-						'storage_master_id' => $storage_master_id,
-						'storage_coord_x' => $storage_coordinates['x'],
-						'storage_coord_y' => $storage_coordinates['y']),
-					'AliquotDetail' => array());
-				$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-				customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['centrifuged urine']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-				$centrifuged_aliquots_created = true;
-				$collection_aliquot_created = true;
+						'sample_control_id' => $controls['sample_aliquot_controls']['centrifuged urine']['sample_control_id'],
+						'initial_specimen_sample_type' => 'urine',
+						'initial_specimen_sample_id' => $urine_sample_master_id,
+						'parent_sample_type' => 'urine',
+						'parent_id' => $urine_sample_master_id,
+						'notes' => ''),
+					'DerivativeDetail' => array(
+						'creation_datetime' => $date_of_derivative_creation['datetime'],
+						'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
+					'SampleDetail' => array(
+						'procure_aspect_after_refrigeration' => $urine_aspect,
+						'procure_other_aspect_after_refrigeration' => $procure_other_aspect_after_refrigeration,
+						'procure_chuq_pellet' => $procure_chuq_pellet,
+						'procure_chuq_concentrated' => 'y',
+						'procure_chuq_concentration_ratio' => preg_match('/^x$/', $new_line_data['urine concentrée ratio conc.'])? '' : $new_line_data['urine concentrée ratio conc.']));
+				$derivative_sample_master_id = createSample($sample_data, $controls['sample_aliquot_controls']['centrifuged urine']['detail_tablename']);
+				$initial_volume = getDecimal($new_line_data, 'vol URC-1', 'Inventory - Urine', "$file_name ($worksheet)", $line_counter);
+				if($initial_volume) {
+					//Storage data
+					$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement urine concentrée'], 'concentrated urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
+					$storage_coordinates = getPosition($participant_identifier, $new_line_data['positio urine concentrée dans bte rangement'], $new_line_data['bte rangement urine concentrée'], 'concentrated urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
+					//Create aliquot
+					$aliquot_data = array(
+						'AliquotMaster' => array(
+							'collection_id' => $collection_id,
+							'sample_master_id' => $derivative_sample_master_id,
+							'aliquot_control_id' => $controls['sample_aliquot_controls']['centrifuged urine']['aliquots']['tube']['aliquot_control_id'],
+							'barcode' => "$participant_identifier $worksheet -URC1",
+							'in_stock' => 'yes - available',
+							'initial_volume' => $initial_volume,
+							'current_volume' => $initial_volume,
+							'use_counter' => '0',
+							'storage_datetime' => $storage_date['datetime'],
+							'storage_datetime_accuracy' => $storage_date['accuracy'],
+							'storage_master_id' => $storage_master_id,
+							'storage_coord_x' => $storage_coordinates['x'],
+							'storage_coord_y' => $storage_coordinates['y']),
+						'AliquotDetail' => array());
+					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['centrifuged urine']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+					$centrifuged_aliquots_created = true;
+					$collection_aliquot_created = true;
+				} else {
+					if(str_replace('x','',$new_line_data['bte rangement urine concentrée']) || str_replace('x','',$new_line_data['positio urine concentrée dans bte rangement'])) {
+						$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a storage information is set (".$new_line_data['bte rangement urine concentrée']." : ".$new_line_data['positio urine concentrée dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+					}
+					$import_summary['Inventory - Urine']['@@WARNING@@']["Created a centifugated & concentrated urine sample with no aliquot"][] = "Please confirm. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";	
+				}
 			} else {
 				if(str_replace('x','',$new_line_data['bte rangement urine concentrée']) || str_replace('x','',$new_line_data['positio urine concentrée dans bte rangement'])) {
 					$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a storage information is set (".$new_line_data['bte rangement urine concentrée']." : ".$new_line_data['positio urine concentrée dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
 				}
-				$import_summary['Inventory - Urine']['@@WARNING@@']["Created a centifugated & concentrated urine sample with no aliquot"][] = "Please confirm. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";	
-			}
-		} else {
-			if(str_replace('x','',$new_line_data['bte rangement urine concentrée']) || str_replace('x','',$new_line_data['positio urine concentrée dans bte rangement'])) {
-				$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a storage information is set (".$new_line_data['bte rangement urine concentrée']." : ".$new_line_data['positio urine concentrée dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
-			}
-			if(strlen(str_replace('x','',$new_line_data['urine concentrée ratio conc.']))) {
-				$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but ratio set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a ratio information is set (".$new_line_data['urine concentrée ratio conc.']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+				if(strlen(str_replace('x','',$new_line_data['urine concentrée ratio conc.']))) {
+					$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but ratio set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a ratio information is set (".$new_line_data['urine concentrée ratio conc.']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+				}
 			}
 		}
 		// *** Final Control ***
@@ -395,7 +411,7 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 			$import_summary['Inventory - Urine']['@@WARNING@@']["Collection date set but no aliquot created"][] = "See patient $participant_identifier. A collection was created (based on date) but no aliquot is defined into excel file. [file '$file_name :: $worksheet', line : $line_counter']";
 		}
 	}  else {
-		if(str_replace('x','', $new_line_data['URN-1 vol. ml']) || str_replace('x','', $new_line_data['vol URN-3 non clarifié']) || str_replace('x','', $new_line_data['vol URC-1'])) {
+		if(str_replace('x','', $new_line_data['URN-1 vol. ml']) || str_replace('x','', $new_line_data['vol URN-3 non clarifié']) || ($new_line_data == 'V01' && str_replace('x','', $new_line_data['vol URC-1']))) {
 			$import_summary['Inventory - Urine']['@@WARNING@@']["No collection date but urine samples defined"][] = "See patient '$participant_identifier'. No collection has been created but utine tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
 		}
 	}
@@ -1052,9 +1068,9 @@ if(!in_array($id, array(1))) continue;
 		$aliquot_master_ids_to_remove = array('-1');
 		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
 			//$line_counter++;
-			if($line_counter == 2) {
+			if($line_counter == 4) {
 				$headers = $new_line;
-			} else if($line_counter > 3){
+			} else if($line_counter > 4){
 				$new_line_data = formatNewLineData($headers, $new_line);
 				$participant_identifier = $new_line_data['# échantillon'];
 				if(strlen($participant_identifier)) {
