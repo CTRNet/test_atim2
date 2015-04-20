@@ -168,8 +168,9 @@ VALUES
 ('2009-11-12', '', '',  '1', @control_id, NOW(), NOW(), 1, 1),
 ('2011-03-14', '', '',  '1', @control_id, NOW(), NOW(), 1, 1);
 
+-- Cause of death source....
 
-
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cod_confirmation_source' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 

@@ -10,18 +10,15 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_name = array(
-	'patient' => 'Patients.xls',
-	'patient_status' => utf8_decode('décès mars 2015.xls'),
-	'consent' => 'consentement.xls',
-	'psa' => utf8_decode('révis. 30 mars 2015 APS et traitements.xls'),	
-	'treatment' => utf8_decode('révis. 30 mars 2015 APS et traitements.xls'),	
-		
-//TODO	
-	
-	'inventory' => utf8_decode('inventaire procure CHU Québec_20141202_short.xls'),
-	'frozen block' => 'taille tissus_short.xls',
-	'paraffin block' => 'sortie de blocs procure_short.xls',
-	'arn' => 'ARN sang paxgene_short.xls'
+	'patient' => 'Patients_v20150420.xls',
+	'patient_status' => utf8_decode('décès mars 2015_v20150420.xls'),
+	'consent' => 'consentement_v20150420.xls',
+	'psa' => utf8_decode('révis. 30 mars 2015 APS et traitements_v20150420.xls'),	
+	'treatment' => utf8_decode('révis. 30 mars 2015 APS et traitements_v20150420.xls'),	
+	'frozen block' => 'taille tissus_v20150420.xls',
+	'paraffin block' => 'sortie de blocs procure_v20150420.xls',
+	'inventory' => utf8_decode('inventaire procure CHU Québec avril 2015_v20150420.xls'),
+	'arn' => 'ARN sang paxgene_v20150420.xls'
 );
 $files_path = 'C:\\_Perso\\Server\\procure_chuq\\data\\';
 require_once 'Excel/reader.php';
@@ -97,35 +94,33 @@ truncate();
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patient - File(s) : ".$files_name['patient']." && ".$files_name['patient_status']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-$patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
+//TODO $patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
 $XlsReader = new Spreadsheet_Excel_Reader();
-$psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
+//TODO $psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Consent & Questionnaire - File(s) : ".$files_name['consent']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadConsents($XlsReader, $files_path, $files_name['consent'], $psp_nbr_to_participant_id_and_patho);
+//TODO loadConsents($XlsReader, $files_path, $files_name['consent'], $psp_nbr_to_participant_id_and_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - PSA - File(s) : ".$files_name['psa']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadPSAs($XlsReader, $files_path, $files_name['psa'], $psp_nbr_to_participant_id_and_patho);
+//TODO loadPSAs($XlsReader, $files_path, $files_name['psa'], $psp_nbr_to_participant_id_and_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) : ".$files_name['treatment']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
-
-//TODO generate BCR automatically
+//TODO loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
 
 //==============================================================================================
 //Inventory
 //==============================================================================================
 
 //TODO delete ************
-if(false) {
+if(true) {
 	$psp_nbr_to_participant_id_and_patho = array();
-	$query = "select id, participant_identifier FROM participants;";
+	$query = "select id, participant_identifier FROM participants WHERE participant_identifier IN ('PS2P0001', 'PS2P0002', 'PS2P0003','PS2P0004','PS2P0005', 'PS2P0006');";
 	$results = customQuery($query, __FILE__, __LINE__);
 	while($row = $results->fetch_assoc()){
 		$psp_nbr_to_participant_id_and_patho[$row['participant_identifier']] = array(
@@ -139,24 +134,24 @@ if(false) {
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['frozen block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $psp_nbr_to_frozen_blocks_data = loadFrozenBlock($XlsReader, $files_path, $files_name['frozen block']);
+$psp_nbr_to_frozen_blocks_data = loadFrozenBlock($XlsReader, $files_path, $files_name['frozen block']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['paraffin block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $files_name['paraffin block']);
+$psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $files_name['paraffin block']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['inventory']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho);
+loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho);
 unset($psp_nbr_to_frozen_blocks_data);
 unset($psp_nbr_to_paraffin_blocks_data);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['arn']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadRNA($XlsReader, $files_path, $files_name['arn']);
+loadRNA($XlsReader, $files_path, $files_name['arn']);
 
 //codes and barcodes update
 
@@ -533,82 +528,114 @@ function dislayErrorAndMessage($import_summary) {
 
 function truncate() {
 	$truncate_queries = array(
-			'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
-			'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
-			'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
-				
-			'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
-			'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
-			'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
-			'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
+		'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
+		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
+			
+		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
+		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
+		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
+		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 
-			'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
-			'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
-			'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
-			'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
-			'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
-			'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
-			'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
-			'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
-			'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
-			'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
-			'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
-			'DELETE FROM sample_masters;', 'DELETE FROM sample_masters_revs;',
+		'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
+		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
+		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
+		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
+		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
+		'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
+		'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
+		'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
+		'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
+		'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
+		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
+		'DELETE FROM sample_masters;', 'DELETE FROM sample_masters_revs;',
 
-			'DELETE FROM collections;', 'DELETE FROM collections_revs;',
-				
-			'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
-			'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
-			'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
-			'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
-			'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
-			'UPDATE storage_masters SET parent_id = null;',
-			'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
-				
-			'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
-			'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
-			'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
-				
-			'TRUNCATE procure_ed_lab_pathologies;', 'TRUNCATE procure_ed_lab_pathologies_revs;',
-			'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
-			'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
-			'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
-			'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
+		'DELETE FROM collections;', 'DELETE FROM collections_revs;',
+			
+		'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
+		'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
+		'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
+		'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
+		'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
+		'UPDATE storage_masters SET parent_id = null;',
+		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
+			
+		'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
+		'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
+		'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
+			
+		'TRUNCATE procure_ed_lab_pathologies;', 'TRUNCATE procure_ed_lab_pathologies_revs;',
+		'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
+		'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
+		'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
+		'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
+		
+		'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
+		'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
 
-			
-			
-			
-			
-			
-			'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
-			'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
-
-			'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
-			'DELETE FROM participants;','DELETE FROM participants_revs;'
+		'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
+		'DELETE FROM participants;','DELETE FROM participants_revs;'
 	);
+	
+	$truncate_queries = array(
+		'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
+		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
+
+		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
+		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
+		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
+		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
+
+		'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
+		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
+		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
+		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
+		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
+		'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
+		'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
+		'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
+		'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
+		'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
+		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
+		'DELETE FROM sample_masters;', 'DELETE FROM sample_masters_revs;',
+
+		'DELETE FROM collections;', 'DELETE FROM collections_revs;',
+
+		'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
+		'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
+		'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
+		'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
+		'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
+		'UPDATE storage_masters SET parent_id = null;',
+		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;'
+	);	
+	
+	
+	
 	//TODO
 	/*
 	$truncate_queries = array(
-			'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
-			'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
-			'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
-			'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
-			'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
-			'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
-			'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
-			'UPDATE storage_masters SET parent_id = null;',
-			'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
-				
+		'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
+		'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
+		'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
+		'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
+		'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
+		'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
+		'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
+		'UPDATE storage_masters SET parent_id = null;',
+		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
+			
 
-			'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
-			'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
-			"DELETE FROM ad_tubes WHERE aliquot_master_id IN (SELECT am.id FROM aliquot_masters am INNER JOIN sample_masters sm ON sm.id = am.sample_master_id WHERE sm.sample_control_id = 13);",
-			"DELETE FROM aliquot_masters WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
-			"TRUNCATE sd_der_rnas;",
-			"DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
-			'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null  WHERE sample_control_id = 13;',
-			"DELETE FROM sample_masters WHERE sample_control_id = 13;"
-		);*/
+		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
+		"DELETE FROM ad_tubes WHERE aliquot_master_id IN (SELECT am.id FROM aliquot_masters am INNER JOIN sample_masters sm ON sm.id = am.sample_master_id WHERE sm.sample_control_id = 13);",
+		"DELETE FROM aliquot_masters WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
+		"TRUNCATE sd_der_rnas;",
+		"DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
+		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null  WHERE sample_control_id = 13;',
+		"DELETE FROM sample_masters WHERE sample_control_id = 13;"
+	);*/
 		
 					
 	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
