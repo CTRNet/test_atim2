@@ -11,16 +11,17 @@ set_time_limit('3600');
 
 $files_name = array(
 	'patient' => 'Patients_v20150420.xls',
-	'patient_status' => utf8_decode('décès mars 2015_v20150420.xls'),
+	'patient_status' => utf8_decode('deces_mars_2015_v20150420.xls'),
 	'consent' => 'consentement_v20150420.xls',
-	'psa' => utf8_decode('révis. 30 mars 2015 APS et traitements_v20150420.xls'),	
-	'treatment' => utf8_decode('révis. 30 mars 2015 APS et traitements_v20150420.xls'),	
-	'frozen block' => 'taille tissus_v20150420.xls',
-	'paraffin block' => 'sortie de blocs procure_v20150420.xls',
-	'inventory' => utf8_decode('inventaire procure CHU Québec avril 2015_v20150420.xls'),
-	'arn' => 'ARN sang paxgene_v20150420.xls'
+	'psa' => utf8_decode('revis_30_mars_2015_APS_et_traitements_v20150420.xls'),	
+	'treatment' => utf8_decode('revis_30_mars_2015_APS_et_traitements_v20150420.xls'),	
+	'frozen block' => 'taille_tissus_v20150420.xls',
+	'paraffin block' => 'sortie_de_blocs_procure_v20150420.xls',
+	'inventory' => utf8_decode('inventaire_procure_CHU_Quebec_avril_2015_v20150420.xls'),
+	'arn' => 'ARN_sang_paxgene_v20150420.xls'
 );
 $files_path = 'C:\\_Perso\\Server\\procure_chuq\\data\\';
+$files_path = "/ATiM/procure_chuq_to_delete/ImportProcureDataFromExcel/data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -33,7 +34,7 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
 $db_charset		= "utf8";
-$db_schema	= "procurechuq";
+$db_schema	= "procurechuqtmp";
 
 global $db_connection;
 $db_connection = @mysqli_connect(
@@ -94,31 +95,31 @@ truncate();
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patient - File(s) : ".$files_name['patient']." && ".$files_name['patient_status']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
+$patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
+$psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Consent & Questionnaire - File(s) : ".$files_name['consent']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadConsents($XlsReader, $files_path, $files_name['consent'], $psp_nbr_to_participant_id_and_patho);
+loadConsents($XlsReader, $files_path, $files_name['consent'], $psp_nbr_to_participant_id_and_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - PSA - File(s) : ".$files_name['psa']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadPSAs($XlsReader, $files_path, $files_name['psa'], $psp_nbr_to_participant_id_and_patho);
+loadPSAs($XlsReader, $files_path, $files_name['psa'], $psp_nbr_to_participant_id_and_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) : ".$files_name['treatment']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
+loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
 
 //==============================================================================================
 //Inventory
 //==============================================================================================
 
 //TODO delete ************
-if(true) {
+if(false) {
 	$psp_nbr_to_participant_id_and_patho = array();
 	$query = "select id, participant_identifier FROM participants WHERE participant_identifier IN ('PS2P0001', 'PS2P0002', 'PS2P0003','PS2P0004','PS2P0005', 'PS2P0006');";
 	$results = customQuery($query, __FILE__, __LINE__);
@@ -151,7 +152,7 @@ unset($psp_nbr_to_paraffin_blocks_data);
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['arn']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadRNA($XlsReader, $files_path, $files_name['arn']);
+//TODO loadRNA($XlsReader, $files_path, $files_name['arn']);
 
 //codes and barcodes update
 
@@ -166,7 +167,7 @@ $results = customQuery($query, __FILE__, __LINE__);
 $query = "UPDATE quality_ctrls SET qc_code = id;";
 customQuery($query, __FILE__, __LINE__);
 while($row = $results->fetch_assoc()){
-	$import_summary['Inventory - Tissue']['@@ERROR@@']['Duplicated Barcodes'][] = "The The migration process created duplciated barcode : ".$row['barcode'];
+	$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Duplicated Barcodes'][] = "The The migration process created duplciated barcode : ".$row['barcode'];
 }
 //==============================================================================================
 //Pathology report
@@ -398,7 +399,7 @@ function getDateAndAccuracy($data, $field, $data_type, $file, $line) {
 	} else if(preg_match('/^([0-3][0-9])\-([01][0-9])\-(19|20)([0-9]{2})$/',$date,$matches)) {
 		return array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c');
 	} else {
-		$import_summary[$data_type]['@@ERROR@@']['Date Format Error'][] = "Format of date '$date' is not supported! [field '$field' - file '$file' - line: $line]";
+		$import_summary[$data_type]['@@ERROR@@']['Date Format Error'][] = "Format of date '$date' is not supported! [field <b>$field</b> - file <b>$file</b> - line: <b>$line</b>]";
 		return array('date' => null, 'accuracy' =>null);
 	}	
 }
@@ -407,21 +408,21 @@ function getDateAndAccuracy($data, $field, $data_type, $file, $line) {
 function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $file, $line) {
 	global $import_summary;
 	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??'), array('', '', '', '', '', ''), $data[$field_time]);
+	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??', '?', 'X'), array('', '', '', '', '', '', '', ''), $data[$field_time]);
 	//Get Date
 	$tmp_date = getDateAndAccuracy($data, $field_date, $data_type, $file, $line);
 	if(!$tmp_date['date']) {
-		if(!empty($time) && $time != '-') $import_summary[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "See following fields details. [fields '$field_date' & '$field_time' - file '$file' - line: $line]";
+		if(strlen($time) && $time != '-') $import_summary[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "See following fields details. [fields <b>$field_date</b> & <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
 		return array('datetime' => null, 'accuracy' =>null);
 	} else {
 		$formatted_date = $tmp_date['date'];
 		$formatted_date_accuracy = $tmp_date['accuracy'];
 		//Combine date and time
-		if(empty($time) || $time == '-') {
+		if(!strlen($time) || $time == '-') {
 			return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
 		} else {
 			if($formatted_date_accuracy != 'c') {
-				$import_summary[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Date and time are set but date is unaccuracy. No datetime will be set! [fields '$field_date' & '$field_time' - file '$file' - line: $line]";
+				$import_summary[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Date and time are set but date is unaccuracy. No datetime will be set! [fields <b>$field_date</b> & <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
 				return array('datetime' => null, 'accuracy' =>null);
 			} else if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
 				return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
@@ -437,7 +438,7 @@ function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $fi
 				$time=$hour.':'.$mn;				
 				return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
 			} else {
-				$import_summary[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [field '$field_time' - file '$file' - line: $line]";
+				$import_summary[$data_type]['@@ERROR@@']['Time Format Error (1)'][] = "Format of time '".$data[$field_time]."' is not supported! [field <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
 				return array('datetime' => null, 'accuracy' =>null);;
 			}
 		}
@@ -447,8 +448,8 @@ function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $fi
 function getTime($data, $field_time, $data_type, $file, $line) {
 	global $import_summary;
 	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??'), array('', '', '', '', '', ''), $data[$field_time]);
-	if(empty($time)|| $time == '-') {
+	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??', '?', 'X'), array('', '', '', '', '', '', '', ''), $data[$field_time]);
+	if(!strlen($time) || $time == '-') {
 		return null;
 	} else {
 		if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
@@ -465,7 +466,7 @@ function getTime($data, $field_time, $data_type, $file, $line) {
 			$time=$hour.':'.$mn;
 			return (strlen($time) == 5)? $time : '0'.$time;
 		} else {
-			$import_summary[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [field '$field_time' - file '$file' - line: $line]";
+			$import_summary[$data_type]['@@ERROR@@']['Time Format Error (2)'][] = "Format of time '".$data[$field_time]."' is not supported! [field <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
 			return null;
 		}
 	}
@@ -474,12 +475,12 @@ function getTime($data, $field_time, $data_type, $file, $line) {
 function getDecimal($data, $field, $data_type, $file_name, $line_counter) {
 	global $import_summary;
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 7eeee $field $file_name, $line_counter");
-	$decimal_value = str_replace('x', '', $data[$field]);
+	$decimal_value = str_replace(array('x', 'X', '?', '-'), array('','','', ''), $data[$field]);
 	if(strlen($decimal_value)) {
 		if(preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $decimal_value)) {
 			return str_replace(',', '.', $decimal_value);
 		} else {
-			$import_summary[$data_type]['@@ERROR@@']["Wrong decimal format for field '$field'"][] = "See value [$decimal_value]. [field '$field' - file '$file_name' - line: $line_counter]";
+			$import_summary[$data_type]['@@ERROR@@']["Wrong decimal format for field '$field'"][] = "See value [".$data[$field]."]. [field <b>$field</b> - file <b>$file_name</b> - line: <b>$line_counter</b>]";
 			return '';
 		}
 	} else {
@@ -576,8 +577,10 @@ function truncate() {
 		'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
 		'DELETE FROM participants;','DELETE FROM participants_revs;'
 	);
-	
-	$truncate_queries = array(
+
+	//TODO
+	/*
+	$truncate_queries_2 = array(
 		'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
 		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
 		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
@@ -611,10 +614,6 @@ function truncate() {
 		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;'
 	);	
 	
-	
-	
-	//TODO
-	/*
 	$truncate_queries = array(
 		'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
 		'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
