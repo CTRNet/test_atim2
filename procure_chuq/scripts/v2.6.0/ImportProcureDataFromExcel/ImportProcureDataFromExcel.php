@@ -1,5 +1,7 @@
 <?php
 
+//TODO: Supprimer le contenu de toute cellule égale à '¯' ou égale à '­', ' ­' dans Inventaire et RNA files
+
 require_once 'Files/ClinicalAnnotation.php';
 require_once 'Files/Inventory.php';
 
@@ -32,8 +34,12 @@ global $db_schema;
 $db_ip			= "127.0.0.1";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "";
 $db_charset		= "utf8";
+
+$db_pwd			= "";
+$db_schema	= "procurechuq";
+
+$db_pwd			= "am3-y-4606";
 $db_schema	= "procurechuqtmp";
 
 global $db_connection;
@@ -85,7 +91,7 @@ $import_date<br>
 
 echo "<br><FONT COLOR=\"red\" ><b>Check all dates in excel have been formated to date format 2000-00-00 (including treatment worksheet)</b></FONT><br><br>";
 
-//TODO remove
+//TODO
 truncate();
 
 //==============================================================================================
@@ -118,20 +124,6 @@ loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_pa
 //Inventory
 //==============================================================================================
 
-//TODO delete ************
-if(false) {
-	$psp_nbr_to_participant_id_and_patho = array();
-	$query = "select id, participant_identifier FROM participants WHERE participant_identifier IN ('PS2P0001', 'PS2P0002', 'PS2P0003','PS2P0004','PS2P0005', 'PS2P0006');";
-	$results = customQuery($query, __FILE__, __LINE__);
-	while($row = $results->fetch_assoc()){
-		$psp_nbr_to_participant_id_and_patho[$row['participant_identifier']] = array(
-				'participant_id' => $row['id'],
-				'patho#' => null,
-				'prostate_weight_gr' => null);
-	}
-}
-//TODO end delete ************
-
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['frozen block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -152,7 +144,7 @@ unset($psp_nbr_to_paraffin_blocks_data);
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['arn']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadRNA($XlsReader, $files_path, $files_name['arn']);
+loadRNA($XlsReader, $files_path, $files_name['arn']);
 
 //codes and barcodes update
 
@@ -173,7 +165,7 @@ while($row = $results->fetch_assoc()){
 //Pathology report
 //==============================================================================================
 
-//TODO loadPathologyReprot($psp_nbr_to_participant_id_and_patho);
+loadPathologyReprot($psp_nbr_to_participant_id_and_patho);
 
 //==============================================================================================
 //End of the process
@@ -418,7 +410,7 @@ function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $fi
 		$formatted_date = $tmp_date['date'];
 		$formatted_date_accuracy = $tmp_date['accuracy'];
 		//Combine date and time
-		if(!strlen($time) || $time == '-') {
+		if(!strlen($time) || $time == '-' || $time == '­') {
 			return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
 		} else {
 			if($formatted_date_accuracy != 'c') {
@@ -449,7 +441,7 @@ function getTime($data, $field_time, $data_type, $file, $line) {
 	global $import_summary;
 	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
 	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??', '?', 'X'), array('', '', '', '', '', '', '', ''), $data[$field_time]);
-	if(!strlen($time) || $time == '-') {
+	if(!strlen($time) || $time == '-' || $time == '­') {
 		return null;
 	} else {
 		if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
@@ -475,7 +467,7 @@ function getTime($data, $field_time, $data_type, $file, $line) {
 function getDecimal($data, $field, $data_type, $file_name, $line_counter) {
 	global $import_summary;
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 7eeee $field $file_name, $line_counter");
-	$decimal_value = str_replace(array('x', 'X', '?', '-'), array('','','', ''), $data[$field]);
+	$decimal_value = str_replace(array('x', 'X', '?', '-', '­', 'n/a', 'N/A'), array('','','', '', '', '', ''), $data[$field]);
 	if(strlen($decimal_value)) {
 		if(preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $decimal_value)) {
 			return str_replace(',', '.', $decimal_value);
@@ -577,66 +569,7 @@ function truncate() {
 		'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
 		'DELETE FROM participants;','DELETE FROM participants_revs;'
 	);
-
-	//TODO
-	/*
-	$truncate_queries_2 = array(
-		'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
-		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
-		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
-
-		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
-		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
-		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
-		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
-
-		'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
-		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
-		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
-		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
-		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
-		'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
-		'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
-		'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
-		'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
-		'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
-		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
-		'DELETE FROM sample_masters;', 'DELETE FROM sample_masters_revs;',
-
-		'DELETE FROM collections;', 'DELETE FROM collections_revs;',
-
-		'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
-		'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
-		'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
-		'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
-		'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
-		'UPDATE storage_masters SET parent_id = null;',
-		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;'
-	);	
 	
-	$truncate_queries = array(
-		'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
-		'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
-		'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
-		'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
-		'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
-		'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
-		'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
-		'UPDATE storage_masters SET parent_id = null;',
-		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
-			
-
-		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
-		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
-		"DELETE FROM ad_tubes WHERE aliquot_master_id IN (SELECT am.id FROM aliquot_masters am INNER JOIN sample_masters sm ON sm.id = am.sample_master_id WHERE sm.sample_control_id = 13);",
-		"DELETE FROM aliquot_masters WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
-		"TRUNCATE sd_der_rnas;",
-		"DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
-		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null  WHERE sample_control_id = 13;',
-		"DELETE FROM sample_masters WHERE sample_control_id = 13;"
-	);*/
-		
-					
 	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
 }
 
