@@ -20,10 +20,10 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$patient_identifier = $new_line_data['# patient'];
 			if($patient_identifier && preg_match('/^PS2P/', $patient_identifier)) {
-				if(empty($new_line_data['label'])) {
-					$import_summary['Inventory - Tissue']['@@WARNING@@']["No Aliquot Label"][] = "See patient '$patient_identifier' value. No block won't be created. [field 'label' - file '$file_name' - line $line_counter]";
+				if(empty($new_line_data['label']) || in_array($new_line_data['label'], array('x','X'))) {
+					$import_summary['Inventory - Tissue (V01)']['@@MESSAGE@@']["No Aliquot Label"][] = "See patient '$patient_identifier' value. No block won't be created. [field <b>label</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";
 				} else if(in_array(($patient_identifier.$new_line_data['label']), $dublicated_aliquots_check)){
-					$import_summary['Inventory - Tissue']['@@ERROR@@']["Duplicated Aliquot Label"][] = "See patient '$patient_identifier' value '".$new_line_data['label']."'. The second block won't be created. [field 'label' - file '$file_name' - line $line_counter]";
+					$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']["Duplicated Aliquot Label"][] = "See patient '$patient_identifier' value '".$new_line_data['label']."'. The second block won't be created. [field <b>label</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";
 				} else {
 					$dublicated_aliquots_check[$patient_identifier.$new_line_data['label']] = $patient_identifier.$new_line_data['label'];
 					//procure_freezing_type
@@ -43,11 +43,12 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 						case '?':
 							break;
 						default:
-							$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'ISO/OCT' value format"][] = "See patient '$patient_identifier' value [".$new_line_data['i=iso  O=OCT']."]. This value won't be migrated. [field 'i=iso  O=OCT' - file '$file_name' - line $line_counter]";
+							$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Wrong 'ISO/OCT' value format"][] = "See patient '$patient_identifier' value [".$new_line_data['i=iso  O=OCT']."]. This value won't be migrated. [field <b>i=iso  O=OCT</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";
 					}
 					$new_line_data['i=iso  O=OCT'] = $procure_freezing_type;
 					//procure_origin_of_slice
 					$procure_origin_of_slice = '';
+					$new_line_data['quadrants'] = strtoupper($new_line_data['quadrants']);
 					switch($new_line_data['quadrants']) {
 						case 'LA':
 						case 'LP':
@@ -56,11 +57,12 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 							$procure_origin_of_slice = $new_line_data['quadrants'];
 							break;
 						case 'x':
+						case 'X':
 						case '':
 							break;
 						default:
-							//$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'quadrants' value format"][] = "See patient '$patient_identifier' value [".$new_line_data['quadrants']."]. This value won't be migrated. [field 'quadrants' - file '$file_name' - line $line_counter]";
-							$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'quadrants' value format"][$new_line_data['quadrants']] = "See value [".$new_line_data['quadrants']."]. This value won't be migrated. [field 'quadrants' - file '$file_name']";
+							//$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Wrong 'quadrants' value format"][] = "See patient '$patient_identifier' value [".$new_line_data['quadrants']."]. This value won't be migrated. [field <b>quadrants</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";
+							$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Wrong 'quadrants' value format"][$new_line_data['quadrants']] = "See value [".$new_line_data['quadrants']."]. This value won't be migrated. [field <b>quadrants</b> - file <b>$file_name</b>]";
 					}
 					$new_line_data['quadrants'] = $procure_origin_of_slice;
 					//procure_dimensions
@@ -74,12 +76,12 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 							break;
 						case 'MO-CM':
 							$new_line_data['Coupe réalisée par'] = 'CM';
-							//$import_summary['Inventory - Tissue']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See patient '$patient_identifier'. [field 'Coupe réalisée par' - file '$file_name' - line $line_counter]";	
-							if(!$MO_CM_message_display) $import_summary['Inventory - Tissue']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See field 'Coupe réalisée par' - file '$file_name'";	
+							//$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See patient '$patient_identifier'. [field <b>Coupe réalisée par</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";	
+							if(!$MO_CM_message_display) $import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See field <b>Coupe réalisée par</b> - file <b>$file_name</b>";	
 							$MO_CM_message_display = true;
 							break;
 						default:
-							$import_summary['Inventory - Tissue']['@@ERROR@@']["Unknown lab staff"][] = "Lab staff '".$new_line_data['Coupe réalisée par']."' is unknown. Value won't be migrated. See patient '$patient_identifier'. [field 'Coupe réalisée par' - file '$file_name' - line $line_counter]";
+							$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']["Unknown lab staff"][] = "Lab staff '".$new_line_data['Coupe réalisée par']."' is unknown. Value won't be migrated. See patient '$patient_identifier'. [field <b>Coupe réalisée par</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";
 							$new_line_data['Coupe réalisée par'] = '';
 					}
 					//set data
@@ -94,7 +96,7 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 
 function loadParaffinBlock(&$XlsReader, $files_path, $file_name) {
 	global $import_summary;
-	$import_summary['Inventory - Tissue']['@@WARNING@@']["Field '# dossier' won't be migrated and used"][] = "See file $file_name";
+	$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Field '# dossier' won't be migrated and used"][] = "See file <b>$file_name</b>";
 	$psp_nbr_to_paraffin_blocks_data = array('blocks'=>array(), 'file_name' => $file_name);
 	//Load Worksheet Names
 	$XlsReader->read($files_path.$file_name);
@@ -130,9 +132,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	//LoadConsentAndQuestionnaireData
 	$headers = array();
-	for($visit_id=1;$visit_id<10;$visit_id++) {	
-//TODO
-if(!in_array($visit_id, array(1))) continue;		
+	for($visit_id=1;$visit_id<10;$visit_id++) {		
 		$worksheet = "V0".$visit_id;
 		$duplicated_participants_check = array();
 		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
@@ -158,13 +158,13 @@ if(!in_array($visit_id, array(1))) continue;
 								//Urine....
 								loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
 							} else {
-								$import_summary['Inventory - All']['@@ERROR@@']['Patient defined twice'][] = "The patient '$participant_identifier' has been listed twice for the same visit $worksheet. New line won't be migrated! [field '# patient' - file '$file_name' :: $worksheet - line: $line_counter]";		
+								$import_summary['Inventory - All']['@@ERROR@@']['Patient defined twice'][] = "The patient '$participant_identifier' has been listed twice for the same visit $worksheet. New line won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";		
 							}
 						} else {
-							$import_summary['Inventory - All']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient inventory won't be migrated! [field '# patient' - file '$file_name' :: $worksheet - line: $line_counter]";
+							$import_summary['Inventory - All']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient inventory won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 						}
 					} else {
-						$import_summary['Inventory - All']['@@WARNING@@']['No data to migrate'][] = "The line $line_counter seems to contain data that has not to be migrated! Data won't be migrated! [file '$file_name' :: $worksheet - line: $line_counter]";
+						$import_summary['Inventory - All']['@@WARNING@@']['No data to migrate'][] = "The line <b>$line_counter</b> seems to contain data that has not to be migrated! Data won't be migrated! [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 					}
 				}				
 			}
@@ -172,10 +172,10 @@ if(!in_array($visit_id, array(1))) continue;
 	}
 	//Check unmigrated block data
 	foreach($psp_nbr_to_frozen_blocks_data['blocks'] as $participant_identifier => $data) {
-		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated frozen blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' && ".$psp_nbr_to_frozen_blocks_data['file_name']."]  ";
+		$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Unmigrated frozen blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file <b>$file_name</b> && <b>".$psp_nbr_to_frozen_blocks_data['file_name']."</b>]  ";
 	}
 	foreach($psp_nbr_to_paraffin_blocks_data['blocks'] as $participant_identifier => $data) {
-		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated paraffin blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' && ".$psp_nbr_to_paraffin_blocks_data['file_name']."]  ";
+		$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Unmigrated paraffin blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file <b>$file_name</b> && <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>]  ";
 	}
 }
 
@@ -184,9 +184,9 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 	global $controls;
 
 	if(!array_key_exists('date prélèv. urine', $new_line_data) || empty($new_line_data['date prélèv. urine'])) {
-		if(str_replace('x','', $new_line_data['URN-1 vol. ml']) || str_replace('x','', $new_line_data['vol URN-3 non clarifié']) || ($new_line_data == 'V01' && str_replace('x','', $new_line_data['vol URC-1']))) {
+		if(str_replace(array('x','-'),array('',''), $new_line_data['URN-1 vol. ml']) || str_replace(array('x','-'),array('',''), $new_line_data['vol URN-3 non clarifié']) || ($new_line_data == 'V01' && str_replace(array('x','-'),array('',''), $new_line_data['vol URC-1']))) {
 			$new_line_data['date prélèv. urine'] = $new_line_data['date prélèv. sang'];
-			$import_summary['Inventory - Urine']['@@WARNING@@']["Use blood collection date for urine"]['-1'] = "Field 'date prélèv. urine' is missing. Used value of field 'date prélèv. sang'. Please confirm. [See file '$file_name :: $worksheet']";
+			$import_summary['Inventory - Urine']['@@WARNING@@']["Use blood collection date for urine"][$worksheet] = "Field 'date prélèv. urine' is missing. Used value of field 'date prélèv. sang'. Please confirm. [See file <b>$file_name</b> (<b>$worksheet</b>)']";
 		} else {
 			$new_line_data['date prélèv. urine'] = '';
 		}
@@ -246,8 +246,8 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 			$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 			customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['urine']['aliquots']['cup']['detail_tablename'], __FILE__, __LINE__, true);
 			$collection_aliquot_created = true;
-		} else if(str_replace('x','',$new_line_data['bte rangement URN-3']) || str_replace('x','',$new_line_data['position urn-3'])) {
-			$import_summary['Inventory - Urine']['@@WARNING@@']["No clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN3 is empty but a storage information is set (".$new_line_data['bte rangement URN-3']." : ".$new_line_data['position urn-3']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+		} else if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement URN-3']) || str_replace(array('x','-'),array('',''),$new_line_data['position urn-3'])) {
+			$import_summary['Inventory - Urine']['@@WARNING@@']["No clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN3 is empty but a storage information is set (".$new_line_data['bte rangement URN-3']." : ".$new_line_data['position urn-3']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 		//Centrifuged urine
 		$urine_aspect = '';
@@ -267,7 +267,7 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 				$procure_other_aspect_after_refrigeration = $new_line_data['urine trouble après frigo'];
 		}
 		$procure_chuq_pellet = '';
-		switch(str_replace('x', '', $new_line_data['urine culot'])) {
+		switch($new_line_data['urine culot']) {
 			case 'oui':
 				$procure_chuq_pellet = 'y';
 				break;
@@ -276,13 +276,16 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 				$procure_chuq_pellet = 'n';
 				break;
 			case '';
+			case 'x';
+			case 'X';
+			case '-';
 				break;
 			default:
-				$import_summary['Inventory - Urine']['@@WARNING@@']["Unknown pellet value"][] = "Pellet value '".$new_line_data['urine culot']."' is not supported. Value won't be migrated. See $participant_identifier. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+				$import_summary['Inventory - Urine']['@@WARNING@@']["Unknown pellet value"][] = "Pellet value '".$new_line_data['urine culot']."' is not supported. Value won't be migrated. See $participant_identifier. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 		$centrifuged_aliquots_created = false;
 		//... && clarified aliquots
-		if(strlen(str_replace('x','',$new_line_data['URN-1 vol. ml']))) {
+		if(strlen(str_replace(array('x','-'),array('',''),$new_line_data['URN-1 vol. ml']))) {
 			$sample_data = array(
 				'SampleMaster' => array(
 					'collection_id' => $collection_id,
@@ -330,19 +333,19 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 					$created_aliquot = true;
 					$centrifuged_aliquots_created = true;
 					$collection_aliquot_created = true;
-				} else if(str_replace('x','',$new_line_data['bte rangement URN-'.$id]) || str_replace('x','',$new_line_data['position urn-'.$id])) {
-					$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN".$id." is empty but a storage information is set (".$new_line_data['bte rangement URN-'.$id]." : ".$new_line_data['position urn-'.$id]."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+				} else if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement URN-'.$id]) || str_replace(array('x','-'),array('',''),$new_line_data['position urn-'.$id])) {
+					$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN".$id." is empty but a storage information is set (".$new_line_data['bte rangement URN-'.$id]." : ".$new_line_data['position urn-'.$id]."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), fields <b>".$new_line_data['bte rangement URN-'.$id]."</b> & <b>".$new_line_data['position urn-'.$id]."</b>, line : <b>$line_counter</b>]";
 				}
 			}
 			if(!$created_aliquot) {
-				$import_summary['Inventory - Urine']['@@WARNING@@']["Created a centifugated & clarified urine sample with no aliquot"][] = "Please confirm. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+				$import_summary['Inventory - Urine']['@@WARNING@@']["Created a centifugated & clarified urine sample with no aliquot"][] = "Please confirm. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 			}
-		} else if(str_replace('x','',$new_line_data['bte rangement URN-1']) || str_replace('x','',$new_line_data['position urn-1'])) {
-			$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN1 is empty but a storage information is set (".$new_line_data['bte rangement URN-1']." : ".$new_line_data['position urn-1']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+		} else if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement URN-1']) || str_replace(array('x','-'),array('',''),$new_line_data['position urn-1'])) {
+			$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN1 is empty but a storage information is set (".$new_line_data['bte rangement URN-1']." : ".$new_line_data['position urn-1']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 		//... && concentrated aliquots (Just in V01
 		if($new_line_data == 'V01') {
-			if(strlen(str_replace('x','',$new_line_data['vol URC-1']))) {
+			if(strlen(str_replace(array('x','-'),array('',''),$new_line_data['vol URC-1']))) {
 				$sample_data = array(
 					'SampleMaster' => array(
 						'collection_id' => $collection_id,
@@ -389,30 +392,30 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 					$centrifuged_aliquots_created = true;
 					$collection_aliquot_created = true;
 				} else {
-					if(str_replace('x','',$new_line_data['bte rangement urine concentrée']) || str_replace('x','',$new_line_data['positio urine concentrée dans bte rangement'])) {
-						$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a storage information is set (".$new_line_data['bte rangement urine concentrée']." : ".$new_line_data['positio urine concentrée dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+					if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement urine concentrée']) || str_replace(array('x','-'),array('',''),$new_line_data['positio urine concentrée dans bte rangement'])) {
+						$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a storage information is set (".$new_line_data['bte rangement urine concentrée']." : ".$new_line_data['positio urine concentrée dans bte rangement']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 					}
-					$import_summary['Inventory - Urine']['@@WARNING@@']["Created a centifugated & concentrated urine sample with no aliquot"][] = "Please confirm. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";	
+					$import_summary['Inventory - Urine']['@@WARNING@@']["Created a centifugated & concentrated urine sample with no aliquot"][] = "Please confirm. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";	
 				}
 			} else {
-				if(str_replace('x','',$new_line_data['bte rangement urine concentrée']) || str_replace('x','',$new_line_data['positio urine concentrée dans bte rangement'])) {
-					$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a storage information is set (".$new_line_data['bte rangement urine concentrée']." : ".$new_line_data['positio urine concentrée dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+				if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement urine concentrée']) || str_replace(array('x','-'),array('',''),$new_line_data['positio urine concentrée dans bte rangement'])) {
+					$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a storage information is set (".$new_line_data['bte rangement urine concentrée']." : ".$new_line_data['positio urine concentrée dans bte rangement']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 				}
 				if(strlen(str_replace('x','',$new_line_data['urine concentrée ratio conc.']))) {
-					$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but ratio set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a ratio information is set (".$new_line_data['urine concentrée ratio conc.']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+					$import_summary['Inventory - Urine']['@@WARNING@@']["No concentrated urine volume but ratio set"][] = "Volume of tube $participant_identifier $worksheet -URC1 is empty but a ratio information is set (".$new_line_data['urine concentrée ratio conc.']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 				}
 			}
 		}
 		// *** Final Control ***
 		if(!$centrifuged_aliquots_created && strlen($urine_aspect.$procure_chuq_pellet)) {
-			$import_summary['Inventory - Urine']['@@WARNING@@']["Centrifugated urine aspect and pellet data set but no aliquot created"][] = "Please confirm. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+			$import_summary['Inventory - Urine']['@@WARNING@@']["Centrifugated urine aspect and pellet data set but no aliquot created"][] = "Please confirm. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 		if(!$collection_aliquot_created) {
-			$import_summary['Inventory - Urine']['@@WARNING@@']["Collection date set but no aliquot created"][] = "See patient $participant_identifier. A collection was created (based on date) but no aliquot is defined into excel file. [file '$file_name :: $worksheet', line : $line_counter']";
+			$import_summary['Inventory - Urine']['@@WARNING@@']["Collection date set but no aliquot created"][] = "See patient $participant_identifier. A collection was created (based on date) but no aliquot is defined into excel file. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 	}  else {
-		if(str_replace('x','', $new_line_data['URN-1 vol. ml']) || str_replace('x','', $new_line_data['vol URN-3 non clarifié']) || ($new_line_data == 'V01' && str_replace('x','', $new_line_data['vol URC-1']))) {
-			$import_summary['Inventory - Urine']['@@WARNING@@']["No collection date but urine samples defined"][] = "See patient '$participant_identifier'. No collection has been created but utine tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
+		if(str_replace(array('x','-'),array('',''), $new_line_data['URN-1 vol. ml']) || str_replace(array('x','-'),array('',''), $new_line_data['vol URN-3 non clarifié']) || ($new_line_data == 'V01' && str_replace(array('x','-'),array('',''), $new_line_data['vol URC-1']))) {
+			$import_summary['Inventory - Urine']['@@WARNING@@']["No collection date but urine samples defined"][] = "See patient '$participant_identifier'. No collection has been created but utine tubes seam to be banked. Please confirm and create missing collection and samples. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 	}
 }
@@ -501,15 +504,15 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 					customInsert($aliquot_data['AliquotDetail'], $serum_controls['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);		
 					$created_aliquots++;
 					$collection_aliquot_created = true;
-				} else if(str_replace('x','',$new_line_data['position dans bte de rangement sérum-'.$id]) || str_replace('x','',$new_line_data['bte de rangement sérum-'.$id])) {
-					$import_summary['Inventory - Blood']['@@WARNING@@']["No serum volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -SER".$id." is empty but a storage information is set (".$new_line_data['bte de rangement sérum-'.$id]." : ".$new_line_data['position dans bte de rangement sérum-'.$id]."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+				} else if(str_replace(array('x','-'),array('',''),$new_line_data['position dans bte de rangement sérum-'.$id]) || str_replace(array('x','-'),array('',''),$new_line_data['bte de rangement sérum-'.$id])) {
+					$import_summary['Inventory - Blood']['@@WARNING@@']["No serum volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -SER".$id." is empty but a storage information is set (".$new_line_data['bte de rangement sérum-'.$id]." : ".$new_line_data['position dans bte de rangement sérum-'.$id]."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 				}
 			}
 			if($created_aliquots != $new_line_data['sérum nb tubes']) {
-				$import_summary['Inventory - Blood']['@@WARNING@@']["Numbers of serum tubes (created and defined) are different"][] = "Based on all volume fields, the system created $created_aliquots aliquots but the number of aliquots defined into column 'sérum nb tubes' was equal to ".$new_line_data['sérum nb tubes'].". Please confirm. Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+				$import_summary['Inventory - Blood']['@@WARNING@@']["Numbers of serum tubes (created and defined) are different"][] = "Based on all volume fields, the system created $created_aliquots aliquots but the number of aliquots defined into column 'sérum nb tubes' was equal to ".$new_line_data['sérum nb tubes'].". Please confirm. Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 			}
-		} else if(str_replace('x','',$new_line_data['ser-1'])) {
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No serum defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+		} else if(str_replace(array('x','-'),array('',''),$new_line_data['ser-1'])) {
+			$import_summary['Inventory - Blood']['@@ERROR@@']["No serum defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}	
 		
 		// *** Create EDTA Blood + Derivatives (plasma + Whatman + BFC) ***
@@ -548,8 +551,8 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 				$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 				customInsert($aliquot_data['AliquotDetail'], $blood_controls['aliquots']['whatman paper']['detail_tablename'], __FILE__, __LINE__, true);
 				$collection_aliquot_created = true;
-			} else if(str_replace('x','',$new_line_data['bte rangement WHT'])) {
-				$import_summary['Inventory - Blood']['@@ERROR@@']["No Whatman paper defined as banked but aliquot storage set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+			} else if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement WHT'])) {
+				$import_summary['Inventory - Blood']['@@ERROR@@']["No Whatman paper defined as banked but aliquot storage set"][] = "See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 			}
 			//2-plasma
 			if($new_line_data['plasma nb tubes']) {
@@ -598,15 +601,15 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 						customInsert($aliquot_data['AliquotDetail'], $plasma_controls['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
 						$created_aliquots++;
 						$collection_aliquot_created = true;
-					} else if(str_replace('x','',$new_line_data['position plasma-'.$id.' dans bte rangement']) || str_replace('x','',$new_line_data['bte de rangement plasma-'.$id])) {
-						$import_summary['Inventory - Blood']['@@WARNING@@']["No plasma volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -PLA".$id." is empty but a storage information is set (".$new_line_data['bte de rangement plasma-'.$id]." : ".$new_line_data['position plasma-'.$id.' dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+					} else if(str_replace(array('x','-'),array('',''),$new_line_data['position plasma-'.$id.' dans bte rangement']) || str_replace(array('x','-'),array('',''),$new_line_data['bte de rangement plasma-'.$id])) {
+						$import_summary['Inventory - Blood']['@@WARNING@@']["No plasma volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -PLA".$id." is empty but a storage information is set (".$new_line_data['bte de rangement plasma-'.$id]." : ".$new_line_data['position plasma-'.$id.' dans bte rangement']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 					}
 				}
 				if($created_aliquots != $new_line_data['plasma nb tubes']) {
-					$import_summary['Inventory - Blood']['@@WARNING@@']["Numbers of plasma tubes (created and defined) are different"][] = "Based on volume field, the system created $created_aliquots aliquots but the number of aliquots defined into column 'plasma nb tubes' was equal to ".$new_line_data['plasma nb tubes'].". Please confirm. Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+					$import_summary['Inventory - Blood']['@@WARNING@@']["Numbers of plasma tubes (created and defined) are different"][] = "Based on volume field, the system created $created_aliquots aliquots but the number of aliquots defined into column 'plasma nb tubes' was equal to ".$new_line_data['plasma nb tubes'].". Please confirm. Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 				}
-			} else if(str_replace('x','',$new_line_data['pla-1'])) {
-					$import_summary['Inventory - Blood']['@@ERROR@@']["No plasma defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+			} else if(str_replace(array('x','-'),array('',''),$new_line_data['pla-1'])) {
+					$import_summary['Inventory - Blood']['@@ERROR@@']["No plasma defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 			}
 			//3-BFC (pbmc)
 			if($new_line_data['BFC en banque oui-non']) {
@@ -631,13 +634,14 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 				for($id=1;$id<4;$id++){
 					$initial_volume = 0;
 					if($id!=3) {
+						$new_line_data['BFC cong. X2 (ml) '.$id] = str_replace(' ml', '', $new_line_data['BFC cong. X2 (ml) '.$id]);
 						$initial_volume = getDecimal($new_line_data, 'BFC cong. X2 (ml) '.$id, 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
 					} else {
 						
 						if($new_line_data['BFC 300ul'] == '1') {
 							$initial_volume = '0.3';
 						} else if(str_replace('x', '', $new_line_data['BFC 300ul'])) {
-							$import_summary['Inventory - Blood']['@@ERROR@@']["Wrong 'BFC 300ul' value format"][] = "Value (".$new_line_data['BFC 300ul'].") different than '1'. No third aliquot will be created. See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+							$import_summary['Inventory - Blood']['@@ERROR@@']["Wrong 'BFC 300ul' value format"][] = "Value (".$new_line_data['BFC 300ul'].") different than '1'. No third aliquot will be created. See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 						}
 					}
 					if($initial_volume) {
@@ -665,23 +669,23 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 						customInsert($aliquot_data['AliquotDetail'], $bfc_controls['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
 						$collection_aliquot_created = true;
 						$created_aliquots = true;
-					} else if(str_replace('x','',$new_line_data['position BFC-'.$id.' dans bte rangement']) || str_replace('x','',$new_line_data['bte rangement BFC-'.$id])) {
-						$import_summary['Inventory - Blood']['@@WARNING@@']["No BFC volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -BFC".$id." is empty but a storage information is set (".$new_line_data['bte rangement BFC-'.$id]." : ".$new_line_data['position BFC-'.$id.' dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
+					} else if(str_replace(array('x','-'),array('',''),$new_line_data['position BFC-'.$id.' dans bte rangement']) || str_replace(array('x','-'),array('',''),$new_line_data['bte rangement BFC-'.$id])) {
+						$import_summary['Inventory - Blood']['@@WARNING@@']["No BFC volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -BFC".$id." is empty but a storage information is set (".$new_line_data['bte rangement BFC-'.$id]." : ".$new_line_data['position BFC-'.$id.' dans bte rangement']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 					}
 				}
 				if(!$created_aliquots) {
-					$import_summary['Inventory - Blood']['@@WARNING@@']["No tube of BFC defined"][] = "BFC tubes were defined as banked but no tube volume is set. No aliquot has been created .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+					$import_summary['Inventory - Blood']['@@WARNING@@']["No tube of BFC defined"][] = "BFC tubes were defined as banked but no tube volume is set. No aliquot has been created .See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 				}
-			} else if(str_replace('x','',$new_line_data['BFC cong. X2 (ml) 1'])) {
-				$import_summary['Inventory - Blood']['@@ERROR@@']["No BFC defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+			} else if(str_replace(array('x','-'),array('',''),$new_line_data['BFC cong. X2 (ml) 1'])) {
+				$import_summary['Inventory - Blood']['@@ERROR@@']["No BFC defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 			}
-		} else if(str_replace('x','',$new_line_data['pla-1'])) {
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No plasma defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-		} else if(str_replace('x','',$new_line_data['BFC cong. X2 (ml) 1'])) {
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No BFC defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-		} else if(str_replace('x','',$new_line_data['bte rangement WHT'])) {
+		} else if(str_replace(array('x','-'),array('',''),$new_line_data['pla-1'])) {
+			$import_summary['Inventory - Blood']['@@ERROR@@']["No plasma defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+		} else if(str_replace(array('x','-'),array('',''),$new_line_data['BFC cong. X2 (ml) 1'])) {
+			$import_summary['Inventory - Blood']['@@ERROR@@']["No BFC defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+		} else if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement WHT'])) {
 			//Test can only be done on storage
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No Whatman paper defined as banked but aliquot storage set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+			$import_summary['Inventory - Blood']['@@ERROR@@']["No Whatman paper defined as banked but aliquot storage set"][] = "See Patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 		
 		// *** Create Paxgene Blood + Derivatives ***
@@ -721,28 +725,28 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 		// *** Final Control ***
 		
 		if(!$collection_aliquot_created) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["Collection date set but no aliquot created"][] = "See patient $participant_identifier. A collection was created (based on date) but no aliquot is defined into excel file. [file '$file_name :: $worksheet', line : $line_counter']";	
+			$import_summary['Inventory - Blood']['@@WARNING@@']["Collection date set but no aliquot created"][] = "See patient $participant_identifier. A collection was created (based on date) but no aliquot is defined into excel file. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";	
 		}
 	}  else {
-		if(str_replace('x','', $new_line_data['sérum nb tubes'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but '".$new_line_data['sérum nb tubes']."' serum tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
+		if(str_replace(array('x','-'),array('',''), $new_line_data['sérum nb tubes'])) {
+			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but '".$new_line_data['sérum nb tubes']."' serum tubes seam to be banked. Please confirm and create missing collection and samples. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
-		if(str_replace('x','', $new_line_data['plasma nb tubes'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but '".$new_line_data['plasma nb tubes']."' plasma tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
+		if(str_replace(array('x','-'),array('',''), $new_line_data['plasma nb tubes'])) {
+			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but '".$new_line_data['plasma nb tubes']."' plasma tubes seam to be banked. Please confirm and create missing collection and samples. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
-		if(str_replace('x','', $new_line_data['FTA Elute WHT'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but 'Whatman Paper'  seams to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
+		if(str_replace(array('x','-'),array('',''), $new_line_data['FTA Elute WHT'])) {
+			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but 'Whatman Paper'  seams to be banked. Please confirm and create missing collection and samples. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
-		if(str_replace('x','', $new_line_data['BFC en banque oui-non'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but 'BFC' plasma tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
+		if(str_replace(array('x','-'),array('',''), $new_line_data['BFC en banque oui-non'])) {
+			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but 'BFC' plasma tubes seam to be banked. Please confirm and create missing collection and samples. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
-		if(str_replace('x','', $new_line_data['paxgene congelé'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but paxgene tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
+		if(str_replace(array('x','-'),array('',''), $new_line_data['paxgene congelé'])) {
+			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but paxgene tubes seam to be banked. Please confirm and create missing collection and samples. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 	}
 }
 	
-function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_frozen_blocks_data, &$psp_nbr_to_paraffin_blocks_data, &$patho_nbr, $file_name, $worksheet, $line_counter, $new_line_data) {
+function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_frozen_blocks_data, &$psp_nbr_to_paraffin_blocks_data, &$patho_nbr_from_participant_file, $file_name, $worksheet, $line_counter, $new_line_data) {
 	global $import_summary;
 	global $controls;
 	
@@ -769,7 +773,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 			if(!(preg_match('/^((0)|(non))$/', $new_line_data[$field]) || !strlen($new_line_data[$field]))) $comments[] = $new_line_data[$field];
 		}
 		if($comments) {
-			$import_summary['Inventory - Tissue']['@@WARNING@@']['No prostatectomy but a surgery (or collection) comment has been added'][] = "See patient '$participant_identifier' with note(s) [".implode(' & ', $comments)."]. This note won't be migrated and has to be recorded manually by the user if required. [fields 'chirurgie fait' & 'Tissus prélevé congelé' - file '$file_name' :: $worksheet - line: $line_counter]";
+			$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']['No prostatectomy but a surgery (or collection) comment has been added'][] = "See patient '$participant_identifier' with note(s) [".implode(' & ', $comments)."]. This note won't be migrated and has to be recorded manually by the user if required. [fields <b>chirurgie fait</b> & <b>Tissus prélevé congelé</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 		}		
 	}
 	$collection_id = null;
@@ -823,7 +827,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 			case '':
 				break;
 			default:
-				$import_summary['Inventory - Tissue']['@@WARNING@@']["Wrong 'guidé par le rapport de biopsie' value format"][] = "See patient '$participant_identifier' value [$procure_reference_to_biopsy_report]. This value won't be migrated. [field 'guidé par le rapport de biopsie' - file '$file_name' :: $worksheet - line: $line_counter]";
+				$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Wrong 'guidé par le rapport de biopsie' value format"][] = "See patient '$participant_identifier' value [$procure_reference_to_biopsy_report]. This value won't be migrated. [field <b>guidé par le rapport de biopsie</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 				$procure_reference_to_biopsy_report = '';
 		}		
 		//Create sample
@@ -839,7 +843,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 			'SampleDetail' => array(
 				'procure_tissue_identification' => $participant_identifier.' V01 PST1',
 				'procure_prostatectomy_resection_time' => getTime($new_line_data, 'hre de résection laparoscopie', 'Inventory - Tissue', $file_name, $line_counter),
-				'procure_report_number' => $patho_nbr,
+				'procure_report_number' => $patho_nbr_from_participant_file,
 				'prostate_fixation_time' => getTime($new_line_data, 'hre de fixation prostate', 'Inventory - Tissue', $file_name, $line_counter),
 				'procure_lymph_nodes_fixation_time' => getTime($new_line_data, 'hre de fixation ganglions', 'Inventory - Tissue', $file_name, $line_counter),
 				'procure_chuq_collected_prostate_slice_weight_gr' => getDecimal($new_line_data, 'poids de la tranche prélevé (gramme)', 'Pathology Report', "$file_name ($worksheet)", $line_counter),
@@ -862,7 +866,9 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 		$storage_time = getTime($new_line_data, 'hre de congélation tissus', 'Inventory - Tissue', $file_name, $line_counter);
 		if($storage_time) {
 			$storage_date .= ' '.$storage_time;
-			if($storage_date_accuracy != 'c') die('ERR 8738728732');
+			if($storage_date_accuracy != 'c') {			
+				$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']["Tissue frozen time set but prostatectomy date is inaccurate"][] = "See patient '$participant_identifier' field 'hre de congélation tissus'. [file <b>".$psp_nbr_to_frozen_blocks_data['file_name']."</b>, line <b>".$new_block['excel_line']."</b>]";
+			}
 		} else {
 			$storage_date .= ' 00:00';
 			$storage_date_accuracy = str_replace('c', 'h', $storage_date_accuracy);
@@ -916,6 +922,16 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 						$use_datetime =array('date' => '2008-10-01 00:00', 'accuracy' =>'d');
 					} else if('Hiver-Printemps 2007' == $new_block['Date de coupe']) {
 						$use_datetime =array('date' => '2007-03-01 00:00', 'accuracy' =>'m');
+					} else if('14fév.2011' == $new_block['Date de coupe']) {
+							$use_datetime =array('date' => '2011-02-14 00:00', 'accuracy' =>'c');
+					} else if('24-Mar-2009' == $new_block['Date de coupe']) {
+							$use_datetime =array('date' => '2009-03-24 00:00', 'accuracy' =>'c');
+					} else if('17-Mar-2009' == $new_block['Date de coupe']) {
+							$use_datetime =array('date' => '2009-03-17 00:00', 'accuracy' =>'c');
+					} else if('27-Mar-2009' == $new_block['Date de coupe']) {
+							$use_datetime =array('date' => '2009-03-27 00:00', 'accuracy' =>'c');
+					} else if('19-Aug-2009' == $new_block['Date de coupe']) {
+							$use_datetime =array('date' => '2009-08-19 00:00', 'accuracy' =>'c');
 					} else {
 						$use_datetime = getDateAndAccuracy($new_block, 'Date de coupe', 'Inventory - Tissue', $psp_nbr_to_frozen_blocks_data['file_name'], $new_block['excel_line']);
 						$use_datetime['accuracy'] = str_replace('c', 'h', $use_datetime['accuracy']);
@@ -928,7 +944,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 							'use_datetime_accuracy' => $use_datetime['accuracy'],
 							'used_by' => $new_block['Coupe réalisée par']);
 					} else {
-						$import_summary['Inventory - Tissue']['@@ERROR@@']["Unable to extract 'Aliquot Use' information from 'Date de coupe'"][] = "Value '".$new_block['Date de coupe']."' is not supported and won't be migrated. See patient '$participant_identifier'. [file '".$psp_nbr_to_frozen_blocks_data['file_name']."', line '".$new_block['excel_line']."']";
+						$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']["Unable to extract 'Aliquot Use' information from 'Date de coupe'"][] = "Value '".$new_block['Date de coupe']."' is not supported and won't be migrated. See patient '$participant_identifier'. [file <b>".$psp_nbr_to_frozen_blocks_data['file_name']."</b>, line <b>".$new_block['excel_line']."</b>]";
 					}
 			}
 			$use_counter = empty($aliquot_use)? ' 0' : '1';
@@ -946,7 +962,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 			$storage_master_id = getStorageMasterId($participant_identifier, $new_block['boîte'], 'tissue', 'Inventory - Tissue', $psp_nbr_to_frozen_blocks_data['file_name'], '', $new_block['excel_line']);
 			$storage_coordinates = getPosition($participant_identifier, $new_block['division'], $new_block['boîte'], 'tissue', 'Inventory - Tissue', $psp_nbr_to_frozen_blocks_data['file_name'], '', $new_block['excel_line']);
 			if($in_stock == 'no' && $storage_master_id) {
-				$import_summary['Inventory - Tissue']['@@WARNING@@']["Aliquot 'In Stock' value set to 'No'"][] = "Aliquot 'In Stock' value set to 'No' based on 'Date de coupe' value '".$new_block['Date de coupe']."' so storage information (".$new_block['boîte'].'/'.$new_block['division'].") won't be imported. See patient '$participant_identifier'. [file '".$psp_nbr_to_frozen_blocks_data['file_name']."', line '".$new_block['excel_line']."' &&  file '".$psp_nbr_to_frozen_blocks_data['file_name']."', line '".$new_block['excel_line']."']";
+				$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Aliquot 'In Stock' value set to 'No'"][] = "The aliquot 'In Stock' value has been set to 'No' by the migration process based on the 'Date de coupe' field value [".$new_block['Date de coupe']."]. The storage information (".$new_block['boîte'].'/'.$new_block['division'].") won't be imported. Please confirm or correct data after migration. See patient '$participant_identifier'. [file <b>".$psp_nbr_to_frozen_blocks_data['file_name']."</b>, line <b>".$new_block['excel_line']."</b>]";
 				$storage_master_id = null;
 				$storage_coordinates = array('x'=>null, 'y'=>null);;
 			}
@@ -987,17 +1003,17 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 				
 		//$duplicated_label_check = array();
 		foreach($patient_paraffin_block_data as $new_blocks_set) {
-			$patho_nbr_from_paraffin_block = $new_blocks_set['# patho'];
-			if(empty($patho_nbr_from_paraffin_block)) {
-				$import_summary['Inventory - Tissue']['@@ERROR@@']['No Patho Number for paraffin block'][] = "The pathology number is not defined into the paraffin block file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. No block will be created. See patient '$participant_identifier'. ['".$psp_nbr_to_paraffin_blocks_data['file_name']."', line '".$new_blocks_set['excel_line']."']";
+			$patho_nbr_from_paraffin_block_file = $new_blocks_set['# patho'];
+			if(empty($patho_nbr_from_paraffin_block_file)) {
+				$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['No Patho Number for paraffin block'][] = "The pathology number is not defined for the paraffin block file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>. No block will be created. See patient '$participant_identifier'. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";
 			} else {
-				if(empty($patho_nbr)) {
-					$patho_nbr = $patho_nbr_from_paraffin_block;
-					$import_summary['Inventory - Tissue']['@@MESSAGE@@']['Used Patho Number of paraffin block'][] = "The pathology number ($patho_nbr_from_paraffin_block) is just set into the paraffin block file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. Will use this one for both sample and pathology report data. See patient '$participant_identifier'. ['".$psp_nbr_to_paraffin_blocks_data['file_name']."', line '".$new_blocks_set['excel_line']."']";	
-					$query = "UPDATE ".$tissue_sample_controls['detail_tablename']." SET procure_report_number = '".str_replace("'", "''", $patho_nbr)."' WHERE sample_master_id = $sample_master_id;";
+				if(empty($patho_nbr_from_participant_file)) {
+					$patho_nbr_from_participant_file = $patho_nbr_from_paraffin_block_file;
+					$import_summary['Inventory - Tissue (V01)']['@@MESSAGE@@']['Used Patho Number of paraffin block'][] = "The pathology number ($patho_nbr_from_paraffin_block_file) is just set into the paraffin block file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>. Will use this one for both sample and pathology report data. See patient '$participant_identifier'. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";	
+					$query = "UPDATE ".$tissue_sample_controls['detail_tablename']." SET procure_report_number = '".str_replace("'", "''", $patho_nbr_from_participant_file)."' WHERE sample_master_id = $sample_master_id;";
 					customQuery($query, __FILE__, __LINE__);
-				} else if($patho_nbr != $patho_nbr_from_paraffin_block){
-					$import_summary['Inventory - Tissue']['@@ERROR@@']['Patho Numbers conflict'][] = "The pathology number ($patho_nbr) previously defined into patient excel file does not match the number ($patho_nbr_from_paraffin_block) defined into the paraffin block file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. Please confrim. See patient '$participant_identifier'. ['".$psp_nbr_to_paraffin_blocks_data['file_name']."', line '".$new_blocks_set['excel_line']."']";
+				} else if($patho_nbr_from_participant_file != $patho_nbr_from_paraffin_block_file){
+					$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Patho Numbers conflict'][] = "The pathology number ($patho_nbr_from_participant_file) previously defined into patient excel file does not match the number ($patho_nbr_from_paraffin_block_file) defined into the paraffin block file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>. Please confrim. See patient '$participant_identifier'. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";
 				}
 				foreach(array('bloc tumoral 1', 'bloc tumoral 2', 'bloc normal 1', 'bloc normal 2') as $block_key) {
 					if($new_blocks_set[$block_key]) {
@@ -1008,7 +1024,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 								'collection_id' => $collection_id,
 								'sample_master_id' => $sample_master_id,
 								'aliquot_control_id' => $tissue_sample_controls['aliquots']['block']['aliquot_control_id'],
-								'barcode' => "$patho_nbr_from_paraffin_block-".$new_blocks_set[$block_key],
+								'barcode' => "$patho_nbr_from_paraffin_block_file-".$new_blocks_set[$block_key],
 								'in_stock' => 'yes - available'),
 							'AliquotDetail' => array(
 								'block_type' => 'paraffin',
@@ -1023,14 +1039,14 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 		//*** BLOCK CREATION CHECK **
 		
 		if(!$block_created) {
-			$import_summary['Inventory - Tissue']['@@WARNING@@']["No Block defined for a patient tissue collection"][] = "See patient '$participant_identifier'. A tissue sample has been created but no block is defined into file '".$psp_nbr_to_frozen_blocks_data['file_name']."' or file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. No aliquot will be created.";
+			$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["No Block defined for a patient tissue collection"][] = "See patient '$participant_identifier'. A tissue sample has been created but no block is defined into either file <b>".$psp_nbr_to_frozen_blocks_data['file_name']."</b> or file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>. No aliquot will be created.";
 		}
 	} else {
 		if(!empty($patient_frozen_block_data)) {
-			$import_summary['Inventory - Tissue']['@@ERROR@@']["No collection created but tissue blocks defined in tissue size file"][] = "See patient '$participant_identifier'. No tissue collection has been created but blocks are defined into tissue size file. No aliquot,sample and collection will be created. [file '".$psp_nbr_to_frozen_blocks_data['file_name']."']";
+			$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']["No collection created but tissue blocks defined in tissue size file"][] = "See patient '$participant_identifier'. No tissue collection has been created but blocks are defined into tissue size file. No aliquot,sample and collection will be created. [file <b>".$psp_nbr_to_frozen_blocks_data['file_name']."</b>]";
 		}
 		if(!empty($patient_paraffin_block_data)) {
-			$import_summary['Inventory - Tissue']['@@ERROR@@']["No collection created but tissue blocks defined in path block file"][] = "See patient '$participant_identifier'. No tissue collection has been created but blocks are defined into patho block file. No aliquot,sample and collection will be created. [file '".$psp_nbr_to_paraffin_blocks_data['file_name']."']";
+			$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']["No collection created but tissue blocks defined in path block file"][] = "See patient '$participant_identifier'. No tissue collection has been created but blocks are defined into patho block file. No aliquot,sample and collection will be created. [file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>]";
 		}
 	}
 }
@@ -1048,8 +1064,6 @@ function loadRNA(&$XlsReader, $files_path, $file_name) {
 	//LoadConsentAndQuestionnaireData
 	$headers = array();
 	for($id=1;$id<10;$id++) {
-//TODO
-if(!in_array($id, array(1))) continue;
 		$worksheet = "V0".$id;
 		$paxgene_blood_tubes = array();	
 		$query = "SELECT par.participant_identifier, am.collection_id, am.sample_master_id, am.barcode, am.id AS aliquot_master_id, am.storage_master_id, stm.selection_label
@@ -1086,12 +1100,12 @@ if(!in_array($id, array(1))) continue;
 								if(preg_match('/^([0-9]+)\ min\.\ DNAse$/', $new_line_data["Délai DNAse"], $matches)) {
 									$procure_chuq_dnase_duration_mn = $matches[1];
 								} else {
-									$import_summary['Inventory - RNA']['@@WARNING@@']["Wrong 'Délai DNAse' format"][] = "See value '".$new_line_data["Délai DNAse"]."' for patient '$participant_identifier'. No value imported. [file '$file_name' :: $worksheet - line: $line_counter]";
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Wrong 'Délai DNAse' format"][] = "See value '".$new_line_data["Délai DNAse"]."' for patient '$participant_identifier'. No value imported. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 								}
 							}
 							$procure_chuq_extraction_method = '';
 							if($new_line_data['extract. Manuelle'] == 1 && $new_line_data['Qiacube kit miRNA'] == 1) {
-								$import_summary['Inventory - RNA']['@@WARNING@@']["Extraction method conflict"][] = "Extraction method defined both as manual and kit. No method will be set. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+								$import_summary['Inventory - RNA']['@@WARNING@@']["Extraction method conflict"][] = "Extraction method defined both as manual and kit. No method will be set. See patient '$participant_identifier'. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 							} else if($new_line_data['extract. Manuelle'] == 1) {
 								$procure_chuq_extraction_method = 'manual extraction';
 							} else if($new_line_data['Qiacube kit miRNA'] == 1) {
@@ -1111,10 +1125,10 @@ if(!in_array($id, array(1))) continue;
 								case 'VB et CM':
 								case 'VB/CM':
 									$created_by = 'CM';
-									$import_summary['Inventory - RNA']['@@WARNING@@']["Changed lab staff who extracted RNA to 'CM'"][] = "Value '".$new_line_data['extrait par CHUQ']."' changed to 'CM'. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Changed lab staff who extracted RNA to 'CM'"][] = "Value '".$new_line_data['extrait par CHUQ']."' changed to 'CM'. See patient '$participant_identifier'. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 									break;
 								default:
-									$import_summary['Inventory - RNA']['@@ERROR@@']["Unknown lab staff who extracted RNA"][] = "Lab staff '".$new_line_data['extrait par CHUQ']."' is not supported. Value won't be migrated. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+									$import_summary['Inventory - RNA']['@@ERROR@@']["Unknown lab staff who extracted RNA"][] = "Lab staff '".$new_line_data['extrait par CHUQ']."' is not supported. Value won't be migrated. See patient '$participant_identifier'. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 							}
 							//Create RNA Sample
 							$sample_data = array(
@@ -1142,7 +1156,7 @@ if(!in_array($id, array(1))) continue;
 							//Update paxgen tube storage data
 							$aliquot_master_ids_to_remove[] = $source_aliquot_master_id;
 							if($paxgene_blood_tubes[$participant_identifier]['storage_master_id']) {
-								$import_summary['Inventory - RNA']['@@WARNING@@']["Removed Paxgene Tube from Storage"][] = "Paxgen tube '$source_aliquot_barcode' was defined as used for RNA extraction. Migration process removed storage information (Tube was defined as stored into ".$paxgene_blood_tubes[$participant_identifier]['selection_label']."). See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+								$import_summary['Inventory - RNA']['@@WARNING@@']["Removed Paxgene Tube from Storage"][] = "Paxgen tube '$source_aliquot_barcode' was defined as used for RNA extraction. Migration process removed storage information (Tube was defined as stored into ".$paxgene_blood_tubes[$participant_identifier]['selection_label']."). See patient '$participant_identifier'. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 							}
 							//Create aliquots
 							$aliquot_master_ids = array();
@@ -1231,7 +1245,7 @@ if(!in_array($id, array(1))) continue;
 								}
 							}
 							if(empty($aliquot_master_ids)) {
-								$import_summary['Inventory - RNA']['@@WARNING@@']["No tube of RNA defined"][] = "RNA sample has been created but no tube volume is set. No aliquot has been created .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+								$import_summary['Inventory - RNA']['@@WARNING@@']["No tube of RNA defined"][] = "RNA sample has been created but no tube volume is set. No aliquot has been created .See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 							}
 							//Bioanalyzer
 							$qc_code_counter = 0;
@@ -1242,7 +1256,7 @@ if(!in_array($id, array(1))) continue;
 								$score = getDecimal($new_line_data, 'Ratio 28S/18S Bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								if($score) $scores['28/18'] = $score;
 								if(empty($scores)) {
-									$import_summary['Inventory - RNA']['@@WARNING@@']["Bioanalyzer test with no scrore"][] = "Please confirm .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Bioanalyzer test with no scrore"][] = "Please confirm .See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 									$scores[''] = '';
 								}
 								$qc_date = getDateAndAccuracy($new_line_data, "Date d'analyse", 'Inventory - RNA', $file_name, $line_counter);
@@ -1252,13 +1266,13 @@ if(!in_array($id, array(1))) continue;
 									if(array_key_exists($new_line_data['Aliquot utilisé pour bioanalyser'], $aliquot_master_ids)) {
 										$tested_aliquot_master_id = $aliquot_master_ids[$new_line_data['Aliquot utilisé pour bioanalyser']];
 									} else {
-										$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Unable to define tested aliquot"][] = "The system is unable to link bioanalyzer test to the specific aliquot defined as  '".$new_line_data['Aliquot utilisé pour bioanalyser']."'. This one has not been created into the system. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+										$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Unable to define tested aliquot"][] = "The system is unable to link bioanalyzer test to the specific aliquot defined as  '".$new_line_data['Aliquot utilisé pour bioanalyser']."'. This one has not been created into the system. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 									}
 								}
 								$new_line_data['Volume pris pour analyse  bioanalyser'] = str_replace(' ul', '', $new_line_data['Volume pris pour analyse  bioanalyser']);
 								$used_volume = getDecimal($new_line_data, 'Volume pris pour analyse  bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								if(is_null($tested_aliquot_master_id) && strlen($used_volume)) {
-									$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Used volume but no tested aliquot"][] = "A 'Volume pris pour analyse  bioanalyser' is defined but no tested aliquot is defined. No volume will be migrated. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+									$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Used volume but no tested aliquot"][] = "A 'Volume pris pour analyse  bioanalyser' is defined but no tested aliquot is defined. No volume will be migrated. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 									$used_volume = '';
 								}
 								foreach($scores as $unit => $score) {
@@ -1280,7 +1294,7 @@ if(!in_array($id, array(1))) continue;
 									$used_volume = ''; //In case there are 2 scores no used wolume will be defined for the second one
 								}
 							} else if(strlen($new_line_data['Valeur RIN'].$new_line_data['Ratio 28S/18S Bioanalyser'])) {
-								$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer was defined as not executed but results exist"][] = "No bioanalyzer test will be migrated. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+								$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer was defined as not executed but results exist"][] = "No bioanalyzer test will be migrated. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 							}
 							//Nanodrop
 							if(strlen($new_line_data["Nanodrop date analyse"])) {
@@ -1294,7 +1308,7 @@ if(!in_array($id, array(1))) continue;
 								$score = getDecimal($new_line_data, 'Nanodrop 260/230', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								if($score) $scores['260/230'] = $score;
 								if(empty($scores)) {
-									$import_summary['Inventory - RNA']['@@WARNING@@']["Nanodrop test with no scrore"][] = "Please confirm .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Nanodrop test with no scrore"][] = "Please confirm .See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 									$scores[''] = '';
 								}
 								$qc_date = getDateAndAccuracy($new_line_data, "Nanodrop date analyse", 'Inventory - RNA', $file_name, $line_counter);
@@ -1314,11 +1328,11 @@ if(!in_array($id, array(1))) continue;
 									customInsert($qc_data, 'quality_ctrls', __FILE__, __LINE__, false);
 								}
 							} else if(strlen($new_line_data['Nanodrop A260'].$new_line_data['Nanodrop A280'].$new_line_data['Nanodrop 260/280'].$new_line_data['Nanodrop 260/230'])) {
-								$import_summary['Inventory - RNA']['@@ERROR@@']["Nanodrop test was defined as not executed but results exist"][] = "No test will be migrated. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+								$import_summary['Inventory - RNA']['@@ERROR@@']["Nanodrop test was defined as not executed but results exist"][] = "No test will be migrated. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 							}							
 							unset($paxgene_blood_tubes[$participant_identifier]);
 						} else {
-							$import_summary['Inventory - RNA']['@@ERROR@@']["No paxgene tube"][] = "RNA has been defined for patient $participant_identifier but no paxgene tube was previously created into the system. No RNA will be created. [file '$file_name' :: $worksheet - line: $line_counter";
+							$import_summary['Inventory - RNA']['@@ERROR@@']["No paxgene tube"][] = "RNA has been defined for patient $participant_identifier but no paxgene tube was previously created into the system. No RNA will be created. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>";
 						}
 					}
 				}
@@ -1404,7 +1418,7 @@ function getStorageMasterId($participant_identifier, $excel_storage_label, $samp
 						$rack_label = $matches[1];
 						$box_label = $matches[2];
 					} else {
-						$import_summary[$data_type]['@@ERROR@@']["Unable to extract both rack and box labels"][] = "Unable to extract the rack and box labels for $sample_type box with value '$excel_storage_label'. Box label will be set to '$excel_storage_label' and no rack will be created. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
+						$import_summary[$data_type]['@@ERROR@@']["Unable to extract both rack and box labels"][] = "Unable to extract the rack and box labels for $sample_type box with value '$excel_storage_label'. Box label will be set to '$excel_storage_label' and no rack will be created. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 						$box_label = $excel_storage_label;
 					}
 					break;
@@ -1469,7 +1483,7 @@ function getPosition($participant_identifier, $excel_postions, $excel_storage_la
 	if(empty($excel_postions)) {
 		//Nothing to do
 	} else if(empty($excel_storage_label)) {
-		$import_summary[$data_type]['@@ERROR@@']["Storage position but no box label defined"][] = "No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
+		$import_summary[$data_type]['@@ERROR@@']["Storage position but no box label defined"][] = "No position will be set. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 	} else {
 		$box_storage_unique_key = getBoxStorageUniqueKey($excel_storage_label, $sample_type);
 		if(!array_key_exists($box_storage_unique_key, $storage_master_ids))  die('ERR 2387 628763287.2');
@@ -1493,7 +1507,7 @@ function getPosition($participant_identifier, $excel_postions, $excel_storage_la
 			default:
 				die('ERR327632767326 '.$storage_type);	
 		}
-		if(is_null($positions['x'])) $import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box ($storage_type) is wrong. No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
+		if(is_null($positions['x'])) $import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box ($storage_type) is wrong. No position will be set. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 	}
 	return $positions;
 }

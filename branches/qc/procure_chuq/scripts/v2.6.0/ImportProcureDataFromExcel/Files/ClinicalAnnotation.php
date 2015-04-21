@@ -33,7 +33,7 @@ function loadVitalStatus(&$XlsReader, $files_path, $file_name) {
 				if($vital_status_data[$participant_identifier]['date_of_death']) {
 					$vital_status_data[$participant_identifier]['vital_status'] = 'deceased';
 				} else if(strlen($vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details'])) {
-					$import_summary['Profile']['@@ERROR@@']['No date of death'][] = "A cause of death [".$vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details']."] has been defined but no date of death has been set. Cause won't be migrated and vital status won't be set to 'deceased'! [field 'reason' - file '$file_name' - line: $line_counter]";
+					$import_summary['Profile']['@@ERROR@@']['No date of death'][] = "A cause of death [".$vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details']."] has been defined but no date of death has been set. Cause won't be migrated and vital status won't be set to 'deceased'! [field <b>reason</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 				}
 			}
 		}
@@ -102,7 +102,7 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 					'prostate_weight_gr' => null
 				);
 			} else {
-				$import_summary['Profile']['@@ERROR@@']['Patient Identification Format Error'][] = "Format of Identification '$participant_identifier' is not supported! [field 'Patients' - file '$file_name' - line: $line_counter]";
+				$import_summary['Profile']['@@ERROR@@']['Patient Identification Format Error'][] = "Format of Identification '$participant_identifier' is not supported! [field <b>Patients</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 			}
 		}
 	}
@@ -136,7 +136,7 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 				$consent_signed_date = getDateAndAccuracy($new_line_data, 'Date de signature', 'Consent & Questionnaire', $file_name, $line_counter);
 				$form_version = getDateAndAccuracy($new_line_data, 'Date de révision (version) du consentement', 'Consent & Questionnaire', $file_name, $line_counter);
 				if($form_version['date'] && !in_array($form_version['date'], array('2006-02-20','2009-11-12','2011-03-14'))) {
-					$import_summary['Consent & Questionnaire']['@@ERROR@@']['Consent version unknown'][] = "See value '".$form_version['date']."' for patient '$participant_identifier'! Value won't be migrated! [field 'Date de remise du questionnaire au participant' - file '$file_name' - line: $line_counter]";
+					$import_summary['Consent & Questionnaire']['@@ERROR@@']['Consent version unknown'][] = "See value '".$form_version['date']."' for patient '$participant_identifier'! Value won't be migrated! [field <b>Date de remise du questionnaire au participant</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 					$form_version['date'] = '';
 				}		
 				$data = array(
@@ -148,7 +148,7 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 						'consent_signed_date_accuracy' => $consent_signed_date['accuracy'],
 						'form_version' => $form_version['date']),
 					'ConsentDetail' => array());
-				if(empty($consent_signed_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Consent Signature Date'][] = "System is creating a consent with no signature date. See patient '$participant_identifier'! [field 'Date de signature' - file '$file_name' - line: $line_counter]";	
+				if(empty($consent_signed_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Consent Signature Date'][] = "System is creating a consent with no signature date. See patient '$participant_identifier'! [field <b>Date de signature</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
 				switch($new_line_data['Version du consentement']) {
 					case 'française':
 					case 'française ':
@@ -166,7 +166,7 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 				$revision_date  = getDateAndAccuracy($new_line_data, 'Date de révision du questionnaire', 'Consent & Questionnaire', $file_name, $line_counter);
 				$version_date = str_replace('x', '', $new_line_data['Version du questionnaire']);
 				if(!in_array($version_date, array('2006','2009','2012', ''))) {
-					$import_summary['Consent & Questionnaire']['@@ERROR@@']['Questionnaire version unknown'][] = "See value '$version_date' for patient '$participant_identifier'! Value won't be migrated! [field 'Date de remise du questionnaire au participant' - file '$file_name' - line: $line_counter]";	
+					$import_summary['Consent & Questionnaire']['@@ERROR@@']['Questionnaire version unknown'][] = "See value '$version_date' for patient '$participant_identifier'! Value won't be migrated! [field <b>Date de remise du questionnaire au participant</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
 					$version_date = '';
 				}
 				$procure_chuq_complete_at_recovery = str_replace(array('1','x'), array('y',''), $new_line_data['Questionnaire reçu complet']);
@@ -192,11 +192,11 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 						'version_date' => $version_date,
 						'procure_chuq_complete_at_recovery' => $procure_chuq_complete_at_recovery,
 						'complete' => $complete));
-				if(empty($delivery_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Questionnaire Delivery Date'][] = "System is creating a questionnaire with no delivery date. See patient '$participant_identifier'! [field 'Date de remise du questionnaire au participant' - file '$file_name' - line: $line_counter]";
+				if(empty($delivery_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Questionnaire Delivery Date'][] = "System is creating a questionnaire with no delivery date. See patient '$participant_identifier'! [field <b>Date de remise du questionnaire au participant</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 				$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
 				customInsert($data['EventDetail'], $questionnaire_control['detail_tablename'], __FILE__, __LINE__, true);
 			} else {
-				$import_summary['Consent & Questionnaire']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient consent and quuestionnaire data won't be migrated! [field 'Patients' - file '$file_name' - line: $line_counter]";	
+				$import_summary['Consent & Questionnaire']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient consent and quuestionnaire data won't be migrated! [field <b>Patients</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
 			}
 		}
 	}
@@ -258,7 +258,7 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 					customInsert($data['EventDetail'], $psa_control['detail_tablename'], __FILE__, __LINE__, true);
 				}
 			} else {
-				$import_summary['PSA']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field 'NoProcure' - file '$file_name' - line: $line_counter]";	
+				$import_summary['PSA']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
 			}
 		}
 	}
@@ -393,14 +393,14 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 									'procure_chuq_period' => $period,
 						 			'dose' => $dose));
 							} else {
-								$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been associated to this one (field 'Med'). No treatment will be created. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file '$file_name' - line: $line_counter]";
+								$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been associated to this one (field 'Med'). No treatment will be created. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
 							}
 							break;
 						default:
-							$import_summary['Treatment']['@@WARNING@@']["Treatment To Create Manually"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file '$file_name' - line: $line_counter]";
+							$import_summary['Treatment']['@@WARNING@@']["Treatment To Create Manually (type not supported)"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
 					}
 					if($treatment_controls)  {
-						if(empty($start_date['date'])) $import_summary['Treatment']['@@WARNING@@']['No Treatment Start Date'][] = "System is creating a treatment with no tratment date. See patient '$participant_identifier'! [field 'DDebut' - file '$file_name' - line: $line_counter]";
+						if(empty($start_date['date'])) $import_summary['Treatment']['@@WARNING@@']['No Treatment Start Date'][] = "System is creating a treatment with no tratment date. See patient '$participant_identifier'! [field <b>Debut</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 						foreach($detail_data as $new_detail) {
 							$data = array(
 								'TreatmentMaster' => array(
@@ -423,7 +423,7 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 						if(strlen($new_line_data[$field])) $not_empty_data[] = $field.' : '.$new_line_data[$field];
 					}
 					$not_empty_data = implode (' & ', $not_empty_data);
-					$import_summary['Treatment']['@@WARNING@@']["Treatment field 'Type' empty but other fields compelted"][$participant_identifier] = "See values [$not_empty_data] for '$participant_identifier'! No treatment will be created! [field '. patients' - file '$file_name' - line: $line_counter]";
+					$import_summary['Treatment']['@@WARNING@@']["Treatment field 'Type' empty but other fields compelted"][$participant_identifier] = "See values [$not_empty_data] for '$participant_identifier'! No treatment will be created! [field <b>patients</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 				}
 				//***** CREATE PROSTATECTOMY *****
 				if(strlen($new_line_data['Date Prostatec']) && !isset($created_prostatectomy[$participant_identifier])) {
@@ -444,7 +444,7 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 					}
 				}
 			} else {
-				$import_summary['Treatment']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field '. patients' - file '$file_name' - line: $line_counter]";
+				$import_summary['Treatment']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field <b>patients</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 			}
 		}
 	}
