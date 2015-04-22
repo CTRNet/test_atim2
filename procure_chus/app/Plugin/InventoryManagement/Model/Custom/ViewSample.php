@@ -6,7 +6,7 @@ class ViewSampleCustom extends ViewSample {
 	
 	static $table_query = '
 		SELECT SampleMaster.id AS sample_master_id,
-		SampleMaster.parent_id AS parent_sample_id,
+		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
 		
