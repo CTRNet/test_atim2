@@ -435,12 +435,16 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 								'procure_form_identification' => "$participant_identifier Vx -FSPx",
 								'treatment_control_id' => $tx_control['procure follow-up worksheet - treatment']['treatment_control_id'],
 								'start_date' => $date_of_prostatectomy['date'],
-								'start_date_accuracy' => $date_of_prostatectomy['accuracy']),
+								'start_date_accuracy' => $date_of_prostatectomy['accuracy'],
+								'notes' => ''),
 							'TreatmentDetail' => array(
 								'treatment_type' => 'prostatectomy'));
 						$prostatectomy_data['TreatmentDetail']['treatment_master_id'] = customInsert($prostatectomy_data['TreatmentMaster'], 'treatment_masters', __FILE__, __LINE__, false);
 						customInsert($prostatectomy_data['TreatmentDetail'], $tx_control['procure follow-up worksheet - treatment']['detail_tablename'], __FILE__, __LINE__, true);
-						$created_prostatectomy[$participant_identifier] = 'done';
+						$created_prostatectomy[$participant_identifier] = array(
+							'id' => $prostatectomy_data['TreatmentDetail']['treatment_master_id'],
+							'start_date' => $date_of_prostatectomy['date'],
+							'start_date_accuracy' => $date_of_prostatectomy['accuracy']);
 					}
 				}
 			} else {
@@ -448,6 +452,7 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 			}
 		}
 	}
+	return $created_prostatectomy;
 }
 
 function getDrugId($drug_name, $protocole, $type, &$drugs) {
