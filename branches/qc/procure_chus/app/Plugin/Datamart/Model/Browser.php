@@ -1087,10 +1087,9 @@ class Browser extends DatamartAppModel {
 	 * Builds the search parameters array
 	 * @note: Hardcoded for collections
 	 */
-	private function buildBufferedSearchParameters($primary_node_ids){
+	private function buildBufferedSearchParameters($primary_node_ids, $order){
 		$joins = array();
 		$fields = array();
-		$order = array();
 		for($i = 1; $i < count($this->nodes); ++ $i){
 			$node = $this->nodes[$i];
 			$ancestor_node = $this->nodes[$i - 1];
@@ -1103,7 +1102,6 @@ class Browser extends DatamartAppModel {
 				$condition = $alias.".".$node[self::JOIN_FIELD]." = ".$ancestor_alias.".".$ancestor_node[self::USE_KEY];
 			}
 			$fields[] = 'CONCAT("", '.$alias.".".$node[self::USE_KEY].') AS '.$alias;
-			$order[] = $alias;
 			
 			$joins[] = array(
 				'table' => $node[self::MODEL]->table,
@@ -1118,7 +1116,6 @@ class Browser extends DatamartAppModel {
 		
 		$node = $this->nodes[0];
 		array_unshift($fields, 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS '.$node[self::MODEL]->name);
-		array_unshift($order, $node[self::MODEL]->name);
 		$this->search_parameters = array(
 			'fields'		=> $fields,
 			'joins'			=> $joins, 
@@ -1134,7 +1131,7 @@ class Browser extends DatamartAppModel {
 	 * @param int $merge_to Node id of the target node to merge with
 	 * @param array $primary_node_ids The ids of the primary node to use
 	 */
-	public function initDataLoad(array $browsing, $merge_to, array $primary_node_ids){
+	public function initDataLoad(array $browsing, $merge_to, array $primary_node_ids, $order = null){
 		$result = array();
 		$start_id = NULL;
 		$end_id = null;
@@ -1250,8 +1247,11 @@ class Browser extends DatamartAppModel {
 		
 		
 		//prepare buffer conditions
-		$this->buildBufferedSearchParameters($primary_node_ids);
-		$this->count = $this->nodes[0][self::MODEL]->find('count', array('joins' => $this->search_parameters['joins'], 'conditions' => $this->search_parameters['conditions'], 'recursive' => 0));
+		$this->buildBufferedSearchParameters($primary_node_ids, $order);
+		$this->count = $this->nodes[0][self::MODEL]->find('count', 
+            array('joins' => $this->search_parameters['joins'],
+                  'conditions' => $this->search_parameters['conditions'],
+                  'recursive' => 0));
 		$this->checklist_header = implode(" - ", $header); 
 		$this->result_structure = $result_structure;
 	}
@@ -1283,6 +1283,19 @@ class Browser extends DatamartAppModel {
 	 * @return Returns an array of a portion of the data. Successive calls move the pointer forward.
 	 */
 	public function getDataChunk($chunk_size){
+
+//TODO Remove temporary fix for issue #2767
+$tmp_order = null;
+if(isset($this->search_parameters['order'])) {
+	if(preg_match('/^([0-9]+\-){0,1}(.+(Detail|Control)\..+)\ (asc|desc)$/', $this->search_parameters['order'], $matches)) {
+		$tmp_order['sort'] = $matches[2];
+		$tmp_order['direction'] = $matches[4];
+		$this->search_parameters['order'] = array();
+	} else if(preg_match('/^([0-9]+\-)(.+)\.(.+)\ (asc|desc)$/', $this->search_parameters['order'], $matches)) {
+		$this->search_parameters['order'] = $matches[2].'Browser.'.$matches[3].' '.$matches[4];
+	}
+}
+
 		$this->fillBuffer($chunk_size);
 		if(empty($this->rows_buffer)){
 			$chunk = array();
@@ -1324,6 +1337,12 @@ class Browser extends DatamartAppModel {
 				++ $count;
 			}
 		}
+
+//TODO Remove temporary fix for issue #2767		
+if($tmp_order) {
+	$chunk = AppModel::sortWithUrl($chunk, $tmp_order);
+}		
+		
 		return $chunk;
 	}
 	
