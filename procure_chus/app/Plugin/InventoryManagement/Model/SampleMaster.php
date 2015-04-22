@@ -6,15 +6,15 @@ class SampleMaster extends InventoryManagementAppModel {
 	
 	var $actsAs = array('MinMax');
 	
-	var $belongsTo = array(       
-		'SampleControl' => array(           
-			'className'		=> 'InventoryManagement.SampleControl',            
+	var $belongsTo = array(
+		'SampleControl' => array(
+			'className'		=> 'InventoryManagement.SampleControl',
 			'foreignKey'	=> 'sample_control_id',
-			'type'			=> 'INNER'),        
-		'Collection' => array(           
-			'className'		=> 'InventoryManagement.Collection',            
+			'type'			=> 'INNER'),
+		'Collection' => array(
+			'className'		=> 'InventoryManagement.Collection',
 			'foreignKey'	=> 'collection_id',
-			'type'			=> 'INNER'));   
+			'type'			=> 'INNER'));
 
 	var $hasOne = array(
 		'SpecimenDetail' => array(

@@ -304,7 +304,7 @@ class ConsoleShell extends AppShell {
 		$validCurrentAssociation = false;
 
 		foreach ($currentAssociations as $model => $currentAssociation) {
-			if ($model == $modelB && $association == $currentAssociation) {
+			if ($model === $modelB && $association === $currentAssociation) {
 				$validCurrentAssociation = true;
 			}
 		}
@@ -329,7 +329,7 @@ class ConsoleShell extends AppShell {
 		$command = str_replace($this->badCommandChars, "", $command);
 
 		// Do we have a valid model?
-		list($modelToCheck, $tmp) = explode('->', $command);
+		list($modelToCheck) = explode('->', $command);
 
 		if ($this->_isValidModel($modelToCheck)) {
 			$findCommand = "\$data = \$this->$command;";
@@ -390,7 +390,7 @@ class ConsoleShell extends AppShell {
 		// Validate the model we're trying to save here
 		$command = strip_tags($command);
 		$command = str_replace($this->badCommandChars, "", $command);
-		list($modelToSave, $tmp) = explode("->", $command);
+		list($modelToSave) = explode("->", $command);
 
 		if ($this->_isValidModel($modelToSave)) {
 			// Extract the array of data we are trying to build
@@ -454,7 +454,7 @@ class ConsoleShell extends AppShell {
 	}
 
 /**
- * Parse an array url and show the equivalent url as a string
+ * Parse an array URL and show the equivalent URL as a string
  *
  * @param mixed $command
  * @return void
@@ -470,7 +470,7 @@ class ConsoleShell extends AppShell {
 	}
 
 /**
- * Parse a string url and show as an array
+ * Parse a string URL and show as an array
  *
  * @param mixed $command
  * @return void
