@@ -22,6 +22,8 @@ class ParticipantCustom extends Participant {
 					'structure alias' 	=> 'participants,procure_miscidentifiers_for_participant_summary',
 					'data'				=> $result
 			);
+			
+			if($result['Participant']['procure_patient_withdrawn']) AppController::addWarningMsg(__('patient withdrawn'));
 		}
 	
 		return $return;
@@ -32,6 +34,12 @@ class ParticipantCustom extends Participant {
 		if(isset($this->data['Participant']['participant_identifier']) && !preg_match("/^($this->bank_identification)([0-9]+)$/", $this->data['Participant']['participant_identifier'], $matches)) {
 			$result = false;
 			$this->validationErrors['participant_identifier'][] = "the identification format is wrong";
+		}
+		if(isset($this->data['Participant']['procure_patient_withdrawn'])) {
+			if(!$this->data['Participant']['procure_patient_withdrawn'] && (strlen($this->data['Participant']['procure_patient_withdrawn_date']) || strlen(trim($this->data['Participant']['procure_patient_withdrawn_reason'])))) {
+				$result = false;
+				$this->validationErrors['participant_identifier'][] = "please check the patient withdrawn checkbox if required";
+			}
 		}
 		return $result;
 	}
@@ -54,8 +62,7 @@ class ParticipantCustom extends Participant {
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($tx_controls_list as $treatment_control) {
-			$add_function = in_array($treatment_control['TreatmentControl']['tx_method'], array('procure medication worksheet - drug', 'procure follow-up worksheet - treatment'))? 'addInBatch' : 'add';			
-			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/'.$add_function.'/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
+			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
 		}		
 
 		ksort($add_links);	
@@ -97,6 +104,8 @@ class ParticipantCustom extends Participant {
 						break;
 					case 'procure follow-up worksheet - aps':
 					case 'procure follow-up worksheet - clinical event':
+					case 'procure follow-up worksheet - other tumor dx':
+					case 'procure follow-up worksheet - clinical note':
 						$pattern_suffix = "FSP";
 						$main_worksheet = false;
 						break;
@@ -122,13 +131,14 @@ class ParticipantCustom extends Participant {
 						$pattern_suffix = "MED";
 						break;
 					case 'procure follow-up worksheet - treatment':
+					case 'procure follow-up worksheet - other tumor tx': 
 						$pattern_suffix = "FSP";
 						$main_worksheet = false;
 						break;
 					case 'procure medication worksheet - drug':
-						break;
 						$pattern_suffix = "MED";
 						$main_worksheet = false;
+						break;
 					default:
 						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
 				}

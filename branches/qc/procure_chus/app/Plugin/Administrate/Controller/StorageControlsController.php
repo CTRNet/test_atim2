@@ -101,7 +101,10 @@ class StorageControlsController extends AdministrateAppController {
 		if($storage_control_data['StorageCtrl']['flag_active']) {
 			$this->atimFlash(__('you are not allowed to work on active storage type'), '/Administrate/StorageControls/listAll/');
 			return;
-		}
+		} else if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storage_control_id, 'StorageMaster.deleted' => array('0','1'))))) {
+			$this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), '/Administrate/StorageControls/listAll/');
+			return;
+		}		
 		
 		$storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
 		$this->set('atim_menu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
@@ -149,7 +152,7 @@ class StorageControlsController extends AdministrateAppController {
 		$new_data = array();
 		if($storage_control_data['StorageCtrl']['flag_active']) {
 			// Check no Storage Master use it
-			$existing_storage_count = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storage_control_id, 'StorageMaster.deleted' => array('0','1'))));
+			$existing_storage_count = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storage_control_id)));
 			if($existing_storage_count) {
 				$this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), '/Administrate/StorageControls/listAll/');
 				return;
