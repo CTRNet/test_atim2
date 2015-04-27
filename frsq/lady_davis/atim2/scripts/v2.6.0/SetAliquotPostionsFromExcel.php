@@ -4,8 +4,8 @@ set_time_limit('3600');
 
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
-$file_name_blood = "JGH Blood Bank Boxes.xls";
-$file_name_tissue = "JGH Tumor and biopsies Bank boxes - Copie.xls";
+//TODO $file_name_blood = "JGH Blood Bank Boxes_20150427.xls";
+$file_name_tissue = "JGH and CHUM Tumor and biopsies Bank boxes_20150427.xls";
 $file_path = "C:/_Perso/Server/jgh_breast/data/";
 require_once 'Excel/reader.php';
 
@@ -49,9 +49,9 @@ if($modified) {
 
 echo "<br><FONT COLOR=\"green\" >
 =====================================================================<br>
-Aliquots Positions<br>
-source_file = $file_name_blood<br>
-source_file = $file_name_tissue<br>
+Aliquots Positions<br>".
+//TODO source_file = $file_name_blood<br>
+"source_file = $file_name_tissue<br>
 <br>=====================================================================</FONT><br><br>";
 
 $query = "select id, detail_tablename from storage_controls where flag_active = 1 AND storage_type = 'box100 1-100';";
@@ -60,11 +60,11 @@ if($results->num_rows != 1) die('ERR 2387 62387 632');
 $row = $results->fetch_assoc();
 $storage_controls = array('id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 
-$query = "select max(rght) as last_left_rght from storage_masters;";
-$results = mysqli_query($db_connection, $query) or die("Query Error Line ".__LINE__." [$query] ");
-if($results->num_rows != 1) die('ERR 2387 62387 632');
-$row = $results->fetch_assoc();
-$last_storage_left_rght = $row['last_left_rght'];
+// $query = "select max(rght) as last_left_rght from storage_masters;";
+// $results = mysqli_query($db_connection, $query) or die("Query Error Line ".__LINE__." [$query] ");
+// if($results->num_rows != 1) die('ERR 2387 62387 632');
+// $row = $results->fetch_assoc();
+// $last_storage_left_rght = $row['last_left_rght'];
 
 $query = "SELECT sc.sample_type, ac.aliquot_type, ac.id, ac.detail_tablename
 	FROM sample_controls sc
@@ -96,57 +96,88 @@ while($row = $results->fetch_assoc()) {
 }
 if(sizeof($aliquot_control_ids) != 9) die('ERR 23 7628 29292929292');
 
+$query = "SELECT id, selection_label FROM storage_masters WHERE selection_label IN ('#6', '#85', 'LN');";
+$results = mysqli_query($db_connection, $query) or die("Query Error Line ".__LINE__." [$query] ");
+$freezers_ids = array();
+while($row = $results->fetch_assoc()) $freezers_ids[$row['selection_label']] = $row['id'];
+if(sizeof($freezers_ids) != 3) die('ERR 2387 287 8327');
+
 $storage_code_counter = 1;
 $total_aliquots_listed = 0;
 $total_aliquots_updated = 0;
-foreach(array($file_name_blood => 'blood', $file_name_tissue => 'tissue') as $file_name => $file_sample_type) {
+//TODO foreach(array($file_name_blood => 'blood', $file_name_tissue => 'tissue') as $file_name => $file_sample_type) {
+foreach(array($file_name_tissue => 'tissue') as $file_name => $file_sample_type) {
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read($file_path.$file_name);
 	$sheets_keys = array();
 	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_keys[$tmp['name']] = $key;
 	foreach($sheets_keys as $box_short_label => $worksheet) {
+		if(preg_match('/^Feuil/', $box_short_label)) continue;
 		//New box
 		echo "<br><FONT COLOR=\"green\" >***** File $file_name :: Box $box_short_label *****</FONT><br><br>";
 		$aliquots_listed = 0;
 		$aliquots_updated = 0;
 		$aliquot_data_to_update_per_type = array();
 		if(isset($tmp_xls_reader->sheets[$worksheet]['cells'])) {
+			$headers = array();
 			foreach($tmp_xls_reader->sheets[$worksheet]['cells'] as $excel_line_counter => $new_line) {
-				$barcode = isset($new_line[2])? trim($new_line[2]) : '';
-				$position = isset($new_line[1])? trim($new_line[1]) : '';
-				if(strlen($barcode)) {
-					$barcode = '0'.$barcode;
-					if(!strlen($position)) die('ERR 237 6287 6322 '. $box_short_label . ' ' . $excel_line_counter);
-					if(!preg_match('/^([1-9])|([1-9][0-9])|(100)$/', $position)) die('ERR 237 6287 63332 '. $box_short_label . ' ' . $excel_line_counter.' '.$position);
-					$aliquot_control_id = null;
-					$sample_type = '';
-					if($file_sample_type == 'tissue') {
-						$aliquot_control_id = $aliquot_control_ids['tissue'];
-						$sample_type = 'tissue';
-					} else {
-						$sample_type = empty($new_line[5])? '' : trim(strtolower($new_line[5]));
-						if(empty($sample_type)) {
-							echo "<FONT COLOR=\"#A44057\" >Error#1</FONT> : <FONT COLOR=\"red\" >The sample type for the aliquot $barcode is not specified. Aliquot position won't be updated.</FONT><br>";
-						} else if(!isset($aliquot_control_ids[$sample_type])) {
-							echo "<FONT COLOR=\"#4097A4\" >Error#2</FONT> : <FONT COLOR=\"red\" >The sample type [$sample_type] is not supported. See aliquot $barcode. Aliquot position won't be updated.</FONT><br>";
-						} else {
-							$aliquot_control_id = $aliquot_control_ids[$sample_type];
-						}
-					}
-					if($aliquot_control_id) {
-						$aliquot_data_to_update_per_type[$aliquot_control_id]['sample_types'][$sample_type] = $sample_type;
-						$aliquot_data_to_update_per_type[$aliquot_control_id]['barcodes_and_positions'][$barcode] = $position;
-					}
-					$aliquots_listed++;
+				if($excel_line_counter == 1) {
+					$headers = $new_line;
 				} else {
-					//if(strlen($position)) die('ERR 237 628eeee2 '. $box_short_label . ' ' . $excel_line_counter);
+					$new_line = formatNewLineData($headers, $new_line);
+					$barcode = isset($new_line['Scan barcode'])? trim($new_line['Scan barcode']) : '';
+					$position = isset($new_line['Slot'])? trim($new_line['Slot']) : '';
+					if(strlen($barcode)) {
+						if(!strlen($position)) die('ERR 237 6287 6322 '. $box_short_label . ' ' . $excel_line_counter);
+						if(!preg_match('/^([1-9])|([1-9][0-9])|(100)$/', $position)) die('ERR 237 6287 63332 '. $box_short_label . ' ' . $excel_line_counter.' '.$position);
+						$aliquot_control_id = null;
+						$sample_type = '';
+						if($file_sample_type == 'tissue') {
+							$aliquot_control_id = $aliquot_control_ids['tissue'];
+							$sample_type = 'tissue';
+						} else {
+							$sample_type = empty($new_line['Type'])? '' : trim(strtolower($new_line['Type']));
+							if(empty($sample_type)) {
+								echo "<FONT COLOR=\"#A44057\" >Error#1</FONT> : <FONT COLOR=\"red\" >The sample type for the aliquot $barcode is not specified. Aliquot position won't be updated.</FONT><br>";
+							} else if(!isset($aliquot_control_ids[$sample_type])) {
+								echo "<FONT COLOR=\"#4097A4\" >Error#2</FONT> : <FONT COLOR=\"red\" >The sample type [$sample_type] is not supported. See aliquot $barcode. Aliquot position won't be updated.</FONT><br>";
+							} else {
+								$aliquot_control_id = $aliquot_control_ids[$sample_type];
+							}
+						}
+						if($aliquot_control_id) {
+							$aliquot_data_to_update_per_type[$aliquot_control_id]['sample_types'][$sample_type] = $sample_type;
+							$aliquot_data_to_update_per_type[$aliquot_control_id]['barcodes_and_positions'][$barcode] = $position;
+						}
+						$aliquots_listed++;
+					} else {
+						//if(strlen($position)) die('ERR 237 628eeee2 '. $box_short_label . ' ' . $excel_line_counter);
+					}
 				}
 			}
 		}
 		//Create storage
 		$storage_code_counter++;
-		$storage_master_id = customInsertRecord(array('code' => 'tmp_xxxx_'.$storage_code_counter, 'storage_control_id' => $storage_controls['id'], 'short_label' => $box_short_label, 'selection_label' => $box_short_label, 'lft' => (++$last_storage_left_rght), 'rght' => (++$last_storage_left_rght)), 'storage_masters', false);
+		$parent_storage_master_short_label = '';
+		$parent_storage_master_id = '';
+		if($file_sample_type == 'tissue') {
+			$parent_storage_master_short_label = 'LN';
+			$parent_storage_master_id = $freezers_ids['LN'];
+			if(!preg_match('/^JGHBox\ [3-7]\ Breast\ Biopsies$/', $box_short_label) && !preg_match('/^JGHBox#[0-9]+\ Breast\ Tumors$/', $box_short_label)) die('ERR 3939939393ee ['.$box_short_label.']');
+		} else {
+			if(!preg_match('/^Bo[xX][\ ]{0,1}[#]{0,1}([0-9]+)$/', $box_short_label, $matches)) die('ERR 38388383 4884');
+			$box_short_label = "JGH Blood Bank Box ".$matches[1]; 
+			$parent_storage_master_short_label = '#85';
+			$parent_storage_master_id = $freezers_ids['#85'];
+			if($matches[1] > 64) {
+				$parent_storage_master_short_label = '#6';
+				$parent_storage_master_id = $freezers_ids['#6'];
+			}			
+		}
+		$box_seletion_label = $parent_storage_master_short_label.'-'.$box_short_label;
+		$storage_master_id = customInsertRecord(array('code' => 'tmp_xxxx_'.$storage_code_counter, 'storage_control_id' => $storage_controls['id'], 'short_label' => $box_short_label, 'selection_label' => $box_seletion_label, 'parent_id' => $parent_storage_master_id), 'storage_masters', false);
 		customInsertRecord(array('storage_master_id' => $storage_master_id), $storage_controls['detail_tablename'], true);
+		echo "Created Box '$box_seletion_label'<br><br>";
 		//Update aliquots	
 		foreach($aliquot_data_to_update_per_type as $aliquot_control_id => $aliquots_data){		
 			$sample_types = '<b>'.str_replace(
@@ -180,9 +211,12 @@ foreach(array($file_name_blood => 'blood', $file_name_tissue => 'tissue') as $fi
 					die('ERR327732732732 :: ' . $db_barcode);
 				} else if($row['in_stock'] == 'no') {
 					echo "<FONT COLOR=\"#CBE200\" >Error#4</FONT> : <FONT COLOR=\"red\" >$sample_types Aliquot with barcode $db_barcode is defined as 'Not in Stock' into ATiM so it can not be stored. Aliquot position won't be updated.</FONT><br>";
-				} else if($db_storage_master_id) {
-					echo "<FONT COLOR=\"#E23C00\" >Error#5</FONT> : <FONT COLOR=\"red\" >$sample_types Aliquot with barcode $db_barcode is already stored into ATiM (See ATiM box '".$row['short_label']."' at position ".$row['storage_coord_x']."). Aliquot position (".$barcodes_and_positions[$db_barcode]." (excel)) won't be updated.</FONT><br>";
+				} else if($db_storage_master_id && $row['short_label'] != "JGH Blood Bank Box 1") {
+					echo "<FONT COLOR=\"#E23C00\" >Error#5.1</FONT> : <FONT COLOR=\"red\" >$sample_types Aliquot with barcode $db_barcode is already stored into ATiM (See ATiM box '".$row['short_label']."' at position ".$row['storage_coord_x']."). Aliquot position (".$barcodes_and_positions[$db_barcode]." (excel)) won't be updated.</FONT><br>";
 				} else {
+					if($db_storage_master_id) {
+						echo "<FONT COLOR=\"#E23C00\" >Warning#5.2</FONT> : <FONT COLOR=\"blue\" >$sample_types Aliquot with barcode $db_barcode was stored into ATiM (See ATiM box '".$row['short_label']."' at position ".$row['storage_coord_x']."). Aliquot will be moved to the new box at position ".$barcodes_and_positions[$db_barcode]." (excel). Please confirm.</FONT><br>";
+					}					
 					//update statements
 					$query = "UPDATE aliquot_masters SET storage_master_id = $storage_master_id, storage_coord_x = '".$barcodes_and_positions[$db_barcode]."', modified = '$modified', modified_by = $modified_by WHERE id = $db_aliquot_master_id;";
 					mysqli_query($db_connection, $query) or die("Query Error Line ".__LINE__." [$query] ");
@@ -330,6 +364,19 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
 	mysqli_query($db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	
 	return $record_id;	
+}
+
+function formatNewLineData($headers, $data) {
+	$line_data = array();
+	foreach($headers as $key => $field) {
+		$field = str_replace("\n", ' ', trim(utf8_encode($field)));
+		if(isset($data[$key])) {
+			$line_data[$field] = trim(utf8_encode($data[$key]));
+		} else {
+			$line_data[$field] = '';
+		}
+	}
+	return $line_data;
 }
 
 ?> 
