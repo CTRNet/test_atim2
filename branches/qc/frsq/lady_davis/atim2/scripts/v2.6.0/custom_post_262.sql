@@ -517,3 +517,15 @@ UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_
 UPDATE structure_fields SET  `language_label`='precision' WHERE model='DiagnosisDetail' AND tablename='qc_lady_dxd_others' AND field='tumor_site_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
 
 UPDATE versions SET branch_build_number = '6066' WHERE version_number = '2.6.2';
+
+-- 20150427 ------------------------------------------------------------------------------------------
+
+ALTER TABLE qc_lady_txd_biopsy_surgeries ADD COLUMN consistent_with_primary char(1) default '';
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs ADD COLUMN consistent_with_primary char(1) default '';
+INSERT INTO i18n (id,en,fr) VALUES ('consistent with primary','Consistent with Primary','Compatible avec primaire');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'consistent_with_primary', 'yes_no',  NULL , '0', '', '', '', 'consistent with primary', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='consistent_with_primary' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='consistent with primary' AND `language_tag`=''), '1', '20', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE versions SET branch_build_number = '6170' WHERE version_number = '2.6.2';
