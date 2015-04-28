@@ -1071,3 +1071,15 @@ UPDATE structure_value_domains SET domain_name = 'procure_treatment_line' WHERE 
 INSERT INTO i18n (id,en,fr) VALUES ('procure_help_treatment_line', 'Chemotherpay / Hormonotherapy Line', 'Ligne de chimiothérapie & hormonothérapie');
 
 UPDATE versions SET branch_build_number = '6159' WHERE version_number = '2.6.4';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2015-04-28
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='versions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Version' AND `tablename`='versions' AND `field`='date_installed' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('branch build number','PROCURE Version/Build','PROCURE Version/Numéro Version'),
+('site build number','PROCURE Site Version/Build','Site PROCURE Version/Numéro Version');
+
+UPDATE versions SET branch_build_number = '6171' WHERE version_number = '2.6.4';
