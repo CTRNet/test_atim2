@@ -1,15 +1,11 @@
 <?php 
 	
+	$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
+	
 	$Drug = AppModel::getInstance("Drug", "Drug", true);
 	$all_drugs = $Drug->getDrugPermissibleValues();
 	
-	$procure_other_tumor_sites = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'procure_other_tumor_sites'), 'recursive' => 2));
-	$procure_other_tumor_sites_values = array();
-	if($procure_other_tumor_sites) {
-		foreach($procure_other_tumor_sites['StructurePermissibleValue'] as $new_value) {
-			$procure_other_tumor_sites_values[$new_value['value']] = __($new_value['language_alias']);
-		}
-	}
+	// *** Treatment ***
 	
 	$procure_followup_treatment_types = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'procure_followup_treatment_types'), 'recursive' => 2));
 	$procure_followup_treatment_types_values = array();
@@ -35,6 +31,8 @@
 		}
 	}
 	
+	// *** Clinical Exam ***	
+	
 	$procure_followup_exam_types = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'procure_followup_exam_types'), 'recursive' => 2));
 	$procure_followup_exam_types_values = array();
 	if($procure_followup_exam_types) {
@@ -51,4 +49,24 @@
 		}
 	}
 	
-	$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
+	// *** Other Tumor ***	
+	
+	$procure_other_tumor_sites = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'procure_other_tumor_sites'), 'recursive' => 2));
+	$procure_other_tumor_sites_values = array();
+	if($procure_other_tumor_sites) {
+		foreach($procure_other_tumor_sites['StructurePermissibleValue'] as $new_value) {
+			$procure_other_tumor_sites_values[$new_value['value']] = __($new_value['language_alias']);
+		}
+	}
+	
+	$procure_other_tumor_treatment_types = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'procure_other_tumor_treatment_types'), 'recursive' => 2));
+	$procure_other_tumor_treatment_types_values = array();
+	if($procure_other_tumor_treatment_types) {
+		foreach($procure_other_tumor_treatment_types['StructurePermissibleValue'] as $new_value) {
+			$procure_other_tumor_treatment_types_values[$new_value['value']] = __($new_value['language_alias']);
+		}
+	}
+	
+	
+	
+	

@@ -972,6 +972,12 @@ class ReportsControllerCustom extends ReportsController {
 					default:
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
+			} else if($new_psa['EventDetail']['biochemical_relapse'] == 'y' && !strlen($data[$participant_id]['0']['procure_atim_bcr_psa'])) {
+				//No prostatectomy or BCR flagged before prostatectomy date
+				$data[$participant_id]['0']['procure_atim_bcr_psa'] = $new_psa['EventDetail']['total_ngml'];
+				$data[$participant_id]['0']['procure_atim_bcr_psa_date'] = $this->procureFormatDate($new_psa['EventMaster']['event_date'], $new_psa['EventMaster']['event_date_accuracy']);
+				$data[$participant_id]['0']['procure_atim_bcr_psa_date_accuracy'] = $new_psa['EventMaster']['event_date_accuracy'];
+				$this->procureSetBcrDetectionCcl($data[$participant_id]['0']);
 			}
 		}
 	

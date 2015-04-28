@@ -924,3 +924,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE versions SET site_branch_build_number = '6153' WHERE version_number = '2.6.4';
 
 UPDATE versions SET site_branch_build_number = '6160' WHERE version_number = '2.6.4';
+
+UPDATE versions SET site_branch_build_number = '6172' WHERE version_number = '2.6.4';
