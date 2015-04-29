@@ -2,11 +2,13 @@
 -- Procure Form Identification update
 -- ----------------------------------------------------------------------------------------------------
 
-select count(*) '### MESSAGE ### Nbr of drugs already created. To review if different than 0' from procure_txe_medications;
+select count(*) '### MESSAGE ### Nbr of drugs already created. Migration script should be reviewed if different than 0' from procure_txe_medications;
 
 -- ----------------------------------------------------------------------------------------------------
 -- Procure Form Identification update
 -- ----------------------------------------------------------------------------------------------------
+
+SELECT 'Updated treatment/clincial event follow-up form label to ...Vx -FSPx' AS '### MESSAGE ###';
 
 -- Procure Form Identification update : treatment
 
@@ -39,6 +41,8 @@ AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure fo
 -- ----------------------------------------------------------------------------------------------------
 -- Copy Follow-up Id Confirmation Date to note
 -- ----------------------------------------------------------------------------------------------------
+
+SELECT 'Copied the Follow-up Id Confirmation Date to note and removed it' AS '### MESSAGE ###';
 
 SET @modified_by = (SELECT id FROM users WHERE username = 'NicoEn');
 SET @modified = (SELECT NOW() FROM users WHERE username = 'NicoEn');
@@ -117,38 +121,41 @@ FROM event_masters EventMaster, procure_ed_clinical_followup_worksheets EventDet
 -- Whatman paper initial storage date moved to note...
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 
+SELECT 'Copied the Whatman paper initial storage date to note and removed it' AS '### MESSAGE ###';
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'NicoEn');
+SET @modified = (SELECT NOW() FROM users WHERE username = 'NicoEn');
+
 UPDATE aliquot_masters AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl
-SET AliquotMaster.notes = CONCAT(AliquotMaster.notes," La date d'entreposage saisie était : ", SUBSTRING(AliquotMaster.storage_datetime, 1, 16))
+SET AliquotMaster.notes = CONCAT(AliquotMaster.notes," La date d'entreposage saisie était : ", SUBSTRING(AliquotMaster.storage_datetime, 1, 16)),
+modified = @modified, modified_by = @modified_by
 WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
 AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
 AND AliquotMaster.storage_datetime IS NOT NULL AND AliquotMaster.notes IS NOT NULL AND AliquotMaster.notes NOT LIKE '';
 
 UPDATE aliquot_masters AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl
-SET AliquotMaster.notes = CONCAT("La date d'entreposage saisie était : ", SUBSTRING(AliquotMaster.storage_datetime, 1, 16))
+SET AliquotMaster.notes = CONCAT("La date d'entreposage saisie était : ", SUBSTRING(AliquotMaster.storage_datetime, 1, 16)),
+modified = @modified, modified_by = @modified_by
 WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
 AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
 AND AliquotMaster.storage_datetime IS NOT NULL AND (AliquotMaster.notes IS NULL OR AliquotMaster.notes LIKE '');
 
 UPDATE aliquot_masters AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl
-SET AliquotMaster.storage_datetime = null, AliquotMaster.storage_datetime_accuracy = null
+SET AliquotMaster.storage_datetime = null, AliquotMaster.storage_datetime_accuracy = null,
+modified = @modified, modified_by = @modified_by
 WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
 AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
 AND AliquotMaster.storage_datetime IS NOT NULL;
 
-UPDATE aliquot_masters_revs AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl
-SET AliquotMaster.notes = CONCAT(AliquotMaster.notes," La date d'entreposage saisie était : ", SUBSTRING(AliquotMaster.storage_datetime, 1, 16))
-WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
-AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
-AND AliquotMaster.storage_datetime IS NOT NULL AND AliquotMaster.notes IS NOT NULL AND AliquotMaster.notes NOT LIKE '';
+INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,
+modified_by,version_created)
+(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,
+modified_by,modified FROM aliquot_masters INNER JOIN ad_whatman_papers ON id = aliquot_master_id WHERE  modified = @modified AND modified_by = @modified_by);
 
-UPDATE aliquot_masters_revs AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl
-SET AliquotMaster.notes = CONCAT("La date d'entreposage saisie était : ", SUBSTRING(AliquotMaster.storage_datetime, 1, 16))
-WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
-AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
-AND AliquotMaster.storage_datetime IS NOT NULL AND (AliquotMaster.notes IS NULL OR AliquotMaster.notes LIKE '');
-
-UPDATE aliquot_masters_revs AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl
-SET AliquotMaster.storage_datetime = null, AliquotMaster.storage_datetime_accuracy = null
-WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
-AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
-AND AliquotMaster.storage_datetime IS NOT NULL;
+INSERT INTO ad_whatman_papers_revs (aliquot_master_id,used_blood_volume,used_blood_volume_unit,procure_card_sealed_date,procure_card_sealed_date_accuracy,
+procure_card_completed_at,version_created)
+(SELECT aliquot_master_id,used_blood_volume,used_blood_volume_unit,procure_card_sealed_date,procure_card_sealed_date_accuracy,
+procure_card_completed_at,modified
+FROM aliquot_masters INNER JOIN ad_whatman_papers ON id = aliquot_master_id WHERE  modified = @modified AND modified_by = @modified_by);
