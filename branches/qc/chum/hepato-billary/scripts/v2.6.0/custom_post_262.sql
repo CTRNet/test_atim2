@@ -174,4 +174,187 @@ VALUES
 ('pulmonary shunt', 'Pulmonary Shunt');
 
 UPDATE versions SET branch_build_number = '6157' WHERE version_number = '2.6.2';
+
+-- 20150430 --------------------------------------------------------------------------------------------------------
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'scores', 'charlson score', 1, 'qc_hb_ed_score_charlson', 'qc_hb_ed_score_charlsons', 0, 'scores|charlson score', 0, 0, 1);
+
+INSERT IGNORE INTO i18n (id,en) VALUES ('charlson score', 'Charlson Score');
   
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_hb_scoring_age", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("<=40yrs", "<=40yrs");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_scoring_age"), (SELECT id FROM structure_permissible_values WHERE value="<=40yrs" AND language_alias="<=40yrs"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("41-50", "41-50");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_scoring_age"), (SELECT id FROM structure_permissible_values WHERE value="41-50" AND language_alias="41-50"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("51-60", "51-60");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_scoring_age"), (SELECT id FROM structure_permissible_values WHERE value="51-60" AND language_alias="51-60"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("61-70", "61-70");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_scoring_age"), (SELECT id FROM structure_permissible_values WHERE value="61-70" AND language_alias="61-70"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("71-80", "71-80");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_scoring_age"), (SELECT id FROM structure_permissible_values WHERE value="71-80" AND language_alias="71-80"), "", "1");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="2" WHERE svd.domain_name='qc_hb_scoring_age' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="41-50" AND language_alias="41-50");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="3" WHERE svd.domain_name='qc_hb_scoring_age' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="51-60" AND language_alias="51-60");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="4" WHERE svd.domain_name='qc_hb_scoring_age' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="61-70" AND language_alias="61-70");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="5" WHERE svd.domain_name='qc_hb_scoring_age' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="71-80" AND language_alias="71-80");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="1" WHERE svd.domain_name='qc_hb_scoring_age' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="<=40yrs" AND language_alias="<=40yrs");
+
+INSERT INTO structures(`alias`) VALUES ('qc_hb_ed_score_charlson');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'scoring_age', 'select', (SELECT id FROM structure_value_domains WHERE domain_name= 'qc_hb_scoring_age') , '0', '', '', '', 'scoring age', ''),
+				
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'myocardial_infarction', 'checkbox',  NULL , '0', '', '', '', 'myocardial infarction (history, not ecg changes only)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'congestive_heart_failure', 'checkbox',  NULL , '0', '', '', '', 'congestive heart failure', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'peripheral_disease', 'checkbox',  NULL , '0', '', '', '', 'peripheral disease (includes aortic aneurysm >= 6 cm', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'cerebrovascular_disease', 'checkbox',  NULL , '0', '', '', '', 'cerebrovascular disease: cva with mild or no residua or tia', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'dementia', 'checkbox',  NULL , '0', '', '', '', 'dementia', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'chronic_pulmonary_disease', 'checkbox',  NULL , '0', '', '', '', 'chronic pulmonary disease', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'connective_tissue_disease', 'checkbox',  NULL , '0', '', '', '', 'connective tissue disease', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'peptic_ulcer_disease', 'checkbox',  NULL , '0', '', '', '', 'peptic ulcer disease', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'mild_liver_disease', 'checkbox',  NULL , '0', '', '', '', 'mild liver disease (without portal hypertension, inlcudes chronic hepatitis)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'diabetes_without_end-organ_damage', 'checkbox',  NULL , '0', '', '', '', 'diabetes without end-organ damage (excludes diet-controlled alone)', ''),
+				
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'hemiplegia', 'checkbox',  NULL , '0', '', '', '', 'hemiplegia', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'moderate_or_severe_renal_disease', 'checkbox',  NULL , '0', '', '', '', 'moderate or severe renal disease', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'diabetes_with_end-organ_damage', 'checkbox',  NULL , '0', '', '', '', 'diabetes with end-organ damage (retinopathy, neuropathy,nephropathy, or brittle diabetes)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'tumor_without_metastasis', 'checkbox',  NULL , '0', '', '', '', 'tumor without metastasis (exclude if > 5 y from diagnosis)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'leukemia', 'checkbox',  NULL , '0', '', '', '', 'leukemia(acute or chronic)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'lymphoma', 'checkbox',  NULL , '0', '', '', '', 'lymphoma', ''),
+				
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'moderate_or_severe_liver_disease', 'checkbox',  NULL , '0', '', '', '', 'moderate or severe liver disease', ''),
+				
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'metastatic_solid_tumor', 'checkbox',  NULL , '0', '', '', '', 'metastatic solid tumor', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'aids', 'checkbox',  NULL , '0', '', '', '', 'aids (not just hiv positive)', ''),
+				
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_score_charlsons', 'result', 'integer_positive',  NULL , '0', '', '', '', 'result', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='scoring_age'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+		
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='myocardial_infarction'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='congestive_heart_failure'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='peripheral_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='cerebrovascular_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='dementia'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='chronic_pulmonary_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='connective_tissue_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='peptic_ulcer_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='mild_liver_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='diabetes_without_end-organ_damage'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+		
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='hemiplegia'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='moderate_or_severe_renal_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='diabetes_with_end-organ_damage'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='tumor_without_metastasis'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='leukemia'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='lymphoma'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+		
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='moderate_or_severe_liver_disease'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+		
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='metastatic_solid_tumor'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='aids'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+		
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_charlson'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_score_charlsons' AND `field`='result'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+   
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_score_charlsons` (
+  `event_master_id` int(11) NOT NULL,
+  
+  `scoring_age` varchar(10),
+		
+  `myocardial_infarction` tinyint(1) DEFAULT '0',
+  `congestive_heart_failure` tinyint(1) DEFAULT '0',
+  `peripheral_disease` tinyint(1) DEFAULT '0',
+  `cerebrovascular_disease` tinyint(1) DEFAULT '0',
+  `dementia` tinyint(1) DEFAULT '0',
+  `chronic_pulmonary_disease` tinyint(1) DEFAULT '0',
+  `connective_tissue_disease` tinyint(1) DEFAULT '0',
+  `peptic_ulcer_disease` tinyint(1) DEFAULT '0',
+  `mild_liver_disease` tinyint(1) DEFAULT '0',
+  `diabetes_without_end-organ_damage` tinyint(1) DEFAULT '0',
+		
+  `hemiplegia` tinyint(1) DEFAULT '0',
+  `moderate_or_severe_renal_disease` tinyint(1) DEFAULT '0',
+  `diabetes_with_end-organ_damage` tinyint(1) DEFAULT '0',
+  `tumor_without_metastasis` tinyint(1) DEFAULT '0',
+  `leukemia` tinyint(1) DEFAULT '0',
+  `lymphoma` tinyint(1) DEFAULT '0',
+		
+  `moderate_or_severe_liver_disease` tinyint(1) DEFAULT '0',
+		
+  `metastatic_solid_tumor` tinyint(1) DEFAULT '0',
+  `aids` tinyint(1) DEFAULT '0',
+  
+  `result` int(10) DEFAULT NULL,  
+  
+  `deleted_by` int(10) unsigned NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_score_charlsons_revs` (
+  `event_master_id` int(11) NOT NULL,
+  
+  `scoring_age` varchar(10),
+		
+  `myocardial_infarction` tinyint(1) DEFAULT '0',
+  `congestive_heart_failure` tinyint(1) DEFAULT '0',
+  `peripheral_disease` tinyint(1) DEFAULT '0',
+  `cerebrovascular_disease` tinyint(1) DEFAULT '0',
+  `dementia` tinyint(1) DEFAULT '0',
+  `chronic_pulmonary_disease` tinyint(1) DEFAULT '0',
+  `connective_tissue_disease` tinyint(1) DEFAULT '0',
+  `peptic_ulcer_disease` tinyint(1) DEFAULT '0',
+  `mild_liver_disease` tinyint(1) DEFAULT '0',
+  `diabetes_without_end-organ_damage` tinyint(1) DEFAULT '0',
+		
+  `hemiplegia` tinyint(1) DEFAULT '0',
+  `moderate_or_severe_renal_disease` tinyint(1) DEFAULT '0',
+  `diabetes_with_end-organ_damage` tinyint(1) DEFAULT '0',
+  `tumor_without_metastasis` tinyint(1) DEFAULT '0',
+  `leukemia` tinyint(1) DEFAULT '0',
+  `lymphoma` tinyint(1) DEFAULT '0',
+		
+  `moderate_or_severe_liver_disease` tinyint(1) DEFAULT '0',
+		
+  `metastatic_solid_tumor` tinyint(1) DEFAULT '0',
+  `aids` tinyint(1) DEFAULT '0',
+  
+  `result` int(10) DEFAULT NULL,  
+  
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_hb_ed_score_charlsons`
+  ADD CONSTRAINT `qc_hb_ed_score_charlson_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('scoring age', 'Scoring age'),
+				
+('myocardial infarction (history, not ecg changes only)', 'Myocardial infarction (history, not ECG changes only)'),
+('congestive heart failure', 'Congestive heart failure'),
+('peripheral disease (includes aortic aneurysm >= 6 cm', 'Peripheral disease (includes aortic aneurysm >= 6 cm'),
+('cerebrovascular disease: cva with mild or no residua or tia', 'Cerebrovascular disease: CVA with mild or no residua or TIA'),
+('dementia', 'Dementia'),
+('chronic pulmonary disease', 'Chronic pulmonary disease'),
+('connective tissue disease', 'Connective tissue disease'),
+('peptic ulcer disease', 'Peptic ulcer disease'),
+('mild liver disease (without portal hypertension, inlcudes chronic hepatitis)', 'Mild liver disease (without portal hypertension, inlcudes chronic hepatitis)'),
+('diabetes without end-organ damage (excludes diet-controlled alone)', 'Diabetes without end-organ damage (excludes diet-controlled alone)'),
+				
+('hemiplegia', 'Hemiplegia'),
+('moderate or severe renal disease', 'Moderate or severe renal disease'),
+('diabetes with end-organ damage (retinopathy, neuropathy,nephropathy, or brittle diabetes)', 'Diabetes with end-organ damage (retinopathy, neuropathy,nephropathy, or brittle diabetes)'),
+('tumor without metastasis (exclude if > 5 y from diagnosis)', 'Tumor without metastasis (exclude if > 5 y from diagnosis)'),
+('leukemia(acute or chronic)', 'Leukemia(acute or chronic)'),
+('lymphoma', 'Lymphoma'),
+				
+('moderate or severe liver disease', 'Moderate or severe liver disease'),
+				
+('metastatic solid tumor', 'Metastatic solid tumor'),
+('aids (not just hiv positive)', 'AIDS (not just HIV positive)');
+  
+UPDATE versions SET branch_build_number = '6178' WHERE version_number = '2.6.2';

@@ -147,6 +147,8 @@ class EventMasterCustom extends EventMaster{
 			return $this->setGretchScore($event_data);
 		}else if($event_control_event_type == "meld score"){
 			return $this->setMeldScore($event_data, $submitted_data_validates);
+		}else if($event_control_event_type == "charlson score"){
+			return $this->setCharlsonScore($event_data, $submitted_data_validates);
 		}
 		return $event_data;
 	}
@@ -467,6 +469,52 @@ class EventMasterCustom extends EventMaster{
 		return $event_data;
 	}
 	
+	function setCharlsonScore($event_data, &$submitted_data_validates){
+		$event_data['EventDetail']['result'] = 0;
+		
+		switch($event_data['EventDetail']['scoring_age']) {
+			case '<=40yrs': break;
+			case '41-50': $event_data['EventDetail']['result'] += 1;  break;
+			case '51-60': $event_data['EventDetail']['result'] += 2;  break;
+			case '61-70': $event_data['EventDetail']['result'] += 3;  break;
+			case '71-80': $event_data['EventDetail']['result'] += 4;  break;
+		}
+
+		$scoring_data = array(
+			'1' => array(
+				'myocardial_infarction',
+				'congestive_heart_failure',
+				'peripheral_disease',
+				'cerebrovascular_disease',
+				'dementia',
+				'chronic_pulmonary_disease',
+				'connective_tissue_disease',
+				'peptic_ulcer_disease',
+				'mild_liver_disease',
+				'diabetes_without_end-organ_damage'),
+	  		'2' => array(		
+				'hemiplegia',
+				'moderate_or_severe_renal_disease',
+				'diabetes_with_end-organ_damage',
+				'tumor_without_metastasis',
+				'leukemia',
+				'lymphoma'),
+	  		'3' => array(		
+				'moderate_or_severe_liver_disease'),
+	  		'6' => array(	
+				'metastatic_solid_tumor',
+				'aids'));
+		foreach($scoring_data as $value => $all_fields) {
+			foreach($all_fields as $specific_field) {
+				if(!array_key_exists($specific_field, $event_data['EventDetail']))die('ERR322323 '.$specific_field);
+				if($event_data['EventDetail'][$specific_field]) {
+					$event_data['EventDetail']['result'] += $value;				
+				}
+			}
+		}
+		
+		return $event_data;
+	}
 	
 	function allowDeletion($event_master_id){
 		$res = parent::allowDeletion($event_master_id);
