@@ -1,9 +1,9 @@
 <?php
 
 /* 
+@author Stephen Fung
+@since 2014-04-14
 Eventum ID: 3213
-By: Stephen Fung
-Date: 2014-04-14
 Enabling Ethics for Study
 */
 
@@ -11,9 +11,9 @@ class StudyEthicsBoardsControllerCustom extends StudyEthicsBoardsController {
 	
 		function add( $study_summary_id ) {
 			/*
-	pr('Has to be reviewed before to be used in prod.');
-	$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
-	exit;*/
+			pr('Has to be reviewed before to be used in prod.');
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+			exit;*/
 			if ( !$study_summary_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 			// MANAGE DATA

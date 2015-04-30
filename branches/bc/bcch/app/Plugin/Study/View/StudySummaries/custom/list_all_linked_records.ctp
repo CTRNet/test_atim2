@@ -1,9 +1,9 @@
 <?php
 	
 	/* 
+	@author Stephen Fung
+	@since 2014-04-17
 	Eventum ID: 3214
-	By: Stephen Fung
-	Date: 2014-04-17
 	Displaying consent forms linked to the project
 	*/
 
@@ -84,7 +84,7 @@
 		'links'	=> array(),
 		'settings' => array(
 			'header' => __('order lines', null),
-			'actions'	=> true), 
+			'actions'	=> false), 
 		'extras' => $link_permissions['order line']? array('end' => $this->Structures->ajaxIndex('Study/StudySummaries/listAllLinkedOrderLines/'.$atim_menu_variables['StudySummary.id'])) : __('You are not authorized to access that location.')
 	);
 	
@@ -102,8 +102,8 @@
 	// ----- Consent Forms -----
 
 	/* 
-	By: Stephen Fung
-	Date: 2014-04-14
+	@author Stephen Fung
+	@since 2014-04-14
 	Displaying consent forms linked to the project
 	*/
 

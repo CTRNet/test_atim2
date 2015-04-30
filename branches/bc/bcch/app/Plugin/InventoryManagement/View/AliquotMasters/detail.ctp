@@ -22,7 +22,8 @@
 	
 	$structure_links['bottom']['add uses/events'] = array("link" => '/InventoryManagement/AliquotMasters/addAliquotInternalUse/'. $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
 
-	// By Stephen 2015-03-18
+	// @author Stephen Fung
+	// @since 2015-03-18
 	// Disable the re-aliquoting function until requirements are finalized
 	// Disable the create derviative function until requirements are finalized	
 	/*

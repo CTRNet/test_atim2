@@ -1,9 +1,9 @@
 <?php
 
 /* 
+@author Stephen Fung
+@since 2014-04-17
 Eventum ID: 3214
-By: Stephen Fung
-Date: 2014-04-17
 Displaying consent forms linked to the project
 */
 

@@ -234,13 +234,13 @@ class StorageMastersController extends StorageLayoutAppController {
 
 				$storage_master_id = null;
 				$this->StorageMaster->addWritableField(array('storage_control_id', 'parent_id', 'selection_label', 'temperature', 'temp_unit'));
-				
+
 				if($this->StorageMaster->save($this->request->data, false)) {
 					$storage_master_id = $this->StorageMaster->getLastInsertId();
 				} else {
 					$bool_save_done = false;
 				}
-				
+
 				// Create storage code
 				if($bool_save_done) {
 					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;"); 
