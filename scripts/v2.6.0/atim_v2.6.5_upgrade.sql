@@ -9,10 +9,10 @@
 ALTER TABLE groups MODIFY deleted tinyint(3) unsigned NOT NULL DEFAULT '0';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Issue #xxx: xxx
+-- Issue #3220: Unable to export report in CSV when the number of records is > databrowser_and_report_results_display_limit
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('lines','Lines','Lignes');
 
 
 
