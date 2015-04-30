@@ -10,7 +10,7 @@ class ViewStorageMaster extends StorageLayoutAppModel {
 			'className'    => 'StorageLayout.StorageControl',
 			'foreignKey'    => 'storage_control_id'
 		),'StorageMaster'	=> array(
-			'className'    => 'StorageLayour.StorageMaster',
+			'className'    => 'StorageLayout.StorageMaster',
 			'foreignKey'    => 'id',
 			'type'			=> 'INNER')
 	);

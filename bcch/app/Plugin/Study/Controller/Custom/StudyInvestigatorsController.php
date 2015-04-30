@@ -1,9 +1,9 @@
 <?php
 
 /* 
+@author Stephen Fung
+@since 2014-04-17
 Eventum ID: 3213
-By: Stephen Fung
-Date: 2014-04-17
 Enabling Investigators for Study
 */
 

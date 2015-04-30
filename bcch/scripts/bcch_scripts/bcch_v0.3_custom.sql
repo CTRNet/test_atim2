@@ -1191,7 +1191,7 @@ REPLACE INTO i18n (`id`, `en`) VALUES
 ('BCWH Maternal Consent', 'BCWH Consent Form (Maternal)');
 
 --  =========================================================================
---	Eventum ID: #XXXX - Storage Changes
+--	Eventum ID: #3218 - Storage Changes
 --	=========================================================================
 
 -- Enable Room 
@@ -1215,7 +1215,14 @@ WHERE `storage_type`='box81 1A-9I' AND `detail_tablename`='std_boxs';
 -- Enable longer short label
 
 ALTER TABLE storage_masters MODIFY `short_label` VARCHAR(30);
+ALTER TABLE storage_masters_revs MODIFY `short_label` VARCHAR(30);
 ALTER TABLE view_storage_masters MODIFY `short_label` VARCHAR(30);
+
+-- Expand the length of the selection label to be 
+
+ALTER TABLE storage_masters MODIFY `selection_label` VARCHAR(210);
+ALTER TABLE storage_masters_revs MODIFY `selection_label` VARCHAR(210);
+ALTER TABLE view_storage_masters MODIFY `selection_label` VARCHAR(210);
 
 -- Make the input box for short label wider
 UPDATE structure_fields
@@ -1233,7 +1240,7 @@ ALTER TABLE consent_masters_revs
 	 	ADD `study_summary_id` INT(11) DEFAULT NULL AFTER `type`;
 
 INSERT INTO structure_fields (`plugin`, `model`, `tablename`, `field`, `language_label`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `flag_confidential`) VALUES
-('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'study_summary_id', 'study/project', 'select', '', '', (SELECT `id` FROM structure_value_domains WHERE `domain_name`='study_list' AND `source`='Study.StudySummary::getStudyPermissibleValues'), 'help_select_study', 'open', 'open', 'open', 0);
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'study_summary_id', 'project title', 'select', '', '', (SELECT `id` FROM structure_value_domains WHERE `domain_name`='study_list' AND `source`='Study.StudySummary::getStudyPermissibleValues'), 'help_select_study', 'open', 'open', 'open', 0);
 
 INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`,
 `flag_override_label`, `flag_override_tag`, `flag_override_help`, `flag_override_type`, `flag_override_setting`, `flag_override_default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES
@@ -1243,9 +1250,52 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
  0, 0, 0, 0, 1, 0, 
  0, 1, 1, 0, 0);
 
+
+--  =========================================================================
+--	Eventum ID: #3216 - Displaying Participant Identifier in Consent Form
+--	=========================================================================
+
+ALTER TABLE consent_masters
+	 	ADD `participant_identifier` VARCHAR(50) DEFAULT NULL AFTER `participant_id`;
+
+ALTER TABLE consent_masters_revs
+	 	ADD `participant_identifier` VARCHAR(50) DEFAULT NULL AFTER `participant_id`;
+
+INSERT INTO structure_fields (`plugin`, `model`, `tablename`, `field`, `language_label`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `flag_confidential`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'participant_identifier', 'participant identifier', 'hidden', '', '', NULL, '', 'open', 'open', 'open', 0);
+
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`,
+`flag_override_label`, `flag_override_tag`, `flag_override_help`, `flag_override_type`, `flag_override_setting`, `flag_override_default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES
+((SELECT `id` FROM structures WHERE `alias`='consent_masters'), (SELECT `id` FROM structure_fields WHERE `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='participant_identifier' AND `type`='hidden'), 2, 89, 'study/project',
+ 0, 0, 0, 0, 0,
+ 0, 0, 1, 0, 1, 0,
+ 1, 0, 1, 0, 1, 
+ 1, 0, 1, 1, 1, 0, 0);
+
 INSERT INTO i18n (`id`, `en`) VALUES
 ('consent masters', 'Consent Forms'),
-('study/project', 'Study & Project');
+('study/project', 'Study & Project'),
+('project title', 'Project Title'),
+('participant information', 'Participant Information'),
+('help_select_study', 'The project/study that associates with this consent form.');
+
+-- Update the old consent_masters data to have proper participant identifiers
+
+UPDATE consent_masters, participants
+SET consent_masters.participant_identifier = participants.participant_identifier
+WHERE consent_masters.participant_id = participants.id;
+
+UPDATE consent_masters_revs, participants
+SET consent_masters_revs.participant_identifier = participants.participant_identifier
+WHERE consent_masters_revs.participant_id = participants.id;
+
+--  =========================================================================
+--	Eventum ID: #3217 - Storage System Code not displaying
+--	=========================================================================
+
+UPDATE view_storage_masters
+SET view_storage_masters.code = view_storage_masters.id
+WHERE view_storage_masters.code = '';
 
 --  =========================================================================
 --	Eventum ID: #XXXX - Enable barcode searching at the search page
