@@ -1083,3 +1083,13 @@ VALUES
 ('site build number','PROCURE Site Version/Build','Site PROCURE Version/Numéro Version');
 
 UPDATE versions SET branch_build_number = '6171' WHERE version_number = '2.6.4';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2015-05-05
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE label = 'number of elements per participant'
+AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('DiagnosisMaster', 'FamilyHistory', 'ParticipantMessage', 'SpecimenReviewMaster', 'ParticipantContact', 'ReproductiveHistory','TreatmentExtendMaster','AliquotReviewMaster'));
+
+UPDATE versions SET branch_build_number = '6180' WHERE version_number = '2.6.4';
