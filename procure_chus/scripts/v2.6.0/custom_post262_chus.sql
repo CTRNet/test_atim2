@@ -39,10 +39,8 @@ AND EventMaster.event_control_id = EventControl.id
 AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event');
 
 -- ----------------------------------------------------------------------------------------------------
--- Copy Follow-up Id Confirmation Date to note
+-- Delete follow-up worksheet with no data
 -- ----------------------------------------------------------------------------------------------------
-
-SELECT 'Copied the Follow-up Id Confirmation Date to note and removed it' AS '### MESSAGE ###';
 
 SET @modified_by = (SELECT id FROM users WHERE username = 'NicoEn');
 SET @modified = (SELECT NOW() FROM users WHERE username = 'NicoEn');
@@ -78,6 +76,10 @@ AND (EventDetail.surgery_site IS NULL OR EventDetail.surgery_site LIKE '')
 AND (EventMaster.event_summary IS NULL OR EventMaster.event_summary LIKE '') 
 AND (EventDetail.surgery_date IS NULL OR EventDetail.surgery_date LIKE '')
 AND EventMaster.deleted <> 1;
+
+-- ----------------------------------------------------------------------------------------------------
+-- Copy Follow-up Id Confirmation Date to note
+-- ----------------------------------------------------------------------------------------------------
 
 SELECT count(*) AS '### MESSAGE ### Nbr of followup worksheets with id confirmation date (date will be moved to notes)' 
 FROM event_masters EventMaster, procure_ed_clinical_followup_worksheets EventDetail 
