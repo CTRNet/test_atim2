@@ -403,9 +403,58 @@ WHERE modified = @modified AND modified_by = @modified_by);
 INSERT INTO drugs_revs (id,generic_name,trade_name,type,description,procure_study,modified_by,version_created)
 (SELECT id,generic_name,trade_name,type,description,procure_study,modified_by,modified FROM drugs WHERE modified = @modified AND modified_by = @modified_by);
 
+-- -------------------------------------------------------
+-- Check duplicated event and treatment
+-- -------------------------------------------------------
+
+SELECT 'Checked duplicated treatments (see below)' AS '### MESSAGE ###';
+
+SELECT P.participant_identifier, TD.treatment_type, TM.start_date,TD.dosage, D.generic_name, TD.treatment_site, TD.treatment_combination
+FROM (
+	SELECT count(*) AS nbr_of_treatment, participant_id, treatment_type, start_date, drug_id
+	FROM treatment_masters TM
+	INNER JOIN procure_txd_followup_worksheet_treatments TD ON TD.treatment_master_id = TM.id
+	WHERE TM.deleted <> 1
+	GROUP BY participant_id, treatment_type, start_date, drug_id
+) RES 
+INNER JOIN participants P ON P.id = RES.participant_id
+INNER JOIN treatment_masters TM ON TM.participant_id = RES.participant_id AND TM.start_date = RES.start_date 
+INNER JOIN procure_txd_followup_worksheet_treatments TD ON TD.treatment_master_id = TM.id
+LEFT JOIN drugs D ON D.id = TD.drug_id 
+WHERE nbr_of_treatment > 1 AND TD.treatment_type = RES.treatment_type AND TM.deleted <> 1
+ORDER BY P.participant_identifier, TD.treatment_type, TM.start_date;
+
+-- -------------------------------------------------------
+-- Check Tissue With No Aliquot
+-- -------------------------------------------------------
+
+SELECT P.participant_identifier AS '### MESSAGE ### Patient with tissue with no aliquots'
+FROM sample_controls SC
+INNER JOIN sample_masters SM ON SM.sample_control_id = SC.id
+INNER JOIN collections COL ON COL.id = SM.collection_id
+INNER JOIN participants P ON COL.participant_id = P.id
+WHERE SC.sample_type = 'tissue'
+AND SM.id NOT IN (SELECT sample_master_id FROM aliquot_masters WHERE deleted <> 1)
+AND SM.deleted <> 1;
 
 -- ----------------------------------------------------------------------------------------------------
 -- MESSAGE
 -- ----------------------------------------------------------------------------------------------------
 
 SELECT "Don't forget to run flag_bcr.php script after migration" AS "### MESSAGE ###";
+
+-- ----------------------------------------------------------------------------------------------------
+-- UPDATE databrowser linking
+-- ----------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ParticipantMessage', 'ParticipantContact')) 
+AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('Participant'));
+
+-- ----------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS id_linking;
+
+UPDATE versions SET site_branch_build_number = '6182' WHERE version_number = '2.6.4';
