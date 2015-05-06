@@ -1092,4 +1092,4 @@ UPDATE datamart_structure_functions SET flag_active = 0
 WHERE label = 'number of elements per participant'
 AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('DiagnosisMaster', 'FamilyHistory', 'ParticipantMessage', 'SpecimenReviewMaster', 'ParticipantContact', 'ReproductiveHistory','TreatmentExtendMaster','AliquotReviewMaster'));
 
-UPDATE versions SET branch_build_number = '6180' WHERE version_number = '2.6.4';
+UPDATE versions SET branch_build_number = '6187' WHERE version_number = '2.6.4';
