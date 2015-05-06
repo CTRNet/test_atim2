@@ -459,13 +459,9 @@ AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('Participant'));
 select barcode as '### MESSAGE ### Duplicated aliquot barcodes'
 from (select count(*) as nbr, barcode from aliquot_masters WHERE deleted <> 1 group by barcode) res where res.nbr > 1;
 
-
-
-
-
 -- ----------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS id_linking;
 
-UPDATE versions SET site_branch_build_number = '6182' WHERE version_number = '2.6.4';
+UPDATE versions SET site_branch_build_number = '6190' WHERE version_number = '2.6.4';
