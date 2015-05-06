@@ -452,6 +452,17 @@ SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1
 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ParticipantMessage', 'ParticipantContact')) 
 AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('Participant'));
 
+-- ------------------------------------------------------------------------------------------------------
+-- Check duplicated barcode
+-- ------------------------------------------------------------------------------------------------------
+
+select barcode as '### MESSAGE ### Duplicated aliquot barcodes'
+from (select count(*) as nbr, barcode from aliquot_masters WHERE deleted <> 1 group by barcode) res where res.nbr > 1;
+
+
+
+
+
 -- ----------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------
 
