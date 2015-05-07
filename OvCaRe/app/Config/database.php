@@ -64,8 +64,8 @@ class DATABASE_CONFIG {
 		'persistent' => true,
 		'host' => '127.0.0.1',
 		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_26x',
+		'password' => '',
+		'database' => 'ovcare',
 		'prefix' => '',
 		'encoding' => 'utf8',
 		'port'	=> 3306
