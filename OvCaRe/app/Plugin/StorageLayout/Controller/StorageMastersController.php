@@ -760,7 +760,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		//query the database
 		$term = trim(str_replace('_', '\_', str_replace('%', '\%', $_GET['term'])));
 		$conditions = array(
-			'StorageMaster.Selection_label LIKE' => $term.'%'
+			'StorageMaster.Selection_label LIKE' => '%'.$term.'%'
 			);
 		$rpos = strripos($term, "[");
 		if($rpos){

@@ -1,51 +1,58 @@
 <?php
-	
-	if($is_specimen) {
-		if(!isset(AppController::getInstance()->passedArgs['templateInitId'])){
-			if(isset($sample) && $sample) {
-				//A specimen has already be created
-				$this->request->data['SpecimenDetail']['reception_by'] = $sample['SpecimenDetail']['reception_by'];
-			} else {
-				//First Specimen
-				if($sample_control_data['SampleControl']['sample_type'] == 'tissue') $this->request->data['SpecimenDetail']['reception_by'] = 'margaret luk';
-			}
-		}
-		if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
-			$this->request->data['SampleDetail']['collected_volume'] = '6.0';
-			$this->request->data['SampleDetail']['collected_volume_unit'] = 'ml';
-			$existing_bloods = array();
-			$tmp_existing_bloods = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_type' => 'blood'), 'recursive' => '0'));
-			foreach($tmp_existing_bloods as $tmp_sample) if(in_array($tmp_sample['SampleDetail']['blood_type'], array('EDTA', 'serum'))) $existing_bloods[] = $tmp_sample;
-			if(empty($existing_bloods)) {
+
+// Default Data
+switch($sample_control_data['SampleControl']['sample_type']) {
+	case 'tissue':
+		$this->request->data['SampleDetail']['ovcare_tissue_type'] = 'tumour';
+		break;
+	case 'plasma':
+	case 'serum':
+	case 'blood cell':
+		$this->request->data['DerivativeDetail']['creation_datetime'] = $parent_sample_data['SpecimenDetail']['reception_datetime'];
+		$this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $parent_sample_data['SpecimenDetail']['reception_datetime_accuracy'];
+		$this->request->data['DerivativeDetail']['creation_by'] = $parent_sample_data['SpecimenDetail']['reception_by'];
+		break;
+}
+
+//Default Data Template Dependent
+if(isset(AppController::getInstance()->passedArgs['templateInitId'])) {
+	$template_init_data = AppController::getInstance()->Session->read('Template.init_data.'.AppController::getInstance()->passedArgs['templateInitId']);
+	switch($sample_control_data['SampleControl']['sample_type']) {
+		case 'blood':
+			$nbr_of_blood_samples = $this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_type' => 'blood'), 'recursive' => '0'));
+			if(!$nbr_of_blood_samples) {
 				//First Blood we expect should be EDTA
 				$this->request->data['SampleDetail']['blood_type'] = 'EDTA';
-				$this->request->data['SampleDetail']['collected_volume'] = '12.0';
-				$this->request->data['SampleDetail']['collected_tube_nbr'] = '2';
-			} else if(sizeof($existing_bloods) == 1) {
-				if($existing_bloods[0]['SampleDetail']['blood_type'] == 'EDTA') {
-					$this->request->data['SampleDetail']['blood_type'] = 'serum';
-					$this->request->data['SampleDetail']['collected_tube_nbr'] = '1';
-				} else {
-					//If no EDTA or SERUM, First Blood we expect should be EDTA
-					$this->request->data['SampleDetail']['blood_type'] = 'EDTA';
-					$this->request->data['SampleDetail']['collected_volume'] = '12.0';
-					$this->request->data['SampleDetail']['collected_tube_nbr'] = '2';
-				}			
+				if(array_key_exists('0', $template_init_data) && array_key_exists('ovcare_collected_tube_nbr_blood_edta', $template_init_data['0'])) {
+					$this->request->data['SampleDetail']['collected_volume'] = $template_init_data['0']['ovcare_collected_volume_blood_edta'];
+					$this->request->data['SampleDetail']['collected_volume_unit'] = $template_init_data['0']['ovcare_collected_volume_unit_blood_edta'];
+					$this->request->data['SampleDetail']['collected_tube_nbr'] = $template_init_data['0']['ovcare_collected_tube_nbr_blood_edta'];
+				}
+			} else if($nbr_of_blood_samples == '1') {
+				$this->request->data['SampleDetail']['blood_type'] = 'serum';
+				if(array_key_exists('0', $template_init_data) && array_key_exists('ovcare_collected_tube_nbr_blood_serum', $template_init_data['0'])) {
+					$this->request->data['SampleDetail']['collected_volume'] = $template_init_data['0']['ovcare_collected_volume_blood_serum'];
+					$this->request->data['SampleDetail']['collected_volume_unit'] = $template_init_data['0']['ovcare_collected_volume_unit_blood_serum'];
+					$this->request->data['SampleDetail']['collected_tube_nbr'] = $template_init_data['0']['ovcare_collected_tube_nbr_blood_serum'];
+				}
 			}
-		} else if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
-			$this->request->data['SampleDetail']['ovcare_tissue_type'] = 'tumour';
-		}		
-	} else if(in_array($sample_control_data['SampleControl']['sample_type'], array('plasma','blood cell','serum'))) {
-		$last_derivative_crated = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_type' => array('plasma','blood cell','serum')), 'order' => array('SampleMaster.id DESC')));
-		if($last_derivative_crated) {
-			$this->request->data['DerivativeDetail']['creation_datetime'] = $last_derivative_crated['DerivativeDetail']['creation_datetime'];
-			$this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $last_derivative_crated['DerivativeDetail']['creation_datetime_accuracy'];
-			$this->request->data['DerivativeDetail']['creation_by'] = $last_derivative_crated['DerivativeDetail']['creation_by'];
-		} else if($parent_sample_data) {
+			break;
+		case 'plasma':
+		case 'serum':
+		case 'blood cell':
 			$this->request->data['DerivativeDetail']['creation_datetime'] = $parent_sample_data['SpecimenDetail']['reception_datetime'];
 			$this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $parent_sample_data['SpecimenDetail']['reception_datetime_accuracy'];
 			$this->request->data['DerivativeDetail']['creation_by'] = $parent_sample_data['SpecimenDetail']['reception_by'];
-		}
-	}	
-	
+			if(array_key_exists('0', $template_init_data) && array_key_exists('ovcare_ischemia_time_mn_plasma_serum', $template_init_data['0'])) {
+				if($sample_control_data['SampleControl']['sample_type'] != 'blood cell') {
+					$this->request->data['SampleDetail']['ovcare_ischemia_time_mn'] = $template_init_data['0']['ovcare_ischemia_time_mn_plasma_serum'];;
+				} else {
+					$this->request->data['SampleDetail']['ovcare_ischemia_time_mn'] = $template_init_data['0']['ovcare_ischemia_time_mn_buffy_coat'];;
+				}
+			}
+			break;
+	}
+}
+
+
 ?>
