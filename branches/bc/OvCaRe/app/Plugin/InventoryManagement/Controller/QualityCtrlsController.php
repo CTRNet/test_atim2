@@ -163,7 +163,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}
 			
 			$display_limit = Configure::read('QualityCtrlsCreation_processed_items_limit');
-			if(sizeof(data) > $display_limit) {
+			if(sizeof($data) > $display_limit) {
 				$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $cancel_button, 5);
 				return;
 			}
