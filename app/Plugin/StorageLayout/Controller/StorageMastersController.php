@@ -246,6 +246,8 @@ class StorageMastersController extends StorageLayoutAppController {
 				if($bool_save_done) {
 					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;"); 
 					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters_revs SET storage_masters_revs.code = storage_masters_revs.id WHERE storage_masters_revs.id = $storage_master_id;");
+					$view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
+					$view_storage_master_model->manageViewUpdate('view_storage_masters', 'StorageMaster.id', array($storage_master_id), $view_storage_master_model::$table_query);
 				}
 				
 				$hook_link = $this->hook('postsave_process');
