@@ -30,6 +30,8 @@ if($template) {
 			$this->request->data['0']['ovcare_collected_tube_nbr_blood_serum'] = '1';
 			$this->request->data['0']['ovcare_collected_volume_blood_serum'] = '6.0';
 			$this->request->data['0']['ovcare_collected_volume_unit_blood_serum'] = 'ml';
+			$this->request->data['0']['ovcare_storage_datetime_buffy_coat'] = $collection_datetime;
+			$this->request->data['0']['ovcare_storage_datetime_plasma_serum'] = $collection_datetime;
 			break;
 		case 'Tissue collection':
 			$this->request->data['SpecimenDetail']['reception_by'] = 'Margaret Luk';
@@ -40,6 +42,9 @@ if($template) {
 			$this->request->data['SpecimenDetail']['reception_by'] = 'Margaret Luk';
 			$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_datetime;
 			$this->request->data['AliquotDetail']['block_type'] = "MFPE";
+			$study_model = AppModel::getInstance('Study', 'StudySummary');
+			$endometriosis_study = $study_model->find('first', array('conditions' => array("StudySummary.title LIKE 'endometriosis'")));
+			if($endometriosis_study) $this->request->data['AliquotMaster']['study_summary_id'] = $endometriosis_study['StudySummary']['id'];
 			break;
 	}
 }
