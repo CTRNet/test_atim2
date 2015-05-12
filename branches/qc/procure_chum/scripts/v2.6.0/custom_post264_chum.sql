@@ -926,3 +926,5 @@ UPDATE versions SET site_branch_build_number = '6153' WHERE version_number = '2.
 UPDATE versions SET site_branch_build_number = '6160' WHERE version_number = '2.6.4';
 
 UPDATE versions SET site_branch_build_number = '6172' WHERE version_number = '2.6.4';
+
+UPDATE versions SET site_branch_build_number = '6198' WHERE version_number = '2.6.4';
