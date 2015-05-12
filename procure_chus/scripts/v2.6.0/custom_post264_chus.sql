@@ -465,3 +465,24 @@ from (select count(*) as nbr, barcode from aliquot_masters WHERE deleted <> 1 gr
 DROP TABLE IF EXISTS id_linking;
 
 UPDATE versions SET site_branch_build_number = '6190' WHERE version_number = '2.6.4';
+
+-- ------------------------------------------------------------------------------------------------------
+-- 2015-05-12
+-- ------------------------------------------------------------------------------------------------------
+
+UPDATE participants SET procure_patient_withdrawn = '1' WHERE procure_chus_abort = 'y';
+UPDATE participants SET procure_patient_withdrawn = '1', procure_patient_withdrawn_date = procure_chus_aborting_date, procure_patient_withdrawn_date_accuracy = procure_chus_aborting_date_accuracy WHERE procure_chus_aborting_date IS NOT NULL AND procure_chus_aborting_date NOT LIKE '';
+UPDATE participants_revs SET procure_patient_withdrawn = '1' WHERE procure_chus_abort = 'y';
+UPDATE participants_revs SET procure_patient_withdrawn = '1', procure_patient_withdrawn_date = procure_chus_aborting_date, procure_patient_withdrawn_date_accuracy = procure_chus_aborting_date_accuracy WHERE procure_chus_aborting_date IS NOT NULL AND procure_chus_aborting_date NOT LIKE '';
+
+ALTER TABLE participants DROP COLUMN procure_chus_abort, DROP COLUMN procure_chus_aborting_date, DROP COLUMN procure_chus_aborting_date_accuracy;
+ALTER TABLE participants_revs DROP COLUMN procure_chus_abort, DROP COLUMN procure_chus_aborting_date, DROP COLUMN procure_chus_aborting_date_accuracy;
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='procure_chus_abort' AND `language_label`='participant abort' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='procure_chus_aborting_date' AND `language_label`='aborting date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='procure_chus_abort' AND `language_label`='participant abort' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='procure_chus_aborting_date' AND `language_label`='aborting date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='procure_chus_abort' AND `language_label`='participant abort' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='procure_chus_aborting_date' AND `language_label`='aborting date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE versions SET site_branch_build_number = '6199' WHERE version_number = '2.6.4';
