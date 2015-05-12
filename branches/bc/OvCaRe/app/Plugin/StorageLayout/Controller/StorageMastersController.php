@@ -246,6 +246,8 @@ class StorageMastersController extends StorageLayoutAppController {
 				if($bool_save_done) {
 					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;"); 
 					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters_revs SET storage_masters_revs.code = storage_masters_revs.id WHERE storage_masters_revs.id = $storage_master_id;");
+					$view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
+					$view_storage_master_model->manageViewUpdate('view_storage_masters', 'StorageMaster.id', array($storage_master_id), $view_storage_master_model::$table_query);
 				}
 				
 				$hook_link = $this->hook('postsave_process');
@@ -354,11 +356,12 @@ class StorageMastersController extends StorageLayoutAppController {
 					// Manage children selection label
 					if(strcmp($this->request->data['StorageMaster']['selection_label'], $storage_data['StorageMaster']['selection_label']) != 0) {	
 						$this->StorageMaster->updateChildrenStorageSelectionLabel($storage_master_id, $this->request->data);
-					}		
+					}
+
+					AppModel::releaseBatchViewsUpdateLock();
+					
 					$this->atimFlash(__('your data has been updated'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id); 
 				}
-
-				AppModel::releaseBatchViewsUpdateLock();
 			}
 		}
 	}
@@ -760,7 +763,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		//query the database
 		$term = trim(str_replace('_', '\_', str_replace('%', '\%', $_GET['term'])));
 		$conditions = array(
-			'StorageMaster.Selection_label LIKE' => '%'.$term.'%'
+			'StorageMaster.Selection_label LIKE' => $term.'%'
 			);
 		$rpos = strripos($term, "[");
 		if($rpos){
