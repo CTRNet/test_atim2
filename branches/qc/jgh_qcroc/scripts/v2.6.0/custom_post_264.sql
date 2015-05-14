@@ -744,5 +744,90 @@ UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM 
 UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- --------------------------------------------------------------------------------
+-- Hidde xenograft and cord blood
+-- --------------------------------------------------------------------------------
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(133, 134, 13, 14, 15, 16, 113, 114, 125, 126, 110, 111, 128, 129, 191);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(193, 200, 203, 194);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(2, 12, 26, 31, 32, 13, 34, 35, 40, 36, 42, 44, 43, 45, 46, 47, 6, 20, 21, 8, 22, 23, 5, 18, 19, 7, 24, 25, 48, 38, 39, 4, 14, 15);
+
+-- --------------------------------------------------------------------------------
+-- Clean up block to block realiquoting controls
+-- --------------------------------------------------------------------------------
+
+SET @control_id = (SELECT ac.id FROM sample_controls sc INNER JOIN aliquot_controls ac ON ac.sample_control_id = sc.id WHERE sample_type = 'tissue' AND aliquot_type = 'block');
+DELETE FROM realiquoting_controls WHERE parent_aliquot_control_id = @control_id AND child_aliquot_control_id = @control_id AND flag_active = 0;
+
+-- --------------------------------------------------------------------------------
+-- Clean up groups table
+-- --------------------------------------------------------------------------------
+
+ALTER TABLE groups MODIFY deleted tinyint(3) unsigned NOT NULL DEFAULT '0';
+
+-- --------------------------------------------------------------------------------
+-- 'number of elements per participant' report
+-- --------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE label = 'number of elements per participant'
+AND datamart_structure_id IN (SELECT id FROM datamart_structures 
+WHERE model IN ('ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster','ReproductiveHistory','FamilyHistory','ParticipantContact','TreatmentExtendMaster'));
+
+-- --------------------------------------------------------------------------------
+-- Menus update
+-- --------------------------------------------------------------------------------
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Drug/%' OR use_link LIKE '/Sop/%' OR use_link LIKE '/Protocol/%';
+
+-- --------------------------------------------------------------------------------
+-- Review MsicIdentifier Report
+-- --------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', 'DatamartStructure', '', 'RAMQ', 'input',  NULL , '0', 'size=20', '', '', 'RAMQ', ''), 
+('Datamart', 'DatamartStructure', '', 'QCROC_01', 'input',  NULL , '0', 'size=20', '', '', 'QCROC-01', ''), 
+('Datamart', 'DatamartStructure', '', 'QCROC_02', 'input',  NULL , '0', 'size=20', '', '', 'QCROC-02', ''), 
+('Datamart', 'DatamartStructure', '', 'QCROC_03', 'input',  NULL , '0', 'size=20', '', '', 'QCROC-03', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='' AND `field`='RAMQ' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='RAMQ' AND `language_tag`=''), '0', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='' AND `field`='QCROC_01' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='QCROC-01' AND `language_tag`=''), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='' AND `field`='QCROC_02' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='QCROC-02' AND `language_tag`=''), '0', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='' AND `field`='QCROC_03' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='QCROC-03' AND `language_tag`=''), '0', '6', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_fields SET  `model`='Datamart' WHERE model='0' AND tablename='' AND field='hospital_number' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='BR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='PR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='hospital_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_fields SET  `flag_confidential`='1' WHERE model='DatamartStructure' AND tablename='' AND field='RAMQ' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Datamart' AND `tablename`='' AND `field`='hospital_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_fields SET  `model`='0' WHERE model='DatamartStructure' AND tablename='' AND field='RAMQ' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `model`='0' WHERE model='DatamartStructure' AND tablename='' AND field='QCROC_01' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `model`='0' WHERE model='DatamartStructure' AND tablename='' AND field='QCROC_02' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `model`='0' WHERE model='DatamartStructure' AND tablename='' AND field='QCROC_03' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- --------------------------------------------------------------------------------
+-- Review Other Report
+-- --------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='bank_activty_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='obtained_consents_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE datamart_reports SET flag_active = 0 WHERE name = 'list all related diagnosis';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 UPDATE versions SET branch_build_number = '6001' WHERE version_number = '2.6.4';
