@@ -2533,8 +2533,10 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			$this->request->data = $data;
 		}
 		
+		$tmp_sample_master_recursive = $this->SampleMaster->recursive;
 		$this->SampleMaster->recursive = 0;
 		$sample = $this->SampleMaster->getOrRedirect($data['AliquotMasterChildren']['sample_master_id']);
+		$this->SampleMaster->recursive = $tmp_sample_master_recursive;
 		$this->setAliquotMenu(array('AliquotMaster' => $data['AliquotMasterChildren'], 'SampleMaster' => $sample['SampleMaster'], 'SampleControl' => $sample['SampleControl']), false);
 		$this->set('realiquoting_id', $realiquoting_id);
 	}	
