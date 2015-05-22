@@ -4,6 +4,11 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 	global $import_summary;
 	global $controls;
 	
+//TODO
+$limit_data = true;
+$limit_pattern = '/^[0-9]+\-[0-9]+\-0((0[1-9])|(1[0-5]))/';
+$limit_pattern = '/^[0-9]+\-[0-9]+\-01[0-5]/';
+	
 	// Control
 	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
 	
@@ -14,7 +19,7 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 	
 	// *1* Create Collection **
 	
-	$tissue_collection_labels_to_ids = array();
+	$tissue_collection_and_sample_ids = array();
 	
 	$worksheet = 'Collection';
 	$summary_title = "Tissue : $worksheet";
@@ -24,21 +29,18 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$excel_collection_value = $new_line_data['Collection'];
-//TODO			
-if($excel_collection_value == '01-1-008') break;	
-			if(preg_match('/^([0-9]+)\-([0-9]+)-([0-9]+)$/', $excel_collection_value, $matches)) {
+			$tissue_collection_label = $new_line_data['Collection'];
+if($limit_data && !preg_match($limit_pattern, $tissue_collection_label)) continue;	
+			if(preg_match('/^([0-9]+)\-([0-9]+)-([0-9]+)$/', $tissue_collection_label, $matches)) {
 				$collection_id = getCollectionId($matches[1], $matches[3], 'T', $matches[2], $new_line_data['Date'], '', $new_line_data['Hospital site'], $new_line_data['Note'], $summary_title, $file_name, $worksheet, $line_counter);
-				$tissue_collection_labels_to_collection_ids[$excel_collection_value] = array('collection_id' => $collection_id, 'sample_master_ids' => array());
+				$tissue_collection_and_sample_ids[$tissue_collection_label] = array('collection_id' => $collection_id, 'sample_master_id' => null, 'created_aliquots' => false);
 			} else {
-				$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [$excel_collection_value]! [file '$file_name' ($worksheet) - line: $line_counter]";
+				$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [$tissue_collection_label]! The collection won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 			}
 		}
 	}
 	
 	// *2* Create Tissue **
-	
-	$tissue_tube_labels_to_ids = array();
 	
 	$worksheet = 'Sample';
 	$summary_title = "Tissue : $worksheet";
@@ -48,95 +50,68 @@ if($excel_collection_value == '01-1-008') break;
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$tissue_tube_aliquot_label = $new_line_data['Sample Id'];
-			if(strlen($tissue_tube_aliquot_label)) {
-				if(!array_key_exists($tissue_tube_aliquot_label, $tissue_tube_labels_to_ids)) {
-					if(preg_match('/^([0-9]+)\-([0-9]+)-([0-9]+)\-([0-9]+)$/', $tissue_tube_aliquot_label, $matches)) {
-						$collection_key = $matches[1].'-'.$matches[2].'-'.$matches[3];
-//TODO
-if($collection_key == '01-1-008') break;						
-						if(array_key_exists($collection_key, $tissue_collection_labels_to_collection_ids)) {
-							$qcroc_collection_method = strtolower($new_line_data['Collection Method']);
-							if($qcroc_collection_method != 'no biopsy') {
-								$collection_id = $tissue_collection_labels_to_collection_ids[$collection_key]['collection_id'];
-								$tissue_sample_key = $new_line_data['Collection Method'].$new_line_data['Tissue Site'].$new_line_data['Laterality'].$new_line_data['Histology'];
-								if(!array_key_exists($tissue_sample_key, $tissue_collection_labels_to_collection_ids[$collection_key]['sample_master_ids'])) {
-									//Create the sample tissue								
-									if(!in_array($qcroc_collection_method, array('', 'biopsy', 'hepatectomy'))) {
-										$import_summary[$summary_title]['@@WARNING@@']['Collection method unknown'][] = "See value [$qcroc_collection_method]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-										$qcroc_collection_method = '';
-									}
-									$tissue_source = strtolower($new_line_data['Tissue Site']);
-									if(!in_array($tissue_source, array('', 'colon'))) {
-										$import_summary[$summary_title]['@@WARNING@@']['Tissue Source unknown'][] = "See value [$tissue_source]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-										$tissue_source = '';
-									}
-									$tissue_laterality = strtolower($new_line_data['Laterality']);
-									if(!in_array($tissue_laterality, array('', 'left', 'right', 'unknown', 'not applicable'))) {
-										$import_summary[$summary_title]['@@WARNING@@']['Tissue Laterality unknown'][] = "See value [$tissue_laterality]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-										$tissue_laterality = '';
-									}
-									$qcroc_histology = strtolower($new_line_data['Histology']);
-									if(!in_array($qcroc_histology, array('', 'tumor'))) {
-										$import_summary[$summary_title]['@@WARNING@@']['Histology unknown'][] = "See value [$qcroc_histology]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-										$qcroc_histology = '';
-									}
-									$sample_data = array(
-										'SampleMaster' => array(
-											'collection_id' => $collection_id,
-											'sample_control_id' => $controls['sample_aliquot_controls']['tissue']['sample_control_id'],
-											'initial_specimen_sample_type' => 'tissue'),
-										'SpecimenDetail' => array(),
-										'SampleDetail' => array(
-											'qcroc_collection_method' => $qcroc_collection_method,
-											'tissue_source' => $tissue_source,
-											'tissue_laterality' => $tissue_laterality,
-											'qcroc_histology' => $qcroc_histology));
-									$tissue_collection_labels_to_collection_ids[$collection_key]['sample_master_ids'][$tissue_sample_key] = createSample($sample_data, $controls['sample_aliquot_controls']['tissue']['detail_tablename']);
-								}
-								$sample_master_id = $tissue_collection_labels_to_collection_ids[$collection_key]['sample_master_ids'][$tissue_sample_key];
-								//Set data for tissue tube creation
-								$tissue_tube_labels_to_ids[$tissue_tube_aliquot_label] = array(
-									'collection_id' => $collection_id,
-									'sample_master_id' => $sample_master_id,
-									'data' => array(
-										'Biopsy >1 cm' => $new_line_data['Biopsy >1 cm'], 
-										'Fragments' => $new_line_data['Fragments'], 
-										'Carrot size Detail 1' => $new_line_data['Carrot size Detail 1'], 
-										'Carrot size Detail 2' => $new_line_data['Carrot size Detail 2'], 
-										'Carrot size Unit' => $new_line_data['Carrot size Unit'],
-										'Date Received' => $new_line_data['Date Received'],
-										'line' => $line_counter,
-										'worksheet' => $worksheet),
-									'tube_aliquot_master_id' => null,
-									'bloc_aliquot_master_ids' => array(),
-									'slide_aliquot_master_ids' => array()	
-								);
-							} else {
-								$import_summary[$summary_title]['@@WARNING@@']['No Biopsy & Tissue Tube Sample ID'][] = "A note defined that 'No biopsy' has been done. The Tissue Tube [".$tissue_tube_aliquot_label."] won't be created. [file '$file_name' ($worksheet) - line: $line_counter]";
+			$tissue_collection_label = $new_line_data['Collection'];
+if($limit_data && !preg_match($limit_pattern, $tissue_collection_label)) continue;	
+			if(strlen($tissue_collection_label)) {
+				if(array_key_exists($tissue_collection_label, $tissue_collection_and_sample_ids)) {
+					$qcroc_collection_method = strtolower($new_line_data['Collection Method']);
+					if($qcroc_collection_method != 'no biopsy') {
+						if(is_null($tissue_collection_and_sample_ids[$tissue_collection_label]['sample_master_id'])) {
+							$collection_id = $tissue_collection_and_sample_ids[$tissue_collection_label]['collection_id'];
+							//Create the sample tissue								
+							if(!in_array($qcroc_collection_method, array('', 'biopsy', 'hepatectomy'))) {
+								$import_summary[$summary_title]['@@WARNING@@']['Tissue Collection method unknown'][] = "See value [$qcroc_collection_method]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+								$qcroc_collection_method = '';
 							}
+							$tissue_source = strtolower($new_line_data['Tissue Site']);
+							if(!in_array($tissue_source, array('', 'colon'))) {
+								$import_summary[$summary_title]['@@WARNING@@']['Tissue Source unknown'][] = "See value [$tissue_source]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+								$tissue_source = '';
+							}
+							$tissue_laterality = strtolower($new_line_data['Laterality']);
+							if(!in_array($tissue_laterality, array('', 'left', 'right', 'unknown', 'not applicable'))) {
+								$import_summary[$summary_title]['@@WARNING@@']['Tissue Laterality unknown'][] = "See value [$tissue_laterality]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+								$tissue_laterality = '';
+							}
+							$qcroc_histology = strtolower($new_line_data['Histology']);
+							if(!in_array($qcroc_histology, array('', 'tumor'))) {
+								$import_summary[$summary_title]['@@WARNING@@']['Tissue Histology unknown'][] = "See value [$qcroc_histology]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+								$qcroc_histology = '';
+							}
+							$sample_data = array(
+								'SampleMaster' => array(
+									'collection_id' => $collection_id,
+									'sample_control_id' => $controls['sample_aliquot_controls']['tissue']['sample_control_id'],
+									'initial_specimen_sample_type' => 'tissue'),
+								'SpecimenDetail' => array(),
+								'SampleDetail' => array(
+									'qcroc_collection_method' => $qcroc_collection_method,
+									'tissue_source' => $tissue_source,
+									'tissue_laterality' => $tissue_laterality,
+									'qcroc_histology' => $qcroc_histology));
+							$tissue_collection_and_sample_ids[$tissue_collection_label]['sample_master_id'] = createSample($sample_data, $controls['sample_aliquot_controls']['tissue']['detail_tablename']);
 						} else {
-							$import_summary[$summary_title]['@@ERROR@@']['No Collection'][] = "The collection of the Sample ID [".$new_line_data['Sample Id']."] was not defined into the Collection worksheet! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+							//Tissue Sample defined twice: Error
+							die('ERR 336376376363 '.$tissue_collection_label);
 						}
 					} else {
-						$import_summary[$summary_title]['@@ERROR@@']['Wrong Sample Id Format'][] = "The format of the Sample ID [".$new_line_data['Sample Id']."] is not supported! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$import_summary[$summary_title]['@@WARNING@@']['No Biopsy'][] = "A note defines that 'No biopsy' has been done for collection [$tissue_collection_label]. The Tissue won't be created. Please confirm and delete collection after migration (if required)! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
-					$import_summary[$summary_title]['@@WARNING@@']['Duplicated Tissue Tube Id'][] = "The tissue tube [$tissue_tube_aliquot_label] is defined twice! Only one will be created! Please check data integrity! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Collection Of A Tissue Sample Was Not Defined Into Collection Worksheet'][] = "The collection [$tissue_collection_label] of a tissue was not defined into the Collection worksheet! No tissue will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
-			} else if(strlen($new_line_data['Collection'])) {
-				$import_summary[$summary_title]['@@MESSAGE@@']['Empty Excel Sample Id'][] = "See line $line_counter! A collection ID was defined [".$new_line_data['Collection']."] but the Sample Id value is empty. No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";	
 			}
 		}
 	}
-	foreach ($tissue_collection_labels_to_collection_ids as $collection_key => $sample_master_ids) {
-		if(empty($sample_master_ids)) {
-			$import_summary[$summary_title]['@@WARNING@@']['No Collection Tissue Defined'][] = "No tissue has been created for created collection [$collection_key]! Please confirm and delete collection after migration (if required)! [file '$file_name' ($worksheet) - line: $line_counter]";
+	foreach ($tissue_collection_and_sample_ids as $tissue_collection_label => $ids) {
+		if(!$ids['sample_master_id']) {
+			$import_summary[$summary_title]['@@WARNING@@']['No Tissue Sample Defined For A Collection'][] = "No tissue has been created for collection [$tissue_collection_label] previously created base on Collection Worksheet! Please confirm and delete collection after migration (if required)! [file '$file_name' ($worksheet) - line: $line_counter]";
 		}		
 	}
-	unset($tissue_collection_labels_to_collection_ids);
+			
+	// *3* Create Tissue Tube **
 	
-	// *3* Create Tissue **
+	$tissue_collections_ids = array();
 	
 	$worksheet = 'Tube';
 	$summary_title = "Tissue : $worksheet";
@@ -147,151 +122,170 @@ if($collection_key == '01-1-008') break;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$sample_tube_id = $new_line_data['Sample Tube Id'];
-//TODO
-if($sample_tube_id == '01-1-008-1') break;
+if($limit_data && !preg_match($limit_pattern, $sample_tube_id)) continue;	
 			if(strlen($sample_tube_id)) {
-				if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && is_null($tissue_tube_labels_to_ids[$sample_tube_id]['tube_aliquot_master_id'])) {			
-					//1-Data from Sample Worksheet
-					$prev_worksheet_line_data = $tissue_tube_labels_to_ids[$sample_tube_id]['data'];
-					unset($tissue_tube_labels_to_ids[$sample_tube_id]['data']);
-					$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
-					$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
-					//1.a-qcroc_tissue_biopsy_big_than_1cm
-					$qcroc_tissue_biopsy_big_than_1cm = '';
-					switch(strtolower($prev_worksheet_line_data['Biopsy >1 cm'])) {
-						case 'yes':
-							$qcroc_tissue_biopsy_big_than_1cm = 'y';
-							break;
-						case 'no':
-							$qcroc_tissue_biopsy_big_than_1cm = 'n';
-							break;
-						case '';
-							break;
-						default:
-							$import_summary[$summary_title]['@@WARNING@@']['Biopsy >1 cm unknown'][] = "See value [".$prev_worksheet_line_data['Biopsy >1 cm']."]. Value won't be migrated! [file '$file_name' (".$prev_worksheet_line_data['worksheet'].") - line: ".$prev_worksheet_line_data['line']."]";
-					}
-					//1.b-qcroc_tissue_biopsy_fragments
-					$qcroc_tissue_biopsy_fragments = '';
-					if(preg_match('/^[0-9]+$/', $prev_worksheet_line_data['Fragments'])) {
-						$qcroc_tissue_biopsy_fragments = $prev_worksheet_line_data['Fragments'];
-					} else if(strlen($prev_worksheet_line_data['Fragments'])) {
-						$import_summary[$summary_title]['@@WARNING@@']['Fragments format error'][] = "See value [".$prev_worksheet_line_data['Fragments']."]. Value won't be migrated! [file '$file_name' (".$prev_worksheet_line_data['worksheet'].") - line: ".$prev_worksheet_line_data['line']."]";
-					}
-					//1.c-qcroc_tissue_biopsy_carrot_size_cm
-					$qcroc_tissue_biopsy_carrot_size_cm = '';
-					if($prev_worksheet_line_data['Carrot size Detail 1'] == $prev_worksheet_line_data['Carrot size Detail 2']) {
-						$qcroc_tissue_biopsy_carrot_size_cm = $prev_worksheet_line_data['Carrot size Detail 1'];
+				if(preg_match('/^([0-9]+)\-([0-9]+)\-([0-9]+)\-([0-9]+)$/', $sample_tube_id, $matches)) {
+					$tissue_collection_label = $matches[1].'-'.$matches[2].'-'.$matches[3];
+					if(!array_key_exists($tissue_collection_label, $tissue_collection_and_sample_ids)) {
+						$import_summary[$summary_title]['@@ERROR@@']['Collection Of A Tissue Tube Was Not Defined Into Collection Worksheet'][] = "The collection [$tissue_collection_label] of the tissue tube [$sample_tube_id] was not defined into the Collection worksheet! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					} else if(!$tissue_collection_and_sample_ids[$tissue_collection_label]['sample_master_id']) {
+						$import_summary[$summary_title]['@@ERROR@@']['No Tissue Sample Created Bur Tissue Tube Defined'][] = "No tissue sample has been created for tissue tube [$sample_tube_id]! Please verify that the sample has been correctly defined in sample worksheets! [file '$file_name' ($worksheet) - line: $line_counter]";
 					} else {
-						$qcroc_tissue_biopsy_carrot_size_cm = trim(implode(' ', array($prev_worksheet_line_data['Carrot size Detail 1'],$prev_worksheet_line_data['Carrot size Detail 2'])));
-					}
-					if(strlen($qcroc_tissue_biopsy_carrot_size_cm) && 	!in_array($prev_worksheet_line_data['Carrot size Unit'], array('','cm'))) {
-						$import_summary[$summary_title]['@@WARNING@@']['Wrong Carrot size Unit'][] = "See value [".$prev_worksheet_line_data['Carrot size Unit']."]. Size will be migrated but system will consider unit as 'cm'! [file '$file_name' (".$prev_worksheet_line_data['worksheet'].") - line: ".$prev_worksheet_line_data['line']."]";
-					}		
-					//2-Data from curent worksheet
-					//2.a-qcroc_storage_method & croc_storage_solution
-					$qcroc_storage_method = '';
-					$qcroc_storage_solution = '';
-					switch(strtolower($new_line_data['Processing Agent'])) {
-						case '':
-							break;
-						case 'snap frozen':
-							$qcroc_storage_method = 'snap frozen';
-							break;
-						case 'formalin':
-							$qcroc_storage_solution = 'formalin';
-							break;
-						case 'rnalater':
-							$qcroc_storage_solution = 'RNAlater';
-							break;
-						default:
-							$import_summary[$summary_title]['@@WARNING@@']['Processing Agent unknown'][] = "See value [".$new_line_data['Processing Agent']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-							
-					}
-					//2.b-qcroc_collected_processed_according_sop
-					$qcroc_collected_processed_according_sop = '';
-					switch(strtolower($new_line_data['Collection and processing according SOP?'])) {
-						case 'yes':
-							$qcroc_collected_processed_according_sop = 'y';
-							break;
-						case 'no':
-							$qcroc_collected_processed_according_sop = 'n';
-							break;
-						case '';
-							break;
-						default:
-							$import_summary[$summary_title]['@@WARNING@@']['Collection and processing according SOP unknown'][] = "See value [".$new_line_data['Collection and processing according SOP?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-					}
-					$aliquot_data = array(
-						'AliquotMaster' => array(
-							'collection_id' => $collection_id,
-							'sample_master_id' => $sample_master_id,
-							'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['aliquot_control_id'],
-							'barcode' => getNextTmpBarcode(),
-							'aliquot_label' => $sample_tube_id,
-							'in_stock' => 'yes - available',
-							'use_counter' => '0',
-							'notes'=> $new_line_data['Collection and processing Detail']),
-						'AliquotDetail' => array(
-							'qcroc_storage_method' => $qcroc_storage_method,
-							'qcroc_storage_solution' => $qcroc_storage_solution,
-							'qcroc_tissue_biopsy_big_than_1cm' => $qcroc_tissue_biopsy_big_than_1cm,
-							'qcroc_tissue_biopsy_fragments' => $qcroc_tissue_biopsy_fragments,
-							'qcroc_tissue_biopsy_carrot_size_cm' => $qcroc_tissue_biopsy_carrot_size_cm,
-							'qcroc_collected_processed_according_sop' => $qcroc_collected_processed_according_sop));
-					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-					$tissue_tube_labels_to_ids[$sample_tube_id]['tube_aliquot_master_id'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
-					//Add shipping information
-					if(strlen($new_line_data['Shipping conditions correct?'].$new_line_data['Shipping detail'])) {
-						$qcroc_compliant_processing = '';
-						switch(strtolower($new_line_data['Shipping conditions correct?'])) {
-							case 'yes':
-								$qcroc_compliant_processing = 'y';
-								break;
-							case 'no':
-								$qcroc_compliant_processing = 'n';
-								break;
-							case '';
-							break;
-							default:
-								$import_summary[$summary_title]['@@WARNING@@']['Shipping conditions correct unknown'][] = "See value [".$new_line_data['Shipping conditions correct?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-						}
-						$aliquot_use = array(
-							'aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
-							'type' => 'shipped to LDI',
-							'qcroc_compliant_processing' => $qcroc_compliant_processing,
-							'use_details' => $new_line_data['Shipping detail']
-						);
-						customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
-					}
-					if(strlen($prev_worksheet_line_data['Date Received'])) {
-						$reception_date = getDateAndAccuracy($prev_worksheet_line_data, 'Date Received', $summary_title, $file_name, $prev_worksheet_line_data['worksheet'], $prev_worksheet_line_data['line']);
-						$reception_date['accuracy'] = str_replace('c', 'h', $reception_date['accuracy']);
-						if($reception_date['date']) {
-							$aliquot_use = array(
-								'aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
-								'type' => 'reception at LDI',
-								'use_datetime' => $reception_date['date'],
-								'use_datetime_accuracy' => $reception_date['accuracy']);
-							customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
-						}
+						$collection_id = $tissue_collection_and_sample_ids[$tissue_collection_label]['collection_id'];
+						$sample_master_id = $tissue_collection_and_sample_ids[$tissue_collection_label]['sample_master_id'];
+						if(!array_key_exists($sample_tube_id, $tissue_collections_ids)) {
+							//1.a-qcroc_tissue_biopsy_big_than_1cm
+							$qcroc_tissue_biopsy_big_than_1cm = '';
+							switch(strtolower($new_line_data['Biopsy >1 cm'])) {
+								case 'yes':
+									$qcroc_tissue_biopsy_big_than_1cm = 'y';
+									break;
+								case 'no':
+									$qcroc_tissue_biopsy_big_than_1cm = 'n';
+									break;
+								case '';
+									break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@']['Biopsy >1 cm unknown'][] = "See value [".$new_line_data['Biopsy >1 cm']."]. Value won't be migrated! [file '$file_name' (".$worksheet.") - line: ".$line_counter."]";
+							}
+							//1.b-qcroc_tissue_biopsy_fragments
+							$qcroc_tissue_biopsy_fragments = '';
+							if(preg_match('/^[0-9]+$/', $new_line_data['Fragments'])) {
+								$qcroc_tissue_biopsy_fragments = $new_line_data['Fragments'];
+							} else if(strlen($new_line_data['Fragments'])) {
+								$import_summary[$summary_title]['@@WARNING@@']['Fragments format error'][] = "See value [".$new_line_data['Fragments']."]. Value won't be migrated! [file '$file_name' (".$worksheet.") - line: ".$line_counter."]";
+							}	
+							//2-Data from curent worksheet
+							//2.a-qcroc_storage_method & croc_storage_solution
+							$qcroc_storage_method = '';
+							$qcroc_storage_solution = '';
+							switch(strtolower($new_line_data['Processing Agent'])) {
+								case '':
+									break;
+								case 'snap frozen':
+									$qcroc_storage_method = 'snap frozen';
+									break;
+								case 'formalin':
+									$qcroc_storage_solution = 'formalin';
+									break;
+								case 'rnalater':
+									$qcroc_storage_solution = 'RNAlater';
+									break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@']['Processing Agent unknown'][] = "See value [".$new_line_data['Processing Agent']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+									
+							}
+							//2.b-qcroc_collected_processed_according_sop
+							$qcroc_collected_processed_according_sop = '';
+							switch(strtolower($new_line_data['Collection and processing according SOP?'])) {
+								case 'yes':
+									$qcroc_collected_processed_according_sop = 'y';
+									break;
+								case 'no':
+									$qcroc_collected_processed_according_sop = 'n';
+									break;
+								case '';
+									break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@']['Collection and processing according SOP unknown'][] = "See value [".$new_line_data['Collection and processing according SOP?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+							$aliquot_data = array(
+								'AliquotMaster' => array(
+									'collection_id' => $collection_id,
+									'sample_master_id' => $sample_master_id,
+									'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['aliquot_control_id'],
+									'barcode' => getNextTmpBarcode(),
+									'aliquot_label' => $sample_tube_id,
+									'in_stock' => 'yes - available',
+									'use_counter' => '0',
+									'notes'=> $new_line_data['Collection and processing Detail']),
+								'AliquotDetail' => array(
+									'qcroc_storage_method' => $qcroc_storage_method,
+									'qcroc_storage_solution' => $qcroc_storage_solution,
+									'qcroc_tissue_biopsy_big_than_1cm' => $qcroc_tissue_biopsy_big_than_1cm,
+									'qcroc_tissue_biopsy_fragments' => $qcroc_tissue_biopsy_fragments,
+//									'qcroc_tissue_biopsy_carrot_size_cm' => $qcroc_tissue_biopsy_carrot_size_cm,
+									'qcroc_collected_processed_according_sop' => $qcroc_collected_processed_according_sop));
+							$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+							customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+							$tissue_collections_ids[$sample_tube_id] = array(
+								'collection_id' => $collection_id,
+								'sample_master_id' => $sample_master_id,
+								'tube_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
+								'bloc_aliquot_master_ids' => array(),
+								'slide_aliquot_master_ids' => array(),
+								'left_over_bloc_aliquot_master_ids' => array());
+							$tissue_collection_and_sample_ids[$tissue_collection_label]['created_aliquots'] = true;
+						} else {
+							$import_summary[$summary_title]['@@ERROR@@']['Tissue tube defined twice'][] = "Tissue tube label [$sample_tube_id] is defined twice! Only one will be created! Please verify and correct data if required! [file '$file_name' ($worksheet) - line: $line_counter]";	
+						}						
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Tube ID [$sample_tube_id] was not defined into the Sample worksheet (or has been defined twice in )! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
-				}			
+					$import_summary[$summary_title]['@@ERROR@@']['Sample Tube Id Format Not Supported'][] = "See value [$sample_tube_id]! No tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}
 			}
 		}
 	}
-	foreach($tissue_tube_labels_to_ids as $sample_tube_id => $tmp) {
-		if(is_null($tmp['tube_aliquot_master_id'])) {
-			$import_summary[$summary_title]['@@WARNING@@']['Missing Tissue Tube Definition'][] = "Sample Tube Id [$sample_tube_id] was defined in Sample Worksheet but this one has not been listed into Tube Worksheet! No tube will be created! Please confirm and delete collection and smaple after migration (if required)! [file '$file_name' ($worksheet) - line: $line_counter]";
-			unset($tissue_tube_labels_to_ids[$sample_tube_id]);
+	foreach($tissue_collection_and_sample_ids as $tissue_collection_label => $tmp) {
+		if(!$tmp['created_aliquots']) {
+			$import_summary[$summary_title]['@@WARNING@@']['No Tissue Tube Defined'][] = "No tissue was defined for created collection [$tissue_collection_label]! Please confirm and delete collection and sample after migration (if required)! [file '$file_name' ($worksheet)]";
 		}
 	}
+	unset($tissue_collection_and_sample_ids);	
 	
+	$worksheet = 'Tube Event';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$sample_tube_id = $new_line_data['Sample Tube Id'];
+if($limit_data && !preg_match($limit_pattern, $sample_tube_id)) continue;	
+			if(strlen($new_line_data['Shipping conditions correct?'].$new_line_data['Detail'].$new_line_data['Date'])) {
+				if(array_key_exists($sample_tube_id, $tissue_collections_ids) && $tissue_collections_ids[$sample_tube_id]['tube_aliquot_master_id']) {
+					switch($new_line_data['Event Type']) {
+						case 'Shipped to Central Biobank';
+						case 'Reception at Central Biobank';
+							$qcroc_compliant_processing = '';
+							switch(strtolower($new_line_data['Shipping conditions correct?'])) {
+								case 'yes':
+									$qcroc_compliant_processing = 'y';
+									break;
+								case 'no':
+									$qcroc_compliant_processing = 'n';
+									break;
+								case '';
+								break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@']['Shipping conditions correct unknown'][] = "See value [".$new_line_data['Shipping conditions correct?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+							$event_date = getDateAndAccuracy($new_line_data, 'Date', $summary_title, $file_name, $worksheet, $line_counter);
+							$event_date['accuracy'] = str_replace('c', 'h', $event_date['accuracy']);
+							$aliquot_use = array(
+								'aliquot_master_id' => $tissue_collections_ids[$sample_tube_id]['tube_aliquot_master_id'],
+								'type' => ($new_line_data['Event Type'] == 'Shipped to Central Biobank')? 'shipped to LDI' : 'reception at LDI',
+								'qcroc_compliant_processing' => $qcroc_compliant_processing,
+								'use_details' => $new_line_data['Detail'],
+								'use_datetime' => $event_date['date'],
+								'use_datetime_accuracy' => $event_date['accuracy']
+							);
+							customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
+							break;
+						case '':
+							break;
+						default:
+							die('ERR23328272387 '.$new_line_data['Event Type']);
+					}
+				}
+			}
+		}
+	}
+
 	// *4* Create Block **
 	
-	$tube_sample_master_ids_status_to_udpate = array();
+	$tube_aliquot_master_ids_to_udpate_status = array();
 	
 	$worksheet = 'Block';
 	$summary_title = "Tissue : $worksheet";
@@ -302,54 +296,26 @@ if($sample_tube_id == '01-1-008-1') break;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$sample_block_id = $new_line_data['Block Id'];
-//TODO
-if($sample_block_id == '01-1-008-1a') break;
+if($limit_data && !preg_match($limit_pattern, $sample_block_id)) continue;
 			if(strlen($sample_block_id)) {
 				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)([A-Za-z]+)$/', $sample_block_id, $matches)) {
 					$sample_tube_id = $matches[1];
-					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && !array_key_exists($sample_block_id, $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
-						$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
-						$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
+					if(!array_key_exists($sample_tube_id, $tissue_collections_ids)) {
+						$import_summary[$summary_title]['@@ERROR@@']['Tissue Tube Not Found'][] = "The Sample Tube ID [$sample_tube_id] used for block [$sample_block_id] was not defined into the Sample worksheet ! No tissue block will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					} else if(array_key_exists($sample_block_id, $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+						$import_summary[$summary_title]['@@ERROR@@']['Tissue Block Defined twice'][] = "The block [$sample_block_id] was defined twice! No second tissue block will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					} else {
+						$collection_id = $tissue_collections_ids[$sample_tube_id]['collection_id'];
+						$sample_master_id = $tissue_collections_ids[$sample_tube_id]['sample_master_id'];
 						//a-qcroc_storage_method & croc_storage_solution
 						$qcroc_acceptance_status = strtolower($new_line_data['Acceptance Status']);
 						if(!in_array($qcroc_acceptance_status, array('', 'block rejected','whole block accepted','partial block accepted'))) {
 							$qcroc_acceptance_status = '';
 							$import_summary[$summary_title]['@@WARNING@@']['Acceptance Status unknown'][] = "See value [".$new_line_data['Acceptance Status']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
 						}
-						//b-qcroc_macro_dissectable & qcroc_to_macro_dissect & qcroc_macrodissection_lines_on_slide
-						$qcroc_macro_dissectable = '';
-						$qcroc_to_macro_dissect = '';
-						$qcroc_macrodissection_lines_on_slide = '';
-						foreach(array('1' => 'Can it be macrodissected (pathologist)', '2' => 'Should it be macrodissected (technologist)', '3' => 'lines for macrodissection marked on slide') as $key => $excel_field) {
-							$excel_value = strtolower($new_line_data[$excel_field]);
-							$value = '';
-							switch($excel_value) {
-								case 'yes':
-									$value = 'y';
-									break;
-								case 'no':
-									$value = 'n';
-									break;
-								case '';
-									break;
-								default:
-									$import_summary[$summary_title]['@@WARNING@@'][$excel_field.' unknown'][] = "See value [".$new_line_data[$excel_field]."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-							}
-							switch($key) {
-								case '1':
-									$qcroc_macro_dissectable = $value;
-									break;
-								case '2':
-									$qcroc_to_macro_dissect = $value;
-									break;
-								case '3':
-									$qcroc_macrodissection_lines_on_slide = $value;
-									break;
-							}							
-						}
-						//c-qcroc_acceptance_macrodissection_reason
-						$qcroc_acceptance_macrodissection_reason = $new_line_data['Reasons'];
-						//d-block_type
+						//b-qcroc_acceptance_reason
+						$qcroc_acceptance_reason = $new_line_data['Reasons'];
+						//c-block_type
 						$block_type = '';
 						switch(strtolower($new_line_data['Block Type'])) {
 							case 'frozen':
@@ -371,39 +337,35 @@ if($sample_block_id == '01-1-008-1a') break;
 								'aliquot_label' => $sample_block_id,
 								'in_stock' => 'yes - available',
 								'use_counter' => '0',
-								'notes'=> $new_line_data['Comments on preparation\shipment']),
+								'notes'=> $new_line_data['Notes']),
 							'AliquotDetail' => array(
 								'qcroc_acceptance_status' => $qcroc_acceptance_status,
-								'qcroc_macro_dissectable' => $qcroc_macro_dissectable,
-								'qcroc_to_macro_dissect' => $qcroc_to_macro_dissect,
-								'qcroc_macrodissection_lines_on_slide' => $qcroc_macrodissection_lines_on_slide,
-								'qcroc_acceptance_macrodissection_reason' => $qcroc_acceptance_macrodissection_reason,
+								'qcroc_acceptance_reason' => $qcroc_acceptance_reason,
 								'block_type' => $block_type));
 						$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 						customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
-						$tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id] = array('id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'slide_counter' => 0);
+						$tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id] = array('id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'slide_counter' => 0);
 						//Create realiquoting relation
-						$tube_aliquot_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['tube_aliquot_master_id'];
-						$realiquoting_datetime = getDateAndAccuracy($new_line_data, 'Date of Block Creation', $summary_title, $file_name, $worksheet, $line_counter);
+						$tube_aliquot_master_id = $tissue_collections_ids[$sample_tube_id]['tube_aliquot_master_id'];
+						$realiquoting_datetime = getDateAndAccuracy($new_line_data, 'Date (Realiquoting)', $summary_title, $file_name, $worksheet, $line_counter);
 						$realiquoting_datetime['accuracy'] = str_replace('c', 'h', $realiquoting_datetime['accuracy']);
 						$realiquoting_data = array(
 							'parent_aliquot_master_id' => $tube_aliquot_master_id,	
 							'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],	
 							'realiquoting_datetime' => $realiquoting_datetime['date'],	
 							'realiquoting_datetime_accuracy' => $realiquoting_datetime['accuracy']);
-						customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, true);	
-						$tube_sample_master_ids_status_to_udpate[] = $tube_aliquot_master_id;
-					} else {
-						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Tube ID [$sample_tube_id] for block [$sample_block_id] was not defined into the Sample worksheet or block was defined twice! No tissue block will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, false);	
+						$tube_aliquot_master_ids_to_udpate_status[] = $tube_aliquot_master_id;
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "Unable to extract Sample Tube ID  from block ID [$sample_block_id] based on block ID format! No block will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong Block Id Format'][] = "Unable to extract Sample Tube ID from block ID [$sample_block_id] based on block ID format! No block will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
 	}
-	if($tube_sample_master_ids_status_to_udpate) {
-		$query = "UPDATE aliquot_masters SET in_stock = 'no' WHERE id IN (".implode(',',$tube_sample_master_ids_status_to_udpate).");";
+	if($tube_aliquot_master_ids_to_udpate_status) {
+		$import_summary[$summary_title]['@@MESSAGE@@']["In Stock Status of tubes used to create block set to 'no'"][] = "Please confirm";	
+		$query = "UPDATE aliquot_masters SET in_stock = 'no' WHERE id IN (".implode(',',$tube_aliquot_master_ids_to_udpate_status).");";
 		customQuery($query, __FILE__, __LINE__);
 	}
 	
@@ -418,24 +380,24 @@ if($sample_block_id == '01-1-008-1a') break;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$sample_slide_id = $new_line_data['Slide id'];
-//TODO
-if($sample_slide_id == '01-1-008-1a-l1') break;
+if($limit_data && !preg_match($limit_pattern, $sample_slide_id)) continue;
 			if(strlen($sample_slide_id)) {
 				if(preg_match('/^(([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+)\-(.+)$/', $sample_slide_id, $matches)) {
 					$sample_tube_id = $matches[2];
 					$sample_block_id = $matches[1];
-					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && array_key_exists($sample_block_id, $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
-						if(!array_key_exists($sample_slide_id, $tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'])) {
-							$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
-							$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
-							$tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['slide_counter'] += 1;
-							$slide_counter = $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['slide_counter'];
+					if(array_key_exists($sample_tube_id, $tissue_collections_ids) && array_key_exists($sample_block_id, $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+						if(!array_key_exists($sample_slide_id, $tissue_collections_ids[$sample_tube_id]['slide_aliquot_master_ids'])) {
+							$collection_id = $tissue_collections_ids[$sample_tube_id]['collection_id'];
+							$sample_master_id = $tissue_collections_ids[$sample_tube_id]['sample_master_id'];
+							$tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['slide_counter'] += 1;
+							$slide_counter = $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['slide_counter'];
 							$aliquot_data = array(
 								'AliquotMaster' => array(
 									'collection_id' => $collection_id,
 									'sample_master_id' => $sample_master_id,
 									'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['slide']['aliquot_control_id'],
 									'barcode' => getNextTmpBarcode(),
+//TODO a confirmer avec Vincent - On utilise pas le 'Slide id' du fichier excel pour le aliquot label								
 									'aliquot_label' => $sample_block_id.'-'.$slide_counter,
 									'in_stock' => 'yes - available',
 									'use_counter' => '0',
@@ -444,19 +406,21 @@ if($sample_slide_id == '01-1-008-1a-l1') break;
 									'qcroc_level' => $new_line_data['level']));
 							$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 							customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['slide']['detail_tablename'], __FILE__, __LINE__, true);
-							$tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'][$sample_slide_id] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+							$tissue_collections_ids[$sample_tube_id]['slide_aliquot_master_ids'][$sample_slide_id] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
 							//Create realiquoting relation
-							$block_aliquot_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['id'];
+							$block_aliquot_master_id = $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['id'];
 							$realiquoting_data = array(
 								'parent_aliquot_master_id' => $block_aliquot_master_id,
 								'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id']);
-							customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, true);
+							customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, false);
+						} else {
+							$import_summary[$summary_title]['@@ERROR@@']['Slide Defined Twice'][] = "The slide [$sample_slide_id] has been defined twice! No second tissue slide will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 						}
 					} else {
-						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Block ID [$sample_block_id] for slide [$sample_slide_id] was not defined into the Block worksheet! No tissue slide will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$import_summary[$summary_title]['@@ERROR@@']['Block of Slide Not Defined'][] = "The Sample Block ID [$sample_block_id] for slide [$sample_slide_id] was not defined into the Block worksheet! No tissue slide will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "Unable to extract Sample Tube and block ID from slide ID [$sample_slide_id] based on slide ID format! No slide will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong Slide Id Format'][] = "Unable to extract Sample Tube and block ID from slide ID [$sample_slide_id] based on slide ID format! No slide will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
@@ -475,20 +439,18 @@ if($sample_slide_id == '01-1-008-1a-l1') break;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$slide_revision_code = $new_line_data['HQC id'];
-//TODO
-if($slide_revision_code == '01-1-008-1a-l1-HQC1') break;
+if($limit_data && !preg_match($limit_pattern, $slide_revision_code)) continue;
 			if(strlen($slide_revision_code)) {
-				if(preg_match('/^(([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+\-.+)\-(.+)$/', $slide_revision_code, $matches)) {		
+				if(preg_match('/^(([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+\-.+)\-(HQC1)$/', $slide_revision_code, $matches)) {		
 					$sample_tube_id = $matches[2];
 					$sample_slide_id = $matches[1];
-					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && array_key_exists($sample_slide_id, $tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'])) {
-						$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
-						$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
+					if(array_key_exists($sample_tube_id, $tissue_collections_ids) && array_key_exists($sample_slide_id, $tissue_collections_ids[$sample_tube_id]['slide_aliquot_master_ids'])) {
+						$collection_id = $tissue_collections_ids[$sample_tube_id]['collection_id'];
+						$sample_master_id = $tissue_collections_ids[$sample_tube_id]['sample_master_id'];
 						//Create specimen review
 						$key = $sample_master_id.$new_line_data['Review by'].$new_line_data['Date'];
 						if(!array_key_exists($key, $tmp_patho_review_ids)) {
 							//Create speciemn review
-							$review_date = 
 							$review_date = getDateAndAccuracy($new_line_data, 'Date', $summary_title, $file_name, $worksheet, $line_counter);
 							$review_date['accuracy'] = str_replace('c', 'h', $review_date['accuracy']);
 							$review_data = array(
@@ -496,7 +458,7 @@ if($slide_revision_code == '01-1-008-1a-l1-HQC1') break;
 									'collection_id' => $collection_id,
 									'sample_master_id' => $sample_master_id,
 									'specimen_review_control_id' => $controls['specimen_review_controls']['tissue']['specimen_review_control_id'],
-									'review_code' => $sample_tube_id.' '.$review_date['date'],
+									'review_code' => $matches[3],
 									'review_date' => $review_date['date'],
 									'review_date_accuracy' => $review_date['accuracy'],
 									'pathologist' => $new_line_data['Review by']),
@@ -522,7 +484,7 @@ if($slide_revision_code == '01-1-008-1a-l1-HQC1') break;
 								$detail_data[$db_field] = getDecimal($new_line_data, $excel_field, $summary_title, $file_name, $worksheet, $line_counter);
 							}
 						}
-						foreach(array('can_be_microdisected' => 'Can sample be microdisected', 'microdissection_lines_marked' => 'Iines for microdissection marked') as $db_field => $excel_field) {
+						foreach(array('should_be_macrodissected' => 'Should it be macrodissected (pathologist)', 'microdissection_lines' => 'Lines for microdissection') as $db_field => $excel_field) {
 							$excel_value = strtolower($new_line_data[$excel_field]);
 							switch($excel_value) {
 								case 'yes':
@@ -539,31 +501,50 @@ if($slide_revision_code == '01-1-008-1a-l1-HQC1') break;
 						}
 						$review_data = array(
 							'AliquotReviewMaster' => array(
-								'aliquot_master_id' => $tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'][$sample_slide_id],
+								'aliquot_master_id' => $tissue_collections_ids[$sample_tube_id]['slide_aliquot_master_ids'][$sample_slide_id],
 								'specimen_review_master_id' => $specimen_review_master_id,
 								'aliquot_review_control_id' => $controls['aliquot_review_controls']['tissue slide']['aliquot_review_control_id'],
-								'review_code' => $slide_revision_code,
 								'qcroc_notes' => $new_line_data['Comments']),
 							'AliquotReviewDetail' => $detail_data);
 						$review_data['AliquotReviewDetail']['aliquot_review_master_id'] = customInsert($review_data['AliquotReviewMaster'], 'aliquot_review_masters', __FILE__, __LINE__, false);
 						customInsert($review_data['AliquotReviewDetail'], $controls['aliquot_review_controls']['tissue slide']['detail_tablename'], __FILE__, __LINE__, true);
 					} else {
-						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Slide ID [$sample_slide_id] for tissue tube [$sample_tube_id] was not defined into the Slide worksheet! No slide revision will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$import_summary[$summary_title]['@@ERROR@@']['Revised Slide Undefined'][] = "The Sample Slide ID [$sample_slide_id] for tissue tube [$sample_tube_id] was not defined into the Slide worksheet! No slide revision will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "Unable to extract Sample Tube and slide ID from slide revision code [$slide_revision_code] based on ID format! No slide revision will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong HQC Id'][] = "Unable to extract Sample Tube and slide ID from the HQC Id [$slide_revision_code] based on ID format! No slide revision will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
 	}
 	unset($tmp_patho_review_ids);
 	
-	// *7* Macro Dissection **	
+	// *7* Macro Dissection **
 	
-//TODO Macro Dissection
+	$worksheet = 'Block (left over)';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	$left_overs = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			if($new_line_data['Initial Block Id']) {
+				$block_id = $new_line_data['Initial Block Id'];
+if($limit_data && !preg_match($limit_pattern, $block_id)) continue;			
+				if($new_line_data['Block Type'] != 'Left Over') die('ERR 23 76287 68732 623 '.$line_counter);
+				if(!preg_match("/^$block_id/", $new_line_data['LeftOver Id'])) die ('ERR 237 623876 32876 '.$line_counter);
+				if(array_key_exists($block_id, $left_overs)) die('ERR 23 763287 6237 62'.$line_counter);
+				$left_overs[$block_id] = $new_line_data['LeftOver Id'];
+			} else if($new_line_data['LeftOver Id']) {
+				die('ERR234234');
+			}
+		}
+	}
 	
 	$chil_aliquot_master_ids = array('-1');
-	$worksheet = 'Macrodissected Block';
+	$worksheet = 'Block Event';
 	$summary_title = "Tissue : $worksheet";
 	$headers = array();
 	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
@@ -572,74 +553,58 @@ if($slide_revision_code == '01-1-008-1a-l1-HQC1') break;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$block_id = $new_line_data['Initial Block Id'];
-//TODO
-if($block_id == '01-1-008-1a') break;
+if($limit_data && !preg_match($limit_pattern, $block_id)) continue;
 			if(strlen($block_id)) {
 				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+$/', $block_id, $matches)) {
 					$sample_tube_id = $matches[1];
-					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && array_key_exists($block_id, $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
-						$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
-						$tissue_sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
-						$block_aliquot_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$block_id]['id'];
-						$macrodissected = false;
-						$macrodissection_date = getDateAndAccuracy($new_line_data, 'Date of cutting', $summary_title, $file_name, $worksheet, $line_counter);
+					if(array_key_exists($sample_tube_id, $tissue_collections_ids) && array_key_exists($block_id, $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+						$collection_id = $tissue_collections_ids[$sample_tube_id]['collection_id'];
+						$tissue_sample_master_id = $tissue_collections_ids[$sample_tube_id]['sample_master_id'];
+						$block_aliquot_master_id = $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$block_id]['id'];
+						if($new_line_data['Event Name'] != 'Macrodissection') die('ERR 23 762387 63287 32');
+						$macrodissection_date = getDateAndAccuracy($new_line_data, 'Date', $summary_title, $file_name, $worksheet, $line_counter);
 						$macrodissection_date['accuracy'] = str_replace('c', 'h', $macrodissection_date['accuracy']);
-						if($macrodissection_date['date'] || strtolower($new_line_data['Macrodissection']) == 'yes') {
-							if(strtolower($new_line_data['Macrodissection']) == 'no') {
-								$import_summary[$summary_title]['@@WARNING@@']['Macrodissection data conflict'][] = "Block [$block_id] was defined as not macrodissected but a date of cutting exist! A macrodissection has been created! [file '$file_name' ($worksheet) - line: $line_counter]";
-							}
-							$aliquot_use = array(
-								'aliquot_master_id' => $block_aliquot_master_id,
-								'type' => 'macrodissection',
-								'use_datetime' => $macrodissection_date['date'],
-								'use_datetime_accuracy' => $macrodissection_date['accuracy'],
-								'use_details' => $new_line_data['Sample Cutting Comments']
-							);
-							customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
-							$macrodissected = true;
-							$query = "UPDATE aliquot_masters SET in_stock = 'no' WHERE id = $block_aliquot_master_id;";
-							customQuery($query, __FILE__, __LINE__);
-						} else if(strlen($new_line_data['Sample Cutting Comments'])) {
-							$import_summary[$summary_title]['@@WARNING@@']['No Macrodissection but a Sample Cutting Comments exists'][] = "See Block [$block_id]! Comment [".$new_line_data['Sample Cutting Comments']."] won't be recorded! [file '$file_name' ($worksheet) - line: $line_counter]";
-						}
-						if(strlen($new_line_data['Macrodissected Block Id'])) {
-							if($macrodissected) {
-								$in_stock = 'yes - available';
-								if(strtolower($new_line_data['LeftOver Available']) == 'no') {
-									$in_stock = 'no';
-								}
-								$aliquot_data = array(
-									'AliquotMaster' => array(
-										'collection_id' => $collection_id,
-										'sample_master_id' => $tissue_sample_master_id,
-										'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['aliquot_control_id'],
-										'barcode' => getNextTmpBarcode(),
-										'aliquot_label' => $new_line_data['Macrodissected Block Id'],
-										'in_stock' => $in_stock,
-										'use_counter' => '0'),
-									'AliquotDetail' => array(
-										'qcroc_left_over' => '1'));
-								$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-								customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
-								//Create realiquoting relation
-								$realiquoting_data = array(
-									'parent_aliquot_master_id' => $block_aliquot_master_id,
-									'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
-									'realiquoting_datetime' => $macrodissection_date['date'],
-									'realiquoting_datetime_accuracy' => $macrodissection_date['accuracy']);
-								customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, true);
-								$chil_aliquot_master_ids[] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
-							} else {
-								$import_summary[$summary_title]['@@ERROR@@']['Macrodissected Block Id with no macrodissection infomration'][] = "A left over block ID is defined [".$new_line_data['Macrodissected Block Id']."] but no macrodissection has been defined. Left over won't be created. [file '$file_name' ($worksheet) - line: $line_counter]";
-							}
-						} else if(strtolower($new_line_data['LeftOver Available']) == 'yes') {
-							$import_summary[$summary_title]['@@WARNING@@']['LeftOver Block defined as available but no ID defined'][] = "A left over block is defined as available for block [$block_id] but no left over block id exists. No left over block will be created. [file '$file_name' ($worksheet) - line: $line_counter]";
+						$aliquot_use = array(
+							'aliquot_master_id' => $block_aliquot_master_id,
+							'type' => 'macrodissection',
+							'use_datetime' => $macrodissection_date['date'],
+							'use_datetime_accuracy' => $macrodissection_date['accuracy'],
+							'use_details' => $new_line_data['Comments']
+						);
+						customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
+						if(array_key_exists($block_id, $left_overs)) {
+							$aliquot_data = array(
+								'AliquotMaster' => array(
+									'collection_id' => $collection_id,
+									'sample_master_id' => $tissue_sample_master_id,
+									'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['aliquot_control_id'],
+									'barcode' => getNextTmpBarcode(),
+									'aliquot_label' => $left_overs[$block_id],
+									'in_stock' => 'yes - available',
+									'use_counter' => '0'),
+								'AliquotDetail' => array(
+									'qcroc_left_over' => '1'));
+							$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+							customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
+							//Create realiquoting relation
+							$realiquoting_data = array(
+								'parent_aliquot_master_id' => $block_aliquot_master_id,
+								'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
+								'realiquoting_datetime' => $macrodissection_date['date'],
+								'realiquoting_datetime_accuracy' => $macrodissection_date['accuracy']);
+							customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, false);
+							//Record id
+							$tissue_collections_ids[$sample_tube_id]['left_over_bloc_aliquot_master_ids'][$left_overs[$block_id]]= array('id' => $aliquot_data['AliquotDetail']['aliquot_master_id']);
+							$chil_aliquot_master_ids[] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+							unset($left_overs[$block_id]);
+						} else {
+							$import_summary[$summary_title]['@@WARNING@@']['Macrodissected Block But No Left Over'][] = "The Block ID [$block_id] was defined as Macrodissected but no left over block is defined and will be created! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 						}
 					} else {
-						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Block ID [$block_id] for tissue tube [$sample_tube_id] was not defined into the block worksheet! No Macrodiseection data will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$import_summary[$summary_title]['@@ERROR@@']['Macrodissected Block Undefined'][] = "The Block ID [$block_id] for tissue tube [$sample_tube_id] was not defined into the block worksheet! No Macrodissection data will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['Wrong Block Id'][] = "Unable to extract Sample Tube and Block Id from value [$block_id] based on ID format! No Macrodiseection data will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong Block Id'][] = "Unable to extract Sample Tube and Block Id from value [$block_id] based on ID format! No Macrodissection data will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
@@ -650,15 +615,16 @@ if($block_id == '01-1-008-1a') break;
 		AND ChildDetail.aliquot_master_id = Realiquotting.child_aliquot_master_id
 		AND ChildDetail.aliquot_master_id IN (".implode(',',$chil_aliquot_master_ids).");";
 	customQuery($query, __FILE__, __LINE__);
-
+	
+	foreach($left_overs as $block_id => $lef_over) {
+		$import_summary["Tissue : Block (left over)"]['@@ERROR@@']['Unrecorded Left Over Block'][] = "The left over block [$lef_over] has not been created because the Block Id [$block_id] was not defined as macrodissected in Block Event Worksheet. Please confirm and correct if required! ";	
+	}
+	unset($left_overs);
+	
 	// *8* RNA **
 	
-//TODO 	$rna_volumes = array();	
-// 	$worksheet = 'RNA Tube Aliquot';
-	
-	$tmp_rna_sample_master_ids =  array();
-	$tmp_rna_aliquot_master_ids =  array();
-	
+	//Load Tubes Data
+	$tmp_rna_tubes = array();
 	$worksheet = 'RNA tube';
 	$summary_title = "Tissue : $worksheet";
 	$headers = array();
@@ -667,131 +633,28 @@ if($block_id == '01-1-008-1a') break;
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$block_id = $new_line_data['Block'];
-//TODO
-if($block_id == '01-1-008-1a') break;
-			if(strlen($block_id)) {
-				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+$/', $block_id, $matches)) {
-					$sample_tube_id = $matches[1];
-					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && array_key_exists($block_id, $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
-						if(strlen($new_line_data['RNA Tube Id'])) {
-							if(strlen($new_line_data['Date of isolation'])) {
-								$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
-								$tissue_sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
-								$block_aliquot_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$block_id]['id'];
-								$sample_key = $block_aliquot_master_id.$new_line_data['Date of isolation'].$new_line_data['Kit used'].$new_line_data['SOP followed'].$new_line_data['Lot Number'];
-								//RNA Sample
-								//Extraction date
-								$extraction_date = getDateAndAccuracy($new_line_data, 'Date of isolation', $summary_title, $file_name, $worksheet, $line_counter);
-								$extraction_date['accuracy'] = str_replace('c', 'h', $extraction_date['accuracy']);
-								if(!array_key_exists($sample_key, $tmp_rna_sample_master_ids)) {
-									//Kit
-									$kit = strtolower($new_line_data['Kit used']);
-									switch($kit) {
-										case '':
-										case 'allprep dna/rna':
-										case 'allprep universal':
-										case 'qiaamp dna mini':
-										case 'rneasy plus mini kit':
-										case 'trizol (for rna)':
-										case 'universal':
-											break;
-										case 'allprepuniversal':
-											$kit = 'allprep universal';
-											break;
-										default:
-											$import_summary[$summary_title]['@@WARNING@@']['Kit used unknown'][] = "See value [".$new_line_data['Kit used']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-											$kit = '';
-									}
-									//SOP
-									$sop = str_replace('N/AV', '', strtolower($new_line_data['SOP followed']));
-									if(!in_array($sop, array('sop-tr-008', ''))){
-										$import_summary[$summary_title]['@@WARNING@@']['SOP followed unknown'][] = "See value [".$new_line_data['SOP followed']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-										$sop = '';
-									}
-									//Create RNA Sample
-									$sample_data = array(
-										'SampleMaster' => array(
-											'collection_id' => $collection_id,
-											'sample_control_id' => $sample_aliquot_controls['rna']['sample_control_id'],
-											'initial_specimen_sample_type' => 'tissue',
-											'initial_specimen_sample_id' => $tissue_sample_master_id,
-											'parent_sample_type' => 'tissue',
-											'parent_id' => $tissue_sample_master_id,
-											'notes' => $new_line_data['Comments on isolation']),
-										'DerivativeDetail' => array(
-											'creation_datetime' => $extraction_date['date'],
-											'creation_datetime_accuracy' => $extraction_date['accuracy']),
-										'SampleDetail' => array(
-											'qcroc_sop' => $sop,
-											'qcroc_kit' => $kit,
-											'qcroc_lot_number' => $new_line_data['Lot Number']));
-									$rna_sample_master_id = createSample($sample_data, $sample_aliquot_controls['rna']['detail_tablename']);
-									$tmp_rna_sample_master_ids[$sample_key] = $rna_sample_master_id;
-									//Create aliquot to sample link
-									customInsert(array('sample_master_id' => $rna_sample_master_id, 'aliquot_master_id' => $block_aliquot_master_id), 'source_aliquots', __FILE__, __LINE__, false);
-								} else if(strlen($new_line_data['Comments on isolation'])) {
-									$query = "UPDATE sample_masters SET notes = CONCAT('".str_replace("'","''",$new_line_data['Comments on isolation'])."', ' ',notes) WHERE id = ".$tmp_rna_sample_master_ids[$sample_key].";";
-									customQuery($query, __FILE__, __LINE__);
-								}
-								$rna_sample_master_id = $tmp_rna_sample_master_ids[$sample_key];
-								//Aliquot
-								if(!array_key_exists($new_line_data['RNA Tube Id'], $tmp_rna_aliquot_master_ids)) {								
-									$initial_volume = getDecimal($new_line_data, 'RNA Total Volume (µL) - T', $summary_title, $file_name, $worksheet, $line_counter);
-									$concentration = getDecimal($new_line_data, 'RNA Conc (ng/ul)', $summary_title, $file_name, $worksheet, $line_counter);
-									$yield = getDecimal($new_line_data, 'RNA yield (µg)', $summary_title, $file_name, $worksheet, $line_counter);
-									$aliquot_data = array(
-										'AliquotMaster' => array(
-											'collection_id' => $collection_id,
-											'sample_master_id' => $rna_sample_master_id,
-											'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
-											'aliquot_label' => $new_line_data['RNA Tube Id'],
-											'barcode' => getNextTmpBarcode(),
-											'in_stock' => 'yes - available',
-											'initial_volume' => $initial_volume,
-											'current_volume' => $initial_volume,
-											//TODO: Check use counter and volume updated after migration and newVersionSetup() execution
-											'use_counter' => '0',
-											'storage_datetime' => $extraction_date['date'],
-											'storage_datetime_accuracy' => $extraction_date['accuracy']),
-										'AliquotDetail' => array(
-											'concentration' => $concentration,
-											'concentration_unit' => 'ng/ul',
-											'qcroc_yield_ug' => $yield
-										));
-									$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-									customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-									$tmp_rna_aliquot_master_ids[$new_line_data['RNA Tube Id']] = array($rna_sample_master_id , $aliquot_data['AliquotDetail']['aliquot_master_id']);
-									//Quality Control
-									$qc_data = array();
-									$qc_date = getDateAndAccuracy($new_line_data, 'NANO DROP date', $summary_title, $file_name, $worksheet, $line_counter);
-									$score_260_280 = getDecimal($new_line_data, '260 / 280', $summary_title, $file_name, $worksheet, $line_counter);
-									if(strlen($score_260_280)) {
-										$qc_data[] = array($rna_sample_master_id, $aliquot_data['AliquotDetail']['aliquot_master_id'], 'nano drop', $qc_date, $score_260_280, '260/280', $concentration, 'ng/ul', $yield, '', '');
-									}
-									$score_260_230 = getDecimal($new_line_data, '260 / 230', $summary_title, $file_name, $worksheet, $line_counter);
-									if(strlen($score_260_230)) {
-										$qc_data[] = array($rna_sample_master_id, $aliquot_data['AliquotDetail']['aliquot_master_id'], 'nano drop', $qc_date, $score_260_230, '260/230', $concentration, 'ng/ul', $yield, '', '');
-									}
-									createQC($qc_data);
-								} else {
-									$import_summary[$summary_title]['@@ERROR@@']['RNA tube defined twice'][] = "See RNA tube [".$new_line_data['RNA Tube Id']."]. No 2nd RNA and tube will be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
-								}
-							} else {
-								$import_summary[$summary_title]['@@ERROR@@']['No RNA isolation Date'][] = "See RNA tube [".$new_line_data['RNA Tube Id']."]. No RNA and tube will be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
-							}
-						}
+			$rna_tube_label = $new_line_data['RNA Tube'];
+if($limit_data && !preg_match($limit_pattern, $rna_tube_label)) continue;
+			if(strlen($rna_tube_label)) {
+				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+[A-Za-z]-.+)-.+/', $rna_tube_label, $matches)) {
+					$rna_sample_label = $matches[1];
+					if(!array_key_exists($rna_sample_label, $tmp_rna_tubes)) $tmp_rna_tubes[$rna_sample_label] = array();
+					if(!array_key_exists($rna_tube_label, $tmp_rna_tubes[$rna_sample_label])) {
+						$tmp_rna_tubes[$rna_sample_label][$rna_tube_label] = array(
+							'label' => $rna_tube_label,
+							'barcode' => $new_line_data['barcode'],
+							'volume' => getDecimal($new_line_data, 'Volume', $summary_title, $file_name, $worksheet, $line_counter),
+							'quality_controls' => array()
+						);
 					} else {
-						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Block ID [$block_id] for tissue tube [$sample_tube_id] was not defined into the block worksheet! No RNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$import_summary[$summary_title]['@@ERROR@@']['RNA tube defined twice'][] = "See RNA tube [$rna_tube_label]. No 2nd RNA tube will be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['Wrong Block Id'][] = "Unable to extract Sample Tube and Block Id from value [$block_id] based on ID format! No RNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong RNA tube label Format'][] = "Unable to extract RNA Sample Label from value [$rna_tube_label] based on Label format! No RNA tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
 	}
-	unset($tmp_rna_sample_master_ids);
-	
 	$worksheet = 'RNA Tube QC';
 	$summary_title = "Tissue : $worksheet";
 	$headers = array();
@@ -800,46 +663,252 @@ if($block_id == '01-1-008-1a') break;
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$aliquot_label = $new_line_data['RNA Tube Id'];
-if($aliquot_label == '01-1-008-1a-R1') break;	
-			if(strlen($aliquot_label)) {
-				if(array_key_exists($aliquot_label, $tmp_rna_aliquot_master_ids)) {
-					list($sample_master_id, $aliquot_master_id) = $tmp_rna_aliquot_master_ids[$aliquot_label];
-					//Barcode
-					if(strlen($new_line_data['Aliquot barcode'])) {
-						$query = "UPDATE aliquot_masters SET barcode = '".$new_line_data['Aliquot barcode']."' WHERE id = $aliquot_master_id;"; 
-						customQuery($query, __FILE__, __LINE__);
+			$rna_tube_label = $new_line_data['RNA tube'];
+if($limit_data && !preg_match($limit_pattern, $rna_tube_label)) continue;
+			if(strlen($rna_tube_label)) {
+				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+[A-Za-z]-.+)-.+/', $rna_tube_label, $matches)) {
+					$rna_sample_label = $matches[1];
+					if(array_key_exists($rna_sample_label, $tmp_rna_tubes) && array_key_exists($rna_tube_label, $tmp_rna_tubes[$rna_sample_label])) {
+						$qc_date = getDateAndAccuracy($new_line_data, 'Date processed', $summary_title, $file_name, $worksheet, $line_counter);
+						$qc_type = '';
+						switch(strtolower($new_line_data['QC type'])) {
+							case 'nanodrop':
+							case 'agarose gel':
+							case 'bioanalyser':
+								$qc_type = str_replace('bioanalyser', 'bioanalyzer', strtolower($new_line_data['QC type']));
+								break;
+							case 'rin':
+								$qc_type = 'bioanalyzer';
+								if($new_line_data['Score Type']) die('ERR 23 762387 6287');
+								$new_line_data['Score Type'] = 'RIN';
+								break;
+							default:
+								$import_summary[$summary_title]['@@ERROR@@']['Wrong QC type'][] = "See type [".$new_line_data['QC type']."]. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}
+						$score_unit = '';
+						switch(str_replace(' ', '', $new_line_data['Score Type'])) {
+							case '260/280':
+							case '260/230':
+							case 'RIN':
+							case '':
+								$score_unit = str_replace(' ', '', $new_line_data['Score Type']);
+								break;
+							default:
+								$import_summary[$summary_title]['@@ERROR@@']['Wrong Score type'][] = "See type [".$new_line_data['Score Type']."]. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}						
+						if(!in_array($new_line_data['RNA Conc Unit'], array('ng/ul', ''))) die('ERR 23 7237 622.1');
+						if(!in_array($new_line_data['Picture'], array('yes', 'Yes', ''))) die('ERR 23 7237 622.2');
+						$qc_data = array(
+							'sample_master_id' => null,
+							'aliquot_master_id' => null,
+							'used_volume' => '',
+							'type' => $qc_type,
+							'date' => $qc_date['date'],
+							'date_accuracy' => $qc_date['accuracy'],
+							'score' => getDecimal($new_line_data, 'Scrore', $summary_title, $file_name, $worksheet, $line_counter),
+							'unit' => $score_unit,
+							'qcroc_concentration' => getDecimal($new_line_data, 'RNA Conc', $summary_title, $file_name, $worksheet, $line_counter),
+							'qcroc_concentration_unit' => $new_line_data['RNA Conc Unit'],
+							'qcroc_extraction_yield_ug' => getDecimal($new_line_data, 'RNA yield (µg)', $summary_title, $file_name, $worksheet, $line_counter),
+							'qcroc_picture' => empty($new_line_data['Picture'])? '' : 'y',
+							'conclusion' => '',
+							'notes' => $new_line_data['Note']);
+						if('bioanalyzer' == $qc_type) {
+							if(!array_key_exists($qc_type.$qc_date['date'], $tmp_rna_tubes[$rna_sample_label][$rna_tube_label]['quality_controls'])) {
+								$tmp_rna_tubes[$rna_sample_label][$rna_tube_label]['quality_controls'][$qc_type.$qc_date['date']] = $qc_data;
+							} else {
+								$qc_data_already_recorded = $tmp_rna_tubes[$rna_sample_label][$rna_tube_label]['quality_controls'][$qc_type.$qc_date['date']];
+								foreach(array('score', 'unit', 'qcroc_concentration', 'qcroc_concentration_unit', 'qcroc_extraction_yield_ug','qcroc_picture','notes') as $field) {
+									if(strlen($qc_data[$field])) {
+										if(strlen($qc_data_already_recorded[$field])) { pr($new_line_data); die('ERR 23 98 876298 32798 7232'); }
+										$tmp_rna_tubes[$rna_sample_label][$rna_tube_label]['quality_controls'][$qc_type.$qc_date['date']][$field] = $qc_data[$field];
+									}
+								}
+							}							
+						} else {
+							$tmp_rna_tubes[$rna_sample_label][$rna_tube_label]['quality_controls'][] = $qc_data;
+						}
+					} else {
+						$import_summary[$summary_title]['@@ERROR@@']['RNA tube undefined'][] = "The tested RNA tube [$rna_tube_label] was not defined into RNA Tube worksheet. The quality contrl won't be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
-					//QC
-					$qc_data = array();
-					$qc_date = getDateAndAccuracy($new_line_data, 'Date processed', $summary_title, $file_name, $worksheet, $line_counter);
-					$score_RIN = getDecimal($new_line_data, 'RIN', $summary_title, $file_name, $worksheet, $line_counter);
-					$qcroc_concentration = getDecimal($new_line_data, '[RNA] (ng/ul)', $summary_title, $file_name, $worksheet, $line_counter);
-					if(strlen($score_RIN)) {
-						$scores['bioanalyzer'] = array($score_RIN,'RIN',$qcroc_concentration, ($qcroc_concentration? 'ng/ul' : ''), );
-						$qc_data[] = array($sample_master_id, $aliquot_master_id, 'bioanalyzer', $qc_date, $score_RIN, 'RIN', $qcroc_concentration, ($qcroc_concentration? 'ng/ul' : ''), '', ((strtolower($new_line_data['RNA individual run picture']) == 'yes')? 'y' : ''), '');
-					} else if(strlen($qcroc_concentration)) {
-						$import_summary[$summary_title]['@@WARNING@@']['Concentration with no RIN'][] = "See label [$aliquot_label]. Values won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-					}
-					if(strtolower($new_line_data['RNA gel picture']) == 'yes') $qc_data[] = array($sample_master_id, $aliquot_master_id, 'agarose gel', $qc_date, '', '', '', '', '', 'y', '');
-					createQc($qc_data);
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['Unknown Aliquot'][] = "The label [$aliquot_label] was not defined into RNA tube worksheet. Values won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong RNA tube label Format'][] = "Unable to extract RNA Sample Label from value [$rna_tube_label] based on Label format! The quality contrl won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
 	}
-	unset($tmp_rna_aliquot_master_ids);
+	$import_summary[$summary_title]['@@MESSAGE@@']["In Stock Status of tested tubes (used for QC) set to 'no'"][] = "Please confirm";
+	// Create Sample, tube and QC
+	$block_aliquot_master_ids_to_udpate_status = array();
+	$tmp_rna_sample_labels_to_check_dup = array();
+	$worksheet = 'RNA';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$rna_sample_label = $new_line_data['RNA Extraction'];
+if($limit_data && !preg_match($limit_pattern, $rna_sample_label)) continue;
+			if(strlen($rna_sample_label)) {
+				if(preg_match('/^(([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z])-.+$/', $rna_sample_label, $matches)) {
+					$block_id = $matches[1];
+					$sample_tube_id = $matches[2];
+					if(!in_array($rna_sample_label, $tmp_rna_sample_labels_to_check_dup)) {
+						$tmp_rna_sample_labels_to_check_dup[$rna_sample_label] = $rna_sample_label;
+						//Get ids
+						$collection_id = null;
+						$tissue_sample_master_id = null;
+						$block_aliquot_master_id = null;
+						if(array_key_exists($sample_tube_id, $tissue_collections_ids)) {
+							$collection_id = $tissue_collections_ids[$sample_tube_id]['collection_id'];
+							$tissue_sample_master_id = $tissue_collections_ids[$sample_tube_id]['sample_master_id'];
+							if(array_key_exists($block_id, $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+								$block_aliquot_master_id = $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$block_id]['id'];
+							} else if(array_key_exists($block_id, $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+								$block_aliquot_master_id = $tissue_collections_ids[$sample_tube_id]['left_over_bloc_aliquot_master_ids'][$block_id]['id'];
+								$import_summary[$summary_title]['@@WARNING@@']['RNA extracted from left over block'][] = "The RNA solution [$rna_sample_label] has been extracted from The left over block [$block_id]. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+						}
+						if($block_aliquot_master_id) {
+							//Extraction date
+							$extraction_date = getDateAndAccuracy($new_line_data, 'Date of isolation', $summary_title, $file_name, $worksheet, $line_counter);
+							$extraction_date['accuracy'] = str_replace('c', 'h', $extraction_date['accuracy']);
+							//Kit
+							$kit = strtolower($new_line_data['Kit used']);
+							switch($kit) {
+								case '':
+								case 'allprep dna/rna':
+								case 'allprep universal':
+								case 'qiaamp dna mini':
+								case 'rneasy plus mini kit':
+								case 'trizol (for rna)':
+								case 'universal':
+									break;
+								case 'allprepuniversal':
+									$kit = 'allprep universal';
+									break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@']['Kit used unknown'][] = "See value [".$new_line_data['Kit used']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+									$kit = '';
+							}
+							//SOP
+							$sop = str_replace('n/av', '', strtolower($new_line_data['SOP followed']));
+							if(!in_array($sop, array('sop-tr-008', ''))){
+								$import_summary[$summary_title]['@@WARNING@@']['SOP followed unknown'][] = "See value [".$new_line_data['SOP followed']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+								$sop = '';
+							}
+							//Elution volum
+							$elution_volume = getDecimal($new_line_data, 'Elution Volume', $summary_title, $file_name, $worksheet, $line_counter);
+							//Create RNA Sample
+							$sample_data = array(
+								'SampleMaster' => array(
+									'collection_id' => $collection_id,
+									'sample_control_id' => $sample_aliquot_controls['rna']['sample_control_id'],
+									'initial_specimen_sample_type' => 'tissue',
+									'initial_specimen_sample_id' => $tissue_sample_master_id,
+									'parent_sample_type' => 'tissue',
+									'parent_id' => $tissue_sample_master_id,
+									'notes' => $new_line_data['Comments on isolation']),
+								'DerivativeDetail' => array(
+									'creation_datetime' => $extraction_date['date'],
+									'creation_datetime_accuracy' => $extraction_date['accuracy']),
+								'SampleDetail' => array(
+									'qcroc_sop' => $sop,
+									'qcroc_kit' => $kit,
+									'qcroc_lot_number' => $new_line_data['Lot Number']));
+
+							$rna_sample_master_id = createSample($sample_data, $sample_aliquot_controls['rna']['detail_tablename']);
+							//Create aliquot to sample link
+							customInsert(array('sample_master_id' => $rna_sample_master_id, 'aliquot_master_id' => $block_aliquot_master_id), 'source_aliquots', __FILE__, __LINE__, false);
+							$block_aliquot_master_ids_to_udpate_status[] = $block_aliquot_master_id;
+							//Create tube
+							if(array_key_exists($rna_sample_label, $tmp_rna_tubes)) {
+								$total_recorded_volume = 0;
+								foreach($tmp_rna_tubes[$rna_sample_label] as $rna_tube_label => $rna_tub_data) {
+									$not_used_for_quality_controls = empty($tmp_rna_tubes[$rna_sample_label][$rna_tube_label]['quality_controls']);
+									$initial_volume = $not_used_for_quality_controls? (strlen($rna_tub_data['volume'])? $rna_tub_data['volume'] : $elution_volume) : $rna_tub_data['volume'];
+									if($not_used_for_quality_controls) $total_recorded_volume += (empty($initial_volume)? 0 : $initial_volume);
+									$aliquot_data = array(
+										'AliquotMaster' => array(
+											'collection_id' => $collection_id,
+											'sample_master_id' => $rna_sample_master_id,
+											'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
+											'aliquot_label' => $rna_tub_data['label'],
+											'barcode' => empty($rna_tub_data['barcode'])? getNextTmpBarcode() : $rna_tub_data['barcode'],
+											'in_stock' => ($not_used_for_quality_controls? 'yes - available' : 'no'),
+											'initial_volume' => $initial_volume,
+											'current_volume' => $initial_volume,
+											'use_counter' => '0',
+											'storage_datetime' => $extraction_date['date'],
+											'storage_datetime_accuracy' => $extraction_date['accuracy']),
+										'AliquotDetail' => array());
+									$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+									customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+									//Create QC
+									if(!$not_used_for_quality_controls) {
+										foreach($tmp_rna_tubes[$rna_sample_label][$rna_tube_label]['quality_controls'] as $qc_data) {
+											if($qc_data['qcroc_concentration']) {
+												if($qc_data['qcroc_concentration_unit'] != 'ng/ul') die('ERR 23 7237 622 773883');
+												if($elution_volume) {
+													$calculated_qcroc_extraction_yield_ug = $elution_volume*$qc_data['qcroc_concentration']/1000;
+													if($qc_data['qcroc_extraction_yield_ug']) {
+														$calculated_qcroc_extraction_yield_ug = round($calculated_qcroc_extraction_yield_ug, (preg_match('/\./', $qc_data['qcroc_extraction_yield_ug'])? strlen(substr($qc_data['qcroc_extraction_yield_ug'], (strpos($qc_data['qcroc_extraction_yield_ug'], '.')+1))) : 0));
+														if($calculated_qcroc_extraction_yield_ug != $qc_data['qcroc_extraction_yield_ug']) {
+															$import_summary["Tissue : RNA Tube QC"]['@@WARNING@@']['Calculated RNA Exctraction Yield Different Than Yield Set'][] = "Migration process calculated the yield for RNA [".$rna_tub_data['label']."] and is different than the yield set into excel: $calculated_qcroc_extraction_yield_ug (calc.) != ".$qc_data['qcroc_extraction_yield_ug']." (excel). Please confirm.";
+														}														
+													} else {
+														//Calculate
+														$qc_data['qcroc_extraction_yield_ug'] = $calculated_qcroc_extraction_yield_ug;
+														$import_summary["Tissue : RNA Tube QC"]['@@MESSAGE@@']['RNA Exctraction Yield Calculated By The Process'][] = "Migration process calculated the yield of RNA [".$rna_tub_data['label']."] based on ".$qc_data['type']." test because this one was not set into excel: Set to $calculated_qcroc_extraction_yield_ug. Please confirm.";
+													}
+												}
+											}
+											$qc_data['sample_master_id'] = $rna_sample_master_id;
+											$qc_data['aliquot_master_id'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+											customInsert($qc_data, 'quality_ctrls', __FILE__, __LINE__, false);											
+										}
+										if(!preg_match('/-tQC$/', $rna_tub_data['label'])) $import_summary[$summary_title]['@@WARNING@@']['Tested Aliquot Different than %-tQC'][] = "See RNA tupe [".$rna_tub_data['label']."]! In stock value will be set to no, please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+									}								
+									unset($tmp_rna_tubes[$rna_sample_label][$rna_tube_label]);
+								}
+								if(strlen($elution_volume) && $total_recorded_volume != $elution_volume) {
+									$import_summary[$summary_title]['@@ERROR@@']['Elution Volume Does Not Match Sum Of Tubes Volume'][] = "The elution volume of rna [$rna_sample_label] was set to [$elution_volume] in excel but the volume total of the created tubes equals to [$total_recorded_volume]. Please confirm and correct if required! [file '$file_name' ($worksheet) - line: $line_counter]";
+								}
+								unset($tmp_rna_tubes[$rna_sample_label]);
+							}
+						} else {
+							$import_summary[$summary_title]['@@ERROR@@']['Block Not Defined'][] = "The Sample Block ID [$block_id] used to create RNA [$rna_sample_label] was not defined into the Block (or left over block) worksheet! No RNA will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}
+					} else {
+						//Rna id defined twice
+						die('ERR2398723987298732');
+					}
+				} else {
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong RNA Id Format'][] = "Unable to extract Sample Tube and Block Id from value [$rna_sample_label] based on ID format! No RNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}
+			}
+		}
+	}
+	if($block_aliquot_master_ids_to_udpate_status) {
+		$import_summary[$summary_title]['@@MESSAGE@@']["In Stock Status of blocks used for DNA extraction set to 'no'"][] = "Please confirm";	
+		$query = "UPDATE aliquot_masters SET in_stock = 'no' WHERE id IN (".implode(',',$block_aliquot_master_ids_to_udpate_status).");";
+		customQuery($query, __FILE__, __LINE__);
+	}
+	//Test all aliquot used
+	foreach ($tmp_rna_tubes as $rna_sample_label => $aliquots) {
+		foreach($aliquots as $rna_tube) {
+			$import_summary["Tissue : RNA tube"]['@@ERROR@@']['No RNA created for RNA tube'][] = "A RNA tube [".$rna_tube['label']."] has been defined but no matching rna sample was defined into RNA worksheet! The RNA tube (and the related quality controls) won't be created!";
+		}
+	}
+	unset($tmp_rna_tubes);
+	unset($tmp_rna_sample_labels_to_check_dup);
 	
 	// *9* DNA **
 	
-	//TODO 	
-	// 	$worksheet = 'DNA Tube Aliquot';
-	// 	$summary_title = "Tissue : $worksheet";
-	
-	$tmp_dna_sample_master_ids =  array();
-	$tmp_dna_aliquot_master_ids =  array();
-	
+	//Load Tubes Data
+	$tmp_dna_tubes = array();
 	$worksheet = 'DNA tube';
 	$summary_title = "Tissue : $worksheet";
 	$headers = array();
@@ -848,133 +917,28 @@ if($aliquot_label == '01-1-008-1a-R1') break;
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$block_id = $new_line_data['Block'];
-//TODO
-if($block_id == '01-1-008-1a') break;
-			if(strlen($block_id)) {
-				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+$/', $block_id, $matches)) {
-					$sample_tube_id = $matches[1];
-					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && array_key_exists($block_id, $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
-						if(strlen($new_line_data['DNA Tube Id'])) {
-							if(strlen($new_line_data['IsolationDate'])) {
-								$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
-								$tissue_sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
-								$block_aliquot_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$block_id]['id'];
-								$sample_key = $block_aliquot_master_id.$new_line_data['IsolationDate'].$new_line_data['Kit'];
-								//DNA Sample
-								//Extraction date
-								$extraction_date = getDateAndAccuracy($new_line_data, 'IsolationDate', $summary_title, $file_name, $worksheet, $line_counter);
-								$extraction_date['accuracy'] = str_replace('c', 'h', $extraction_date['accuracy']);
-								if(!array_key_exists($sample_key, $tmp_dna_sample_master_ids)) {
-									//Kit
-									$kit = strtolower($new_line_data['Kit']);
-									switch($kit) {
-										case '':
-										case 'allprep dna/rna':
-										case 'allprep universal':
-										case 'qiaamp dna mini':
-										case 'qiaamp mini kit':
-										case 'rneasy plus mini kit':
-										case 'trizol (for dna)':
-										case 'universal':
-											break;
-										case 'allprepuniversal':
-											$kit = 'allprep universal';
-											break;
-										case 'allprepdna/dna':
-											$kit = 'allprep dna/dna';
-											break;
-										default:
-											$import_summary[$summary_title]['@@WARNING@@']['Kit used unknown'][] = "See value [".$new_line_data['Kit']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
-											$kit = '';
-									}
-									//Create DNA Sample
-									$sample_data = array(
-										'SampleMaster' => array(
-											'collection_id' => $collection_id,
-											'sample_control_id' => $sample_aliquot_controls['dna']['sample_control_id'],
-											'initial_specimen_sample_type' => 'tissue',
-											'initial_specimen_sample_id' => $tissue_sample_master_id,
-											'parent_sample_type' => 'tissue',
-											'parent_id' => $tissue_sample_master_id,
-											'notes' => $new_line_data['Comment on isolation']),
-										'DerivativeDetail' => array(
-											'creation_datetime' => $extraction_date['date'],
-											'creation_datetime_accuracy' => $extraction_date['accuracy']),
-										'SampleDetail' => array(
-											'qcroc_kit' => $kit));
-									$dna_sample_master_id = createSample($sample_data, $sample_aliquot_controls['dna']['detail_tablename']);
-									$tmp_dna_sample_master_ids[$sample_key] = $dna_sample_master_id;
-									//Create aliquot to sample link
-									customInsert(array('sample_master_id' => $dna_sample_master_id, 'aliquot_master_id' => $block_aliquot_master_id), 'source_aliquots', __FILE__, __LINE__, false);
-								} else if(strlen($new_line_data['Comment on isolation'])) {
-									$query = "UPDATE sample_masters SET notes = CONCAT('".str_replace("'","''",$new_line_data['Comment on isolation'])."', ' ',notes) WHERE id = ".$tmp_dna_sample_master_ids[$sample_key].";";
-									customQuery($query, __FILE__, __LINE__);
-								}
-								$dna_sample_master_id = $tmp_dna_sample_master_ids[$sample_key];
-								//Aliquot
-								if(!array_key_exists($new_line_data['DNA Tube Id'], $tmp_dna_aliquot_master_ids)) {
-									$initial_volume = getDecimal($new_line_data, 'DNA Volume (µL) - T: Transferred', $summary_title, $file_name, $worksheet, $line_counter);
-									$concentration = getDecimal($new_line_data, 'DNA Conc (ng/µL)', $summary_title, $file_name, $worksheet, $line_counter);
-									$yield = getDecimal($new_line_data, 'Nanodrop DNA yield (µg)', $summary_title, $file_name, $worksheet, $line_counter);
-									$aliquot_data = array(
-										'AliquotMaster' => array(
-											'collection_id' => $collection_id,
-											'sample_master_id' => $dna_sample_master_id,
-											'aliquot_control_id' => $sample_aliquot_controls['dna']['aliquots']['tube']['aliquot_control_id'],
-											'aliquot_label' => $new_line_data['DNA Tube Id'],
-											'barcode' => getNextTmpBarcode(),
-											'in_stock' => 'yes - available',
-											'initial_volume' => $initial_volume,
-											'current_volume' => $initial_volume,
-											//TODO: Check use counter and volume updated after migration and newVersionSetup() execution
-											'use_counter' => '0',
-											'storage_datetime' => $extraction_date['date'],
-											'storage_datetime_accuracy' => $extraction_date['accuracy']),
-										'AliquotDetail' => array(
-											'concentration' => $concentration,	//TODO use Nanodrop: Confirm.
-											'concentration_unit' => 'ng/ul',
-											'qcroc_yield_ug' => $yield));		//TODO use Nanodrop: Confirm.
-									$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-									customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['dna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-									$tmp_dna_aliquot_master_ids[$new_line_data['DNA Tube Id']] = array($dna_sample_master_id , $aliquot_data['AliquotDetail']['aliquot_master_id']);
-									//Quality Control
-									$qc_data = array();
-									$qc_date = getDateAndAccuracy($new_line_data, 'NANO DROP date', $summary_title, $file_name, $worksheet, $line_counter);
-									$score_260_280 = getDecimal($new_line_data, '260 / 280', $summary_title, $file_name, $worksheet, $line_counter);
-									if(strlen($score_260_280)) {
-										$qc_data[] = array($dna_sample_master_id, $aliquot_data['AliquotDetail']['aliquot_master_id'], 'nano drop', $qc_date, $score_260_280, '260/280', $concentration, 'ng/ul', $yield, '', '');
-									}
-									$score_260_230 = getDecimal($new_line_data, '260 / 230', $summary_title, $file_name, $worksheet, $line_counter);
-									if(strlen($score_260_230)) {
-										$qc_data[] = array($dna_sample_master_id, $aliquot_data['AliquotDetail']['aliquot_master_id'], 'nano drop', $qc_date, $score_260_230, '260/230', $concentration, 'ng/ul', $yield, '', '');
-									}
-									$qc_date = getDateAndAccuracy($new_line_data, 'PICOGREEN Date', $summary_title, $file_name, $worksheet, $line_counter);
-//TODO pourquoi la date du PICOGREEN  du tube 01-1-001-2a-D1 est le 5 dans ATiM et pas le 4								
-									$concentration = getDecimal($new_line_data, 'PICOGREEN DNA Conc.  (ng/µl)', $summary_title, $file_name, $worksheet, $line_counter);
-									$yield = getDecimal($new_line_data, 'Picogreen DNA yield (µg)', $summary_title, $file_name, $worksheet, $line_counter);
-									if(strlen($qc_date['date'].$concentration.$yield)) {
-										$qc_data[] = array($dna_sample_master_id, $aliquot_data['AliquotDetail']['aliquot_master_id'], 'picogreen', $qc_date, '', '', $concentration, 'ng/ul', $yield, '', '');	
-									}
-									createQC($qc_data);									
-								} else {
-									$import_summary[$summary_title]['@@ERROR@@']['DNA tube defined twice'][] = "See DNA tube [".$new_line_data['DNA Tube Id']."]. No 2nd DNA and tube will be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
-								}
-							} else {
-								$import_summary[$summary_title]['@@ERROR@@']['No DNA isolation Date'][] = "See DNA tube [".$new_line_data['DNA Tube Id']."]. No DNA and tube will be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
-							}
-						}
+			$dna_tube_label = $new_line_data['DNA tube Id'];
+if($limit_data && !preg_match($limit_pattern, $dna_tube_label)) continue;
+			if(strlen($dna_tube_label)) {
+				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+[A-Za-z]-.+)-.+/', $dna_tube_label, $matches)) {
+					$dna_sample_label = $matches[1];
+					if(!array_key_exists($dna_sample_label, $tmp_dna_tubes)) $tmp_dna_tubes[$dna_sample_label] = array();
+					if(!array_key_exists($dna_tube_label, $tmp_dna_tubes[$dna_sample_label])) {
+						$tmp_dna_tubes[$dna_sample_label][$dna_tube_label] = array(
+								'label' => $dna_tube_label,
+								'barcode' => $new_line_data['Barcode'],
+								'volume' => getDecimal($new_line_data, 'Volume', $summary_title, $file_name, $worksheet, $line_counter),
+								'quality_controls' => array()
+						);
 					} else {
-						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Block ID [$block_id] for tissue tube [$sample_tube_id] was not defined into the block worksheet! No DNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$import_summary[$summary_title]['@@ERROR@@']['DNA tube defined twice'][] = "See DNA tube [$dna_tube_label]. No 2nd DNA tube will be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['Wrong Block Id'][] = "Unable to extract Sample Tube and Block Id from value [$block_id] based on ID format! No DNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong DNA tube label Format'][] = "Unable to extract DNA Sample Label from value [$dna_tube_label] based on Label format! No DNA tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
 	}
-	unset($tmp_dna_sample_master_ids);
-	
 	$worksheet = 'DNA QC';
 	$summary_title = "Tissue : $worksheet";
 	$headers = array();
@@ -983,58 +947,267 @@ if($block_id == '01-1-008-1a') break;
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$aliquot_label = $new_line_data['DNA Tube Id'];
-if($aliquot_label == '01-1-008-1a-D1') break;			
-			if(strlen($aliquot_label)) {
-				if(array_key_exists($aliquot_label, $tmp_dna_aliquot_master_ids)) {
-					list($sample_master_id, $aliquot_master_id) = $tmp_dna_aliquot_master_ids[$aliquot_label];
-					//Barcode
-					if(strlen($new_line_data['Aliquot barcode'])) {
-						$query = "UPDATE aliquot_masters SET barcode = '".$new_line_data['Aliquot barcode']."' WHERE id = $aliquot_master_id;";
-						customQuery($query, __FILE__, __LINE__);
-					}
-					//QC
-					$qc_data = array();
-					$qc_date = getDateAndAccuracy($new_line_data, 'Date processed', $summary_title, $file_name, $worksheet, $line_counter);
-					if(strtolower($new_line_data['DNA Quality (Gel)']) == 'yes' || $qc_date['date']) {	//TODO confirm
-						$conclusion = strtolower($new_line_data['DNA QA']);
-						switch($conclusion) {
-							case 'ok':
-							case 'below limit of detection':
+			$dna_tube_label = $new_line_data['DNA tube'];
+if($limit_data && !preg_match($limit_pattern, $dna_tube_label)) continue;
+			if(strlen($dna_tube_label)) {
+				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+[A-Za-z]-.+)-.+/', $dna_tube_label, $matches)) {
+					$dna_sample_label = $matches[1];
+					if(array_key_exists($dna_sample_label, $tmp_dna_tubes) && array_key_exists($dna_tube_label, $tmp_dna_tubes[$dna_sample_label])) {
+						$qc_date = getDateAndAccuracy($new_line_data, 'Date', $summary_title, $file_name, $worksheet, $line_counter);
+						$qc_type = '';
+						switch(strtolower($new_line_data['QC Type'])) {
+							case 'nanodrop':
+							case 'agarose gel':
+							case 'picogreen':
+								$qc_type = strtolower($new_line_data['QC Type']);
 								break;
-							case 'unknown':
-							case 'ND':
-								$conclusion = '';
-								break;
-							default :
-								$conclusion = '';
-								$import_summary[$summary_title]['@@WARNING@@']['Unknown DNA QA value'][] = "See value [".$new_line_data['DNA QA']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+							default:
+								$import_summary[$summary_title]['@@ERROR@@']['Wrong QC Type'][] = "See type [".$new_line_data['QC Type']."]. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 						}
-						$qc_data = array(array($sample_master_id, $aliquot_master_id, 'agarose gel', $qc_date, '', '', '', '', '', '', $conclusion));
-						createQC($qc_data);
-					} else if(!in_array($new_line_data['DNA QA'], array('ND','Below limit of detection','OK'))){
-						$import_summary[$summary_title]['@@WARNING@@']['DNA QA with no date'][] = "Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$score_unit = '';
+						switch(str_replace(' ', '', $new_line_data['Score Type'])) {
+							case '260/280':
+							case '260/230':
+							case '':
+								$score_unit = str_replace(' ', '', $new_line_data['Score Type']);
+								break;
+							default:
+								$import_summary[$summary_title]['@@ERROR@@']['Wrong Score type'][] = "See type [".$new_line_data['Score Type']."]. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}
+						if(!in_array($new_line_data['DNA Conc Unit'], array( 'ng/ul', ''))) die('ERR 23 7237 622.32 ['.$new_line_data['DNA Conc Unit'].']');
+						if(!in_array($new_line_data['Picture'], array('yes', 'Yes', 'No', 'no', ''))) die('ERR 23 7237 622.44');
+						$qc_data = array(
+							'sample_master_id' => null,
+							'aliquot_master_id' => null,
+							'used_volume' => '',
+							'type' => $qc_type,
+							'date' => $qc_date['date'],
+							'date_accuracy' => $qc_date['accuracy'],
+							'score' => getDecimal($new_line_data, 'Score', $summary_title, $file_name, $worksheet, $line_counter),
+							'unit' => $score_unit,
+							'qcroc_concentration' => getDecimal($new_line_data, 'DNA Conc', $summary_title, $file_name, $worksheet, $line_counter),
+							'qcroc_concentration_unit' => $new_line_data['DNA Conc Unit'],
+							'qcroc_extraction_yield_ug' => getDecimal($new_line_data, 'DNA yield (µg)', $summary_title, $file_name, $worksheet, $line_counter),
+							'qcroc_picture' => str_replace(array('yes', 'Yes', 'No', 'no'), array('1', '1', '0', '0'), $new_line_data['Picture']),
+							'conclusion' => '',
+							'notes' => $new_line_data['Note']);
+						$tmp_dna_tubes[$dna_sample_label][$dna_tube_label]['quality_controls'][] = $qc_data;
+					} else {
+						$import_summary[$summary_title]['@@ERROR@@']['DNA tube undefined'][] = "The tested DNA tube [$dna_tube_label] was not defined into DNA Tube worksheet. The quality contrl won't be created. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['Unknown Aliquot'][] = "The label [$aliquot_label] was not defined into DNA tube worksheet. Values won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong DNA tube label Format'][] = "Unable to extract DNA Sample Label from value [$dna_tube_label] based on Label format! The quality contrl won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			}
 		}
 	}
+	$import_summary[$summary_title]['@@MESSAGE@@']["In Stock Status of tested tubes (used for QC) set to 'no'"][] = "Please confirm";
+	// Create Sample, tube and QC
+	$block_aliquot_master_ids_to_udpate_status = array();
+	$tmp_dna_sample_labels_to_check_dup = array();
+	$worksheet = 'DNA';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$dna_sample_label = $new_line_data['DNA Isolation  Id'];
+if($limit_data && !preg_match($limit_pattern, $dna_sample_label)) continue;
+			if(strlen($dna_sample_label)) {
+				if(preg_match('/^(([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z])-.+$/', $dna_sample_label, $matches)) {
+					$block_id = $matches[1];
+					$sample_tube_id = $matches[2];
+					if(!in_array($dna_sample_label, $tmp_dna_sample_labels_to_check_dup)) {
+						$tmp_dna_sample_labels_to_check_dup[$dna_sample_label] = $dna_sample_label;
+						//Get ids
+						$collection_id = null;
+						$tissue_sample_master_id = null;
+						$block_aliquot_master_id = null;
+						if(array_key_exists($sample_tube_id, $tissue_collections_ids)) {
+							$collection_id = $tissue_collections_ids[$sample_tube_id]['collection_id'];
+							$tissue_sample_master_id = $tissue_collections_ids[$sample_tube_id]['sample_master_id'];
+							if(array_key_exists($block_id, $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+								$block_aliquot_master_id = $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$block_id]['id'];
+							} else if(array_key_exists($block_id, $tissue_collections_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+								$block_aliquot_master_id = $tissue_collections_ids[$sample_tube_id]['left_over_bloc_aliquot_master_ids'][$block_id]['id'];
+								$import_summary[$summary_title]['@@WARNING@@']['DNA extracted from left over block'][] = "The DNA solution [$dna_sample_label] has been extracted from The left over block [$block_id]. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+						}
+						if($block_aliquot_master_id) {
+							//Extraction date
+							$extraction_date = getDateAndAccuracy($new_line_data, 'IsolationDate', $summary_title, $file_name, $worksheet, $line_counter);
+							$extraction_date['accuracy'] = str_replace('c', 'h', $extraction_date['accuracy']);
+							//Kit
+							$kit = strtolower($new_line_data['Kit']);
+							switch($kit) {
+								case 'allprepdna/rna':
+									$kit = 'allprep dna/rna';
+									break;
+								case '':
+								case 'allprep dna/rna':
+								case 'allprep universal':
+								case 'qiaamp dna mini':
+								case 'qiaamp mini kit':
+								case 'rneasy plus mini kit':
+								case 'trizol (for dna)':
+								case 'universal':
+									break;
+								case 'allprepuniversal':
+									$kit = 'allprep universal';
+									break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@']['Kit used unknown'][] = "See value [".$new_line_data['Kit']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+									$kit = '';
+							}
+							//Elution volum
+							$elution_volume = getDecimal($new_line_data, 'Elution  Volume (µL)', $summary_title, $file_name, $worksheet, $line_counter);
+							//Create DNA Sample
+							$sample_data = array(
+									'SampleMaster' => array(
+											'collection_id' => $collection_id,
+											'sample_control_id' => $sample_aliquot_controls['dna']['sample_control_id'],
+											'initial_specimen_sample_type' => 'tissue',
+											'initial_specimen_sample_id' => $tissue_sample_master_id,
+											'parent_sample_type' => 'tissue',
+											'parent_id' => $tissue_sample_master_id,
+											'notes' => $new_line_data['Note']),
+									'DerivativeDetail' => array(
+											'creation_datetime' => $extraction_date['date'],
+											'creation_datetime_accuracy' => $extraction_date['accuracy']),
+									'SampleDetail' => array(
+											'qcroc_kit' => $kit,
+											'qcroc_lot_number' => $new_line_data['Lot Number']));
 	
+							$dna_sample_master_id = createSample($sample_data, $sample_aliquot_controls['dna']['detail_tablename']);
+							//Create aliquot to sample link
+							customInsert(array('sample_master_id' => $dna_sample_master_id, 'aliquot_master_id' => $block_aliquot_master_id), 'source_aliquots', __FILE__, __LINE__, false);
+							$block_aliquot_master_ids_to_udpate_status[] = $block_aliquot_master_id;
+							//Create tube
+							if(array_key_exists($dna_sample_label, $tmp_dna_tubes)) {
+								$total_recorded_volume = 0;
+								foreach($tmp_dna_tubes[$dna_sample_label] as $dna_tube_label => $dna_tub_data) {
+									$not_used_for_quality_controls = empty($tmp_dna_tubes[$dna_sample_label][$dna_tube_label]['quality_controls']);
+									$initial_volume = $not_used_for_quality_controls? (strlen($dna_tub_data['volume'])? $dna_tub_data['volume'] : $elution_volume) : $dna_tub_data['volume'];
+									if($not_used_for_quality_controls) $total_recorded_volume += (empty($initial_volume)? 0 : $initial_volume);
+									$aliquot_data = array(
+											'AliquotMaster' => array(
+													'collection_id' => $collection_id,
+													'sample_master_id' => $dna_sample_master_id,
+													'aliquot_control_id' => $sample_aliquot_controls['dna']['aliquots']['tube']['aliquot_control_id'],
+													'aliquot_label' => $dna_tub_data['label'],
+													'barcode' => empty($dna_tub_data['barcode'])? getNextTmpBarcode() : $dna_tub_data['barcode'],
+													'in_stock' => ($not_used_for_quality_controls? 'yes - available' : 'no'),
+													'initial_volume' => $initial_volume,
+													'current_volume' => $initial_volume,
+													'use_counter' => '0',
+													'storage_datetime' => $extraction_date['date'],
+													'storage_datetime_accuracy' => $extraction_date['accuracy']),
+											'AliquotDetail' => array());
+									$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+									customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['dna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+									//Create QC
+									if(!$not_used_for_quality_controls) {
+										foreach($tmp_dna_tubes[$dna_sample_label][$dna_tube_label]['quality_controls'] as $qc_data) {
+											if($qc_data['qcroc_concentration']) {
+												if($qc_data['qcroc_concentration_unit'] != 'ng/ul') die('ERR 23 7237 622 773883');
+												if($elution_volume) {
+													$calculated_qcroc_extraction_yield_ug = $elution_volume*$qc_data['qcroc_concentration']/1000;
+													if($qc_data['qcroc_extraction_yield_ug']) {
+														$calculated_qcroc_extraction_yield_ug = round($calculated_qcroc_extraction_yield_ug, (preg_match('/\./', $qc_data['qcroc_extraction_yield_ug'])? strlen(substr($qc_data['qcroc_extraction_yield_ug'], (strpos($qc_data['qcroc_extraction_yield_ug'], '.')+1))) : 0));
+														if($calculated_qcroc_extraction_yield_ug != $qc_data['qcroc_extraction_yield_ug']) {
+															$import_summary["Tissue : DNA Tube QC"]['@@WARNING@@']['Calculated DNA Exctraction Yield Different Than Yield Set'][] = "Migration process calculated the yield for DNA [".$dna_tub_data['label']."] and is different than the yield set into excel: $calculated_qcroc_extraction_yield_ug (calc.) != ".$qc_data['qcroc_extraction_yield_ug']." (excel). Please confirm.";
+														}
+													} else {
+														//Calculate
+														$qc_data['qcroc_extraction_yield_ug'] = $calculated_qcroc_extraction_yield_ug;
+														$import_summary["Tissue : DNA Tube QC"]['@@MESSAGE@@']['DNA Exctraction Yield Calculated By The Process'][] = "Migration process calculated the yield of DNA [".$dna_tub_data['label']."] based on ".$qc_data['type']." test because this one was not set into excel: Set to $calculated_qcroc_extraction_yield_ug. Please confirm.";
+													}
+												}
+											}
+											$qc_data['sample_master_id'] = $dna_sample_master_id;
+											$qc_data['aliquot_master_id'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+											customInsert($qc_data, 'quality_ctrls', __FILE__, __LINE__, false);
+										}
+										if(!preg_match('/-tQC$/', $dna_tub_data['label'])) $import_summary[$summary_title]['@@WARNING@@']['Tested Aliquot Different than %-tQC'][] = "See DNA tupe [".$dna_tub_data['label']."]! In stock value will be set to no, please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+									}
+									unset($tmp_dna_tubes[$dna_sample_label][$dna_tube_label]);
+								}
+								if(strlen($elution_volume) && $total_recorded_volume != $elution_volume) {
+									$import_summary[$summary_title]['@@ERROR@@']['Elution Volume Does Not Match Sum Of Tubes Volume'][] = "The elution volume of dna [$dna_sample_label] was set to [$elution_volume] in excel but the volume total of the created tubes equals to [$total_recorded_volume]. Please confirm and correct if required! [file '$file_name' ($worksheet) - line: $line_counter]";
+								}
+								unset($tmp_dna_tubes[$dna_sample_label]);
+							}
+						} else {
+							$import_summary[$summary_title]['@@ERROR@@']['Block Not Defined'][] = "The Sample Block ID [$block_id] used to create DNA [$dna_sample_label] was not defined into the Block (or left over block) worksheet! No DNA will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}
+					} else {
+						//Rna id defined twice
+						die('ERR2398723987298732');
+					}
+				} else {
+					$import_summary[$summary_title]['@@ERROR@@']['Wrong DNA Id Format'][] = "Unable to extract Sample Tube and Block Id from value [$dna_sample_label] based on ID format! No DNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}
+			}
+		}
+	}
+	if($block_aliquot_master_ids_to_udpate_status) {
+		$import_summary[$summary_title]['@@MESSAGE@@']["In Stock Status of blocks used for DNA extraction set to 'no'"][] = "Please confirm";
+		$query = "UPDATE aliquot_masters SET in_stock = 'no' WHERE id IN (".implode(',',$block_aliquot_master_ids_to_udpate_status).");";
+		customQuery($query, __FILE__, __LINE__);
+	}
+	//Test all aliquot used
+	foreach ($tmp_dna_tubes as $dna_sample_label => $aliquots) {
+		foreach($aliquots as $dna_tube) {
+			$import_summary["Tissue : DNA tube"]['@@ERROR@@']['No DNA created for DNA tube'][] = "A DNA tube [".$dna_tube['label']."] has been defined but no matching dna sample was defined into DNA worksheet! The DNA tube (and the related quality controls) won't be created!";
+		}
+	}
+	unset($tmp_dna_tubes);
+	unset($tmp_dna_sample_labels_to_check_dup);	
 	
+	// *10* Final Control **
 	
+	$query = "
+		SELECT am.aliquot_label
+		FROM aliquot_masters am
+		INNER JOIN aliquot_internal_uses aiu ON aiu.aliquot_master_id = am.id
+		WHERE aiu.type = 'macrodissection' AND aiu.deleted <> 1 AND am.deleted <> 1 AND am.in_stock != 'no';";
+	$summary_title = "Tissue : Block Event";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		$import_summary[$summary_title]['@@WARNING@@']['Macrodissected Block Available'][] = "The block [".$row['aliquot_label']."] was defined as marcodissected but is still available into ATiM because no RNA or DNA has been created from this one! Please confirm and correct if required!";
+	}
 	
+	$query = "SELECT aliquot_label FROM aliquot_masters WHERE aliquot_label LIKE '%tQC' AND in_stock != 'no';";
+	$summary_title = "Tissue : RNA";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		$import_summary[$summary_title]['@@WARNING@@']['RNA/DNA tQC tube available'][] = "DNA/RNA tube [".$row['aliquot_label']."] is available into ATiM because this one has not been used for quality control! Please confirm and correct if required!";
+	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	$query = "
+		SELECT am.aliquot_label
+		FROM aliquot_masters am 
+		INNER JOIN ".$controls['sample_aliquot_controls']['tissue']['aliquots']['block']['detail_tablename']." ad ON ad.aliquot_master_id = am.id
+		WHERE am.deleted <> 1 
+		AND am.in_stock != 'no' AND ad.qcroc_left_over <> 1 AND am.aliquot_control_id = ".$controls['sample_aliquot_controls']['tissue']['aliquots']['block']['aliquot_control_id'].";";
+	$summary_title = "Tissue : Block";	
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		$import_summary[$summary_title]['@@MESSAGE@@']['Tissue Block Available Beacause No Extraction Done'][] = "Block [".$row['aliquot_label']."]! Please confirm and correct if required!";
+	}
+
+	$query = "
+		SELECT am.aliquot_label
+		FROM aliquot_masters am
+		WHERE am.deleted <> 1
+		AND am.in_stock != 'no'  AND am.aliquot_control_id = ".$controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['aliquot_control_id'].";";
+	$summary_title = "Tissue : Tube";
+	$results = customQuery($query, __FILE__, __LINE__);
+	 while($row = $results->fetch_assoc()){
+		$import_summary[$summary_title]['@@MESSAGE@@']['Tissue Tube Available Beacause No Block Created'][] = "Tube [".$row['aliquot_label']."]! Please confirm and correct if required!";
+	}
 }
 
 function loadBlood(&$XlsReader, $files_path, $file_name) {
