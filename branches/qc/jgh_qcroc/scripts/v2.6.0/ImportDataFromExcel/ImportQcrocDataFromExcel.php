@@ -9,8 +9,8 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_name = array(
-	'tissue' => 'Copie de Q-CROC-01 Tissue data v14 Selecting patient with all data for DNA RNA tube_20150514.xls',
-	'blood' => 'Copie de Q-CROC-01 Blood Data v9  Only clean data from v8_20150514.xls'
+	'tissue' => 'Q-CROC-01 Tissue data v14 Selecting patient with all data for DNA RNA tube_20150504.xls',
+	'blood' => 'Q-CROC-01 Blood Data v9  Only clean data from v8_20150504.xls'
 );
 $files_path = 'C:\\_Perso\\Server\\jgh_qcroc\\data\\';
 require_once 'Excel/reader.php';
@@ -64,6 +64,9 @@ $last_storage_code = 0;
 global $qc_code_counter;
 $qc_code_counter = 0;
 
+global $xls_offset;
+$xls_offset = 36526;	//36526 ou 35064
+
 echo "<br><br><FONT COLOR=\"blue\" >
 =====================================================================<br>
 QCROC - Data Migration to ATiM<br>
@@ -72,7 +75,7 @@ $import_date<br>
 
 
 //TODO remove
-truncate();
+//truncate();
 
 //==============================================================================================
 //MAIN CODE
@@ -256,7 +259,6 @@ function formatNewLineData($headers, $data) {
 
 function importDie($msg, $rollbak = true) {
 	if($rollbak) {
-		//TODO manage commit rollback
 	}
 	die($msg);
 }
@@ -291,6 +293,8 @@ function customInsert($data, $table_name, $file, $line, $is_detail_table = false
 
 function getDateAndAccuracy($data, $field, $summary_title, $file, $worksheet, $line) {
 	global $import_summary;
+	global $xls_offset;
+	
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 732 $field $file, $line");
 	$date = str_replace(array(' ', 'N/A', 'n/a', 'x', '??', 'ND'), array('', '', '', '', '', '', ''), $data[$field]);
 	if(empty($date) || $date == '-') {
@@ -298,7 +302,6 @@ function getDateAndAccuracy($data, $field, $summary_title, $file, $worksheet, $l
 	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {
 		//format excel date integer representation
 		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
-		$xls_offset = 36526;//2000-01-01
 		$date = date("Y-m-d", $php_offset + (($date - $xls_offset) * 86400));
 		return array('date' => $date, 'accuracy' => 'c');	
 	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date,$matches)) {
