@@ -5,9 +5,9 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 	global $controls;
 	
 //TODO
-$limit_data = true;
+$limit_data = false;
 $limit_pattern = '/^[0-9]+\-[0-9]+\-0((0[1-9])|(1[0-5]))/';
-$limit_pattern = '/^[0-9]+\-[0-9]+\-01[0-5]/';
+$limit_pattern = '/^[0-9]+\-[0-9]+\-00[1-1]/';
 	
 	// Control
 	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
@@ -1213,7 +1213,11 @@ if($limit_data && !preg_match($limit_pattern, $dna_sample_label)) continue;
 function loadBlood(&$XlsReader, $files_path, $file_name) {
 	global $import_summary;
 	global $controls;
-
+	
+//TODO
+$limit_data = false;
+$limit_pattern = '/^[0-9]+\-B[0-9]+\-0[1]/';
+	
 	// Control
 	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
 
@@ -1223,107 +1227,177 @@ function loadBlood(&$XlsReader, $files_path, $file_name) {
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 
 	$blood_collection_labels_to_ids = array();
-
-	//*** UHL ***
-
-	$worksheet = 'UHL';
+	
+	// *1* Create Collection **
+	
+	$blood_collection_and_sample_ids = array();
+	
+	$worksheet = 'Collection';
 	$summary_title = "Blood : $worksheet";
 	$headers = array();
 	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
-		if($line_counter == 2) {
+		if($line_counter == 1) {
 			$headers = $new_line;
-		} else if($line_counter > 2){
-			// *1* Create Collection **
+		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$collection_id = getCollectionId($new_line_data['study'], $new_line_data['Patient Id'], 'B', $new_line_data['Visit Id'], $new_line_data['CollectionDate'], $new_line_data['CollectionTime'], $new_line_data['Site'], '', $summary_title, $file_name, $worksheet, $line_counter);
-			$collection_key = $new_line_data['study'].'/'.$new_line_data['Patient Id'].'/'.$new_line_data['Visit Id'].'/'.$new_line_data['CollectionDate'].'/'.$new_line_data['CollectionTime'].'/'.$new_line_data['Site'];
-			$blood_collection_labels_to_ids[$collection_key]['collection_id'] = $collection_id;
-			// *2* Create Blood **
-			$blood_type = '';
-			$derivative_type = null;
-			switch($new_line_data['Type']){
-				case 'EDTA':
-					$derivative_type = 'plasma';
-				case 'Buffy Coat':
-					$blood_type = 'EDTA';
-					if(!$derivative_type) $derivative_type = 'pbmc';
-					break;
-				case 'CTAD':
-					$blood_type = 'CTAD';
-					$derivative_type = 'plasma';
-					break;
-				default:
-				$import_summary[$summary_title]['@@ERROR@@']['Blood type not supported'][] = "See value [".$new_line_data['Type']."]! [file '$file_name' ($worksheet) - line: $line_counter]";	
+			$blood_collection_label = $new_line_data['Collection Id'];
+if($limit_data && !preg_match($limit_pattern, $blood_collection_label)) continue;
+			if(preg_match('/^([0-9]+)\-B([0-9]+)-([0-9]+)$/', $blood_collection_label, $matches)) {
+				$collection_id = getCollectionId($matches[1], $matches[3], 'B', $matches[2], $new_line_data['Date of collection'], $new_line_data['Time collection'], $new_line_data['Site'], '', $summary_title, $file_name, $worksheet, $line_counter);
+				$blood_collection_and_sample_ids[$blood_collection_label] = array('collection_id' => $collection_id, 'sample_master_ids' => array(), 'created_aliquots' => array());
+			} else {
+				$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [$blood_collection_label]! The collection won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 			}
-			if($blood_type) {
-				$blood_key = 'Blood:'.$blood_type;
-				if(!array_key_exists($blood_key, $blood_collection_labels_to_ids[$collection_key])) {
-					$sample_data = array(
-						'SampleMaster' => array(
-							'collection_id' => $collection_id,
-							'sample_control_id' => $controls['sample_aliquot_controls']['blood']['sample_control_id'],
-							'initial_specimen_sample_type' => 'blood'),
-						'SpecimenDetail' => array(),
-						'SampleDetail' => array('blood_type' => $blood_type));
-					$blood_collection_labels_to_ids[$collection_key][$blood_key] = createSample($sample_data, $controls['sample_aliquot_controls']['blood']['detail_tablename']);
+		}
+	}
+	
+	// *2* Create Sample **
+	
+	$worksheet = 'Derivative';
+	$summary_title = "Blood : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$derivative_label = $new_line_data['Derivation Id'];
+if($limit_data && !preg_match($limit_pattern, $derivative_label)) continue;
+			if(preg_match('/^([0-9]+-B[0-9]+-[0-9]+)-((EDTA)|(CTAD))-((P)|(BC))$/', $derivative_label, $matches)) {
+				$blood_collection_label = $matches[1];
+				$blood_type = $matches[2];
+				$blood_label = $blood_collection_label.'-'.$blood_type;
+				$derivative_type = ($matches[5] == 'P')? 'plasma': 'pbmc';
+				if(array_key_exists($blood_collection_label, $blood_collection_and_sample_ids)) {
+					$collection_id = $blood_collection_and_sample_ids[$blood_collection_label]['collection_id'];
+					//Blood
+					if(!array_key_exists($blood_label, $blood_collection_and_sample_ids[$blood_collection_label]['sample_master_ids'])) {
+						$sample_data = array(
+							'SampleMaster' => array(
+								'collection_id' => $collection_id,
+								'sample_control_id' => $controls['sample_aliquot_controls']['blood']['sample_control_id'],
+								'initial_specimen_sample_type' => 'blood'),
+							'SpecimenDetail' => array(),
+							'SampleDetail' => array('blood_type' => $blood_type));
+						$blood_collection_and_sample_ids[$blood_collection_label]['sample_master_ids'][$blood_label] = createSample($sample_data, $controls['sample_aliquot_controls']['blood']['detail_tablename']);
+						
+					}
+					$blood_sample_master_id = $blood_collection_and_sample_ids[$blood_collection_label]['sample_master_ids'][$blood_label];
+					//Derivative
+					if(!array_key_exists($derivative_label, $blood_collection_and_sample_ids[$blood_collection_label]['sample_master_ids'])) {
+						$date_of_derivative_creation = getDateTimeAndAccuracy($new_line_data, 'Process Date', 'Process Time', $summary_title, $file_name, $worksheet, $line_counter);
+						$sample_data = array(
+							'SampleMaster' => array(
+								'collection_id' => $collection_id,
+								'sample_control_id' => $controls['sample_aliquot_controls'][$derivative_type]['sample_control_id'],
+								'initial_specimen_sample_type' => 'blood',
+								'initial_specimen_sample_id' => $blood_sample_master_id,
+								'parent_sample_type' => 'blood',
+								'parent_id' => $blood_sample_master_id),
+							'DerivativeDetail' => array(
+								'creation_datetime' => $date_of_derivative_creation['datetime'],
+								'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
+							'SampleDetail' => array());
+						$blood_collection_and_sample_ids[$blood_collection_label]['sample_master_ids'][$derivative_label] = createSample($sample_data, $controls['sample_aliquot_controls'][$derivative_type]['detail_tablename']);
+					} else {
+						$import_summary[$summary_title]['@@WARNING@@']['Derivative Was Defiend Twice'][] = "See derivative [$derivative_label]! Sample won't be created twice, please verify data are the same! [file '$file_name' ($worksheet) - line: $line_counter]";
+					}
+				} else {
+					$import_summary[$summary_title]['@@ERROR@@']['Collection ID Unknown'][] = "See value [$blood_collection_label] from derivative ID [$derivative_label]! No samples will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
-				$blood_sample_master_id = $blood_collection_labels_to_ids[$collection_key][$blood_key];
-				// *3* Create plasma/buffy coat **
-				$derivative_key = $blood_key.'/'.$derivative_type.':'.$new_line_data['ProcessingDate'].'+'.$new_line_data['ProcessingTime'];
-				if(!array_key_exists($derivative_key, $blood_collection_labels_to_ids[$collection_key])) {
-					$date_of_derivative_creation = getDateTimeAndAccuracy($new_line_data, 'ProcessingDate', 'ProcessingTime', $summary_title, $file_name, $worksheet, $line_counter);
-					$sample_data = array(
-						'SampleMaster' => array(
-							'collection_id' => $collection_id,
-							'sample_control_id' => $controls['sample_aliquot_controls'][$derivative_type]['sample_control_id'],
-							'initial_specimen_sample_type' => 'blood',
-							'initial_specimen_sample_id' => $blood_sample_master_id,
-							'parent_sample_type' => 'blood',
-							'parent_id' => $blood_sample_master_id),
-						'DerivativeDetail' => array(
-							'creation_datetime' => $date_of_derivative_creation['datetime'],
-							'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
-						'SampleDetail' => array());
-					$blood_collection_labels_to_ids[$collection_key][$derivative_key] = createSample($sample_data, $controls['sample_aliquot_controls'][$derivative_type]['detail_tablename']);
-				}
-				$derivative_sample_master_id = $blood_collection_labels_to_ids[$collection_key][$derivative_key];
-				// *4* Derivative Aliquot **
-				if(strlen($new_line_data['Aliquot Id (value)'])) {
+			} else {
+				$import_summary[$summary_title]['@@ERROR@@']['Derivativation ID Format Not Supported'][] = "See value [$derivative_label]! The derivative won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+			}
+		}
+	}	
+	
+	// *3* Create Aliquot **
+	$tmp_barcodes_check = array();
+	$worksheet = 'Tube';
+	$summary_title = "Blood : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$tube_label = $new_line_data['Tube id'];
+if($limit_data && !preg_match($limit_pattern, $tube_label)) continue;
+			if(preg_match('/^(([0-9]+-B[0-9]+-[0-9]+)-((EDTA)|(CTAD))-((P)|(BC)))[0-9]+$/', $tube_label, $matches)) {
+				$blood_collection_label = $matches[2];
+				$sample_label = $matches[1];
+				$derivative_type = ($matches[6] == 'P')? 'plasma': 'pbmc';
+				if(array_key_exists($sample_label, $blood_collection_and_sample_ids[$blood_collection_label]['sample_master_ids'])) {
+					$collection_id =  $blood_collection_and_sample_ids[$blood_collection_label]['collection_id'];
+					$sample_master_id = $blood_collection_and_sample_ids[$blood_collection_label]['sample_master_ids'][$sample_label]; 
+					if(in_array($tube_label, $blood_collection_and_sample_ids[$blood_collection_label]['created_aliquots'])) {
+						$import_summary[$summary_title]['@@WARNING@@']['Tube Lable Used Twice'][] = "At least 2 aliquots with the same label [$tube_label] have been created! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+					}
+					$blood_collection_and_sample_ids[$blood_collection_label]['created_aliquots'][$tube_label] = $tube_label;
 					$barcode = '';
 					if(empty($new_line_data['BarCode']))  {
-						$import_summary[$summary_title]['@@WARNING@@']['Blood Barcode Is Missing'][] = "See line $line_counter! [file '$file_name' ($worksheet) - line: $line_counter]";	
-						$barcode = getNextTmpBarcode(); 
+						$import_summary[$summary_title]['@@WARNING@@']['Blood Barcode Is Missing'][] = "See line $line_counter! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$barcode = getNextTmpBarcode();
 					} else {
 						$barcode = $new_line_data['BarCode'];
+						if(in_array($barcode, $tmp_barcodes_check)) {
+							$import_summary[$summary_title]['@@WARNING@@']['Blood Barcode Defined twice'][] = "Barcode '$barcode' is defined twice! Barcode of the aliquot $tube_label'' will be replaced by a system barcode! See line $line_counter! [file '$file_name' ($worksheet) - line: $line_counter]";
+							$barcode = getNextTmpBarcode();
+						}
+						$tmp_barcodes_check[] = $barcode;
 					}
-					$storage_date = getDateTimeAndAccuracy($new_line_data, 'StorageDate', "StorageTime", $summary_title, $file_name, $worksheet, $line_counter);
+					$storage_date = getDateTimeAndAccuracy($new_line_data, 'Storage Date', "Storage Time", $summary_title, $file_name, $worksheet, $line_counter);
 					$initial_volume = getDecimal($new_line_data, 'Volume', $summary_title, $file_name, $worksheet, $line_counter);
-					if(strtolower($new_line_data['VolumeUnit']) != 'ul'){
-						$import_summary[$summary_title]['@@ERROR@@']['Blood volume unit not supported'][] = "See value [".$new_line_data['VolumeUnit']."]! [file '$file_name' ($worksheet) - line: $line_counter]";
-						$initial_volume = '';
-					} else {
+					if(strlen($initial_volume)) {
 						$initial_volume = $initial_volume/1000;
-					}
+						if(strtolower($new_line_data['Volume unit']) != 'ul') {
+							if(strlen($new_line_data['Volume unit'])) {
+								$import_summary[$summary_title]['@@ERROR@@']['Blood volume unit not supported'][] = "See value [".$new_line_data['Volume unit']."]! Will be change to ul! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+							} else {
+								$import_summary[$summary_title]['@@WARNING@@']['Blood volume unit not defined'][] = "Will be change to ul! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+						}						
+					}					
 					$hemolysis_signs = '';
-					switch($new_line_data['SampleColor']) {
-						case 'Red';
-							$hemolysis_signs = 'y';
+					$comments = array();
+					switch($new_line_data['Color']) {
+						case '';
 							break;
-						case 'Yellow';
+						case 'Clear':
+						case 'Yellow':
+						case 'Lemon Yellow':
+						case 'Golden Yellow':
+						case 'Dark Yellow':
+						case 'Bright Yellow':
+						case 'Light Yellow':
 							$hemolysis_signs = 'n';
+							$import_summary[$summary_title]['@@WARNING@@']['Tube Color Considered As Not Hemolysis signs'][$new_line_data['Color']] = "See value [".$new_line_data['Color']."] & confirm! [file '$file_name' ($worksheet) - line: $line_counter]";		
+							$comments[] = 'Color: '.$new_line_data['Color'].'.';
+							break;
+						case 'Red':
+						case 'Reddish Yellow':
+						case 'Pinkish Yellow':
+						case 'Orange':
+						case 'Yellow-Orange':
+						case 'Pink':
+						case 'Pink & Milky':
+							$hemolysis_signs = 'y';
+							$import_summary[$summary_title]['@@WARNING@@']['Tube Color Considered As Hemolysis signs'][$new_line_data['Color']] = "See value [".$new_line_data['Color']."] & confirm! [file '$file_name' ($worksheet) - line: $line_counter]";		
+							$comments[] = 'Color: '.$new_line_data['Color'].'.';
 							break;
 						default:
-							$import_summary[$summary_title]['@@WARNING@@']['Blood Sample Color Not Supported'][] = "See value [".$new_line_data['SampleColor']."]! [file '$file_name' ($worksheet) - line: $line_counter]";	
-					}			
-					$storage_master_id = getStorageMasterId($new_line_data['Box'], 'blood', $summary_title, $file_name, $worksheet, $line_counter);
-					$storage_coordinates = getPosition($new_line_data['Box'], $new_line_data['BoxLocation'], 'blood', $summary_title, $file_name, $worksheet, $line_counter);
+							$import_summary[$summary_title]['@@WARNING@@']['Blood Sample Color Not Supported'][] = "See value [".$new_line_data['Color']."]! [file '$file_name' ($worksheet) - line: $line_counter]";		
+					}
+					$storage_master_id = getStorageMasterId($new_line_data['BOX #'], 'blood', $summary_title, $file_name, $worksheet, $line_counter);
+					$storage_coordinates = getPosition($new_line_data['BOX #'], $new_line_data['Location in box'], 'blood', $summary_title, $file_name, $worksheet, $line_counter);
+					$comments[] = $new_line_data['Comments'];
 					$aliquot_data = array(
 						'AliquotMaster' => array(
 							'collection_id' => $collection_id,
-							'sample_master_id' => $derivative_sample_master_id,
+							'sample_master_id' => $sample_master_id,
 							'aliquot_control_id' => $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['aliquot_control_id'],
 							'barcode' => $barcode,
-							'aliquot_label' => $new_line_data['Aliquot Id (value)'],
+							'aliquot_label' => $tube_label,
 							'in_stock' => 'yes - available',
 							'initial_volume' => $initial_volume,
 							'current_volume' => $initial_volume,
@@ -1333,14 +1407,16 @@ function loadBlood(&$XlsReader, $files_path, $file_name) {
 							'storage_master_id' => $storage_master_id,
 							'storage_coord_x' => $storage_coordinates['x'],
 							'storage_coord_y' => $storage_coordinates['y'],
-							'notes'=> $new_line_data['Comments']),
+							'notes'=> implode(' ', $comments)),
 						'AliquotDetail' => array(
 							'hemolysis_signs' => $hemolysis_signs));
 					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['Empty Aliquot ID'][] = "See blood aliquotat line $line_counter. No ID then no aliquot will be created. [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Sample Label Unknown'][] = "See value [$sample_label] from tube ID [$tube_label]! No aliquot will be created! [file '$file_name' ($worksheet) - line: $line_counter]";	
 				}
+			} else {
+				$import_summary[$summary_title]['@@ERROR@@']['Tube ID Format Not Supported'][] = "See value [$tube_label]! The aliquot won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";	
 			}
 		}
 	}
@@ -1396,6 +1472,10 @@ function getCollectionId($study_id, $patient_qcroc_id, $collection_type, $collec
 		switch($collection_site) {
 			case 'JGH':
 			case 'UHL':
+			case 'RVH':
+			case 'SCH':
+			case 'CLH':
+			case 'SMH':
 			case '':
 				break;
 			default;
@@ -1412,7 +1492,7 @@ function getCollectionId($study_id, $patient_qcroc_id, $collection_type, $collec
 			'qcroc_misc_identifier_control_id' => $controls['MiscIdentifierControl'][$misc_identifier_control_name]['id'],
 			'qcroc_collection_type' => $collection_type,
 			'collection_notes' => $notes);
-		$patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['collections'][$collection_key] = customInsert($collection_data, 'collections', __FILE__, __LINE__); 
+		$patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['collections'][$collection_key] = customInsert($collection_data, 'collections', __FILE__, __LINE__); 	
 	} else if(strlen($notes)) {
 		$notes = str_replace("'", "''", $notes);
 		$query = "UPDATE collections SET notes = CONCAT('$notes', ' ', notes) WHERE id = ".$patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['collections'][$collection_key].";";
@@ -1508,20 +1588,6 @@ function getStorageMasterId($excel_storage_label, $sample_type, $summary_title, 
 			$box_label = null;
 			$storage_type = null;
 			switch($sample_type) {
-				//TODORemove? 				case 'tissue':
-				// 				case 'serum':
-				// 				case 'plasma':
-				// 				case 'pbmc':
-				// 				case 'concentrated urine':
-				// 				case 'rna':
-				// 					if(preg_match('/^(R[0-9]+)(B[0-9]+)$/',$excel_storage_label, $matches)) {
-				// 						$rack_label = $matches[1];
-				// 						$box_label = $matches[2];
-				// 					} else {
-				// 						$import_summary[$summary_title]['@@ERROR@@']["Unable to extract both rack and box labels"][] = "Unable to extract the rack and box labels for $sample_type box with value '$excel_storage_label'. Box label will be set to '$excel_storage_label' and no rack will be created. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
-				// 						$box_label = $excel_storage_label;
-				// 					}
-				// 					break;
 				case 'blood':
 					$box_label = $excel_storage_label;
 					$storage_type = 'box100';
@@ -1534,25 +1600,6 @@ function getStorageMasterId($excel_storage_label, $sample_type, $summary_title, 
 			$parent_storage_master_id = null;
 			if($rack_label) {
 				die('TODO...36273828832');
-				//TODO Remove? 				$rack_storage_unique_key = 'rack'.$rack_label;
-				// 				if(array_key_exists($rack_storage_unique_key, $storage_master_ids)) {
-				// 					$parent_storage_master_id = $storage_master_ids[$rack_storage_unique_key]['storage_master_id'];
-				// 				} else {
-				// 					$storage_controls_data = $controls['storage_controls']['rack16'];
-				// 					$last_storage_code++;
-				// 					$storage_data = array(
-				// 						'StorageMaster' => array(
-				// 							"code" => 'tmp'.$last_storage_code,
-				// 							"short_label" => $rack_label,
-				// 							"selection_label" => $rack_label,
-				// 							"storage_control_id" => $storage_controls_data['storage_control_id'],
-				// 							"parent_id" => null),
-				// 						'StorageDetail' => array());
-				// 					$storage_data['StorageDetail']['storage_master_id'] = customInsert($storage_data['StorageMaster'], 'storage_masters', __FILE__, __LINE__, false);
-				// 					customInsert($storage_data['StorageDetail'],$storage_controls_data['detail_tablename'], __FILE__, __LINE__, true);
-				// 					$parent_storage_master_id = $storage_data['StorageDetail']['storage_master_id'];
-				// 					$storage_master_ids[$rack_storage_unique_key] = array('storage_master_id' => $parent_storage_master_id, 'storage_type' => 'rack16');
-				// 				}
 			}
 			//create box
 			if(!array_key_exists($storage_type, $controls['storage_controls'])) die('ERR2327627623');

@@ -91,6 +91,10 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('JGH', 'JGH', 'JGH', '1', @control_id, NOW(), NOW(), 1, 1),
+('RVH', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('SCH', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('CLH', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('SMH', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('UHL', 'UHL', 'UHL', '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO structure_validations(structure_field_id, rule) VALUES
 ((SELECT id FROM structure_fields WHERE `tablename`='collections' AND `field`='collection_site'), 'notEmpty');
@@ -408,16 +412,10 @@ VALUES
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 ALTER TABLE ad_blocks
   ADD COLUMN qcroc_acceptance_status varchar(30),
-  ADD COLUMN qcroc_macro_dissectable char(1) default '',
-  ADD COLUMN qcroc_to_macro_dissect char(1) default '',
-  ADD COLUMN qcroc_macrodissection_lines_on_slide char(1) default '',
-  ADD COLUMN qcroc_acceptance_macrodissection_reason text;
+  ADD COLUMN qcroc_acceptance_reason text;
 ALTER TABLE ad_blocks_revs
   ADD COLUMN qcroc_acceptance_status varchar(30),
-  ADD COLUMN qcroc_macro_dissectable char(1) default '',
-  ADD COLUMN qcroc_to_macro_dissect char(1) default '',
-  ADD COLUMN qcroc_macrodissection_lines_on_slide char(1) default '',
-  ADD COLUMN qcroc_acceptance_macrodissection_reason text;
+  ADD COLUMN qcroc_acceptance_reason text;
 INSERT INTO structure_value_domains (domain_name, source)
 VALUES 
 ('qcroc_tissue_block_acceptance', "StructurePermissibleValuesCustom::getCustomDropdown('Tissue Block Acceptance Status')");
@@ -432,14 +430,10 @@ VALUES
 ('partial block accepted', 'Partial Block Accepted', 'Bloc partiel accepté', '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'AliquotDetail', '', 'qcroc_acceptance_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_tissue_block_acceptance') , '0', '', '', '', 'acceptance status', ''), 
-('InventoryManagement', 'AliquotDetail', '', 'qcroc_macro_dissectable', 'yes_no',  NULL , '0', '', '', '', 'macro dissectable', ''), 
-('InventoryManagement', 'AliquotDetail', '', 'qcroc_to_macro_dissect', 'yes_no',  NULL , '0', '', '', '', 'should be macrodissected', ''), 
-('InventoryManagement', 'AliquotDetail', '', 'qcroc_acceptance_macrodissection_reason', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'reason', '');
+('InventoryManagement', 'AliquotDetail', '', 'qcroc_acceptance_reason', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'reason', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_acceptance_status'), '1', '80', 'acceptance and macrodissection', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_macro_dissectable'), '1', '81', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_to_macro_dissect'), '1', '82', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_acceptance_macrodissection_reason'), '1', '83', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_acceptance_reason'), '1', '83', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr)
 VALUES
 ('reason', 'Reason', 'Raison'),
@@ -513,8 +507,8 @@ CREATE TABLE IF NOT EXISTS `qcroc_ar_tissue_slides` (
   `tumor_pct_necrosis` decimal(5,1) DEFAULT NULL,
   `tumor_pct_benign_cell_non_neoplastic` decimal(5,1) DEFAULT NULL,
   `tumor_pct_stroma` decimal(5,1) DEFAULT NULL,
-  `can_be_microdisected` char(1) DEFAULT '',
-  `microdissection_lines_marked` char(1) DEFAULT '',
+  `should_be_macrodissected` char(1) DEFAULT '',
+  `microdissection_lines` char(1) DEFAULT '',
   KEY `FK_qcroc_ar_tissue_slides_aliquot_review_masters` (`aliquot_review_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `qcroc_ar_tissue_slides`
@@ -529,8 +523,8 @@ CREATE TABLE IF NOT EXISTS `qcroc_ar_tissue_slides_revs` (
   `tumor_pct_necrosis` decimal(5,1) DEFAULT NULL,
   `tumor_pct_benign_cell_non_neoplastic` decimal(5,1) DEFAULT NULL,
   `tumor_pct_stroma` decimal(5,1) DEFAULT NULL,
-  `can_be_microdisected` char(1) DEFAULT '',
-  `microdissection_lines_marked` char(1) DEFAULT '',
+  `should_be_macrodissected` char(1) DEFAULT '',
+  `microdissection_lines` char(1) DEFAULT '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
@@ -565,8 +559,8 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_necrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'necrosis percentage', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_benign_cell_non_neoplastic', 'float_positive',  NULL , '0', 'size=5', '', '', 'benign cell non-neoplastic percentage', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_stroma', 'float_positive',  NULL , '0', 'size=5', '', '', 'stroma percentage', ''), 
-('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'can_be_microdisected', 'yes_no',  NULL , '0', '', '', '', 'micro dissectable', ''), 
-('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'microdissection_lines_marked', 'yes_no',  NULL , '0', '', '', '', 'microdissection lines marked', '');
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'should_be_macrodissected', 'yes_no',  NULL , '0', '', '', '', 'should_be_macrodissected', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'microdissection_lines', 'yes_no',  NULL , '0', '', '', '', 'microdissection lines', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_tumor'), '0', '10', 'sample', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_normal'), '0', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
@@ -576,12 +570,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_necrosis'), '0', '21', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_benign_cell_non_neoplastic' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='benign cell non-neoplastic percentage' AND `language_tag`=''), '0', '22', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_stroma'), '0', '23', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='can_be_microdisected'), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='microdissection_lines_marked'), '0', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='should_be_macrodissected'), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='microdissection_lines'), '0', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
 INSERT INTO i18n (id,en,fr)
 VALUES
-('micro dissectable','Micro-Dissectable', 'Micro-disséquable'), 
-('microdissection lines marked','Microdissection Lines Marked','Lignes de microdissection marquées'),        	
+('should_be_macrodissected','Should be Macrodissected', 'Doit être Macro-dissecté'), 
+('microdissection lines','Microdissection Lines','Lignes de microdissection'),        	
 ('tumor percentage','T&#37;','T&#37;'),     	   	
 ('necrosis percentage','NEC&#37;','NEC&#37;'),     	
 ('fibrosis percentage','FIB&#37;','FIB&#37;'),     	
@@ -639,23 +633,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qcroc_sd_der_rnas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='qcroc_lot_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='lot'), '1', '501', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_sd_der_rnas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='qcroc_sop' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_rna_extraction_sop')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop' AND `language_tag`=''), '1', '502', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr) VALUES ('kit','Kit','Kit'),('lot','Lot','Lot');
-ALTER TABLE ad_tubes
-  ADD COLUMN qcroc_yield_ug decimal(10,4);
-ALTER TABLE ad_tubes_revs
-  ADD COLUMN qcroc_yield_ug decimal(10,4);
-UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias,',qcroc_rna_tube') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'rna') AND aliquot_type = 'tube';
-INSERT INTO structures(`alias`) VALUES ('qcroc_rna_tube');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'qcroc_yield_ug', 'float_positive',  NULL , '0', 'size=5', '', '', 'yield (ug)', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='qcroc_rna_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qcroc_yield_ug' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='yield (ug)' AND `language_tag`=''), '1', '77', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en,fr) VALUES ('yield (ug)','Yield (ug)','Rendement (ug)');
 
 -- RNA QC
 
-INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("nano drop", "nano drop");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_type"), (SELECT id FROM structure_permissible_values WHERE value="nano drop" AND language_alias="nano drop"), "", "1");
-INSERT INTO i18n (id,en,fr) VALUES ("nano drop", 'NANO DROP', 'NANO DROP');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("nanodrop", "nanodrop");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_type"), (SELECT id FROM structure_permissible_values WHERE value="nanodrop" AND language_alias="nanodrop"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ("nanodrop", 'Nanodrop', 'Nanodrop');
 UPDATE structure_formats SET `language_heading`='', `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='1', `language_heading`='quality control' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
@@ -680,13 +663,13 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qcroc_concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='aliquot concentration' AND `language_tag`=''), '0', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qcroc_concentration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 ALTER TABLE quality_ctrls
-  ADD COLUMN qcroc_yield_ug decimal(10,4);
+  ADD COLUMN qcroc_extraction_yield_ug decimal(10,4);
 ALTER TABLE quality_ctrls_revs
-  ADD COLUMN qcroc_yield_ug decimal(10,4); 
+  ADD COLUMN qcroc_extraction_yield_ug decimal(10,4); 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'qcroc_yield_ug', 'float_positive',  NULL , '0', 'size=5', '', '', 'yield (ug)', '');
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'qcroc_extraction_yield_ug', 'float_positive',  NULL , '0', 'size=5', '', '', 'extraction yield (ug)', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qcroc_yield_ug'), '0', '27', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qcroc_extraction_yield_ug'), '0', '27', 'dna/rna extraction', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 ALTER TABLE quality_ctrls
   ADD COLUMN qcroc_picture char(1);
 ALTER TABLE quality_ctrls_revs
@@ -713,6 +696,9 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_conclusion"), (SELECT id FROM structure_permissible_values WHERE value="OK" AND language_alias="OK"), "", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_conclusion"), (SELECT id FROM structure_permissible_values WHERE value="Below limit of detection" AND language_alias="Below limit of detection"), "", "1");
 INSERT INTO i18n (id,en,fr) VALUES ("below limit of detection", "Below limit of detection", "En dessous de la limite de détection");
+INSERT INTO i18n (id,en,fr) VALUES 
+('extraction yield (ug)','Extraction Yield (ug)','Rendement de l''extraction (ug)'),
+('dna/rna extraction', 'DNA/RNA Extraction', 'Extraction ADN/RNA');
 
 -- DNA
 
@@ -729,10 +715,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_value_domains SET domain_name = 'qcroc_dna_rna_extraction_kit' WHERE domain_name = 'qcroc_rna_extraction_kit';
 UPDATE structure_permissible_values_custom_controls SET name = 'DNA/RNA Extraction Kit' WHERE name = 'RNA Extraction Kit';
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('DNA/RNA Extraction Kit')" WHERE domain_name = 'qcroc_dna_rna_extraction_kit';
-UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias,',qcroc_dna_tube') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'dna') AND aliquot_type = 'tube';
-INSERT INTO structures(`alias`) VALUES ('qcroc_dna_tube');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='qcroc_dna_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qcroc_yield_ug' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='yield (ug)' AND `language_tag`=''), '1', '77', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 
 -- --------------------------------------------------------------------------------
 -- Other...
@@ -812,6 +794,143 @@ UPDATE structure_fields SET  `model`='0' WHERE model='DatamartStructure' AND tab
 UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='bank_activty_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='obtained_consents_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE datamart_reports SET flag_active = 0 WHERE name = 'list all related diagnosis';
 
+-- --------------------------------------------------------------------------------
+-- I18n and identifiers clean up
+-- --------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('participant identifier', 'Participant Id', 'Participant Id'),
+('qcroc project number', 'QCROC Study #', 'Étude QCROC #'),
+('qcroc-id', 'QCROC Study Participant Id', 'Étude QCROC Participant Id');
+
+-- --------------------------------------------------------------------------------
+-- Blood tube
+-- --------------------------------------------------------------------------------
+
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(3);
+
+-- --------------------------------------------------------------------------------
+-- DNA lot Number and SOP
+-- --------------------------------------------------------------------------------
+
+ALTER TABLE sd_der_dnas
+  ADD COLUMN qcroc_sop varchar(50),
+  ADD COLUMN qcroc_lot_number varchar(50);
+ALTER TABLE sd_der_dnas_revs
+  ADD COLUMN qcroc_sop varchar(50),
+  ADD COLUMN qcroc_lot_number varchar(50);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qcroc_dna_extraction_sop', "StructurePermissibleValuesCustom::getCustomDropdown('DNA Extraction SOP')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('DNA Extraction SOP', 1, 50, 'inventory');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_dnas', 'qcroc_lot_number', 'input',  NULL , '0', 'size=10', '', '', '', 'lot'), 
+('InventoryManagement', 'SampleDetail', 'sd_der_dnas', 'qcroc_sop', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_dna_extraction_sop') , '0', '', '', '', 'sop', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qcroc_sd_der_dnas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='qcroc_lot_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='lot'), '1', '501', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_sd_der_dnas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='qcroc_sop' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_dna_extraction_sop')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop' AND `language_tag`=''), '1', '502', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- --------------------------------------------------------------------------------
+-- Specimen/Aliquot Review
+-- --------------------------------------------------------------------------------
+
+INSERT INTO structure_validations(structure_field_id, rule) 
+VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='aliquot_review_masters' AND `field`='aliquot_master_id'), 'notEmpty');
+UPDATE structure_fields SET  `default`='HQC1' WHERE model='SpecimenReviewMaster' AND tablename='specimen_review_masters' AND field='review_code' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- --------------------------------------------------------------------------------
+-- unused fields to hidde
+-- --------------------------------------------------------------------------------
+ 
+-- specimens: time_at_room_temp_mn
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='time_at_room_temp_mn' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- coll_to_rec_spent_time_msg & rec_to_stor_spent_time_msg
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0'  WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('rec_to_stor_spent_time_msg', 'coll_to_rec_spent_time_msg'));
+
+-- participant : last_chart_checked_date
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_batchedit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_chart_checked_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Aliuqot review: Used for Score & review code (.aliquot) 
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- --------------------------------------------------------------------------------
+-- Changed block header
+-- --------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `language_heading`='acceptance status' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_acceptance_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_tissue_block_acceptance') AND `flag_confidential`='0');
+
+-- --------------------------------------------------------------------------------
+-- Added QCROC Study Participant Id to clinical collection link
+-- --------------------------------------------------------------------------------
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '', '1', 'qcroc-id', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '0', '', '0', '1', 'qcroc-id', '0', '', '0', '', '0', '', '1', 'size=10', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- --------------------------------------------------------------------------------
+-- Reorder QCROC Study # & QCROC Study Participant Id & Visit
+-- --------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_collection_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_collection_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_collection_visit' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='-3' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_misc_identifier_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_collection_project') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-1', `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='-' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-2', `flag_override_tag`='1', `language_tag`='-' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_collection_visit' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='-10' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-5' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_misc_identifier_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_collection_project') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-3' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-4' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_collection_visit' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_collection_visit' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_collection_visit' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='qcroc_collection_visit' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qcroc_collection_visit' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- --------------------------------------------------------------------------------
+-- Collection ID
+-- --------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) VALUES ('acquisition_label','Collection ID','Collection ID');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-11' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='acquisition_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='inv_acquisition_label_defintion' AND `language_label`='acquisition_label' AND `language_tag`=''), '0', '-11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_misc_identifier_control_id' AND `language_label`='qcroc project number' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_collection_project') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_collection_type' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_collection_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_collection_visit' AND `language_label`='visit' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=3' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-119' AND `plugin`='ClinicalAnnotation' AND `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `language_label`='value' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='acquisition_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='inv_acquisition_label_defintion' AND `language_label`='acquisition_label' AND `language_tag`=''), '0', '-11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+
+
+
+
+
+
+
+
+
+TODO: Barcode peut être saisi et modifié
 
 
 
@@ -824,10 +943,4 @@ UPDATE datamart_reports SET flag_active = 0 WHERE name = 'list all related diagn
 
 
 
-
-
-
-
-
-
-UPDATE versions SET branch_build_number = '6001' WHERE version_number = '2.6.4';
+UPDATE versions SET branch_build_number = '62xx' WHERE version_number = '2.6.4';
