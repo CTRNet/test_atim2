@@ -3,12 +3,15 @@
 	// --------------------------------------------------------------------------------
 	// Set default aliquot label(s)
 	// -------------------------------------------------------------------------------- 	
-	foreach($this->data as $new_data_set){
-		$sample_master_id = $new_data_set['parent']['AliquotMaster']['sample_master_id'];
-		$sample_data = $this->ViewSample->find('first', array('conditions' => array('sample_master_id' => $sample_master_id), 'recursive' => -1));
-		$default_aliquot_label = $this->AliquotMaster->generateDefaultAliquotLabel($sample_data, $child_aliquot_ctrl);
-		$default_aliquot_labels[$sample_master_id] = $default_aliquot_label;
+	if(isset($default_aliquot_labels)){	
+		$label_counter = ($child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'block')? 'a' : 1;
+		foreach($this->request->data as &$new_data_set){
+			$sample_master_id = $new_data_set['parent']['AliquotMaster']['sample_master_id'];
+			if(isset($default_aliquot_labels[$sample_master_id])) {
+				$default_aliquot_label = $default_aliquot_labels[$sample_master_id];
+				$new_data_set['children'][]['AliquotMaster']['aliquot_label'] = $default_aliquot_label.$label_counter;
+			}
+		}
 	}
-	$this->set('default_aliquot_labels', $default_aliquot_labels);
 	
 ?>

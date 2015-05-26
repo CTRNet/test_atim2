@@ -12,7 +12,7 @@ $files_name = array(
 	'tissue' => 'Q-CROC-01 Tissue data v14 Selecting patient with all data for DNA RNA tube_20150504.xls',
 	'blood' => 'Q-CROC-01 Blood Data v9  Only clean data from v8_20150504.xls'
 );
-$files_path = 'C:\\_Perso\\Server\\jgh_qcroc\\data\\';
+$files_path = '/ATiM/qcroctodelete/';
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -23,9 +23,9 @@ global $db_schema;
 $db_ip			= "127.0.0.1";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "";
+$db_pwd			= "am3-y-4606";
 $db_charset		= "utf8";
-$db_schema	= "jghqcroc";
+$db_schema	= "tmpjghqcroc";
 
 global $db_connection;
 $db_connection = @mysqli_connect(

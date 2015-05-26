@@ -24,19 +24,17 @@ class AliquotMasterCustom extends AliquotMaster {
 		return $return;
 	}
 	
-	function generateSystemAliquotBarcode($aliquot_master_ids = array()) {
-		if(!empty($aliquot_master_ids)) {
-			$query = "UPDATE aliquot_masters SET barcode = CONCAT('SYS#',id) WHERE id IN (".implode(',',$aliquot_master_ids).") AND (barcode LIKE '' OR barcode IS NULL)";
-			$this->tryCatchQuery($query);
-			$this->tryCatchQuery(str_replace('aliquot_masters', 'aliquot_masters_revs', $query));
-			//The Barcode values of AliquotView will be updated by AppModel::releaseBatchViewsUpdateLock(); call in AliquotMaster.add() and AliquotMaster.realiquot() function
-		}
+	function generateSystemAliquotBarcode() {
+		$query = "UPDATE aliquot_masters SET barcode = CONCAT('SYS#',id) WHERE barcode LIKE '' OR barcode IS NULL";
+		$this->tryCatchQuery($query);
+		$this->tryCatchQuery(str_replace('aliquot_masters', 'aliquot_masters_revs', $query));
+		//The Barcode values of AliquotView will be updated by AppModel::releaseBatchViewsUpdateLock(); call in AliquotMaster.add() and AliquotMaster.realiquot() function
 	}
 	
 	function validateBarcodeInput($new_aliquot) {
 		if(is_array($new_aliquot) && isset($new_aliquot['AliquotMaster']) && array_key_exists('barcode', $new_aliquot['AliquotMaster'])) {
 			//Barcode has to be validated
-			if(preg_match('/^syst#/i', $new_aliquot['AliquotMaster']['barcode'])) {
+			if(preg_match('/^'.$this->getSystemBarcodePattern().'$/i', $new_aliquot['AliquotMaster']['barcode'])) {
 				return false;
 			}
 		}
@@ -44,49 +42,69 @@ class AliquotMasterCustom extends AliquotMaster {
 	}
 	
 	function getSystemBarcodePattern() {
-		return 'SYS#';
+		return 'SYS#[0-9]*';
 	}
 
-	function generateDefaultAliquotLabel($view_sample, $aliquot_control_data) {
-		$default_aliquot_label = 'n/a';
+	function generateDefaultAliquotLabel($aliquot_control_data, $qcroc_collection_id, $sample_type, $initial_specimen_sample_id, $sample_master_id, $parent_aliquot_data = null) {
+		$default_aliquot_label = "$qcroc_collection_id-";
 		
-		// Parameters check: Verify parameters have been set
-		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		//Collection Variables
-		$this->Collection = AppModel::getInstance("InventoryManagement", "Collection", true);
-		$qcroc_project_number = array_shift($this->Collection->getQcrocCollectionProjectNumbers($view_sample['ViewSample']['qcroc_misc_identifier_control_id']));
-		$collection_type = $view_sample['ViewSample']['qcroc_collection_type'];
-		$collection_visit = $view_sample['ViewSample']['qcroc_collection_visit'];
-		$participant_qcroc_id = $view_sample['ViewSample']['identifier_value'];
-		
-		switch($view_sample['ViewSample']['sample_type']) {
+		$tmp_counter = 0;
+		switch($sample_type) {
+			case 'tissue':
+				//Nothing to change, unable to add data to block or slide because we don't know the parent
+				switch($aliquot_control_data['AliquotControl']['aliquot_type']) {
+					case 'tube':
+						$default_aliquot_label = "$qcroc_collection_id-";
+						break;
+					case 'block':
+						if(!$parent_aliquot_data) {
+							$default_aliquot_label = "$qcroc_collection_id-?";
+						} else if($parent_aliquot_data['aliquot_type'] == 'tube') {
+							$default_aliquot_label = $parent_aliquot_data['aliquot_label'];							
+						} else if($parent_aliquot_data['aliquot_type'] == 'block') {
+							$default_aliquot_label = $parent_aliquot_data['aliquot_label'].'-N';							
+						}					
+						break;
+					case 'slide':
+						if(!$parent_aliquot_data) {
+							$default_aliquot_label = "$qcroc_collection_id-?-l?";
+						} else if($parent_aliquot_data['aliquot_type'] == 'block') {
+							$default_aliquot_label = $parent_aliquot_data['aliquot_label'].'-l';							
+						}						
+						break;
+				}
+				break;
+			case 'rna':
+				$tmp_counter++;
+			case 'dna':
+				$query = "SELECT am.aliquot_label
+					FROM source_aliquots sa INNER JOIN aliquot_masters am ON am.id = sa.aliquot_master_id
+					WHERE sa.deleted <> 1 AND am.deleted <> 1 AND sa.sample_master_id = $sample_master_id";
+				$derivative_aliquot_source = $this->tryCatchQuery($query);
+				if($derivative_aliquot_source) {
+					$default_aliquot_label = $derivative_aliquot_source[0]['am']['aliquot_label']."-".($tmp_counter? 'R':'D')."?-t";
+				} else {
+					$default_aliquot_label = "$qcroc_collection_id-?-".($tmp_counter? 'R':'D')."?-t";
+				}
+				break;
 			case 'plasma':
+				$tmp_counter++;
+			case 'pbmc':
 				$this->SampleMaster = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
 				$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
-				$specimen_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['initial_specimen_sample_id']), 'recursive' => '0'));
+				$specimen_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $initial_specimen_sample_id), 'recursive' => '0'));
 				$blood_key = '?';
 				if($specimen_data) {
 					switch($specimen_data['SampleDetail']['blood_type']) {
 						case 'CTAD':
-							$blood_key = '1';
-							break;
 						case 'EDTA':
-							$blood_key = '2';
+							$blood_key = $specimen_data['SampleDetail']['blood_type'];
 							break;
 					}
 				}
-				$default_aliquot_label = "$qcroc_project_number-$collection_type$collection_visit-$participant_qcroc_id-$blood_key-";
+				$default_aliquot_label = "$qcroc_collection_id-$blood_key-".($tmp_counter? 'P' : 'BC');
 				break;
-			case 'pbmc':
-				$default_aliquot_label = "$qcroc_project_number-$collection_type$collection_visit-$participant_qcroc_id-3-";
-				break;
-			case 'tissue':
-				if($aliquot_control_data['AliquotControl']['aliquot_type'] == 'tube') {
-					$participant_qcroc_id = sprintf("%03d", $participant_qcroc_id);
-					$default_aliquot_label = "$qcroc_project_number-$collection_visit-$participant_qcroc_id-";
-				}
-				break;
+		
 		}
 		
 		return $default_aliquot_label;
