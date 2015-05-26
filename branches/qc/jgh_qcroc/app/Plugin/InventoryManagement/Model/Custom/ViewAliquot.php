@@ -15,7 +15,10 @@ class ViewAliquotCustom extends ViewAliquot {
 			
 			Participant.participant_identifier, 
 			
-			Collection.acquisition_label, 
+--			Collection.acquisition_label, 
+CAST(CONCAT(SUBSTR(MiscIdentifierControl.misc_identifier_name, 7),"-",
+IF(Collection.qcroc_collection_type = "B", "B", ""),IFNULL(IF(Collection.qcroc_collection_visit = "", "?", Collection.qcroc_collection_visit), "?"),"-",
+IFNULL(LPAD(MiscIdentifier.identifier_value, IF(Collection.qcroc_collection_type = "B", 2, 3), "0"), "?")) AS char(30)) AS acquisition_label,			
 			
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -76,6 +79,7 @@ Collection.qcroc_collection_visit
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifier_controls AS MiscIdentifierControl on MiscIdentifierControl.id = Collection.qcroc_misc_identifier_control_id
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
 }

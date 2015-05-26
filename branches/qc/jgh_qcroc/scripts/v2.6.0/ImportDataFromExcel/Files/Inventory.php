@@ -396,8 +396,7 @@ if($limit_data && !preg_match($limit_pattern, $sample_slide_id)) continue;
 									'collection_id' => $collection_id,
 									'sample_master_id' => $sample_master_id,
 									'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['slide']['aliquot_control_id'],
-									'barcode' => getNextTmpBarcode(),
-//TODO a confirmer avec Vincent - On utilise pas le 'Slide id' du fichier excel pour le aliquot label								
+									'barcode' => $sample_slide_id,							
 									'aliquot_label' => $sample_block_id.'-'.$slide_counter,
 									'in_stock' => 'yes - available',
 									'use_counter' => '0',

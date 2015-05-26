@@ -15,8 +15,11 @@ class ViewSampleCustom extends ViewSample{
 	
 		Participant.participant_identifier,
 	
-		Collection.acquisition_label,
-	
+--		Collection.acquisition_label,
+CAST(CONCAT(SUBSTR(MiscIdentifierControl.misc_identifier_name, 7),"-",
+IF(Collection.qcroc_collection_type = "B", "B", ""),IFNULL(IF(Collection.qcroc_collection_visit = "", "?", Collection.qcroc_collection_visit), "?"),"-",
+IFNULL(LPAD(MiscIdentifier.identifier_value, IF(Collection.qcroc_collection_type = "B", 2, 3), "0"), "?")) AS char(30)) AS acquisition_label,			
+			
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,
@@ -53,7 +56,8 @@ Collection.qcroc_collection_visit
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
-		WHERE SampleMaster.deleted != 1 %%WHERE%%';
+LEFT JOIN misc_identifier_controls AS MiscIdentifierControl on MiscIdentifierControl.id = Collection.qcroc_misc_identifier_control_id
+			WHERE SampleMaster.deleted != 1 %%WHERE%%';
 
 }
 
