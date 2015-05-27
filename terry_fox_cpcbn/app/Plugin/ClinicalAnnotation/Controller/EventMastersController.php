@@ -110,7 +110,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	
 	function add( $participant_id, $event_control_id, $diagnosis_master_id = null) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
-			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
 		// MANAGE DATA
@@ -187,7 +187,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				$errors_tracking = array();
 				
 				// Launch Structure Fields Validation
-				$diagnosis_master_id = $this->request->data['EventMaster']['diagnosis_master_id'];
+				$diagnosis_master_id = (array_key_exists('EventMaster', $this->request->data) && array_key_exists('diagnosis_master_id', $this->request->data['EventMaster']))? $this->request->data['EventMaster']['diagnosis_master_id'] : null;
 				unset($this->request->data['EventMaster']);
 						
 				$row_counter = 0;
@@ -249,7 +249,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	
 	function edit( $participant_id, $event_master_id ) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
-			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
 		// MANAGE DATA

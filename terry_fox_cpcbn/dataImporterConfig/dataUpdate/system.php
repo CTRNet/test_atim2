@@ -90,8 +90,13 @@ function getActiveSampleControlIds($relations, $current_check){
 	}
 	return array_unique($active_ids);
 }
-foreach(getSelectQueryResult("SELECT id, sample_type, detail_tablename FROM sample_controls WHERE id IN (".implode(',', $active_sample_control_ids).")") as $new_sample_control)
+$ids_to_types = array();
+foreach(getSelectQueryResult("SELECT id, sample_type, sample_category, detail_tablename FROM sample_controls WHERE id IN (".implode(',', $active_sample_control_ids).")") as $new_sample_control) {
 	$atim_controls['sample_controls'][$new_sample_control['sample_type']] = $new_sample_control;
+	$ids_to_types[$new_sample_control['id']] = $new_sample_control['sample_type'];
+}
+$atim_controls['sample_controls']['***id_to_type***'] = $ids_to_types;
+
 //*** Control : aliquot_controls ***
 $atim_controls['aliquot_controls'] = array();
 $query = "SELECT ac.id, sample_type, aliquot_type, ac.detail_tablename, volume_unit 
@@ -179,6 +184,12 @@ function pr($var) {
 global $import_summary;
 $import_summary = array();
 
+/**
+ * Display the title of the migration (html format).
+ * 
+ * @param string $title Title of the migration process
+ * @param array $display_file_names List of files names
+ */
 function displayMigrationTitle($title, $display_file_names = false) {
 	global $import_date;
 	global $migration_process_version;
@@ -197,6 +208,26 @@ function displayMigrationTitle($title, $display_file_names = false) {
 	}
 }
 
+/**
+ * Record an error or message that could be dispalyed in html format using function dislayErrorAndMessage().
+ * The format of the display will be similar than the example below
+ * 
+ * =====================================================================
+ * $summary_section_title
+ * =====================================================================
+ * 
+ * $summary_title
+ * - $summary_details 1
+ * - $summary_details 2
+ * - $summary_details 3
+ * - $summary_details ...
+ * 
+ * @param string $summary_section_title Title of a section gathering error or message linked to the same task, data type, etc.
+ * @param string $summary_type @@ERROR@@ or @@WARNING@@ or @@MESSAGE@@
+ * @param string $summary_title Error type
+ * @param string $summary_details Details of the error (to inlude excel line number or a patient identifier, etc)
+ * @param string $message_detail_key Key to not duplicate summary details for a same error.
+ */
 function recordErrorAndMessage($summary_section_title, $summary_type, $summary_title, $summary_details, $message_detail_key = null) {
 	global $import_summary;
 	if(is_null($message_detail_key)) {
@@ -206,6 +237,11 @@ function recordErrorAndMessage($summary_section_title, $summary_type, $summary_t
 	}
 }
 
+/**
+ * Display any errors or messages recorded by function recordErrorAndMessage() in html forma.
+ * 
+ * @param boolean $commit Commit all sql statements.
+ */
 function dislayErrorAndMessage($commit = false) {
 	global $import_summary;
 	global $db_connection;
@@ -265,12 +301,27 @@ function dislayErrorAndMessage($commit = false) {
 
 // ---- QUERY FUNCTIONS ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Exeute an sql statement.
+ * 
+ * @param string $query SQL statement
+ * @param boolean $insert True for any $query being an INSERT statement
+ * 
+ * @return multitype Id of the insert when $insert set to TRUE else the mysqli_result object
+ */
 function customQuery($query, $insert = false) {
 	global $db_connection;
 	$query_res = mysqli_query($db_connection, $query) or migrationDie(array("ERR_QUERY", mysqli_error($db_connection), $query));
 	return ($insert)? mysqli_insert_id($db_connection) : $query_res;
 }
 
+/**
+ * Execute an sql SELECT statement and return results into an array.
+ * 
+ * @param string $query SQL statement
+ * 
+ * @return array Query results in an array
+ */
 function getSelectQueryResult($query) {
 	if(!preg_match('/^[\ ]*SELECT/i', $query))  migrationDie(array("ERR_QUERY", "'SELECT' query expected", $query));
 	$select_result = array();
@@ -281,6 +332,35 @@ function getSelectQueryResult($query) {
 	return $select_result;
 }
 
+/**
+ * Record new data into ATiM table.
+ * 
+ * Submitted data format:
+ * 
+ * 1- Simple Table
+ * 
+ * array(table_name => array(field1 => value, field2 => value, etc)
+ * 
+ * array('participants' => array('first_name' => 'James', 'last_name' => 'Bond))
+ * 
+ * 2- Master/Detail Tables
+ * 
+ * array(master_table_name => array(master_control_id => value, field1 => value, field2 => value, etc)
+ * 		detail_table_name => array(field1 => value, field2 => value, etc))
+ * 
+ * array('aliquot_masters' => array(aliquot_control_id => 12, field1 => value, field2 => value, etc)
+ * 		'ad_tubes' => array(field1 => value, field2 => value, etc))
+ * 
+ * 3- Sample Master/Detail Tables
+ * 
+ * array(master_table_name => array(master_control_id => value, field1 => value, field2 => value, etc)
+ * 		specimen_details/derivativ_details => array(field1 => value, field2 => value, etc)
+ * 		detail_table_name => array(field1 => value, field2 => value, etc))
+ * 
+ * @param array $tables_data Data to insert. See format above.
+ * 
+ * @return string Id of the created record
+ */
 function customInsertRecord($tables_data) {
 	global $import_date;
 	global $imported_by;
@@ -288,6 +368,7 @@ function customInsertRecord($tables_data) {
 	$record_id = null;
 	$main_table_data = array();
 	$details_tables_data = array();
+//TODO: Add control on detail table based on _control_id	
 	if($tables_data) {
 		//--1-- Check data
 		switch(sizeof($tables_data)) {
@@ -302,7 +383,6 @@ function customInsertRecord($tables_data) {
 					if(in_array($table_name, array('specimen_details', 'derivative_details'))) {
 						$details_tables_data[] = array('name' => $table_name, 'data' => $tables_data[$table_name]);
 						unset($tables_data[$table_name]);
-						break;
 					} else if($table_name == 'sample_masters') {
 						$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
 						unset($tables_data[$table_name]);
@@ -336,19 +416,48 @@ function customInsertRecord($tables_data) {
 				migrationDie("ERR_FUNCTION_customInsertRecord(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
 		}
 		//-- 2 -- Main or master table record
+		if(isset($main_table_data['data']['sample_control_id'])) {
+			if(!isset($atim_controls['sample_controls']['***id_to_type***'][$main_table_data['data']['sample_control_id']])) migrationDie('ERR_FUNCTION_customInsertRecord(): Unsupported sample control id.');
+			$sample_type = $atim_controls['sample_controls']['***id_to_type***'][$main_table_data['data']['sample_control_id']];
+			if($atim_controls['sample_controls'][$sample_type]['sample_category'] == 'specimen') {
+				if(isset($main_table_data['data']['initial_specimen_sample_id'])) unset($main_table_data['data']['initial_specimen_sample_id']);
+				$main_table_data['data']['initial_specimen_sample_type'] = $sample_type;
+				if(isset($main_table_data['data']['parent_id'])) unset($main_table_data['data']['parent_id']);
+				if(isset($main_table_data['data']['parent_sample_type'])) unset($main_table_data['data']['parent_sample_type']);
+				if(!isset($main_table_data['data']['sample_code'])) $main_table_data['data']['sample_code'] = "@@@TO_GENERATE@@";
+			} else {
+				if(!isset($main_table_data['data']['initial_specimen_sample_id'])) migrationDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : initial_specimen_sample_id.');
+				if(!isset($main_table_data['data']['initial_specimen_sample_type'])) migrationDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : initial_specimen_sample_type.');
+				if(!isset($main_table_data['data']['parent_id'])) migrationDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : parent_id.');
+				if(!isset($main_table_data['data']['parent_sample_type'])) migrationDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : parent_sample_type.');
+				if(!isset($main_table_data['data']['sample_code'])) $main_table_data['data']['sample_code'] = "@@@TO_GENERATE@@";
+			}
+		}
 		$main_table_data['data'] = array_merge($main_table_data['data'], array("created" => $import_date, "created_by" => $imported_by, "modified" => "$import_date", "modified_by" => $imported_by));
 		$query = "INSERT INTO `".$main_table_data['name']."` (`".implode("`, `", array_keys($main_table_data['data']))."`) VALUES (\"".implode("\", \"", array_values($main_table_data['data']))."\")";
 		$record_id = customQuery($query, true);
 		if(isset($main_table_data['data']['diagnosis_control_id'])) {
 			if(in_array($main_table_data['data']['diagnosis_control_id'], $atim_controls['diagnosis_controls']['***primary_control_ids***'])) {
-				$query = "UPDATE diagnosis_masters SET primary_id=id WHERE id = $record_id;";
-				customQuery("UPDATE diagnosis_masters SET ", true);
+				customQuery("UPDATE diagnosis_masters SET primary_id=id WHERE id = $record_id;", true);
 			} else {
 				if(!isset($main_table_data['data']['primary_id']) || !isset($main_table_data['data']['parent_id']))
-				migrationDie('ERR_FUNCTION_customInsertRecord(): Missing diagnosis_masters primary_id or parent_id key.');
+					migrationDie('ERR_FUNCTION_customInsertRecord(): Missing diagnosis_masters primary_id or parent_id key.');
 			}
-		}	
+		} else if(isset($main_table_data['data']['sample_control_id'])) {
+			$sample_type = $atim_controls['sample_controls']['***id_to_type***'][$main_table_data['data']['sample_control_id']];
+			$set_strings = array();
+			if($atim_controls['sample_controls'][$sample_type]['sample_category'] == 'specimen') $set_strings[] = "initial_specimen_sample_id=id";
+			if($main_table_data['data']['sample_code'] == "@@@TO_GENERATE@@") $set_strings[] = "sample_code=id";
+			if($set_strings) {
+				customQuery("UPDATE sample_masters SET ".implode(',',$set_strings)." WHERE id = $record_id;", true);
+			}
+		}			
 		//-- 3 -- Details tables record
+		if(isset($main_table_data['data']['sample_control_id'])) {
+			if(sizeof($details_tables_data) != 2) migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details', 'derivative_details' or 'SampleDetail' is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
+		} else {
+			if(sizeof($details_tables_data) > 2) migrationDie("ERR_FUNCTION_customInsertRecord(): Too many tables are declared (>2) (See table names: ".implode(' & ', array_keys($tables_data)).")");
+		}
 		$tmp_detail_tablename = null;
 		if($details_tables_data) {
 			$foreign_key = str_replace('_masters', '_master_id', $main_table_data['name']);
@@ -365,6 +474,12 @@ function customInsertRecord($tables_data) {
 	return $record_id;
 }
 
+/**
+ * Update an ATim table record.
+ * 
+ * @param string $id Id of the record to update
+ * @param array $tables_data Data to update (see format above)
+ */
 function updateTableData($id, $tables_data) {
 	global $import_date;
 	global $imported_by;
@@ -424,6 +539,16 @@ function addToModifiedDatabaseTablesList($main_table_name, $detail_table_name) {
 	$modified_database_tables_list[$key] = array($main_table_name, $detail_table_name);
 }
 
+/**
+ * Insert into revs table data created or updated . 
+ * When no parameter is set, the system will insert any record created or modified by 
+ * follwing functions:
+ * 		- customInsertRecord()
+ * 		- updateTableData()
+ *
+ * @param unknown $main_table_name Name of the main table
+ * @param unknown $detail_table_name Name of the detail table name
+ */
 function insertIntoRevsBasedOnModifiedValues($main_tablename = null, $detail_tablename = null) {
 	global $import_date;
 	global $imported_by;
@@ -486,6 +611,18 @@ function insertIntoRevsBasedOnModifiedValues($main_tablename = null, $detail_tab
 global $domains_values;
 $domains_values = array();
 
+/**
+ * Validate a value is a value of a system list or a custom drop down list and return
+ * the formatted value as it exists into database (when cases are different).
+ * 
+ * @param unknown $value Value to validate
+ * @param unknown $domain_name Domain name of the list
+ * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
+ * 
+ * @return string Formatted value to use to match value in database. 
+ */
 function validateAndGetStructureDomainValue($value, $domain_name, $summary_section_title, $summary_title_add_in = '', $summary_details_add_in = '') {
 	global $import_summary;
 	global $domains_values;
@@ -527,6 +664,18 @@ function validateAndGetStructureDomainValue($value, $domain_name, $summary_secti
 	return $value;
 }
 
+/**
+ * Test an excel value match a predefined list of values and return the value to record in database.
+ * 
+ * @param string $value Value to test
+ * @param array $values_matches List of good values (key being a value you can find in excel and value being the value to record in database (ex: array('yes' => 'y', 'y' => 'y', 'unknown' => 'u', '?' => 'u', etc)
+ * @param string $str_to_lower Should the case of the value to test change to lower for test
+ * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
+ * 
+ * @return string Tested value (in lower case if expected)
+ */
 function validateAndGetExcelValueFromList($value, $values_matches, $str_to_lower = false, $summary_section_title = '', $summary_title_add_in = '', $summary_details_add_in = '') {
 	if(strlen($value)) {
 		if($str_to_lower) $value = strtolower($value);
@@ -544,6 +693,16 @@ function validateAndGetExcelValueFromList($value, $values_matches, $str_to_lower
 global $empty_date_time_values;
 $empty_date_time_values = array('-', 'n/a', 'x', '??', 'nd');
 
+/**
+ * Test excel value is a date and return the formatted date for database and the accuracy.
+ *
+ * @param string $date Value of the excel date
+ * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
+ *
+ * @return array array($formatted_date, $accuracy)
+ */
 function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_title_add_in, $summary_details_add_in) {
 	global $import_summary;
 	global $empty_date_time_values;
@@ -574,6 +733,17 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 	}
 }
 
+/**
+ * Test excel values are component of a datetime and return the formatted datetime for database and the accuracy.
+ *
+ * @param string $date Value of the excel date
+ * @param string $time Value of the excel time
+ * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
+ *
+ * @return array array($formatted_datetime, $accuracy)
+ */
 function validateAndGetDatetimeAndAccuracy($date, $time, $summary_section_title, $summary_title_add_in, $summary_details_add_in) {
 	global $import_summary;
 	global $empty_date_time_values;
@@ -617,6 +787,16 @@ function validateAndGetDatetimeAndAccuracy($date, $time, $summary_section_title,
 	}
 }
 
+/**
+ * Test excel values are time and return the formatted time for database and the accuracy.
+ *
+ * @param string $time Value of the excel time
+ * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
+ *
+ * @return string $formatted_time
+ */
 function validateAndGetTime($time, $summary_section_title, $summary_title_add_in, $summary_details_add_in) {
 	global $import_summary;
 	global $empty_date_time_values;
@@ -649,6 +829,16 @@ function validateAndGetTime($time, $summary_section_title, $summary_title_add_in
 global $empty_number_values;
 $empty_number_values = array('-', 'n/a', 'x', '??', 'nd');
 
+/**
+ * Test excel value is a decimal
+ *
+ * @param string $decimal_value Exel value
+ * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
+ *
+ * @return string $formatted_value
+ */
 function validateAndGetDecimal($decimal_value, $summary_section_title, $summary_title_add_in, $summary_details_add_in) {
 	global $import_summary;
 	global $empty_number_values;
@@ -665,6 +855,16 @@ function validateAndGetDecimal($decimal_value, $summary_section_title, $summary_
 	}
 }
 
+/**
+ * Test excel value is an integer
+ *
+ * @param string $integer_value Exel value
+ * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
+ * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
+ *
+ * @return string $formatted_value
+ */
 function validateAndGetInteger($integer_value, $summary_section_title, $summary_title_add_in, $summary_details_add_in) {
 	global $import_summary;
 	global $empty_number_values;
@@ -683,6 +883,13 @@ function validateAndGetInteger($integer_value, $summary_section_title, $summary_
 
 // ---- EXCEL FILE -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Test excel files exist
+ * 
+ * @param array $file_names List of excel files names to test
+ * 
+ * @return boolean TRUE if all files have been found / FALSE if not
+ */
 function testExcelFile($file_names) {
 	global $import_summary;
 	global $files_path;
@@ -700,6 +907,20 @@ function testExcelFile($file_names) {
 	return $validated;
 }
 
+/*
+ * @$file_xls_offset Serial number $windows_xls_offset = 36526 & $mac_xls_offset = 35064;
+ */
+/**
+ * Get the next excel line data. The process will restart at the begining of a file worksheet
+ * anytime the file name or the worksheet changes.
+ *
+ * @param string $excel_file_name Name of the excel file
+ * @param string $worksheet_name Studied worksheet
+ * @param string $header_lines_nbr The number of header lines
+ * @param string $file_xls_offset Serial number $windows_xls_offset = 36526 & $mac_xls_offset = 35064 (Use for excel date parsing)
+ * 
+ * @return array New excel line data gathered in array
+ */
 function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_nbr = 1, $file_xls_offset = '36526') {
 	global $import_summary;
 	global $XlsReader;
@@ -783,7 +1004,10 @@ function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_n
 				}
 			}
 			ksort($headers);
-			$studied_excel_file_name_properties['headers'] = $headers;
+			foreach($headers as $key => $title) {
+				$title = trim(str_replace(array("\n", "  "), array(' ', ' '), $title));
+				$studied_excel_file_name_properties['headers'][$key] = $title;
+			}		
 		}
 	}
 
