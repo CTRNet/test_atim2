@@ -1681,6 +1681,7 @@ function initActions(){
 				});
 				return false;
 			});
+			fctLinksToAjax(popup.frame);
 		});
 		
 		
