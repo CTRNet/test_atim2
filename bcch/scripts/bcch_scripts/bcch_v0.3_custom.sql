@@ -5,9 +5,93 @@
 -- Update bank name for version tracking during customization
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('core_installname', "BCCH Biobank - BCCH v0.3", '');
-  
+
+--  =========================================================================
+--	Eventum ID: #3217 - Storage System Code not displaying
+--  BB-45
+--	=========================================================================
+
+UPDATE view_storage_masters
+SET view_storage_masters.code = view_storage_masters.id
+WHERE view_storage_masters.code = '';
+
+--  =========================================================================
+--	Eventum ID: #3235 - Repairing old participant data
+--  BB-46
+--	=========================================================================
+
+-- Move CCBR240 identifier from C00331 (deleted) to C00379
+
+UPDATE misc_identifiers SET `participant_id`=379 WHERE `participant_id`=331 AND `identifier_value`='CCBR240';
+UPDATE misc_identifiers_revs SET `participant_id`=379 WHERE `participant_id`=331 AND `identifier_value`='CCBR240';
+
+-- Move CCBR167 identifier from C00188 (deleted) to C00211
+
+UPDATE misc_identifiers SET `participant_id`=211 WHERE `participant_id`=188 AND `identifier_value`='CCBR167';
+UPDATE misc_identifiers_revs SET `participant_id`=211 WHERE `participant_id`=188 AND `identifier_value`='CCBR167';
+
+-- Move CCBR49 identifier FROM C00106 (deleted) to C00107
+
+UPDATE misc_identifiers SET `participant_id`=107 WHERE `participant_id`=106 AND `identifier_value`='CCBR49';
+UPDATE misc_identifiers_revs SET `participant_id`=107 WHERE `participant_id`=106 AND `identifier_value`='CCBR49';
+
+-- Move first_name and last_name FROM C00106 (deleted) to C00107
+
+UPDATE participants as p1,
+(SELECT `title`, `first_name`, `last_name` FROM participants WHERE `id`=106) as p2
+SET p1.title = p2.title, p1.first_name = p2.first_name, p1.last_name = p2.last_name
+WHERE p1.id=107;
+
+-- Move CCBR56 identifier FROM C00010 (deleted) to C00039
+
+UPDATE misc_identifiers SET `participant_id`=39 WHERE `participant_id`=10 AND `identifier_value`='CCBR56';
+UPDATE misc_identifiers_revs SET `participant_id`=39 WHERE `participant_id`=10 AND `identifier_value`='CCBR56';
+
+-- Move CCBR34 identifier FROM C00069 (deleted) to C00089
+
+UPDATE misc_identifiers SET `participant_id`=89 WHERE `participant_id`=69 AND `identifier_value`='CCBR34';
+UPDATE misc_identifiers_revs SET `participant_id`=89 WHERE `participant_id`=69 AND `identifier_value`='CCBR34';
+
+-- Move CCBR124 identifier FROM C00143 (deleted) to C00158
+
+UPDATE misc_identifiers SET `participant_id`=158 WHERE `participant_id`=143 AND `identifier_value`='CCBR124';
+UPDATE misc_identifiers_revs SET `participant_id`=158 WHERE `participant_id`=143 AND `identifier_value`='CCBR124';
+
+-- Move CCBR55 identifier FROM C00009 (deleted) to C00052
+
+UPDATE misc_identifiers SET `participant_id`=52 WHERE `participant_id`=9 AND `identifier_value`='CCBR55';
+UPDATE misc_identifiers_revs SET `participant_id`=52 WHERE `participant_id`=9 AND `identifier_value`='CCBR55';
+
+-- Move CCBR144 identifier FROM C00167 (deleted) to C00204
+-- Hold it! The 204 also has CCBR182 and CCBR144
+-- No samples for C00167, Just keep the patient as CCBR182, don't add CCBR 144
+
+-- UPDATE misc_identifiers SET `participant_id`=204 WHERE `participant_id`=167 AND `identifier_value`='CCBR144';
+-- UPDATE misc_identifiers_revs SET `participant_id`=204 WHERE `participant_id`=167 AND `identifier_value`='CCBR144';
+
+-- Move CCBR102 identifier FROM C00119 (deleted) to C00121
+
+UPDATE misc_identifiers SET `participant_id`=121 WHERE `participant_id`=119 AND `identifier_value`='CCBR102';
+UPDATE misc_identifiers_revs SET `participant_id`=121 WHERE `participant_id`=119 AND `identifier_value`='CCBR102';
+
+-- Move CCBR68 identifier FROM C00045 (deleted) to C00054
+
+UPDATE misc_identifiers SET `participant_id`=54 WHERE `participant_id`=45 AND `identifier_value`='CCBR68';
+UPDATE misc_identifiers_revs SET `participant_id`=54 WHERE `participant_id`=45 AND `identifier_value`='CCBR68';
+
+-- Move CCBR243 identifier FROM C00334 (deleted) to C00344
+
+UPDATE misc_identifiers SET `participant_id`=344 WHERE `participant_id`=334 AND `identifier_value`='CCBR243';
+UPDATE misc_identifiers_revs SET `participant_id`=344 WHERE `participant_id`=334 AND `identifier_value`='CCBR243';
+
+-- Move CCBR66 identifier FROM C00043 (deleted) to C00053
+
+UPDATE misc_identifiers SET `participant_id`=53 WHERE `participant_id`=43 AND `identifier_value`='CCBR66';
+UPDATE misc_identifiers_revs SET `participant_id`=53 WHERE `participant_id`=43 AND `identifier_value`='CCBR66'; 
+ 
 --  =========================================================================
 --	Eventum ID: #3192 - BCWH Consent Form
+--  BB-40
 --	=========================================================================
 
 DROP TABLE IF EXISTS `cd_bcwh_consents`;
@@ -591,6 +675,7 @@ REPLACE INTO i18n (`id`, `en`) VALUES
 
 --  =========================================================================
 --	Eventum ID: #3213 - Study/Project Module Update
+--  BB-41
 --	=========================================================================
 
 -- Add Biobank Services Provider for Study Summary
@@ -627,32 +712,32 @@ INSERT INTO structure_formats
  `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES
 ((SELECT `id` FROM structures WHERE `alias`='studysummaries'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='service_consent' AND `language_label`='service_consent' AND `type`='yes_no'), 1, 12, 'biobank services provided', 0,
  0, 0, 0, 0, 0,
- 1, 0, 1, 0, 1, 0,
+ 1, 0, 1, 0, 0, 0,
  0, 0, 0, 1, 0, 0,
  1, 1, 0, 0),
 ((SELECT `id` FROM structures WHERE `alias`='studysummaries'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='service_collection' AND `language_label`='service_collection' AND `type`='yes_no'), 1, 13, '', 0,
  0, 0, 0, 0, 0,
- 1, 0, 1, 0, 1, 0,
+ 1, 0, 1, 0, 0, 0,
  0, 0, 0, 1, 0, 0,
  1, 1, 0, 0),
 ((SELECT `id` FROM structures WHERE `alias`='studysummaries'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='service_processing' AND `language_label`='service_processing' AND `type`='yes_no'), 1, 14, '', 0,
  0, 0, 0, 0, 0,
- 1, 0, 1, 0, 1, 0,
+ 1, 0, 1, 0, 0, 0,
  0, 0, 0, 1, 0, 0,
  1, 1, 0, 0),
 ((SELECT `id` FROM structures WHERE `alias`='studysummaries'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='service_simple_data_collection' AND `language_label`='service_simple_data_collection' AND `type`='yes_no'), 1, 15, '', 0,
  0, 0, 0, 0, 0,
- 1, 0, 1, 0, 1, 0,
+ 1, 0, 1, 0, 0, 0,
  0, 0, 0, 1, 0, 0,
  1, 1, 0, 0),
 ((SELECT `id` FROM structures WHERE `alias`='studysummaries'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='service_clinical_data_collection' AND `language_label`='service_clinical_data_collection' AND `type`='yes_no'), 1, 16, '', 0,
  0, 0, 0, 0, 0,
- 1, 0, 1, 0, 1, 0,
+ 1, 0, 1, 0, 0, 0,
  0, 0, 0, 1, 0, 0,
  1, 1, 0, 0),
 ((SELECT `id` FROM structures WHERE `alias`='studysummaries'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='service_storage' AND `language_label`='service_storage' AND `type`='yes_no'), 1, 17, '', 0,
  0, 0, 0, 0, 0,
- 1, 0, 1, 0, 1, 0,
+ 1, 0, 1, 0, 0, 0,
  0, 0, 0, 1, 0, 0,
  1, 1, 0, 0);
 
@@ -721,7 +806,7 @@ REPLACE INTO i18n (`id`, `en`) VALUES
 ('clinical trial', 'Clinical Trial'),
 ('academic research', 'Academic Research'),
 ('biobank', 'Biobank'),
-('study_type_other_desc', 'Other:');
+('study_type_other_desc', 'If other');
 
 -- Terms of Payment for Study Summary
 
@@ -784,7 +869,7 @@ INSERT INTO structure_formats
 
 REPLACE INTO i18n (`id`, `en`) VALUES
 ('payment_term', 'Terms of Payment'),
-('payment_term_other_desc', 'Other:'),
+('payment_term_other_desc', 'If Other'),
 ('payment_monthly', 'Monthly'),
 ('payment_quarterly', 'Quarterly'),
 ('payment_semi_annually', 'Semi-annually'),
@@ -1178,11 +1263,101 @@ SET `display_column` = 1, `display_order` = 14
 WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='studyinvestigators')
 AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='brief' AND `type`='textarea');
 
+-- Change the position of some fields in Study Investigators 
 
+UPDATE structure_formats
+SET `display_column`=1, `display_order`=20
+WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='studyinvestigators')
+AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='affil_cfri');
+
+UPDATE structure_formats
+SET `display_column`=1, `display_order`=21
+WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='studyinvestigators')
+AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='affil_whri');
+
+UPDATE structure_formats
+SET `display_column`=1, `display_order`=22
+WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='studyinvestigators')
+AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='affil_bcmhri');
+
+UPDATE structure_formats
+SET `display_column`=1, `display_order`=23
+WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='studyinvestigators')
+AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='affil_vchri');
+
+UPDATE structure_formats
+SET `display_column`=1, `display_order`=24
+WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='studyinvestigators')
+AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='affil_bcca');
+
+UPDATE structure_formats
+SET `display_column`=1, `display_order`=25
+WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='studyinvestigators')
+AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='affil_other');
+
+-- Update the province field in both contacts and investigators to be consistent
+-- Should be a drop down with all the provinces and "other"
+
+UPDATE structure_fields 
+SET `type`='select', `setting`='', `structure_value_domain`=(SELECT `id` FROM structure_value_domains WHERE `domain_name`='provinces'), `value_domain_control`='locked'
+WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='address_province';
+
+INSERT INTO structure_value_domains_permissible_values
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `use_as_input`)
+VALUES
+((SELECT `id` FROM structure_value_domains WHERE `domain_name`='provinces'), (SELECT `id` FROM structure_permissible_values WHERE `value`='other' AND `language_alias`='ccbr other'), 14, 1, 1);
+
+ALTER TABLE study_contacts
+	ADD COLUMN `address_province_other` VARCHAR(30) AFTER `address_province`;
+
+ALTER TABLE study_contacts_revs
+	ADD COLUMN `address_province_other` VARCHAR(30) AFTER `address_province`;
+	
+ALTER TABLE study_investigators
+	ADD COLUMN `address_province_other` VARCHAR(30) AFTER `address_province`;
+
+ALTER TABLE study_investigators_revs
+	ADD COLUMN `address_province_other` VARCHAR(30) AFTER `address_province`;
+	
+INSERT INTO structure_fields 
+(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `validation_control`, `value_domain_control`, `field_control`, `flag_confidential`)
+VALUES
+('Study', 'StudyContact', 'study_contacts', 'address_province_other', '', 'study_province_other', 'input', 'size=15', 'open', 'open', 'open', 0),
+('Study', 'StudyInvestigator', 'study_investigators', 'address_province_other', '', 'study_province_other', 'input', 'size=15', 'open', 'open', 'open', 0);
+
+UPDATE structure_fields
+SET `language_label`='study_province', `language_tag`=''
+WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='address_province';
+
+UPDATE structure_fields
+SET `language_label`='study_country', `language_tag`=''
+WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='address_country';
+
+INSERT INTO structure_formats 
+(`structure_id`, `structure_field_id`, 
+`display_column`, `display_order`, `language_heading`, `flag_override_label`, `flag_override_tag`, `flag_override_help`, `flag_override_type`, 
+`flag_override_setting`, `flag_override_default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, 
+`flag_addgrid`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, 
+`flag_float`, `margin`) 
+VALUES
+((SELECT `id` FROM structures WHERE `alias`='studycontacts'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyContact' AND `tablename`='study_contacts' AND `field`='address_province_other'),
+ 1, 11, '', 0, 0, 0, 0,
+ 0, 0, 1, 0, 1, 0, 0, 0,
+ 0, 0, 0, 0, 0, 0, 0, 1, 
+ 0, 0),
+((SELECT `id` FROM structures WHERE `alias`='studyinvestigators'), (SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='address_province_other'),
+ 1, 11, '', 0, 0, 0, 0,
+ 0, 0, 1, 0, 1, 0, 0, 0,
+ 0, 0, 0, 0, 0, 0, 0, 1, 
+ 0, 0);
+ 
+ REPLACE INTO i18n (`id`, `en`) VALUES
+ ('study_province_other', 'If other');
 
 
 --  =========================================================================
---	Eventum ID: #XXXX - Rename the consent form menu
+--	Eventum ID: #3236 - Rename the consent form menu
+--  BB-42
 --	=========================================================================
 
 REPLACE INTO i18n (`id`, `en`) VALUES
@@ -1192,6 +1367,7 @@ REPLACE INTO i18n (`id`, `en`) VALUES
 
 --  =========================================================================
 --	Eventum ID: #3218 - Storage Changes
+--  BB-43
 --	=========================================================================
 
 -- Enable Room 
@@ -1231,6 +1407,7 @@ WHERE `plugin`='StorageLayout' AND `model`='StorageMaster' AND `tablename`='stor
 
 --  =========================================================================
 --	Eventum ID: #3214 - Linking Consent Forms with Study
+--  BB-41
 --	=========================================================================
 
 ALTER TABLE consent_masters
@@ -1253,6 +1430,7 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
 
 --  =========================================================================
 --	Eventum ID: #3216 - Displaying Participant Identifier in Consent Form
+--  BB-41
 --	=========================================================================
 
 ALTER TABLE consent_masters
@@ -1266,11 +1444,11 @@ INSERT INTO structure_fields (`plugin`, `model`, `tablename`, `field`, `language
 
 INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`,
 `flag_override_label`, `flag_override_tag`, `flag_override_help`, `flag_override_type`, `flag_override_setting`, `flag_override_default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES
-((SELECT `id` FROM structures WHERE `alias`='consent_masters'), (SELECT `id` FROM structure_fields WHERE `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='participant_identifier' AND `type`='hidden'), 2, 89, 'study/project',
+((SELECT `id` FROM structures WHERE `alias`='consent_masters'), (SELECT `id` FROM structure_fields WHERE `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='participant_identifier' AND `type`='hidden'), 2, 91, '',
  0, 0, 0, 0, 0,
  0, 0, 1, 0, 1, 0,
  1, 0, 1, 0, 1, 
- 1, 0, 1, 1, 1, 0, 0);
+ 1, 0, 1, 1, 1, 1, 0);
 
 INSERT INTO i18n (`id`, `en`) VALUES
 ('consent masters', 'Consent Forms'),
@@ -1290,13 +1468,399 @@ SET consent_masters_revs.participant_identifier = participants.participant_ident
 WHERE consent_masters_revs.participant_id = participants.id;
 
 --  =========================================================================
---	Eventum ID: #3217 - Storage System Code not displaying
+--	Eventum ID: #3237 - Pleural Fluid Sample Type
+--  BB-50
 --	=========================================================================
 
-UPDATE view_storage_masters
-SET view_storage_masters.code = view_storage_masters.id
-WHERE view_storage_masters.code = '';
+-- Enable Pleural Fluid as a specimen
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_pleural_fluids');
 
+-- Enable Pluerual Fluid Cell as derivative
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_pleural_fluids')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid cell' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_cells');
+
+-- Enable Pluerual Fluid Supernatant as derivative
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_pleural_fluids')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid supernatant' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_sups');
+
+-- Enable DNA as derivatives
+/* Disabled this line based on feedback from user
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_pleural_fluids'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas'), 1);
+*/
+
+
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid supernatant' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_sups'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas'), 1);
+
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid cell' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_cells')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas');
+
+-- Enable RNA as derivatives
+/* Disabled this line based on feedback from user
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_pleural_fluids'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas'), 1);
+*/
+ 
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid supernatant' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_sups'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas'), 1);
+
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid cell' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_cells')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas');
+ 
+ -- Enable Aliquots for the sample and derivatives
+ INSERT INTO aliquot_controls
+ (`sample_control_id`, 
+ `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`)
+ VALUES
+ ((SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_pleural_fluids'),
+  'tube', '(ul)', 'ad_spec_tubes_incl_ul_vol', 'ad_tubes', 'ul', 1, 'Specimen tube requiring volume in ul', 0, 'pleural fluid|tube'),
+  ((SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid cell' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_cells'),
+  'tube', '(ul)', 'ad_der_tubes_incl_ul_vol', 'ad_tubes', 'ul', 1, 'Derivative tube requiring volume in ul', 0, 'pleural fluid cell|tube'),
+  ((SELECT `id` FROM sample_controls WHERE `sample_type`='pleural fluid supernatant' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_pleural_fl_sups'),
+  'tube', '(ul)', 'ad_der_tubes_incl_ul_vol', 'ad_tubes', 'ul', 1, 'Derivative tube requiring volume in ul', 0, 'pleural fluid supernatant|tube');
+  
+ 
+--  =========================================================================
+--	Eventum ID: #3238 - Urine Sample Type
+--  BB-51
+--	=========================================================================
+
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='urine' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_urines');
+/*
+-- Enable Concentrated Urine as derivative
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='urine' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_urines')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='concentrated urine' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_urine_cons');
+
+-- Enable Centrifuged Urine as derivative
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='urine' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_urines')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='centrifuged urine' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_urine_cents');
+*/
+-- Enable DNA as derivatives
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='urine' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_urines'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas'), 1);
+/*
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='concentrated urine' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_urine_cons')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas');
+
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='centrifuged urine' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_urine_cents')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas');
+*/
+-- Enable RNA as derivatives
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='urine' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_urines'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas'), 1);
+
+/*
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='concentrated urine' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_urine_cons')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas');
+
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active` = 1
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='centrifuged urine' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_urine_cents')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas');
+*/
+
+-- Enable Aliquot for Urine
+ INSERT INTO aliquot_controls
+ (`sample_control_id`, 
+ `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`)
+ VALUES
+ ((SELECT `id` FROM sample_controls WHERE `sample_type`='urine' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_urines'),
+  'tube', '(ml)', 'ad_spec_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Specimen tube requiring volume in ml', 0, 'urine|tube');
+
+--  =========================================================================
+--	Issue: #3173- New sample type (Cord Blood)
+--  BB-53
+--  From Aaron's code at version 2.6.4
+--  Don't need to run the code again when upgrading to 2.6.4
+--  =========================================================================
+
+SELECT "New Sample Type: Created 'Cord Blood' specimen. 1- Comment line if already created in the custom version. 2- Disable sample_type if this sample type is not supported into your bank." AS '### MESSAGE ###';
+
+CREATE TABLE `sd_spe_cord_bloods` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_sd_spe_cord_bloods_sample_masters` (`sample_master_id`),
+  CONSTRAINT `FK_sd_spe_cord_bloods` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sd_spe_cord_bloods_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Add structure
+INSERT INTO `structures` (`alias`) VALUES ('sd_spe_cord_bloods');
+
+-- Add control row
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+ ('cord blood', 'specimen', 'sd_spe_cord_bloods,specimens', 'sd_spe_cord_bloods', '0', 'cord blood');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('cord blood', "Cord Blood", 'Sang de cordon');
+
+-- Enable new sample type
+INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_id`, `flag_active`) VALUES ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'cord blood'), '1');
+
+-- Create aliquot tube for cord blood
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES 
+((SELECT `id` FROM `sample_controls` where `sample_type` = 'cord blood'), 'tube', '(ul + conc)', 'ad_spec_tubes_incl_ul_vol_and_conc', 'ad_tubes', 'ul', '1', 'Specimen tube requiring volume in ul and concentration', '0', 'cord blood|tube');
+
+-- Add new specimen tube for cord blood
+INSERT INTO `structures` (`alias`) VALUES ('ad_spec_tubes_incl_ul_vol_and_conc');
+
+-- Add cell count fields
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol_and_conc'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='cell_count' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='cell count' AND `language_tag`=''), '1', '451', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol_and_conc'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='cell_count_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_tag`=''), '1', '452', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+-- Add volume fields
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol_and_conc'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='initial volume' AND `language_tag`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol_and_conc'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain`=6  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+
+-- Enable DNA as derivatives
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='cord blood' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_cord_bloods'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas'), 1);
+
+-- Enable RNA as derivatives
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='cord blood' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_cord_bloods'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas'), 1);
+
+--  =========================================================================
+--	Issue: #3239 - Add DNA/RNA purity ratio
+--  BB-54
+--  =========================================================================
+
+
+ALTER TABLE ad_tubes
+ADD COLUMN `ratio_260_280` decimal(7,4) DEFAULT NULL
+AFTER `hemolysis_signs`;
+
+ALTER TABLE ad_tubes_revs
+ADD COLUMN `ratio_260_280` decimal(7,4) DEFAULT NULL
+AFTER `hemolysis_signs`;
+
+ALTER TABLE ad_tubes
+ADD COLUMN `ratio_260_230` decimal(7,4) DEFAULT NULL
+AFTER `ratio_260_280`;
+
+ALTER TABLE ad_tubes_revs
+ADD COLUMN `ratio_260_230` decimal(7,4) DEFAULT NULL
+AFTER `ratio_260_280`;
+
+INSERT INTO structure_fields 
+(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `structure_value_domain`, `language_help`, 
+`validation_control`, `value_domain_control`, `field_control`, `flag_confidential`)
+VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'ratio_260_280', 'ratio_260_280', '', 'float', 'size=7', NULL, 'help_260_280', 
+'open', 'open', 'open', 0),
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'ratio_260_230', 'ratio_260_230', '', 'float', 'size=7', NULL, 'help_260_230', 
+'open', 'open', 'open', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, `structure_field_id`, 
+ `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, 
+ `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`,  `flag_override_default`, `default`, 
+ `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, 
+ `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, 
+ `margin` ) VALUES
+((SELECT `id` FROM structures WHERE `alias`='ad_der_tubes_incl_ul_vol_and_conc'),
+ (SELECT `id` FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='ratio_260_280'),
+ 1, 77, '', 0, '', 0, '',
+ 0, '', 0, '', 0, '', 0, '',
+ 1, 0, 1, 0, 1, 0, 1, 0, 
+ 1, 0, 1, 0, 0, 1, 1, 0, 
+ 0),
+((SELECT `id` FROM structures WHERE `alias`='ad_der_tubes_incl_ul_vol_and_conc'),
+ (SELECT `id` FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='ratio_260_230'),
+ 1, 78, '', 0, '', 0, '',
+ 0, '', 0, '', 0, '', 0, '',
+ 1, 0, 1, 0, 1, 0, 1, 0, 
+ 1, 0, 1, 0, 0, 1, 1, 0, 
+ 0);
+ 
+ REPLACE INTO i18n (`id`, `en`) VALUES
+ ('ratio_260_280', '260/280 Ratio'),
+ ('ratio_260_230', '260/230 Ratio'),
+ ('help_260_280', '260/280 ratio from the Nanodrop'),
+ ('help_260_230', '260/230 ratio from the Nanodrop');
+ 
+--  =========================================================================
+--	Issue: #3240 - New sample type (Stool)
+--  BB-52
+--  =========================================================================
+
+CREATE TABLE `sd_spe_stools` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_sd_spe_stools_sample_masters` (`sample_master_id`),
+  CONSTRAINT `FK_sd_spe_stools` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sd_spe_stools_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Add structure
+INSERT INTO `structures` (`alias`) VALUES ('sd_spe_stools');
+
+-- Add control row
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+ ('stool', 'specimen', 'sd_spe_stools,specimens', 'sd_spe_stools', '0', 'stool');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('stool', "Stool", 'Tabouret');
+
+-- Enable new sample type
+INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_id`, `flag_active`) VALUES ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'stool'), '1');
+
+-- Create aliquot tube for stool
+
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES 
+((SELECT `id` FROM `sample_controls` where `sample_type` = 'stool'), 'tube', '(ml)', 'ad_spec_tubes_incl_ml_vol', 'ad_tubes', 'ml', '1', 'Specimen tube requiring volume in ml', '0', 'stool|tube');
+
+-- Enable DNA as derivatives
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='stool' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_stools'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas'), 1);
+
+-- Enable RNA as derivatives
+INSERT INTO parent_to_derivative_sample_controls
+(`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM sample_controls WHERE `sample_type`='stool' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_stools'),
+ (SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas'), 1);
+ 
+ -- User request weight to be added as a new field
+ ALTER TABLE ad_tubes
+ 	ADD COLUMN `mass` DECIMAL(7,4) DEFAULT NULL AFTER `ratio_260_230`,
+	ADD COLUMN `mass_unit` VARCHAR(10) DEFAULT NULL AFTER `mass`;
+
+ ALTER TABLE ad_tubes_revs
+ 	ADD COLUMN `mass` DECIMAL(7,4) DEFAULT NULL AFTER `ratio_260_230`,
+	ADD COLUMN `mass_unit` VARCHAR(10) DEFAULT NULL AFTER `mass`;
+
+UPDATE aliquot_controls
+SET `aliquot_type_precision`='', `detail_form_alias`='ad_ccbr_spec_tubes_incl_mass', `comment`='Specimen tube requiring mass for CCBR', `volume_unit`=''
+WHERE `sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='stool' AND `sample_category`='specimen' AND `detail_form_alias`='sd_spe_stools,specimens' AND `detail_tablename`='sd_spe_stools')
+AND `aliquot_type`='tube'
+AND `detail_tablename`='ad_tubes';	 	 	
+
+INSERT INTO structure_value_domains (`domain_name`, `override`) VALUES
+('mass_unit', 'open');
+	
+INSERT INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('g', 'g'),
+('mg', 'mg'),
+('ug', 'ug');
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `use_as_input`) VALUES
+((SELECT `id` FROM structure_value_domains WHERE `domain_name`='mass_unit'), 
+ (SELECT `id` FROM structure_permissible_values WHERE `value`='mg' AND `language_alias`='mg'), 1, 1, 1),
+((SELECT `id` FROM structure_value_domains WHERE `domain_name`='mass_unit'), 
+ (SELECT `id` FROM structure_permissible_values WHERE `value`='ug' AND `language_alias`='ug'), 2, 1, 1),
+((SELECT `id` FROM structure_value_domains WHERE `domain_name`='mass_unit'), 
+ (SELECT `id` FROM structure_permissible_values WHERE `value`='g' AND `language_alias`='g'), 3, 1, 1);
+
+INSERT INTO structures (`alias`) VALUES ('ad_ccbr_spec_tubes_incl_mass'); 
+ 
+INSERT INTO structure_fields 
+(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `structure_value_domain`, `language_help`, 
+`validation_control`, `value_domain_control`, `field_control`, `flag_confidential`)
+VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'mass', 'mass', '', 'float', 'size=7', NULL, 'help_mass', 
+'open', 'open', 'open', 0),
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'mass_unit', '', '', 'select', '', (SELECT `id` FROM structure_value_domains WHERE `domain_name`='mass_unit'), 'help_mass_unit', 
+'open', 'open', 'open', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, `structure_field_id`, 
+ `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, 
+ `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`,  `flag_override_default`, `default`, 
+ `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, 
+ `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, 
+ `margin` ) VALUES
+((SELECT `id` FROM structures WHERE `alias`='ad_ccbr_spec_tubes_incl_mass'),
+ (SELECT `id` FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='mass'),
+ 1, 79, '', 0, '', 0, '',
+ 0, '', 0, '', 0, '', 0, '',
+ 1, 0, 1, 0, 1, 0, 1, 0, 
+ 1, 0, 1, 0, 0, 1, 1, 0, 
+ 0),
+((SELECT `id` FROM structures WHERE `alias`='ad_ccbr_spec_tubes_incl_mass'),
+ (SELECT `id` FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='mass_unit'),
+ 1, 80, '', 0, '', 0, '',
+ 0, '', 0, '', 0, '', 0, '',
+ 1, 0, 1, 0, 1, 0, 1, 0, 
+ 1, 0, 1, 0, 0, 1, 1, 0, 
+ 0);
+ 
+REPLACE INTO i18n (`id`, `en`) VALUES
+('mass', 'Mass'),
+('g',  'g'),
+('ug', 'ug'),
+('mg', 'mg'); 
+
+
+--  =========================================================================
+--	Issue: #3241 - Remove DNA and RNA as direct derivatives for CSF
+--  BB-57
+--  =========================================================================
+
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active`=0
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='csf' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_csfs')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='dna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_dnas');
+
+UPDATE parent_to_derivative_sample_controls
+SET `flag_active`=0
+WHERE `parent_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='csf' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_csfs')
+AND `derivative_sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='rna' AND `sample_category`='derivative' AND `detail_tablename`='sd_der_rnas');
+
+ 
 --  =========================================================================
 --	Eventum ID: #XXXX - Enable barcode searching at the search page
 --	=========================================================================

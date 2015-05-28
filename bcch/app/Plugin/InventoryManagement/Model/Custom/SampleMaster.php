@@ -99,6 +99,22 @@ class SampleMasterCustom extends SampleMaster {
 			case 'protein':
 				$sample_label = 'PR';
 				break;
+			case 'pleural fluid':
+				$sample_label = 'PF';
+				break;
+			case 'pleural fluid cell':
+				$sample_label = 'PC';
+				break;
+			case 'pleural fluid supernatant':
+				$sample_label = 'PS';
+				break;
+			// BB-58
+			case 'cdna':
+				$sample_label = 'CD';
+				break;
+			case 'amplified rna':
+				$sample_label = 'AR';
+				break;				
 		}
 
 		// Set participant ID for finding collections and sample counts
