@@ -85,18 +85,28 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				else {
 					$ageInWeeks = 0;
 				}
+				
 				$this->data['DiagnosisMaster']['age_at_dx'] = $ageInYears;
 				$this->data['DiagnosisMaster']['ccbr_age_at_dx_months'] = $ageInMonths;
        			$this->data['DiagnosisMaster']['ccbr_age_at_dx_weeks'] = $ageInWeeks;
        			$this->data['DiagnosisMaster']['ccbr_age_at_dx_days'] = $ageInDays;				
 				
 			} else {
+
        			$this->data['DiagnosisMaster']['age_at_dx'] = '';
        			$this->data['DiagnosisMaster']['ccbr_age_at_dx_months'] = '';
        			$this->data['DiagnosisMaster']['ccbr_age_at_dx_weeks'] = '';
        			$this->data['DiagnosisMaster']['ccbr_age_at_dx_days'] = '';
+				   
        		}
 
+		} else {
+			// Added this condition to make sure "age at diagnosis"" is updated if user edited the diagnosis date to NULL
+			$this->data['DiagnosisMaster']['age_at_dx'] = NULL;
+       		$this->data['DiagnosisMaster']['ccbr_age_at_dx_months'] = NULL;
+       		$this->data['DiagnosisMaster']['ccbr_age_at_dx_weeks'] = NULL;
+       		$this->data['DiagnosisMaster']['ccbr_age_at_dx_days'] = NULL;
+			   
 		}
 		return true;
 	}

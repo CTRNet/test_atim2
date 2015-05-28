@@ -2,7 +2,7 @@
 
 /* 
 @author Stephen Fung
-@since 2014-04-14
+@since 2015-04-14
 Eventum ID: 3214
 Displaying consent forms linked to the project
 */
@@ -59,8 +59,9 @@ class StudySummariesControllerCustom extends StudySummariesController {
 	
 	/* 
 	@author Stephen Fung
-	@since 2014-04-14
+	@since 2015-04-14
 	@param ID of Study Summary
+	Eventum ID: 3214
 	Listing all consent forms linked to the project by study summary id
 	Everytime a new consent form is added to ATIM, the table will have to be recognized by the function
 	*/
