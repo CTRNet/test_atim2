@@ -2,42 +2,28 @@
 class AliquotMasterCustom extends AliquotMaster {
 
 	var $useTable = 'aliquot_masters';	
-	var $name = 'AliquotMaster';	
-	
-	function generateDefaultAliquotLabel($sample_master_id) {
-		$SampleModel = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
-		$sample_data = $SampleModel->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id), 'recursive' => 0));
-		if(empty($sample_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		if($sample_data['SampleControl']['sample_type'] != 'tissue') {
-			return '';
-		}
-		
-		$bank_id = empty($sample_data['ViewSample']['bank_id'])? null : $sample_data['ViewSample']['bank_id'];
-		$qc_tf_bank_name = '?';
-		if($bank_id) {
-			$bank_model = AppModel::getInstance('Administrate', 'Bank', true);
-			$bank_data = $bank_model->getOrRedirect($bank_id);
-			$qc_tf_bank_name = $bank_data['Bank']['name'];
-		}
-		$qc_tf_bank_participant_identifier = empty($sample_data['ViewSample']['qc_tf_bank_participant_identifier'])? '?' : $sample_data['ViewSample']['qc_tf_bank_participant_identifier'];
-
-		$default_sample_label = $qc_tf_bank_participant_identifier.' '.(str_replace(array('normal','benin','tumoral','unknown',''), array('N','B','T','U','U'), $sample_data['SampleDetail']['qc_tf_collected_specimen_nature'])).' ['. $qc_tf_bank_name.']';
-		
-		return $default_sample_label;
-	}
+	var $name = 'AliquotMaster';
 	
 	function regenerateAliquotBarcode() {
-		$aliquots_to_update = $this->find('all', array('conditions' => array("AliquotMaster.barcode IS NULL OR AliquotMaster.barcode LIKE ''"), 'fields' => array('AliquotMaster.id')));
-		foreach($aliquots_to_update as $new_aliquot) {
-			$new_aliquot_id = $new_aliquot['AliquotMaster']['id'];
-			$aliquot_data = array('AliquotMaster' => array('barcode' => $new_aliquot_id), 'AliquotDetail' => array());
-			
-			$this->id = $new_aliquot_id;
-			$this->data = null;
-			$this->addWritableField(array('barcode'));
-			$this->save($aliquot_data, false);
+		$query = "UPDATE aliquot_masters SET barcode = id WHERE barcode LIKE '' OR barcode IS NULL";
+		$this->tryCatchQuery($query);
+		$this->tryCatchQuery(str_replace('aliquot_masters', 'aliquot_masters_revs', $query));
+		//The Barcode values of AliquotView will be updated by AppModel::releaseBatchViewsUpdateLock(); call in AliquotMaster.add() and AliquotMaster.realiquot() function
+	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		//Generate the aliquot label
+		if(isset($results[0]['AliquotMaster']['aliquot_label'])) {
+			foreach($results as &$result) {
+				$result['AliquotMaster']['aliquot_label'] = isset($result['ViewAliquot'])? $result['ViewAliquot']['aliquot_label'] : 'U';
+			}		
+		} else if(isset($results['AliquotMaster']['aliquot_label'])){
+			pr('TODO afterFind ViewAliquot');
+			pr($results);
+			exit;
 		}
+		return $results;
 	}
 }
 

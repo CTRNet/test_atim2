@@ -29,6 +29,11 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 	
 		AliquotMaster.barcode,
 		AliquotMaster.aliquot_label,
+			
+AliquotDetailCore.qc_tf_core_nature_site,
+AliquotDetailCore.qc_tf_core_nature_revised,	
+Bank.name AS bank_name,
+				
 		AliquotControl.aliquot_type,
 		AliquotMaster.aliquot_control_id,
 		AliquotMaster.in_stock,
@@ -63,6 +68,7 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 	
 		FROM aliquot_masters AS AliquotMaster
 		INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+LEFT JOIN ad_tissue_cores AS AliquotDetailCore ON AliquotDetailCore.aliquot_master_id = AliquotMaster.id	
 		INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
 		INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
@@ -71,6 +77,7 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
+LEFT JOIN banks AS Bank ON Bank.id = Participant.qc_tf_bank_id AND Bank.deleted != 1
 		LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 		LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 		LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
@@ -91,24 +98,38 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 	
 	function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
-		if($_SESSION['Auth']['User']['group_id'] != '1') {
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]['ViewAliquot']['bank_id']) || isset($results[0]['ViewAliquot']['qc_tf_bank_participant_identifier'])) {
-				foreach($results as &$result){
-					if((!isset($result['ViewAliquot']['bank_id'])) || $result['ViewAliquot']['bank_id'] != $user_bank_id) {						
-						$result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewAliquot']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
-					}
-				}
-			} else if(isset($results['ViewAliquot'])){
-				pr('TODO afterFind ViewAliquot');
-				pr($results);
-				exit;
+		
+		//Manage confidential information and aliquot label
+		if(isset($results[0]['ViewAliquot'])) {
+			$user_bank_id = '-1';
+			if($_SESSION['Auth']['User']['group_id'] == '1') {
+				$user_bank_id = 'all';
+			} else {
+				$GroupModel = AppModel::getInstance("", "Group", true);
+				$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+				if($group_data) $user_bank_id = $group_data['Group']['bank_id'];
 			}
+			foreach($results as &$result){
+				$aliquot_nature = substr(strtoupper(strlen($result['ViewAliquot']['qc_tf_core_nature_revised'])? $result['ViewAliquot']['qc_tf_core_nature_revised'] : (strlen($result['ViewAliquot']['qc_tf_core_nature_site'])? $result['ViewAliquot']['qc_tf_core_nature_site'] : 'U')), 0, 1);
+				$result['ViewAliquot']['aliquot_label'] = $aliquot_nature;
+				if($user_bank_id == 'all') {
+					$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_bank_participant_identifier']." $aliquot_nature (".$result['ViewAliquot']['bank_name'].')';
+				} else if($result['ViewAliquot']['bank_id'] == $user_bank_id) {
+					$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_bank_participant_identifier']." $aliquot_nature";
+				} else {
+					$result['ViewAliquot']['aliquot_label'] = $aliquot_nature;
+					$result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
+					$result['ViewAliquot']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+					$result['ViewAliquot']['bank_name'] = CONFIDENTIAL_MARKER;
+				}
+			}
+		} else if(isset($results['ViewAliquot'])){
+			pr('TODO afterFind ViewAliquot');
+			pr($results);
+			exit;
 		}
 	
 		return $results;
 	}
+	
 }

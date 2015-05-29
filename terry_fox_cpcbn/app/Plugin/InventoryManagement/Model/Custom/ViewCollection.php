@@ -79,6 +79,7 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type
 					if((!isset($result['ViewCollection']['bank_id'])) || $result['ViewCollection']['bank_id'] != $user_bank_id) {		
 						$result['ViewCollection']['bank_id'] = CONFIDENTIAL_MARKER;
 						$result['ViewCollection']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+						$result['ViewCollection']['collection_site'] = CONFIDENTIAL_MARKER;
 					}
 				}
 			} else if(isset($results['ViewCollection'])){
