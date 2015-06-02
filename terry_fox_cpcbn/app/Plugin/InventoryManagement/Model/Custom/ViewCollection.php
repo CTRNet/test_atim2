@@ -36,8 +36,10 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
 
 			$title = '';
-			if(empty($collection_data['ViewCollection']['participant_identifier'])) {
-				$title = __('unlinked collection'). ' [id#'.$collection_data['ViewCollection']['collection_id'].']';
+			if($collection_data['ViewCollection']['collection_property'] == 'independent collection') {
+				$title = __('independent collection');
+			} else if(empty($collection_data['ViewCollection']['participant_identifier'])) {
+				$title = __('unlinked collection');
 			} else if($collection_data['ViewCollection']['qc_tf_bank_participant_identifier'] == CONFIDENTIAL_MARKER) {
 				$title = __('participant identifier').' '.$collection_data['ViewCollection']['participant_identifier'];
 			} else {
