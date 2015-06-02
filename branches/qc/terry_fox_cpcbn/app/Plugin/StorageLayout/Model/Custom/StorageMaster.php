@@ -69,7 +69,7 @@ class StorageMasterCustom extends StorageMaster{
 			$user_bank_id = $group_data['Group']['bank_id'];
 			if(isset($results[0]['StorageMaster']['qc_tf_bank_id']) || isset($results[0]['StorageMaster']['qc_tf_tma_label_site']) || isset($results[0]['StorageMaster']['qc_tf_tma_name'])) {
 				foreach($results as &$result){
-					if((!isset($result['StorageMaster']['qc_tf_bank_id'])) || $result['StorageMaster']['qc_tf_bank_id'] != $user_bank_id) {
+					if((!isset($result['StorageMaster']['qc_tf_bank_id'])) || empty($result['StorageMaster']['qc_tf_bank_id']) || $result['StorageMaster']['qc_tf_bank_id'] != $user_bank_id) {
 						$result['StorageMaster']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
 						$result['StorageMaster']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
 						$result['StorageMaster']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
@@ -85,21 +85,15 @@ class StorageMasterCustom extends StorageMaster{
 		return $results;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	function validates($options = array()) {
+		$validate_res = parent::validates($options);
+		if(array_key_exists('qc_tf_tma_label_site', $this->data['StorageMaster'])) {
+			if(strlen($this->data['StorageMaster']['qc_tf_tma_label_site']) && !$this->data['StorageMaster']['qc_tf_bank_id']) {
+				$this->validationErrors['qc_tf_bank_id'][] = __('a bank has to be selected');
+				$validate_res =  false;
+			}
+		}
+		return $validate_res;
+	}
 	
 }
