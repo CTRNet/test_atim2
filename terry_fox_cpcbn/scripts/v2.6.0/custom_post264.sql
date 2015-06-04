@@ -445,7 +445,6 @@ UPDATE structure_formats SET `flag_override_setting`='0', `setting`='' WHERE str
 -- Report Update
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'Metastasis', '', 'qc_tf_first_bone_metastasis', 'date',  NULL , '0', '', '', '', 'first bone metastasis date', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -489,28 +488,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en) VALUES ('core details','Core Details');
 
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- TODO: Supprimer la version test de cpcbn
-
--- Faire update des données clinic. verifier que les patients 761 et 762 ont pas des bcr et survie mal calculé... Ajouter un titre a la migration pour le fichier de resultats.
-
-
-
-
-
-
-UPDATE versions SET branch_build_number = '5937' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '6213' WHERE version_number = '2.6.3';

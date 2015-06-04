@@ -20,6 +20,8 @@ $atim_drugs = array();
 // Main Code
 //==============================================================================================
 
+displayMigrationTitle('CPCBN Clinical Data Update');
+
 if(!testExcelFile(array_keys($excel_files_names))) {
 	dislayErrorAndMessage();
 	exit;
@@ -28,6 +30,8 @@ if(!testExcelFile(array_keys($excel_files_names))) {
 // *** PARSE EXCEL FILES ***
 
 foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
+	recordErrorAndMessage('Parsed Files', '@@MESSAGE@@', "Files Names", $excel_file_name);
+		
 	$file_bank_name = null;	//New excel file so new bank
 	$bank_participant_identifier_to_participant_id = array('-1' => '-1');
 	
@@ -661,6 +665,21 @@ foreach(array('radiation','hormonotherapy','chemotherapy','other treatment bone 
 	}
 }
 
+// Look for all 'hormonotherapy', 'radiation', 'chemotherapy' done before DFS date (for all atim patients) 
+$query = "SELECT tm_dfs.participant_id, part.qc_tf_bank_participant_identifier, b.name AS bank_name,
+	tm_dfs.start_date AS dfs_start_date, tm_dfs.start_date_accuracy AS dfs_start_date_accuracy, tc_dfs.tx_method dfs_tx_method,
+	tm_not_dfs.start_date AS unlabeled_tx_start_date, tm_not_dfs.start_date_accuracy AS unlabeled_tx_start_date_accuracy, tc_not_dfs.tx_method unlabeled_tx_tx_method
+	FROM participants part
+	LEFT JOIN banks b ON part.qc_tf_bank_id = b.id
+	INNER JOIN treatment_masters tm_dfs ON part.id = tm_dfs.participant_id AND tm_dfs.deleted <> 1 AND tm_dfs.qc_tf_disease_free_survival_start_events = '1'
+	INNER JOIN treatment_controls tc_dfs ON tc_dfs.id = tm_dfs.treatment_control_id AND tc_dfs.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
+	INNER JOIN treatment_masters tm_not_dfs ON part.id = tm_not_dfs.participant_id AND tm_not_dfs.deleted <> 1 AND tm_not_dfs.qc_tf_disease_free_survival_start_events <> '1'
+	INNER JOIN treatment_controls tc_not_dfs ON tc_not_dfs.id = tm_not_dfs.treatment_control_id AND tc_not_dfs.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
+	WHERE tm_not_dfs.start_date < tm_dfs.start_date;";
+foreach(getSelectQueryResult($query) as $new_data) {
+	recordErrorAndMessage($summary_section_title, '@@WARNING@@', "'hormonotherapy', 'radiation', 'chemotherapy' done before the DFS", "Review '".$new_data['unlabeled_tx_tx_method']."' on '".$new_data['unlabeled_tx_start_date']."' not falgged as DFS Start and done before the DFS Start date ('".$new_data['dfs_tx_method']."' on '".$new_data['dfs_start_date']."') for patient '".$new_data['qc_tf_bank_participant_identifier']."' of bank '".$new_data['bank_name'].". (ATiM Participant # '".$new_data['participant_id']."')");
+}
+
 //*** SUMMARY DISPLAY ***
 
 global $import_summary;
@@ -1039,7 +1058,7 @@ function executeEndProcessSourceCode(){
 		
 		// Data to update
 		$data_to_update = array();//getDataToUpdate() can not be used because we have to erase value if the new one is empty
-		if($row['survival_in_months'] != $new_survival) $data_to_update['survival_in_months'] = $new_bcr;
+		if($row['survival_in_months'] != $new_survival) $data_to_update['survival_in_months'] = $new_survival;
 		if($row['bcr_in_months'] != $new_bcr) $data_to_update['bcr_in_months'] = $new_bcr;
 		updateTableData($row['diagnosis_master_id'], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename']  => $data_to_update));
 		addUpdatedDataToSummary($all_updated_participants_labels[$row['participant_id']]['bank'], $all_updated_participants_labels[$row['participant_id']]['qc_tf_bank_participant_identifier'], 'Upddated primary diagnosis BCR or Survival', $data_to_update);

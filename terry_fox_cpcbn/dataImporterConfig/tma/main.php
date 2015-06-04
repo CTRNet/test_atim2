@@ -96,20 +96,13 @@ $excel_files = array(
 	array('150602_TMA_layout_ATiM_AA-4-6-Repunch-test.xls', 'Core'),
 	array('150602_TMA_layout_ATiM_FS1-2-3.xls', 'Core'),
 	array('150602_TMA_layout_ATiM_FS4-5-Test-Repunch.xls', 'Core'),
-//	array('150602_TMA_layout_ATiM_LL-6-7-Test-Repunch.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_LL-6-7-Test-Repunch_CC.xls', 'Core'),
 	array('150602_TMA_layout_ATiM_LL1-2-3-5.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_LL-6-7-Test-Repunch_CC.xls', 'Core'),
 	array('150602_TMA_layout_ATiM_MG-1-2-3-5.xls', 'Core'),
 	array('150602_TMA_layout_ATiM_MG-4-6-TEAM-test-repunch-testrepunch.xls', 'Core'),
-//	array('150602_TMA_layout_ATiM_NF-1-2-3.xls', 'Core'),
 	array('150602_TMA_layout_ATiM_NF-1-2-3_CC.xls', 'Core'),
-//	array('150602_TMA_layout_ATiM_NF-4-5.xls', 'Core'),
 	array('150602_TMA_layout_ATiM_NF-4-5_CC.xls', 'Core')
 );
-
-
-
-
 
 $sample_counter = 0;
 $aliquot_counter = 0;
