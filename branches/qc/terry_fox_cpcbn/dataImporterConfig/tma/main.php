@@ -33,12 +33,13 @@ $queries = array(
 	"TRUNCATE specimen_details;", "TRUNCATE specimen_details_revs;",
 	"UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;",
 	"DELETE FROM sample_masters;", "DELETE FROM sample_masters_revs;",
+	
 	"TRUNCATE std_tma_blocks;", "TRUNCATE std_tma_blocks_revs;",
 	"UPDATE storage_masters SET parent_id = null;",
 	"DELETE FROM storage_masters;", "DELETE FROM storage_masters_revs;",
 		
-	"DELETE FROM collections WHERE collection_notes = 'Collections gathering markers' AND collection_property = 'independent collection'",
-	"DELETE FROM collections WHERE collection_notes = 'Collections gathering markers' AND collection_property = 'independent collection'",
+	"DELETE FROM collections WHERE collection_property = 'independent collection'",
+	"DELETE FROM collections_revs WHERE collection_property = 'independent collection'",
 );
 foreach($queries as $query) customQuery($query);
 
@@ -88,17 +89,35 @@ $controls_collections['collection_id'] = customInsertRecord(array('collections' 
 
 recordErrorAndMessage('Core Creation', '@@MESSAGE@@', "ID ATiM value won't be take in consideration", "n/a.");
 
-$excel_files = array();
-for($id = 1; $id < 10; $id++) $excel_files[] = array("core".$id."_150527_TMA_layout_ATiM.xls", 'Core'.$id);
+$excel_files = array(
+	array('Optimisation_CPCBN_(2013-06-06)_03062015_CCVO.xls', 'TMA Layout '),
+		
+	array('150602_TMA_layout_ATiM_AA-1-2-3.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_AA-4-6-Repunch-test.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_FS1-2-3.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_FS4-5-Test-Repunch.xls', 'Core'),
+//	array('150602_TMA_layout_ATiM_LL-6-7-Test-Repunch.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_LL-6-7-Test-Repunch_CC.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_LL1-2-3-5.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_MG-1-2-3-5.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_MG-4-6-TEAM-test-repunch-testrepunch.xls', 'Core'),
+//	array('150602_TMA_layout_ATiM_NF-1-2-3.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_NF-1-2-3_CC.xls', 'Core'),
+//	array('150602_TMA_layout_ATiM_NF-4-5.xls', 'Core'),
+	array('150602_TMA_layout_ATiM_NF-4-5_CC.xls', 'Core')
+);
 
-$excel_files = array(array("test_for_150527_TMA_layout_ATiM.xls", "Core1"));
+
+
+
 
 $sample_counter = 0;
 $aliquot_counter = 0;
 foreach($excel_files as $excel_data) {
 	list($excel_file_name, $worksheet_name) = $excel_data;
+	recordErrorAndMessage('Parsed File', '@@MESSAGE@@', "Files Names Parsed", "$excel_file_name");
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1)) {
-		if(($excel_line_data['ID Bank'] && $excel_line_data['ID Bank'] != '.') || ($excel_line_data['Dx Initial - Site'] && $excel_line_data['Dx Initial - Site'] != '.')) {
+		if(($excel_line_data['ID Bank'] && $excel_line_data['ID Bank'] != '.') || ($excel_line_data['Dx Initial - Site'] && $excel_line_data['Dx Initial - Site'] != '.')) {		
 			//Core To Rccord
 			$storage_master_id = getStorageMasterId($excel_line_data['TMA name'], $excel_line_data['BANK'], $excel_line_data['TMA Label Site'], $excel_file_name, $worksheet_name, $line_number);
 			if($storage_master_id) {
@@ -123,7 +142,7 @@ foreach($excel_files as $excel_data) {
 						// Should be site core inlcuded in a TMA block built by the site
 						if(isset($atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']])) {
 							//Create one sample
-							$tissue_source = validateAndGetStructureDomainValue($excel_line_data['Tissue'], 'tissue_source_list', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
+							$tissue_source = validateAndGetStructureDomainValue((isset($excel_line_data['Tissue'])? $excel_line_data['Tissue'] : ''), 'tissue_source_list', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
 							if($tissue_source && $tissue_source != 'prostate') {
 								recordErrorAndMessage('Core Creation', '@@ERROR@@', "Site's TMA block contains tissue different than 'prostate", "See patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."'. Tissue will be considered as 'prostate tissue'. REF: $excel_file_name, $worksheet_name, $line_number.");
 							}
@@ -184,16 +203,16 @@ foreach($excel_files as $excel_data) {
 									'notes' => $excel_line_data['NotesReview1 05-2015']));	
 							customInsertRecord($aliquot_review_data);
 						} else {
-							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Patient Does Not Exist", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' does not exist into ATiM. No core will be created! REF: $excel_file_name, $worksheet_name, $line_number.");
+							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Patient Does Not Exist", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' does not exist into ATiM. No core will be created! REF: $excel_file_name, $worksheet_name.",$worksheet_name.$excel_line_data['ID Bank'].$excel_line_data['BANK']);
 						}
 					} else {
 						// *** Control TMA Block *** 
 						// Not linked to an ATiM patient
-						$tissue_source = validateAndGetStructureDomainValue($excel_line_data['Tissue'], 'tissue_source_list', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
+						$tissue_source = validateAndGetStructureDomainValue((isset($excel_line_data['Tissue'])? $excel_line_data['Tissue'] : ''), 'tissue_source_list', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
 						$qc_tf_tma_sample_control_bank_id = null;
 						if(array_key_exists($excel_line_data['BANK'], $banks_to_ids)) {
 							$qc_tf_tma_sample_control_bank_id = $banks_to_ids[$excel_line_data['BANK']];
-						} else {
+						} else if(strlen($excel_line_data['BANK'])) {
 							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Bank unknown for a TMA block core", "See TMA ".$excel_line_data['TMA name']." and bank '".$excel_line_data['BANK']."'. REF: $excel_file_name, $worksheet_name, $line_number.", $excel_line_data['BANK']);
 						}
 						$sample_key = $excel_line_data['BANK'].$excel_line_data['Dx Initial - Site'].$tissue_source;
@@ -241,7 +260,7 @@ foreach($excel_files as $excel_data) {
 		} else if($excel_line_data['ID ATiM'] && $excel_line_data['ID ATiM'] != '.') {
 			recordErrorAndMessage('Core Creation', '@@ERROR@@', "ID ATiM value set with no 'ID Bank' or 'Dx Initial - Site'", "See value (".$excel_line_data['ID ATiM']."). No core will be created.  REF: $excel_file_name, $worksheet_name, $line_number.");	
 		}
-	}
+	}	
 }
 
 $query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE sample_control_id=". $atim_controls['sample_controls']['tissue']['id']." AND sample_code LIKE 'tmp_tissue_%';";
@@ -259,6 +278,7 @@ function getStorageMasterId($tma_name, $bank, $tma_label_site, $excel_file_name,
 	global $banks_to_ids;
 	global $storage_to_ids;
 	global $atim_controls;
+	global $import_summary;
 	
 	$storage_master_id = false;
 	
@@ -271,7 +291,12 @@ function getStorageMasterId($tma_name, $bank, $tma_label_site, $excel_file_name,
 					$storage_data['storage_masters']['qc_tf_bank_id'] = $banks_to_ids[$bank];
 					updateTableData($storage_master_id = $storage_to_ids[$tma_name]['id'], $storage_data);
 					$storage_master_id = $storage_to_ids[$tma_name]['tma_label_site'] = $tma_label_site;
-					recordErrorAndMessage('TMA Block Creation', '@@MESSAGE@@', "Tma site label updated", "See TMA $tma_name ($tma_label_site) for bank '$bank'. Label Site has been updated. REF: $excel_file_name, $worksheet_name, $line_number.");
+					if(isset($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"]["$tma_name ($tma_label_site)"])) {
+						unset($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"]["$tma_name ($tma_label_site)"]);
+						if(empty($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"])) unset($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"]);
+					} else {
+						recordErrorAndMessage('TMA Block Creation', '@@MESSAGE@@', "Tma site label updated", "See TMA $tma_name ($tma_label_site) for bank '$bank'. Label Site has been updated. REF: $excel_file_name, $worksheet_name, $line_number.");
+					}
 				} else {
 					if(empty($bank)) {
 						recordErrorAndMessage('TMA Block Creation', '@@WARNING@@', "Bank not defined but tma site label defined", "See TMA $tma_name ($tma_label_site). Label Site is defined but no bank is defined. Label Site and bank won't be linked to the created TMA. See if this TMA data will be updated before the end of the process. REF: $excel_file_name, $worksheet_name, $line_number.","$tma_name ($tma_label_site)");

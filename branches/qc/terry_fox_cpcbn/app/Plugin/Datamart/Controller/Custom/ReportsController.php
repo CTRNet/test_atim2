@@ -1,12 +1,15 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
-//	var $name = 'ReportsController';
-
-	function buildFullCpcbnSummary($parameters) {
+	
+	function buildCpcbnSummaryLevel3($parameters) {
+		return $this->buildCpcbnSummary($parameters, true, true);
+	}
+	
+	function buildCpcbnSummaryLevel2($parameters) {
 		return $this->buildCpcbnSummary($parameters, true);
 	}
-
-	function buildCpcbnSummary($parameters, $display_storage_data = false) {
+	
+	function buildCpcbnSummary($parameters, $display_cores_positions = false, $display_cores_data = false) {
 		
 		$conditions = array();
 		$warnings = array();	
@@ -132,6 +135,12 @@ class ReportsControllerCustom extends ReportsController {
 		
 		// *********** Get Participant & Diagnosis & Fst Bcr & TMA data ***********
 		
+		$join_to_display_cores_data = $display_cores_data? 
+			'LEFT JOIN ad_tissue_cores AS AliquotDetail ON AliquotMaster.id = AliquotDetail.aliquot_master_id
+			LEFT JOIN aliquot_review_masters AliquotReviewMaster ON AliquotReviewMaster.aliquot_master_id = AliquotMaster.id AND AliquotReviewMaster.deleted <> 1 AND AliquotReviewMaster.aliquot_review_control_id = 2
+			LEFT JOIN qc_tf_ar_tissue_cores AliquotReviewDetail ON AliquotReviewDetail.aliquot_review_master_id = AliquotReviewMaster.id' :
+			'';
+
 		$sql = 
 			"SELECT DISTINCT
 				Participant.id,
@@ -169,7 +178,9 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.survival_in_months,
 				DiagnosisDetail.bcr_in_months".
 				
-				($display_storage_data?  ', StorageMaster.selection_label, AliquotMaster.storage_coord_x, AliquotMaster.storage_coord_y ' : ' ')
+				($display_cores_positions?  ', StorageMaster.selection_label, AliquotMaster.storage_coord_x, AliquotMaster.storage_coord_y ' : ' ').
+				
+				($display_cores_data? ',AliquotDetail.qc_tf_core_nature_site, AliquotDetail.qc_tf_core_nature_revised, AliquotReviewDetail.revised_nature, AliquotReviewDetail.grade ' : ' ')
 				
 			."FROM participants AS Participant 
 
@@ -183,10 +194,11 @@ class ReportsControllerCustom extends ReportsController {
 			LEFT JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = 6 AND TreatmentMaster.deleted <> 1
 			LEFT JOIN txd_surgeries AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 			
+			$join_to_display_cores_data
+			
 			WHERE Participant.deleted <> 1 AND ($conditions_str)
 			
 			ORDER BY Participant.qc_tf_bank_id ASC, Participant.qc_tf_bank_participant_identifier ASC, StorageMaster.selection_label ASC, AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC;";
-		
 		
 		$main_results = $this->Report->tryCatchQuery($sql);
 		
@@ -329,6 +341,8 @@ class ReportsControllerCustom extends ReportsController {
 						'Metastasis' => array(
 							'first_metastasis_dx_date' => '',
 							'first_metastasis_dx_date_accuracy' => '', 
+							'qc_tf_first_bone_metastasis_date' => '',
+							'qc_tf_first_bone_metastasis_date_accuracy' => '',
 							'first_metastasis_type' => '', 
 							'other_types' => ''
 						)
@@ -340,6 +354,10 @@ class ReportsControllerCustom extends ReportsController {
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_type'] = $new_res['DiagnosisDetail']['site'];			
 				} else if(!empty($new_res['DiagnosisDetail']['site'])) {				
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['other_types'][] = __($new_res['DiagnosisDetail']['site']);
+				}
+				if($new_res['DiagnosisDetail']['site'] == 'bone' && empty($metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['qc_tf_first_bone_metastasis_date']) && !empty($new_res['DiagnosisMaster']['dx_date'])) {
+					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['qc_tf_first_bone_metastasis_date'] = $new_res['DiagnosisMaster']['dx_date'];
+					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['qc_tf_first_bone_metastasis_date_accuracy'] = $new_res['DiagnosisMaster']['dx_date_accuracy'];
 				}
 			}
 		}
@@ -407,6 +425,8 @@ class ReportsControllerCustom extends ReportsController {
 			'Metastasis' => array(
 				'first_metastasis_dx_date' => '',
 				'first_metastasis_dx_date_accuracy' => '',
+				'qc_tf_first_bone_metastasis_date' => '',
+				'qc_tf_first_bone_metastasis_date_accuracy' => '',
 				'first_metastasis_type' => '',
 				'other_types' => ''
 			)

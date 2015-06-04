@@ -15,6 +15,6 @@ $migration_user_id = 1;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$files_path = "C:/_Perso/Server/tfri_cpcbn/data/";
+$files_path = "C:/_Perso/Server/tfri_cpcbn/data/TFRI_CPCBN_TMA_VersionFinale_20150527/";
 
 ?>

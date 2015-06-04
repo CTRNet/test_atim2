@@ -113,7 +113,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list')  AND `flag_confidential`='0'), '0', '1', '', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qc_tf_tma_sample_control_bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bank of the control' AND `language_tag`=''), '0', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qc_tf_tma_sample_control_bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`=''), '0', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleControl' AND `tablename`='sample_controls' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -409,11 +409,10 @@ INSERT INTO i18n (id,en) VALUES ('a bank has to be selected','A bank has to be s
 -- Clean Up System Data
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 ALTER TABLE groups MODIFY deleted tinyint(3) unsigned NOT NULL DEFAULT '0';
 
 UPDATE datamart_structure_functions SET flag_active = '0'
-WHERE label = 'number of elements per participant';
+WHERE label = 'number of elements per participant'
 AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('MiscIdentifier','ConsentMaster','ReproductiveHistory','FamilyHistory','ParticipantMessage','ParticipantContact','QualityCtrl'));
 UPDATE datamart_structure_functions SET flag_active = '0'
 WHERE label = 'create uses/events (aliquot specific)';
@@ -423,6 +422,72 @@ SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1'
 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('SpecimenReviewMaster','AliquotReviewMaster'))
 OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('SpecimenReviewMaster','AliquotReviewMaster'));
 
+UPDATE datamart_browsing_controls
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewAliquotUse'))
+OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewAliquotUse'));
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- New Bug Fix
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Bank display in invetory
+
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('qc_tf_banks_for_controls', 'Administrate.Bank::getBankPermissibleValuesForControls');
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_banks_for_controls') WHERE field = 'qc_tf_tma_sample_control_bank_id';
+
+-- Search on aliquot ATiM TFRI# as an integer
+
+UPDATE structure_fields SET  `type`='integer_positive',  `setting`='size=10' WHERE model='ViewAliquot' AND tablename='' AND field='participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_override_setting`='0', `setting`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Report Update
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Metastasis', '', 'qc_tf_first_bone_metastasis', 'date',  NULL , '0', '', '', '', 'first bone metastasis date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='Metastasis' AND `tablename`='' AND `field`='qc_tf_first_bone_metastasis' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='first bone metastasis date' AND `language_tag`=''), '0', '602', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='603' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Metastasis' AND `tablename`='' AND `field`='other_types' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('first bone metastasis date','1st Bone Metastasis Date');
+UPDATE structure_fields SET field = 'qc_tf_first_bone_metastasis_date' WHERE field = 'qc_tf_first_bone_metastasis';
+
+UPDATE datamart_reports SET name = 'CPCBN Summary - Clinical Data' WHERE name = 'CPCBN Summary';
+UPDATE datamart_reports SET name = 'CPCBN Summary - Clinical Data + Cores Positions', description = 'Include both clinical data and TMA cores positions' WHERE name = 'Full CPCBN Summary';
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`, `associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) VALUES
+(null, 'CPCBN Summary - Clinical Data + Cores Positions & Revisions Data', 'Include clinical data, TMA cores positions and core revisions data', 'qc_tf_cpcbn_summary_parameters', 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_positions,qc_tf_cpcbn_summary_core_details', 'index', 'buildCpcbnSummaryLevel3', 1, NULL, 0, NULL, 0, 4, 0);
+UPDATE datamart_reports SET function = 'buildCpcbnSummaryLevel2' WHERE function = 'buildFullCpcbnSummary';
+UPDATE datamart_reports SET name = 'CPCBN Summary - Level1' WHERE name = 'CPCBN Summary - Clinical Data';
+UPDATE datamart_reports SET name = 'CPCBN Summary - Level2' WHERE name = 'CPCBN Summary - Clinical Data + Cores Positions';
+UPDATE datamart_reports SET name = 'CPCBN Summary - Level3' WHERE name LIKE 'CPCBN Summary - Clinical Data + Cores Positions &%';
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('CPCBN Summary - Level1', 'CPCBN Summary - Clinical Data'),
+('CPCBN Summary - Level2', 'CPCBN Summary - Clinical Data + Cores Positions'),
+('CPCBN Summary - Level3', 'CPCBN Summary - Clinical Data + Cores Positions & Revisions Data'),
+('Include both clinical data and TMA cores positions', 'Include both clinical data and TMA cores positions'),
+('Include clinical data, TMA cores positions and core revisions data', 'Include clinical data, TMA cores positions and core revisions data');
+UPDATE datamart_structure_functions SET label = 'build cpcbn summary level 1' WHERE label = 'build cpcbn summary';
+UPDATE datamart_structure_functions SET label = 'build cpcbn summary level 2' WHERE label = 'build full cpcbn summary';
+SET @control_id = (SELECT id FROM datamart_reports WHERE name = 'CPCBN Summary - Level3');
+INSERT INTO datamart_structure_functions (`datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`)
+(SELECT `datamart_structure_id`, 'build cpcbn summary level 3', CONCAT('/Datamart/Reports/manageReport/',@control_id), `flag_active`, `ref_single_fct_link` FROM `datamart_structure_functions` WHERE label = 'build cpcbn summary level 2');
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('build cpcbn summary level 1', 'Build CPCBN Summary - Clinical Data'),
+('build cpcbn summary level 2', 'Build CPCBN Summary - Clinical Data + Cores Positions'),
+('build cpcbn summary level 3', 'Build CPCBN Summary - Clinical Data + Cores Positions & Revisions Data');
+
+INSERT INTO structures(`alias`) VALUES ('qc_tf_cpcbn_summary_core_details');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_core_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_tf_core_nature_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tissue_core_nature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature - site' AND `language_tag`=''), '0', '1000', 'core details', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_core_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_tf_core_nature_revised' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tissue_core_nature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature - revised' AND `language_tag`=''), '0', '1001', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_core_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='' AND `field`='revised_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tissue_core_nature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature' AND `language_tag`=''), '0', '1050', 'core review', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_core_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='' AND `field`='grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_core_review_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='grade' AND `language_tag`=''), '0', '1051', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+INSERT INTO i18n (id,en) VALUES ('core details','Core Details');
 
 
 
@@ -431,10 +496,21 @@ OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('SpecimenReviewMas
 
 
 
--- TODO: Tester si connecté en tant que autre bank
--- TODO: Verifier le search on path review :-(
--- TODO: Developper les champs e study avec Vero
--- TODO: Créer les champ de slide, les relier au study, plus loader fichier resultats
--- TODO: Ajouter les chmaps de path review, etc
+
+
+
+
+
+
+
+
+-- TODO: Supprimer la version test de cpcbn
+
+-- Faire update des données clinic. verifier que les patients 761 et 762 ont pas des bcr et survie mal calculé... Ajouter un titre a la migration pour le fichier de resultats.
+
+
+
+
+
 
 UPDATE versions SET branch_build_number = '5937' WHERE version_number = '2.6.3';

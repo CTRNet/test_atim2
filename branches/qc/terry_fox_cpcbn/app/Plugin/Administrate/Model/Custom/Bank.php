@@ -20,6 +20,14 @@ class BankCustom extends Bank {
 		return $result;
 	}
 	
+	function getBankPermissibleValuesForControls(){
+		$final_result = array();
+		foreach(parent::getBankPermissibleValues() as $bank_id => $bank_name) {
+			$final_result[$bank_id] = preg_match('/^(.*)\ #[0-9]+$/', $bank_name, $matches)? $matches[1] : $bank_name;
+		}
+		return $final_result;
+	}
+	
 	function allowDeletion($bank_id){
 		$res = parent::allowDeletion($bank_id);
 		if(!$res['allow_deletion']) return $res;
