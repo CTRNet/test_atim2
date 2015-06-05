@@ -40,7 +40,9 @@ class StorageMasterCustom extends StorageMaster{
 		if(($type_key == 'AliquotMaster')) {
 			$ViewAliquotModel = AppModel::getInstance('InventoryManagement', 'ViewAliquot', true);
 			$aliquot_data = $ViewAliquotModel->find('first', array('conditions' => array('ViewAliquot.aliquot_master_id' => $children_array['AliquotMaster']['id']), 'recursive' => '-1'));
-			return 'p#'.$aliquot_data['ViewAliquot']['participant_identifier'].' ['.$aliquot_data['ViewAliquot']['aliquot_label'].']';
+			return empty($aliquot_data['ViewAliquot']['participant_identifier'])?
+				$aliquot_data['ViewAliquot']['aliquot_label'] :
+				'p#'.$aliquot_data['ViewAliquot']['participant_identifier'].' ['.$aliquot_data['ViewAliquot']['aliquot_label'].']';
 		}
 		return $children_array[$type_key][$label_key];
 	}
