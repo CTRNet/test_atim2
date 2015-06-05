@@ -49,8 +49,8 @@ foreach(getSelectQueryResult("SELECT id,name FROM banks;") as $new_bank) {
 	$banks_to_ids[(preg_match('/^(.+)\ #[0-9]$/', $new_bank['name'], $matches)? $matches[1]: $new_bank['name'])] = $new_bank['id'];
 }
 
-global $storage_to_ids;
-$storage_to_ids = array();
+global $tma_name_to_storage_data;
+$tma_name_to_storage_data = array();
 
 //---------------------------------------------------------------------------------------------
 // Get participant & collection data
@@ -90,25 +90,27 @@ $controls_collections['collection_id'] = customInsertRecord(array('collections' 
 recordErrorAndMessage('Core Creation', '@@MESSAGE@@', "ID ATiM value won't be take in consideration", "n/a.");
 
 $excel_files = array(
-	array('Optimisation_CPCBN_(2013-06-06)_03062015_CCVO.xls', 'TMA Layout '),
+ 	array('Optimisation_CPCBN_(2013-06-06)_03062015_CCVO.xls', 'TMA Layout '),
 		
-	array('150602_TMA_layout_ATiM_AA-1-2-3.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_AA-4-6-Repunch-test.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_FS1-2-3.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_FS4-5-Test-Repunch.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_LL1-2-3-5.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_LL-6-7-Test-Repunch_CC.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_MG-1-2-3-5.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_MG-4-6-TEAM-test-repunch-testrepunch.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_NF-1-2-3_CC.xls', 'Core'),
-	array('150602_TMA_layout_ATiM_NF-4-5_CC.xls', 'Core')
+ 	array('150602_TMA_layout_ATiM_AA-1-2-3.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_AA-4-6-Repunch-test.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_FS1-2-3.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_FS4-5-Test-Repunch.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_LL1-2-3.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_LL-5.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_LL-6-7-Test-Repunch_CC.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_MG-1-2-3.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_MG-5.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_MG-4-6-TEAM-test-repunch-testrepunch_CC.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_NF-1-2-3_CC.xls', 'Core'),
+ 	array('150602_TMA_layout_ATiM_NF-4-5_CC.xls', 'Core')
 );
 
 $sample_counter = 0;
 $aliquot_counter = 0;
 foreach($excel_files as $excel_data) {
 	list($excel_file_name, $worksheet_name) = $excel_data;
-	recordErrorAndMessage('Parsed File', '@@MESSAGE@@', "Files Names Parsed", "$excel_file_name");
+	recordErrorAndMessage('Parsed Files and created TMA', '@@MESSAGE@@', "Files Names & TMA Name", "FILE : $excel_file_name");
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1)) {
 		if(($excel_line_data['ID Bank'] && $excel_line_data['ID Bank'] != '.') || ($excel_line_data['Dx Initial - Site'] && $excel_line_data['Dx Initial - Site'] != '.')) {		
 			//Core To Rccord
@@ -133,7 +135,11 @@ foreach($excel_files as $excel_data) {
 					if($excel_line_data['ID Bank'] && $excel_line_data['ID Bank'] != '.') {
 						// *** Site's TMA Block *** 
 						// Should be site core inlcuded in a TMA block built by the site
-						if(isset($atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']])) {
+						if(!isset($atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']])) {
+							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Patient Does Not Exist", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' does not exist into ATiM. No core will be created! REF: $excel_file_name, $worksheet_name.",$worksheet_name.$excel_line_data['ID Bank'].$excel_line_data['BANK']);
+						} else if(empty($atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']]['collection_id'])) {
+							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Patient With No Collection", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' is not linked to a collection into ATiM. No core will be created! REF: $excel_file_name, $worksheet_name.",$worksheet_name.$excel_line_data['ID Bank'].$excel_line_data['BANK']);
+						} else {
 							//Create one sample
 							$tissue_source = validateAndGetStructureDomainValue((isset($excel_line_data['Tissue'])? $excel_line_data['Tissue'] : ''), 'tissue_source_list', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
 							if($tissue_source && $tissue_source != 'prostate') {
@@ -195,8 +201,6 @@ foreach($excel_files as $excel_data) {
 									'grade' => $grade,
 									'notes' => $excel_line_data['NotesReview1 05-2015']));	
 							customInsertRecord($aliquot_review_data);
-						} else {
-							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Patient Does Not Exist", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' does not exist into ATiM. No core will be created! REF: $excel_file_name, $worksheet_name.",$worksheet_name.$excel_line_data['ID Bank'].$excel_line_data['BANK']);
 						}
 					} else {
 						// *** Control TMA Block *** 
@@ -256,6 +260,13 @@ foreach($excel_files as $excel_data) {
 	}	
 }
 
+foreach($tma_name_to_storage_data as $created_tma) {
+	$storage_data = array();
+	$storage_data['storage_masters']['qc_tf_tma_label_site'] = $created_tma['qc_tf_tma_label_site'];
+	if($created_tma['qc_tf_bank_id']) $storage_data['storage_masters']['qc_tf_bank_id'] = $created_tma['qc_tf_bank_id'];
+	updateTableData($created_tma['id'], $storage_data);
+}
+
 $query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE sample_control_id=". $atim_controls['sample_controls']['tissue']['id']." AND sample_code LIKE 'tmp_tissue_%';";
 customQuery($query);
 $query = "UPDATE aliquot_masters SET barcode=id WHERE aliquot_control_id=". $atim_controls['aliquot_controls']['tissue-core']['id']." AND barcode LIKE 'tmp_core_%';";
@@ -269,60 +280,60 @@ dislayErrorAndMessage(true);
 
 function getStorageMasterId($tma_name, $bank, $tma_label_site, $excel_file_name, $worksheet_name, $line_number) {
 	global $banks_to_ids;
-	global $storage_to_ids;
+	global $tma_name_to_storage_data;
 	global $atim_controls;
 	global $import_summary;
 	
 	$storage_master_id = false;
 	
 	if($tma_name) {
-		if(isset($storage_to_ids[$tma_name])) {
-			if(!empty($tma_label_site) && $tma_label_site !=  $storage_to_ids[$tma_name]['tma_label_site']) {
+		if(isset($tma_name_to_storage_data[$tma_name])) {
+			if(!empty($tma_label_site)) {
+				if(empty($tma_name_to_storage_data[$tma_name]['qc_tf_tma_label_site'])) {
+					$tma_name_to_storage_data[$tma_name]['qc_tf_tma_label_site'] = $tma_label_site;
+				} else if ($tma_name_to_storage_data[$tma_name]['qc_tf_tma_label_site'] != $tma_label_site) {
+					recordErrorAndMessage('TMA Block Creation', '@@ERROR@@', "Tma site label unconsistant", "See TMA $tma_name and the 2 TMA Site labels ($tma_label_site != ".$tma_name_to_storage_data[$tma_name]['qc_tf_tma_label_site']."). Please check and correct. REF: $excel_file_name, $worksheet_name, $line_number.");	
+				}
+			}
+			if($bank) {
 				if(array_key_exists($bank, $banks_to_ids)) {
-					$storage_data = array();
-					$storage_data['storage_masters']['qc_tf_tma_label_site'] = $tma_label_site;
-					$storage_data['storage_masters']['qc_tf_bank_id'] = $banks_to_ids[$bank];
-					updateTableData($storage_master_id = $storage_to_ids[$tma_name]['id'], $storage_data);
-					$storage_master_id = $storage_to_ids[$tma_name]['tma_label_site'] = $tma_label_site;
-					if(isset($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"]["$tma_name ($tma_label_site)"])) {
-						unset($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"]["$tma_name ($tma_label_site)"]);
-						if(empty($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"])) unset($import_summary['TMA Block Creation']['@@WARNING@@']["Bank not defined but tma site label defined"]);
-					} else {
-						recordErrorAndMessage('TMA Block Creation', '@@MESSAGE@@', "Tma site label updated", "See TMA $tma_name ($tma_label_site) for bank '$bank'. Label Site has been updated. REF: $excel_file_name, $worksheet_name, $line_number.");
+					$qc_tf_bank_id = $banks_to_ids[$bank];
+					if(empty($tma_name_to_storage_data[$tma_name]['qc_tf_bank_id'])) {
+						$tma_name_to_storage_data[$tma_name]['qc_tf_bank_id'] = $qc_tf_bank_id;
+						$tma_name_to_storage_data[$tma_name]['bank_name'] = $bank;
+					} else if ($tma_name_to_storage_data[$tma_name]['qc_tf_bank_id'] != $qc_tf_bank_id) {
+						recordErrorAndMessage('TMA Block Creation', '@@WARNING@@', "Tma bank unconsistant", "See TMA $tma_name and the 2 TMA banks ($bank != ".$tma_name_to_storage_data[$tma_name]['bank_name']."). Please validate and correct bank of the TMA after migration plus check all tma cores provider. REF: $excel_file_name, $worksheet_name, $line_number.", "$tma_name $bank ".$tma_name_to_storage_data[$tma_name]['bank_name']);
 					}
 				} else {
-					if(empty($bank)) {
-						recordErrorAndMessage('TMA Block Creation', '@@WARNING@@', "Bank not defined but tma site label defined", "See TMA $tma_name ($tma_label_site). Label Site is defined but no bank is defined. Label Site and bank won't be linked to the created TMA. See if this TMA data will be updated before the end of the process. REF: $excel_file_name, $worksheet_name, $line_number.","$tma_name ($tma_label_site)");
-					} else {
-						recordErrorAndMessage('TMA Block Creation', '@@ERROR@@', "Bank unknown for a TMA block of a site", "See TMA $tma_name and bank $bank. Label Site and bank won't be linked to the created TMA. REF: $excel_file_name, $worksheet_name, $line_number.");
-					}
+					recordErrorAndMessage('TMA Block Creation', '@@ERROR@@', "Bank unknown for a TMA block of a site", "See TMA $tma_name and bank $bank. Bank won't be linked to the created TMA. REF: $excel_file_name, $worksheet_name, $line_number.");
 				}
 			}
 		} else {
 			$storage_data = array(
 				'storage_masters' => array(
-					'code' => (sizeof($storage_to_ids) + 1),
+					'code' => (sizeof($tma_name_to_storage_data) + 1),
 					'storage_control_id' => $atim_controls['storage_controls']['TMA-blc 29X29']['id'],
 					'qc_tf_tma_name' => $tma_name,
-					'short_label' => 'TMA'.(sizeof($storage_to_ids) + 1),
-					'selection_label' => 'TMA'.(sizeof($storage_to_ids) + 1)),
+					'short_label' => 'TMA'.(sizeof($tma_name_to_storage_data) + 1),
+					'selection_label' => 'TMA'.(sizeof($tma_name_to_storage_data) + 1)),
 				$atim_controls['storage_controls']['TMA-blc 29X29']['detail_tablename'] => array());
-			if(!empty($tma_label_site)) {
+			$qc_tf_bank_id = null;
+			if($bank) {
 				if(array_key_exists($bank, $banks_to_ids)) {
-					$storage_data['storage_masters']['qc_tf_tma_label_site'] = $tma_label_site;
-					$storage_data['storage_masters']['qc_tf_bank_id'] = $banks_to_ids[$bank];
+					$qc_tf_bank_id = $banks_to_ids[$bank];
 				} else {
-					if(empty($bank)) {
-						recordErrorAndMessage('TMA Block Creation', '@@WARNING@@', "Bank not defined but tma site label defined", "See TMA $tma_name ($tma_label_site). Label Site is defined but no bank is defined. Label Site and bank won't be linked to the created TMA. See if this TMA data will be updated before the end of the process. REF: $excel_file_name, $worksheet_name, $line_number.","$tma_name ($tma_label_site)");
-					} else {
-						recordErrorAndMessage('TMA Block Creation', '@@ERROR@@', "Bank unknown for a TMA block of a site", "See TMA $tma_name and bank $bank. Label Site and bank won't be linked to the created TMA. REF: $excel_file_name, $worksheet_name, $line_number.");
-					}
-					$tma_label_site = '';
+					recordErrorAndMessage('TMA Block Creation', '@@ERROR@@', "Bank unknown for a TMA block of a site", "See TMA $tma_name and bank $bank. Bank won't be linked to the created TMA. REF: $excel_file_name, $worksheet_name, $line_number.");
 				}
 			}
-			$storage_to_ids[$tma_name] = array('id' => customInsertRecord($storage_data), 'tma_label_site' => $tma_label_site);
+			$tma_name_to_storage_data[$tma_name] = array(
+				'id' => customInsertRecord($storage_data), 
+				'qc_tf_tma_label_site' => $tma_label_site,
+				'qc_tf_bank_id' => $qc_tf_bank_id,
+				'bank_name' => $bank
+			);
+			recordErrorAndMessage('Parsed Files and created TMA', '@@MESSAGE@@', "Files Names & TMA Name", " ==> TMA : $tma_name [FROM FILE : $excel_file_name]");
 		}
-		$storage_master_id = $storage_to_ids[$tma_name]['id'];
+		$storage_master_id = $tma_name_to_storage_data[$tma_name]['id'];
 	}
 	
 	return $storage_master_id;
