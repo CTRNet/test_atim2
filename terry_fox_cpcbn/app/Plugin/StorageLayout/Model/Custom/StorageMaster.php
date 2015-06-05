@@ -23,9 +23,7 @@ class StorageMasterCustom extends StorageMaster{
 			
 			if($result['StorageControl']['is_tma_block'] && AppController::getInstance()->Session->read('flag_show_confidential')) {
 				$title = 'TMA ' . $result['StorageMaster']['qc_tf_tma_name'];
-			}
-			
-			
+			}			
 			
 			$return = array(
 				'menu' => array(null, ($title . ' [' . $result['StorageMaster']['code'].']')),
@@ -42,7 +40,7 @@ class StorageMasterCustom extends StorageMaster{
 		if(($type_key == 'AliquotMaster')) {
 			$ViewAliquotModel = AppModel::getInstance('InventoryManagement', 'ViewAliquot', true);
 			$aliquot_data = $ViewAliquotModel->find('first', array('conditions' => array('ViewAliquot.aliquot_master_id' => $children_array['AliquotMaster']['id']), 'recursive' => '-1'));
-			return $aliquot_data['ViewAliquot']['aliquot_label'].' ['.$aliquot_data['ViewAliquot']['barcode'].']';
+			return 'p#'.$aliquot_data['ViewAliquot']['participant_identifier'].' ['.$aliquot_data['ViewAliquot']['aliquot_label'].']';
 		}
 		return $children_array[$type_key][$label_key];
 	}
