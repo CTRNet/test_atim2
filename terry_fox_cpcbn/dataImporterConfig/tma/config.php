@@ -15,6 +15,6 @@ $migration_user_id = 1;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$files_path = "C:/_Perso/Server/tfri_cpcbn/data/2015-06-04_TMA_Creation/";
+$files_path = "C:/_Perso/Server/tfri_cpcbn/data/";
 
 ?>
