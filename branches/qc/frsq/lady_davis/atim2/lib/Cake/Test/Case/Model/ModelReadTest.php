@@ -2,8 +2,6 @@
 /**
  * ModelReadTest file
  *
- * PHP 5
- *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -7836,6 +7834,7 @@ class ModelReadTest extends BaseModelTest {
  * Test correct fetching of virtual fields
  * currently is not possible to do Relation.virtualField
  *
+ * @return void
  */
 	public function testVirtualFieldsMysql() {
 		$this->skipIf(!($this->db instanceof Mysql), 'The rest of virtualFields test only compatible with Mysql.');

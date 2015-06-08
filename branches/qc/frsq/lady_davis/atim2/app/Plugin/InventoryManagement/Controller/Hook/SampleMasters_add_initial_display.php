@@ -27,7 +27,7 @@
  					$this->request->data['SpecimenDetail']['reception_by'] = 'Urszula Krzemien';
 					$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_data['Collection']['collection_datetime'];
 					$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $collection_data['Collection']['collection_datetime_accuracy'];
-					$this->request->data['SampleDetail']['collected_tube_nbr'] = '2';
+					$this->request->data['SampleDetail']['collected_tube_nbr'] = '3';
 					break;
 
  				case '1':
