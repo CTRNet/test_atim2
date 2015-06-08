@@ -2,8 +2,6 @@
 /**
  * Internationalization
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -98,8 +96,6 @@ class I18n {
 
 /**
  * Constructor, use I18n::getInstance() to get the i18n translation object.
- *
- * @return void
  */
 	public function __construct() {
 		$this->l10n = new L10n();

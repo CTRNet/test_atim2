@@ -5,8 +5,6 @@
  * This file is application-wide controller file. You can put all
  * application-wide controller-related methods here.
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -553,7 +551,6 @@ class AppController extends Controller {
 		if(empty($this->request->data)){
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		} else if(!is_array($this->request->data[$data_model_name][$data_key]) && strpos($this->request->data[$data_model_name][$data_key], ',')){
-			//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
 			return array('error' => "batch init - number of submitted records too big");
 		}
 		//extract valid ids
@@ -716,7 +713,12 @@ class AppController extends Controller {
 			if($limit){
 				$this->request->data = $model->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit));
 			}else{
-				$this->request->data = $this->Paginator->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+			    if (isset($this->paginate[$model->name])) {
+			        $this->Paginator->settings = $this->paginate[$model->name];
+			    }
+				$this->request->data = $this->Paginator->paginate(
+				    $model,
+				    $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
 			}
 				
 			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
@@ -738,10 +740,10 @@ class AppController extends Controller {
 	/**
 	 * Adds the necessary bind on the model to fetch detail level, if there is a unique ctrl id
 	 * @param AppModel &$model
-	 * @param array $criteria Search criterias
+	 * @param array $conditions Search conditions
 	 * @param string &$structure_alias
 	 */
-	static function buildDetailBinding(&$model, array $criteria, &$structure_alias){
+	static function buildDetailBinding(&$model, array $conditions, &$structure_alias){
 		$controller = AppController::getInstance();
 		$master_class_name = isset($model->base_model) ? $model->base_model : $model->name;
 		if(!isset($model->Behaviors->MasterDetail->__settings[$master_class_name])){
@@ -754,15 +756,22 @@ class AppController extends Controller {
 			}
 		}
 		if($model->Behaviors->MasterDetail->__settings[$master_class_name]['is_master_model']){
-			//determine if the results contain only one control id
-			$control_field = $model->Behaviors->MasterDetail->__settings[$master_class_name]['control_foreign'];
-			$ctrl_ids = $model->find('all', array(
-					'fields'		=> array($model->name.'.'.$control_field), 
-					'conditions'	=> $criteria,
-					'group'			=> array($model->name.'.'.$control_field),
-					'limit'			=> 2
-			));
-			if(count($ctrl_ids) == 1){
+		    $ctrl_ids = null;
+		    $single_ctrl_id = $model->getSingleControlIdCondition(array('conditions' => $conditions));
+		    $control_field = $model->Behaviors->MasterDetail->__settings[$master_class_name]['control_foreign'];
+		    if($single_ctrl_id === false){
+		        //determine if the results contain only one control id
+		        $ctrl_ids = $model->find('all', array(
+		                'fields'		=> array($model->name.'.'.$control_field),
+		                'conditions'	=> $conditions,
+		                'group'			=> array($model->name.'.'.$control_field),
+		                'limit'			=> 2
+		        ));
+		        if(count($ctrl_ids) == 1){
+		            $single_ctrl_id = current(current($ctrl_ids[0]));
+		        }
+		    }
+			if($single_ctrl_id !== false){
 				//only one ctrl, attach detail
 				$has_one = array();
 				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
@@ -773,11 +782,14 @@ class AppController extends Controller {
 					}
 					return;
 				}
-				$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
+				$ctrl_data = $ctrl_model->findById($single_ctrl_id);
 				$ctrl_data = current($ctrl_data);
 				//put a new instance of the detail model in the cache
 				ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
-				new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
+				assert(strlen($ctrl_data['detail_tablename'])) or die("detail_tablename cannot be empty");
+				new AppModel(array('table' => $ctrl_data['detail_tablename'],
+				                   'name'  => $detail_class,
+				                   'alias' => $detail_class));
 				
 				//has one and win
 				$has_one[$detail_class] = array(
@@ -807,22 +819,20 @@ class AppController extends Controller {
 						'hasOne' => $has_one,
 						'belongsTo' => array(
 							$control_class => array(
-								'className' => $control_class,
-								$control_field
+								'className' => $control_class
 							)
 						)
 					), false
 				);
-
 				isset($model->{$detail_class});//triggers model lazy loading (See cakephp Model class)
 					
 				//updating structure
 				if(($pos = strpos($ctrl_data['form_alias'], ',')) !== false){
 					$structure_alias = $structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1);
 				}
-					
-				ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
-					
+                
+                ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
+                
 			}else if(count($ctrl_ids) > 0){
 				//more than one
 				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));
@@ -1066,12 +1076,12 @@ class AppController extends Controller {
 			$use_counters_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
 		}	
 		//Search all unused aliquots having use_counter != 0
-		$tmp_sql = "SELECT id AS aliquot_master_id, barcode, aliquot_label FROM aliquot_masters WHERE deleted <> 1 AND use_counter IS NOT NULL AND use_counter != 0 AND id NOT IN (SELECT DISTINCT aliquot_master_id FROM view_aliquot_uses);";
+		$tmp_sql = "SELECT id AS aliquot_master_id, barcode, aliquot_label FROM aliquot_masters WHERE deleted <> 1 AND use_counter != 0 AND id NOT IN (SELECT DISTINCT aliquot_master_id FROM view_aliquot_uses);";
 		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
 		foreach($aliquots_to_clean_up as $new_aliquot) {
 			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 			$AliquotMaster_model->id = $new_aliquot['aliquot_masters']['aliquot_master_id'];
-			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['aliquot_masters']['aliquot_master_id'], 'use_counter' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['aliquot_masters']['aliquot_master_id'], 'use_counter' => '0')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 			$use_counters_updated[$new_aliquot['aliquot_masters']['aliquot_master_id']] = $new_aliquot['aliquot_masters']['barcode'];
 		}
 		//Search all aliquots having use_counter != real use counter (from view_aliquot_uses)
