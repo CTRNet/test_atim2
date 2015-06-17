@@ -2,6 +2,13 @@
 
 	$default_aliquot_data = array();
 	foreach($this->request->data as &$new_sample_record) {
+		//ATiM PROCURE PROCESSING BANK
+		if($new_sample_record['parent']['ViewSample']['procure_processing_bank_created_by_system'] == 'y') {
+			$this->flash(__("at least one sample has been created by the system - you can only create aliquots from existing aliquots for samples created by the system"), $url_to_cancel, 5);
+			return;
+		}			
+		//END ATiM PROCURE PROCESSING BANK
+		
 		$set_default_value = true;
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $new_sample_record['parent']['ViewSample']['sample_master_id']), 'recursive' => '0'));

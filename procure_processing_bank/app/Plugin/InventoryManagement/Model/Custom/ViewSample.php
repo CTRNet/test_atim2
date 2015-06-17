@@ -18,7 +18,10 @@ class ViewSampleCustom extends ViewSample {
 		
 		Collection.acquisition_label, 
 Collection.procure_visit AS procure_visit,
-		
+-- ATiM PROCURE PROCESSING BANK
+SampleMaster.procure_processing_bank_created_by_system,
+-- ATiM PROCURE PROCESSING BANK	
+			
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,

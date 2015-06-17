@@ -1,4 +1,5 @@
 <?php
+	//ATiM PROCURE PROCESSING BANK
 	$structure_links = array(
 		'top' => '/InventoryManagement/Collections/add/0',
 		'bottom' => array('cancel' => 'javascript:history.go(-1)')
@@ -13,7 +14,7 @@
 	
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
-	
+	//ATiM PROCURE PROCESSING BANK
 ?>
 
 <script type="text/javascript">

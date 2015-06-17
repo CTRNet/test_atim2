@@ -26,6 +26,9 @@ Collection.procure_visit AS procure_visit,
 			SampleMaster.sample_control_id,
 			
 			AliquotMaster.barcode,
+-- ATiM PROCURE PROCESSING BANK
+AliquotMaster.procure_processing_bank_created_by_system,
+-- ATiM PROCURE PROCESSING BANK	
 			AliquotMaster.aliquot_label,
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,

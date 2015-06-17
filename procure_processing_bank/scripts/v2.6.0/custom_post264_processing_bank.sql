@@ -85,11 +85,71 @@ VALUES
 ('add transferred aliquots - direct', 'Add Transferred Aliquots', 'Créer aliquots transférés'),
 ('see CSV line(s) %s', 'see CSV Line(s) %s', 'Voire ligne(s) du CSV %s');
 
-ALTER TABLE sample_masters ADD COLUMN procure_processing_bank_created_by_system  tinyint(1) DEFAULT '0';
-ALTER TABLE sample_masters_revs ADD COLUMN procure_processing_bank_created_by_system  tinyint(1) DEFAULT '0';
+ALTER TABLE sample_masters ADD COLUMN procure_processing_bank_created_by_system  char(1) DEFAULT 'n';
+ALTER TABLE sample_masters_revs ADD COLUMN procure_processing_bank_created_by_system  char(1) DEFAULT 'n';
 
-ALTER TABLE aliquot_masters ADD COLUMN procure_processing_bank_created_by_system  tinyint(1) DEFAULT '0';
-ALTER TABLE aliquot_masters_revs ADD COLUMN procure_processing_bank_created_by_system  tinyint(1) DEFAULT '0';
+ALTER TABLE aliquot_masters ADD COLUMN procure_processing_bank_created_by_system  char(1) DEFAULT 'n';
+ALTER TABLE aliquot_masters_revs ADD COLUMN procure_processing_bank_created_by_system  char(1) DEFAULT 'n';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewSample', '', 'procure_processing_bank_created_by_system', 'checkbox',  NULL , '0', '', '', '', 'created by the system', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='procure_processing_bank_created_by_system' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by the system' AND `language_tag`=''), '2', '10002', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewSample', 'sample_masters', 'procure_processing_bank_created_by_system', 'checkbox',  NULL , '0', '', '', '', 'created by the system', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='sample_masters' AND `field`='procure_processing_bank_created_by_system' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by the system' AND `language_tag`=''), '2', '10001', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquot', '', 'procure_processing_bank_created_by_system', 'checkbox',  NULL , '0', '', '', '', 'created by the system', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='procure_processing_bank_created_by_system' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by the system' AND `language_tag`=''), '1', '1202', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquot', 'aliquot_masters', 'procure_processing_bank_created_by_system', 'checkbox',  NULL , '0', '', '', '', 'created by the system', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='aliquot_masters' AND `field`='procure_processing_bank_created_by_system' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by the system' AND `language_tag`=''), '1', '1203', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '1', '1', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('created by the system', 'Created By The System', 'Créé par le système');
+
+UPDATE structure_fields SET  `type`='yes_no' WHERE field='procure_processing_bank_created_by_system';
+
+INSERT INTO i18n (id,en,fr)
+VALUES
+("batch init - at least one sample has been created by the system - you can only create derivatives from aliquots for samples created by the system",
+"At least one sample has been created by the system. You can not create directly a derivative sample from this type of sample. You have first to select the used aliquot then create derivative from this one.",
+"Au moins un échantillon a été créé par le système. Vous ne pouvez pas créer directement un dérivé à partir d'un tel échantillon. Vous devez sélectionner l'aliquot utilisé et ensuite créer le dérivé à partir de ce dernier."),
+("at least one sample has been created by the system - you can only create aliquots from existing aliquots for samples created by the system",
+"At least one sample has been created by the system. You can not create directly an aliquot from this type of sample. You have first to select the used aliquot then create the 'realiquoted children' from this one.",
+"Au moins un échantillon a été créé par le système. Vous ne pouvez pas créer directement un aliquot à partir d'un tel échantillon. Vous devez sélectionner l'aliquot utilisé et ensuite créer 'l'aliquot enfant' créé à partir de ce dernier.");
+
+UPDATE datamart_structure_functions 
+SET flag_active = '0' WHERE label IN ('participant identifiers report','procure diagnosis and treatments summary','rocure followup summary','procure aliquots summary', 'procure bcr detection', 'procure next followup report');
+
+UPDATE datamart_reports
+SET flag_active = 0
+WHERE name in ('participant identifiers', 'procure diagnosis and treatments summary', 'procure followup summary', 'procure bcr detection', 'procure next followup report');
+
+
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type') AND `flag_confidential`='0');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_yes_no_system_record", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("y", "system record");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_yes_no_system_record"), (SELECT id FROM structure_permissible_values WHERE value="y" AND language_alias="system record"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("n", "-");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_yes_no_system_record"), (SELECT id FROM structure_permissible_values WHERE value="n" AND language_alias="-"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleMaster', 'sample_masters', 'procure_processing_bank_created_by_system', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_yes_no_system_record') , '0', '', '', '', 'system', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='procure_processing_bank_created_by_system' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_yes_no_system_record')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='system' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'procure_processing_bank_created_by_system', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_yes_no_system_record') , '0', '', '', '', 'system', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='procure_processing_bank_created_by_system' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_yes_no_system_record')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='system' AND `language_tag`=''), '0', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('system record', 'System', 'Système');
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='procure_processing_bank_created_by_system' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_yes_no_system_record') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values') AND `flag_confidential`='0');
 
 
 
@@ -97,11 +157,10 @@ ALTER TABLE aliquot_masters_revs ADD COLUMN procure_processing_bank_created_by_s
 
 
 
-n'afficher que le detail
-inserer info dans vu?
-aliquot avec procure_processing_bank_created_by_system ne peut pas être children
-aliquot label pas modifiable
-generer le fichier au niveau des autre bank
+
+TODO: Can a aliquot label changed in any version?
+TODO: Generate file from other system
+
 
 
 
