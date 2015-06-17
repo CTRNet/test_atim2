@@ -45,6 +45,11 @@ class ParticipantCustom extends Participant {
 	}
 	
 	function buildAddProcureFormsButton($participant_id) {
+		
+		//ATiM PROCURE PROCESSING BANK
+		return array();
+		//END ATiM PROCURE PROCESSING BANK
+		
 		$add_links = array(__('quick procure collection creation button') => array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection'));
 		
 		$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);

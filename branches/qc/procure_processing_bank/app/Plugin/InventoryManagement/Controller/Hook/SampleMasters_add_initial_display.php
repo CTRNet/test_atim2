@@ -5,6 +5,11 @@
 	//--------------------------------------------------------------------------------
 	
 	if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
+		
+		//ATiM PROCURE PROCESSING BANK
+		$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		//END ATiM PROCURE PROCESSING BANK
+		
 		$collection_blood_samples = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id']), 'order' => array('SpecimenDetail.reception_datetime DESC'), 'recursive' => '0'));
 		if(!empty($collection_blood_samples)) {				
 			// Collection blood sample already created
@@ -41,6 +46,10 @@
 		}
 
 	} else if(in_array($sample_control_data['SampleControl']['sample_type'], array('urine', 'tissue'))) {
+		
+		//ATiM PROCURE PROCESSING BANK
+		$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		//END ATiM PROCURE PROCESSING BANK
 		
 		//--------------------------------------------------------------------------------
 		//  URINE

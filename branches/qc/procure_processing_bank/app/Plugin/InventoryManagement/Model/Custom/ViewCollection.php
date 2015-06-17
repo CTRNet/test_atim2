@@ -41,15 +41,16 @@ Collection.procure_visit AS procure_visit,
 				'structure alias' 	=> 'view_collection',
 				'data'				=> $collection_data
 			);
-			
-			$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
-			if(!empty($consent_status)){
-				if(!$collection_data['ViewCollection']['participant_id']){
-					AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-				}else if($consent_status[$variables['Collection.id']] == null){
-					AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
-				}
-			}
+//ATiM PROCURE PROCESSING BANK			
+// 			$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
+// 			if(!empty($consent_status)){
+// 				if(!$collection_data['ViewCollection']['participant_id']){
+// 					AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
+// 				}else if($consent_status[$variables['Collection.id']] == null){
+// 					AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
+// 				}
+// 			}
+//END ATiM PROCURE PROCESSING BANK
 		}
 		
 		return $return;
