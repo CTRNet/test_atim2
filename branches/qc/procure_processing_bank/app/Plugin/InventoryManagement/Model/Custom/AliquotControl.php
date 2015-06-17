@@ -6,6 +6,7 @@ class AliquotControlCustom extends AliquotControl {
 	
 	var $description_separator = ' / ';
 	
+	//ATiM PROCURE PROCESSING BANK
 	function getTransferredAliquotsDescriptionsList() {
 		//Build list of linked sample types from roots to nodes
 		$transferred_samples_descriptions_list = array();
@@ -86,5 +87,5 @@ class AliquotControlCustom extends AliquotControl {
 		}
 		return array_reverse($formatted_descriptions);
 	}
-	
+	//END ATiM PROCURE PROCESSING BANK
 }

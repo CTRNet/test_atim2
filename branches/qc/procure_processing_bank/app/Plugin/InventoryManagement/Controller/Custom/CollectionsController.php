@@ -115,6 +115,8 @@ class CollectionsControllerCustom extends CollectionsController{
 				}
 				unset($data_unit);
 				
+				if($row_counter > 30) $errors_tracking['-1'][__("batch init - number of submitted records too big")." (>30)"][] = 'n/a';
+				
 				if(empty($errors_tracking)){
 					
 					AppModel::acquireBatchViewsUpdateLock();
@@ -209,7 +211,7 @@ class CollectionsControllerCustom extends CollectionsController{
 							$conditions = array(
 								'SampleMaster.collection_id' => $collection_id, 
 								'SampleMaster.sample_control_id' => $sample_and_aliquot_control_data['SampleControl']['id'],
-								'SampleMaster.procure_processing_bank_created_by_system' => '1');
+								'SampleMaster.procure_processing_bank_created_by_system' => 'y');
 							if(!$is_specimen) $conditions['SampleMaster.parent_id'] = $parent_sample_master_id;
 							$sample_master_id = null;
 							$sample_data = $this->SampleMaster->find('first', array('conditions' => $conditions, 'recursive' => '-1'));
@@ -227,7 +229,7 @@ class CollectionsControllerCustom extends CollectionsController{
 										'initial_specimen_sample_id' => $initial_specimen_sample_id,	//NULL if specimen, will be set later
 										'parent_sample_type' => $parent_sample_type,					//NULL if specimen
 										'parent_id' => $parent_sample_master_id,						//NULL if specimen
-										'procure_processing_bank_created_by_system' => '1'),
+										'procure_processing_bank_created_by_system' => 'y'),
 									'SampleDetail' => array());		
 								$this->SampleMaster->id = null;	
 								$this->SampleMaster->data = array();
@@ -273,7 +275,7 @@ class CollectionsControllerCustom extends CollectionsController{
 										'barcode' => $data_unit['AliquotMaster']['barcode'],
 										'in_stock' => 'yes - available',
 										'use_counter' => '0',
-										'procure_processing_bank_created_by_system' => '1'),
+										'procure_processing_bank_created_by_system' => 'y'),
 									'AliquotDetail' => array());
 								if($new_sample_and_aliquot['aliquot_type'] == 'block') $new_aliquot['AliquotDetail']['block_type'] = $new_sample_and_aliquot['block_type'];
 								$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'in_stock', 'use_counter','procure_processing_bank_created_by_system'));
@@ -310,4 +312,5 @@ class CollectionsControllerCustom extends CollectionsController{
 			}
 		}
 	}
+	//END ATiM PROCURE PROCESSING BANK
 }
