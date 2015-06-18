@@ -116,25 +116,27 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qc_tf_ban
 			$BankModel = AppModel::getInstance("Administrate", "Bank", true);
 			$bank_list = $BankModel->getBankPermissibleValuesForControls();
 			foreach($results as &$result){
-				$aliquot_nature = substr(strtoupper(strlen($result['ViewAliquot']['qc_tf_core_nature_revised'])? $result['ViewAliquot']['qc_tf_core_nature_revised'] : (strlen($result['ViewAliquot']['qc_tf_core_nature_site'])? $result['ViewAliquot']['qc_tf_core_nature_site'] : 'U')), 0, 1);
-				$result['ViewAliquot']['aliquot_label'] = $aliquot_nature;
-				if($result['ViewAliquot']['qc_tf_is_tma_sample_control'] == 'n') {
-					if($user_bank_id == 'all') {
-						$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_bank_participant_identifier']." $aliquot_nature (".$result['ViewAliquot']['participant_bank_name'].')';
-					} else if($result['ViewAliquot']['bank_id'] == $user_bank_id) {
-						$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_bank_participant_identifier']." $aliquot_nature";
-					} else {
-						$result['ViewAliquot']['aliquot_label'] = $aliquot_nature;
-						$result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewAliquot']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
-						$result['ViewAliquot']['participant_bank_name'] = CONFIDENTIAL_MARKER;
+				if(array_key_exists('qc_tf_core_nature_revised', $result['ViewAliquot'])) {
+					$aliquot_nature = substr(strtoupper(strlen($result['ViewAliquot']['qc_tf_core_nature_revised'])? $result['ViewAliquot']['qc_tf_core_nature_revised'] : (strlen($result['ViewAliquot']['qc_tf_core_nature_site'])? $result['ViewAliquot']['qc_tf_core_nature_site'] : 'U')), 0, 1);
+					$result['ViewAliquot']['aliquot_label'] = $aliquot_nature;
+					if($result['ViewAliquot']['qc_tf_is_tma_sample_control'] == 'n') {
+						if($user_bank_id == 'all') {
+							$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_bank_participant_identifier']." $aliquot_nature (".$result['ViewAliquot']['participant_bank_name'].')';
+						} else if($result['ViewAliquot']['bank_id'] == $user_bank_id) {
+							$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_bank_participant_identifier']." $aliquot_nature";
+						} else {
+							$result['ViewAliquot']['aliquot_label'] = $aliquot_nature;
+							$result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
+							$result['ViewAliquot']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+							$result['ViewAliquot']['participant_bank_name'] = CONFIDENTIAL_MARKER;
+						}
+					} else if($result['ViewAliquot']['qc_tf_is_tma_sample_control'] == 'y') {
+						$core_provider_bank_name = '';
+						if($result['ViewAliquot']['qc_tf_tma_sample_control_bank_id']) {
+							$core_provider_bank_name = ' - '.$bank_list[$result['ViewAliquot']['qc_tf_tma_sample_control_bank_id']];
+						}
+						$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_tma_sample_control_code']." $aliquot_nature (".__('control').$core_provider_bank_name.')';
 					}
-				} else if($result['ViewAliquot']['qc_tf_is_tma_sample_control'] == 'y') {
-					$core_provider_bank_name = '';
-					if($result['ViewAliquot']['qc_tf_tma_sample_control_bank_id']) {
-						$core_provider_bank_name = ' - '.$bank_list[$result['ViewAliquot']['qc_tf_tma_sample_control_bank_id']];
-					}
-					$result['ViewAliquot']['aliquot_label'] = $result['ViewAliquot']['qc_tf_tma_sample_control_code']." $aliquot_nature (".__('control').$core_provider_bank_name.')';
 				}
 			}
 		} else if(isset($results['ViewAliquot'])){
