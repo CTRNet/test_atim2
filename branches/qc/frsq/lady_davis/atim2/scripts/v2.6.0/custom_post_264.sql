@@ -286,3 +286,5 @@ INSERT INTO i18n (id,en,fr) VALUES ('animal id', 'Animal ID', 'Animal ID');
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6219' WHERE version_number = '2.6.4';
+
+UPDATE versions SET branch_build_number = '6226' WHERE version_number = '2.6.4';

@@ -32,20 +32,16 @@ class AliquotMasterCustom extends AliquotMaster{
 		}
 		
 		// Check duplicated barcode into db
-		$aliquots_having_duplicated_barcode = $this->find('all', array('conditions' => array('AliquotMaster.barcode' => $barcode, 'AliquotMaster.aliquot_control_id' => $control_id), 'recursive' => -1));
+		$aliquots_having_duplicated_barcode = $this->find('all', array('conditions' => array('AliquotMaster.barcode' => $barcode), 'recursive' => -1));
 		if(!empty($aliquots_having_duplicated_barcode)) {
 			//errors on the same ctrl_id
 			foreach($aliquots_having_duplicated_barcode as $duplicate) {
 				if((!array_key_exists('id', $aliquot_data['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquot_data['AliquotMaster']['id'])) {
-					$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded'));
-				}
-			}
-		}else{
-			//warn on different ctrl id
-			$aliquots_having_duplicated_barcode = $this->find('all', array('conditions' => array('AliquotMaster.barcode' => $barcode), 'recursive' => -1));
-			foreach($aliquots_having_duplicated_barcode as $duplicate) {
-				if((!array_key_exists('id', $aliquot_data['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquot_data['AliquotMaster']['id'])) {
-					AppController::addWarningMsg(str_replace('%s', $barcode,__('barcode [%s] was created more than once')));
+					if($duplicate['AliquotMaster']['aliquot_control_id'] == $control_id) {
+						$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded'));
+					} else {
+						AppController::addWarningMsg(str_replace('%s', $barcode,__('barcode [%s] was created more than once')));
+					}
 				}
 			}
 		}
