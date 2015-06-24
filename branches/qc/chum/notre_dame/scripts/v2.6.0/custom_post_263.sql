@@ -2085,3 +2085,34 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES ('not necessary', 'Not Necessary', 'Pas nécessaire');
 
 UPDATE versions SET branch_build_number = '6220' WHERE version_number = '2.6.3';
+
+-- 20150624 ---------------------------------------------------------------
+
+ALTER TABLE qc_nd_ed_prostate_pathology_reviews
+	ADD COLUMN qc_nd_ed_prostate_nodule_reviews int(6);
+ALTER TABLE qc_nd_ed_prostate_pathology_reviews_revs
+	ADD COLUMN qc_nd_ed_prostate_nodule_reviews int(6);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'qc_nd_ed_prostate_nodule_reviews', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of blocks IDC-P', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='qc_nd_ed_prostate_nodule_reviews' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of blocks IDC-P' AND `language_tag`=''), '2', '33', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('number of blocks IDC-P','Number of IDC-P Blocks');
+
+ALTER TABLE qc_nd_ed_prostate_pathology_reviews
+	ADD COLUMN lymph_nodes_involved_pathology_report tinyint(1) DEFAULT '0',
+	ADD COLUMN lymph_nodes_involved_microscope tinyint(1) DEFAULT '0';
+ALTER TABLE qc_nd_ed_prostate_pathology_reviews_revs
+	ADD COLUMN lymph_nodes_involved_pathology_report tinyint(1) DEFAULT '0',
+	ADD COLUMN lymph_nodes_involved_microscope tinyint(1) DEFAULT '0';	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'lymph_nodes_involved_pathology_report', 'checkbox',  NULL , '0', '', '', '', '', 'pathology report'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'lymph_nodes_involved_microscope', 'checkbox',  NULL , '0', '', '', '', '', 'microscope');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='lymph_nodes_involved_pathology_report' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='pathology report'), '2', '63', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='lymph_nodes_involved_microscope' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='microscope'), '2', '63', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('pathology report', 'Pathology Report', 'Rapport pathologie'),
+('microscope', 'Microscope', 'Microscope');
+
+UPDATE versions SET branch_build_number = '6228' WHERE version_number = '2.6.3';
