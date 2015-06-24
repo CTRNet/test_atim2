@@ -10,7 +10,7 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	//Load data
 	$MO_CM_message_display = false;
-	foreach($XlsReader->sheets[$sheets_nbr['Taille des blocs']]['cells'] as $line_counter => $new_line) {
+	foreach($XlsReader->sheets[$sheets_nbr['Feuil1']]['cells'] as $line_counter => $new_line) {
 		//$line_counter++;
 		if($line_counter == 8) {
 			$headers = $new_line;
@@ -149,7 +149,6 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 								//Load Tissue
 								if($worksheet == 'V01') {
 									loadTissue($participant_id, $participant_identifier, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'], $file_name, $worksheet, $line_counter, $new_line_data, $created_prostatectomy);
-									$psp_nbr_to_participant_id_and_patho[$participant_identifier]['prostate_weight_gr'] = getDecimal($new_line_data, 'poids de prostate entière (gramme)', 'Pathology Report', "$file_name ($worksheet)", $line_counter);
 								}
 								//Blood....
 								loadBlood($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
@@ -810,7 +809,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 				$query = "UPDATE treatment_masters SET notes = '".str_replace("'", "''",$prostatectomy_data_from_inv_file['TreatmentMaster']['notes'])."' WHERE notes IS NULL AND id = ".$created_prostatectomy[$participant_identifier]['id'];
 				customQuery($query, __FILE__, __LINE__);	
 //TODO a tester lors du prochain test
-Test a faire				
+//Test a faire				
 				$import_summary['Inventory - Tissue (V01)']['@@MESSAGE@@']["Added collection note to prostatectomy"][] = "A collection note '".$prostatectomy_data_from_inv_file['TreatmentMaster']['notes']."' has been created based on inventory file data and will be added to the prostatectomy notes (see treatment on ".$prostatectomy_data_from_inv_file['TreatmentMaster']['start_date'].") because no collection will be created. See patient '$participant_identifier'.  [field <b>date chirurgie</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 			}
 		}

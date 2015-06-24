@@ -1,7 +1,7 @@
 <?php
 
-//TODO: Supprimer le contenu de toute cellule égale à '¯' ou égale à '­', ' ­' dans Inventaire et RNA files
-
+//TODO: Supprimer le contenu de toute cellule égale à '¯' ou égale à '­', ' ­' dans Inventaire et RNA files et patho
+//TODO: Dans patho, formater vol. prost. Atteint en % en text standard
 require_once 'Files/ClinicalAnnotation.php';
 require_once 'Files/Inventory.php';
 
@@ -11,19 +11,26 @@ set_time_limit('3600');
 // Variables
 //==============================================================================================
 
+global $patients_to_import;
+//TODO set to empty
+$patients_to_import = array();
+//$patients_to_import = array();
 $files_name = array(
 	'patient' => 'Patients_v20150420.xls',
-	'patient_status' => utf8_decode('deces_mars_2015_v20150420.xls'),
-	'consent' => 'consentement_v20150420.xls',
+		'patient_status' => '20150619_copie deces juin 2015.xls',
+		'consent' => '20150619_5-05-2015Copie de consentement_v20150420.xls',
 	'psa' => utf8_decode('revis_30_mars_2015_APS_et_traitements_v20150420.xls'),	
 	'treatment' => utf8_decode('revis_30_mars_2015_APS_et_traitements_v20150420.xls'),	
-	'frozen block' => 'taille_tissus_v20150420.xls',
-	'paraffin block' => 'sortie_de_blocs_procure_v20150420.xls',
-	'inventory' => utf8_decode('inventaire_procure_CHU_Quebec_avril_2015_v20150420.xls'),
-	'arn' => 'ARN_sang_paxgene_v20150420.xls'
+		'frozen block' => '20150619_copie taille tissus juin 2015.xls',
+		'paraffin block' => '20150619_copie de sortie de blocs procure juin 2015.xls',
+		'inventory' => utf8_decode('20150619_copie inventaire procure CHU Quebec juin 2015.xls'),
+	'arn' => 'ARN_sang_paxgene_v20150420.xls',
+		
+	'biopsy' => '20150619_Copie de Biopsies.xls',
+	'patho' => '20150619_patho ATIM juin 2015 pour Nicolas.xls'
 );
 $files_path = 'C:\\_Perso\\Server\\procure_chuq\\data\\';
-$files_path = "/ATiM/procure_chuq_to_delete/importer/data/";
+$files_path = "/ATiM/todelete/ImportProcureDataFromExcel/data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -36,11 +43,9 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_charset		= "utf8";
 
-$db_pwd			= "";
-$db_schema	= "procurechuq";
-
-$db_pwd			= "";
+$db_pwd			= "am3-y-4606";
 $db_schema	= "procurechuqtmp";
+
 
 global $db_connection;
 $db_connection = @mysqli_connect(
@@ -110,6 +115,16 @@ echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Consent & Questionnai
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadConsents($XlsReader, $files_path, $files_name['consent'], $psp_nbr_to_participant_id_and_patho);
 
+echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Biopy) : ".$files_name['biopsy']."***</FONT><br>";
+
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadBiopsy($XlsReader, $files_path, $files_name['biopsy'], $psp_nbr_to_participant_id_and_patho);
+
+echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patho - File(s) : ".$files_name['patho']."***</FONT><br>";
+
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadPathos($XlsReader, $files_path, $files_name['patho'], $psp_nbr_to_participant_id_and_patho);
+
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - PSA - File(s) : ".$files_name['psa']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -162,11 +177,6 @@ customQuery($query, __FILE__, __LINE__);
 while($row = $results->fetch_assoc()){
 	$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Duplicated Barcodes'][] = "The The migration process created duplciated barcode : ".$row['barcode'];
 }
-//==============================================================================================
-//Pathology report
-//==============================================================================================
-
-loadPathologyReprot($psp_nbr_to_participant_id_and_patho);
 
 //==============================================================================================
 //End of the process
@@ -178,8 +188,6 @@ insertIntoRevs();
 
 $query = "UPDATE versions SET permissions_regenerated = 0;";
 customQuery($query, __FILE__, __LINE__);
-
-//TODO populateViewsAndLftRght();
 
 //==============================================================================================
 // DEV Functions
@@ -334,7 +342,6 @@ function formatNewLineData($headers, $data) {
 
 function importDie($msg, $rollbak = true) {
 	if($rollbak) {
-		//TODO manage commit rollback
 	}
 	die($msg);
 }
@@ -468,7 +475,7 @@ function getTime($data, $field_time, $data_type, $file, $line) {
 function getDecimal($data, $field, $data_type, $file_name, $line_counter) {
 	global $import_summary;
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 7eeee $field $file_name, $line_counter");
-	$decimal_value = str_replace(array('x', 'X', '?', '-', '­', 'n/a', 'N/A'), array('','','', '', '', '', ''), $data[$field]);
+	$decimal_value = str_replace(array('x', 'X', '?', '-', '­', 'n/a', 'N/A', 'N/D'), array('','','', '', '', '', '', ''), $data[$field]);
 	if(strlen($decimal_value)) {
 		if(preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $decimal_value)) {
 			return str_replace(',', '.', $decimal_value);
@@ -557,7 +564,8 @@ function truncate() {
 		'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
 		'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
 		'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
-			
+		
+		'TRUNCATE procure_ed_lab_diagnostic_information_worksheets;', 'TRUNCATE procure_ed_lab_diagnostic_information_worksheets_revs;',
 		'TRUNCATE procure_ed_lab_pathologies;', 'TRUNCATE procure_ed_lab_pathologies_revs;',
 		'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
 		'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
