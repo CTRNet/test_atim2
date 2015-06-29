@@ -309,7 +309,7 @@ UPDATE structure_formats SET `display_order`='14' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 
-SELECT "Added option to link a MiscIdentifier to a study. Hidde MiscIdentifier.study_summary_id field if required (See structures 'miscidentifiers_for_participant_search' and 'miscidentifiers')." AS '### MESSAGE ###'
+SELECT "Added option to link a MiscIdentifier to a study." AS '### MESSAGE ###'
 UNION ALL
 SELECT "To activate option: Run following queries and change value of the misc_identifier_controls.flag_link_to_study to 1." AS '### MESSAGE ###'
 UNION ALL
@@ -345,20 +345,19 @@ VALUES
 'Your data cannot be deleted! This study/project is linked to a consent. ',
 "Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un consentement. ");
 
+-- ---------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('your connection has been temporarily disabled',
+'Due to too many invalid login attempts your account has been temporarily disabled',
+"À la suite d'un trop grand nombre de tentatives infructueuses de connexion, votre compte a été temporairement désactivé.");
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-update versions set permissions_regenerated = 0;
+UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.5', NOW(),'xxxx','n/a');
+VALUES('2.6.5', NOW(),'6230','n/a');
