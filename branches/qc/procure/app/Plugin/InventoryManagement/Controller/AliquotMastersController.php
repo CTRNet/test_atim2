@@ -2533,8 +2533,10 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			$this->request->data = $data;
 		}
 		
+		$tmp_sample_master_recursive = $this->SampleMaster->recursive;
 		$this->SampleMaster->recursive = 0;
 		$sample = $this->SampleMaster->getOrRedirect($data['AliquotMasterChildren']['sample_master_id']);
+		$this->SampleMaster->recursive = $tmp_sample_master_recursive;
 		$this->setAliquotMenu(array('AliquotMaster' => $data['AliquotMasterChildren'], 'SampleMaster' => $sample['SampleMaster'], 'SampleControl' => $sample['SampleControl']), false);
 		$this->set('realiquoting_id', $realiquoting_id);
 	}	
@@ -2647,24 +2649,10 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 		foreach($this->request->data as &$new_children_aliquot_data) $new_children_aliquot_data = array_merge($new_children_aliquot_data, $realiquoting_data_from_child_ids[$new_children_aliquot_data['AliquotMaster']['id']]);
 		
 		// Get list of realiquoted children having been realiquoted too: To disable or not the expand icon
-		$aliquot_ids_having_child = array_flip($this->AliquotMaster->hasChild($children_aliquot_master_ids));
-		
-		// Get list of realiquoted children having been used to create derivative: To disable or not expand icon
-		$source_aliquot_joins = array(array(
-				'table' => 'source_aliquots',
-				'alias' => 'SourceAliquot',
-				'type' => 'INNER',
-				'conditions' => array('SampleMaster.id = SourceAliquot.sample_master_id', 'SourceAliquot.deleted != 1')
-		));
-		$aliquot_ids_having_derivative = $this->SampleMaster->find('list', array(
-				'fields' => array('SourceAliquot.aliquot_master_id'),
-				'conditions' => array('SampleMaster.collection_id'=>$collection_id, 'SourceAliquot.aliquot_master_id' => $children_aliquot_master_ids),
-				'group' => array('SourceAliquot.aliquot_master_id'),
-				'joins'	=> $source_aliquot_joins)
-		);
-		$aliquot_ids_having_derivative = array_flip($aliquot_ids_having_derivative);
+		$aliquot_ids_having_child = array_flip($this->AliquotMaster->hasChild(array_keys($realiquoting_data_from_child_ids)));
+
 		foreach($this->request->data as &$aliquot){
-			$aliquot['children'] = (array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_having_child) || array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_having_derivative));
+			$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_having_child);
 			$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 		}
 		
