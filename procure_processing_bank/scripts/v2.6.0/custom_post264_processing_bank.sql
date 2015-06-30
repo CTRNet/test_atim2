@@ -131,7 +131,6 @@ UPDATE datamart_reports
 SET flag_active = 0
 WHERE name in ('participant identifiers', 'procure diagnosis and treatments summary', 'procure followup summary', 'procure bcr detection', 'procure next followup report');
 
-
 UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type') AND `flag_confidential`='0');
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_yes_no_system_record", "", "", NULL);
@@ -158,10 +157,11 @@ UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id F
 
 
 
-TODO: Can a aliquot label changed in any version?
+TODO: Can an aliquot label changed in any version?
 TODO: Generate file from other system
 
-
+Monter la notion de projet/etude
+Créer des identifiants d'étude par patient....
 
 
 
