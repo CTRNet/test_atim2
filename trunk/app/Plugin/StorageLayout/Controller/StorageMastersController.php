@@ -547,13 +547,13 @@ class StorageMastersController extends StorageLayoutAppController {
 		// Get the storage data
 		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id); 
 
-		$coordinate_list = array();
+		$parent_coordinate_list = array();
 		if($storage_data['StorageControl']['coord_x_type'] == "list"){
 			$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
 			foreach($coordinate_tmp as $key => $value){
-				$coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
+				$parent_coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
 			} 
-			if(empty($coordinate_list)) {
+			if(empty($parent_coordinate_list)) {
 				if($is_ajax){
 					echo json_encode(array('valid' => 0));
 					exit;
@@ -605,19 +605,31 @@ class StorageMastersController extends StorageLayoutAppController {
 				}
 				$storage_data = AppController::defineArrayKey($storage_data, 'StorageMaster', 'id', true);
 				
+				$children_coordinate_list = array();
+				if($storage_data[$second_storage_id]['StorageControl']['coord_x_type'] == "list"){
+					$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $second_storage_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
+					foreach($coordinate_tmp as $key => $value){
+						$children_coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
+					}
+					if(empty($children_coordinate_list)) {
+						// The 'Pick a storage to drag and drop to' action should limit selection to storage with layout
+						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
+				}
 				
 				//have cells with id as key
 				for($i = sizeof($json) - 1; $i >= 0; -- $i){
 					//builds a $cell[type][id] array
 					$data[$json[$i]->{'type'}][$json[$i]->{'id'}] = (array)$json[$i]; 
 				}
-	
+				
+				$all_coordinate_list = $parent_coordinate_list + $children_coordinate_list;
 				foreach($storage_data as $storage_id => $storage_data_unit){
 					if($storage_data_unit['StorageControl']['coord_x_type'] == "list"){
 						foreach($data as &$data_model){
 							foreach($data_model as &$value){
-								if(is_numeric($value['x']) && $value['s'] = $storage_id){
-									$value['x'] = $coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
+								if(is_numeric($value['x']) && $value['s'] == $storage_id){
+									$value['x'] = $all_coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
 								}
 							}
 						}
@@ -710,10 +722,10 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->Structures->set('storagemasters');
 	
 		$data['parent'] = $storage_data;
-		if(isset($coordinate_list)){
-			$data['parent']['list'] = $coordinate_list;
+		if(isset($parent_coordinate_list)){
+			$data['parent']['list'] = $parent_coordinate_list;
 			$rkey_coordinate_list = array();
-			foreach($coordinate_list as $values){
+			foreach($parent_coordinate_list as $values){
 				$rkey_coordinate_list[$values['StorageCoordinate']['coordinate_value']] = $values;
 			}
 		}else{
