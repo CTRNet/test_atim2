@@ -358,3 +358,10 @@ VALUES
 ('aids (not just hiv positive)', 'AIDS (not just HIV positive)');
   
 UPDATE versions SET branch_build_number = '6178' WHERE version_number = '2.6.2';
+
+-- 20150803 --------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `type`='float_positive' WHERE model='TreatmentDetail' AND tablename='qc_hb_txd_surgery_pancreas' AND field='wirsung_diameter' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+ALTER TABLE `qc_hb_txd_surgery_pancreas` MODIFY `wirsung_diameter` decimal(7,2) default null;
+ALTER TABLE `qc_hb_txd_surgery_pancreas_revs` MODIFY `wirsung_diameter` decimal(7,2) default null;
+UPDATE versions SET branch_build_number = '6238' WHERE version_number = '2.6.2';
