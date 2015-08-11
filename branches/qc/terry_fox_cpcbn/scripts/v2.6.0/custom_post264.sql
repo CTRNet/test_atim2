@@ -494,3 +494,5 @@ INSERT INTO i18n (id,en) VALUES ('core details','Core Details');
 UPDATE versions SET branch_build_number = '6213' WHERE version_number = '2.6.4';
 UPDATE versions SET branch_build_number = '6217' WHERE version_number = '2.6.4';
 UPDATE versions SET branch_build_number = '6241' WHERE version_number = '2.6.4';
+INSERT INTO i18n (id,en) VALUES ('for review', 'For Review');
+UPDATE versions SET branch_build_number = '6242' WHERE version_number = '2.6.4';

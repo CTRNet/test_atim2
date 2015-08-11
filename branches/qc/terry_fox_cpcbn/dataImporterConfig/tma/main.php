@@ -84,8 +84,14 @@ if($tma_name_to_remove) {
 // Get participant & collection data
 //---------------------------------------------------------------------------------------------
 
-$query = "SELECT Participant.id AS participant_id, Participant.participant_identifier, Participant.qc_tf_bank_participant_identifier, Bank.name AS bank_name, Collection.id AS collection_id
-	FROM participants Participant INNER JOIN banks Bank ON Bank.id = Participant.qc_tf_bank_id LEFT JOIN collections Collection ON Collection.participant_id = Participant.id
+$query = "SELECT Participant.id AS participant_id, 
+		Participant.participant_identifier, 
+		Participant.qc_tf_bank_participant_identifier, 
+		Bank.name AS bank_name, 
+		Collection.id AS collection_id
+	FROM participants Participant 
+	INNER JOIN banks Bank ON Bank.id = Participant.qc_tf_bank_id AND Bank.deleted <> 1 
+	LEFT JOIN collections Collection ON Collection.participant_id = Participant.id AND Collection.deleted <> 1
 	WHERE Participant.deleted <> 1;";
 $atim_patient = array();
 foreach(getSelectQueryResult($query) as $new_patient) {
