@@ -84,12 +84,13 @@ if($tma_name_to_remove) {
 // Get participant & collection data
 //---------------------------------------------------------------------------------------------
 
-$query = "SELECT Participant.participant_identifier, Participant.qc_tf_bank_participant_identifier, Bank.name AS bank_name, Collection.id AS collection_id
+$query = "SELECT Participant.id AS participant_id, Participant.participant_identifier, Participant.qc_tf_bank_participant_identifier, Bank.name AS bank_name, Collection.id AS collection_id
 	FROM participants Participant INNER JOIN banks Bank ON Bank.id = Participant.qc_tf_bank_id LEFT JOIN collections Collection ON Collection.participant_id = Participant.id
 	WHERE Participant.deleted <> 1;";
 $atim_patient = array();
 foreach(getSelectQueryResult($query) as $new_patient) {
 	$tmp_patient_data = array(
+		'participant_id' => $new_patient['participant_id'], 
 		'participant_identifier' => $new_patient['participant_identifier'], 
 		'bank_participant_identifier' => $new_patient['qc_tf_bank_participant_identifier'], 
 		'bank_name' => preg_match('/^(.+)\ #[0-9]$/', $new_patient['bank_name'], $matches)? $matches[1] : $new_patient['bank_name'],
@@ -162,9 +163,15 @@ foreach($excel_files as $excel_data) {
 						// Should be site core inlcuded in a TMA block built by the site
 						if(!isset($atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']])) {
 							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Patient Does Not Exist", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' does not exist into ATiM. No core will be created! REF: $excel_file_name, $worksheet_name.",$worksheet_name.$excel_line_data['ID Bank'].$excel_line_data['BANK']);
-						} else if(empty($atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']]['collection_id'])) {
-							recordErrorAndMessage('Core Creation', '@@ERROR@@', "Patient With No Collection", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' is not linked to a collection into ATiM. No core will be created! REF: $excel_file_name, $worksheet_name.",$worksheet_name.$excel_line_data['ID Bank'].$excel_line_data['BANK']);
 						} else {
+							if(empty($atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']]['collection_id'])) {						
+								$collection_data = array(
+									'collections' => array(
+										'participant_id' => $atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']]['participant_id'],
+										'collection_property' => 'participant collection'));
+								$atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']]['collection_id'] = customInsertRecord($collection_data);
+								recordErrorAndMessage('Core Creation', '@@WARNING@@', "Patient With No Collection", "Patient '".$excel_line_data['ID Bank']."' of bank '".$excel_line_data['BANK']."' was not linked to a collection into ATiM. System created a collection. Please review created collectoin plus complete data as collection site, collection type, collection date. REF: $excel_file_name, $worksheet_name.",$worksheet_name.$excel_line_data['ID Bank'].$excel_line_data['BANK']);
+							}
 							//Create one sample
 							$tissue_source = validateAndGetStructureDomainValue((isset($excel_line_data['Tissu'])? $excel_line_data['Tissu'] : ''), 'tissue_source_list', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
 							if($tissue_source && $tissue_source != 'prostate') {
@@ -328,7 +335,7 @@ function getStorageMasterId($tma_name, $bank, $tma_label_site, $excel_file_name,
 						$tma_name_to_storage_data[$tma_name]['qc_tf_bank_id'] = $qc_tf_bank_id;
 						$tma_name_to_storage_data[$tma_name]['bank_name'] = $bank;
 					} else if ($tma_name_to_storage_data[$tma_name]['qc_tf_bank_id'] != $qc_tf_bank_id) {
-						recordErrorAndMessage('TMA Block Creation', '@@WARNING@@', "Tma bank unconsistant", "See TMA $tma_name and the 2 TMA banks ($bank != ".$tma_name_to_storage_data[$tma_name]['bank_name']."). Please validate and correct bank of the TMA after migration plus check all tma cores provider. REF: $excel_file_name, $worksheet_name, $line_number.", "$tma_name $bank ".$tma_name_to_storage_data[$tma_name]['bank_name']);
+						recordErrorAndMessage('TMA Block Creation', '@@WARNING@@', "Tma bank unconsistant", "See TMA $tma_name and the 2 TMA banks ($bank != ".$tma_name_to_storage_data[$tma_name]['bank_name']."). Please validate the bank of the TMA after migration after migration and correct if if required (set no bank if TMA gathers core of many banks) plus check all tma cores provider. REF: $excel_file_name, $worksheet_name, $line_number.", "$tma_name $bank ".$tma_name_to_storage_data[$tma_name]['bank_name']);
 					}
 				} else {
 					recordErrorAndMessage('TMA Block Creation', '@@ERROR@@', "Bank unknown for a TMA block of a site", "See TMA $tma_name and bank $bank. Bank won't be linked to the created TMA. REF: $excel_file_name, $worksheet_name, $line_number.");
