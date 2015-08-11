@@ -950,14 +950,7 @@ function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_n
 			return false;
 		} else if(!isset($XlsReader->sheets[$studied_excel_file_name_properties['file_worksheets'][$worksheet_name]]['cells']) || empty($XlsReader->sheets[$studied_excel_file_name_properties['file_worksheets'][$worksheet_name]]['cells'])) {
 			//Empty worksheet
-			
-			
-			pr("Worksheet '$worksheet_name' of file '$excel_file_name' is empty. Worksheet won't be parsed.");
-			pr($studied_excel_file_name_properties);
-			pr($XlsReader);
-			exit;
-			
-			recordErrorAndMessage('Excel Data Reading', '@@WARNING@@', "Empty Worksheet", "Worksheet '$worksheet_name' of file '$excel_file_name' is empty. Worksheet won't be parsed.");
+			recordErrorAndMessage('Excel Data Reading', '@@WARNING@@', "EMpty Worksheet", "Worksheet '$worksheet_name' of file '$excel_file_name' is empty. Worksheet won't be parsed.");
 			return false;
 		} else {
 			$studied_excel_file_name_properties['worksheet_name'] = $worksheet_name;
