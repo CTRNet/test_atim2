@@ -2116,3 +2116,37 @@ VALUES
 ('microscope', 'Microscope', 'Microscope');
 
 UPDATE versions SET branch_build_number = '6228' WHERE version_number = '2.6.3';
+
+-- 20150812 - Add CONSENt PROSTATE FIELDS ---------------------------------------------------------------------------
+
+ALTER TABLE cd_icm_generics 
+  ADD COLUMN use_of_faeces CHAR(1) DEFAULT '' AFTER use_of_urine,
+  ADD COLUMN urine_blood_use_for_followup_specify VARCHAR(10) DEFAULT NULL AFTER urine_blood_use_for_followup,
+  ADD COLUMN faeces_for_followup_specify CHAR(1) DEFAULT '' AFTER urine_blood_use_for_followup_specify;
+ALTER TABLE cd_icm_generics_revs 
+  ADD COLUMN use_of_faeces CHAR(1) DEFAULT '' AFTER use_of_urine,
+  ADD COLUMN urine_blood_use_for_followup_specify VARCHAR(10) DEFAULT NULL AFTER urine_blood_use_for_followup,
+  ADD COLUMN faeces_for_followup_specify CHAR(1) DEFAULT '' AFTER urine_blood_use_for_followup_specify; 
+INSERT INTO structures(`alias`) VALUES ('cd_icm_prostates');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cd_icm_urine_blood_use_for_followup_specify", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("urine only", "urine only");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cd_icm_urine_blood_use_for_followup_specify"), (SELECT id FROM structure_permissible_values WHERE value="urine only" AND language_alias="urine only"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("blood only", "blood only");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cd_icm_urine_blood_use_for_followup_specify"), (SELECT id FROM structure_permissible_values WHERE value="blood only" AND language_alias="blood only"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_icm_generics', 'use_of_faeces', 'yes_no',  NULL , '0', '', '', '', 'use of faeces', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'cd_icm_generics', 'urine_blood_use_for_followup_specify', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cd_icm_urine_blood_use_for_followup_specify') , '0', '', '', '', '', 'specify'), 
+('ClinicalAnnotation', 'ConsentDetail', 'cd_icm_generics', 'faeces_for_followup_specify', 'yes_no',  NULL , '0', '', '', '', 'faeces use for followup', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_icm_prostates'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='use_of_faeces' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='use of faeces' AND `language_tag`=''), '2', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cd_icm_prostates'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='urine_blood_use_for_followup_specify' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cd_icm_urine_blood_use_for_followup_specify')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '2', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cd_icm_prostates'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='faeces_for_followup_specify' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='faeces use for followup' AND `language_tag`=''), '2', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE consent_controls SET detail_form_alias = 'cd_icm_generics,cd_icm_prostates' WHERE controls_type = 'chum - prostate';
+INSERT INTO i18n (id,en,fr) 
+ VALUES
+('use of faeces', 'Use of Faeces', 'Utilisation matières fécales'),
+("urine only", 'Urine Only', 'Urine seulement'),
+("blood only", 'Blood Only', 'Sang seulement'),
+('faeces use for followup', 'Faeces Use For Followup', 'Utilisation matières fécales pour suivi');
+
+UPDATE versions SET branch_build_number = '6243' WHERE version_number = '2.6.3';
