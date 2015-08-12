@@ -446,3 +446,16 @@ Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// Quality
 Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
 
 unset($debug);
+
+/**
+ * PROCURE ATiM Version: 'procure_atim_version'
+ * 	Custom core variable defining the type of ATiM custom version installed.
+ * 	Allowed value:
+ *    - BANK: ATiM version installed in each procure bank that followed participants plus collect then store samples.
+ *    - PROCESSING: ATiM version installed in the PROCURE laboratory that receive samples from banks for DNA/RNA analysis,
+ *      path review, shipping to research groups, etc.
+ *    - CENTRAL: ATiM version that gathering all the data of ATiM install to help the head office in the project management. 
+ */
+Configure::write('procure_atim_version', 'BANK');
+//Configure::write('procure_atim_version', 'PROCESSING');
+//Configure::write('procure_atim_version', 'CENTRAL');
