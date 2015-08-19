@@ -19,7 +19,7 @@ class ConsentMasterCustom extends ConsentMaster {
 	}
 	
 	function beforeSave($options = array()){
-		if(Configure::read('procure_atim_version') != 'BANK') $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(Configure::read('procure_atim_version') != 'BANK') AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
 		return parent::beforeSave($options);
 	}
 }
