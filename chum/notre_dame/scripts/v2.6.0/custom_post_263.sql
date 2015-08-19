@@ -2117,7 +2117,7 @@ VALUES
 
 UPDATE versions SET branch_build_number = '6228' WHERE version_number = '2.6.3';
 
--- 20150812 - Add CONSENt PROSTATE FIELDS ---------------------------------------------------------------------------
+-- 20150812 - Add CONSENT PROSTATE FIELDS ---------------------------------------------------------------------------
 
 ALTER TABLE cd_icm_generics 
   ADD COLUMN use_of_faeces CHAR(1) DEFAULT '' AFTER use_of_urine,
@@ -2150,3 +2150,35 @@ INSERT INTO i18n (id,en,fr)
 ('faeces use for followup', 'Faeces Use For Followup', 'Utilisation matières fécales pour suivi');
 
 UPDATE versions SET branch_build_number = '6243' WHERE version_number = '2.6.3';
+
+-- 20150817 - Add tissue core nature ------------------------------------------------------------------------------------
+
+ALTER TABLE ad_tissue_cores
+	ADD COLUMN `qc_nd_core_nature` varchar(50) NOT NULL DEFAULT '';
+ALTER TABLE ad_tissue_cores 
+	ADD COLUMN `qc_nd_core_nature` varchar(50) NOT NULL DEFAULT '';
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_core_natures", "", "", NULL);
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Core Natures\')" WHERE domain_name = 'qc_nd_core_natures';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Tissue Core Natures', 1, 50, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Core Natures');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('bad core', 'Bad Core', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('benign', 'Benign', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('IDC', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('PIN', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('tumor', 'Tumor', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('DT', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('U', '', '', '1', @control_id, NOW(), NOW(), 1, 1); 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'qc_nd_core_nature', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_core_natures') , '0', '', '', '', 'nature', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_cores'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_nd_core_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_core_natures')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nature' AND `language_tag`=''), '1', '70', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE `ad_blocks` 
+  MODIFY `sample_position_code` varchar(50) DEFAULT NULL,
+  MODIFY `patho_dpt_block_code` varchar(50) DEFAULT NULL;
+ALTER TABLE `ad_blocks_revs` 
+  MODIFY `sample_position_code` varchar(50) DEFAULT NULL,
+  MODIFY `patho_dpt_block_code` varchar(50) DEFAULT NULL;
+
+UPDATE versions SET branch_build_number = '6245' WHERE version_number = '2.6.3';
