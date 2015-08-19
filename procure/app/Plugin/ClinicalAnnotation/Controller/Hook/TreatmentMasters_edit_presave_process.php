@@ -6,3 +6,5 @@
 		}
 	}
 	
+	if (!empty($this->request->data)) $this->Participant->setParticipantIdentifierForFormValidation($participant_id);
+	

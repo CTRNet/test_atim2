@@ -24,3 +24,6 @@
 	$this->set('default_procure_form_identification', $default_procure_form_identification);
 	$this->set('ev_header', __($event_control_data['EventControl']['event_type']));
 	
+	//Following line cannot be done in presave_process hook for multi-lines record because validate function is call first
+	if (!empty($this->request->data)) $this->Participant->setParticipantIdentifierForFormValidation($participant_id);
+	
