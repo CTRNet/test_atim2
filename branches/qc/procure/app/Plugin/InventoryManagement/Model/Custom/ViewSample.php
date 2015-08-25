@@ -27,6 +27,7 @@ Collection.procure_visit AS procure_visit,
 		SampleMaster.sample_control_id,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
+SampleMaster.procure_created_by_bank,			
 		
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
