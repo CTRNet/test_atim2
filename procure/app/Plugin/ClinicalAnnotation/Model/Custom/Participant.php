@@ -4,7 +4,6 @@ class ParticipantCustom extends Participant {
 	var $useTable = 'participants';
 	var $name = 'Participant';
 	
-	var $bank_identification = 'PS3P0';
 	var $participant_identifier_for_form_validation = null;
 	
 	function summary($variables=array()){
@@ -35,6 +34,10 @@ class ParticipantCustom extends Participant {
 		return $return;
 	}
 	
+	function getBankParticipantIdentification() {
+		return 'PS'.Configure::read('procure_bank_id').'P0';
+	}
+	
 	function beforeValidate($options = Array()) {
 		$result = parent::beforeValidate($options);	
 		if(isset($this->data['Participant']['procure_transferred_participant'])) {
@@ -43,7 +46,7 @@ class ParticipantCustom extends Participant {
 				$this->validationErrors['participant_identifier'][] = "the 'transferred participant' value has to be set";
 			} else {
 				if(isset($this->data['Participant']['participant_identifier'])) {
-					$id_pattern = "/^".(($this->data['Participant']['procure_transferred_participant'] != 'y')? $this->bank_identification : 'PS[1-4]P0' )."([0-9]+)$/";
+					$id_pattern = "/^".(($this->data['Participant']['procure_transferred_participant'] != 'y')? $this->getBankParticipantIdentification() : 'PS[1-4]P0' )."([0-9]{3})$/";
 					if(!preg_match($id_pattern, $this->data['Participant']['participant_identifier'])) {
 						$result = false;
 						$this->validationErrors['participant_identifier'][] = "the identification format is wrong";
