@@ -352,6 +352,7 @@ $updated_participants_counter = 0;
 
 $query = "SELECT ParentRecNumber, NoBANQUE, Censure, DateDerniereVisite, DateDerniereVisite_accuracy FROM sardo_diagnostic ORDER BY ParentRecNumber;";
 $query_res = customQuery($query, __LINE__);
+if($query_res->num_rows == 0) echo "XML Load Error :: No Diagnosis has been imported from SARDO - No sardo data will be imported - Please check XML file structure.\n";
 $sardo_patient_data = array('patient_RecNumber' => null, 'no_labos' => array(), 'censure' => 0, 'last_visite_date' => null, 'last_visite_date_accuracy' => null);
 while($res = mysqli_fetch_assoc($query_res)) {
 	if($sardo_patient_data['patient_RecNumber'] && $sardo_patient_data['patient_RecNumber'] != $res['ParentRecNumber']) {
