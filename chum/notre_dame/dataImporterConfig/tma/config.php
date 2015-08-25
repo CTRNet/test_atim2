@@ -8,7 +8,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "icm";
+$db_schema		= "icmtest";
 $db_charset		= "utf8";
 
 $migration_user_id = 9;
@@ -16,9 +16,9 @@ $migration_user_id = 9;
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
 $files_path = "C:/_Perso/Server/icm/data/";
-
+$files_path = "/ATiM/atim-oncology-axis/TMA/data/";
 $excel_files = array(
-	array('TMA_Layout_TFInterneCHUM_05-08-2015_CC_short_test.xls', 'Sheet1')		
+	array('TMA_Layout_TFInterneCHUM_05-08-2015_CC_revised_2.xls', 'Sheet1')		
 );
 
 //-- TMA TO REMOVE ---------------------------------------------------------------------------------------------------------------------------

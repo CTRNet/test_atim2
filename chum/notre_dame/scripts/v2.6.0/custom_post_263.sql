@@ -2155,7 +2155,7 @@ UPDATE versions SET branch_build_number = '6243' WHERE version_number = '2.6.3';
 
 ALTER TABLE ad_tissue_cores
 	ADD COLUMN `qc_nd_core_nature` varchar(50) NOT NULL DEFAULT '';
-ALTER TABLE ad_tissue_cores 
+ALTER TABLE ad_tissue_cores_revs
 	ADD COLUMN `qc_nd_core_nature` varchar(50) NOT NULL DEFAULT '';
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_core_natures", "", "", NULL);
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Core Natures\')" WHERE domain_name = 'qc_nd_core_natures';
@@ -2163,7 +2163,6 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Core Natures');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('bad core', 'Bad Core', '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('benign', 'Benign', '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('IDC', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('PIN', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
@@ -2181,4 +2180,4 @@ ALTER TABLE `ad_blocks_revs`
   MODIFY `sample_position_code` varchar(50) DEFAULT NULL,
   MODIFY `patho_dpt_block_code` varchar(50) DEFAULT NULL;
 
-UPDATE versions SET branch_build_number = '6245' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '6248' WHERE version_number = '2.6.3';

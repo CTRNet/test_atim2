@@ -10,7 +10,7 @@ require_once 'system.php';
 //TODO
 pr("TODO: Check all values like '.', 'empty' and 'Empty' have been removed!");
 pr("TODO: Check value 'BadCore' has been replaced by 'Bad Core'!");
-
+Ne pas oublier de rouler le sql pour créer les nouveaux champs + creer collection control + TMA 29 29
 //==============================================================================================
 // Custom Variables
 //==============================================================================================
@@ -39,6 +39,8 @@ $tma_short_label_to_storage_master_id = array();
 //---------------------------------------------------------------------------------------------
 // get 'TMA Controls' collection with existing marker
 //---------------------------------------------------------------------------------------------
+//NOTES: When a block is used both as a control and as a patient block used for a core study,
+//	this one will be created twice: first one will be created into 'TMA Controls' collection and the second one as a block of a patients collection.
 
 $controls_collections = array('collection_id' => array(), 'block_aliquot_master_ids' => array());
 $query = "SELECT Collection.id as collection_id, 
@@ -75,6 +77,10 @@ foreach($excel_files as $excel_data) {
 			//**************************************
 			// 1.0 --> check required fields
 			$fields_validated = true;
+			if(!strlen($excel_line_data['BlocID'])) {
+				recordErrorAndMessage('Patient Core: Requested Data Validation', '@@WARNING@@', "Data of field 'BlocID' is requested - Set to 'Unknown'", "Bloc ID is not set but value is required. Set to unknown'. REF: $excel_file_name / $worksheet_name, line $line_number.");
+				$excel_line_data['BlocID'] = 'Unknown';
+			}
 			$required_fields = array(
 				'TMA name',
 				//NoLabo not empty for sure
@@ -89,7 +95,7 @@ foreach($excel_files as $excel_data) {
 			foreach($required_fields as $tested_field) {
 				if(!strlen($excel_line_data[$tested_field])) {
 					$fields_validated = false;
-					recordErrorAndMessage('Patient Core: Requested Data Validation', '@@ERROR@@', "Data of field '".$tested_field."' is requested", "The core won't be created . REF: $excel_file_name / $worksheet_name, line $line_number.");
+					recordErrorAndMessage('Patient Core: Requested Data Validation', '@@ERROR@@', "Data of field '".$tested_field."' is requested", "The core won't be created. REF: $excel_file_name / $worksheet_name, line $line_number.");
 				}
 			}
 			if($fields_validated) {
@@ -140,7 +146,8 @@ foreach($excel_files as $excel_data) {
 						LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 						LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1								
 						WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
-						AND AliquotDetail.patho_dpt_block_code = '".$excel_line_data['PathoID']."' AND AliquotDetail.sample_position_code = '".$excel_line_data['BlocID']."'";
+						AND AliquotDetail.patho_dpt_block_code = '".$excel_line_data['PathoID']."' AND AliquotDetail.sample_position_code = '".$excel_line_data['BlocID']."'
+						AND Collection.id != ".$controls_collections['collection_id'];
 					$existing_paraffin_block_matching_patho_and_bloc_ids = getSelectQueryResult($query);
 					if($existing_paraffin_block_matching_patho_and_bloc_ids) {
 						//Paraffin block already exists: Check block is unique and check data linked to block are similar
@@ -191,7 +198,8 @@ foreach($excel_files as $excel_data) {
 							LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 							LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1								
 							WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
-							AND AliquotDetail.patho_dpt_block_code = '".$excel_line_data['PathoID']."'";
+							AND AliquotDetail.patho_dpt_block_code = '".$excel_line_data['PathoID']."'
+							AND Collection.id != ".$controls_collections['collection_id'];
 						$existing_collection_matching_patho_id = getSelectQueryResult($query);
 						if($existing_collection_matching_patho_id) {
 							//Collection already exists: Check Collection is unique and participant_id
@@ -323,11 +331,11 @@ foreach($excel_files as $excel_data) {
 				if($requested) {
 					if(!strlen($excel_line_data[$tested_field])) {
 						$fields_validated = false;
-						recordErrorAndMessage('TMA Control', '@@ERROR@@', "Data of field '$tested_field} is requested", "The core won't be created . REF: $excel_file_name / $worksheet_name, line $line_number.");
+						recordErrorAndMessage('TMA Control', '@@ERROR@@', "Data of field '$tested_field} is requested", "The core won't be created. REF: $excel_file_name / $worksheet_name, line $line_number.");
 					}
 				} else if(strlen($excel_line_data[$tested_field])) {
 					$fields_validated = false;
-					recordErrorAndMessage('TMA Control', '@@ERROR@@', "Data of field '".$tested_field."' should not be completed", "The core won't be created . REF: $excel_file_name / $worksheet_name, line $line_number.");
+					recordErrorAndMessage('TMA Control', '@@ERROR@@', "Data of field '".$tested_field."' should not be completed", "The core won't be created. REF: $excel_file_name / $worksheet_name, line $line_number.");
 				}
 			}
 			if($fields_validated) {
@@ -438,7 +446,7 @@ customQuery($query);
 $query = "UPDATE storage_masters SET code=id WHERE code LIKE 'tmp%'";
 customQuery($query);
 
-if(false) {
+if(true) {
 	customQuery("UPDATE storage_masters  SET lft = null, rght = null;");
 	customQuery("UPDATE versions SET permissions_regenerated = 0;");
 } else {
@@ -469,7 +477,7 @@ foreach($creation_messages_for_summary as $title => $creation_messages_for_summa
 	}	
 }
 
-dislayErrorAndMessage(false);
+dislayErrorAndMessage(true);
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
