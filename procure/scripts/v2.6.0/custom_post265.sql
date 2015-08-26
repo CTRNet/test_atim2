@@ -283,6 +283,26 @@ INSERT INTO i18n (id,en,fr) VALUES
 "At least one sample has been created by the system. You have to select first a tested aliquot if this one exists.",
 "Au moins un échantillon a été créé par le système. Vous devez dans ce cas sélectionner un aliquote testé si ce dernier existe."); 
 
+-- INTERNAL USE
+
+SELECT 'Set default value for field aliquot_internal_uses.procure_created_by_bank for each BANK installation' AS '### TODO ###';
+ALTER TABLE aliquot_internal_uses ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+ALTER TABLE aliquot_internal_uses_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '0', '10001', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquotUse', '', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='viewaliquotuses'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '0', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('sent to processing site','Sent To Processing Site','Envoyé au site de traitment',  '1', @control_id, NOW(), NOW(), 1, 1),
+('received from processing site','Received From Processing Site','Recu du site de traitment',  '1', @control_id, NOW(), NOW(), 1, 1);
+SELECT "Set intarnal uses 'sent to processing site' and 'received from processing site' if applicable" AS '### TODO ###';
+
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- DRUG
 -- ----------------------------------------------------------------------------------------------------------------------------------------
@@ -300,6 +320,31 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Order/%';
 
 SELECT count(*) AS '### MESSAGE ### : Nbr of existing studies : Should be equal to 0.' FROM study_summaries;
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Study/%';
+
+SELECT 'aliquot_internal_uses' AS table_name, count(*) AS 'nbr_of_record_linked_to_study (should be 0)' FROM aliquot_internal_uses WHERE study_summary_id IS NOT NULL AND study_summary_id NOT LIKE '' AND deleted <> 1
+UNION ALL
+SELECT 'aliquot_masters' AS table_name, count(*) AS 'nbr_of_record_linked_to_study (should be 0)' FROM aliquot_masters WHERE study_summary_id IS NOT NULL AND study_summary_id NOT LIKE '' AND deleted <> 1
+UNION ALL
+SELECT 'order_lines' AS table_name, count(*) AS 'nbr_of_record_linked_to_study (should be 0)' FROM order_lines WHERE study_summary_id IS NOT NULL AND study_summary_id NOT LIKE '' AND deleted <> 1
+UNION ALL
+SELECT 'consent_masters' AS table_name, count(*) AS 'nbr_of_record_linked_to_study (should be 0)' FROM consent_masters WHERE study_summary_id IS NOT NULL AND study_summary_id NOT LIKE '' AND deleted <> 1
+UNION ALL
+SELECT 'misc_identifiers' AS table_name, count(*) AS 'nbr_of_record_linked_to_study (should be 0)' FROM misc_identifiers WHERE study_summary_id IS NOT NULL AND study_summary_id NOT LIKE '' AND deleted <> 1;
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_batchedit`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_master_edit_in_batchs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list_for_view') AND `flag_confidential`='0');
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- COLLECTION TEMPLATE
@@ -393,18 +438,33 @@ WHERE id1 IN (
 
 
 
-Créer Rapport pour l'envoie des échantillons à la bank de charles dans la version de procure...
-Permettre add use en batch
 
 
-
-
-
-
-
-
+Créer Rapport pour l'envoie des échantillons à la bank de processing dans la version de procure...
+Permettre add use en batch (comme chantale le souhaitait)
+Corriger bug sur le copy/past du load transferred aliquot (check box)
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
+
+SELECT "ALTER TABLE participants MODIFY procure_last_modification_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE participants_revs MODIFY procure_last_modification_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE consent_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE consent_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE event_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE event_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE treatment_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE treatment_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+
+ALTER TABLE collections MODIFY procure_collected_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE collections_revs MODIFY procure_collected_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE sample_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE sample_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE aliquot_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE aliquot_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE aliquot_internal_uses MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE aliquot_internal_uses_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE quality_ctrls MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
+ALTER TABLE quality_ctrls_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';" AS "### TODO ### Statements summray to set default bank values.";
 
 UPDATE versions SET branch_build_number = '6???' WHERE version_number = '2.6.5';

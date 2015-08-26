@@ -9,7 +9,11 @@
 	$final_options = $browse_csv?
 		array('links'=>$structure_links, 'type'=>'add') :
 		array('links'=>$structure_links,
-			'settings'=>array('pagination' => false, 'add_fields' => true, 'del_fields' => true),
+			'settings'=>array(
+				'pagination' => false,
+				'add_fields' => true,
+				'del_fields' => true,
+				'paste_disabled_fields' => array('AliquotMaster.barcode')),
 			'type'=>'addgrid');
 	
 	// BUILD FORM
@@ -18,9 +22,5 @@
 ?>
 
 <script type="text/javascript">
-var copyStr = "<?php echo(__("copy", null)); ?>";
-var pasteStr = "<?php echo(__("paste")); ?>";
-var copyingStr = "<?php echo(__("copying")); ?>";
-var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
 </script>

@@ -30,7 +30,9 @@ class AliquotControlCustom extends AliquotControl {
 		//Add aliquot type to build the list of transferred aliquots descriptions
 		$transferred_aliquots_descriptions_list = array();
 		foreach($transferred_samples_descriptions_list as $linked_sample_control_ids => $linked_sample_types) {
-			$node_sample_control_id =  array_shift(array_reverse(explode($this->description_separator,$linked_sample_control_ids)));
+			$tmp_data = explode($this->description_separator,$linked_sample_control_ids);
+			$tmp_data = array_reverse($tmp_data);
+			$node_sample_control_id =  array_shift($tmp_data);
 			if(array_key_exists($node_sample_control_id, $all_aliquot_controls_from_sample_control_ids)) {
 				foreach($all_aliquot_controls_from_sample_control_ids[$node_sample_control_id] as $aliquot_type) {
 					$key = $linked_sample_types.$this->description_separator.$aliquot_type;
