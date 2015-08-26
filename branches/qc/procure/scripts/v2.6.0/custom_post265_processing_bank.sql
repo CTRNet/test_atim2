@@ -134,16 +134,15 @@ UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM
 ALTER TABLE quality_ctrls MODIFY procure_created_by_bank CHAR(1) DEFAULT 'p';
 ALTER TABLE quality_ctrls_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT 'p';
 
+-- INTERNAL USE
 
-
-
-
-
-
-
-Creer maintenant les aliquots, sample avec regle de gestion
-procure_processing_bank_created_by_system
-
+ALTER TABLE aliquot_internal_uses MODIFY procure_created_by_bank CHAR(1) DEFAULT 'p';
+ALTER TABLE aliquot_internal_uses_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT 'p';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('returned to bank','Returned To Bank','Retourné à la banque',  '1', @control_id, NOW(), NOW(), 1, 1),
+('received from bank','Received From Bank','Recu de la banque',  '1', @control_id, NOW(), NOW(), 1, 1);
 
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
@@ -163,6 +162,20 @@ UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Order/%';
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Study/%';
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_batchedit`='1', `flag_index`='1', `flag_detail`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1', `flag_batchedit`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_master_edit_in_batchs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list_for_view') AND `flag_confidential`='0');
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- COLLECTION TEMPLATE
@@ -173,7 +186,6 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Tools/Template/%';
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- DATAMART & REPORT
 -- ----------------------------------------------------------------------------------------------------------------------------------------
-
 
 -- Activate Report
 
@@ -243,104 +255,6 @@ WHERE id1 IN (
 		'ReproductiveHistory',
 		'SpecimenReviewMaster',
 		'TreatmentExtendMaster'));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- report
-
-'all derivatives display',
-'initial specimens display',
-'list all children storages',
-'list all related diagnosis',
-'number of elements per participant',
-'participant identifiers',
-'procure aliquots summary',
-'procure bcr detection',
-'procure diagnosis and treatments summary',
-'procure followup summary',
-'procure next followup report',
-'report_3_name',
-'report_4_name',
-'report_5_name',
-'report_ctrnet_catalogue_name',
-
--- Structures
-
-'AliquotReviewMaster',
-'ConsentMaster',
-'DiagnosisMaster',
-'EventMaster',
-'FamilyHistory',
-'MiscIdentifier',
-'OrderItem',
-'Participant',
-'ParticipantContact',
-'ParticipantMessage',
-'QualityCtrl',
-'ReproductiveHistory',
-'Shipment',
-'SpecimenReviewMaster',
-'TreatmentExtendMaster',
-'TreatmentMaster',
-'ViewAliquot',
-'ViewAliquotUse',
-'ViewCollection',
-'ViewSample',
-'ViewStorageMaster',
-
--- functions
-
-'add to order',
-'all derivatives display',
-'create aliquots',
-'create derivative',
-'create quality control',
-'create use/event (applied to all)',
-'create uses/events (aliquot specific)',
-'define realiquoted children',
-'edit',
-'initial specimens display',
-'list all children storages',
-'list all related diagnosis',
-'number of elements per participant',
-'participant identifiers report',
-'print barcodes',
-'procure aliquots summary',
-'procure bcr detection',
-'procure diagnosis and treatments summary',
-'procure followup summary',
-'procure next followup report',
-'realiquot',
-
-
-
-
-
-
-
-
-
-
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
