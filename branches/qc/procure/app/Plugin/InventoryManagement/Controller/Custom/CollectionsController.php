@@ -115,7 +115,7 @@ class CollectionsControllerCustom extends CollectionsController{
 				}
 				unset($data_unit);
 				
-				if($row_counter > 30) $errors_tracking['-1'][__("batch init - number of submitted records too big")." (>30)"][] = 'n/a';
+				if($row_counter > $this->Collection->procure_transferred_aliquots_limit) $errors_tracking['-1'][__("batch init - number of submitted records too big")." (".$this->Collection->procure_transferred_aliquots_limit.")"][] = 'n/a';
 				
 				if(empty($errors_tracking)){
 					

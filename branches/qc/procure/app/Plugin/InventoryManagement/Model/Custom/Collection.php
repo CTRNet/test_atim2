@@ -4,6 +4,8 @@ class CollectionCustom extends Collection {
 	var $useTable = 'collections';
 	var $name = 'Collection';
 	
+	var $procure_transferred_aliquots_limit = 50;
+	
 	function allowLinkDeletion($collection_id) {
 		$res = parent::allowLinkDeletion($collection_id);
 		if($res['allow_deletion'] == false) return $res;
