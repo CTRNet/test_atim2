@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 //First Line of any main.php file
 require_once 'system.php';
@@ -10,7 +10,7 @@ require_once 'system.php';
 //TODO
 pr("TODO: Check all values like '.', 'empty' and 'Empty' have been removed!");
 pr("TODO: Check value 'BadCore' has been replaced by 'Bad Core'!");
-Ne pas oublier de rouler le sql pour créer les nouveaux champs + creer collection control + TMA 29 29
+
 //==============================================================================================
 // Custom Variables
 //==============================================================================================
