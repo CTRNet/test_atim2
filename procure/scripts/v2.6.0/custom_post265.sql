@@ -429,6 +429,17 @@ WHERE id1 IN (
 		'SpecimenReviewMaster',
 		'TreatmentExtendMaster'));
 
+-- Generate Aliquot Transfer File
+
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`, `associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) VALUES
+(null, 'procure aliquots transfer file creation', 'procure aliquots transfer file creation description', 'procure_aliquots_selection_criteria', 'procure_transferred_aliquots_details', 'index', 'procureCreateAliquotTransferFile', 1, NULL, 0, NULL, 0, (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 0);
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'create aliquots transfer file', CONCAT('/Datamart/Reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'procure aliquots transfer file creation')), 1, '');
+INSERT INTO structures(`alias`) VALUES ('procure_aliquots_selection_criteria');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_aliquots_selection_criteria'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '300', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'size=30,class=file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquots_description' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_transferred_aliquots_descriptions_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
@@ -436,13 +447,20 @@ WHERE id1 IN (
 
 
 
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('procure aliquots transfer file creation', 'PROCURE - Aliquots Transfer File Creation', 'PROCURE - Création du fichier de transfert d''aliquots'),
+('procure aliquots transfer file creation description', 
+"Generate file used by 'PROCURE Processing Site' to download into ATiM the information of the aliquots transferred (from bank to site).", 
+"Génére le fichier utilisé par le 'Site de Traitement PROCURE' afin de télécharger dans ATiM l'information relative aux aliquots transféré (de la banque vers le site)."),
+('create aliquots transfer file', 'Create Aliquots Transfer File', 'Créer le fichier de transfert d''aliquots');
 
 
 
 
-Créer Rapport pour l'envoie des échantillons à la bank de processing dans la version de procure...
-Permettre add use en batch (comme chantale le souhaitait)
-Corriger bug sur le copy/past du load transferred aliquot (check box)
+
+
+SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' AS "### TODO ###';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------

@@ -15,8 +15,10 @@ class AliquotControlCustom extends AliquotControl {
 		$conditions = array('ParentToDerivativeSampleControl.flag_active' => true);
 		foreach($this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions)) as $new_parent_to_derivative_sample_control_link) {
 			if(!$new_parent_to_derivative_sample_control_link['ParentSampleControl']['id']) {
+				//Specimen
 				$transferred_samples_descriptions_list[$new_parent_to_derivative_sample_control_link['DerivativeControl']['id']] = $new_parent_to_derivative_sample_control_link['DerivativeControl']['sample_type'];
 			} else if($new_parent_to_derivative_sample_control_link['ParentSampleControl']['id'] != $new_parent_to_derivative_sample_control_link['DerivativeControl']['id']) {
+				//Derivative
 				$derivatives_control_data_from_parent_control_id[$new_parent_to_derivative_sample_control_link['ParentSampleControl']['id']][] = $new_parent_to_derivative_sample_control_link['DerivativeControl'];
 			}
 		}

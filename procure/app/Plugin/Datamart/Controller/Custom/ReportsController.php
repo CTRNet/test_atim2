@@ -1146,4 +1146,75 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		return substr($date, 0, $lengh);
 	}
+	
+	function procureCreateAliquotTransferFile($parameters) {
+		$header = null;
+		$conditions = array();
+		if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
+			//From databrowser
+			$aliquot_master_ids  = array_filter($parameters['ViewAliquot']['aliquot_master_id']);
+			if($aliquot_master_ids) $conditions['AliquotMaster.id'] = $aliquot_master_ids;
+		} else if(isset($parameters['AliquotMaster']['barcode'])) {
+			$aliquot_master_barcodes  = array_filter($parameters['AliquotMaster']['barcode']);
+			if($aliquot_master_barcodes) $conditions['AliquotMaster.barcode'] = $aliquot_master_barcodes;
+		} else {		
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	
+		$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+		$aliquot_control_model = AppModel::getInstance("InventoryManagement", "AliquotControl", true);
+		
+		$tmp_res_count = $aliquot_master_model->find('count', array('conditions' => $conditions));
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		pr($parameters);
+		pr("Nbr of Aliquots : $tmp_res_count");
+		
+		pr($aliquot_control_model->getTransferredAliquotsDescriptionsList());
+		exit;
+		
+		
+		
+		$aliquot_masters = $aliquot_master_model->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
+		$data = array();
+		foreach($misc_identifiers as $new_ident){	
+			$participant_id = $new_ident['Participant']['id'];
+			if(!isset($data[$participant_id])) {
+				$data[$participant_id] = array(
+						'Participant' => array(
+								'id' => $new_ident['Participant']['id'],
+								'participant_identifier' => $new_ident['Participant']['participant_identifier'],
+								'first_name' => $new_ident['Participant']['first_name'],
+								'last_name' => $new_ident['Participant']['last_name']),
+						'0' => array(
+								'RAMQ' => null,
+								'hospital_number' => null)
+				);
+			}
+			$data[$participant_id]['0'][str_replace(array(' ', '-'), array('_','_'), $new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
+		}
+		
+		return array(
+				'header' => $header,
+				'data' => $data,
+				'columns_names' => null,
+				'error_msg' => null);
+	}
 }
