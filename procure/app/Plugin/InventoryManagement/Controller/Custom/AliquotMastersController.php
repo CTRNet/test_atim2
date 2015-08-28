@@ -1,7 +1,7 @@
 <?php
 class AliquotMastersControllerCustom extends AliquotMastersController {
 	
-	function addInternalUseToManyAliquots() {
+	function addInternalUseToManyAliquots($storage_master_id = null) {
 		$initial_display = false;
 		$aliquot_ids = array();
 		
