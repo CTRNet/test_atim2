@@ -66,6 +66,13 @@ VALUES
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
 VALUES 
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="p" AND language_alias="PSp"), "", "100");
+INSERT IGNORE i18n (id,en,fr)
+VALUES
+("PS1", "PS1", "PS1"),
+("PS2", "PS2", "PS2"),
+("PS3", "PS3", "PS3"),
+("PS4", "PS4", "PS4"),
+("PSp","PSp","PSp");
 
 SELECT 'Set default value for field participants.procure_last_modification_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE participants ADD COLUMN procure_last_modification_by_bank CHAR(1) DEFAULT '';
@@ -440,27 +447,62 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_aliquots_selection_criteria'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '300', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'size=30,class=file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquots_description' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_transferred_aliquots_descriptions_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-
-
-
-
-
-
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Generated', '', 'procure_sample_aliquot_ctrl_ids_sequence', 'input',  NULL , '0', 'size=30', '', '', 'procure control ids sequence', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_sample_aliquot_ctrl_ids_sequence' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='procure control ids sequence' AND `language_tag`=''), '0', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('procure aliquots transfer file creation', 'PROCURE - Aliquots Transfer File Creation', 'PROCURE - Création du fichier de transfert d''aliquots'),
 ('procure aliquots transfer file creation description', 
 "Generate file used by 'PROCURE Processing Site' to download into ATiM the information of the aliquots transferred (from bank to site).", 
 "Génére le fichier utilisé par le 'Site de Traitement PROCURE' afin de télécharger dans ATiM l'information relative aux aliquots transféré (de la banque vers le site)."),
-('create aliquots transfer file', 'Create Aliquots Transfer File', 'Créer le fichier de transfert d''aliquots');
+('create aliquots transfer file', 'Create Aliquots Transfer File', 'Créer le fichier de transfert d''aliquots'),
+('you are going to transfer %s aliquots flagged as not in stock',
+"'You are going to transfer %s aliquots flagged as 'not in stock'",
+"Vous allez transférer %s aliquotes definis comme 'pas en stock'"),
+('procure control ids sequence','System Code','Code système'),
+('%s lines have been imported - check line format and data if some data are missing',
+'%s lines have been imported. Check line format and data if some data are missing.',
+'%s lignes de ont été importées. Vérifiez le format des données et si certaines données sont manquantes.');
 
 
 
 
 
 
-SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' AS "### TODO ###';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' AS '### TODO ###';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------

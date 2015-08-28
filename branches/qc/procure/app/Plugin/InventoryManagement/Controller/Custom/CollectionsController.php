@@ -42,26 +42,29 @@ class CollectionsControllerCustom extends CollectionsController{
 							$submitted_data  = array();
 							$errors_tracking = array();
 							$premissible_recevied_aliquots_descriptions_list = $this->AliquotControl->getTransferredAliquotsDescriptionsList();
+							$parsed_lines_counter = 0;
 							while (($csv_data = fgetcsv($handle, 1000, $this->request->data['Config']['define_csv_separator'], '"')) !== FALSE) {
 								$row_counter++;
-								$csv_data = array_values(array_filter($csv_data));
+								$csv_data = array_values(array_filter($csv_data));										
 								if($csv_data) {
-									if(sizeof($csv_data) != 2) {
+									if(sizeof($csv_data) != 3) {
 										$errors_tracking['-1']['some aliquot data is missing - check csv separator'][] = $row_counter;
 										$submitted_data[] = array('AliquotMaster' => array('barcode' => '?'));
 									} else {
-										list($aliquot_description, $aliquot_barcode) = $csv_data;
-										//Set default data
-										$aliquot_description = strtolower($aliquot_description);
-										if(!array_key_exists($aliquot_description, $premissible_recevied_aliquots_descriptions_list)) {
-											$aliquot_description = '';
-											$errors_tracking['procure_transferred_aliquots_description']['format of the aliquot description is wrong'][] = $row_counter;
+										list($flushed_data, $aliquot_barcode, $sample_aliquot_ctrl_ids_sequence) = $csv_data;
+										if(preg_match('/^PS.P[0-9]{4}\ V[0-9]{2}/', $aliquot_barcode) && preg_match('/[0-9\-]+#[0-9]+#[pf]{0,1}$/', $sample_aliquot_ctrl_ids_sequence)) {
+											//Set default data
+											if(!array_key_exists($sample_aliquot_ctrl_ids_sequence, $premissible_recevied_aliquots_descriptions_list)) {
+												$sample_aliquot_ctrl_ids_sequence = '';
+												$errors_tracking['procure_transferred_aliquots_description']['format of the aliquot description is wrong'][] = $row_counter;
+											}
+											$new_line_data['FunctionManagement']['procure_transferred_aliquots_description'] = $sample_aliquot_ctrl_ids_sequence;
+											$new_line_data['AliquotMaster']['barcode'] = $aliquot_barcode;
+											$new_line_data['AliquotMaster']['procure_created_by_bank'] = $this->request->data['AliquotMaster']['procure_created_by_bank'];
+											//Set Data
+											$submitted_data[] = $new_line_data;		
+											$parsed_lines_counter++;
 										}
-										$new_line_data['FunctionManagement']['procure_transferred_aliquots_description'] = $aliquot_description;
-										$new_line_data['AliquotMaster']['barcode'] = $aliquot_barcode;
-										$new_line_data['AliquotMaster']['procure_created_by_bank'] = $this->request->data['AliquotMaster']['procure_created_by_bank'];
-										//Set Data
-										$submitted_data[] = $new_line_data;
 									}
 								}
 							}
@@ -71,6 +74,10 @@ class CollectionsControllerCustom extends CollectionsController{
 								}
 							}
 							$this->request->data = $submitted_data;
+							AppController::addWarningMsg(str_replace('%s', $parsed_lines_counter, __('%s lines have been imported - check line format and data if some data are missing')).' ('. 
+								__('aliquot description').' + '. 
+								__('aliquot procure identification').' + '. 
+								__('procure control ids sequence').')');
 						} else {
 							$this->redirect('/Pages/err_opening_submitted_file', null, true);
 						}
@@ -121,24 +128,6 @@ class CollectionsControllerCustom extends CollectionsController{
 					
 					AppModel::acquireBatchViewsUpdateLock();
 					
-					//Build Sample & Aliquot Control Ids Array
-					
-					$sample_and_aliquot_control_data_from_control_ids = array();
-					$sample_and_aliquot_types_to_control_ids = array();
-					foreach($this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('ParentToDerivativeSampleControl.flag_active' => true))) as $new_parent_to_derivative_sample_control_link) {
-						$sample_and_aliquot_control_data_from_control_ids[$new_parent_to_derivative_sample_control_link['DerivativeControl']['id']] = array('SampleControl' => $new_parent_to_derivative_sample_control_link['DerivativeControl'], 'AliquotControl' => null);
-						$sample_and_aliquot_types_to_control_ids[$new_parent_to_derivative_sample_control_link['DerivativeControl']['sample_type']] = $new_parent_to_derivative_sample_control_link['DerivativeControl']['id'];
-					}
-					foreach($this->AliquotControl->find('all', array('conditions' => array('AliquotControl.sample_control_id' => $sample_and_aliquot_types_to_control_ids, 'AliquotControl.flag_active' => '1'))) as $new_aliquot_control) {
-						$sample_control_id = $new_aliquot_control['AliquotControl']['sample_control_id'];
-						if(!isset($sample_and_aliquot_control_data_from_control_ids[$sample_control_id])) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-						$sample_type = $sample_and_aliquot_control_data_from_control_ids[$sample_control_id]['SampleControl']['sample_type'];
-						$aliquot_control_id = $new_aliquot_control['AliquotControl']['id'];
-						$aliquot_type = $new_aliquot_control['AliquotControl']['aliquot_type'];
-						$sample_and_aliquot_control_data_from_control_ids["$sample_control_id-$aliquot_control_id"] = array_merge($sample_and_aliquot_control_data_from_control_ids[$sample_control_id], $new_aliquot_control);
-						$sample_and_aliquot_types_to_control_ids["$sample_type-$aliquot_type"] = "$sample_control_id-$aliquot_control_id";
-					}
-					
 					//Create participant or get participant id
 					
 					$this->Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
@@ -166,10 +155,17 @@ class CollectionsControllerCustom extends CollectionsController{
 					
 					//Create collections, samples and aliquots
 					
-					$this->Collection->addWritableField(array('participant_id', 'procure_visit','procure_collected_by_bank'));
+					$sample_controls = array();
+					foreach($this->ParentToDerivativeSampleControl->find('all', array('conditions'=>array('ParentToDerivativeSampleControl.flag_active' => '1'))) as $new_ctrl) {
+						$sample_controls[$new_ctrl['DerivativeControl']['id']] = $new_ctrl['DerivativeControl'];	
+					}
+					$aliquot_controls = array();
+					foreach($this->AliquotControl->find('all', array('conditions'=>array('AliquotControl.flag_active' => '1', 'AliquotControl.sample_control_id' => array_keys($sample_controls)))) as $new_ctrl) {
+						$aliquot_controls[$new_ctrl['AliquotControl']['id']] = $new_ctrl['AliquotControl'];	
+					}
 					
 					$aliquot_master_ids = array();
-					
+					$this->Collection->addWritableField(array('participant_id', 'procure_visit','procure_collected_by_bank'));
 					foreach($this->request->data as $data_unit){
 						
 						//1 :: Manage collection
@@ -193,28 +189,21 @@ class CollectionsControllerCustom extends CollectionsController{
 						
 						//2 :: Create Samples and aliquots
 						
+						if(!preg_match('/[0-9\-]+#[0-9]+#[pf]{0,1}$/', $data_unit['FunctionManagement']['procure_transferred_aliquots_description']))  $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+						list($sample_control_ids_sequence, $aliquot_control_id, $block_type) = explode('#', $data_unit['FunctionManagement']['procure_transferred_aliquots_description']);	
+						
+						//2-a :: Manage Sample
+											
 						$initial_specimen_sample_id = null;
 						$initial_specimen_sample_type = null;
 						$parent_sample_master_id = null;
 						$parent_sample_type = null;				
-						$samples_and_aliquot_data = $this->AliquotControl->formatTransferredAliquotsDescriptionToArray($data_unit['FunctionManagement']['procure_transferred_aliquots_description']);
-						while($new_sample_and_aliquot = array_shift($samples_and_aliquot_data)) {
-							$sample_type = $new_sample_and_aliquot['sample_type'];
-							$aliquot_type = $new_sample_and_aliquot['aliquot_type']? '-'.$new_sample_and_aliquot['aliquot_type'] : '';
-							if(!isset($sample_and_aliquot_types_to_control_ids[$sample_type.$aliquot_type]) || !isset($sample_and_aliquot_control_data_from_control_ids[$sample_and_aliquot_types_to_control_ids[$sample_type.$aliquot_type]])) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-							$sample_and_aliquot_control_data = $sample_and_aliquot_control_data_from_control_ids[$sample_and_aliquot_types_to_control_ids[$sample_type.$aliquot_type]];
-							$is_specimen = ($sample_and_aliquot_control_data['SampleControl']['sample_category'] == 'specimen') ? true : false;
-							if($is_specimen) {
-								if($initial_specimen_sample_id || $initial_specimen_sample_type || $parent_sample_type || $parent_sample_master_id) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-							} else {
-								if(!$initial_specimen_sample_id || !$initial_specimen_sample_type || !$parent_sample_type || !$parent_sample_master_id) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-							}
-							
-							//2-a :: Manage Sample
-							
+						foreach(explode('-',$sample_control_ids_sequence) as $sample_control_id) {
+							if(!array_key_exists($sample_control_id, $sample_controls)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+							$is_specimen = is_null($initial_specimen_sample_id)? true : false;							
 							$conditions = array(
 								'SampleMaster.collection_id' => $collection_id, 
-								'SampleMaster.sample_control_id' => $sample_and_aliquot_control_data['SampleControl']['id'],
+								'SampleMaster.sample_control_id' => $sample_control_id,
 								'SampleMaster.procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']);
 							if(!$is_specimen) $conditions['SampleMaster.parent_id'] = $parent_sample_master_id;
 							$sample_master_id = null;
@@ -224,12 +213,12 @@ class CollectionsControllerCustom extends CollectionsController{
 							} else {
 								//New Sample Master Data Record
 								$this->SampleMaster->addWritableField(array('collection_id', 'sample_control_id', 'initial_specimen_sample_type', 'initial_specimen_sample_id', 'parent_id', 'parent_sample_type', 'procure_created_by_bank'));
-								$this->SampleMaster->addWritableField(array('sample_master_id'), $sample_and_aliquot_control_data['SampleControl']['detail_tablename']);
+								$this->SampleMaster->addWritableField(array('sample_master_id'), $sample_controls[$sample_control_id]['detail_tablename']);
 								$sample_data_to_record = array(
 									'SampleMaster' => array(
 										'collection_id' => $collection_id,
-										'sample_control_id' => $sample_and_aliquot_control_data['SampleControl']['id'],
-										'initial_specimen_sample_type' => $is_specimen? $sample_and_aliquot_control_data['SampleControl']['sample_type'] : $initial_specimen_sample_type,
+										'sample_control_id' =>$sample_control_id,
+										'initial_specimen_sample_type' => $is_specimen? $sample_controls[$sample_control_id]['sample_type'] : $initial_specimen_sample_type,
 										'initial_specimen_sample_id' => $initial_specimen_sample_id,	//NULL if specimen, will be set later
 										'parent_sample_type' => $parent_sample_type,					//NULL if specimen
 										'parent_id' => $parent_sample_master_id,						//NULL if specimen
@@ -262,34 +251,32 @@ class CollectionsControllerCustom extends CollectionsController{
 							//Reset Sample Data
 							if($is_specimen) {
 								$initial_specimen_sample_id = $sample_master_id;
-								$initial_specimen_sample_type = $sample_and_aliquot_control_data['SampleControl']['sample_type'];
+								$initial_specimen_sample_type = $sample_controls[$sample_control_id]['sample_type'];
 							}
 							$parent_sample_master_id = $sample_master_id;
-							$parent_sample_type = $sample_and_aliquot_control_data['SampleControl']['sample_type'];
-							
-							//2-b :: Create Aliquot
-							
-							if($new_sample_and_aliquot['aliquot_type']) {
-								if(!$sample_and_aliquot_control_data['AliquotControl']) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-								$new_aliquot = array(
-									'AliquotMaster' => array(
-										'collection_id' => $collection_id,
-										'sample_master_id' => $sample_master_id,
-										'aliquot_control_id' => $sample_and_aliquot_control_data['AliquotControl']['id'],
-										'barcode' => $data_unit['AliquotMaster']['barcode'],
-										'in_stock' => 'yes - available',
-										'use_counter' => '0',
-										'procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']),
-									'AliquotDetail' => array());
-								if($new_sample_and_aliquot['aliquot_type'] == 'block') $new_aliquot['AliquotDetail']['block_type'] = $new_sample_and_aliquot['block_type'];
-								$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'in_stock', 'use_counter','procure_created_by_bank'));
-								$this->AliquotMaster->addWritableField(($new_sample_and_aliquot['aliquot_type'] == 'block'? array('aliquot_master_id'): array('aliquot_master_id', 'block_type')), $sample_and_aliquot_control_data['AliquotControl']['detail_tablename']);
-								$this->AliquotMaster->id = null;
-								$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-								if(!$this->AliquotMaster->save($new_aliquot, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-								$aliquot_master_ids[] = $this->AliquotMaster->getLastInsertId();
-							}
+							$parent_sample_type = $sample_controls[$sample_control_id]['sample_type'];
 						}
+						
+						//2-b :: Create Aliquot
+							
+						if(!array_key_exists($aliquot_control_id, $aliquot_controls)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+						$new_aliquot = array(
+							'AliquotMaster' => array(
+								'collection_id' => $collection_id,
+								'sample_master_id' => $sample_master_id,
+								'aliquot_control_id' => $aliquot_controls[$aliquot_control_id]['id'],
+								'barcode' => $data_unit['AliquotMaster']['barcode'],
+								'in_stock' => 'yes - available',
+								'use_counter' => '0',
+								'procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']),
+							'AliquotDetail' => array());
+						if($aliquot_controls[$aliquot_control_id]['aliquot_type'] == 'block') $new_aliquot['AliquotDetail']['block_type'] = $block_type == 'p'? 'paraffin' : 'frozen';
+						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'in_stock', 'use_counter','procure_created_by_bank'));
+						$this->AliquotMaster->addWritableField(($aliquot_controls[$aliquot_control_id]['aliquot_type'] == 'block'? array('aliquot_master_id'): array('aliquot_master_id', 'block_type')), $aliquot_controls[$aliquot_control_id]['detail_tablename']);
+						$this->AliquotMaster->id = null;
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						if(!$this->AliquotMaster->save($new_aliquot, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+						$aliquot_master_ids[] = $this->AliquotMaster->getLastInsertId();
 					}
 					
 					AppModel::releaseBatchViewsUpdateLock();

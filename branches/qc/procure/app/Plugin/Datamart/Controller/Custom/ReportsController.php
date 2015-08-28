@@ -1173,43 +1173,22 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => 'the report contains too many results - please redefine search criteria');
 		}
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		pr($parameters);
-		pr("Nbr of Aliquots : $tmp_res_count");
-		
-		pr($aliquot_control_model->getTransferredAliquotsDescriptionsList());
-		exit;
-		
-		
-		
-		$aliquot_masters = $aliquot_master_model->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
 		$data = array();
-		foreach($misc_identifiers as $new_ident){	
-			$participant_id = $new_ident['Participant']['id'];
-			if(!isset($data[$participant_id])) {
-				$data[$participant_id] = array(
-						'Participant' => array(
-								'id' => $new_ident['Participant']['id'],
-								'participant_identifier' => $new_ident['Participant']['participant_identifier'],
-								'first_name' => $new_ident['Participant']['first_name'],
-								'last_name' => $new_ident['Participant']['last_name']),
-						'0' => array(
-								'RAMQ' => null,
-								'hospital_number' => null)
-				);
-			}
-			$data[$participant_id]['0'][str_replace(array(' ', '-'), array('_','_'), $new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
+		$not_in_stock_aliquot_counter = 0;
+		foreach($aliquot_master_model->find('all', array('conditions' => $conditions, 'recursive' => '-1')) as $new_aliquot) {
+			if($new_aliquot['AliquotMaster']['in_stock'] == 'no') $not_in_stock_aliquot_counter++;
+			$control_ids_sequence = $aliquot_control_model->getSampleAliquotCtrlIdsSequence($new_aliquot['AliquotMaster']['id']);
+			$data[] = array(
+				'ViewAliquot' => array(
+					'collection_id' => $new_aliquot['AliquotMaster']['collection_id'],
+					'sample_master_id' => $new_aliquot['AliquotMaster']['sample_master_id'],
+					'aliquot_master_id' => $new_aliquot['AliquotMaster']['id']),
+				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode']),
+				'FunctionManagement' => array('procure_transferred_aliquots_description' => $control_ids_sequence),
+				'Generated' => array('procure_sample_aliquot_ctrl_ids_sequence' => $control_ids_sequence));
 		}
+		
+		if($not_in_stock_aliquot_counter) AppController::addWarningMsg(str_replace('%s', $not_in_stock_aliquot_counter,__('you are going to transfer %s aliquots flagged as not in stock'))); 
 		
 		return array(
 				'header' => $header,
