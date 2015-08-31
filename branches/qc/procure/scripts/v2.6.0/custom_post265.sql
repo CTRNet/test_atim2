@@ -74,7 +74,6 @@ VALUES
 ("PS4", "PS4", "PS4"),
 ("PSp","PSp","PSp");
 
-SELECT 'Set default value for field participants.procure_last_modification_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE participants ADD COLUMN procure_last_modification_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE participants_revs ADD COLUMN procure_last_modification_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -95,7 +94,6 @@ INSERT INTO i18n (id,en,fr) VALUES ('participant study number','Participant Stud
 
 -- *** CONSENT MASTER ***
 
-SELECT 'Set default value for field consent_masters.procure_created_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE consent_masters ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE consent_masters_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -106,7 +104,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('created by bank','Created By Bank','
 
 -- *** EVENT MASTER ***
 
-SELECT 'Set default value for field event_masters.procure_created_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE event_masters ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE event_masters_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -116,7 +113,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 -- *** TREATMENT MASTER ***
 
-SELECT 'Set default value for field treatment_masters.procure_created_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE treatment_masters ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE treatment_masters_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -145,7 +141,6 @@ WHERE Collection.deleted <> 1 AND (Collection.procure_visit IS NULL OR Collectio
 
 -- Add collection bank that collected the collection (for central)
 
-SELECT 'Set default value for field collections.procure_collected_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE collections ADD COLUMN procure_collected_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE collections_revs ADD COLUMN procure_collected_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -162,7 +157,6 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structur
 
 -- Add sample_masters.procure_created_by_bank for processing bank
 
-SELECT 'Set default value for field sample_masters.procure_created_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE sample_masters ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE sample_masters_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 
@@ -212,11 +206,10 @@ WHERE Participant.deleted <> 1 AND AliquotMaster.barcode NOT REGEXP CONCAT('^', 
 
 -- barcode read only
 
-UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Add aliquot_masters.procure_created_by_bank for processing bank
 
-SELECT 'Set default value for field aliquot_masters.procure_created_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE aliquot_masters ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE aliquot_masters_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) 
@@ -278,7 +271,6 @@ VALUES
 
 -- QUALITY CTRLS
 
-SELECT 'Set default value for field quality_ctrls.procure_created_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE quality_ctrls ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE quality_ctrls_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -292,7 +284,6 @@ INSERT INTO i18n (id,en,fr) VALUES
 
 -- INTERNAL USE
 
-SELECT 'Set default value for field aliquot_internal_uses.procure_created_by_bank for each BANK installation' AS '### TODO ###';
 ALTER TABLE aliquot_internal_uses ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 ALTER TABLE aliquot_internal_uses_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -472,59 +463,9 @@ VALUES
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' AS '### TODO ###';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
-
-SELECT "ALTER TABLE participants MODIFY procure_last_modification_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE participants_revs MODIFY procure_last_modification_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE consent_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE consent_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE event_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE event_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE treatment_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE treatment_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-
-ALTER TABLE collections MODIFY procure_collected_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE collections_revs MODIFY procure_collected_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE sample_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE sample_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE aliquot_masters MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE aliquot_masters_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE aliquot_internal_uses MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE aliquot_internal_uses_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE quality_ctrls MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';
-ALTER TABLE quality_ctrls_revs MODIFY procure_created_by_bank CHAR(1) DEFAULT '?';" AS "### TODO ### Statements summray to set default bank values.";
 
 UPDATE versions SET branch_build_number = '6???' WHERE version_number = '2.6.5';
