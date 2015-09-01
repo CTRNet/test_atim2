@@ -16,6 +16,7 @@ class ViewCollectionCustom extends ViewCollection {
 		Collection.event_master_id AS event_master_id,
 Collection.procure_patient_identity_verified AS procure_patient_identity_verified,
 Collection.procure_visit AS procure_visit,
+Collection.procure_collected_by_bank AS procure_collected_by_bank,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -44,12 +45,14 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 				'data'				=> $collection_data
 			);
 			
-			$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
-			if(!empty($consent_status)){
-				if(!$collection_data['ViewCollection']['participant_id']){
-					AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-				}else if($consent_status[$variables['Collection.id']] == null){
-					AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
+			if(Configure::read('procure_atim_version') != 'PROCESSING') {
+				$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
+				if(!empty($consent_status)){
+					if(!$collection_data['ViewCollection']['participant_id']){
+						AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
+					}else if($consent_status[$variables['Collection.id']] == null){
+						AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
+					}
 				}
 			}
 		}

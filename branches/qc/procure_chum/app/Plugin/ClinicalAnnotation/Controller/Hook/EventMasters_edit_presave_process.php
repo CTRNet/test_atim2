@@ -6,3 +6,5 @@
 			$submitted_data_validates = false;
 		}
 	}
+	
+	$this->Participant->setParticipantIdentifierForFormValidation($participant_id);
