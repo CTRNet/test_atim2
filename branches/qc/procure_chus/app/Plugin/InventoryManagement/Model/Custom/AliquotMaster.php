@@ -7,28 +7,30 @@ class AliquotMasterCustom extends AliquotMaster {
 	function validates($options = array()){
 		$val_res = parent::validates($options);
 		
-		if(array_key_exists('block_type', $this->data['AliquotDetail']) 
-		&& !in_array(($this->data['AliquotDetail']['block_type'].$this->data['AliquotDetail']['procure_freezing_type']), array('frozen','frozenISO','frozenISO+OCT','frozenOCT','paraffin'))) {
-			$this->validationErrors['procure_freezing_type'][] = 'only frozen blocks can be associated to a freezing type';
-			$val_res = false;
+		if(array_key_exists('AliquotDetail', $this->data)) {
+			if(array_key_exists('block_type', $this->data['AliquotDetail']) 
+			&& !in_array(($this->data['AliquotDetail']['block_type'].$this->data['AliquotDetail']['procure_freezing_type']), array('frozen','frozenISO','frozenISO+OCT','frozenOCT','paraffin'))) {
+				$this->validationErrors['procure_freezing_type'][] = 'only frozen blocks can be associated to a freezing type';
+				$val_res = false;
+			}
+			if(array_key_exists('procure_card_completed_datetime', $this->data['AliquotDetail']) && strlen($this->data['AliquotMaster']['storage_datetime'])) {
+				$this->validationErrors['storage_datetime'][] = 'no storage datetime has to be completed for whatman paper';
+				$val_res = false;
+			}
+			//Manage Bioanalyzer Concentration and quantity
+			if(array_key_exists('concentration', $this->data['AliquotDetail']) && strlen($this->data['AliquotDetail']['concentration']) && !strlen($this->data['AliquotDetail']['concentration_unit'])) {
+				$this->validationErrors['concentration_unit'][] = 'concentration unit has to be completed';
+				$val_res = false;
+			}
+			//Manage Nanodrop Concentration and quantity
+			if(array_key_exists('procure_concentration_nanodrop', $this->data['AliquotDetail']) && strlen($this->data['AliquotDetail']['procure_concentration_nanodrop']) && !strlen($this->data['AliquotDetail']['procure_concentration_unit_nanodrop'])) {
+				$this->validationErrors['procure_concentration_unit_nanodrop'][] = 'concentration unit has to be completed';
+				$val_res = false;
+			}
+			if(array_key_exists('procure_freezing_type', $this->data['AliquotDetail']) && $this->data['AliquotDetail']['procure_freezing_type'] == 'OCT'){
+				AppController::addWarningMsg(__('block freezing type OCT has not to be used anymore'));
+			}	
 		}
-		if(array_key_exists('procure_card_completed_datetime', $this->data['AliquotDetail']) && strlen($this->data['AliquotMaster']['storage_datetime'])) {
-			$this->validationErrors['storage_datetime'][] = 'no storage datetime has to be completed for whatman paper';
-			$val_res = false;
-		}
-		//Manage Bioanalyzer Concentration and quantity
-		if(array_key_exists('concentration', $this->data['AliquotDetail']) && strlen($this->data['AliquotDetail']['concentration']) && !strlen($this->data['AliquotDetail']['concentration_unit'])) {
-			$this->validationErrors['concentration_unit'][] = 'concentration unit has to be completed';
-			$val_res = false;
-		}
-		//Manage Nanodrop Concentration and quantity
-		if(array_key_exists('procure_concentration_nanodrop', $this->data['AliquotDetail']) && strlen($this->data['AliquotDetail']['procure_concentration_nanodrop']) && !strlen($this->data['AliquotDetail']['procure_concentration_unit_nanodrop'])) {
-			$this->validationErrors['procure_concentration_unit_nanodrop'][] = 'concentration unit has to be completed';
-			$val_res = false;
-		}
-		if(array_key_exists('procure_freezing_type', $this->data['AliquotDetail']) && $this->data['AliquotDetail']['procure_freezing_type'] == 'OCT'){
-			AppController::addWarningMsg(__('block freezing type OCT has not to be used anymore'));
-		}	
 		
 		return $val_res;
 	}
