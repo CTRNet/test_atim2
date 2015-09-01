@@ -2181,3 +2181,23 @@ ALTER TABLE `ad_blocks_revs`
   MODIFY `patho_dpt_block_code` varchar(50) DEFAULT NULL;
 
 UPDATE versions SET branch_build_number = '6248' WHERE version_number = '2.6.3';
+
+-- 20150901 - Add consent form origin ------------------------------------------------------------------------------------
+
+ALTER TABLE cd_icm_generics ADD COLUMN form_origin VARCHAR(50) DEFAULT '';
+ALTER TABLE cd_icm_generics_revs ADD COLUMN form_origin  VARCHAR(50) DEFAULT '';
+UPDATE consent_controls SET detail_form_alias = CONCAT(detail_form_alias,',cd_icm_form_origin') WHERE controls_type IN ('frsq','frsq - gyneco');
+INSERT INTO structures(`alias`) VALUES ('cd_icm_form_origin');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cd_icm_form_origins", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Consent From Origins\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Consent From Origins', 1, 50, 'clinical - consent');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_icm_generics', 'form_origin', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cd_icm_form_origins') , '0', '', '', '', 'form origin', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_icm_form_origin'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='form_origin' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cd_icm_form_origins')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='form origin' AND `language_tag`=''), '1', '15', 'form details', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+ VALUES
+('form details', 'Form', 'Formulaire'),
+('form origin', 'Origin', 'Provenance');
+
+UPDATE versions SET branch_build_number = '6256' WHERE version_number = '2.6.3';
+
