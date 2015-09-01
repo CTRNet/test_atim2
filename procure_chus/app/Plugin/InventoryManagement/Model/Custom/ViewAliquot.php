@@ -30,6 +30,7 @@ Collection.procure_visit AS procure_visit,
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
+AliquotMaster.procure_created_by_bank,
 			
 			StorageMaster.code,
 			StorageMaster.selection_label,

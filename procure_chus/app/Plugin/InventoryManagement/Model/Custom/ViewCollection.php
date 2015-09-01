@@ -19,6 +19,7 @@ Collection.procure_visit AS procure_visit,
 -- PROCURE CHUS
 Collection.procure_chus_collection_specimen_sample_control_id AS procure_chus_collection_specimen_sample_control_id,
 -- END PROCURE CHUS
+Collection.procure_collected_by_bank AS procure_collected_by_bank,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
@@ -45,12 +46,14 @@ Collection.procure_chus_collection_specimen_sample_control_id AS procure_chus_co
 				'data'				=> $collection_data
 			);
 			
-			$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
-			if(!empty($consent_status)){
-				if(!$collection_data['ViewCollection']['participant_id']){
-					AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-				}else if($consent_status[$variables['Collection.id']] == null){
-					AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
+			if(Configure::read('procure_atim_version') != 'PROCESSING') {
+				$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
+				if(!empty($consent_status)){
+					if(!$collection_data['ViewCollection']['participant_id']){
+						AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
+					}else if($consent_status[$variables['Collection.id']] == null){
+						AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
+					}
 				}
 			}
 		}
