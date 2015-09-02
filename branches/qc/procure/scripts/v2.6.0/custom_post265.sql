@@ -153,6 +153,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES ('collected by bank','Collected By Bank','Collecté par banque');
 UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_fields SET  `setting`='size=30,class=range file' WHERE model='ViewCollection' AND tablename='' AND field='participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+
 -- *** SAMPLE MASTER ***
 
 -- Add sample_masters.procure_created_by_bank for processing bank
@@ -177,6 +179,8 @@ VALUES
 ("at least one sample has been created by the system - you can only create aliquots from existing aliquots for samples created by the system",
 "At least one sample has been created by the system. You can not create directly an aliquot from this type of sample. You have first to select the used aliquot then create the 'realiquoted children' from this one.",
 "Au moins un échantillon a été créé par le système. Vous ne pouvez pas créer directement un aliquot à partir d'un tel échantillon. Vous devez sélectionner l'aliquot utilisé et ensuite créer 'l'aliquot enfant' créé à partir de ce dernier.");
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range file' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- *** ALIQUOT MASTER ***
 
@@ -268,6 +272,11 @@ VALUES
 ('format of the aliquot barcode is not supported','The format of the aliquot identification is not supported!','Le format de l''identification de l''aliquot n''est pas supporté!'),
 ('format of the aliquot description is wrong','The aliquot description is wrong!','La description de l''aliquot n''est pas supportée!'),
 ('you can not select the processing bank as bank sending sample', 'You can not select the ''Processing Site'' as bank sending sample', 'Vous ne pouvez pas choisir le ''Site de traitement'' comme banque ayant envoyé les échantillons');
+
+-- update view
+
+UPDATE structure_fields SET  `setting`='size=30,class=range file' WHERE model='ViewAliquot' AND tablename='' AND field='participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=file' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- QUALITY CTRLS
 
@@ -456,16 +465,36 @@ VALUES
 ('%s lines have been imported - check line format and data if some data are missing',
 '%s lines have been imported. Check line format and data if some data are missing.',
 '%s lignes de ont été importées. Vérifiez le format des données et si certaines données sont manquantes.');
-
-
-
-
-
-
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '4', '', '0', '1', 'procure bank aliquot label', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('procure bank aliquot label', 'Bank Label (alq.)', 'Étiquette de la banque (alq.)');
 
 SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' AS '### TODO ###';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Last Messages
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+SELECT "UPDATE participants SET procure_last_modification_by_bank = '?';
+UPDATE participants_revs SET procure_last_modification_by_bank = '?';
+UPDATE consent_masters SET procure_created_by_bank = '?';
+UPDATE consent_masters_revs SET procure_created_by_bank = '?';
+UPDATE event_masters SET procure_created_by_bank = '?';
+UPDATE event_masters_revs SET procure_created_by_bank = '?';
+UPDATE treatment_masters SET procure_created_by_bank = '?';
+UPDATE treatment_masters_revs SET procure_created_by_bank = '?';
+
+UPDATE collections SET procure_collected_by_bank = '?';
+UPDATE collections_revs SET procure_collected_by_bank = '?';
+UPDATE sample_masters SET procure_created_by_bank = '?';
+UPDATE sample_masters_revs SET procure_created_by_bank = '?';
+UPDATE aliquot_masters SET procure_created_by_bank = '?';
+UPDATE aliquot_masters_revs SET procure_created_by_bank = '?';
+UPDATE aliquot_internal_uses SET procure_created_by_bank = '?';
+UPDATE aliquot_internal_uses_revs SET procure_created_by_bank = '?';
+UPDATE quality_ctrls SET procure_created_by_bank = '?';
+UPDATE quality_ctrls_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id";
+
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6???' WHERE version_number = '2.6.5';

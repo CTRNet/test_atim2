@@ -45,13 +45,12 @@ class CollectionsControllerCustom extends CollectionsController{
 							$parsed_lines_counter = 0;
 							while (($csv_data = fgetcsv($handle, 1000, $this->request->data['Config']['define_csv_separator'], '"')) !== FALSE) {
 								$row_counter++;
-								$csv_data = array_values(array_filter($csv_data));										
 								if($csv_data) {
-									if(sizeof($csv_data) != 3) {
+									if(sizeof($csv_data) != 4) {
 										$errors_tracking['-1']['some aliquot data is missing - check csv separator'][] = $row_counter;
 										$submitted_data[] = array('AliquotMaster' => array('barcode' => '?'));
 									} else {
-										list($flushed_data, $aliquot_barcode, $sample_aliquot_ctrl_ids_sequence) = $csv_data;
+										list($flushed_data, $aliquot_barcode, $aliquot_label, $sample_aliquot_ctrl_ids_sequence) = $csv_data;
 										if(preg_match('/^PS.P[0-9]{4}\ V[0-9]{2}/', $aliquot_barcode) && preg_match('/[0-9\-]+#[0-9]+#[pf]{0,1}$/', $sample_aliquot_ctrl_ids_sequence)) {
 											//Set default data
 											if(!array_key_exists($sample_aliquot_ctrl_ids_sequence, $premissible_recevied_aliquots_descriptions_list)) {
@@ -60,6 +59,7 @@ class CollectionsControllerCustom extends CollectionsController{
 											}
 											$new_line_data['FunctionManagement']['procure_transferred_aliquots_description'] = $sample_aliquot_ctrl_ids_sequence;
 											$new_line_data['AliquotMaster']['barcode'] = $aliquot_barcode;
+											$new_line_data['AliquotMaster']['aliquot_label'] = $aliquot_label;
 											$new_line_data['AliquotMaster']['procure_created_by_bank'] = $this->request->data['AliquotMaster']['procure_created_by_bank'];
 											//Set Data
 											$submitted_data[] = $new_line_data;		
@@ -266,12 +266,13 @@ class CollectionsControllerCustom extends CollectionsController{
 								'sample_master_id' => $sample_master_id,
 								'aliquot_control_id' => $aliquot_controls[$aliquot_control_id]['id'],
 								'barcode' => $data_unit['AliquotMaster']['barcode'],
+								'aliquot_label' => $data_unit['AliquotMaster']['aliquot_label'],
 								'in_stock' => 'yes - available',
 								'use_counter' => '0',
 								'procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']),
 							'AliquotDetail' => array());
 						if($aliquot_controls[$aliquot_control_id]['aliquot_type'] == 'block') $new_aliquot['AliquotDetail']['block_type'] = $block_type == 'p'? 'paraffin' : 'frozen';
-						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'in_stock', 'use_counter','procure_created_by_bank'));
+						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'aliquot_label', 'in_stock', 'use_counter','procure_created_by_bank'));
 						$this->AliquotMaster->addWritableField(($aliquot_controls[$aliquot_control_id]['aliquot_type'] == 'block'? array('aliquot_master_id'): array('aliquot_master_id', 'block_type')), $aliquot_controls[$aliquot_control_id]['detail_tablename']);
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
