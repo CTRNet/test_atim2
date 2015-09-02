@@ -1183,7 +1183,7 @@ class ReportsControllerCustom extends ReportsController {
 					'collection_id' => $new_aliquot['AliquotMaster']['collection_id'],
 					'sample_master_id' => $new_aliquot['AliquotMaster']['sample_master_id'],
 					'aliquot_master_id' => $new_aliquot['AliquotMaster']['id']),
-				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode']),
+				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode'], 'aliquot_label' => $new_aliquot['AliquotMaster']['aliquot_label']),
 				'FunctionManagement' => array('procure_transferred_aliquots_description' => $control_ids_sequence),
 				'Generated' => array('procure_sample_aliquot_ctrl_ids_sequence' => $control_ids_sequence));
 		}

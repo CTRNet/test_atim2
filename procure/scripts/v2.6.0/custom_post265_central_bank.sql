@@ -127,8 +127,6 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`=
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types');
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('sent to processing site','Sent To Processing Site','Envoyé au site de traitment',  '1', @control_id, NOW(), NOW(), 1, 1),
-('received from processing site','Received From Processing Site','Recu du site de traitment',  '1', @control_id, NOW(), NOW(), 1, 1),
 ('returned to bank','Returned To Bank','Retourné à la banque',  '1', @control_id, NOW(), NOW(), 1, 1),
 ('received from bank','Received From Bank','Recu de la banque',  '1', @control_id, NOW(), NOW(), 1, 1);
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='' AND `field`='procure_created_by_bank' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
