@@ -365,3 +365,16 @@ UPDATE structure_fields SET  `type`='float_positive' WHERE model='TreatmentDetai
 ALTER TABLE `qc_hb_txd_surgery_pancreas` MODIFY `wirsung_diameter` decimal(7,2) default null;
 ALTER TABLE `qc_hb_txd_surgery_pancreas_revs` MODIFY `wirsung_diameter` decimal(7,2) default null;
 UPDATE versions SET branch_build_number = '6238' WHERE version_number = '2.6.2';
+
+-- 20150903 --------------------------------------------------------------------------------------------------------
+
+ALTER TABLE qc_hb_txd_surgery_livers ADD COLUMN liver_first tinyint(1) DEFAULT '0',  ADD COLUMN two_steps tinyint(1) DEFAULT '0';
+ALTER TABLE qc_hb_txd_surgery_livers_Revs ADD COLUMN liver_first tinyint(1) DEFAULT '0',  ADD COLUMN two_steps tinyint(1) DEFAULT '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'liver_first', 'checkbox',  NULL , '0', '', '', '', 'liver first', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'two_steps', 'checkbox',  NULL , '0', '', '', '', 'two steps', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='liver_first' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='liver first' AND `language_tag`=''), '2', '35', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='two_steps' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='two steps' AND `language_tag`=''), '2', '36', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en) VALUES ('liver first' ,'Liver First'),('two steps','Two Steps');
+UPDATE versions SET branch_build_number = '6238' WHERE version_number = '2.6.2';
