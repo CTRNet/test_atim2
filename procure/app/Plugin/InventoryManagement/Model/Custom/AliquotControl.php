@@ -74,10 +74,8 @@ class AliquotControlCustom extends AliquotControl {
 		}
 	}
 	
-	function getSampleAliquotCtrlIdsSequence($aliquot_master_id) {
-		$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+	function getSampleAliquotCtrlIdsSequence($aliquot_data) {
 		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
-		$aliquot_data = $aliquot_master_model->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id), 'recursive' => '0'));
 		if($aliquot_data) {
 			$parent_sample_data = $aliquot_data;
 			$sample_control_ids = array($parent_sample_data['SampleMaster']['sample_control_id']);

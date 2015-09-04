@@ -31,6 +31,11 @@ WHERE structure_id=(SELECT id FROM structures WHERE alias='participants')
 AND structure_field_id  NOT IN (SELECT id FROM structure_fields WHERE `field` IN ('participant_identifier', 'created', 'last_modification'));
 UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_proc_site_participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='procure_proc_site_participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='procure_proc_site_participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='procure_proc_site_participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- CONSENT
 
 UPDATE consent_controls SET flag_active = 0;
@@ -154,7 +159,9 @@ UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Order/%';
 -- STUDY
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Study/%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Study/%';
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Study/StudySummaries/%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Study/StudySummaries/listAllLinkedRecords%';
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_batchedit`='1', `flag_index`='1', `flag_detail`='1' 

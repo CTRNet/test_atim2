@@ -30,6 +30,32 @@ SELECT 'Check participant_identifier with the good procure_bank_id for each atim
 SELECT Participant.participant_identifier AS '### TODO ### : Wrong participant idenitifier format : to correct'
 FROM participants Participant WHERE Participant.participant_identifier NOT REGEXP '^PS[1-4]P[0-9]{4}$';
 
+-- Participant Identifier of the processing bank
+
+ALTER TABLE participants ADD COLUMN procure_proc_site_participant_identifier INT(10);
+ALTER TABLE participants_revs ADD COLUMN procure_proc_site_participant_identifier INT(10);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_proc_site_participant_identifier', 'input',  NULL , '0', 'size=20,class=range file', '', '', 'procure processing site participant identifier', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_proc_site_participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='procure processing site participant identifier' AND `language_tag`=''), '1', '-1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='-2' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'procure_proc_site_participant_identifier', 'input',  NULL , '0', 'size=20,class=range file', '', '', 'procure processing site participant identifier', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='procure_proc_site_participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='procure processing site participant identifier' AND `language_tag`=''), '0', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='-1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewSample', '', 'procure_proc_site_participant_identifier', 'input',  NULL , '0', 'size=20,class=range file', '', '', 'procure processing site participant identifier', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='procure_proc_site_participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='procure processing site participant identifier' AND `language_tag`=''), '0', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='-1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquot', '', 'procure_proc_site_participant_identifier', 'input',  NULL , '0', 'size=30,class=range file', '', '', 'procure processing site participant identifier', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='procure_proc_site_participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='procure processing site participant identifier' AND `language_tag`=''), '0', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='-1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('procure processing site participant identifier', 'PSp Identification (part.)', 'PSp Identification (part.)'); 
+
 -- Validate Form Identification are consistent with the participant identifier
 
 SELECT 'Form Identification Control (should match participant identifier) : Correct data if list below is not empty' AS '### MESSAGE ###';
@@ -155,6 +181,8 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structur
 
 UPDATE structure_fields SET  `setting`='size=30,class=range file' WHERE model='ViewCollection' AND tablename='' AND field='participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
 
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type') AND `flag_confidential`='0');
+
 -- *** SAMPLE MASTER ***
 
 -- Add sample_masters.procure_created_by_bank for processing bank
@@ -181,6 +209,17 @@ VALUES
 "Au moins un échantillon a été créé par le système. Vous ne pouvez pas créer directement un aliquot à partir d'un tel échantillon. Vous devez sélectionner l'aliquot utilisé et ensuite créer 'l'aliquot enfant' créé à partir de ce dernier.");
 
 UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range file' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Add concentrated field
+
+ALTER TABLE sd_der_urine_cents ADD COLUMN procure_concentrated char(1) NOT NULL DEFAULT 'n';
+ALTER TABLE sd_der_urine_cents_revs ADD COLUMN procure_concentrated char(1) NOT NULL DEFAULT 'n';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_concentrated', 'yes_no',  NULL , '0', '', 'n', '', 'concentrated', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_concentrated' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='n' AND `language_help`='' AND `language_label`='concentrated' AND `language_tag`=''), '2', '445', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('concentrated','Concentrated','Concentré');
+SELECT "Added option 'concentrated' to centrifuged urine. Please review any installation and migrate concentrated urine data if required." AS '### TODO ###';
 
 -- *** ALIQUOT MASTER ***
 
@@ -272,6 +311,12 @@ VALUES
 ('format of the aliquot barcode is not supported','The format of the aliquot identification is not supported!','Le format de l''identification de l''aliquot n''est pas supporté!'),
 ('format of the aliquot description is wrong','The aliquot description is wrong!','La description de l''aliquot n''est pas supportée!'),
 ('you can not select the processing bank as bank sending sample', 'You can not select the ''Processing Site'' as bank sending sample', 'Vous ne pouvez pas choisir le ''Site de traitement'' comme banque ayant envoyé les échantillons');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'FunctionManagement', '', 'procure_transferred_aliquot_reception_date', 'datetime',  NULL , '0', '', '', '', 'reception date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details_file'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquot_reception_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reception date' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquot_reception_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reception date' AND `language_tag`=''), '0', '15', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('no concentration has been recorded', 'No concentration has been recorded.', 'Aucune concentration ne doit être enregistrée.');
 
 -- update view
 
@@ -354,8 +399,95 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0'
 WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list_for_view') AND `flag_confidential`='0');
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
--- COLLECTION TEMPLATE
+-- PATH REVIEW
 -- ----------------------------------------------------------------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- STUDY
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE study_summaries
+  ADD COLUMN `procure_principal_investigator` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_organization` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_street` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_city` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_province` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_country` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_postal` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_phone_number` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_fax_number` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_email` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_award_committee_approval` char(1) DEFAULT '',
+  ADD COLUMN `procure_reference_ethics_committee_approval` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_chum` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_chus` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_chuq` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_cusm` char(1) DEFAULT '';
+ALTER TABLE study_summaries_revs
+  ADD COLUMN `procure_principal_investigator` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_organization` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_street` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_city` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_province` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_country` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_address_postal` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_phone_number` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_fax_number` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_email` varchar(255) DEFAULT NULL,
+  ADD COLUMN `procure_award_committee_approval` char(1) DEFAULT '',
+  ADD COLUMN `procure_reference_ethics_committee_approval` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_chum` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_chus` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_chuq` char(1) DEFAULT '',
+  ADD COLUMN `procure_site_ethics_committee_convenience_cusm` char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'procure_principal_investigator', 'input',  NULL , '0', 'size=30', '', '', 'principal investigator', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_organization', 'input',  NULL , '0', 'size=30', '', '', 'organization', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_address_province', 'input',  NULL , '0', 'size=15', '', '', 'study_province', ''),
+('Study', 'StudySummary', 'study_summaries', 'procure_address_street', 'input',  NULL , '0', 'size=30', '', '', 'street', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_address_city', 'input',  NULL , '0', 'size=30', '', '', 'study_city', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_address_country', 'input',  NULL , '0', 'size=30', '', '', 'study_country', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_address_postal', 'input',  NULL , '0', 'size=30', '', '', 'study_postal code', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_email', 'input',  NULL , '0', 'size=30', '', '', 'study_email', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_phone_number', 'input',  NULL , '0', 'size=30', '', '', 'phone', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_fax_number', 'input',  NULL , '0', 'size=30', '', '', 'study_fax', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_reference_ethics_committee_approval', 'yes_no',  NULL , '0', '', '', '', 'reference ethics committee approval', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_site_ethics_committee_convenience_chum', 'yes_no',  NULL , '0', '', '', '', 'chum', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_site_ethics_committee_convenience_chus', 'yes_no',  NULL , '0', '', '', '', 'chus', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_site_ethics_committee_convenience_chuq', 'yes_no',  NULL , '0', '', '', '', 'chuq', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_site_ethics_committee_convenience_cusm', 'yes_no',  NULL , '0', '', '', '', 'cusm', ''), 
+('Study', 'StudySummary', 'study_summaries', 'procure_award_committee_approval', 'yes_no',  NULL , '0', '', '', '', 'award committee approval', ''); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_principal_investigator' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='principal investigator' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_organization' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='organization' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_address_street'), '3', '1', 'study_address', '0', '1', 'street', '1', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_address_city'), '3', '2', '', '0', '1', 'study_city', '1', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_address_province'), '3', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_address_country'), '3', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_address_postal'), '3', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_email'), '3', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_phone_number'), '3', '6', '', '0', '0', '', '1', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_fax_number'), '3', '10', '', '0', '0', '', '1', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_reference_ethics_committee_approval' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reference ethics committee approval' AND `language_tag`=''), '2', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_site_ethics_committee_convenience_chum' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chum' AND `language_tag`=''), '2', '3', 'site ethics committee convenience', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_site_ethics_committee_convenience_chus' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chus' AND `language_tag`=''), '2', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_site_ethics_committee_convenience_chuq' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chuq' AND `language_tag`=''), '2', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_site_ethics_committee_convenience_cusm' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cusm' AND `language_tag`=''), '2', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_award_committee_approval' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='award committee approval' AND `language_tag`=''), '2', '1', 'approval', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('chum','CHUM','CHUM'),
+('cusm','MUHC','CUSM'),
+('chuq','CHUQ','CHUQ'),
+('chus','CHUS','CHUS'),
+('organization', 'Organization', 'Organisation'),
+('principal investigator', 'Principal Investigator', 'Chercheur principal'),
+('approval', 'Approval', 'Approbation'),
+('award committee approval', 'Award Committee', 'Comité d''attribution'),
+('reference ethics committee approval', 'Reference Ethics Committee', 'Comité d''éthique de référence'),
+('site ethics committee convenience', 'Ethics Committee Convenience', 'Convenance comité d''éthique');
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- DATAMART & REPORT
@@ -468,7 +600,10 @@ VALUES
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '4', '', '0', '1', 'procure bank aliquot label', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 INSERT INTO i18n (id,en,fr) VALUES ('procure bank aliquot label', 'Bank Label (alq.)', 'Étiquette de la banque (alq.)');
-
+UPDATE structure_formats SET `display_order`='100' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_sample_aliquot_ctrl_ids_sequence' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='aliquot concentration' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='concentration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' AS '### TODO ###';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
