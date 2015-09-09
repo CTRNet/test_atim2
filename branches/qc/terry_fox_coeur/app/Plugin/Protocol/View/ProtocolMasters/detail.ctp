@@ -25,8 +25,8 @@
 		$final_options['type'] = 'detail';
 		$final_options['settings']['header'] = __('precision');
 		$final_options['settings']['actions'] = true;
-		$final_options['extras'] = $this->Structures->ajaxIndex('Protocol/ProtocolExtends/listall/'.$atim_menu_variables['ProtocolMaster.id']);
-		$final_options['links']['bottom']['add precision'] = '/Protocol/ProtocolExtends/add/'.$atim_menu_variables['ProtocolMaster.id'];
+		$final_options['extras'] = $this->Structures->ajaxIndex('Protocol/ProtocolExtendMasters/listall/'.$atim_menu_variables['ProtocolMaster.id']);
+		$final_options['links']['bottom']['add precision'] = '/Protocol/ProtocolExtendMasters/add/'.$atim_menu_variables['ProtocolMaster.id'];
 		
 		$hook_link = $this->Structures->hook('precision');
 		if( $hook_link ) {

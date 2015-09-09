@@ -62,6 +62,7 @@ class BrowsingResult extends DatamartAppModel {
 			
 			//init base model
 			$structure_alias = $structure['Structure']['alias'];
+			
 			AppController::buildDetailBinding(
 					$model,
 					array($model->name.'.'.$model->getControlForeign() => $control_id),

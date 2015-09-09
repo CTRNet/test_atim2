@@ -1,5 +1,4 @@
 <?php
-
 class StorageMaster extends StorageLayoutAppModel {
 	
 	var $belongsTo = array(       
@@ -12,7 +11,7 @@ class StorageMaster extends StorageLayoutAppModel {
 	var $actsAs = array('Tree', 'StoredItem');
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewAliquot' => array('AliquotMaster.storage_master_id'),
+		'InventoryManagement.ViewAliquot' => array('StorageMaster.id'),
 		'StorageLayout.ViewStorageMaster' => array('StorageMaster.id')
 	);
 	
@@ -30,7 +29,14 @@ class StorageMaster extends StorageLayoutAppModel {
 		
 		if (isset($variables['StorageMaster.id'])) {
 			$result = $this->find('first', array('conditions' => array('StorageMaster.id' => $variables['StorageMaster.id'])));
-			$title = __(($result['StorageControl']['is_tma_block']? 'TMA-blc' : $result['StorageControl']['storage_type']));
+			$title = '';
+			if($result['StorageControl']['is_tma_block']) {
+				$title = __('TMA-blc');
+			} else {
+				$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+				$translated_storage_type = $StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $result['StorageControl']['storage_type']);
+				$title = ($translated_storage_type !== false)? $translated_storage_type : $result['StorageControl']['storage_type'];	
+			}
 			
 			$return = array(
 				'menu' => array(null, ($title . ' : ' . $result['StorageMaster']['short_label'])),
@@ -426,13 +432,14 @@ class StorageMaster extends StorageLayoutAppModel {
 		$formatted_data = '';
 		
 		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
+			$storage_control_model = AppModel::getInstance('StorageLayout', 'StorageControl', true);
 			if(!array_key_exists('StorageControl', $storage_data)){
-				$storage_control_model = AppModel::getInstance('StorageLayout', 'StorageControl', true);
 				$storage_data += $storage_control_model->findById($storage_data['StorageMaster']['storage_control_id']);
 			}
-			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . '] / '.__($storage_data['StorageControl']['storage_type']);
+			$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
+			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . '] / '.(isset($storage_types_from_id[$storage_data['StorageControl']['id']])? $storage_types_from_id[$storage_data['StorageControl']['id']] : $storage_data['StorageControl']['storage_type']);
 		}
-	
+		
 		return $formatted_data;
 	}
 	
@@ -450,12 +457,16 @@ class StorageMaster extends StorageLayoutAppModel {
 	 
 	function getStoragePath($studied_storage_master_id) {
 		$storage_path_data = $this->getPath($studied_storage_master_id, null, '0');
-
+				
+		$storage_control_model = AppModel::getInstance('StorageLayout', 'StorageControl', true);
+		$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
+		
 		$path_to_display = '';
 		$separator = '';
 		if(!empty($storage_path_data)){
 			foreach($storage_path_data as $new_parent_storage_data) { 
-				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code'] . " (".__($new_parent_storage_data['StorageControl']['storage_type']).")"; 
+				$storage_type = isset($storage_types_from_id[$new_parent_storage_data['StorageControl']['id']])? $storage_types_from_id[$new_parent_storage_data['StorageControl']['id']] : $new_parent_storage_data['StorageControl']['storage_type'];
+				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code'] . " ($storage_type)"; 
 				$separator = ' > ';
 			}
 		}
@@ -945,59 +956,34 @@ class StorageMaster extends StorageLayoutAppModel {
 		return $conflicts_found;
 	}
 	
-	/**
-	 * Hacks the search query to handle empty spaces. StorageMaster is used as long as there
-	 * is no search criteria based on empty_spaces. Otherwise, the search is made on
-	 * view_storage_masters instead. Recursivity needs to be > -1 for empty_spaces to be returned.
-	 * @see Model::find()
-	 */
-	function find($type = 'first', $query = array()) {
-		if((isset($query['recursive']) ? $query['recursive'] > -1 : $this->recursive > -1) && !isset($query['contain'])){
-			//Order by directive. Since the ATiM field model is "0" it doesn't work automatically.
-			if(isset($query['extra']['sort']) && $query['extra']['sort'] == '0.empty_spaces'){
-				$query['order'] = 'empty_spaces '.$query['extra']['direction'];
-			}
-			
-			//Is there a condition based on empty_space? 
-			if(isset($query['conditions']) && is_array($query['conditions'])){
-				$empty_space_condition = false;
-				foreach($query['conditions'] as $key => $val){
-					if(strpos($key, '0.empty_space') === 0){
-						$query['conditions'][substr($key, 2)] = $val;
-						unset($query['conditions'][$key]);
-						$empty_space_condition = true;
-					}
+	function contentNatCaseSort($models_and_fields, $contents_to_sort, $desc_order = false) {
+		$value_to_key = array();
+		$values_to_sort = array();
+		$first_test = true;
+		foreach($contents_to_sort as $key => $new_content) {
+			$sorted_value = '';
+			foreach($models_and_fields as $model_and_field) {
+				list($model, $field) = explode('.', $model_and_field);
+				if($first_test) {	
+					if(!array_key_exists($model, $new_content) || !array_key_exists($field, $new_content[$model])) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+					$first_test = false;
 				}
-				
-				//There is a condition based on empty_space. We're going to use the view.
-				if($empty_space_condition){
-					$view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster', true);
-					if($type != 'count'){
-						//it's not a count, configure the fields to be returned
-						$query['fields'] = array('StorageMaster.*', 'StorageControl.*', 'CONCAT("", empty_spaces) AS empty_spaces');
-					}
-					return $view_storage_master_model->find($type, $query);
-				}
+				$sorted_value .= $new_content[$model][$field];
 			}
-			
-			//no conditions on empty_spaces, use storage_masters.
-			if($type != 'count' && !isset($query['fields'])){
-				//it's not a count and fields are not specified
-				$query['joins'] = array(
-						array('table' => 'aliquot_masters', 'alias' => 'AliquotMaster', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = AliquotMaster.storage_master_id', 'AliquotMaster.deleted = 0')),
-						array('table' => 'tma_slides', 'alias' => 'TmaSlide', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = TmaSlide.storage_master_id', 'TmaSlide.deleted = 0')),
-						array('table' => 'storage_masters', 'alias' => 'StorageMasterChild', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = StorageMasterChild.parent_id', 'StorageMasterChild.deleted = 0'))
-				);
-			
-				$query['fields'] = array('StorageMaster.*', 'IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(StorageMasterChild.id)) AS empty_spaces');
-				foreach(array_keys($this->belongsTo) as $model_to_fetch){
-					$query['fields'][] = $model_to_fetch.'.*';
-				}
-				$query['group'] = array('StorageMaster.id');
-			}
+			$value_to_key[$sorted_value][] = $key;
+			$values_to_sort[$sorted_value] = $sorted_value;
 		}
-		
-		return parent::find($type, $query);
+		natcasesort($values_to_sort);
+		if($desc_order) $values_to_sort = array_reverse($values_to_sort);
+		$sorted_contents = array();
+		foreach($values_to_sort as $sorted_value) {
+			if(!array_key_exists($sorted_value, $value_to_key)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			foreach($value_to_key[$sorted_value] as $key) {
+				if(!array_key_exists($key, $contents_to_sort)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				$sorted_contents[] = $contents_to_sort[$key];
+			}			
+		}
+		return $sorted_contents;
 	}
 }
 

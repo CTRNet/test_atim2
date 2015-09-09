@@ -4,8 +4,7 @@ class MasterDetailBehavior extends ModelBehavior {
 	
 	var $__settings = array(); 
 	
-	public function setup(Model $model, $config = array()) { 
-		
+	public function setup(Model $model, $config = array()) {
 		if ( strpos($model->alias,'Master') || strpos($model->alias,'Control') || (isset($model->base_model) && strpos($model->base_model,'Master'))){
 			$model_to_use = null;
 			if(isset($model->base_model)){
@@ -30,6 +29,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			$is_master_model	= $master_class == $model_to_use->alias ? true : false;
 			$is_control_model	= $control_class == $model_to_use->alias ? true : false;
+			$is_view			= strpos($model->alias, 'View') !== false;
 			
 			$default = array(
 				'master_class' 		=>	$master_class, 
@@ -43,7 +43,10 @@ class MasterDetailBehavior extends ModelBehavior {
 				'form_alias'			=> $form_alias,
 				
 				'is_master_model'		=> $is_master_model,
-				'is_control_model'	=> $is_control_model
+				'is_control_model'	=> $is_control_model,
+				'is_view'			=> $is_view,
+			    
+			    'default_class'     => $default_class
 			); 
 			if($is_control_model){
 				//for control models, add a virtual field with the full form alias
@@ -56,8 +59,9 @@ class MasterDetailBehavior extends ModelBehavior {
 		} else {
 			
 			$default = array(
-				'is_master_model'		=> false,
-				'is_control_model'	=> false
+				'is_master_model'	=> false,
+				'is_control_model'	=> false,
+				'is_view'			=> strpos($model->alias, 'View') !== false
 			);
 			
 		}
@@ -68,7 +72,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
 	}
 	
-	public function afterFind(Model $model, $results, $primary) {
+	public function afterFind(Model $model, $results, $primary = false) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if($is_master_model){
@@ -112,37 +116,76 @@ class MasterDetailBehavior extends ModelBehavior {
 				$model = $model->previous_model;
 			}
 		}
-		
 		return $results;
 	}
 	
+	/**
+	 * If there is a single control id condition, returns the id, otherwise 
+	 * false
+	 * @param Model $model
+	 * @param unknown $query
+	 * @return mixed
+	 */
+	public function getSingleControlIdCondition(Model $model, $query){
+	    extract($this->__settings[$model->alias]);
+	    if(is_array($query['conditions']) 
+	    && array_key_exists($model->name.".".$control_foreign, $query['conditions']) 
+	    && count($query['conditions'][$model->name.".".$control_foreign]) == 1){
+	    	return $query['conditions'][$model->name.".".$control_foreign];
+	    }
+	    return false;
+	}
+	
+	public function getDetailJoin(Model $model, $control_id, $alternate_model_name=null){
+	    extract($this->__settings[$model->alias]);
+	    assert($is_master_model) or die("getDetailJoin can only be called from master model");
+	    if($alternate_model_name === null){
+	        $model_name = $model->name;
+	        $detail_name = $detail_class;
+	    }else{
+	        $model_name = $alternate_model_name;
+	        $detail_name = str_replace("Master", "Detail", $alternate_model_name);
+	    }
+	    $detail_control_name = $model->belongsTo[$default_class."Control"]['className'];
+	    $plugin = '';
+	    if(strpos($detail_control_name, '.') !== false){
+	        list($plugin , $detail_control_name) = explode('.', $detail_control_name);
+	    }
+	    $detail_control = AppModel::getInstance($plugin, $detail_control_name, true);
+	    $detail_info = $detail_control->find('first', array('conditions' => array($detail_control->name.".id" => $control_id)));
+	    assert($detail_info) or die("detail_info is empty");
+	    $detail_info = $detail_info[$detail_control_name];
+	    return array(
+            'table' => $detail_info['detail_tablename'],
+            'alias'	=> $detail_name,
+            'type'	=> 'LEFT',
+            'conditions' => array(
+                    $model_name.".".$model->primaryKey." = ".$detail_name.".".$master_foreign
+            )
+	    );
+	}
+
 	public function beforeFind(Model $model, $query) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
-		
 		if($is_master_model){
+		    if(isset($model->$detail_class) && isset($model->$detail_class->table)) {
+		        // binding already done via AppController::buildDetailBinding
+		        return;
+		    }
 			//this is a master/detail. See if the find is made on a specific control id. If so, join the detail table
-			$model_name = isset($model->base_model) ? $model->base_model : $model->name; 
-			$base_name = str_replace("Master", "", $model_name);
-			if(isset($query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])){
-				$detail_control_name = $model->belongsTo[$base_name."Control"]['className'];
-				$plugin = '';
-				if(strpos($detail_control_name, '.') !== false){
-					list($plugin , $detail_control_name) = explode('.', $detail_control_name);
-				}
-				$detail_control = AppModel::getInstance($plugin, $detail_control_name, true);
-				$detail_info = $detail_control->find('first', array('conditions' => array($detail_control->name.".id" => $query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])));
-				$model = new $model->name($model->id, $model->table, null, $base_name, $detail_info[$base_name."Control"]['detail_tablename'], $model);
+			$control_id = $model->getSingleControlIdCondition($query); 
+			if($control_id !== false && empty($query['joins'])){
+			    $query['joins'][] = $model->getDetailJoin($control_id);
 			}
 		}
-		
-		return true;
+		return $query;
 	}
 	
-	public function afterSave(Model $model, $created) {
+	public function afterSave(Model $model, $created, $options = Array()) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
-		if ( $is_master_model || $is_control_model ) {
+		if ( !$is_view && ($is_master_model || $is_control_model )) {
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id, $master_class.'.deleted' => array('0', '1')), 'recursive' => 0));
 			assert($associated) or die('MasterDetailBehavior afterSave failed to fetch control details');
@@ -175,6 +218,8 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 			 
 			return $result;
+			
+		}else{
 			
 		}
 	}
@@ -237,7 +282,23 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 	}
 	
-	public function fmlh(&$Model) {
-		echo "MD\n";
+	function getDetailModel($model, $control_id){
+        extract($this->__settings[$model->alias]);
+        if(!$is_master_model){
+           throw new Exception("Must be called from master model");
+        }
+        
+        $detail_control_name = $model->belongsTo[$default_class."Control"]['className'];
+        $plugin = '';
+        if(strpos($detail_control_name, '.') !== false){
+           list($plugin , $detail_control_name) = explode('.', $detail_control_name);
+        }
+        $detail_control = AppModel::getInstance($plugin, $detail_control_name, true);
+        $detail_info = $detail_control->find('first', array('conditions' => 
+        array($detail_control->name.".id" => $control_id)));
+        return new AppModel(array(
+            'table' => $detail_info[$detail_control->name]['detail_tablename'],
+            'name'=>$detail_class,
+            'alias'=> $detail_class));
 	}
 }

@@ -73,15 +73,13 @@ class SampleMastersController extends InventoryManagementAppController {
 		$this->set("collection_id", $collection_id);
 		$this->set("is_ajax", $is_ajax);
 		
-		// Unbind models
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
-		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
-		
+		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail'),'hasMany' => array('AliquotMaster')),false);
 		if($sample_master_id == 0){
 			//fetch all
 			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id IS NULL"), 'recursive' => 0));
 		}else{
-			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id" => $sample_master_id), 'recursive' => 0));
+			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id" => $sample_master_id), 'order' => 'DerivativeDetail.creation_datetime ASC, SampleMaster.id ASC', 'recursive' => 0));
+			foreach($this->request->data as &$new_sample) $new_sample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h','h','h'), $new_sample['DerivativeDetail']['creation_datetime_accuracy']);
 		}
 		
 		$ids = array();
@@ -94,6 +92,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		}
 		if($sample_master_id != 0){
 			//aliquots that are not realiquots
+			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 			$aliquot_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
 			$aliquot_ids = array_diff($aliquot_ids, $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids), 'group' => array("Realiquoting.child_aliquot_master_id"))));
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
@@ -105,7 +104,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
 				$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 			}
-			$this->request->data = array_merge($this->request->data, $aliquots);
+			$this->request->data = array_merge($aliquots, $this->request->data);
 		}
 
 		// Set menu variables
@@ -174,8 +173,8 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(empty($sample_data)) { 
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
-		$sample_data['SampleMaster']['coll_to_rec_spent_time_msg']  = $sample_data['ViewSample']['coll_to_rec_spent_time_msg'];
-		$sample_data['SampleMaster']['coll_to_creation_spent_time_msg']  = $sample_data['ViewSample']['coll_to_creation_spent_time_msg'];
+		if(array_key_exists('coll_to_rec_spent_time_msg', $sample_data['ViewSample'])) $sample_data['SampleMaster']['coll_to_rec_spent_time_msg']  = $sample_data['ViewSample']['coll_to_rec_spent_time_msg'];
+		if(array_key_exists('coll_to_creation_spent_time_msg', $sample_data['ViewSample'])) $sample_data['SampleMaster']['coll_to_creation_spent_time_msg']  = $sample_data['ViewSample']['coll_to_creation_spent_time_msg'];
 		 
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {
@@ -390,7 +389,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					$default_reception_datetime = $collection['Collection']['collection_datetime'];
 					$default_reception_datetime_accuracy = $collection['Collection']['collection_datetime_accuracy'];
 				}else{
-					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => array('SpecimenDetail.reception_datetime')));
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_category' => 'specimen'), 'order' => array('SpecimenDetail.reception_datetime DESC')));
 					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
 					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
@@ -512,7 +511,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						echo json_encode(array('goToNext' => true, 'display' => '', 'id' => $sample_master_id));
 						exit;
 					}else{
-						$this->atimFlash('your data has been saved', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+						$this->atimFlash(__('your data has been saved'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 					}	
 				}					
 			}
@@ -653,6 +652,9 @@ class SampleMastersController extends InventoryManagementAppController {
 			}
 				
 			if($submitted_data_validates) {
+				
+				//AppModel::acquireBatchViewsUpdateLock(); See issue #2981
+				
 				// Save sample data
 				$this->SampleMaster->id = $sample_master_id;
 				if($this->SampleMaster->save($this->request->data, false)) {				
@@ -676,8 +678,10 @@ class SampleMastersController extends InventoryManagementAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash('your data has been updated', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);		
-				}				
+					$this->atimFlash(__('your data has been updated'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);		
+				}
+					
+				//AppModel::releaseBatchViewsUpdateLock(); See issue #2981					
 			}
 		}
 	}
@@ -717,14 +721,14 @@ class SampleMastersController extends InventoryManagementAppController {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { require($hook_link); }
 					
-				$this->atimFlash('your data has been deleted', '/InventoryManagement/Collections/detail/' . $collection_id);
+				$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/Collections/detail/' . $collection_id);
 			
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/Collections/detail/' . $collection_id);
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/Collections/detail/' . $collection_id);
 			}
 			
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 		}		
 	}
 	
@@ -765,7 +769,19 @@ class SampleMastersController extends InventoryManagementAppController {
 			
 		}else if(isset($this->request->data['ViewAliquot']) || isset($this->request->data['AliquotMaster'])){
 			//aliquot init case
-			$aliquot_ids = array_filter(isset($this->request->data['ViewAliquot']) ? $this->request->data['ViewAliquot']['aliquot_master_id'] : $this->request->data['AliquotMaster']['id']);
+			$alq_model = 'ViewAliquot';
+			$alq_key = 'aliquot_master_id';
+			if(isset($this->request->data['AliquotMaster'])) {
+				$alq_model = 'AliquotMaster';
+				$alq_key = 'id';
+			}
+			if(isset($this->request->data['node']) && $this->request->data[ $alq_model ][ $alq_key ] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data[ $alq_model ][ $alq_key ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
+			$aliquot_ids = array_filter($this->request->data[ $alq_model ][ $alq_key ]);
+
 			if(empty($aliquot_ids)){
 				$this->flash(__("batch init no data"), $url_to_cancel, 5);
 			}
@@ -793,6 +809,11 @@ class SampleMastersController extends InventoryManagementAppController {
 		} else {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
+		}
+		if(isset($this->request->data['node']) && $this->request->data[ $model ][ $key ] == 'all') {
+			$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+			$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+			$this->request->data[ $model ][ $key ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 		}
 		
 		// Set url to redirect
@@ -925,7 +946,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			if(is_numeric($result)){
 				$lab_book_id = $result;
 			}else{
-				$this->flash($result, $url_to_cancel, 5);
+				$this->flash(__($result), $url_to_cancel, 5);
 				return;
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);
@@ -940,7 +961,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		$ids = array_key_exists('ids', $this->request->data['SampleMaster']) ? $this->request->data['SampleMaster']['ids'] : $this->request->data['sample_master_ids'];
 		$this->set('sample_master_ids', $ids);
 		unset($this->request->data['sample_master_ids']);
-
+		
 		if(is_null($aliquot_master_id)) {
 			$this->setBatchMenu(array('SampleMaster' => $ids));
 		} else {
@@ -976,6 +997,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(isset($this->request->data['SampleMaster']['ids'])){
 			//1- INITIAL DISPLAY
 			$parent_sample_data_for_display = array();
+			$display_limit = Configure::read('SampleDerivativeCreation_processed_items_limit');
 			if(!empty($this->request->data['AliquotMaster']['ids'])){
 				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 				$aliquots = $this->AliquotMaster->find('all', array(
@@ -984,6 +1006,10 @@ class SampleMastersController extends InventoryManagementAppController {
 					'recursive'		=> 0,
 					'joins'			=> $joins)
 				);
+				if(sizeof($aliquots) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+					return;
+				}
 				$this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
 				$this->request->data = array();
 				foreach($aliquots as $aliquot){
@@ -992,6 +1018,10 @@ class SampleMastersController extends InventoryManagementAppController {
 				}			
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
+				if(sizeof($samples) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+					return;
+				}
 				$this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
 				$this->request->data = array();
 				foreach($samples as $sample){
@@ -1034,8 +1064,9 @@ class SampleMastersController extends InventoryManagementAppController {
 					);
 					$parent['AliquotMaster'] = array_merge($parent['AliquotMaster'], $children['AliquotMaster']);
 					$parent['FunctionManagement'] = $children['FunctionManagement'];
-					$children['AliquotMaster']['id'] = $parent_id;
-					$aliquots_data[] = array('AliquotMaster' => $children['AliquotMaster'], 'FunctionManagement' => $children['FunctionManagement']);
+					$children['AliquotMaster']['id'] = $parent_id;				
+					$tmp_storage_coord_x = $children['AliquotMaster']['storage_coord_x'];
+					$tmp_storage_coord_y = $children['AliquotMaster']['storage_coord_y'];
 					$this->AliquotMaster->data = array();
 					unset($children['AliquotMaster']['storage_coord_x']);
 					unset($children['AliquotMaster']['storage_coord_y']);
@@ -1045,7 +1076,9 @@ class SampleMastersController extends InventoryManagementAppController {
 						$msgs = is_array($msgs)? $msgs : array($msgs);
 						foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 					}
-					
+					$this->AliquotMaster->data['AliquotMaster']['storage_coord_x'] = $tmp_storage_coord_x;
+					$this->AliquotMaster->data['AliquotMaster']['storage_coord_y'] = $tmp_storage_coord_y;
+					$aliquots_data[] = array('AliquotMaster' => $this->AliquotMaster->data['AliquotMaster'], 'FunctionManagement' => $children['FunctionManagement']);
 					unset($children['AliquotMaster'], $children['FunctionManagement'], $children['AliquotControl'], $children['StorageMaster']);
 				}else{
 					$parent = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent_id), 'recursive' => -1));
@@ -1104,6 +1137,8 @@ class SampleMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)){
 				unset($_SESSION['derivative_batch_process']);
+				
+				AppModel::acquireBatchViewsUpdateLock();
 				
 				//save
 				$child_ids = array();
@@ -1174,6 +1209,8 @@ class SampleMastersController extends InventoryManagementAppController {
 					require($hook_link); 
 				}
 				
+				AppModel::releaseBatchViewsUpdateLock();
+				
 				if(is_null($unique_aliquot_master_data)) {
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
@@ -1183,12 +1220,12 @@ class SampleMastersController extends InventoryManagementAppController {
 					));
 					$batch_set_model->check_writable_fields = false;
 					$batch_set_model->saveWithIds($batch_set_data, $child_ids);
-					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
 					if(!isset($unique_aliquot_master_data['AliquotMaster'])){
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
-					$this->atimFlash('your data has been saved','/InventoryManagement/SampleMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $child_ids[0].'/');					
+					$this->atimFlash(__('your data has been saved'),'/InventoryManagement/SampleMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $child_ids[0].'/');					
 				}
 				
 			}else{

@@ -50,8 +50,8 @@ class ViewCollection extends InventoryManagementAppModel {
 		$return = false;
 		
 		if(isset($variables['Collection.id'])) {
-			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-		
+			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id']), 'recursive' => '-1'));
+			
 			$return = array(
 				'menu' => array(null, $collection_data['ViewCollection']['acquisition_label']),
 				'title' => array(null, __('collection') . ' : ' . $collection_data['ViewCollection']['acquisition_label']),
@@ -88,7 +88,7 @@ class ViewCollection extends InventoryManagementAppModel {
 	function getUnconsentedParticipantCollections(array $collection){
 		$data = null;
 		if(array_key_exists('id', $collection)){
-			$data = $this->find('all', array('conditions' => array('ViewCollection.collection_id' => $collection['id'])));
+			$data = $this->find('all', array('conditions' => array('ViewCollection.collection_id' => $collection['id']), 'recursive' => '-1'));
 		}else{
 			$data = array_key_exists('ViewCollection', $collection['data']) ? array($collection['data']) : $collection['data']; 
 		}

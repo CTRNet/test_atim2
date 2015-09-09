@@ -356,7 +356,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean True if the operation should continue, false if it should abort 
      * @access public 
      */ 
-    public function beforeSave(Model $model) 
+    public function beforeSave(Model $model, $options = Array()) 
     { 
         if ($this->__settings[$model->alias]['find']) 
         { 
@@ -384,7 +384,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @param boolean $created True if this save created a new record 
      * @access public 
      */ 
-    public function afterSave(Model $model, $created) 
+    public function afterSave(Model $model, $created, $options = Array()) 
     { 
         if (isset($this->__backAttributes[$model->alias]['find'])) 
         { 

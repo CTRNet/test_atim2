@@ -36,11 +36,29 @@ class StudySummary extends StudyAppModel
 		foreach($this->find('all', array('order' => 'StudySummary.title ASC')) as $new_study) {
 			$result[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'];
 		}
+		asort($result);
 		
 		return $result;
 	}
-
-	function allowDeletion($study_summary_id) {	
+	
+	function getStudyPermissibleValuesForView() {
+		$result = $this->getStudyPermissibleValues();
+		$result['-1'] = __('not applicable');			
+		return $result;
+	}
+	
+	function allowDeletion($study_summary_id) {$ctrl_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('MiscIdentifier.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a participant'); 
+		}	
+		
+		$ctrl_model = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('ConsentMaster.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a consent'); 
+		}	
+		
 		$ctrl_model = AppModel::getInstance("Order", "Order", true);
 		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('Order.default_study_summary_id' => $study_summary_id), 'recursive' => '-1'));
 		if($ctrl_value > 0) { 

@@ -2,28 +2,30 @@
 /**
  * TestsAppsPostsController file
  *
- * PHP 5
- *
- * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
- * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice
  *
- * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.test_app.Controller
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 class TestsAppsPostsController extends AppController {
 
-	public $name = 'TestsAppsPosts';
-
 	public $uses = array('Post');
 
 	public $viewPath = 'TestsApps';
 
+/**
+ * add method
+ *
+ * @return void
+ */
 	public function add() {
 		$data = array(
 			'Post' => array(
@@ -39,8 +41,9 @@ class TestsAppsPostsController extends AppController {
 	}
 
 /**
- * check url params
+ * check URL params
  *
+ * @return void
  */
 	public function url_var() {
 		$this->set('params', $this->request->params);
@@ -50,12 +53,18 @@ class TestsAppsPostsController extends AppController {
 /**
  * post var testing
  *
+ * @return void
  */
 	public function post_var() {
 		$this->set('data', $this->request->data);
 		$this->render('index');
 	}
 
+/**
+ * input_data()
+ *
+ * @return void
+ */
 	public function input_data() {
 		$this->set('data', $this->request->input('json_decode', true));
 		$this->render('index');
@@ -64,6 +73,7 @@ class TestsAppsPostsController extends AppController {
 /**
  * Fixturized action for testAction()
  *
+ * @return void
  */
 	public function fixtured() {
 		$this->set('posts', $this->Post->find('all'));
