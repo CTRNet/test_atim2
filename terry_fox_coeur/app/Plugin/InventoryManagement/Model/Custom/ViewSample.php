@@ -5,7 +5,7 @@ class ViewSampleCustom extends ViewSample {
 
 	static $table_query = '
 		SELECT SampleMaster.id AS sample_master_id,
-		SampleMaster.parent_id AS parent_sample_id,
+		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
 		
@@ -13,11 +13,11 @@ class ViewSampleCustom extends ViewSample {
 		Collection.sop_master_id, 
 		Collection.participant_id, 
 		
-		Participant.participant_identifier, 
+		Participant.participant_identifier,
 Participant.qc_tf_bank_identifier AS qc_tf_bank_identifier,	
-Participant.qc_tf_bank_id AS qc_tf_bank_id,	
+Participant.qc_tf_bank_id AS qc_tf_bank_id,	 
 		
-		Collection.acquisition_label, 
+		Collection.acquisition_label,
 		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,

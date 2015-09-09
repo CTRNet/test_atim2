@@ -47,13 +47,8 @@
 			'list'		=> '/Datamart/BatchSets/index/'
 		)
 	);
-	if(isset($data_for_detail['Adhoc']) && $data_for_detail['Adhoc']['flag_use_control_for_results']){
-		$structure_links['bottom'] = array_merge(array('generic batch set' => array(
-				"cast to a new generic batch set" 	=> array('link'=>'/Datamart/BatchSets/generic/'.$atim_menu_variables['BatchSet.id'].'/1/','icon'=>'batch_set'),
-				"cast into a generic batch set"		=> array('link'=>'/Datamart/BatchSets/generic/'.$atim_menu_variables['BatchSet.id'].'/0/','icon'=>'batch_set'),
-			)), $structure_links['bottom']);
-	}
-	
+	if($display_unlock_button) $structure_links['bottom'] = array_merge(array('unlock' => '/Datamart/BatchSets/unlock/'.$atim_menu_variables['BatchSet.id']), $structure_links['bottom']);
+
 	$this->Structures->build($atim_structure_for_process, array(
 		'type' =>'add', 
 		'settings'=>array(

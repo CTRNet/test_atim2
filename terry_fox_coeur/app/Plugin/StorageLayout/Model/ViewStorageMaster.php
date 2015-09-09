@@ -1,18 +1,21 @@
 <?php
 
 class ViewStorageMaster extends StorageLayoutAppModel {
-	
+    var $primaryKey = 'id';
 	var $base_model = "StorageMaster";
 	var $base_plugin = 'StorageLayout';
 	
-	var $belongsTo = array(       
-		'StorageControl' => array(           
-			'className'    => 'StorageLayout.StorageControl',            
-			'foreignKey'    => 'storage_control_id'        
-		)    
+	var $belongsTo = array(
+		'StorageControl' => array(
+			'className'    => 'StorageLayout.StorageControl',
+			'foreignKey'    => 'storage_control_id'
+		),'StorageMaster'	=> array(
+			'className'    => 'StorageLayour.StorageMaster',
+			'foreignKey'    => 'id',
+			'type'			=> 'INNER')
 	);
 	
-	var $alias = 'StorageMaster';
+	var $alias = 'ViewStorageMaster';
 	
 	static $table_query = '
 		SELECT StorageMaster.*, 

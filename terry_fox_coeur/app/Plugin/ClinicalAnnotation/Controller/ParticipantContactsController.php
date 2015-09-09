@@ -30,6 +30,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		if(empty($participant_contact_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
+		if($participant_contact_data['ParticipantContact']['confidential'] && !$this->Session->read('flag_show_confidential')){
+			//Should not happens but in case
+			$this->redirect("/Pages/err_confidential");
+		}
 		$this->request->data = $participant_contact_data;
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -48,6 +52,9 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		if($this->Session->read('flag_show_confidential')){
+			$this->Structures->set('participantcontacts,participantcontacts_confidential');
+		}
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -72,7 +79,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$this->ParticipantContact->id );
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$this->ParticipantContact->id );
 				}
 			}
 		}
@@ -84,6 +91,13 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		// MANAGE DATA
 		$participant_contact_data = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.id'=>$participant_contact_id, 'ParticipantContact.participant_id'=>$participant_id), 'recursive' => '-1'));		
 		if(empty($participant_contact_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		
+		if($participant_contact_data['ParticipantContact']['confidential'] && !$this->Session->read('flag_show_confidential')){
+			//Should not happens but in case
+			$this->redirect("/Pages/err_confidential");
+		} else if($this->Session->read('flag_show_confidential')) {
+			$this->Structures->set('participantcontacts,participantcontacts_confidential');
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantContact.id'=>$participant_contact_id) );
@@ -111,7 +125,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id );
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id );
 				}
 			}
 		}
@@ -125,18 +139,21 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		if(empty($participant_contact_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
+		if($participant_contact_data['ParticipantContact']['confidential'] && !$this->Session->read('flag_show_confidential')){
+			AppController::getInstance()->redirect("/Pages/err_confidential");
+		}
 
 		$arr_allow_deletion = $this->ParticipantContact->allowDeletion($participant_contact_id);
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->ParticipantContact->atimDelete( $participant_contact_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 			else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id);
 		}
 	}
 }

@@ -65,10 +65,10 @@ class DATABASE_CONFIG {
 		'host' => '127.0.0.1',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'trunk',
+		'database' => 'tfricoeur',
 		'prefix' => '',
-		'encoding' => 'utf8'/*,
-		'port'		=> 8889*/
+		'encoding' => 'utf8',
+		'port'	=> 3306
 	);
 
 }
