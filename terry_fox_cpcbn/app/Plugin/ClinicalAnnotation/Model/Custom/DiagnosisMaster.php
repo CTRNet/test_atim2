@@ -164,7 +164,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		return $all_linked_diagmosises_ids;
 	}
 	
-	function atimDelete( $diagnosis_master_id ) {
+	function atimDelete( $diagnosis_master_id, $cascade = true ) {
 		$deleted_diagnosis_master_data = $this->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
 		$result = parent::atimDelete($diagnosis_master_id);
 		if($result && array_key_exists('first_biochemical_recurrence', $deleted_diagnosis_master_data['DiagnosisDetail']) && $deleted_diagnosis_master_data['DiagnosisDetail']['first_biochemical_recurrence']) {

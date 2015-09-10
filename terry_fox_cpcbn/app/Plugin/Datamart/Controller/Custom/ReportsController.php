@@ -169,10 +169,14 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.gleason_score_biopsy_turp,
 				DiagnosisDetail.gleason_score_rp,
 			
+				TreatmentMaster.start_date ,
+				TreatmentMaster.start_date_accuracy,
+				
 				TreatmentDetail.qc_tf_lymph_node_invasion ,
 				TreatmentDetail.qc_tf_capsular_penetration,
 				TreatmentDetail.qc_tf_seminal_vesicle_invasion,
 				TreatmentDetail.qc_tf_margin,
+				TreatmentDetail.qc_tf_gleason_grade,
 				
 				DiagnosisDetail.hormonorefractory_status,
 				DiagnosisDetail.survival_in_months,
@@ -215,11 +219,40 @@ class ReportsControllerCustom extends ReportsController {
 				$new_participant['Generated']['is_suspected_date_of_death'] = 'y';
 			}
 			if(!empty($new_participant['DiagnosisMaster']['primary_id'])) $primary_ids[] = $new_participant['DiagnosisMaster']['primary_id'];
-				
+			$new_participant['Generated']['qc_tf_gleason_grade_rp'] = $new_participant['TreatmentDetail']['qc_tf_gleason_grade'];
 		}
 		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';
 		$participant_ids = empty($participant_ids)? array('-1') : $participant_ids;
 
+		
+		// *********** Get Bx DX, etc ********
+		
+		$bx_dx_gleason_grades_from_primary_id = array();
+		if($primary_ids_condition) {
+			$TreatmentMasterModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+			$sql =
+				"SELECT DISTINCT
+					DiagnosisMaster.primary_id,
+					DiagnosisMaster.participant_id,
+					TreatmentDetail.gleason_grade
+				FROM diagnosis_masters AS DiagnosisMaster
+				INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1
+				INNER JOIN qc_tf_txd_biopsies_and_turps AS TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id AND TreatmentDetail.type IN ('".implode("','", $TreatmentMasterModel->dx_biopsy_and_turp_types)."')
+				WHERE DiagnosisMaster.deleted <> 1 AND $primary_ids_condition
+				ORDER BY DiagnosisMaster.primary_id ASC;";
+			$gleason_grades_bx_dx = $this->Report->tryCatchQuery($sql);
+			$tmp_new_primary_id = '';
+			foreach($gleason_grades_bx_dx as $new_res) {
+				$studied_primary_id = $new_res['DiagnosisMaster']['primary_id'];
+				if($tmp_new_primary_id != $studied_primary_id) {
+					$tmp_new_primary_id = $studied_primary_id;
+					$bx_dx_gleason_grades_from_primary_id[$studied_primary_id] = array('Generated'=>array('qc_tf_gleason_grade_biopsy_turp' => $new_res['TreatmentDetail']['gleason_grade']));
+				} else {
+					die('ERR 1993434343');
+				}
+			}
+		}
+		
 		// *********** Get Fst Bcr ***********		
 		
 		$fst_bcr_results_from_primary_id = array();
@@ -434,11 +467,11 @@ class ReportsControllerCustom extends ReportsController {
 		$fst_bcr_template = array(
 			'FstBcrDiagnosisMaster' => array(
 				'first_bcr_date' => '',
-				'first_metastasfirst_bcr_date_accuracyis_dx_date' => ''),
+				'first_bcr_date_accuracy' => ''),
 			'FstBcrDiagnosisDetail' => array(
 					'first_bcr_type' => ''
 			)
-		);				
+		);
 		foreach($main_results as &$new_participant) {		
 			if(isset($dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
 				$new_participant = array_merge_recursive($new_participant, $dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
@@ -462,7 +495,20 @@ class ReportsControllerCustom extends ReportsController {
 			} else {
 				$new_participant = array_merge_recursive($new_participant, $treatments_summary_template);
 			}
-			
+			if(isset($bx_dx_gleason_grades_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
+				$new_participant = array_merge_recursive($new_participant, $bx_dx_gleason_grades_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
+			} else {
+				$new_participant = array_merge_recursive($new_participant, array('Generated'=>array('qc_tf_gleason_grade_biopsy_turp' => '')));
+			}
+			$date_diff_def = array('Participant.qc_tf_last_contact' => 'Generated.qc_tf_rp_to_last_contact',
+				'Metastasis.qc_tf_first_bone_metastasis_date' => 'Generated.qc_tf_rp_to_bone_met',
+				'FstBcrDiagnosisMaster.first_bcr_date' => 'Generated.qc_tf_rp_to_bcr');
+			foreach($date_diff_def as $model_field_data => $model_field_calculated) {
+				list($model_data,$field_data) = explode('.', $model_field_data);
+				list($model_calculated,$field_calculated) = explode('.', $model_field_calculated);
+				$new_participant[$model_calculated][$field_calculated] = $this->getDateDiffInMonths($new_participant['TreatmentMaster']['start_date'], $new_participant[$model_data][$field_data]);	
+				if($new_participant[$model_data][$field_data.'_accuracy'].$new_participant['TreatmentMaster']['start_date_accuracy'] != 'cc' && $new_participant[$model_data][$field_data] && $new_participant['TreatmentMaster']['start_date'] ) $warnings[] = __('intervals from rp have been calculated with at least one inaccuracy date');
+			}
 			if(($_SESSION['Auth']['User']['group_id'] != '1') && ($new_participant['Participant']['qc_tf_bank_id'] != $user_bank_id)) {
 				$new_participant['Participant']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 				$new_participant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
@@ -478,5 +524,20 @@ class ReportsControllerCustom extends ReportsController {
 		
 		return $array_to_return;		
 	}	
+	
+	function getDateDiffInMonths($start_date, $end_date) {
+		$months = '';
+		if(!empty($start_date) && !empty($end_date)) {
+			$start_date_ob = new DateTime($start_date);
+			$end_date_ob = new DateTime($end_date);
+			$interval = $start_date_ob->diff($end_date_ob);
+			if($interval->invert) {
+				$months = 'ERR';
+			} else {
+				$months = $interval->y*12 + $interval->m;
+			}
+		}
+		return $months;
+	}
 
 }
