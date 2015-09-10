@@ -76,7 +76,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		return $treatment_control;
 	}
 	
-	function atimDelete( $tx_master_id ) {
+	function atimDelete( $tx_master_id, $cascade = true ) {
 		$deleted_tx_data = $this->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
 		$result = parent::atimDelete($tx_master_id);
 		if($result && array_key_exists('qc_tf_disease_free_survival_start_events', $deleted_tx_data['TreatmentMaster']) && $deleted_tx_data['TreatmentMaster']['qc_tf_disease_free_survival_start_events'] && $deleted_tx_data['TreatmentMaster']['diagnosis_master_id']) {
