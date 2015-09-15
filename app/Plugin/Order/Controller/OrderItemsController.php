@@ -59,7 +59,7 @@ class OrderItemsController extends OrderAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->Structures->set('orderitems,orderitems_plus'.($order_line_id? '' : ',orderitems_and_lines'));
+		$this->Structures->set('orderitems,orderitems_plus'.(($order_line_id || Configure::read('order_item_to_order_objetcs_link_setting') == 3)? '' : ',orderitems_and_lines'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
 		$hook_link = $this->hook('format');
@@ -71,6 +71,9 @@ class OrderItemsController extends OrderAppController {
 	function add( $order_id, $order_line_id = null ) {
 		if (( !$order_id )) { 
 			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
+		if(Configure::read('order_item_to_order_objetcs_link_setting') == 2 && !$order_line_id) {
+			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
 		}
 		
 		// MANAGE DATA
@@ -322,7 +325,6 @@ class OrderItemsController extends OrderAppController {
 		$order_and_order_line_data = array();
 		$this->Order->unbindModel(array('hasMany' => array('OrderLine','Shipment')));
 		$order_data_tmp = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed'))), 'order' => 'Order.order_number ASC'));
-//TODO test si juste line
   		if(!$order_data_tmp) {
 			$this->flash(__('no order to complete is actually defined'), $url_to_redirect);
 			return;
@@ -333,10 +335,14 @@ class OrderItemsController extends OrderAppController {
 			if(isset($this->request->data['FunctionManagement']['selected_order_and_order_line_ids']) && ($this->request->data['FunctionManagement']['selected_order_and_order_line_ids'] == $new_order['Generated']['order_and_order_line_ids'])) {
 				$new_order['FunctionManagement']['selected_order_and_order_line_ids'] = $this->request->data['FunctionManagement']['selected_order_and_order_line_ids'];
 			}
-			$order_and_order_line_data[$order_id] = array('order' => $new_order, 'lines' => array());
+			$order_and_order_line_data[$order_id] = array('order' => array($new_order), 'lines' => array());
 		}
 		$this->OrderLine->unbindModel(array('belongsTo' => array('Order')));
 		$order_line_data_tmp = $this->OrderLine->find('all', array('conditions' => array('OrderLine.order_id' => array_keys($order_and_order_line_data)), 'order' => 'OrderLine.date_required ASC'));
+		if(!$order_line_data_tmp && (Configure::read('order_item_to_order_objetcs_link_setting') == 2)) {
+			$this->flash(__('no order to complete is actually defined'), $url_to_redirect);
+			return;
+		}
 		foreach($order_line_data_tmp as $new_line) {
 			$new_line['Generated']['order_and_order_line_ids'] =  $new_line['OrderLine']['order_id'].'|'.$new_line['OrderLine']['id'];
 			unset($new_line['OrderItem']);
