@@ -33,6 +33,8 @@ class OrderLinesController extends OrderAppController {
 	function add( $order_id ) {
 		if ( !$order_id ) { 
 			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		} else if(Configure::read('order_item_to_order_objetcs_link_setting') == 3) {
+			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
 		}
 
 		// MANAGE DATA

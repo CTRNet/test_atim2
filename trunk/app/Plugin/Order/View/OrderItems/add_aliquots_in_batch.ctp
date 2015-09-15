@@ -53,15 +53,28 @@
 		'top' => '/Order/OrderItems/addAliquotsInBatch/'
 	);
 	
-	$hook_link = $this->Structures->hook('order_lines');	
+	$linked_objects = array();
+	if(Configure::read('order_item_to_order_objetcs_link_setting') != 2) $linked_objects[] = __('order');
+	if(Configure::read('order_item_to_order_objetcs_link_setting') != 3) $linked_objects[] = __('order line');
+	$header = '2 - '.str_replace('%%order_objects%%', implode(' '.__('or').' ', $linked_objects), __('%%order_objects%% selection', null));
+	if(Configure::read('order_item_to_order_objetcs_link_setting') == 3) {
+		//Merge all orders in one array() then reset $order_and_order_line_data
+		$tmp_all_orders = array();
+		foreach($order_and_order_line_data as $new_data_to_merge) {
+			$tmp_all_orders[] = $new_data_to_merge['order'][0];
+		}
+		$order_and_order_line_data = array(array('order' => $tmp_all_orders, 'lines' => array()));
+	}
 	
-	$header = '2 - '.str_replace('%%order_objects%%', implode(' '.__('or').' ', array(__('order'), __('order line'))), __('%%order_objects%% selection', null));
+	$hook_link = $this->Structures->hook('order_and_order_lines');	
+	
 	while($new_order_data_set = array_shift($order_and_order_line_data)) {
 		//Display Order Title
-		$language_heading = __('order') . ' : ' . $new_order_data_set['order']['Order']['order_number'];
+		$language_heading = __('order') . ' : ' . $new_order_data_set['order'][0]['Order']['order_number'];
+		if(Configure::read('order_item_to_order_objetcs_link_setting') == 3) $language_heading = null;
 		//Display Order Selection (if allowed)
 		$last_list = empty($order_and_order_line_data) && empty($new_order_data_set['lines']);
-		if($item_to_order_direct_link_allowed) {
+		if($item_to_order_direct_link_allowed && Configure::read('order_item_to_order_objetcs_link_setting') != 2) {
 			//Item can be directly linked to an order
 			$structure_settings = array(
 				'pagination'	=> false,
@@ -73,9 +86,9 @@
 				'language_heading' => $language_heading
 			);
 			
-			$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>array($new_order_data_set['order']), 'links'=>$structure_links );
+			$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$new_order_data_set['order'], 'links'=>$structure_links );
 			$final_atim_structure = $atim_structure_order;
-			$hook_link = $this->Structures->hook('order_item');
+			$hook_link = $this->Structures->hook('orders');
 			if( $hook_link ) { 
 				require($hook_link); 
 			}
@@ -97,11 +110,13 @@
 			);
 			$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$new_order_data_set['lines'], 'links'=>$structure_links );
 			$final_atim_structure = $atim_structure_order_line;
+			$hook_link = $this->Structures->hook('order_lines');
 			if( $hook_link ) { 
 				require($hook_link); 
 			}
 			$this->Structures->build( $final_atim_structure, $final_options );
 		}
+		$header = null;
 		$language_heading = null;
 	}
 	

@@ -14,6 +14,8 @@
 			'delete'=>'/Order/Orders/delete/' . $atim_menu_variables['Order.id'] . '/'
 		)
 	);
+	if(Configure::read('order_item_to_order_objetcs_link_setting') == 3)  unset($structure_links['bottom']['add order line']);
+	if(Configure::read('order_item_to_order_objetcs_link_setting') == 2)  unset($structure_links['bottom']['add items to order']);
 	
 	$structure_override = array();
 	
@@ -29,24 +31,25 @@
 	
 	// ----- ORDER LINES -----
 	
-	$final_atim_structure = array(); 
-	$final_options = array(
-		'links'	=> $structure_links,
-		'settings' => array(
-			'header' => __('order_order lines', null),
-			'actions'	=> false,
-		), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderLines/listall/'.$atim_menu_variables['Order.id']))
-	);
-		
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook('order_lines');
-	if( $hook_link ) { 
-		require($hook_link); 
+	if(Configure::read('order_item_to_order_objetcs_link_setting') != 3) {
+		$final_atim_structure = array(); 
+		$final_options = array(
+			'links'	=> $structure_links,
+			'settings' => array(
+				'header' => __('order_order lines', null),
+				'actions'	=> false,
+			), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderLines/listall/'.$atim_menu_variables['Order.id']))
+		);
+			
+		// CUSTOM CODE
+		$hook_link = $this->Structures->hook('order_lines');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+			
+		// BUILD FORM
+		$this->Structures->build( $final_atim_structure, $final_options );	
 	}
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );	
-
 	// ----- SHIPMENTS -----
 	
 	$final_atim_structure = array();
