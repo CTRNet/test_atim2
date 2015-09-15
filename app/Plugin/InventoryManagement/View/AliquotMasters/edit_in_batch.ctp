@@ -1,7 +1,7 @@
 <?php
 
-AppController::addWarningMsg(__('all changes will be applied to the all'));
-AppController::addWarningMsg(__("keep the 'new value' field empty to not change data and use the 'erase/remove' checkbox to erase the data"));
+AppController::addInfoMsg(__('all changes will be applied to the all'));
+AppController::addInfoMsg(__("keep the 'new value' field empty to not change data and use the 'erase/remove' checkbox to erase the data"));
 
 $aliquot_ids = array();
 if(isset($this->request->data['ViewAliquot']['aliquot_master_id'])){

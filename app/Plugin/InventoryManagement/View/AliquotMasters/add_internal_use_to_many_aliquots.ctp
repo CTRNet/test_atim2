@@ -1,7 +1,7 @@
 <?php 
 	
-	AppController::addWarningMsg(__('aliquots data'). ': '.__('all changes will be applied to the all'));
-	AppController::addWarningMsg(__('aliquots data'). ': '.__("keep the 'new value' field empty to not change data and use the 'erase/remove' checkbox to erase the data"));
+	AppController::addInfoMsg(__('aliquots data'). ': '.__('all changes will be applied to the all'));
+	AppController::addInfoMsg(__('aliquots data'). ': '.__("keep the 'new value' field empty to not change data and use the 'erase/remove' checkbox to erase the data"));
 	
 	$structure_links = array(
 		'top' => '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/',
