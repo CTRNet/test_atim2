@@ -68,7 +68,7 @@ class OrdersController extends OrderAppController {
   
 	function detail( $order_id ) {
 		// MANAGE DATA
-		
+	pr($this->test_nl);	
 		$order_data = $this->Order->getOrRedirect($order_id);
 		if(empty($order_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 

@@ -8,6 +8,8 @@
 			'new search' => OrderAppController::$search_links,
 			'edit'=>'/Order/Orders/edit/' . $atim_menu_variables['Order.id'] . '/',
 			'add order line'=>'/Order/OrderLines/add/' . $atim_menu_variables['Order.id'] . '/',
+			'add items to order' => array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'add_to_order'),
+			'edit all order items' => '/Order/OrderItems/edit/'.$atim_menu_variables['Order.id'].'/',
 			'add shipment'=>array('link'=> '/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
 			'delete'=>'/Order/Orders/delete/' . $atim_menu_variables['Order.id'] . '/'
 		)

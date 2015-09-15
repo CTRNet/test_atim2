@@ -31,7 +31,7 @@
 			'aliquot details' => array(
 				'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
 				'icon' => 'aliquot'),
-			'remove'=>'/Order/Shipments/deleteFromShipment/%%OrderLine.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/',
+			'remove from shipment'=>'/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/',
 		);
 	
 		$structure_links['bottom'] = array(
