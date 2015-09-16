@@ -610,25 +610,45 @@ SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' A
 -- Last Messages
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-SELECT "UPDATE participants SET procure_last_modification_by_bank = '?';
-UPDATE participants_revs SET procure_last_modification_by_bank = '?';
-UPDATE consent_masters SET procure_created_by_bank = '?';
-UPDATE consent_masters_revs SET procure_created_by_bank = '?';
-UPDATE event_masters SET procure_created_by_bank = '?';
-UPDATE event_masters_revs SET procure_created_by_bank = '?';
-UPDATE treatment_masters SET procure_created_by_bank = '?';
-UPDATE treatment_masters_revs SET procure_created_by_bank = '?';
+-- UPDATE participants SET procure_last_modification_by_bank = '?';
+-- UPDATE participants_revs SET procure_last_modification_by_bank = '?';
+-- UPDATE consent_masters SET procure_created_by_bank = '?';
+-- UPDATE consent_masters_revs SET procure_created_by_bank = '?';
+-- UPDATE event_masters SET procure_created_by_bank = '?';
+-- UPDATE event_masters_revs SET procure_created_by_bank = '?';
+-- UPDATE treatment_masters SET procure_created_by_bank = '?';
+-- UPDATE treatment_masters_revs SET procure_created_by_bank = '?';
 
-UPDATE collections SET procure_collected_by_bank = '?';
-UPDATE collections_revs SET procure_collected_by_bank = '?';
-UPDATE sample_masters SET procure_created_by_bank = '?';
-UPDATE sample_masters_revs SET procure_created_by_bank = '?';
-UPDATE aliquot_masters SET procure_created_by_bank = '?';
-UPDATE aliquot_masters_revs SET procure_created_by_bank = '?';
-UPDATE aliquot_internal_uses SET procure_created_by_bank = '?';
-UPDATE aliquot_internal_uses_revs SET procure_created_by_bank = '?';
-UPDATE quality_ctrls SET procure_created_by_bank = '?';
-UPDATE quality_ctrls_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id";
+-- UPDATE collections SET procure_collected_by_bank = '?';
+-- UPDATE collections_revs SET procure_collected_by_bank = '?';
+-- UPDATE sample_masters SET procure_created_by_bank = '?';
+-- UPDATE sample_masters_revs SET procure_created_by_bank = '?';
+-- UPDATE aliquot_masters SET procure_created_by_bank = '?';
+-- UPDATE aliquot_masters_revs SET procure_created_by_bank = '?';
+-- UPDATE aliquot_internal_uses SET procure_created_by_bank = '?';
+-- UPDATE aliquot_internal_uses_revs SET procure_created_by_bank = '?';
+-- UPDATE quality_ctrls SET procure_created_by_bank = '?';
+-- UPDATE quality_ctrls_revs SET procure_created_by_bank = '?';
+
+SELECT "UPDATE participants SET procure_last_modification_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE participants_revs SET procure_last_modification_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE consent_masters SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE consent_masters_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE event_masters SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE event_masters_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE treatment_masters SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE treatment_masters_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+
+SELECT "UPDATE collections SET procure_collected_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE collections_revs SET procure_collected_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE sample_masters SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE sample_masters_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE aliquot_masters SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE aliquot_masters_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE aliquot_internal_uses SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE aliquot_internal_uses_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE quality_ctrls SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id" UNION ALL
+SELECT "UPDATE quality_ctrls_revs SET procure_created_by_bank = '?';" AS "### TODO ### Update created by to the bank id";
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
