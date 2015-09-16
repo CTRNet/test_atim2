@@ -633,4 +633,85 @@ class AliquotMaster extends InventoryManagementAppModel {
 	static function joinOnAliquotDup($on_field){
 		return array('table' => 'aliquot_masters', 'alias' => 'aliquot_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = aliquot_masters_dup.id'));
 	}
+	
+	function validateAliquotMasterDataUpdateInBatch($function_management_data, $submitted_aliquot_master_data, $aliquot_ids) {
+		//Set in_stock value	
+		//Use of field 'FunctionManagement.in_stock' to support empty value that means 'in_stock' value has not to be changed 
+		//(Can not use field AliquotMaster.in_stock value because this one is linked to a 'not empty' validation)
+		$submitted_aliquot_master_data['in_stock'] = $function_management_data['in_stock'];	
+		
+		$validates = true;
+			
+		// Check submitted data conflicts
+			
+		if(strlen($function_management_data['recorded_storage_selection_label']) && (($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no'))) {
+			$validates = false;
+			$this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: you can not remove aliquot and set a storage');
+			if($submitted_aliquot_master_data['in_stock'] == 'no') $this->validationErrors['in_stock'][] = __('data conflict: you can not remove aliquot and set a storage');
+		}
+		foreach($submitted_aliquot_master_data as $key => $value) {
+			if(strlen($submitted_aliquot_master_data[$key]) && array_key_exists('remove_'.$key, $function_management_data) && $function_management_data['remove_'.$key] == '1') {
+				$validates = false;
+				$this->validationErrors[$key][] = __('data conflict: you can not delete data and set a new one');
+			}
+		}
+			
+		// Set gerenated aliquot master data plus launch validation on this data set
+		
+		$aliquot_master_data_to_update = array('AliquotMaster' => array_filter($submitted_aliquot_master_data));
+		$position_deletion_warning_message = null;
+		
+		if($validates){
+			// Work on storage data
+			if($function_management_data['recorded_storage_selection_label']) {
+				$aliquot_master_data_to_update['FunctionManagement']['recorded_storage_selection_label'] = $function_management_data['recorded_storage_selection_label'];
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
+				$this->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					
+				$position_deletion_warning_message = 'aliquots positions have been deleted';
+					
+				if(empty($submitted_aliquot_master_data['in_stock'])) {
+					//New stock value has not been set then won't be updated: Control above detected no conflict - Check data in db
+					$condtions = array('AliquotMaster.id' => $aliquot_ids, 'AliquotMaster.in_stock' => 'no');
+					$aliquot_not_in_stock = $this->find('count', array('conditions' => $condtions, 'recursive' => '-1'));
+					if($aliquot_not_in_stock) {
+						$validates = false;
+						$position_deletion_warning_message = '';
+						$this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value');
+					}
+				}
+					
+			} else if(($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no')) {
+				//Aliquots not in stcok anymore : Erase storage data
+				$aliquot_master_data_to_update['AliquotMaster']['storage_master_id'] = null;
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
+				$this->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+			}
+			// Work on other data
+			foreach($submitted_aliquot_master_data as $key => $value) {
+				if(array_key_exists('remove_'.$key, $function_management_data) && $function_management_data['remove_'.$key] == '1') {
+					$aliquot_master_data_to_update['AliquotMaster'][$key] = null;
+				}
+			}
+		}
+		if($validates){
+			$aliquot_master_data_to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
+			$not_core_nbr = $this->find('count', array('conditions' => array('AliquotMaster.id' => $aliquot_ids, "AliquotControl.aliquot_type != 'core'")));
+			$aliquot_master_data_to_update['AliquotControl']['aliquot_type'] = $not_core_nbr? 'not core' : 'core'; //to allow tma storage check (check aliquot != than core is not stored into TMA block), remove afterward
+			$this->set($aliquot_master_data_to_update);
+			if(!$this->validates()){
+				$validates = false;
+			}
+			$aliquot_master_data_to_update= $this->data;
+			unset($aliquot_master_data_to_update['AliquotMaster']['aliquot_control_id']);
+			unset($aliquot_master_data_to_update['AliquotControl']['aliquot_type']);
+		}
+		
+		if(sizeof($aliquot_master_data_to_update['AliquotMaster']) == '1' && array_key_exists('__validated__', $aliquot_master_data_to_update['AliquotMaster'])) $aliquot_master_data_to_update['AliquotMaster'] = array();	//No data to save
+		
+		return array($aliquot_master_data_to_update, $validates, $position_deletion_warning_message);	
+	}
+		
 }
