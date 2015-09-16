@@ -92,8 +92,6 @@ $sql_sardo_tables_creations = array(
 		Censure varchar(255) DEFAULT NULL,
 		KEY (RecNumber),
 		KEY(NoBANQUE));",
-	"ALTER TABLE sardo_diagnostic
-		ADD CONSTRAINT sardo_diagnostic_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_patient(RecNumber);",	
 	"CREATE TABLE sardo_progression (
 		RecNumber varchar(20),
 		ParentRecNumber varchar(20),
@@ -105,8 +103,6 @@ $sql_sardo_tables_creations = array(
 		Certitude varchar(50) DEFAULT NULL,
 		Type varchar(50) DEFAULT NULL,
 		KEY (RecNumber));",
-	"ALTER TABLE sardo_progression
-		ADD CONSTRAINT sardo_progression_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);",
 	"CREATE TABLE sardo_traitement (
 		RecNumber varchar(20),
 		ParentRecNumber varchar(20),
@@ -120,16 +116,12 @@ $sql_sardo_tables_creations = array(
 		Resultat_Alpha varchar(255) DEFAULT NULL,
 		ObjectifTX varchar(255) DEFAULT NULL,
 		KEY (RecNumber));",
-	"ALTER TABLE sardo_traitement
-		ADD CONSTRAINT sardo_traitement_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);",
 	"CREATE TABLE sardo_rapport (
 		RecNumber varchar(20),
 		ParentRecNumber varchar(20),
 		ElementRapport varchar(255) DEFAULT NULL,
 		Resultat varchar(255) DEFAULT NULL,
 		KEY (RecNumber));",
-	"ALTER TABLE sardo_rapport
-		ADD CONSTRAINT sardo_rapport_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_traitement(RecNumber);",
 	"CREATE TABLE sardo_labo (
 		RecNumber varchar(20),
 		ParentRecNumber varchar(20),
@@ -137,9 +129,7 @@ $sql_sardo_tables_creations = array(
 		Date date DEFAULT NULL,
 		Date_accuracy char(1) NOT NULL DEFAULT '',
 		Resultat varchar(255) DEFAULT NULL,
-		KEY (RecNumber));",
-	"ALTER TABLE sardo_labo
-		ADD CONSTRAINT sardo_labo_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);");
+		KEY (RecNumber));");
 foreach($sql_sardo_tables_creations as $new_query) customQuery($new_query, __LINE__);
 
 $data = null;
@@ -197,6 +187,45 @@ function getDateFromXml($value, $field, $data_type, $no_labos = null) {
 }
 
 $reader->close();
+
+// Constraints Check And Cleanup
+
+$constraint_check_queries = array(
+	'Diagnosis' => 'SELECT DISTINCT ParentRecNumber FROM sardo_diagnostic WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_patient)',
+	'Treatment' => 'SELECT DISTINCT ParentRecNumber FROM sardo_traitement WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_diagnostic)',
+	'Progression' => 'SELECT DISTINCT ParentRecNumber FROM sardo_progression WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_diagnostic)',
+	'Labo' => 'SELECT DISTINCT ParentRecNumber FROM sardo_labo WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_diagnostic)',
+	'Report' => 'SELECT DISTINCT ParentRecNumber FROM sardo_rapport WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_traitement)');
+$missing_rec_numbers_messages = array();
+foreach($constraint_check_queries as $data_type => $query) {
+	preg_match('/FROM\ (sardo_[a-z]+)\ WHERE\ ParentRecNumber\ NOT\ IN \(SELECT\ RecNumber\ FROM\ (sardo_[a-z]+)\)$/', $query, $matches);
+	$tablename =$matches[1];
+	$parent_tablename =$matches[2];
+	$query_res = customQuery($query, __LINE__);
+	while($res =  mysqli_fetch_assoc($query_res)) {
+		$missing_rec_numbers_messages[$data_type]["Missing ".$parent_tablename.".RecNumber referenced into ".$tablename.".ParentRecNumber. Linked ".strtolower($data_type)." data won't be imported."][$res['ParentRecNumber']] = $res['ParentRecNumber'];
+	}
+}
+foreach($missing_rec_numbers_messages as $data_type => $messages_and_numbers) 
+	foreach($messages_and_numbers as $message => $rec_numbers) 
+		$import_summary[$data_type]['ERROR'][$message][$message] = "See RecNumbers : ".implode(', ', $rec_numbers);
+$sql_sardo_tables_creations = array(
+	"DELETE FROM sardo_diagnostic WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_patient)",
+	"ALTER TABLE sardo_diagnostic
+		ADD CONSTRAINT sardo_diagnostic_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_patient(RecNumber);",
+	"DELETE FROM sardo_progression WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_diagnostic)",
+	"ALTER TABLE sardo_progression
+		ADD CONSTRAINT sardo_progression_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);",
+	"DELETE FROM sardo_traitement WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_diagnostic)",
+	"ALTER TABLE sardo_traitement
+		ADD CONSTRAINT sardo_traitement_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);",
+	"DELETE FROM sardo_rapport WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_traitement)",
+	"ALTER TABLE sardo_rapport
+		ADD CONSTRAINT sardo_rapport_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_traitement(RecNumber);",
+	"DELETE FROM sardo_labo WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_diagnostic)",
+	"ALTER TABLE sardo_labo
+	 	ADD CONSTRAINT sardo_labo_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);");
+foreach($sql_sardo_tables_creations as $new_query) customQuery($new_query, __LINE__);
 
 //==============================================================================================
 // Table Clean Up & controls data record
@@ -851,11 +880,45 @@ function importProgressionData($pariticpant_id, $patient_rec_number, $diagnosis_
 
 // *** Treatment *******************************************************************************
 
+$query_res = customQuery("SELECT count(*) AS nbr_of_wrong_records
+ FROM sardo_traitement 
+ INNER JOIN sardo_rapport ON sardo_traitement.RecNumber = sardo_rapport.ParentRecNumber
+ INNER JOIN sardo_diagnostic ON sardo_diagnostic.RecNumber = sardo_traitement.ParentRecNumber
+ INNER JOIN sardo_patient ON sardo_patient.RecNumber = sardo_diagnostic.ParentRecNumber
+ WHERE ElementRapport = 'Gleason' AND TypeTx NOT IN ('CHIR', 'BIOP');");
+$sardo_gleason_wrong_data = mysqli_fetch_assoc($query_res);
+if($sardo_gleason_wrong_data['nbr_of_wrong_records']) $import_summary['Report']['ERROR']["Gleason to treatment link"][] = $sardo_gleason_wrong_data['nbr_of_wrong_records']." gleason scores are linked to treatments different than 'CHIR' or 'BIOP'. Please ask administartor to review SARDO data source.";
+
 function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbrs_to_ids, $no_labos_string) {
 	global $treatment_controls;
 	global $import_summary;
 	
 	if($diagnosis_rec_nbrs_to_ids) {
+		//Build gleason array
+		$query_res = customQuery("
+			SELECT sardo_traitement.RecNumber AS sardo_traitement_RecNumber, TypeTX, sardo_rapport.Resultat
+			FROM sardo_traitement 
+			INNER JOIN sardo_rapport ON sardo_traitement.RecNumber = sardo_rapport.ParentRecNumber
+			WHERE ElementRapport = 'Gleason' AND TypeTx IN ('CHIR', 'BIOP') AND sardo_traitement.ParentRecNumber IN ('".implode("','", array_keys($diagnosis_rec_nbrs_to_ids))."');", __LINE__);
+		$sardo_treatment_rec_number_to_gleason = array();
+		while($sardo_gleason_data = mysqli_fetch_assoc($query_res)) {
+			$sardo_gleason_data['Resultat'] = str_replace(' ','', $sardo_gleason_data['Resultat']);
+			if(preg_match('/^((([0-9]+\+[0-9]+)=){0,1}([0-9]+)){0,1}$/', $sardo_gleason_data['Resultat'], $matches)) {
+				$gleason_sum = $matches[4];
+				$gleason_grade = addValuesToCustomList("SARDO : Gleason Grades", $matches[3]);
+				if(array_key_exists($sardo_gleason_data['sardo_traitement_RecNumber'], $sardo_treatment_rec_number_to_gleason)) {
+					list($recorded_gleason_sum, $recorded_gleason_grade) = $sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']];
+					if($recorded_gleason_sum != $gleason_sum || $recorded_gleason_grade != $gleason_grade) {
+						$import_summary['Report']['WARNING']["More than one gleason linked to the same ".$sardo_gleason_data['TypeTX']][] = "See NoLabo(s) { $no_labos_string } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
+					}
+				} else {
+					$sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']] = array($gleason_sum, $gleason_grade);
+				}
+			} else {
+				$import_summary['Report']['ERROR']["Wrong SARDO gleason format "][] = "See ".$sardo_gleason_data['TypeTX']." of NoLabo(s) { $no_labos_string } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
+			}
+		}
+		//Work on treatment
 		$query_res = customQuery("SELECT * FROM sardo_traitement WHERE ParentRecNumber IN ('".implode("','", array_keys($diagnosis_rec_nbrs_to_ids))."');", __LINE__);
 		$atim_treatments_data_to_create = array();
 		while($sardo_treatments_data = mysqli_fetch_assoc($query_res)) {
@@ -879,8 +942,13 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 				$NoPatho = $sardo_treatments_data['NoPatho'];
 				$results = addValuesToCustomList("SARDO : $trt_type Results", $sardo_treatments_data['Resultat_Alpha']);
 				$objectifs = addValuesToCustomList("SARDO : $trt_type Objectifs", $sardo_treatments_data['ObjectifTX']);
+				$gleason_sum = '';
+				$gleason_grade = '';
+				if(array_key_exists($sardo_treatments_data['RecNumber'], $sardo_treatment_rec_number_to_gleason)) {
+					list($gleason_sum, $gleason_grade) = $sardo_treatment_rec_number_to_gleason[$sardo_treatments_data['RecNumber']];
+				}
 				//Build the treatment key
-				$treatment_key = md5($trt_type.$start_date.$finish_date.$NoPatho.$results.$objectifs);
+				$treatment_key = md5($trt_type.$start_date.$finish_date.$NoPatho.$results.$objectifs.$gleason_sum.$gleason_grade);
 				if(!isset($atim_treatments_data_to_create[$treatment_key])) {
 					$atim_treatments_data_to_create[$treatment_key] = array(
 						'TreatmentMaster' => array(
@@ -894,7 +962,9 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 						'TreatmentDetail' => array(
 							'patho_nbr' => $NoPatho,
 							'results' => $results,
-							'objectifs' => $objectifs),
+							'objectifs' => $objectifs,
+							'gleason_sum' => $gleason_sum, 
+							'gleason_grade' => $gleason_grade),
 						'TreatmentExtends' => array());			
 				}
 				$treatment_extend_data = addValuesToCustomList("SARDO : $trt_type Treatments", $sardo_treatments_data['Traitement']);

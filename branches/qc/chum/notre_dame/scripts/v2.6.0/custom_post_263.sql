@@ -2201,3 +2201,29 @@ INSERT INTO i18n (id,en,fr)
 
 UPDATE versions SET branch_build_number = '6256' WHERE version_number = '2.6.3';
 
+-- 20150916 - xxx ------------------------------------------------------------------------------------
+
+ALTER TABLE qc_nd_txd_sardos 
+   ADD COLUMN gleason_grade varchar(10),
+   ADD COLUMN gleason_sum int(3);
+ALTER TABLE qc_nd_txd_sardos_revs 
+   ADD COLUMN gleason_grade varchar(10),
+   ADD COLUMN gleason_sum int(3);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_sardo_gleason_grades', "StructurePermissibleValuesCustom::getCustomDropdown(\'SARDO : Gleason Grades\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('SARDO : Gleason Grades', 1, 10, 'clinical - treatment');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_nd_txd_sardos', 'gleason_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_gleason_grades') , '0', '', '', '', 'gleason grade', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_nd_txd_sardos', 'gleason_sum', 'integer_positive',  NULL , '0', '', '', '', 'gleason sum', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_chir'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txd_sardos' AND `field`='gleason_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_gleason_grades')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason grade' AND `language_tag`=''), '2', '16', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_chir'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txd_sardos' AND `field`='gleason_sum' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason sum' AND `language_tag`=''), '2', '17', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_biop'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txd_sardos' AND `field`='gleason_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_gleason_grades')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason grade' AND `language_tag`=''), '2', '16', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_biop'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txd_sardos' AND `field`='gleason_sum' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason sum' AND `language_tag`=''), '2', '17', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('gleason grade', 'Gleason Grade', 'Gleason - Grade'),('gleason sum', 'Gleason Sum', 'Gleason - Som.');
+UPDATE structure_fields SET `setting`='size=3' WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txd_sardos' AND `field`='gleason_sum';
+
+UPDATE versions SET branch_build_number = '6277' WHERE version_number = '2.6.3';
