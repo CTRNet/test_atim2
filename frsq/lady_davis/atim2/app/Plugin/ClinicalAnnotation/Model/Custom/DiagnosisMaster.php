@@ -87,7 +87,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		}
 	}
 	
-	function afterSave($created){
+	function afterSave($created, $options = Array()){
 		if(isset($this->data['DiagnosisDetail']['laterality'])) {
 			$this->validateLaterality($this->id);
 		}

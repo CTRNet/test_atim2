@@ -303,3 +303,53 @@ WHERE sc.sample_type = 'xeno-tissue' AND ac.aliquot_type = 'tube'
 AND sc.id = ac.sample_control_id;
 
 UPDATE versions SET branch_build_number = '6233' WHERE version_number = '2.6.4';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 2015-09-17 clean up plasm tube CTAD flagged as EDTA
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'NicoEn' LIMIT 0 ,1);
+SET @modified = (SELECT NOW() FROM users WHERE username = 'NicoEn' LIMIT 0 ,1);
+SET @blood_control_id = (select id from sample_controls WHERE sample_type = 'blood');
+SET @plasma_control_id = (select id from sample_controls WHERE sample_type = 'plasma');
+SET @plasma_tube_control_id = (select id from aliquot_controls WHERE sample_control_id = @plasma_control_id AND aliquot_type = 'tube');
+UPDATE sample_masters SampleMasterBlood, sd_spe_bloods SampleDetailBlood, sample_masters SampleMasterPlasma, aliquot_masters AliquotMasterPlasma
+SET AliquotMasterPlasma.aliquot_label = 'CTAD',  AliquotMasterPlasma.modified =  @modified, AliquotMasterPlasma.modified_by = @modified_by
+WHERE SampleMasterBlood.sample_control_id = @blood_control_id 
+AND SampleMasterBlood.id = SampleDetailBlood.sample_master_id AND SampleDetailBlood.blood_type = 'CTAD'
+AND SampleMasterBlood.id = SampleMasterPlasma.parent_id AND  SampleMasterPlasma.sample_control_id = @plasma_control_id
+AND SampleMasterPlasma.id = AliquotMasterPlasma.sample_master_id AND AliquotMasterPlasma.deleted <> 1 AND AliquotMasterPlasma.aliquot_control_id = @plasma_tube_control_id
+AND AliquotMasterPlasma.aliquot_label = 'EDTA';
+INSERT INTO aliquot_masters_revs
+(id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,
+initial_volume,current_volume,in_stock,in_stock_detail,use_counter,study_summary_id,storage_datetime,
+storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,
+modified_by,version_created)
+(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,
+initial_volume,current_volume,in_stock,in_stock_detail,use_counter,study_summary_id,storage_datetime,
+storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,
+modified_by,modified
+FROM aliquot_masters WHERE aliquot_control_id = @plasma_tube_control_id AND modified_by = @modified_by AND modified = @modified);
+INSERT INTO ad_tubes_revs
+(aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,
+qc_lady_storage_solution,qc_lady_hemoysis_color,qc_lady_hemoysis_color_other,qc_lady_storage_method,version_created)
+(SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,
+qc_lady_storage_solution,qc_lady_hemoysis_color,qc_lady_hemoysis_color_other,qc_lady_storage_method,modified
+FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE aliquot_control_id = @plasma_tube_control_id AND modified_by = @modified_by AND modified = @modified);
+
+UPDATE versions SET branch_build_number = '6270' WHERE version_number = '2.6.4';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
