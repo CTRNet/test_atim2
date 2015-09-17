@@ -339,17 +339,101 @@ FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE aliquot
 
 UPDATE versions SET branch_build_number = '6270' WHERE version_number = '2.6.4';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 2015-09-17 Moved xeno-tissue to xenograffe
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_storage_solution')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='contains' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_storage_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_storage_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage method' AND `language_tag`=''), '1', '101', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+SET @xenograft_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'xenograft');
 
+SET @xenograft_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_sample_control_id AND aliquot_type = 'tube');
+SET @xenograft_block_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_sample_control_id AND aliquot_type = 'block');
+SET @xenograft_slide_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_sample_control_id AND aliquot_type = 'slide');
+SET @xenograft_core_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_sample_control_id AND aliquot_type = 'core');
 
+SET @xenograft_tissue_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'xeno-tissue');
 
+SET @xenograft_tissue_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_tissue_sample_control_id AND aliquot_type = 'tube');
+SET @xenograft_tissue_block_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_tissue_sample_control_id AND aliquot_type = 'block');
+SET @xenograft_tissue_slide_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_tissue_sample_control_id AND aliquot_type = 'slide');
+SET @xenograft_tissue_core_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xenograft_tissue_sample_control_id AND aliquot_type = 'core');
 
+-- Link all xeno-dna/rna of xenograft-tissue to xeno
 
+UPDATE sample_masters SampleMasterXeno, sample_masters SampleMasterXenoTissue, sample_masters SampleMasterXenoDnaRna
+SET SampleMasterXenoDnaRna.parent_id = SampleMasterXenoTissue.parent_id, SampleMasterXenoDnaRna.parent_sample_type = 'xenograft'
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND SampleMasterXenoTissue.sample_control_id = @xenograft_tissue_sample_control_id AND SampleMasterXenoTissue.parent_id = SampleMasterXeno.id
+AND SampleMasterXenoDnaRna.parent_id = SampleMasterXenoTissue.id;
+UPDATE sample_masters SampleMasterXeno, sample_masters SampleMasterXenoTissue, sample_masters_revs SampleMasterXenoDnaRna
+SET SampleMasterXenoDnaRna.parent_id = SampleMasterXenoTissue.parent_id, SampleMasterXenoDnaRna.parent_sample_type = 'xenograft'
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND SampleMasterXenoTissue.sample_control_id = @xenograft_tissue_sample_control_id AND SampleMasterXenoTissue.parent_id = SampleMasterXeno.id
+AND SampleMasterXenoDnaRna.parent_id = SampleMasterXenoTissue.id;
 
+-- Move xeno tissue aliquot to link them to parent_id
 
+UPDATE sample_masters SampleMasterXenoTissue, aliquot_masters AliquotMasterXenoTissue
+SET AliquotMasterXenoTissue.sample_master_id =  SampleMasterXenoTissue.parent_id
+WHERE SampleMasterXenoTissue.sample_control_id = @xenograft_tissue_sample_control_id
+AND AliquotMasterXenoTissue.sample_master_id = SampleMasterXenoTissue.id;
+UPDATE sample_masters SampleMasterXenoTissue, aliquot_masters_revs AliquotMasterXenoTissue
+SET AliquotMasterXenoTissue.sample_master_id =  SampleMasterXenoTissue.parent_id
+WHERE SampleMasterXenoTissue.sample_control_id = @xenograft_tissue_sample_control_id
+AND AliquotMasterXenoTissue.sample_master_id = SampleMasterXenoTissue.id;
 
+UPDATE sample_masters SampleMasterXeno, aliquot_masters AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_tube_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_tube_aliquot_control_id;
+UPDATE sample_masters SampleMasterXeno, aliquot_masters AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_block_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_block_aliquot_control_id;
+UPDATE sample_masters SampleMasterXeno, aliquot_masters AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_slide_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_slide_aliquot_control_id;
+UPDATE sample_masters SampleMasterXeno, aliquot_masters AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_core_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_core_aliquot_control_id;
 
+UPDATE sample_masters SampleMasterXeno, aliquot_masters_revs AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_tube_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_tube_aliquot_control_id;
+UPDATE sample_masters SampleMasterXeno, aliquot_masters_revs AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_block_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_block_aliquot_control_id;
+UPDATE sample_masters SampleMasterXeno, aliquot_masters_revs AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_slide_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_slide_aliquot_control_id;
+UPDATE sample_masters SampleMasterXeno, aliquot_masters_revs AliquotMasterXeno
+SET AliquotMasterXeno.aliquot_control_id = @xenograft_core_aliquot_control_id
+WHERE SampleMasterXeno.sample_control_id = @xenograft_sample_control_id
+AND AliquotMasterXeno.sample_master_id = SampleMasterXeno.id
+AND AliquotMasterXeno.aliquot_control_id = @xenograft_tissue_core_aliquot_control_id;
 
+DELETE FROM sd_xeno_tissues;
+DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id =  @xenograft_tissue_sample_control_id);
+DELETE FROM sample_masters WHERE sample_control_id =  @xenograft_tissue_sample_control_id;
+DELETE FROM sd_xeno_tissues_revs;
+DELETE FROM derivative_details_revs WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id =  @xenograft_tissue_sample_control_id);
+DELETE FROM sample_masters_revs WHERE sample_control_id =  @xenograft_tissue_sample_control_id;
 
-
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6271' WHERE version_number = '2.6.4';
