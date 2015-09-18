@@ -42,19 +42,22 @@ class ClinicalAnnotationAppModel extends AppModel {
 				$prev_data = $this->data;
 				$curr_data = $this->findById($this->id);
 				$this->data = $prev_data;
-				$participant_id = $curr_data[$this->name]['participant_id'];
+				$participant_id = null;
+				if(isset($curr_data[$this->name]) && isset($curr_data[$this->name]['participant_id'])) $participant_id = $curr_data[$this->name]['participant_id'];
 			}
 			$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure', true);
 			$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('DatamartStructure.model' => $name)));
 			if(!$datamart_structure){
 				AppController::getInstance()->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 			}
-			$participant_model = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
-			$participant_model->check_writable_fields = false;
-			$participant_model->data = array();			
-			$participant_model->id = $participant_id;
-			$participant_model->save(array('last_modification' => $this->data[$this->name]['modified'], 'last_modification_ds_id' => $datamart_structure['DatamartStructure']['id']));
-			$participant_model->check_writable_fields = true;
+			if($participant_id) {
+				$participant_model = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
+				$participant_model->check_writable_fields = false;
+				$participant_model->data = array();			
+				$participant_model->id = $participant_id;
+				$participant_model->save(array('last_modification' => $this->data[$this->name]['modified'], 'last_modification_ds_id' => $datamart_structure['DatamartStructure']['id']));
+				$participant_model->check_writable_fields = true;
+			}
 		}
 		parent::afterSave($created);
 	}

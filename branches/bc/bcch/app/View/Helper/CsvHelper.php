@@ -37,7 +37,8 @@ class CsvHelper extends AppHelper {
 		header ( "Content-Type: application/octet-stream" ); 
 		header ( "Content-Type: application/download" ); 
 		header ( "Content-Type: text/csv" ); 
-		header("Content-disposition:attachment;filename=".$this->filename.'_'.date('YMd_Hi').'.csv'); 
+		//header("Content-disposition:attachment;filename=".$this->filename.'_'.date('YMd_Hi').'.csv'); 
+        header("Content-disposition:attachment;filename=".'barcode.csv'); //BB-62
     } 
      
     function setFilename($filename) { 

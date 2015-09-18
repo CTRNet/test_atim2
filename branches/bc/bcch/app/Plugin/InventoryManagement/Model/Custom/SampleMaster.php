@@ -114,6 +114,9 @@ class SampleMasterCustom extends SampleMaster {
 				break;
 			case 'amplified rna':
 				$sample_label = 'AR';
+				break;
+			case 'xenograft':
+				$sample_label = 'XE';
 				break;				
 		}
 

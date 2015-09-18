@@ -1,5 +1,5 @@
 -- BCCH Customization Script
--- Version 0.3.2
+-- Version 0.3.3
 -- ATiM Version: 2.6.3
 
 -- Update bank name for version tracking during customization

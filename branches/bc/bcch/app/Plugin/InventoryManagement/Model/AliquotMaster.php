@@ -227,7 +227,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 		$this->read();
 		$save_required = false;
 		foreach($aliquot_data_to_save as $key_to_save => $value_to_save){
-			if($this->data['AliquotMaster'][$key_to_save] != $value_to_save){
+			if($key_to_save == "current_volume") $this->data['AliquotMaster'][$key_to_save] = str_replace('0.00000', '0', $this->data['AliquotMaster'][$key_to_save]);
+			if(strcmp($this->data['AliquotMaster'][$key_to_save], $value_to_save)){		
 				$save_required = true;
 			}
 		}

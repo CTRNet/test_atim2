@@ -7,7 +7,10 @@
 	);
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
+	$final_options = array(
+		'links'=>$structure_links,
+		'settings'=>array('pagination' => false, 'add_fields' => true, 'del_fields' => true),
+		'type'=>'addgrid');
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();

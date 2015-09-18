@@ -76,6 +76,7 @@ exit;*/
 
 			// LAUNCH SAVE PROCESS
 			// 1- SET ADDITIONAL DATA
+
 			$this->request->data['StudyContact']['study_summary_id'] = $study_summary_id;
 
 			// 2- LAUNCH SPECIAL VALIDATION PROCESS
