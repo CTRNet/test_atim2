@@ -393,7 +393,6 @@ class AppModel extends Model {
 			$params['joins'] = $extra['joins'];
 			unset($extra['joins']);
 		}
-		
 		return $this->find('all', $params);
 	}
 	

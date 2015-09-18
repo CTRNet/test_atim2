@@ -8,6 +8,9 @@ class CodingIcdAppModel extends AppModel {
 	 */
 	function getDescription($id){
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+		if(isset(AppController::getInstance()->csv_config) && isset(AppController::getInstance()->csv_config['config_language'])){
+			$lang = AppController::getInstance()->csv_config['config_language'] == "eng" ? "en" : "fr";
+		}
 		$data = $this->find('first', array('conditions' => array('id' => $id), 'fields' => array($lang."_description")));
 		$description = '';
 		if(is_array($data) && !empty($data)) {

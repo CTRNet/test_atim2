@@ -130,6 +130,11 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				//No Validation for UST1D
 				$value_validated = true;
 				break;
+			
+			case "CAUSES ID":
+				//No Validation for UST1D
+				$value_validated = true;
+				break;
 											
 			default:
 				echo "No defined validation! See administrator!";
