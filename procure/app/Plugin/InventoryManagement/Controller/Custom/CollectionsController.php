@@ -43,14 +43,14 @@ class CollectionsControllerCustom extends CollectionsController{
 							$errors_tracking = array();
 							$premissible_recevied_aliquots_descriptions_list = $this->AliquotControl->getTransferredAliquotsDescriptionsList();
 							$parsed_lines_counter = 0;
-							while (($csv_data = fgetcsv($handle, 1000, $this->request->data['Config']['define_csv_separator'], '"')) !== FALSE) {
+							while (($csv_data = fgetcsv($handle, 1000, $this->request->data['Config']['define_csv_separator'], '"')) !== FALSE) {								
 								$row_counter++;
 								if($csv_data) {
-									if(sizeof($csv_data) != 4) {
+									if(sizeof($csv_data) != 6) {
 										$errors_tracking['-1']['some aliquot data is missing - check csv separator'][] = $row_counter;
 										$submitted_data[] = array('AliquotMaster' => array('barcode' => '?'));
 									} else {
-										list($flushed_data, $aliquot_barcode, $aliquot_label, $sample_aliquot_ctrl_ids_sequence) = $csv_data;
+										list($flushed_data, $aliquot_barcode, $aliquot_label, $concentration, $concentration_unit, $sample_aliquot_ctrl_ids_sequence) = $csv_data;
 										if(preg_match('/^PS.P[0-9]{4}\ V[0-9]{2}/', $aliquot_barcode) && preg_match('/[0-9\-]+#[0-9]+#[pf]{0,1}$/', $sample_aliquot_ctrl_ids_sequence)) {
 											//Set default data
 											if(!array_key_exists($sample_aliquot_ctrl_ids_sequence, $premissible_recevied_aliquots_descriptions_list)) {
@@ -62,6 +62,8 @@ class CollectionsControllerCustom extends CollectionsController{
 											$new_line_data['AliquotMaster']['aliquot_label'] = $aliquot_label;
 											$new_line_data['AliquotMaster']['procure_created_by_bank'] = $this->request->data['AliquotMaster']['procure_created_by_bank'];
 											$new_line_data['FunctionManagement']['procure_transferred_aliquot_reception_date'] = $this->request->data['FunctionManagement']['procure_transferred_aliquot_reception_date'];
+											$new_line_data['AliquotDetail']['concentration'] = $concentration;
+											$new_line_data['AliquotDetail']['concentration_unit'] = $concentration_unit;
 											//Set Data
 											$submitted_data[] = $new_line_data;		
 											$parsed_lines_counter++;
@@ -91,7 +93,13 @@ class CollectionsControllerCustom extends CollectionsController{
 			} else {
 				
 				$this->AliquotInternalUse = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
-					
+				
+				App::uses('StructureValueDomain', 'Model');
+				$this->StructureValueDomain = new StructureValueDomain();
+				$concentration_units = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'concentration_unit'), 'recursive' => '2'));
+				foreach($concentration_units['StructurePermissibleValue'] as $new_value) if($new_value['flag_active']) $concentration_units['values'][] = $new_value['value'];
+				$concentration_units = $concentration_units['values'];
+				
 				// *** CREATE PARTICIPANT THEN COLLECTION THEN SAMPLE THEN ALIQUOT ***
 				
 				$errors_tracking = array();
@@ -127,6 +135,10 @@ class CollectionsControllerCustom extends CollectionsController{
 						$errors_tracking['concentration'][__('error_must_be_positive_float').' ('.__('aliquot concentration').')'][] = $row_counter;
 					} else if(strlen($data_unit['AliquotDetail']['concentration']) && !($data_unit['AliquotDetail']['concentration_unit'])) {
 						$errors_tracking['concentration_unit'][__('concentration unit has to be completed')][] = $row_counter;
+					}
+					//Concentration Unit
+					if($data_unit['AliquotDetail']['concentration_unit'] && !in_array($data_unit['AliquotDetail']['concentration_unit'], $concentration_units)) {
+						$errors_tracking['concentration_unit'][__('wrong concentration unit')][] = $row_counter;
 					}
 					//Create internal use to set date accuracy
 					$new_aliquot_internal_use = array(
