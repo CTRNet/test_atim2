@@ -18,6 +18,7 @@ Collection.procure_patient_identity_verified AS procure_patient_identity_verifie
 Collection.procure_visit AS procure_visit,
 Collection.procure_collected_by_bank AS procure_collected_by_bank,
 		Participant.participant_identifier AS participant_identifier,
+Participant.procure_proc_site_participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
 		Collection.collection_datetime AS collection_datetime,

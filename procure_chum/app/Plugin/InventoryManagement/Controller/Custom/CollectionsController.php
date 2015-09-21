@@ -43,15 +43,14 @@ class CollectionsControllerCustom extends CollectionsController{
 							$errors_tracking = array();
 							$premissible_recevied_aliquots_descriptions_list = $this->AliquotControl->getTransferredAliquotsDescriptionsList();
 							$parsed_lines_counter = 0;
-							while (($csv_data = fgetcsv($handle, 1000, $this->request->data['Config']['define_csv_separator'], '"')) !== FALSE) {
+							while (($csv_data = fgetcsv($handle, 1000, $this->request->data['Config']['define_csv_separator'], '"')) !== FALSE) {								
 								$row_counter++;
-								$csv_data = array_values(array_filter($csv_data));										
 								if($csv_data) {
-									if(sizeof($csv_data) != 3) {
+									if(sizeof($csv_data) != 6) {
 										$errors_tracking['-1']['some aliquot data is missing - check csv separator'][] = $row_counter;
 										$submitted_data[] = array('AliquotMaster' => array('barcode' => '?'));
 									} else {
-										list($flushed_data, $aliquot_barcode, $sample_aliquot_ctrl_ids_sequence) = $csv_data;
+										list($flushed_data, $aliquot_barcode, $aliquot_label, $concentration, $concentration_unit, $sample_aliquot_ctrl_ids_sequence) = $csv_data;
 										if(preg_match('/^PS.P[0-9]{4}\ V[0-9]{2}/', $aliquot_barcode) && preg_match('/[0-9\-]+#[0-9]+#[pf]{0,1}$/', $sample_aliquot_ctrl_ids_sequence)) {
 											//Set default data
 											if(!array_key_exists($sample_aliquot_ctrl_ids_sequence, $premissible_recevied_aliquots_descriptions_list)) {
@@ -60,7 +59,11 @@ class CollectionsControllerCustom extends CollectionsController{
 											}
 											$new_line_data['FunctionManagement']['procure_transferred_aliquots_description'] = $sample_aliquot_ctrl_ids_sequence;
 											$new_line_data['AliquotMaster']['barcode'] = $aliquot_barcode;
+											$new_line_data['AliquotMaster']['aliquot_label'] = $aliquot_label;
 											$new_line_data['AliquotMaster']['procure_created_by_bank'] = $this->request->data['AliquotMaster']['procure_created_by_bank'];
+											$new_line_data['FunctionManagement']['procure_transferred_aliquot_reception_date'] = $this->request->data['FunctionManagement']['procure_transferred_aliquot_reception_date'];
+											$new_line_data['AliquotDetail']['concentration'] = $concentration;
+											$new_line_data['AliquotDetail']['concentration_unit'] = $concentration_unit;
 											//Set Data
 											$submitted_data[] = $new_line_data;		
 											$parsed_lines_counter++;
@@ -88,6 +91,14 @@ class CollectionsControllerCustom extends CollectionsController{
 				}
 				
 			} else {
+				
+				$this->AliquotInternalUse = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
+				
+				App::uses('StructureValueDomain', 'Model');
+				$this->StructureValueDomain = new StructureValueDomain();
+				$concentration_units = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'concentration_unit'), 'recursive' => '2'));
+				foreach($concentration_units['StructurePermissibleValue'] as $new_value) if($new_value['flag_active']) $concentration_units['values'][] = $new_value['value'];
+				$concentration_units = $concentration_units['values'];
 				
 				// *** CREATE PARTICIPANT THEN COLLECTION THEN SAMPLE THEN ALIQUOT ***
 				
@@ -119,6 +130,28 @@ class CollectionsControllerCustom extends CollectionsController{
 					if($data_unit['AliquotMaster']['procure_created_by_bank'] == 'p') {
 						$errors_tracking['procure_created_by_bank']['you can not select the processing bank as bank sending sample'][] = $row_counter;
 					}
+					//Check Concentration
+					if(!preg_match('/^([0-9]+([.,][0-9]+){0,1}){0,1}$/', $data_unit['AliquotDetail']['concentration'])) {
+						$errors_tracking['concentration'][__('error_must_be_positive_float').' ('.__('aliquot concentration').')'][] = $row_counter;
+					} else if(strlen($data_unit['AliquotDetail']['concentration']) && !($data_unit['AliquotDetail']['concentration_unit'])) {
+						$errors_tracking['concentration_unit'][__('concentration unit has to be completed')][] = $row_counter;
+					}
+					//Concentration Unit
+					if($data_unit['AliquotDetail']['concentration_unit'] && !in_array($data_unit['AliquotDetail']['concentration_unit'], $concentration_units)) {
+						$errors_tracking['concentration_unit'][__('wrong concentration unit')][] = $row_counter;
+					}
+					//Create internal use to set date accuracy
+					$new_aliquot_internal_use = array(
+						'aliquot_master_id' => null,
+						'type' => 'received from bank',
+						'use_code' => 'PS'.$data_unit['AliquotMaster']['procure_created_by_bank'],
+						'use_datetime' => $data_unit['FunctionManagement']['procure_transferred_aliquot_reception_date'],
+						'procure_created_by_bank' => 'p');
+					$this->AliquotInternalUse->id = null;
+					$this->AliquotInternalUse->data = null;
+					$this->AliquotInternalUse->set(array('AliquotInternalUse' => $new_aliquot_internal_use));
+					if(!$this->AliquotInternalUse->validates())$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					$data_unit['AliquotInternalUse'] = $this->AliquotInternalUse->data['AliquotInternalUse'];
 				}
 				unset($data_unit);
 				
@@ -131,15 +164,20 @@ class CollectionsControllerCustom extends CollectionsController{
 					//Create participant or get participant id
 					
 					$this->Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+					$atim_participants = $this->Participant->find('all', array('conditions' => array('Participant.participant_identifier' => array_keys($studied_participants)), 'fields' => array('Participant.id', 'Participant.participant_identifier'), 'recursive' => '-1'));
+					
+					$next_procure_proc_site_participant_identifier = $this->Participant->find('first', array('fields' => array('MAX(Participant.procure_proc_site_participant_identifier) AS next_procure_proc_site_participant_identifier'), 'recursive' => '-1'));
+					$next_procure_proc_site_participant_identifier = empty($next_procure_proc_site_participant_identifier[0]['next_procure_proc_site_participant_identifier'])? '1' : ($next_procure_proc_site_participant_identifier[0]['next_procure_proc_site_participant_identifier'] + 1);
 					$atim_participants = $this->Participant->find('all', array('conditions' => array('Participant.participant_identifier' => array_keys($studied_participants)), 'fields' => array('Participant.id', 'Participant.participant_identifier'), 'recursive' => '-1'));			
 					foreach($atim_participants as $new_participant) $studied_participants[$new_participant['Participant']['participant_identifier']] = $new_participant['Participant']['id'];
-					$this->Participant->addWritableField(array('participant_identifier'));
+					$this->Participant->addWritableField(array('participant_identifier','procure_proc_site_participant_identifier'));
 					foreach($studied_participants as $participant_identifier => $participant_id) {
 						if($participant_id == '-1') {
 							$this->Participant->id = null;
 							$this->Participant->data = array();
-							if(!$this->Participant->save(array('participant_identifier' => $participant_identifier), false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-							$studied_participants[$participant_identifier] = $this->Participant->getLastInsertId();							
+							if(!$this->Participant->save(array('participant_identifier' => $participant_identifier, 'procure_proc_site_participant_identifier' => $next_procure_proc_site_participant_identifier), false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+							$studied_participants[$participant_identifier] = $this->Participant->getLastInsertId();		
+							$next_procure_proc_site_participant_identifier++;
 						}
 					}
 					$atim_participants = $studied_participants;
@@ -149,8 +187,9 @@ class CollectionsControllerCustom extends CollectionsController{
 					
 					$atim_participant_collections = array();
 					$atim_participants_from_id = array_flip($atim_participants);
-					foreach($this->Collection->find('all', array('conditions' => array('Collection.participant_id' => $atim_participants), 'fields' => array('Collection.id', 'Collection.participant_id', 'Collection.procure_visit'), 'recursive' => '-1')) as $new_collection) {
-						$atim_participant_collections[$atim_participants_from_id[$new_collection['Collection']['participant_id']].'-'.$new_collection['Collection']['procure_visit']] = $new_collection['Collection']['id'];
+					foreach($this->Collection->find('all', array('conditions' => array('Collection.participant_id' => $atim_participants), 'fields' => array('Collection.id', 'Collection.participant_id', 'Collection.procure_visit', 'procure_collected_by_bank'), 'recursive' => '-1')) as $new_collection) {
+						$collection_key = $atim_participants_from_id[$new_collection['Collection']['participant_id']].'-'.$new_collection['Collection']['procure_visit'].'-'.$new_collection['Collection']['procure_collected_by_bank'];
+						$atim_participant_collections[$collection_key] = $new_collection['Collection']['id'];
 					}
 					
 					//Create collections, samples and aliquots
@@ -165,13 +204,15 @@ class CollectionsControllerCustom extends CollectionsController{
 					}
 					
 					$aliquot_master_ids = array();
+					$warning_messages = array();
 					$this->Collection->addWritableField(array('participant_id', 'procure_visit','procure_collected_by_bank'));
+					$this->AliquotInternalUse->addWritableField(array('use_code', 'type', 'use_datetime', 'aliquot_master_id', 'use_datetime_accuracy', 'procure_created_by_bank'));
 					foreach($this->request->data as $data_unit){
 						
 						//1 :: Manage collection
 						
 						$collection_id = null;
-						$collection_key = $data_unit['Participant']['participant_identifier'].'-'.$data_unit['Collection']['procure_visit'];
+						$collection_key = $data_unit['Participant']['participant_identifier'].'-'.$data_unit['Collection']['procure_visit'].'-'.$data_unit['AliquotMaster']['procure_created_by_bank'];
 						if(array_key_exists($collection_key, $atim_participant_collections)) {
 							$collection_id = $atim_participant_collections[$collection_key];
 						} else {						
@@ -266,20 +307,44 @@ class CollectionsControllerCustom extends CollectionsController{
 								'sample_master_id' => $sample_master_id,
 								'aliquot_control_id' => $aliquot_controls[$aliquot_control_id]['id'],
 								'barcode' => $data_unit['AliquotMaster']['barcode'],
+								'aliquot_label' => $data_unit['AliquotMaster']['aliquot_label'],
 								'in_stock' => 'yes - available',
-								'use_counter' => '0',
+								'use_counter' => '1',
 								'procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']),
 							'AliquotDetail' => array());
-						if($aliquot_controls[$aliquot_control_id]['aliquot_type'] == 'block') $new_aliquot['AliquotDetail']['block_type'] = $block_type == 'p'? 'paraffin' : 'frozen';
-						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'in_stock', 'use_counter','procure_created_by_bank'));
-						$this->AliquotMaster->addWritableField(($aliquot_controls[$aliquot_control_id]['aliquot_type'] == 'block'? array('aliquot_master_id'): array('aliquot_master_id', 'block_type')), $aliquot_controls[$aliquot_control_id]['detail_tablename']);
+						$detail_fields = array('aliquot_master_id');
+						if($aliquot_controls[$aliquot_control_id]['aliquot_type'] == 'block') {
+							$new_aliquot['AliquotDetail']['block_type'] = ($block_type == 'p')? 'paraffin' : 'frozen';
+							$detail_fields[] = 'block_type';
+						}
+						if(strlen($data_unit['AliquotDetail']['concentration'])) {
+							if($aliquot_controls[$aliquot_control_id]['detail_form_alias'] == 'ad_der_tubes_incl_ul_vol_and_conc') {
+								$detail_fields[] = 'concentration';
+								$detail_fields[] = 'concentration_unit';
+								$new_aliquot['AliquotDetail']['concentration'] = $data_unit['AliquotDetail']['concentration'];
+								$new_aliquot['AliquotDetail']['concentration_unit'] = $data_unit['AliquotDetail']['concentration_unit'];
+							} else {
+								$warning_messages[__('no concentration has been recorded')][] = $data_unit['AliquotMaster']['barcode'];
+							}
+						}
+						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'aliquot_label', 'in_stock', 'use_counter','procure_created_by_bank'));
+						$this->AliquotMaster->addWritableField($detail_fields, $aliquot_controls[$aliquot_control_id]['detail_tablename']);
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						if(!$this->AliquotMaster->save($new_aliquot, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-						$aliquot_master_ids[] = $this->AliquotMaster->getLastInsertId();
+						$aliquot_master_id = $this->AliquotMaster->getLastInsertId();
+						$aliquot_master_ids[] = $aliquot_master_id;
+						
+						//2-c :: Create Aliquot Internal Use
+						$data_unit['AliquotInternalUse']['aliquot_master_id'] = $aliquot_master_id;
+						$this->AliquotInternalUse->id = null;
+						$this->AliquotInternalUse->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						if(!$this->AliquotInternalUse->save($data_unit, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 					
 					AppModel::releaseBatchViewsUpdateLock();
+					
+					foreach($warning_messages as $msg => $ref) AppController::addWarningMsg(__($msg).'. '.(str_replace('%s', implode(' ,', $ref), __('see # %s'))));
 					
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_data = array('BatchSet' => array(
