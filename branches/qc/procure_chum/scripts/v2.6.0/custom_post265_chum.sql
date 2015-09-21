@@ -65,16 +65,41 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value  IN ('quality control procure (returned))', 'quality control procure (sentt)');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
--- 
+-- Update created by
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE participants SET procure_last_modification_by_bank = '1';
+UPDATE participants_revs SET procure_last_modification_by_bank = '1';
+UPDATE consent_masters SET procure_created_by_bank = '1';
+UPDATE consent_masters_revs SET procure_created_by_bank = '1';
+UPDATE event_masters SET procure_created_by_bank = '1';
+UPDATE event_masters_revs SET procure_created_by_bank = '1';
+UPDATE treatment_masters SET procure_created_by_bank = '1';
+UPDATE treatment_masters_revs SET procure_created_by_bank = '1';
 
+UPDATE collections SET procure_collected_by_bank = '1';
+UPDATE collections_revs SET procure_collected_by_bank = '1';
+UPDATE sample_masters SET procure_created_by_bank = '1';
+UPDATE sample_masters_revs SET procure_created_by_bank = '1';
+UPDATE aliquot_masters SET procure_created_by_bank = '1';
+UPDATE aliquot_masters_revs SET procure_created_by_bank = '1';
+UPDATE aliquot_internal_uses SET procure_created_by_bank = '1';
+UPDATE aliquot_internal_uses_revs SET procure_created_by_bank = '1';
+UPDATE quality_ctrls SET procure_created_by_bank = '1';
+UPDATE quality_ctrls_revs SET procure_created_by_bank = '1';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- Concentrated Urine Migration
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
+UPDATE structure_formats SET `flag_add`='0', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_concentrated' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE sd_der_urine_cents SET procure_concentrated = qc_nd_concentrated;
+UPDATE sd_der_urine_cents_revs SET procure_concentrated = qc_nd_concentrated;
+ALTER TABLE sd_der_urine_cents DROP COLUMN qc_nd_concentrated;
+ALTER TABLE sd_der_urine_cents_revs DROP COLUMN qc_nd_concentrated;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_concentrated' AND `language_label`='concentrated' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_concentrated' AND `language_label`='concentrated' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_concentrated' AND `language_label`='concentrated' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
 
 

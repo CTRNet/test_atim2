@@ -1306,15 +1306,16 @@ class ReportsControllerCustom extends ReportsController {
 		
 		$data = array();
 		$not_in_stock_aliquot_counter = 0;
-		foreach($aliquot_master_model->find('all', array('conditions' => $conditions, 'recursive' => '-1')) as $new_aliquot) {
+		foreach($aliquot_master_model->find('all', array('conditions' => $conditions, 'recursive' => '0')) as $new_aliquot) {
 			if($new_aliquot['AliquotMaster']['in_stock'] == 'no') $not_in_stock_aliquot_counter++;
-			$control_ids_sequence = $aliquot_control_model->getSampleAliquotCtrlIdsSequence($new_aliquot['AliquotMaster']['id']);
+			$control_ids_sequence = $aliquot_control_model->getSampleAliquotCtrlIdsSequence($new_aliquot);
 			$data[] = array(
 				'ViewAliquot' => array(
 					'collection_id' => $new_aliquot['AliquotMaster']['collection_id'],
 					'sample_master_id' => $new_aliquot['AliquotMaster']['sample_master_id'],
 					'aliquot_master_id' => $new_aliquot['AliquotMaster']['id']),
-				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode']),
+				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode'], 'aliquot_label' => $new_aliquot['AliquotMaster']['aliquot_label']),
+				'AliquotDetail' => array('concentration' => isset($new_aliquot['AliquotDetail']['concentration'])? $new_aliquot['AliquotDetail']['concentration'] : '', 'concentration_unit' => isset($new_aliquot['AliquotDetail']['concentration_unit'])? $new_aliquot['AliquotDetail']['concentration_unit'] : ''),
 				'FunctionManagement' => array('procure_transferred_aliquots_description' => $control_ids_sequence),
 				'Generated' => array('procure_sample_aliquot_ctrl_ids_sequence' => $control_ids_sequence));
 		}
