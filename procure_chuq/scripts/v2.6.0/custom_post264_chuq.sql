@@ -69,8 +69,7 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('VB', '', '',  '1', @control_id, NOW(), NOW(), 1, 1),
-('CM', '', '',  '1', @control_id, NOW(), NOW(), 1, 1),
-('MO', '', '',  '1', @control_id, NOW(), NOW(), 1, 1);
+('CM', '', '',  '1', @control_id, NOW(), NOW(), 1, 1);
 
 -- Reception/creation by
 

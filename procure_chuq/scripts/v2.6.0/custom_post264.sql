@@ -717,25 +717,25 @@ GROUP BY blood_type;
 SELECT count(*) AS '### MESSAGE ### Number of procure_total_quantity_ug values updated. To validate (revs data not updated).', concentration_unit
 FROM aliquot_masters, ad_tubes
 WHERE deleted <> 1 AND id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND current_volume NOT LIKE '' AND current_volume IS NOT NULL 
 AND concentration_unit IN ('ug/ul', 'ng/ul', 'pg/ul') GROUP BY concentration_unit;
 
 UPDATE aliquot_masters, ad_tubes
-SET procure_total_quantity_ug = (initial_volume*concentration/1000000)
+SET procure_total_quantity_ug = (current_volume*concentration/1000000)
 WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND current_volume NOT LIKE '' AND current_volume IS NOT NULL 
 AND concentration_unit = 'pg/ul';
 
 UPDATE aliquot_masters, ad_tubes
-SET procure_total_quantity_ug = (initial_volume*concentration/1000)
+SET procure_total_quantity_ug = (current_volume*concentration/1000)
 WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND current_volume NOT LIKE '' AND current_volume IS NOT NULL 
 AND concentration_unit = 'ng/ul';
 
 UPDATE aliquot_masters, ad_tubes
-SET procure_total_quantity_ug = (initial_volume*concentration)
+SET procure_total_quantity_ug = (current_volume*concentration)
 WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND current_volume NOT LIKE '' AND current_volume IS NOT NULL 
 AND concentration_unit = 'ug/ul';
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1083,3 +1083,13 @@ VALUES
 ('site build number','PROCURE Site Version/Build','Site PROCURE Version/Numéro Version');
 
 UPDATE versions SET branch_build_number = '6171' WHERE version_number = '2.6.4';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2015-05-05
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE label = 'number of elements per participant'
+AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('DiagnosisMaster', 'FamilyHistory', 'ParticipantMessage', 'SpecimenReviewMaster', 'ParticipantContact', 'ReproductiveHistory','TreatmentExtendMaster','AliquotReviewMaster'));
+
+UPDATE versions SET branch_build_number = '6189' WHERE version_number = '2.6.4';
