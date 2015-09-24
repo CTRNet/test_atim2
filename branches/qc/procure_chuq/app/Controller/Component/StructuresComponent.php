@@ -441,7 +441,11 @@ class StructuresComponent extends Component {
 										);
 										$conditions[] = array("OR" => $tmp_cond);
 									}else{										
-										foreach($data as &$unit) if(is_string($unit)) $unit = trim($unit);
+										if(is_array($data)) {
+											foreach($data as &$unit) if(is_string($unit)) $unit = trim($unit);
+										} else if(is_string($data)) {
+											$data = trim($data);
+										}
 										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
 									}
 								}
