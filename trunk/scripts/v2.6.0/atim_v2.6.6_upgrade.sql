@@ -156,10 +156,21 @@ INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `f
 ((SELECT id FROM datamart_structures WHERE model = 'Shipment'), (SELECT id FROM datamart_structures WHERE model = 'Order'), @flag_active, @flag_active, 'order_id'),
 ((SELECT id FROM datamart_structures WHERE model = 'OrderItem'), (SELECT id FROM datamart_structures WHERE model = 'Order'), @flag_active, @flag_active, 'order_id');
 
+INSERT INTO `key_increments` (`key_name`, `key_value`)
+VALUES('atim_internal_file', 1);
 
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`) VALUES
+('err_file_not_found', 1, 'file_not_found', 'file_not_found_err_msg'),
+('err_file_not_auth', 1, 'file_not_auth', 'file_not_auth_msg');
 
-
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('file_not_found','File not found','Fichier introuvable'),
+('file_not_found_err_msg', "The file you are trying to get was not found (%1$s)",
+                           "Le fichier que vous tentez d'obtenir est introuvable (%1$s)"),
+('file_not_auth', 'File unauthorized', 'Fichier non authorisé'),
+('file_not_auth_msg', 'You are not authorized to open file (%1$s)',
+                      "Vous n'êtes pas authorisé à ouvrir le fichier (%1$s)"),
+('open the file', 'open the file', 'ouvrir le fichier');
 
 
 

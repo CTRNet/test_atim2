@@ -454,4 +454,6 @@ Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipmen
  */
 Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
 
+Configure::write('uploadDirectory', './atimUploadDirectory');
+
 unset($debug);
