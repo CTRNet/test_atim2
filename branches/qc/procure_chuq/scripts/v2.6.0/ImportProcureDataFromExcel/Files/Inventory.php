@@ -10,11 +10,11 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	//Load data
 	$MO_CM_message_display = false;
-	foreach($XlsReader->sheets[$sheets_nbr['Feuil1']]['cells'] as $line_counter => $new_line) {
+	foreach($XlsReader->sheets[$sheets_nbr['Taille des blocs']]['cells'] as $line_counter => $new_line) {
 		//$line_counter++;
-		if($line_counter == 8) {
+		if($line_counter == 3) {
 			$headers = $new_line;
-		} else if($line_counter > 8){
+		} else if($line_counter > 3){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$patient_identifier = $new_line_data['# patient'];
 			if($patient_identifier && preg_match('/^PS2P/', $patient_identifier)) {
@@ -69,7 +69,6 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 					//Cut by
 					switch($new_line_data['Coupe réalisée par']) {
 						case 'CM':
-						case 'MO':
 						case  '':
 							break;
 						case 'MO-CM':
@@ -130,14 +129,14 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	//LoadConsentAndQuestionnaireData
 	$headers = array();
-	for($visit_id=1;$visit_id<10;$visit_id++) {		
+	for($visit_id=1;$visit_id<11;$visit_id++) {		
 		$worksheet = "V0".$visit_id;
 		$duplicated_participants_check = array();
 		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
 			//$line_counter++;
-			if($line_counter == 4) {
+			if($line_counter == 3) {
 				$headers = $new_line;
-			} else if($line_counter > 4){		
+			} else if($line_counter > 3){		
 				$new_line_data = formatNewLineData($headers, $new_line);
 				$participant_identifier = $new_line_data['# patient'];
 				if(strlen($participant_identifier)) {
@@ -1139,7 +1138,6 @@ function loadRNA(&$XlsReader, $files_path, $file_name) {
 								$created_by = '';
 								switch($new_line_data['extrait par CHUQ']) {
 									case 'CM':
-									case 'MO':
 									case 'VB':
 									case  '':
 										$created_by = $new_line_data['extrait par CHUQ'];
@@ -1190,9 +1188,11 @@ function loadRNA(&$XlsReader, $files_path, $file_name) {
 								$initial_volume = getDecimal($new_line_data, 'RNA-1 volume (ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								$concentration_bioanalyzer = getDecimal($new_line_data, 'Concentration (ng/ul) par Bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								$concentration_unit_bioanalyzer = strlen($concentration_bioanalyzer)? 'ng/ul' : '';
+								//current volume = initial volume: so current quantity on initial volume						
 								$procure_total_quantity_ug = (strlen($initial_volume) && strlen($concentration_bioanalyzer))? ($initial_volume*$concentration_bioanalyzer/1000): '';
 								$concentration_nanodrop = getDecimal($new_line_data, 'Nanodrop (ng/ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								$concentration_unit_nanodrop = strlen($concentration_nanodrop)? 'ng/ul' : '';
+								//current volume = initial volume: so current quantity on initial volume						
 								$procure_total_quantity_ug_nanodrop = (strlen($initial_volume) && strlen($concentration_nanodrop))? ($initial_volume*$concentration_nanodrop/1000): '';
 								if(strlen($new_line_data['bte rangement RNA-1']) || $initial_volume) {
 									$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement RNA-1'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
@@ -1399,7 +1399,6 @@ function getBoxStorageUniqueKey($excel_storage_label, $sample_type) {
 	if(!$excel_storage_label) {
 		die('ERR 283ee234342.1');
 	} else {
-//TODO confirm avec claire		
 		switch($sample_type) {
 			case 'tissue':
 				return 'tissue-'.$excel_storage_label;

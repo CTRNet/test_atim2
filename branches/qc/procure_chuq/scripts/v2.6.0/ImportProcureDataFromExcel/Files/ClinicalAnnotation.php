@@ -26,7 +26,7 @@ function loadVitalStatus(&$XlsReader, $files_path, $file_name) {
 				}
 //Not in excel anymore				$last_followup_date = getDateAndAccuracy($new_line_data, 'Date de la dernière visite HDQ venu  selon ADT', 'Profile', $file_name, $line_counter);
 				$date_of_death = getDateAndAccuracy($new_line_data, 'date décès', 'Profile', $file_name, $line_counter);
-				$details = array($new_line_data['cause'], $new_line_data['Formulaire SP-3'], $new_line_data['notes']);
+				$details = array($new_line_data['cause décès'], $new_line_data['Formulaire SP-3'], $new_line_data['notes']);
 				$details = implode ('. ', array_filter($details));
 				$details = strlen($details)? $details.'.' : ''; 
 				$vital_status_data[$participant_identifier] = array(
@@ -127,6 +127,60 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	//LoadConsentData
+	$line_counter = 0;
+	$headers = array();
+	$participant_identifier_to_consent_detail_data = array();
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('consentement')]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 4) {
+			$headers = $new_line;
+		} else if($line_counter > 4){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$participant_identifier = $new_line_data['# procure'];
+			if(preg_match('/^PS2P[0-9]{4}$/', $participant_identifier)) {
+				if(!empty($patients_to_import) && !in_array($participant_identifier, $patients_to_import)) continue;
+				if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
+					if(!isset($participant_identifier_to_consent_detail_data[$participant_identifier])) {
+						$excel_field_matches = array(
+							'procure_chuq_tissue' => "tissu + dossier",
+							'procure_chuq_blood' => "sang V01",
+							'procure_chuq_urine' => "urine V01",
+							'procure_chuq_followup' => "visite suivie",
+							'procure_chuq_questionnaire' => "questionnaire",
+							'procure_chuq_contact_for_additional_data' => "recontacté tél.",
+							'procure_chuq_inform_significant_discovery' => "si résultat",
+							'procure_chuq_contact_in_case_of_death' => "cas décès",
+							'procure_chuq_witness' => "témoin",
+							'procure_chuq_complete' => "colonne C à G");
+						foreach($excel_field_matches as $db_field => $excel_field) {
+							$db_val = '';
+							switch($new_line_data[$excel_field]) {
+								case '1':
+									$db_val = 'y';
+									break;
+								case '0':
+								case 'NON':
+									$db_val = 'n';
+									break;
+								case '':
+									$db_val = '';
+									break;
+								default:
+									$import_summary['Consent & Questionnaire (consentement worksheet)']['@@WARNING@@']["Consent value of field $excel_field unsupported"][] = "See value '".$new_line_data[$excel_field]."'. Data won't be migrated. See patient '$participant_identifier'! [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+							}
+							$participant_identifier_to_consent_detail_data[$participant_identifier][$db_field] = $db_val;
+						}
+					} else {
+						$import_summary['Consent & Questionnaire (consentement worksheet)']['@@ERROR@@']['Patient Identification Duplicated'][] = "The Identification '$participant_identifier' is listed twice into this worksheet! Only first row will be migrated! [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+					}
+				} else {
+					$import_summary['Consent & Questionnaire (consentement worksheet)']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient consent and quuestionnaire data won't be migrated! file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				}
+			} else {
+				$import_summary['Consent & Questionnaire (consentement worksheet)']['@@MESSAGE@@']['Unparsed line'][] = "The line '$line_counter' does not begins with a participant identifier! No data will be imported! [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+			}
+		}
+	}
 	//LoadConsentAndQuestionnaireData
 	$line_counter = 0;
 	$headers = array();
@@ -156,6 +210,10 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 						'consent_signed_date_accuracy' => $consent_signed_date['accuracy'],
 						'form_version' => $form_version['date']),
 					'ConsentDetail' => array());
+				if(isset($participant_identifier_to_consent_detail_data[$participant_identifier])) {
+					$data['ConsentDetail'] = $participant_identifier_to_consent_detail_data[$participant_identifier];
+					unset($participant_identifier_to_consent_detail_data[$participant_identifier]);
+				}
 				if(empty($consent_signed_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Consent Signature Date'][] = "System is creating a consent with no signature date. See patient '$participant_identifier'! [field <b>Date de signature</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
 				switch($new_line_data['Version du consentement']) {
 					case 'française':
@@ -197,6 +255,7 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 						'verification_date_accuracy' => $verification_date['accuracy'],
 						'revision_date' => $revision_date['date'],
 						'revision_date_accuracy' => $revision_date['accuracy'],
+						'version' => (($participant_identifier == 'PS2P0017')? 'english' : 'french'),
 						'version_date' => $version_date,
 						'procure_chuq_complete_at_recovery' => $procure_chuq_complete_at_recovery,
 						'complete' => $complete));
@@ -207,6 +266,9 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 				$import_summary['Consent & Questionnaire']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient consent and quuestionnaire data won't be migrated! [field <b>Patients</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
 			}
 		}
+	}
+	foreach($participant_identifier_to_consent_detail_data as $participant_identifier => $tmp_data) {
+		$import_summary['Consent & Questionnaire']['@@ERROR@@']["Patient in 'consentement' worksheet not defined into the other one "][] = "Data won't be migrated. See patient '$participant_identifier'! [file <b>$file_name]";
 	}
 }
 
@@ -225,9 +287,9 @@ function loadBiopsy(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 	$headers = array();
 	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Rapports biopsie')]]['cells'] as $line => $new_line) {
 		$line_counter++;
-		if($line_counter == 3) {
+		if($line_counter == 4) {
 			$headers = $new_line;
-		} else if($line_counter > 3){
+		} else if($line_counter > 5){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$participant_identifier = $new_line_data['# Patient'];
 			if(!empty($patients_to_import) && !in_array($participant_identifier, $patients_to_import)) continue;
@@ -625,7 +687,7 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 	//LoadPSAs
 	$line_counter = 0;
 	$headers = array();
-	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('30 mars 2015, tous aps')]]['cells'] as $line => $new_line) {
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('tous aps')]]['cells'] as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
 			$headers = $new_line;
@@ -672,6 +734,222 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 			} else {
 				$import_summary['PSA']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
 			}
+		}
+	}
+}
+
+function loadImagery(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho) {
+	global $import_summary;
+	global $controls;
+	global $patients_to_import;
+	// Control
+	$event_control = $controls['EventControl']['procure follow-up worksheet - clinical event'];
+	//Load Worksheet Names
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	//LoadPSAs
+	$line_counter = 0;
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Req_Immagerie_Médicale_24_04_20')]]['cells'] as $line => $new_line) {
+		$line_counter++;
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$participant_identifier = $new_line_data['NoProcure'];
+			if(!empty($patients_to_import) && !in_array($participant_identifier, $patients_to_import)) continue;
+			if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
+				$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
+				$event_date  = getDateAndAccuracy($new_line_data, 'DScan', 'Imagery', $file_name, $line_counter);
+				switch($new_line_data['DScan(P)']) {
+					case 'j':
+						$event_date['accuracy'] = 'd';
+						break;
+					case 'jm':
+						$event_date['accuracy'] = 'm';
+						break;
+					case 'jma':
+						$event_date['accuracy'] = 'y';
+						break;
+					default:
+				}
+				$all_imagery = array();
+				$scan_properties = array(
+					'TacoIRM' => array('type' => array('1' => 'CT-scan', '2' => 'MRI'), 'sites' => array('Tete','Poumon','Foie','SurRenal','Rein','GGPelvien','GGRetroPerit','GGThorax')),
+					'ScinTSerieMeta' => array('type' => array('1' => 'bone scintigraphy', '2' => 'PET-scan'), 'sites' =>  array('Cranien','Thorax','Vertebre','Sacrum','MembreInf','MembreSup'))
+				);
+				foreach($scan_properties as $excel_field => $imagery_data) {
+					if($new_line_data[$excel_field]) {
+						if(in_array($new_line_data[$excel_field], array_keys($imagery_data['type']))) {
+							$type = $imagery_data['type'][$new_line_data[$excel_field]];
+							$negative = false;
+							$positive = false;
+							$suspicious = false;
+							$sites = array();
+							foreach($imagery_data['sites'] as $site) {
+								switch($new_line_data[$site]) {
+									case '0':
+										$sites[] = "$site = negatif";
+										$negative = true;
+										break;
+									case '1':
+										$sites[] = "$site = positif";
+										$positive = true;
+										break;
+									case '2':
+										$sites[] = "$site = suspect";
+										$suspicious = true;
+										break;
+									case '9':
+										$sites[] = "$site = inconnu";
+										$import_summary['Imagery']['@@WARNING@@']["Imagery result '9' not supported - set as unknown"][] = "See '$excel_field' on site '$site' for patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+										break;
+									case '':
+										break;
+									default:
+										$import_summary['Imagery']['@@ERROR@@']["Imagery result not supported so not imported"][] = "See '$excel_field' result '".$new_line_data[$site]."' on site '$site' for patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+										
+								}
+							}					
+							$all_imagery[$type] = array('result' => ($positive? 'positive' : ($suspicious? 'suspicious' : ($negative? 'negative' : ''))), 'sites' => $sites);
+						} else {
+							$import_summary['Imagery']['@@ERROR@@']["$excel_field value not supported so not imported"][] = "See '$excel_field' value '".$new_line_data[$excel_field]."' for patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";	
+						}
+					}
+				}
+				if($all_imagery) {
+					foreach($all_imagery as $type => $res_data) {
+						$data = array(
+							'EventMaster' => array(
+								'participant_id' => $participant_id,
+								'procure_form_identification' => "$participant_identifier Vx -FSPx",
+								'event_control_id' => $event_control['event_control_id'],
+								'event_date' => $event_date['date'],
+								'event_date_accuracy' => $event_date['accuracy'],
+								'event_summary' => (empty($res_data['sites'])? '' : 'Res : ['.implode(' & ',  $res_data['sites']).'].').(empty($new_line_data['Notes'])? '' : ((empty($res_data['sites'])? '' : ' ').'Notes : '.$new_line_data['Notes']))),
+							'EventDetail' => array(
+								'type' => $type,
+								'results' => $res_data['result']));
+						$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
+						customInsert($data['EventDetail'], $event_control['detail_tablename'], __FILE__, __LINE__, true);
+					}
+				} else if(strlen($new_line_data['Notes'])) {
+					$import_summary['Imagery']['@@WARNING@@']['Note with no type of imagery'][] = "The note won't be imported! See patient '$participant_identifier'! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				}
+			} else {
+				$import_summary['Imagery']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient Imagery data won't be migrated! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+			}
+		}
+	}
+}
+
+function loadOtherDx(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho) {
+	global $import_summary;
+	global $controls;
+	global $patients_to_import;
+	// Control
+	$event_control = $controls['EventControl']['procure follow-up worksheet - other tumor dx'];
+	//Load Worksheet Names
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	//LoadPSAs
+	$line_counter = 0;
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Feuil1')]]['cells'] as $line => $new_line) {
+		$line_counter++;
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = formatNewLineData($headers, $new_line);	
+			$participant_identifier = $new_line_data['NoProcure'];
+			if(!empty($patients_to_import) && !in_array($participant_identifier, $patients_to_import)) continue;
+			if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
+				$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
+				$event_date  = getDateAndAccuracy($new_line_data, 'DtAutreCancer', 'Other Tumor Dx', $file_name, $line_counter);
+				$icd_10_code = str_replace('.', '', $new_line_data['CodeAutreCancer']);
+				$tumor_site = '';
+				switch($new_line_data['site']) {
+					case 'colon':
+						$tumor_site = 'digestive - colorectal';
+						break;
+					case 'rectum':
+						$tumor_site = 'digestive - colorectal';
+						break;
+					case 'bronches-poumon':
+						$tumor_site = 'thoracic - lung';
+						break;
+					case 'mélanome':
+						$tumor_site = 'skin - melanoma';
+						break;
+					case 'peau':
+						$tumor_site = 'skin - non melanomas';
+						break;
+					case 'testicules':
+						$tumor_site = 'male genital - testis';
+						break;
+					case 'rein':
+						$tumor_site = 'urinary tract - kidney';
+						break;
+					case 'vessie':
+						$tumor_site = 'urinary tract - bladder';
+						break;
+					case 'encéphale':
+						$tumor_site = 'central nervous system - brain';
+						break;
+					case 'thyroïde':
+						$tumor_site = 'head & neck - thyroid';
+						break;
+					case 'lymphome':
+						$tumor_site = 'haematological - lymphoma';
+						break;
+					case 'leucémie':
+						$tumor_site = 'haematological - leukemia';
+						break;
+					case '';
+						break;
+					default:
+						$import_summary['Other Tumor Dx']['@@ERROR@@']['Tumor Site To Support In Migration Script'][] = "Tumor site'".$new_line_data['site']."' has to be supported. See '$participant_identifier'. Data won't be migrated! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				}
+				$data = array(
+					'EventMaster' => array(
+						'participant_id' => $participant_id,
+						'procure_form_identification' => "$participant_identifier Vx -FSPx",
+						'event_control_id' => $event_control['event_control_id'],
+						'event_date' => $event_date['date'],
+						'event_date_accuracy' => $event_date['accuracy']),
+					'EventDetail' => array(
+						'procure_chuq_icd10_code' => $icd_10_code,
+						'tumor_site' => $tumor_site));
+				$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
+				customInsert($data['EventDetail'], $event_control['detail_tablename'], __FILE__, __LINE__, true);
+			} else {
+				$import_summary['Other Tumor Dx']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient Other Tumor data won't be migrated! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+			}
+		}
+	}
+	//UPDATE ICD
+	$sql = "SELECT DISTINCT procure_chuq_icd10_code FROM procure_ed_followup_worksheet_other_tumor_diagnosis 
+		WHERE procure_chuq_icd10_code IS NOT NULL AND procure_chuq_icd10_code NOT IN (SELECT id FROM coding_icd10_who);";
+	$results = customQuery($sql, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		$unsupported_procure_chuq_icd10_code = $row['procure_chuq_icd10_code'];
+		$new_procure_chuq_icd10_code = $unsupported_procure_chuq_icd10_code.'0';
+		$sql = "SELECT id FROM coding_icd10_who WHERE id = '$new_procure_chuq_icd10_code'";
+		$results_2 = customQuery($sql, __FILE__, __LINE__);
+		if($results_2->num_rows) {
+			$sql = "UPDATE procure_ed_followup_worksheet_other_tumor_diagnosis SET procure_chuq_icd10_code = '$new_procure_chuq_icd10_code' WHERE procure_chuq_icd10_code = '$unsupported_procure_chuq_icd10_code';";
+			customQuery($sql, __FILE__, __LINE__);
+			$import_summary['Other Tumor Dx']['@@WARNING@@']['ICD10 code unknown & reaplced'][] = "The ICD10 '$unsupported_procure_chuq_icd10_code' is not supported and has been replaced by code '$new_procure_chuq_icd10_code'! To validate!";
+			
+		} else {
+			
+			$sql = "UPDATE procure_ed_followup_worksheet_other_tumor_diagnosis, event_masters 
+				SET procure_chuq_icd10_code = '', event_summary = 'Unknown ICD code $unsupported_procure_chuq_icd10_code' 
+				WHERE procure_chuq_icd10_code = '$unsupported_procure_chuq_icd10_code' AND id = event_master_id;";
+			customQuery($sql, __FILE__, __LINE__);
+			$import_summary['Other Tumor Dx']['@@ERROR@@']['ICD10 code unknown'][] = "The ICD10 '$unsupported_procure_chuq_icd10_code' is not supported! Will be deleted and added to note!";
 		}
 	}
 }
@@ -908,28 +1186,45 @@ function getPermissibleCustomValue($value_to_test, &$db_values, $tx_permissible_
 	if(!strlen($value_key)) return null;
 	if(!array_key_exists($value_key, $db_values)) {
 		customInsert(array('value' => $value_key, 'en' => $value_to_test, 'fr' => $value_to_test, 'use_as_input' => '1', 'control_id' => $tx_permissible_value_control_id), 'structure_permissible_values_customs', __FILE__, __LINE__, false, true);
+if($tx_permissible_value_control_id == 41) pr(array('value' => $value_key, 'en' => $value_to_test, 'fr' => $value_to_test, 'use_as_input' => '1', 'control_id' => $tx_permissible_value_control_id), 'structure_permissible_values_customs', __FILE__, __LINE__, false, true);		
 		$db_values[$value_key] = $value_key;
 	}
 	return $db_values[$value_key];
 }
 
 function getPermissibleCustomValueKey($value) {
+	$value = str_replace(
+		array(
+			'à', 'â', 'ä', 'á', 'ã', 'å',
+			'î', 'ï', 'ì', 'í', 
+			'ô', 'ö', 'ò', 'ó', 'õ', 'ø', 
+			'ù', 'û', 'ü', 'ú', 
+			'é', 'è', 'ê', 'ë', 
+			'ç', 'ÿ', 'ñ',
+			'À', 'Â', 'Ä', 'Á', 'Ã', 'Å',
+			'Î', 'Ï', 'Ì', 'Í', 
+			'Ô', 'Ö', 'Ò', 'Ó', 'Õ', 'Ø', 
+			'Ù', 'Û', 'Ü', 'Ú', 
+			'É', 'È', 'Ê', 'Ë', 
+			'Ç', 'Ÿ', 'Ñ', 
+		),
+		array(
+			'a', 'a', 'a', 'a', 'a', 'a', 
+			'i', 'i', 'i', 'i', 
+			'o', 'o', 'o', 'o', 'o', 'o', 
+			'u', 'u', 'u', 'u', 
+			'e', 'e', 'e', 'e', 
+			'c', 'y', 'n', 
+			'A', 'A', 'A', 'A', 'A', 'A', 
+			'I', 'I', 'I', 'I', 
+			'O', 'O', 'O', 'O', 'O', 'O', 
+			'U', 'U', 'U', 'U', 
+			'E', 'E', 'E', 'E', 
+			'C', 'Y', 'N', 
+		),$value);
 	$value = trim($value);
-	$key = str_replace(
-		array('à', 'â', 'ä', 'á', 'ã', 'å',
-			'î', 'ï', 'ì', 'í',
-			'ô', 'ö', 'ò', 'ó', 'õ', 'ø',
-			'ù', 'û', 'ü', 'ú',
-			'é', 'è', 'ê', 'ë',
-			'ç', 'ÿ', 'ñ'),
-		array('a', 'a', 'a', 'a', 'a', 'a',
-			'i', 'i', 'i', 'i',
-			'o', 'o', 'o', 'o', 'o', 'o',
-			'u', 'u', 'u', 'u',
-			'e', 'e', 'e', 'e',
-			'c', 'y', 'n'),
-		strtolower($value));
-	return $key;
+	$value = strtolower($value);
+	return $value;
 }
 
 ?>
