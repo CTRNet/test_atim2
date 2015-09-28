@@ -28,7 +28,8 @@ $patients_to_import = array(
 	'PS2P0130',
 	'PS2P0094',
 	'PS2P0130',
-	'PS2P0150'
+	'PS2P0150',
+	'PS2P0141'
 );
 //$patients_to_import = array();
 $files_name = array(
@@ -94,7 +95,7 @@ $sample_storage_types = array(
 	'plasma' => 'box81',
 	'pbmc' => 'box81',
 	'whatman' => 'box',
-	'urine' => 'box49 1A-7G',
+	'urine' => 'box49',
 	'concentrated urine' => 'box81',
 	'rna' => 'box81'
 );

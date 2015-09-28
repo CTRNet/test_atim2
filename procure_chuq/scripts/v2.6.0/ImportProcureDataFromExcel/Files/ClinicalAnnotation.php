@@ -29,16 +29,32 @@ function loadVitalStatus(&$XlsReader, $files_path, $file_name) {
 				$details = array($new_line_data['cause décès'], $new_line_data['Formulaire SP-3'], $new_line_data['notes']);
 				$details = implode ('. ', array_filter($details));
 				$details = strlen($details)? $details.'.' : ''; 
+				$procure_cause_of_death = '';
+				switch($new_line_data["cause décès en binaire (DOD: cancer prostate) DOOD: death of other disease)"]) {
+					case 'DOOD':
+						$procure_cause_of_death = 'independent of prostate cancer';
+						break;
+					case 'DOD':
+						$procure_cause_of_death = 'secondary to prostate cancer';
+						break;
+					case 'inconue':
+					case '':
+						break;
+					default:
+						$import_summary['Profile']['@@ERROR@@']['DOOD or DOD'][] = "T cause of death [".$new_line_data["cause décès en binaire (DOD: cancer prostate) DOOD: death of other disease)"]."] is not supported.  Cause won't be migrated! [field <b>cause décès en binaire (DOD: cancer prostate) DOOD: death of other disease)</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				}
 				$vital_status_data[$participant_identifier] = array(
 					'procure_chuq_last_contact_date' => '', 			//$last_followup_date['date'],
 					'procure_chuq_last_contact_date_accuracy' => '', 	//$last_followup_date['accuracy'],
 					'date_of_death' => $date_of_death['date'],
 					'date_of_death_accuracy' => $date_of_death['accuracy'],
+					'procure_cause_of_death' => $procure_cause_of_death,
 					'procure_chuq_cause_of_death_details' =>$details);
 				if($vital_status_data[$participant_identifier]['date_of_death']) {
 					$vital_status_data[$participant_identifier]['vital_status'] = 'deceased';
-				} else if(strlen($vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details'])) {
-					$import_summary['Profile']['@@ERROR@@']['No date of death'][] = "A cause of death [".$vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details']."] has been defined but no date of death has been set. Cause won't be migrated and vital status won't be set to 'deceased'! [field <b>reason</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				} else if(strlen($vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details']) || strlen($procure_cause_of_death)) {
+					$import_summary['Profile']['@@ERROR@@']['No date of death'][] = "A cause of death [".$vital_status_data[$participant_identifier]['procure_chuq_cause_of_death_details']."] or a 'cause décès en binaire' has been defined but no date of death has been set. Cause won't be migrated and vital status won't be set to 'deceased'! [field <b>reason</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+					unset($vital_status_data[$participant_identifier]);
 				}
 			}
 		}
@@ -524,6 +540,9 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 				$new_line_data['marge atteinte précision'] = strtolower(str_replace(array('É', 'é'), array('e', 'e'), $new_line_data['marge atteinte précision']));
 				if(!in_array($new_line_data['marge atteinte précision'], array('indetermine', 'n', 'no', 'non-evaluable', 'y', '', '-'))) {
 					if(preg_match('/^y\ exte[nm]si[fv][e]{0,1}\ ([0-9][\ ]{0,1}\+\ [0-9])$/', $new_line_data['marge atteinte précision'], $matches)) {
+						$event_details['margins_focal_or_extensive'] = 'extensive';
+						$event_details['margins_gleason_score'] = $matches[1];
+					} else if(preg_match('/^y\ multifocal[e]{0,1}\ ([0-9][\ ]{0,1}\+\ [0-9])$/', $new_line_data['marge atteinte précision'], $matches)) {
 						$event_details['margins_focal_or_extensive'] = 'extensive';
 						$event_details['margins_gleason_score'] = $matches[1];
 					} else if(preg_match('/^y(es){0,1}\ (uni){0,1}focal[e;]{0,1}(\ [grade\ ]{0,6}([0-9]\ \+\ [0-9])){0,1}$/', $new_line_data['marge atteinte précision'], $matches)) {
@@ -1019,6 +1038,7 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 					$detail_data = array();
 					switch($new_line_data['Type']) {
 						//Chemotherpay
+						case 'Tx':				
 						case 'Tx-Chimio':				
 							$treatment_controls = $tx_control['procure follow-up worksheet - treatment'];
 							$period = getPermissibleCustomValue($new_line_data['Periode'], $periods, $period_control_id);
@@ -1036,12 +1056,14 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 						 		);
 						 	}
 						 	break;
+						case 'Hx':
 						case 'Hx-AA':
 						case 'Hx-LA':
 						case 'Hx-X':
 							$treatment_controls = $tx_control['procure follow-up worksheet - treatment']; 
-							preg_match('/^Hx\-(.+)$/',  $new_line_data['Type'], $matches);
-							$treatment_notes = 'Hormono-'.$matches[1];
+							if(preg_match('/^Hx\-(.+)$/',  $new_line_data['Type'], $matches)) {
+								$treatment_notes = 'Hormono-'.$matches[1];
+							}
 							$period = getPermissibleCustomValue($new_line_data['Periode'], $periods, $period_control_id);
 							$tx_protocol = getPermissibleCustomValue($new_line_data['Protocole'], $tx_protocols, $tx_protocol_control_id);
 						 	$drug_ids = array();
@@ -1060,13 +1082,14 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 						 			'procure_chuq_protocol' => $tx_protocol);
 							}
 							break;
+						case 'Rx':
 						case 'Rx-Ext':
 						case 'Rx-Cur':
 							$treatment_controls = $tx_control['procure follow-up worksheet - treatment'];
 							$tx_protocol = getPermissibleCustomValue($new_line_data['Protocole'], $tx_protocols, $tx_protocol_control_id);
 							$period = getPermissibleCustomValue($new_line_data['Periode'], $periods, $period_control_id);
 							$detail_data = array(array(
-								'treatment_type' => ($new_line_data['Type'] == 'Rx-Ext')? 'radiotherapy' : 'brachytherapy',
+								'treatment_type' => ($new_line_data['Type'] == 'Rx-Cur')? 'brachytherapy' : 'radiotherapy',
 								'procure_chuq_period' => $period,
 						 		'dosage' => $dose,
 						 		'procure_chuq_protocol' => $tx_protocol));
@@ -1186,7 +1209,6 @@ function getPermissibleCustomValue($value_to_test, &$db_values, $tx_permissible_
 	if(!strlen($value_key)) return null;
 	if(!array_key_exists($value_key, $db_values)) {
 		customInsert(array('value' => $value_key, 'en' => $value_to_test, 'fr' => $value_to_test, 'use_as_input' => '1', 'control_id' => $tx_permissible_value_control_id), 'structure_permissible_values_customs', __FILE__, __LINE__, false, true);
-if($tx_permissible_value_control_id == 41) pr(array('value' => $value_key, 'en' => $value_to_test, 'fr' => $value_to_test, 'use_as_input' => '1', 'control_id' => $tx_permissible_value_control_id), 'structure_permissible_values_customs', __FILE__, __LINE__, false, true);		
 		$db_values[$value_key] = $value_key;
 	}
 	return $db_values[$value_key];
