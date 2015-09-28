@@ -71,6 +71,7 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 						case 'CM':
 						case  '':
 							break;
+						case '-CM':
 						case 'MO-CM':
 							$new_line_data['Coupe réalisée par'] = 'CM';
 							//$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See patient '$patient_identifier'. [field <b>Coupe réalisée par</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";	
@@ -130,7 +131,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	//LoadConsentAndQuestionnaireData
 	$headers = array();
 	for($visit_id=1;$visit_id<11;$visit_id++) {		
-		$worksheet = "V0".$visit_id;
+		$worksheet = (strlen($visit_id) == 1)? "V0".$visit_id : "V".$visit_id;
 		$duplicated_participants_check = array();
 		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
 			//$line_counter++;
@@ -806,9 +807,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 				$query = "UPDATE treatment_masters SET notes = CONCAT('".str_replace("'", "''",$prostatectomy_data_from_inv_file['TreatmentMaster']['notes'])."', notes) WHERE notes IS NOT NULL AND id = ".$created_prostatectomy[$participant_identifier]['id'];
 				customQuery($query, __FILE__, __LINE__);	
 				$query = "UPDATE treatment_masters SET notes = '".str_replace("'", "''",$prostatectomy_data_from_inv_file['TreatmentMaster']['notes'])."' WHERE notes IS NULL AND id = ".$created_prostatectomy[$participant_identifier]['id'];
-				customQuery($query, __FILE__, __LINE__);	
-//TODO a tester lors du prochain test
-//Test a faire				
+				customQuery($query, __FILE__, __LINE__);
 				$import_summary['Inventory - Tissue (V01)']['@@MESSAGE@@']["Added collection note to prostatectomy"][] = "A collection note '".$prostatectomy_data_from_inv_file['TreatmentMaster']['notes']."' has been created based on inventory file data and will be added to the prostatectomy notes (see treatment on ".$prostatectomy_data_from_inv_file['TreatmentMaster']['start_date'].") because no collection will be created. See patient '$participant_identifier'.  [field <b>date chirurgie</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 			}
 		}
@@ -1142,6 +1141,7 @@ function loadRNA(&$XlsReader, $files_path, $file_name) {
 									case  '':
 										$created_by = $new_line_data['extrait par CHUQ'];
 										break;
+									case '-CM':
 									case 'MO-CM':
 									case 'CM (BC)':
 									case 'CM (BC)':
@@ -1444,7 +1444,7 @@ function getStorageMasterId($participant_identifier, $excel_storage_label, $samp
 				case 'pbmc':
 				case 'concentrated urine':
 				case 'rna':
-					if(preg_match('/^(R[0-9]+)(B[0-9]+)$/',$excel_storage_label, $matches)) {
+					if(preg_match('/^(R[0-9]+)[\-]{0,1}(B[0-9]+)$/',$excel_storage_label, $matches)) {
 						$rack_label = $matches[1];
 						$box_label = $matches[2];
 					} else {
@@ -1534,6 +1534,15 @@ function getPosition($participant_identifier, $excel_postions, $excel_storage_la
 					$positions['y'] = $matches[1];
 				}
 				break;
+			case 'box49':
+				//Urine case
+				if(preg_match('/^(([1-9])|([1-4][1-9]))$/', $excel_postions, $matches)) {
+					$positions['x'] = $excel_postions;
+				} else if(preg_match('/^([A-G])([1-7])$/', $excel_postions, $matches)) {
+					$incr_val = str_replace(array('A','B','C','D','E','F','G'),array('0','7','14','21','28','35','42'),$matches[1]);
+					$positions['x'] = $matches[2]+$incr_val;
+				}
+				break;
 			default:
 				die('ERR327632767326 '.$storage_type);	
 		}
@@ -1541,11 +1550,5 @@ function getPosition($participant_identifier, $excel_postions, $excel_storage_la
 	}
 	return $positions;
 }
-
-
-
-
-
-
 
 ?>
