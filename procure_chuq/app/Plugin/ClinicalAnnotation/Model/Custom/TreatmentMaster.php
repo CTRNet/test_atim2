@@ -51,6 +51,15 @@ class TreatmentMasterCustom extends TreatmentMaster {
 					$this->validationErrors['treatment_line'][] = __('no line has to be associated to the selected treatment type');
 				}
 			}
+//PROCURE CHUQ custom code
+			//Check surgery data complete for prostatectomy
+			if(array_key_exists('procure_chuq_surgeon', $this->data['TreatmentDetail'])) {
+				if(strlen($this->data['TreatmentDetail']['treatment_precision'].$this->data['TreatmentDetail']['procure_chuq_laparotomy'].$this->data['TreatmentDetail']['procure_chuq_laparoscopy']) && !in_array($treatment_type, array('aborted prostatectomy', 'prostatectomy'))) {
+					$result = false;
+					$this->validationErrors['procure_chuq_surgeon'][] = __('no surgery data has to be associated to the selected treatment type');
+				}				
+			}
+//END PROCURE CHUQ custom code			
 		}
 		return $result;
 	}

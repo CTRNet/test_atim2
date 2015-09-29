@@ -90,39 +90,76 @@ VALUES
 ('witness', 'Qitness', 'Témoin'), 	    
 ('complete', 'Complete', 'Complèt');
 
+-- Linked to profile
+
+ALTER TABLE participants
+  ADD COLUMN procure_chuq_stop_followup tinyint(1) DEFAULT NULL,
+  ADD COLUMN procure_chuq_stop_followup_date date DEFAULT NULL,
+  ADD COLUMN procure_chuq_stop_followup_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE participants_revs
+  ADD COLUMN procure_chuq_stop_followup tinyint(1) DEFAULT NULL,
+  ADD COLUMN procure_chuq_stop_followup_date date DEFAULT NULL,
+  ADD COLUMN procure_chuq_stop_followup_date_accuracy char(1) NOT NULL DEFAULT '';  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_chuq_stop_followup', 'checkbox',  NULL , '0', '', '', '', 'stop followup', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'procure_chuq_stop_followup_date', 'date',  NULL , '0', '', '', '', '', 'stop followup date');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_chuq_stop_followup'), '3', '38', 'patient withdrawn', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_chuq_stop_followup_date'), '3', '39', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_patient_withdrawn' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('stop followup','Stop Followup', 'Arrêt du suivi'), 
+('stop followup date','Date', 'Date');
+UPDATE structure_fields SET  `language_label`='stop followup date',  `language_tag`='' WHERE model='Participant' AND tablename='participants' AND field='procure_chuq_stop_followup_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='patient withdrawn' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_patient_withdrawn' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='followup' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_chuq_stop_followup' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Box 49 available
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 update storage_controls SET flag_active = 1 where storage_type = 'box49';
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Surgery Data
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_followup_worksheet_treatments', 'procure_chuq_surgeon', 'input',  NULL , '0', '', '', '', 'surgeon', ''),
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_followup_worksheet_treatments', 'procure_chuq_laparotomy', 'checkbox',  NULL , '0', '', '', '', 'laparotomy', ''),
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_followup_worksheet_treatments', 'procure_chuq_laparoscopy', 'checkbox',  NULL , '0', '', '', '', 'laparoscopy', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES
+((SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='procure_chuq_surgeon' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surgeon' AND `language_tag`=''), '1', '40', 'surgery', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='procure_chuq_laparotomy' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laparotomy' AND `language_tag`=''), '1', '41', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='procure_chuq_laparoscopy' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laparoscopy' AND `language_tag`=''), '1', '42', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('surgeon','Curgeon','Chirurgien'),
+('laparotomy', 'Laparotomy', 'Laparotomie'),
+('laparoscopy', 'Laparoscopy', 'Laparoscopie');
+ALTER TABLE procure_txd_followup_worksheet_treatments
+  ADD COLUMN procure_chuq_surgeon varchar(60) DEFAULT NULL,
+  ADD COLUMN procure_chuq_laparotomy tinyint(1) DEFAULT NULL,
+  ADD COLUMN procure_chuq_laparoscopy tinyint(1) DEFAULT NULL;
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs
+  ADD COLUMN procure_chuq_surgeon varchar(60) DEFAULT NULL,
+  ADD COLUMN procure_chuq_laparotomy tinyint(1) DEFAULT NULL,
+  ADD COLUMN procure_chuq_laparoscopy tinyint(1) DEFAULT NULL;
+UPDATE structure_formats SET `language_heading`='details' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('no surgery data has to be associated to the selected treatment type', 'No surgery data has to be associated to the selected treatment type','Aucune donnée de chirurgie ne doit être défini pour le type du traitement sélectionné');
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Remove CHUQ concentrated Urine
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ALTER TABLE sd_der_urine_cents DROP COLUMN procure_chuq_concentrated;
+ALTER TABLE sd_der_urine_cents_revs DROP COLUMN procure_chuq_concentrated;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_chuq_concentrated' AND `language_label`='concentrated' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+Delete obsolete structure fields and validationsDELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_chuq_concentrated' AND `language_label`='concentrated' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_chuq_concentrated' AND `language_label`='concentrated' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='445' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_chuq_concentration_ratio' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='444' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_concentrated' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 

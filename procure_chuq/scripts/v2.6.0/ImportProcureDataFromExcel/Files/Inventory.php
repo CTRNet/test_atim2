@@ -2,6 +2,7 @@
 
 function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {	
 	global $import_summary;
+	global $patients_to_import;
 	$psp_nbr_to_frozen_blocks_data = array('blocks'=>array(), 'file_name' => $file_name);
 	//Load Worksheet Names
 	$XlsReader->read($files_path.$file_name);
@@ -18,6 +19,7 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$patient_identifier = $new_line_data['# patient'];
 			if($patient_identifier && preg_match('/^PS2P/', $patient_identifier)) {
+				if(!empty($patients_to_import) && !in_array($patient_identifier, $patients_to_import)) continue;
 				if(empty($new_line_data['label']) || in_array($new_line_data['label'], array('x','X'))) {
 					$import_summary['Inventory - Tissue (V01)']['@@MESSAGE@@']["No Aliquot Label"][] = "See patient '$patient_identifier' value. No block won't be created. [field <b>label</b> - file <b>$file_name</b> - line <b>$line_counter</b>]";
 				} else if(in_array(($patient_identifier.$new_line_data['label']), $dublicated_aliquots_check)){
@@ -94,6 +96,8 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 
 function loadParaffinBlock(&$XlsReader, $files_path, $file_name) {
 	global $import_summary;
+	global $patients_to_import;
+
 	$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Field '# dossier' won't be migrated and used"][] = "See file <b>$file_name</b>";
 	$psp_nbr_to_paraffin_blocks_data = array('blocks'=>array(), 'file_name' => $file_name);
 	//Load Worksheet Names
@@ -109,18 +113,21 @@ function loadParaffinBlock(&$XlsReader, $files_path, $file_name) {
 		} else if($line_counter > 4){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$patient_identifier = $new_line_data['# échantillon'];
+			if(!empty($patients_to_import) && !in_array($patient_identifier, $patients_to_import)) continue;
 			if($patient_identifier && preg_match('/^PS2P/', $patient_identifier) && strlen($new_line_data['bloc tumoral 1'].$new_line_data['bloc tumoral 2'].$new_line_data['bloc normal 1'].$new_line_data['bloc normal 2'])) {
 				$new_line_data['excel_line'] = $line_counter;
 				$psp_nbr_to_paraffin_blocks_data['blocks'][$patient_identifier][] = $new_line_data;
 			}
 		}
-	}
+	}	
 	return $psp_nbr_to_paraffin_blocks_data;
 }
 
 function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, &$psp_nbr_to_participant_id_and_patho, &$created_prostatectomy) {
 	global $import_summary;
 	global $controls;
+	global $patients_to_import;
+	
 	// Control
 	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
 	$storage_control = $controls['storage_controls'];
@@ -128,7 +135,23 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
-	//LoadConsentAndQuestionnaireData
+	//Load Shipped Urine
+	$shipped_urines_participant_identifiers = array();
+	$headers = array();
+	$shipped_urine_worksheet = 'sorti URN1 juin 2015';
+	foreach($XlsReader->sheets[$sheets_nbr[$shipped_urine_worksheet]]['cells'] as $line_counter => $new_line) {
+		//$line_counter++;
+		if($line_counter == 2) {
+			$headers = $new_line;
+		} else if($line_counter > 2){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			if(preg_match('/^PS2P[0-9]{4}$/', $new_line_data['# patient']) && $new_line_data['urine disponible'] == '1') {
+				if(!empty($patients_to_import) && !in_array( $new_line_data['# patient'], $patients_to_import)) continue;
+				$shipped_urines_participant_identifiers[$new_line_data['# patient']] = $new_line_data['# patient'];
+			}
+		}
+	}
+	//LoadInventoryData
 	$headers = array();
 	for($visit_id=1;$visit_id<11;$visit_id++) {		
 		$worksheet = (strlen($visit_id) == 1)? "V0".$visit_id : "V".$visit_id;
@@ -142,6 +165,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 				$participant_identifier = $new_line_data['# patient'];
 				if(strlen($participant_identifier)) {
 					if(preg_match('/^PS[0-9]P/', $participant_identifier)) {
+						if(!empty($patients_to_import) && !in_array( $participant_identifier, $patients_to_import)) continue;
 						if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
 							if(!in_array($participant_identifier, $duplicated_participants_check)) {
 								$duplicated_participants_check[$participant_identifier] = $participant_identifier;
@@ -153,7 +177,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 								//Blood....
 								loadBlood($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
 								//Urine....
-								loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
+								loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data, $shipped_urines_participant_identifiers);
 							} else {
 								$import_summary['Inventory - All']['@@ERROR@@']['Patient defined twice'][] = "The patient '$participant_identifier' has been listed twice for the same visit $worksheet. New line won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";		
 							}
@@ -174,9 +198,14 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	foreach($psp_nbr_to_paraffin_blocks_data['blocks'] as $participant_identifier => $data) {
 		$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Unmigrated paraffin blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file <b>$file_name</b> && <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>]  ";
 	}
+	//Check unmigrated shipped urine
+	foreach($shipped_urines_participant_identifiers as $participant_identifier) {
+		$import_summary['Inventory - URINE (V01)']['@@ERROR@@']["Urine defined as shipped but no urine 'v01 -URN1' created"][] = "No urine '$participant_identifier v01 -URN1' was defined into file so this tube has not been created, but this one was defined as shipped! No data attached to this event has been created. Please confirm! [file <b>$file_name</b> + worksheet <b>$shipped_urine_worksheet</b>]  ";
+	}
+	
 }
 
-function loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data) {
+function loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data, &$shipped_urines_participant_identifiers) {
 	global $import_summary;
 	global $controls;
 
@@ -299,12 +328,14 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 					'procure_aspect_after_refrigeration' => $urine_aspect,
 					'procure_other_aspect_after_refrigeration' => $procure_other_aspect_after_refrigeration,
 					'procure_chuq_pellet' => $procure_chuq_pellet,
-					'procure_chuq_concentrated' => 'n'));
+					'procure_concentrated' => 'n'));
 			$derivative_sample_master_id = createSample($sample_data, $controls['sample_aliquot_controls']['centrifuged urine']['detail_tablename']);
 			$created_aliquot = false;
 			for($id=1;$id<3;$id++){
 				$initial_volume = getDecimal($new_line_data, 'URN-'.$id.' vol. ml', 'Inventory - Urine', "$file_name ($worksheet)", $line_counter);
 				if($initial_volume) {
+					//Aliquot Use
+					$aliquot_use = array();
 					//Storage data
 					$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement URN-'.$id], 'urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
 					$storage_coordinates = getPosition($participant_identifier, $new_line_data['position urn-'.$id], $new_line_data['bte rangement URN-'.$id], 'urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
@@ -325,11 +356,32 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 							'storage_coord_x' => $storage_coordinates['x'],
 							'storage_coord_y' => $storage_coordinates['y']),
 						'AliquotDetail' => array());
+					if(in_array($participant_identifier, $shipped_urines_participant_identifiers) && $aliquot_data['AliquotMaster']['barcode'] == "$participant_identifier V01 -URN1") {
+						//Urine was shipped to procure processing site
+						$aliquot_data['AliquotMaster']['in_stock'] = 'no';
+						$aliquot_data['AliquotMaster']['storage_master_id'] = null;
+						$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
+						$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
+						$aliquot_data['AliquotMaster']['use_counter'] = '1';
+						$aliquot_data['AliquotMaster']['notes'] = 'Was stored in box "'.$new_line_data['bte rangement URN-'.$id].'"- Position : '.$storage_coordinates['x'].' '.$storage_coordinates['x'];
+						$aliquot_use = array(
+							'use_code' => 'Sortie URN1',
+							'type' => 'sent to processing site',
+							'use_details' => '',
+							'use_datetime' => '2015-06-01',
+							'use_datetime_accuracy' => 'd',
+							'used_by' => '');
+						unset($shipped_urines_participant_identifiers[$participant_identifier]);
+					}
 					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['centrifuged urine']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
 					$created_aliquot = true;
 					$centrifuged_aliquots_created = true;
 					$collection_aliquot_created = true;
+					if(!empty($aliquot_use)) {
+						$aliquot_use['aliquot_master_id'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+						customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
+					}
 				} else if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement URN-'.$id]) || str_replace(array('x','-'),array('',''),$new_line_data['position urn-'.$id])) {
 					$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN".$id." is empty but a storage information is set (".$new_line_data['bte rangement URN-'.$id]." : ".$new_line_data['position urn-'.$id]."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), fields <b>".$new_line_data['bte rangement URN-'.$id]."</b> & <b>".$new_line_data['position urn-'.$id]."</b>, line : <b>$line_counter</b>]";
 				}
@@ -359,7 +411,7 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 						'procure_aspect_after_refrigeration' => $urine_aspect,
 						'procure_other_aspect_after_refrigeration' => $procure_other_aspect_after_refrigeration,
 						'procure_chuq_pellet' => $procure_chuq_pellet,
-						'procure_chuq_concentrated' => 'y',
+						'procure_concentrated' => 'y',
 						'procure_chuq_concentration_ratio' => preg_match('/^x$/', $new_line_data['urine concentrée ratio conc.'])? '' : $new_line_data['urine concentrée ratio conc.']));
 				$derivative_sample_master_id = createSample($sample_data, $controls['sample_aliquot_controls']['centrifuged urine']['detail_tablename']);
 				$initial_volume = getDecimal($new_line_data, 'vol URC-1', 'Inventory - Urine', "$file_name ($worksheet)", $line_counter);
@@ -899,11 +951,41 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 			switch($new_block['Date de coupe']) {
 				case '':
 					break;
+				case 'envoi le 1 déc 2014 au CUSM pour test mismatch':
+					$in_stock = 'yes - not available';
+					$aliquot_use = array(
+							'use_code' => 'Au CUSM pour test mismatch',
+							'type' => 'sent to processing site',
+							'use_details' => $new_block['Date de coupe'],
+							'use_datetime' => '2014-12-01',
+							'use_datetime_accuracy' => 'c',
+							'used_by' => $new_block['Coupe réalisée par']);
+					break;
+				case 'envoi le 11 juillet 2014 au CUSM pour mapping':
+					$in_stock = 'yes - not available';
+					$aliquot_use = array(
+							'use_code' => 'Au CUSM pour mapping',
+							'type' => 'sent to processing site',
+							'use_details' => $new_block['Date de coupe'],
+							'use_datetime' => '2014-07-11',
+							'use_datetime_accuracy' => 'c',
+							'used_by' => $new_block['Coupe réalisée par']);
+					break;
+				case 'pour mapping':
+					$in_stock = 'yes - not available';
+					$aliquot_use = array(
+							'use_code' => 'Au CUSM pour mapping',
+							'type' => 'sent to processing site',
+							'use_details' => $new_block['Date de coupe'],
+							'use_datetime' => '',
+							'use_datetime_accuracy' => '',
+							'used_by' => $new_block['Coupe réalisée par']);
+					break;
 				case 'envoi le 20 fév. 2012 au CUSM pour mapping et test extrac. ARN':
 					$in_stock = 'yes - not available';
 					$aliquot_use = array(
 						'use_code' => 'Au CUSM pour Mapping + Extraction ARN', 
-						'type' => 'on loan', 
+						'type' => 'sent to processing site', 
 						'use_details' => $new_block['Date de coupe'],
 						'use_datetime' => '2012-02-20', 
 						'use_datetime_accuracy' => 'h', 
@@ -913,7 +995,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 					$in_stock = 'no';
 					$aliquot_use = array(
 						'use_code' => 'En Patho pour Diagnostic',
-						'type' => 'on loan',
+						'type' => 'other',
 						'use_details' => $new_block['Date de coupe'],
 						'use_datetime' => '',
 						'use_datetime_accuracy' => '',
@@ -927,6 +1009,16 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 						'use_details' => $new_block['Date de coupe'],
 						'use_datetime' => '',
 						'use_datetime_accuracy' => '',
+						'used_by' => $new_block['Coupe réalisée par']);
+					break;
+				case 'tissus remis à la pathologie le 12 mars 2009, ils le dégèlent et lefixe':
+					$in_stock = 'no';
+					$aliquot_use = array(
+						'use_code' => 'Retour Patho: dégèle et fixation',
+						'type' => 'other',
+						'use_details' => $new_block['Date de coupe'],
+						'use_datetime' => '2009-03-12',
+						'use_datetime_accuracy' => 'c',
 						'used_by' => $new_block['Coupe réalisée par']);
 					break;
 				case 'un peu de calcifications':
@@ -1072,6 +1164,8 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 function loadRNA(&$XlsReader, $files_path, $file_name) {
 	global $import_summary;
 	global $controls;
+	global $patients_to_import;
+	
 	// Control
 	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
 	$storage_control = $controls['storage_controls'];
@@ -1107,6 +1201,7 @@ function loadRNA(&$XlsReader, $files_path, $file_name) {
 				$participant_identifier = $new_line_data['# échantillon'];
 				if(strlen($participant_identifier)) {
 					if(preg_match('/^PS[0-9]P/', $participant_identifier)) {
+						if(!empty($patients_to_import) && !in_array( $participant_identifier, $patients_to_import)) continue;
 						if(array_key_exists($participant_identifier, $paxgene_blood_tubes)) {
 							if($new_line_data['# extraction'] || $new_line_data["Date             d'extraction"] || $new_line_data['RNA-1 volume (ul)']) {
 								//Parse excel data

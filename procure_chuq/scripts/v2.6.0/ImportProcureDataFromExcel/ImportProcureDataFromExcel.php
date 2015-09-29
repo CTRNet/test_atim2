@@ -13,24 +13,8 @@ set_time_limit('3600');
 
 global $patients_to_import;
 //TODO set to empty
-$patients_to_import = array(
-	'PS2P0017',
-	'PS2P0095',
-	'PS2P0133',
-	'PS2P0022',
-	'PS2P0020',
-	'PS2P0221',
-	'PS2P0003',
-	'PS2P0017',
-	'PS2P0023',
-	'PS2P0003',
-	'PS2P0094',
-	'PS2P0130',
-	'PS2P0094',
-	'PS2P0130',
-	'PS2P0150',
-	'PS2P0141'
-);
+$patients_to_import = array();
+
 //$patients_to_import = array();
 $files_name = array(
 	'patient' => 'Patients_to_build_on_migration_day_v_b_20150900.xls',
@@ -48,7 +32,7 @@ $files_name = array(
 	'other tumor' => 'autres cancer_20150918_v_r_20150923.xls'
 );
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure_chuq\\data\\';
-//$files_path = "/ATiM/todelete/ImportProcureDataFromExcel/data/";
+$files_path = "/ATiM/atim-procure/TmpChuq/data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -62,7 +46,7 @@ $db_user 		= "root";
 $db_charset		= "utf8";
 
 $db_pwd			= "";
-$db_schema	= "procurechuq";
+$db_schema	= "procurechuqtmp";
 
 
 global $db_connection;
@@ -141,7 +125,7 @@ loadBiopsy($XlsReader, $files_path, $files_name['biopsy'], $psp_nbr_to_participa
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patho - File(s) : ".$files_name['patho']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadPathos($XlsReader, $files_path, $files_name['patho'], $psp_nbr_to_participant_id_and_patho);
+$prostatectomy_data_from_patho = loadPathos($XlsReader, $files_path, $files_name['patho'], $psp_nbr_to_participant_id_and_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - PSA - File(s) : ".$files_name['psa']."***</FONT><br>";
 
@@ -151,7 +135,7 @@ loadPSAs($XlsReader, $files_path, $files_name['psa'], $psp_nbr_to_participant_id
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) : ".$files_name['treatment']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-$created_prostatectomy = loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
+$created_prostatectomy = loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho, $prostatectomy_data_from_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Imagery - File(s) : ".$files_name['imagery']."***</FONT><br>";
 
@@ -236,36 +220,36 @@ foreach($queries as $query) customQuery($query, __FILE__, __LINE__);
 
 // *** SQL TO CHECK DATA INTEGRITY ***
 
-$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT participant_identifier AS '### MESSAGE ### Wrong participant_identifier format to correct', id AS participant_id FROM participants WHERE deleted <> 1 AND participant_identifier NOT REGEXP'^PS[1-9]P0[0-9]+$';
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT participant_identifier AS '### MESSAGE ### Wrong participant_identifier format to correct', id AS participant_id FROM participants WHERE deleted <> 1 AND participant_identifier NOT REGEXP'^PS2P0[0-9]+$';
 SELECT id AS '### MESSAGE ### participant_id with withdrawn date or withdrawn reason but not flagged as withdrawn: To flag' 
 FROM participants WHERE deleted <> 1 
 AND ((procure_patient_withdrawn_date IS NOT NULL AND procure_patient_withdrawn_date NOT LIKE '') OR (procure_patient_withdrawn_reason IS NOT NULL AND procure_patient_withdrawn_reason NOT LIKE ''))
 AND procure_patient_withdrawn <> 1;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Duplicated procure_form_identification to correct' FROM (SELECT count(*) as nbr, procure_form_identification FROM consent_masters WHERE deleted <> 1 GROUP BY procure_form_identification) res WHERE res.nbr > 1;";
-$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong consent_masters.procure_form_identification format to correct',participant_id, id AS consent_master_id FROM consent_masters WHERE deleted <> 1 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -CSF[0-9]+$' OR procure_form_identification IS NULL;";
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong consent_masters.procure_form_identification format to correct',participant_id, id AS consent_master_id FROM consent_masters WHERE deleted <> 1 AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ V((0[1-9])|(1[0-9])) -CSF[0-9]+$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Duplicated procure_form_identification to correct' FROM (
 	SELECT count(*) as nbr, EventMaster.procure_form_identification FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id WHERE deleted <> 1 AND EventControl.event_type NOT IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event') GROUP BY EventMaster.procure_form_identification
 ) res WHERE res.nbr > 1;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure pathology report'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -PST[0-9]+$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ V((0[1-9])|(1[0-9])) -PST[0-9]+$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure diagnostic information worksheet'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FBP[0-9]+$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ V((0[1-9])|(1[0-9])) -FBP[0-9]+$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure questionnaire administration worksheet'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -QUE[0-9]+$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ V((0[1-9])|(1[0-9])) -QUE[0-9]+$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure follow-up worksheet'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FSP[0-9]+$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ V((0[1-9])|(1[0-9])) -FSP[0-9]+$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event')
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Follow-up Worksheet with no date to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet') AND (EventMaster.event_date IS NULL OR EventMaster.event_date LIKE '');";
@@ -275,19 +259,19 @@ $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELEC
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet - drug'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -MEDx$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ Vx -MEDx$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure follow-up worksheet - treatment'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -MED[0-9]+$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ V((0[1-9])|(1[0-9])) -MED[0-9]+$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'other tumor treatment'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;";
+AND procure_form_identification NOT REGEXP'^PS2P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;";
 $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT procure_form_identification AS '### MESSAGE ### Medication Worksheet with no date to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet' AND (TreatmentMaster.start_date IS NULL OR TreatmentMaster.start_date LIKE '');";
