@@ -161,9 +161,14 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Invento
 UPDATE structure_formats SET `display_order`='445' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_chuq_concentration_ratio' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='444' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_concentrated' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Added New Lab staff
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff ');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('tech. patho', '', '',  '1', @control_id, NOW(), NOW(), 1, 1);
 
 
 
