@@ -231,14 +231,7 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 					unset($participant_identifier_to_consent_detail_data[$participant_identifier]);
 				}
 				if(empty($consent_signed_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Consent Signature Date'][] = "System is creating a consent with no signature date. See patient '$participant_identifier'! [field <b>Date de signature</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";	
-				switch($new_line_data['Version du consentement']) {
-					case 'française':
-					case 'française ':
-						$data['ConsentMaster']['procure_language'] = 'french';
-						break;
-					default:
-						die('ERR 237 6287 632 '.$new_line_data['Version du consentement']);
-				}
+				$data['ConsentMaster']['procure_language'] = 'french';
 				$data['ConsentDetail']['consent_master_id'] = customInsert($data['ConsentMaster'], 'consent_masters', __FILE__, __LINE__, false);
 				customInsert($data['ConsentDetail'], $consent_control['detail_tablename'], __FILE__, __LINE__, true);
 				//Questionnaire
@@ -387,7 +380,8 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
-	//LoadPSAs
+	//LoadPathoData
+	$prostatectomy_data = array();
 	$line_counter = 0;
 	$headers = array();
 	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Feuil1')]]['cells'] as $line => $new_line) {
@@ -674,6 +668,7 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 				}
 				$tmp_details = array_filter($event_details);
 				if($event_date['date'] || $tmp_details) {
+					$event_details['pathologic_staging_pn_collected'] = ($event_details['pathologic_staging_pn'] == 'pNx')? 'n' : 'y';
 					$data = array(
 						'EventMaster' => array(
 							'participant_id' => $participant_id,
@@ -689,8 +684,24 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 			} else {
 				$import_summary['Pathology Report']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient Patho Data data won't be migrated! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 			}
+			//Record Prostatectomy Data
+			if(!in_array($new_line_data['laparotomie'], array('', '1'))) {
+				$import_summary['Treatment']['@@ERROR@@']["Wrong Laparotomy Value"][] = "See values [".$new_line_data['laparotomie']."] for '$participant_identifier' [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				$new_line_data['laparotomie'] = '';
+			}
+			if(!in_array($new_line_data['laparoscopie'], array('', '1'))) {
+				$import_summary['Treatment']['@@ERROR@@']["Wrong Laparoscopie Value"][] = "See values [".$new_line_data['laparoscopie']."] for '$participant_identifier' [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				$new_line_data['laparoscopie'] = '';
+			}
+			if(strlen($new_line_data['Chirurgien'].$new_line_data['laparotomie'].$new_line_data['laparoscopie'])) {
+				if(isset($prostatectomy_data[$participant_identifier])) {
+					$import_summary['Treatment']['@@ERROR@@']["Prostatectomy data recorded twice"][] = "Only one will be imported! See '$participant_identifier' [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+				}
+				$prostatectomy_data[$participant_identifier] = array('Chirurgien' => $new_line_data['Chirurgien'], 'laparotomie' => $new_line_data['laparotomie'], 'laparoscopie' => $new_line_data['laparoscopie']);
+			}
 		}
 	}
+	return $prostatectomy_data;
 }
 
 function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho) {
@@ -973,7 +984,7 @@ function loadOtherDx(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participa
 	}
 }
 
-function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho) {
+function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho, $prostatectomy_data_from_patho) {
 	global $import_summary;
 	global $controls;
 	global $patients_to_import;
@@ -1093,7 +1104,9 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 								'procure_chuq_period' => $period,
 						 		'dosage' => $dose,
 						 		'procure_chuq_protocol' => $tx_protocol));
-							if(strlen($new_line_data['Med']) && $new_line_data['Med'] != 'Curiethérapie HDR') die('ERR77 838339');
+							if(strlen($new_line_data['Med']) && $new_line_data['Med'] != 'Curiethérapie HDR' && $new_line_data['Med'] != 'Curiethérapie') {
+								$import_summary['Treatment']['@@WARNING@@']["'Med' info linked to 'radiotherapy' or 'brachytherapy'"][] = "Field 'med' is not empty (see value '".$new_line_data['Med']."'). Migration process won't migrate this information. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+							}
 							break;
 						case 'HBP-AI':
 						case 'HBP-AB':
@@ -1146,6 +1159,15 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 				if(strlen($new_line_data['Date Prostatec']) && !isset($created_prostatectomy[$participant_identifier])) {
 					$date_of_prostatectomy = getDateAndAccuracy($new_line_data, 'Date Prostatec', 'Treatment', $file_name, $line_counter);
 					if($date_of_prostatectomy) {
+						$surgeon = '';
+						$laparotomy = '';
+						$laparoscopy = '';
+						if(array_key_exists($participant_identifier, $prostatectomy_data_from_patho)) {
+							$surgeon = $prostatectomy_data_from_patho[$participant_identifier]['Chirurgien'];
+							$laparotomy = $prostatectomy_data_from_patho[$participant_identifier]['laparotomie'];
+							$laparoscopy = $prostatectomy_data_from_patho[$participant_identifier]['laparoscopie'];
+							unset($prostatectomy_data_from_patho[$participant_identifier]);
+						}
 						$prostatectomy_data = array(
 							'TreatmentMaster' => array(
 								'participant_id' => $participant_id,
@@ -1155,7 +1177,10 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 								'start_date_accuracy' => $date_of_prostatectomy['accuracy'],
 								'notes' => ''),
 							'TreatmentDetail' => array(
-								'treatment_type' => 'prostatectomy'));
+								'treatment_type' => 'prostatectomy',
+								'procure_chuq_surgeon' => $surgeon,
+								'procure_chuq_laparotomy' => $laparotomy,
+								'procure_chuq_laparoscopy' => $laparoscopy));
 						$prostatectomy_data['TreatmentDetail']['treatment_master_id'] = customInsert($prostatectomy_data['TreatmentMaster'], 'treatment_masters', __FILE__, __LINE__, false);
 						customInsert($prostatectomy_data['TreatmentDetail'], $tx_control['procure follow-up worksheet - treatment']['detail_tablename'], __FILE__, __LINE__, true);
 						$created_prostatectomy[$participant_identifier] = array(
@@ -1168,6 +1193,10 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 				$import_summary['Treatment']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field <b>patients</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 			}
 		}
+	}
+	foreach($prostatectomy_data_from_patho as $participant_identifier => $tmp_data) {
+		$import_summary['Treatment']['@@ERROR@@']['Unrecorded Patient Surgery data'][] = "The surgery data of patient '$participant_identifier' defined into the pathology file has not been imported because no surgery has been created for this patient! Please validate!";
+			
 	}
 	return $created_prostatectomy;
 }

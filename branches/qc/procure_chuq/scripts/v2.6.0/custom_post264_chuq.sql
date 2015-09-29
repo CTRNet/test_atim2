@@ -59,7 +59,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('pellet','Pellet','Culot');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
 INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('on loan', 'On loan', 'En prêt',  '1', @control_id, NOW(), NOW(), 1, 1),
 ('other', 'Other', 'Autre',  '1', @control_id, NOW(), NOW(), 1, 1),
 ('slide creation', 'Slide Creation', 'Création de lame', '1', @control_id, NOW(), NOW(), 1, 1);
 

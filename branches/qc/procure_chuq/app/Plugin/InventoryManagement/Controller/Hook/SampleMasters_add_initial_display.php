@@ -79,10 +79,6 @@
 		
 		$this->request->data['DerivativeDetail']['creation_datetime'] = $parent_sample_data['SpecimenDetail']['reception_datetime'];
 		$this->request->data['DerivativeDetail']['creation_datetime_accuracy'] =  'h';
-		
-		if($sample_control_data['SampleControl']['sample_type'] == 'centrifuged urine') {
-			$this->request->data['SampleDetail']['procure_chuq_concentrated'] =  'n';
-		}
 	}
 		
 ?>
