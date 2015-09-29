@@ -15,6 +15,7 @@ global $patients_to_import;
 //TODO set to empty
 $patients_to_import = array();
 
+
 //$patients_to_import = array();
 $files_name = array(
 	'patient' => 'Patients_to_build_on_migration_day_v_b_20150900.xls',
@@ -45,7 +46,7 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_charset		= "utf8";
 
-$db_pwd			= "";
+$db_pwd			= "am3-y-4606";
 $db_schema	= "procurechuqtmp";
 
 
@@ -164,7 +165,7 @@ $psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $f
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['inventory']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho, $created_prostatectomy);
+loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho, $created_prostatectomy, $prostatectomy_data_from_patho);
 unset($psp_nbr_to_frozen_blocks_data);
 unset($psp_nbr_to_paraffin_blocks_data);
 unset($created_prostatectomy);

@@ -668,7 +668,7 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 				}
 				$tmp_details = array_filter($event_details);
 				if($event_date['date'] || $tmp_details) {
-					$event_details['pathologic_staging_pn_collected'] = ($event_details['pathologic_staging_pn'] == 'pNx')? 'n' : 'y';
+					$tmp_details['pathologic_staging_pn_collected'] = (!isset($tmp_details['pathologic_staging_pn']) || $tmp_details['pathologic_staging_pn'] != 'pNx')? 'y' : 'n';
 					$data = array(
 						'EventMaster' => array(
 							'participant_id' => $participant_id,
@@ -984,7 +984,7 @@ function loadOtherDx(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participa
 	}
 }
 
-function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho, $prostatectomy_data_from_patho) {
+function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho, &$prostatectomy_data_from_patho) {
 	global $import_summary;
 	global $controls;
 	global $patients_to_import;
@@ -1105,7 +1105,8 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 						 		'dosage' => $dose,
 						 		'procure_chuq_protocol' => $tx_protocol));
 							if(strlen($new_line_data['Med']) && $new_line_data['Med'] != 'Curiethérapie HDR' && $new_line_data['Med'] != 'Curiethérapie') {
-								$import_summary['Treatment']['@@WARNING@@']["'Med' info linked to 'radiotherapy' or 'brachytherapy'"][] = "Field 'med' is not empty (see value '".$new_line_data['Med']."'). Migration process won't migrate this information. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+								$import_summary['Treatment']['@@WARNING@@']["'Med' info linked to 'radiotherapy' or 'brachytherapy'"][] = "Field 'med' is not empty (see value '".$new_line_data['Med']."'). Migration process will add this information to note. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+								$treatment_notes = $new_line_data['Med'];	
 							}
 							break;
 						case 'HBP-AI':
@@ -1126,6 +1127,22 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 								$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been associated to this one (field 'Med'). No treatment will be created. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
 							}
 							break;
+						case 'Autres':
+							if(in_array($new_line_data['Periode'], array('ContrES', 'Pall'))) {
+								$drug_id = getDrugId($new_line_data['Med'].' ('.$new_line_data['Periode'].')', 'prostate', $drugs);
+								if($drug_id) {
+									$treatment_controls = $tx_control['procure medication worksheet - drug'];
+									$treatment_notes = '';
+									$tx_protocol = getPermissibleCustomValue($new_line_data['Protocole'], $tx_protocols, $tx_protocol_control_id);
+									$detail_data = array(array(
+										'drug_id' => $drug_id,
+										'dose' => $dose,
+										'procure_chuq_protocol' => $tx_protocol));
+								} else {
+									$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been associated to this one (field 'Med'). No treatment will be created. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+								}	
+								break;
+							}
 						default:
 							$import_summary['Treatment']['@@WARNING@@']["Treatment To Create Manually (type not supported)"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
 					}
@@ -1193,10 +1210,6 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 				$import_summary['Treatment']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field <b>patients</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 			}
 		}
-	}
-	foreach($prostatectomy_data_from_patho as $participant_identifier => $tmp_data) {
-		$import_summary['Treatment']['@@ERROR@@']['Unrecorded Patient Surgery data'][] = "The surgery data of patient '$participant_identifier' defined into the pathology file has not been imported because no surgery has been created for this patient! Please validate!";
-			
 	}
 	return $created_prostatectomy;
 }

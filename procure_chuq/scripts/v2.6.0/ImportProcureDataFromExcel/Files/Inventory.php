@@ -73,6 +73,9 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 						case 'CM':
 						case  '':
 							break;
+						case  'tech. Patho':
+							$new_line_data['Coupe réalisée par'] = 'tech. patho';
+							break;
 						case '-CM':
 						case 'MO-CM':
 							$new_line_data['Coupe réalisée par'] = 'CM';
@@ -123,7 +126,7 @@ function loadParaffinBlock(&$XlsReader, $files_path, $file_name) {
 	return $psp_nbr_to_paraffin_blocks_data;
 }
 
-function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, &$psp_nbr_to_participant_id_and_patho, &$created_prostatectomy) {
+function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, &$psp_nbr_to_participant_id_and_patho, &$created_prostatectomy, $prostatectomy_data_from_patho) {
 	global $import_summary;
 	global $controls;
 	global $patients_to_import;
@@ -172,7 +175,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 								$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
 								//Load Tissue
 								if($worksheet == 'V01') {
-									loadTissue($participant_id, $participant_identifier, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'], $file_name, $worksheet, $line_counter, $new_line_data, $created_prostatectomy);
+									loadTissue($participant_id, $participant_identifier, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'], $file_name, $worksheet, $line_counter, $new_line_data, $created_prostatectomy, $prostatectomy_data_from_patho);
 								}
 								//Blood....
 								loadBlood($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
@@ -202,7 +205,11 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	foreach($shipped_urines_participant_identifiers as $participant_identifier) {
 		$import_summary['Inventory - URINE (V01)']['@@ERROR@@']["Urine defined as shipped but no urine 'v01 -URN1' created"][] = "No urine '$participant_identifier v01 -URN1' was defined into file so this tube has not been created, but this one was defined as shipped! No data attached to this event has been created. Please confirm! [file <b>$file_name</b> + worksheet <b>$shipped_urine_worksheet</b>]  ";
 	}
-	
+	//Check unused surgery data of patho file
+	foreach($prostatectomy_data_from_patho as $participant_identifier => $tmp_data) {
+		$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Unrecorded Patient Surgery data'][] = "The surgery data of patient '$participant_identifier' defined into the pathology file has not been imported because no surgery has been created for this patientbased on either treatment file or tissue collection of inventory file! Please validate!";
+	}
+	unset($prostatectomy_data_from_patho);	
 }
 
 function loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data, &$shipped_urines_participant_identifiers) {
@@ -795,7 +802,7 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 	}
 }
 	
-function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_frozen_blocks_data, &$psp_nbr_to_paraffin_blocks_data, &$patho_nbr_from_participant_file, $file_name, $worksheet, $line_counter, $new_line_data, &$created_prostatectomy) {
+function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_frozen_blocks_data, &$psp_nbr_to_paraffin_blocks_data, &$patho_nbr_from_participant_file, $file_name, $worksheet, $line_counter, $new_line_data, &$created_prostatectomy, &$prostatectomy_data_from_patho) {
 	global $import_summary;
 	global $controls;
 	
@@ -844,13 +851,19 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 		}
 		if(!isset($created_prostatectomy[$participant_identifier])) {
 			//Create prostatectomy
+			if(array_key_exists($participant_identifier, $prostatectomy_data_from_patho)) {
+				$prostatectomy_data_from_inv_file['TreatmentDetail']['procure_chuq_surgeon'] = $prostatectomy_data_from_patho[$participant_identifier]['Chirurgien'];
+				$prostatectomy_data_from_inv_file['TreatmentDetail']['procure_chuq_laparotomy'] = $prostatectomy_data_from_patho[$participant_identifier]['laparotomie'];
+				$prostatectomy_data_from_inv_file['TreatmentDetail']['procure_chuq_laparoscopy'] = $prostatectomy_data_from_patho[$participant_identifier]['laparoscopie'];
+				unset($prostatectomy_data_from_patho[$participant_identifier]);
+			}
 			$prostatectomy_data_from_inv_file['TreatmentDetail']['treatment_master_id'] = customInsert($prostatectomy_data_from_inv_file['TreatmentMaster'], 'treatment_masters', __FILE__, __LINE__, false);
 			customInsert($prostatectomy_data_from_inv_file['TreatmentDetail'], $treatment_controls['detail_tablename'], __FILE__, __LINE__, true);
 			$created_prostatectomy[$participant_identifier] = array(
 				'id' => $prostatectomy_data_from_inv_file['TreatmentDetail']['treatment_master_id'],
 				'start_date' => $prostatectomy_data_from_inv_file['TreatmentMaster']['start_date'],
 				'start_date_accuracy' => $prostatectomy_data_from_inv_file['TreatmentMaster']['start_date_accuracy']);
-			$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["The prostatectomy was not defined into treatment file"][] = "Created a prostatectomy on ".$prostatectomy_data_from_inv_file['TreatmentMaster']['start_date']." based on inventory data because prostatectomy date was not defined into treatment excel file. Please confirm. See patient '$participant_identifier'.  [field <b>date chirurgie</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
+			$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["The prostatectomy was not defined into treatment file"][] = "Created a prostatectomy on ".$prostatectomy_data_from_inv_file['TreatmentMaster']['start_date']." based on inventory data because prostatectomy date was not defined into treatment excel file. Please confirm and validate surgery data from patho file has been mirgated. See patient '$participant_identifier'.  [field <b>date chirurgie</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 		} else {
 			if($prostatectomy_data_from_inv_file['TreatmentMaster']['start_date'] != $created_prostatectomy[$participant_identifier]['start_date']) {
 				$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Prostatectomy dates does not match"][] = "The prostatectomy date defined into the inventory file (".$prostatectomy_data_from_inv_file['TreatmentMaster']['start_date'].") does not match this one defined into treatment file (".$created_prostatectomy[$participant_identifier]['start_date']."). The date from treatment file will be used. Please confirm. See patient '$participant_identifier'.  [field <b>date chirurgie</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
@@ -1235,6 +1248,9 @@ function loadRNA(&$XlsReader, $files_path, $file_name) {
 									case 'VB':
 									case  '':
 										$created_by = $new_line_data['extrait par CHUQ'];
+										break;
+									case  'tech. Patho':
+										$created_by = 'tech. patho';
 										break;
 									case '-CM':
 									case 'MO-CM':
