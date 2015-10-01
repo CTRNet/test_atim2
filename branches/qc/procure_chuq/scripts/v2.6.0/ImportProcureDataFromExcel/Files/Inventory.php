@@ -17,6 +17,7 @@ function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {
 			$headers = $new_line;
 		} else if($line_counter > 3){
 			$new_line_data = formatNewLineData($headers, $new_line);
+			$new_line_data['label'] = str_replace('-', '', $new_line_data['label']);
 			$patient_identifier = $new_line_data['# patient'];
 			if($patient_identifier && preg_match('/^PS2P/', $patient_identifier)) {
 				if(!empty($patients_to_import) && !in_array($patient_identifier, $patients_to_import)) continue;
@@ -138,22 +139,6 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
-	//Load Shipped Urine
-	$shipped_urines_participant_identifiers = array();
-	$headers = array();
-	$shipped_urine_worksheet = 'sorti URN1 juin 2015';
-	foreach($XlsReader->sheets[$sheets_nbr[$shipped_urine_worksheet]]['cells'] as $line_counter => $new_line) {
-		//$line_counter++;
-		if($line_counter == 2) {
-			$headers = $new_line;
-		} else if($line_counter > 2){
-			$new_line_data = formatNewLineData($headers, $new_line);
-			if(preg_match('/^PS2P[0-9]{4}$/', $new_line_data['# patient']) && $new_line_data['urine disponible'] == '1') {
-				if(!empty($patients_to_import) && !in_array( $new_line_data['# patient'], $patients_to_import)) continue;
-				$shipped_urines_participant_identifiers[$new_line_data['# patient']] = $new_line_data['# patient'];
-			}
-		}
-	}
 	//LoadInventoryData
 	$headers = array();
 	for($visit_id=1;$visit_id<11;$visit_id++) {		
@@ -180,7 +165,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 								//Blood....
 								loadBlood($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
 								//Urine....
-								loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data, $shipped_urines_participant_identifiers);
+								loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
 							} else {
 								$import_summary['Inventory - All']['@@ERROR@@']['Patient defined twice'][] = "The patient '$participant_identifier' has been listed twice for the same visit $worksheet. New line won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";		
 							}
@@ -201,10 +186,6 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	foreach($psp_nbr_to_paraffin_blocks_data['blocks'] as $participant_identifier => $data) {
 		$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Unmigrated paraffin blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file <b>$file_name</b> && <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>]  ";
 	}
-	//Check unmigrated shipped urine
-	foreach($shipped_urines_participant_identifiers as $participant_identifier) {
-		$import_summary['Inventory - URINE (V01)']['@@ERROR@@']["Urine defined as shipped but no urine 'v01 -URN1' created"][] = "No urine '$participant_identifier v01 -URN1' was defined into file so this tube has not been created, but this one was defined as shipped! No data attached to this event has been created. Please confirm! [file <b>$file_name</b> + worksheet <b>$shipped_urine_worksheet</b>]  ";
-	}
 	//Check unused surgery data of patho file
 	foreach($prostatectomy_data_from_patho as $participant_identifier => $tmp_data) {
 		$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Unrecorded Patient Surgery data'][] = "The surgery data of patient '$participant_identifier' defined into the pathology file has not been imported because no surgery has been created for this patientbased on either treatment file or tissue collection of inventory file! Please validate!";
@@ -212,7 +193,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	unset($prostatectomy_data_from_patho);	
 }
 
-function loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data, &$shipped_urines_participant_identifiers) {
+function loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data) {
 	global $import_summary;
 	global $controls;
 
@@ -341,8 +322,6 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 			for($id=1;$id<3;$id++){
 				$initial_volume = getDecimal($new_line_data, 'URN-'.$id.' vol. ml', 'Inventory - Urine', "$file_name ($worksheet)", $line_counter);
 				if($initial_volume) {
-					//Aliquot Use
-					$aliquot_use = array();
 					//Storage data
 					$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement URN-'.$id], 'urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
 					$storage_coordinates = getPosition($participant_identifier, $new_line_data['position urn-'.$id], $new_line_data['bte rangement URN-'.$id], 'urine', 'Inventory - Urine', $file_name, $worksheet, $line_counter);
@@ -363,32 +342,11 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 							'storage_coord_x' => $storage_coordinates['x'],
 							'storage_coord_y' => $storage_coordinates['y']),
 						'AliquotDetail' => array());
-					if(in_array($participant_identifier, $shipped_urines_participant_identifiers) && $aliquot_data['AliquotMaster']['barcode'] == "$participant_identifier V01 -URN1") {
-						//Urine was shipped to procure processing site
-						$aliquot_data['AliquotMaster']['in_stock'] = 'no';
-						$aliquot_data['AliquotMaster']['storage_master_id'] = null;
-						$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
-						$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
-						$aliquot_data['AliquotMaster']['use_counter'] = '1';
-						$aliquot_data['AliquotMaster']['notes'] = 'Was stored in box "'.$new_line_data['bte rangement URN-'.$id].'"- Position : '.$storage_coordinates['x'].' '.$storage_coordinates['x'];
-						$aliquot_use = array(
-							'use_code' => 'Sortie URN1',
-							'type' => 'sent to processing site',
-							'use_details' => '',
-							'use_datetime' => '2015-06-01',
-							'use_datetime_accuracy' => 'd',
-							'used_by' => '');
-						unset($shipped_urines_participant_identifiers[$participant_identifier]);
-					}
 					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['centrifuged urine']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
 					$created_aliquot = true;
 					$centrifuged_aliquots_created = true;
 					$collection_aliquot_created = true;
-					if(!empty($aliquot_use)) {
-						$aliquot_use['aliquot_master_id'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
-						customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
-					}
 				} else if(str_replace(array('x','-'),array('',''),$new_line_data['bte rangement URN-'.$id]) || str_replace(array('x','-'),array('',''),$new_line_data['position urn-'.$id])) {
 					$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN".$id." is empty but a storage information is set (".$new_line_data['bte rangement URN-'.$id]." : ".$new_line_data['position urn-'.$id]."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), fields <b>".$new_line_data['bte rangement URN-'.$id]."</b> & <b>".$new_line_data['position urn-'.$id]."</b>, line : <b>$line_counter</b>]";
 				}
@@ -400,7 +358,7 @@ function loadUrine($participant_id, $participant_identifier, $file_name, $worksh
 			$import_summary['Inventory - Urine']['@@WARNING@@']["No centrifuged & clarified urine volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -URN1 is empty but a storage information is set (".$new_line_data['bte rangement URN-1']." : ".$new_line_data['position urn-1']."). Tube won't be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 		//... && concentrated aliquots (Just in V01
-		if($new_line_data == 'V01') {
+		if($worksheet == 'V01') {
 			if(strlen(str_replace(array('x','-'),array('',''),$new_line_data['vol URC-1']))) {
 				$sample_data = array(
 					'SampleMaster' => array(
@@ -1660,6 +1618,58 @@ function getPosition($participant_identifier, $excel_postions, $excel_storage_la
 		if(is_null($positions['x'])) $import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box ($storage_type) is wrong. No position will be set. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 	}
 	return $positions;
+}
+
+function loadAliquotSentToProcSite(&$XlsReader, $files_path, $file_name) {	
+	global $import_summary;
+	global $patients_to_import;
+	//Load Worksheet Names
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	//Load data
+	foreach($XlsReader->sheets[$sheets_nbr['sortie globale']]['cells'] as $line_counter => $new_line) {
+		//$line_counter++;
+		if($line_counter == 2) {
+			$headers = $new_line;
+		} else if($line_counter > 2){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			if($new_line_data["# d'aliquot"]) {
+				$participant_identifier = $new_line_data["# patient"];
+				if(!empty($patients_to_import) && !in_array($participant_identifier, $patients_to_import)) continue;
+				$barcode = $new_line_data["# patient"].' '.$new_line_data["# visite"].' -'.str_replace('-','',$new_line_data["# d'aliquot"]);
+				$results = customQuery("SELECT aliquot_masters.id, storage_coord_x, storage_coord_y, selection_label 
+					FROM aliquot_masters LEFT JOIN storage_masters ON storage_master_id = storage_masters.id 
+					WHERE aliquot_masters.deleted <> 1 AND aliquot_masters.barcode = '$barcode'", __FILE__, __LINE__);
+				if($results->num_rows == 0) {
+					$import_summary['Inventory - Aliquot Sent To Processing Site']['@@ERROR@@']["No aliquot matching barcode"][] = "No aliquot with barcode '$barcode' was previously defined into excel files then created into ATiM. No use information will be recorded into ATiM. See $participant_identifier. [file <b>$file_name</b> - line: <b>$line_counter</b>";
+				} else if($results->num_rows > 1) {
+					$import_summary['Inventory - Aliquot Sent To Processing Site']['@@ERROR@@']["More than one aliquot matching barcode"][] = "More than one aliquot (previously defined into excel files then created into ATiM) matches barcode '$barcode'. No use information will be recorded into ATiM. See $participant_identifier. [file <b>$file_name</b> - line: <b>$line_counter</b>";
+				} else {
+					$row = $results->fetch_assoc();
+					$aliquot_master_id = $row['id'];
+					$storage = $row['selection_label'];
+					$storage_coord_x = $row['storage_coord_x'];
+					$storage_coord_y = $row['storage_coord_y'];
+					//Update aliquot master
+					$query = "UPDATE aliquot_masters SET in_stock = 'no', storage_master_id = null, storage_coord_x = null, storage_coord_y = null, use_counter = (use_counter + 1) WHERE id = $aliquot_master_id";
+					customQuery($query, __FILE__, __LINE__);
+					//create aliquot use
+					$new_line_data["hre d'envoi à procure"] = '';
+					$use_datetime = getDateTimeAndAccuracy($new_line_data, "date d'envoi à procure", "hre d'envoi à procure", 'Inventory - Aliquot Sent To Processing Site', "$file_name", $line_counter);
+					$aliquot_use = array(
+						'aliquot_master_id' => $aliquot_master_id,
+						'use_code' => $new_line_data["pour quel projet"],
+						'type' => 'sent to processing site',
+						'use_details' => $storage? "'Was stored in box'$storage' - Position : $storage_coord_x $storage_coord_y" : '',
+						'use_datetime' => $use_datetime['datetime'],
+						'use_datetime_accuracy' =>  $use_datetime['accuracy'],
+						'used_by' => 'CM');
+					customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
+				}
+			}
+		}
+	}
 }
 
 ?>
