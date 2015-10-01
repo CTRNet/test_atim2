@@ -15,7 +15,6 @@ global $patients_to_import;
 //TODO set to empty
 $patients_to_import = array();
 
-
 //$patients_to_import = array();
 $files_name = array(
 	'patient' => 'Patients_to_build_on_migration_day_v_b_20150900.xls',
@@ -30,7 +29,8 @@ $files_name = array(
 	'biopsy' => 'Biopsies_v_r_20150923.xls',
 	'patho' => 'patho_ATIM_v_r_20150700.xls',
 	'imagery' => 'Req_Imagerie 24-04-2015_20150918_v_r_20150923.xls',
-	'other tumor' => 'autres cancer_20150918_v_r_20150923.xls'
+	'other tumor' => 'autres cancer_20150918_v_r_20150923.xls',
+	'sent to processing site' => 'resume des sorties echantillon pour ATIM_v_r_20151001.xls'
 );
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure_chuq\\data\\';
 $files_path = "/ATiM/atim-procure/TmpChuq/data/";
@@ -174,6 +174,11 @@ echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['arn'].
 
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadRNA($XlsReader, $files_path, $files_name['arn']);
+
+echo "<br><FONT COLOR=\"green\" >*** Inventory Sent To Processing Site - File(s) : ".$files_name['sent to processing site']."***</FONT><br>";
+
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadAliquotSentToProcSite($XlsReader, $files_path, $files_name['sent to processing site']);
 
 //codes and barcodes update
 
@@ -389,7 +394,6 @@ customQuery($query, __FILE__, __LINE__);
 function insertIntoRevs() {
 	global $import_date;
 	global $import_by;
-		
 	$tables = array(
 		'participants' => 0,
 		'misc_identifiers' => 0,
@@ -401,7 +405,10 @@ function insertIntoRevs() {
 		'procure_ed_lifestyle_quest_admin_worksheets' => 1,
 		'procure_ed_clinical_followup_worksheet_aps' => 1,
 		'procure_ed_lab_pathologies' => 1,
-
+		'procure_ed_clinical_followup_worksheet_clinical_events' => 1,
+		'procure_ed_followup_worksheet_other_tumor_diagnosis' => 1,
+		'procure_ed_lab_diagnostic_information_worksheets' => 1,
+			
 		'treatment_masters' => 0,
 		'procure_txd_medication_drugs' => 1,
 		'procure_txd_followup_worksheet_treatments' => 1,
@@ -565,11 +572,11 @@ function customInsert($data, $table_name, $file, $line, $is_detail_table = false
 	$insert_arr = array_merge($data_to_insert, $table_system_data);
 	$record_id = customQuery("INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")", $file, $line, true);
 	// Insert into revs table
-	if($insert_into_revs) {
-		$revs_table_system_data = $is_detail_table? array('version_created' => "'$import_date'") : array('id' => "$record_id", 'version_created' => "'$import_date'", "modified_by" => "'$import_by'");
-		$insert_arr = array_merge($data_to_insert, $revs_table_system_data);
-		customQuery("INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")", $file, $line, true);
-	}
+// 	if($insert_into_revs) {
+// 		$revs_table_system_data = $is_detail_table? array('version_created' => "'$import_date'") : array('id' => "$record_id", 'version_created' => "'$import_date'", "modified_by" => "'$import_by'");
+// 		$insert_arr = array_merge($data_to_insert, $revs_table_system_data);
+// 		customQuery("INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")", $file, $line, true);
+// 	}
 	
 	return $record_id;
 }
