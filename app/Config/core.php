@@ -446,6 +446,8 @@ Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// Quality
 Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
 Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
 
+Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add()
+
 /**
  * Set the allowed links that exists between an OrderItem and different Order plugin objects:
  * 		1 => link OrderItem to both Order and OrderLine (order line submodule available) 
