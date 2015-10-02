@@ -14,6 +14,8 @@ class TmaSlide extends StorageLayoutAppModel {
 	var $actsAs = array('StoredItem');
 	
 	public static $storage = null;
+	
+	private $barcodes = array();//barcode validation, key = barcode, value = id
 		
 	function validates($options = array()){
 		$this->validateAndUpdateTmaSlideStorageData();
@@ -105,18 +107,32 @@ class TmaSlide extends StorageLayoutAppModel {
 	}
 	
 	function isDuplicatedTmaSlideBarcode($tma_slide_data) {
+		// check data structure
+		$tmp_arr_to_check = array_values($tma_slide_data);
+		if((!is_array($tma_slide_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['tma_slide_data']))) {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
 		$barcode = $tma_slide_data['TmaSlide']['barcode'];
-			
+		
+		// Check duplicated barcode into submited record
+		if(!strlen($barcode)) {
+			// Not studied
+		} else if(isset($this->barcodes[$barcode])) {
+			$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
+		} else {
+			$this->barcodes[$barcode] = '';
+		}
+		
 		// Check duplicated barcode into db
 		$criteria = array('TmaSlide.barcode' => $barcode);
-		$slides_having_duplicated_barcode = $this->find('all', array('conditions' => $criteria, 'recursive' => -1));;
+		$slides_having_duplicated_barcode = $this->find('all', array('conditions' => array('TmaSlide.barcode' => $barcode), 'recursive' => -1));;
 		if(!empty($slides_having_duplicated_barcode)) {
 			foreach($slides_having_duplicated_barcode as $duplicate) {
 				if((!array_key_exists('id', $tma_slide_data['TmaSlide'])) || ($duplicate['TmaSlide']['id'] != $tma_slide_data['TmaSlide']['id'])) {
-					$this->validationErrors['barcode'][] = 'barcode must be unique';
+					$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded'));
 				}
-				
-			}			
+			}
 		}
 	}
 }

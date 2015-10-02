@@ -66,8 +66,12 @@ UPDATE structure_fields SET language_tag = 'or erase data' WHERE language_tag = 
 INSERT INTO i18n (id,en,fr) VALUES ('or erase data', 'Or Erase Data', 'Ou effacer les données'); 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- 
--- -----------------------------------------------------------------------------------------------------------------------------------
+-- Order tool:
+--    - Order Line Optional
+--    - Order Line created with addGrid option
+--    - Order Item created with addGrid option
+--    - Order added to databrowser
+-- ----------------------------------------------------------------------------------------------------------------------------------
 
 -- Order line optional
 
@@ -156,6 +160,120 @@ INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `f
 ((SELECT id FROM datamart_structures WHERE model = 'Shipment'), (SELECT id FROM datamart_structures WHERE model = 'Order'), @flag_active, @flag_active, 'order_id'),
 ((SELECT id FROM datamart_structures WHERE model = 'OrderItem'), (SELECT id FROM datamart_structures WHERE model = 'Order'), @flag_active, @flag_active, 'order_id');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- TMA Block Slide
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- DataBrowser
+
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv_search_structure_alias`, `display_name`, `control_master_model`, `index_link`, `batch_edit_link`) 
+VALUES
+(null, 'StorageLayout', 'TmaSlide', (SELECT id FROM structures WHERE alias = 'tma_slides'), NULL, 'tma slide', '', '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%', '');
+SET @flag_active = (SELECT IF(count(*) = 0, 0, 1) AS flag FROM storage_controls WHERE is_tma_block = 1 AND flag_active = 1);
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'TmaSlide'), (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'), @flag_active, @flag_active, 'tma_block_storage_master_id');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='code' AND `language_label`='storage code' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='storage_code_help' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND `flag_detail`='1'
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('barcode', 'selection_label','sop_master_id', 'immunochemistry'));
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('links between storage and tma slides are limited to tma blocks and slides created from these blocks - different than slide storage',
+'Links between storage and TMA slides are limited to TMA blocks and slides created from these blocks. The databrowser won''t link TMA slide to the storage containing these slides.',
+"Les liens entre les entreposages et les lames de TMA sont limitès aux blocs de TMA et aux lames créées à partir de ces blocs. Le 'Navigateur de Données' ne fait pas le lien entre les lames de TMA et les entreposages contenant les lames.");
+
+-- SLide Creation : Use addgrid feature (Issue #3282)
+
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND `flag_add`='1';
+UPDATE structure_formats SET `flag_addgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND `flag_add_readonly`='1';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '1', '10000', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('tma_blocks_for_slide_creation');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'Block', 'storage_masters', 'storage_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='storage_types_from_control_id') , '0', '', '', '', 'storage type', ''), 
+('StorageLayout', 'Block', 'storage_masters', 'short_label', 'input',  NULL , '0', 'size=6', '', 'stor_short_label_defintion', 'storage short label', ''), 
+('StorageLayout', 'Block', 'storage_masters', 'selection_label', 'input',  NULL , '0', 'size=20,url=/storagelayout/storage_masters/autoComplete/', '', 'stor_selection_label_defintion', 'storage selection label', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation'), (SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='storage_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='storage_types_from_control_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '1', '3000', 'tma block', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation'), (SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='storage_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='storage_types_from_control_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '1', '3000', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation'), (SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='short_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='stor_short_label_defintion' AND `language_label`='storage short label' AND `language_tag`=''), '1', '3001', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation'), (SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '1', '3002', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='storage_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='storage_types_from_control_id') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='short_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+SET @flag_active = (SELECT IF(count(*) = 0, 0, 1) AS flag FROM storage_controls WHERE is_tma_block = 1 AND flag_active = 1);
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'), 'create tma slide', '/StorageLayout/TmaSlides/add/', @flag_active, '');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('you must create at least one slide for each tma','You must create at least one slide per TMA block','Vous devez créer au moins une lame par bloc de TMA'),
+('at least one selected item is not a tma block', 'At least one selected item is not a tma block.', 'Au moins un item sélectionné n''est pas un bloc de TMA'),
+('tma slides creation','TMA Slides Creation','Création de lames de TMA'),
+('create tma slide', 'Create TMA Slide', 'Créer lame de TMA');
+
+-- Slide Edit : Use editgrid feature (Issue #3282)
+
+UPDATE structure_formats SET `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND `flag_edit`='1';
+UPDATE structure_formats SET `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND `flag_edit_readonly`='1';
+
+SET @flag_active = (SELECT IF(count(*) = 0, 0, 1) AS flag FROM storage_controls WHERE is_tma_block = 1 AND flag_active = 1);
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'TmaSlide'), 'edit', '/StorageLayout/TmaSlides/editInBatch/', @flag_active, '');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('no slide to update', 'No slide to update', 'Aucune lame à modifier'),
+('edit tma slides','Edit TMA Slides','Modified lames TMA');
+
+-- TMA Slide form update
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND  `flag_detail`='1';
+
+-- Link TMA slide to study (Issue #3101)
+
+ALTER TABLE `tma_slides` ADD COLUMN `study_summary_id` int(11) DEFAULT NULL;
+ALTER TABLE `tma_slides_revs` ADD COLUMN `study_summary_id` int(11) DEFAULT NULL;
+ALTER TABLE `tma_slides`
+  ADD CONSTRAINT `FK_tma_slides_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'TmaSlide', 'tma_slides', 'study_summary_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='study_list') , '0', '', '', '', 'study', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='study_summary_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study' AND `language_tag`=''), '0', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+
+SELECT "Added option to link a TMA slide to a study. (See structures 'tma_slides')." AS '### MESSAGE ###';
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES 
+('study/project is assigned to a  tma slide', 
+'Your data cannot be deleted! This study/project is linked to a TMA slide. ',
+"Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un lame de TMA. ");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add missing element of the StructureValueDomain 'models'
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT model, display_name FROM datamart_structures where model not in (
+	SELECT value FROM structure_value_domains, structure_value_domains_permissible_values, structure_permissible_values
+	WHERE structure_value_domains.id = structure_value_domain_id AND structure_permissible_value_id = structure_permissible_values.id AND structure_value_domains.domain_name="models")
+);
+SET @structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="models");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT  @structure_value_domain_id, structure_permissible_values.id, '', '1'
+FROM structure_permissible_values,
+(SELECT model, display_name FROM datamart_structures where model not in (
+	SELECT value FROM structure_value_domains, structure_value_domains_permissible_values, structure_permissible_values
+	WHERE structure_value_domains.id = structure_value_domain_id AND structure_permissible_value_id = structure_permissible_values.id AND structure_value_domains.domain_name="models")
+) AS res
+WHERE res.model = structure_permissible_values.value AND res.display_name = language_alias);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- File Upload
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
 INSERT INTO `key_increments` (`key_name`, `key_value`)
 VALUES('atim_internal_file', 1);
 
@@ -171,6 +289,18 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('file_not_auth_msg', 'You are not authorized to open file (%1$s)',
                       "Vous n'êtes pas authorisé à ouvrir le fichier (%1$s)"),
 ('open the file', 'open the file', 'ouvrir le fichier');
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
