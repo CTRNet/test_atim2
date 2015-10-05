@@ -1,6 +1,6 @@
 <?php
 
-//TODO: Supprimer le contenu de toute cellule égale à '¯' ou égale à '­', ' ­' dans Inventaire et RNA files et patho
+//TODO: Supprimer le contenu de toute cellule égale à '¯' ou égale à '­', ' ­' dans Inventaire et RNA files et patho. Surtout patho car les --- devrait être supprimé sinon création d'un barcode
 //TODO: Dans patho, formater vol. prost. Atteint en % en text standard
 require_once 'Files/ClinicalAnnotation.php';
 require_once 'Files/Inventory.php';
@@ -30,10 +30,11 @@ $files_name = array(
 	'patho' => 'patho_ATIM_v_r_20150700.xls',
 	'imagery' => 'Req_Imagerie 24-04-2015_20150918_v_r_20150923.xls',
 	'other tumor' => 'autres cancer_20150918_v_r_20150923.xls',
-	'sent to processing site' => 'resume des sorties echantillon pour ATIM_v_r_20151001.xls'
+	'sent to processing site' => 'resume des sorties echantillon pour ATIM_v_r_20151001.xls',
+	'revision' => 'revision du Dr Lacombe en janvier 2015.xls'
 );
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure_chuq\\data\\';
-$files_path = "/ATiM/atim-procure/TmpChuq/data/";
+//$files_path = "/ATiM/atim-procure/TmpChuq/data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -46,8 +47,8 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_charset		= "utf8";
 
-$db_pwd			= "am3-y-4606";
-$db_schema	= "procurechuqtmp";
+$db_pwd			= "";
+$db_schema	= "procurechuq";
 
 
 global $db_connection;
@@ -148,6 +149,11 @@ echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Other Tumor Dx - File
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadOtherDx($XlsReader, $files_path, $files_name['other tumor'], $psp_nbr_to_participant_id_and_patho);
 
+echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Dr Lacombe Revision - File(s) : ".$files_name['revision']."***</FONT><br>";
+
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadRevision($XlsReader, $files_path, $files_name['revision'], $psp_nbr_to_participant_id_and_patho);
+
 //==============================================================================================
 //Inventory
 //==============================================================================================
@@ -190,11 +196,29 @@ $query = "UPDATE storage_masters SET code = id;";
 customQuery($query, __FILE__, __LINE__);
 $query = "SELECT barcode FROM (SELECT barcode, count(*) AS tx FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode) AS test WHERE test.tx > 1;";
 $results = customQuery($query, __FILE__, __LINE__);
+while($row = $results->fetch_assoc()){
+	$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Duplicated Barcodes'][] = "The migration process created duplciated barcode : ".$row['barcode'];
+}
 $query = "UPDATE quality_ctrls SET qc_code = id;";
 customQuery($query, __FILE__, __LINE__);
-while($row = $results->fetch_assoc()){
-	$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Duplicated Barcodes'][] = "The The migration process created duplciated barcode : ".$row['barcode'];
-}
+
+//last contact date update
+
+$query = "UPDATE participants, (
+	SELECT MAX(last_date) last_date, participant_id
+	FROM (
+			SELECT MAX(CONCAT(SUBSTRING(collection_datetime ,1 , 10 ), '#', collection_datetime_accuracy)) AS last_date, participant_id, 'Col' AS type FROM collections WHERE deleted <> 1 AND collection_datetime IS NOT NULL  GROUP BY participant_id
+			UNION All
+			SELECT MAX(CONCAT(start_date, '#', start_date_accuracy)) AS last_date, participant_id, 'Tx_start' AS type FROM treatment_masters WHERE deleted <> 1 AND start_date IS NOT NULL GROUP BY participant_id
+			UNION All
+			SELECT MAX(CONCAT(finish_date, '#', finish_date_accuracy)) AS last_date, participant_id, 'Tx_finish' AS type FROM treatment_masters WHERE deleted <> 1 AND finish_date IS NOT NULL GROUP BY participant_id
+			UNION All
+			SELECT MAX(CONCAT(event_date, '#', event_date_accuracy)) AS event_date, participant_id, 'Ev' AS type FROM event_masters WHERE deleted <> 1 AND event_date IS NOT NULL GROUP BY participant_id
+	) AS res GROUP BY participant_id
+) AS summary
+SET procure_chuq_last_contact_date = SUBSTRING(last_date ,1 , 10 ), procure_chuq_last_contact_date_accuracy = SUBSTRING(last_date ,12 , 1 )
+WHERE summary.participant_id = id;";
+customQuery($query, __FILE__, __LINE__);
 
 //==============================================================================================
 //End of the process
@@ -407,6 +431,7 @@ function insertIntoRevs() {
 		'procure_ed_lab_pathologies' => 1,
 		'procure_ed_clinical_followup_worksheet_clinical_events' => 1,
 		'procure_ed_followup_worksheet_other_tumor_diagnosis' => 1,
+		'procure_ed_followup_worksheet_clinical_notes' => 1,
 		'procure_ed_lab_diagnostic_information_worksheets' => 1,
 			
 		'treatment_masters' => 0,
@@ -772,6 +797,7 @@ function truncate() {
 		'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
 		'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
 		
+		'TRUNCATE procure_ed_followup_worksheet_clinical_notes;', 'TRUNCATE procure_ed_followup_worksheet_clinical_notes_revs;',
 		'TRUNCATE procure_ed_followup_worksheet_other_tumor_diagnosis;', 'TRUNCATE procure_ed_followup_worksheet_other_tumor_diagnosis_revs;',
 		'TRUNCATE procure_ed_clinical_followup_worksheet_clinical_events;', 'TRUNCATE procure_ed_clinical_followup_worksheet_clinical_events_revs;',
 		'TRUNCATE procure_ed_lab_diagnostic_information_worksheets;', 'TRUNCATE procure_ed_lab_diagnostic_information_worksheets_revs;',

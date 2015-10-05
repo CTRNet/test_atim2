@@ -257,6 +257,7 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 					'EventDetail' => array(
 						'delivery_date' => $delivery_date['date'],
 						'delivery_date_accuracy' => $delivery_date['accuracy'],
+						'delivery_site_method' => 'pre-op clinic',
 						'recovery_date' => $recovery_date['date'],
 						'recovery_date_accuracy' => $recovery_date['accuracy'],
 						'spent_time_delivery_to_recovery' => $spent_time_delivery_to_recovery,
@@ -428,11 +429,17 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 					$val = getDecimal($new_line_data, $excel_field, 'Pathology Report', $file_name, $line_counter);
 					if(strlen($val)) $event_details[$db_field] = $val;
 				}
-				if(strlen($new_line_data['ADÉNOCARCINOME conventionnel infiltrant'])) {
+				if(strlen($new_line_data['ADÉNOCARCINOME conventionnel infiltrant']) && strtolower($new_line_data['ADÉNOCARCINOME conventionnel infiltrant']) != 'no') {
 					if(strtolower($new_line_data['ADÉNOCARCINOME conventionnel infiltrant']) == 'y') {
 						$event_details['histology'] = 'acinar adenocarcinoma/usual type';
+					} else if(preg_match('/^Y[\ ]{0,1}\+[\ ]{0,1}(.+)$/', $new_line_data['ADÉNOCARCINOME conventionnel infiltrant'], $matches)) {
+						$event_details['histology'] = 'acinar adenocarcinoma/usual type';
+						$event_details['histology_other_precision'] = '+ '.$matches[1];
+						$import_summary['Pathology Report']['@@WARNING@@']["'histology' value contains more than one value"][] = "The histology value [".$new_line_data['ADÉNOCARCINOME conventionnel infiltrant']."] will be recorded in the 2 fields : Histology = 'acinar adenocarcinoma/usual type' &  Other procision = '".$matches[1]."'. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
 					} else {
-						$import_summary['Pathology Report']['@@ERROR@@']["'histology' value format not supported"][] = "Value [".$new_line_data['ADÉNOCARCINOME conventionnel infiltrant']."] won't be migrated. To add manually into ATiM after migration if required. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+						$event_details['histology'] = 'other specify';
+						$event_details['histology_other_precision'] = $new_line_data['ADÉNOCARCINOME conventionnel infiltrant'];
+						$import_summary['Pathology Report']['@@WARNING@@']["'histology' value format not supported"][] = "Value [".$new_line_data['ADÉNOCARCINOME conventionnel infiltrant']."] will be added to the 'Other precision' field. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
 					}
 				}
 				$tmp_array = array('tumour_location_right_anterior' => 'zones atteintes ant. drt',
@@ -668,7 +675,7 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 				}
 				$tmp_details = array_filter($event_details);
 				if($event_date['date'] || $tmp_details) {
-					$tmp_details['pathologic_staging_pn_collected'] = (!isset($tmp_details['pathologic_staging_pn']) || $tmp_details['pathologic_staging_pn'] != 'pNx')? 'y' : 'n';
+					$event_details['pathologic_staging_pn_collected'] = (!isset($tmp_details['pathologic_staging_pn']) || $tmp_details['pathologic_staging_pn'] != 'pNx')? 'y' : 'n';
 					$data = array(
 						'EventMaster' => array(
 							'participant_id' => $participant_id,
@@ -676,7 +683,7 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 							'event_control_id' => $event_control['event_control_id'],
 							'event_date' => $event_date['date'],
 							'event_date_accuracy' => $event_date['accuracy'],
-							'event_summary' => $new_line_data['note; commentaires']),
+							'event_summary' => 'Révisé par Dr Têtu. '. $new_line_data['note; commentaires']),
 						'EventDetail' => $event_details);
 					$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
 					customInsert($data['EventDetail'], $event_control['detail_tablename'], __FILE__, __LINE__, true);
@@ -1289,6 +1296,55 @@ function getPermissibleCustomValueKey($value) {
 	$value = trim($value);
 	$value = strtolower($value);
 	return $value;
+}
+
+function loadRevision(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho) {
+	global $import_summary;
+	global $controls;
+	global $patients_to_import;
+	// Control
+	$event_control = $controls['EventControl']['procure follow-up worksheet - clinical note'];
+	//Load Worksheet Names
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	//LoadPSAs
+	$line_counter = 0;
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Feuil1')]]['cells'] as $line => $new_line) {
+		$line_counter++;
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$participant_identifier = $new_line_data['Code Patient'];
+			if(!empty($patients_to_import) && !in_array($participant_identifier, $patients_to_import)) continue;
+			if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
+				$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
+				$event_date['date']  = '2015-01-01';
+				$event_date['accuracy']  = 'd';
+				$data_to_migrate = array();
+				foreach( array('pT', 'Hormono','Date du décès (cause)','Renseignements additionnels','Opinion LL si Tx adjuvant à la chx','Opinion LL date de récidive') as $excel_field) {
+					if(strlen($new_line_data[$excel_field])) $data_to_migrate[$excel_field] = $excel_field.' : '.$new_line_data[$excel_field];
+				}
+				if($data_to_migrate) {
+					$data = array(
+						'EventMaster' => array(
+							'participant_id' => $participant_id,
+							'procure_form_identification' => "$participant_identifier Vx -FSPx",
+							'event_control_id' => $event_control['event_control_id'],
+							'event_date' => $event_date['date'],
+							'event_date_accuracy' => $event_date['accuracy'],
+							'event_summary' => 'Revision Dr Lacombe: \n'.implode('.\n', $data_to_migrate).'.'),
+						'EventDetail' => array());
+					$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
+					customInsert($data['EventDetail'], $event_control['detail_tablename'], __FILE__, __LINE__, true);
+				}
+			} else {
+				$import_summary['Dr Lacombe Revision']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Data won't be migrated! [field <b>Code Patient</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+			}
+		}
+	}
 }
 
 ?>
