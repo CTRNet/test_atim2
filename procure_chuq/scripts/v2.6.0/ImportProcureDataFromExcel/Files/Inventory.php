@@ -135,47 +135,54 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_
 	// Control
 	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
 	$storage_control = $controls['storage_controls'];
-	//Load Worksheet Names
-	$XlsReader->read($files_path.$file_name);
-	$sheets_nbr = array();
-	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
-	//LoadInventoryData
-	$headers = array();
-	for($visit_id=1;$visit_id<11;$visit_id++) {		
-		$worksheet = (strlen($visit_id) == 1)? "V0".$visit_id : "V".$visit_id;
-		$duplicated_participants_check = array();
-		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
-			//$line_counter++;
-			if($line_counter == 3) {
-				$headers = $new_line;
-			} else if($line_counter > 3){		
-				$new_line_data = formatNewLineData($headers, $new_line);
-				$participant_identifier = $new_line_data['# patient'];
-				if(strlen($participant_identifier)) {
-					if(preg_match('/^PS[0-9]P/', $participant_identifier)) {
-						if(!empty($patients_to_import) && !in_array( $participant_identifier, $patients_to_import)) continue;
-						if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
-							if(!in_array($participant_identifier, $duplicated_participants_check)) {
-								$duplicated_participants_check[$participant_identifier] = $participant_identifier;
-								$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
-								//Load Tissue
-								if($worksheet == 'V01') {
-									loadTissue($participant_id, $participant_identifier, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'], $file_name, $worksheet, $line_counter, $new_line_data, $created_prostatectomy, $prostatectomy_data_from_patho);
+	
+	foreach(array('-V01','-V02-V04','-V05-V10') AS $visites) {
+		$XlsReader = new Spreadsheet_Excel_Reader();
+		//Load Worksheet Names
+		$XlsReader->read($files_path.str_replace('.xls', $visites.'.xls', $file_name));
+		echo "<FONT COLOR=\"red\" >*** Inventory - File(s) Replaced By : ".str_replace('.xls', $visites.'.xls', $file_name)."***</FONT><br>";
+		$sheets_nbr = array();
+		foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+		//LoadInventoryData
+		$headers = array();
+		for($visit_id=1;$visit_id<11;$visit_id++) {		
+			$worksheet = (strlen($visit_id) == 1)? "V0".$visit_id : "V".$visit_id;
+			if(array_key_exists($worksheet, $sheets_nbr)) {
+				$duplicated_participants_check = array();
+				foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+					//$line_counter++;
+					if($line_counter == 3) {
+						$headers = $new_line;
+					} else if($line_counter > 3){		
+						$new_line_data = formatNewLineData($headers, $new_line);
+						$participant_identifier = $new_line_data['# patient'];
+						if(strlen($participant_identifier)) {
+							if(preg_match('/^PS[0-9]P/', $participant_identifier)) {
+								if(!empty($patients_to_import) && !in_array( $participant_identifier, $patients_to_import)) continue;
+								if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) {
+									if(!in_array($participant_identifier, $duplicated_participants_check)) {
+										$duplicated_participants_check[$participant_identifier] = $participant_identifier;
+										$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
+										//Load Tissue
+										if($worksheet == 'V01') {
+											loadTissue($participant_id, $participant_identifier, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'], $file_name, $worksheet, $line_counter, $new_line_data, $created_prostatectomy, $prostatectomy_data_from_patho);
+										}
+										//Blood....
+										loadBlood($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
+										//Urine....
+										loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
+									} else {
+										$import_summary['Inventory - All']['@@ERROR@@']['Patient defined twice'][] = "The patient '$participant_identifier' has been listed twice for the same visit $worksheet. New line won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";		
+									}
+								} else {
+									$import_summary['Inventory - All']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient inventory won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 								}
-								//Blood....
-								loadBlood($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
-								//Urine....
-								loadUrine($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data);
 							} else {
-								$import_summary['Inventory - All']['@@ERROR@@']['Patient defined twice'][] = "The patient '$participant_identifier' has been listed twice for the same visit $worksheet. New line won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";		
+								$import_summary['Inventory - All']['@@WARNING@@']['No data to migrate'][] = "The line <b>$line_counter</b> seems to contain data that has not to be migrated! Data won't be migrated! [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 							}
-						} else {
-							$import_summary['Inventory - All']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient inventory won't be migrated! [field <b># patient</b> - file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 						}
-					} else {
-						$import_summary['Inventory - All']['@@WARNING@@']['No data to migrate'][] = "The line <b>$line_counter</b> seems to contain data that has not to be migrated! Data won't be migrated! [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 					}
-				}				
+				}
 			}
 		}
 	}
@@ -1016,6 +1023,14 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 							$use_datetime =array('date' => '2009-03-27 00:00', 'accuracy' =>'c');
 					} else if('19-Aug-2009' == $new_block['Date de coupe']) {
 							$use_datetime =array('date' => '2009-08-19 00:00', 'accuracy' =>'c');
+					} else if('25-Mar-2009' == $new_block['Date de coupe']) {
+						$use_datetime =array('date' => '2009-03-25 00:00', 'accuracy' =>'c');
+					} else if('18-Mar-2009' == $new_block['Date de coupe']) {
+						$use_datetime =array('date' => '2009-03-18 00:00', 'accuracy' =>'c');
+					} else if('28-Mar-2009' == $new_block['Date de coupe']) {
+						$use_datetime =array('date' => '2009-03-28 00:00', 'accuracy' =>'c');
+					} else if('20-Aug-2009' == $new_block['Date de coupe']) {
+						$use_datetime =array('date' => '2009-08-20 00:00', 'accuracy' =>'c');
 					} else {
 						$use_datetime = getDateAndAccuracy($new_block, 'Date de coupe', 'Inventory - Tissue', $psp_nbr_to_frozen_blocks_data['file_name'], $new_block['excel_line']);
 						$use_datetime['accuracy'] = str_replace('c', 'h', $use_datetime['accuracy']);

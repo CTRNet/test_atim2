@@ -872,7 +872,7 @@ function loadImagery(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participa
 						customInsert($data['EventDetail'], $event_control['detail_tablename'], __FILE__, __LINE__, true);
 					}
 				} else if(strlen($new_line_data['Notes'])) {
-					$import_summary['Imagery']['@@WARNING@@']['Note with no type of imagery'][] = "The note won't be imported! See patient '$participant_identifier'! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
+					$import_summary['Imagery']['@@WARNING@@']['Note with no type of imagery'][] = "The note '".$new_line_data['Notes']."' won't be imported! See patient '$participant_identifier'! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
 				}
 			} else {
 				$import_summary['Imagery']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient Imagery data won't be migrated! [field <b>NoProcure</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
@@ -1151,7 +1151,7 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 								break;
 							}
 						default:
-							$import_summary['Treatment']['@@WARNING@@']["Treatment To Create Manually (type not supported)"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+							$import_summary['Treatment']['@@WARNING@@']["Treatment To Create Manually (type not supported)"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] different than 'ContrES' or 'Pall' on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
 					}
 					if($treatment_controls)  {
 						if(empty($start_date['date'])) $import_summary['Treatment']['@@WARNING@@']['No Treatment Start Date'][] = "System is creating a treatment with no tratment date. See patient '$participant_identifier'! [field <b>Debut</b> - file <b>$file_name</b>- line: <b>$line_counter</b>]";
