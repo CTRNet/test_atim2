@@ -1,5 +1,17 @@
 <?php
 
+//err a revoir:
+//TODO [ER#14] Treatment To Create Manually (type not supported)
+//TODO [ER#21] Patient Identification Unknown
+//TODO [ER#17] New Drug - Created hormonotherapy drug [HORMONO ADJUVANTE DE COURTE DURÉE ET CONCOMITANTE AVEC RADIO]!
+//TODO [ER#31] No collection created but tissue blocks defined in path block file
+//TODO [ER#35] Unrecorded Patient Surgery data
+//TODO [ER#40] Patient defined twice
+//TODO [ER#42] Urine defined as not available but urine samples defined
+//TODO [ER#44] Date Format Error: - Format of date '6.7688' is not supported! [field Nanodrop date analyse - file ARN sang paxgene_v_r_20151005.xls (V02) - line: 29]...
+//TODO [ER#45] No paxgene tube
+//TODO [ER#51] No aliquot matching barcode
+
 //TODO: Supprimer le contenu de toute cellule égale à '¯' ou égale à '­', ' ­' dans Inventaire et RNA files et patho. Surtout patho car les --- devrait être supprimé sinon création d'un barcode
 //TODO: Dans patho, formater vol. prost. Atteint en % en text standard
 require_once 'Files/ClinicalAnnotation.php';
@@ -13,26 +25,28 @@ set_time_limit('3600');
 
 global $patients_to_import;
 //TODO set to empty
-$patients_to_import = array();
+$patients_to_import = array('PSP0001','PSP0042');
 
 //$patients_to_import = array();
 $files_name = array(
-	'patient' => 'Patients_to_build_on_migration_day_v_b_20150900.xls',
-	'patient_status' => 'Deces juin 2015_v_r_20150918.xls',
-	'consent' => 'Consentement_v_r_20150918.xls',
-	'psa' => 'APS et traitements_v_r_20150922.xls',	
-	'treatment' => utf8_decode('APS et traitements_v_r_20150922.xls'),	
-	'frozen block' => 'taille tissus_v_r_20150923.xls',
-	'paraffin block' => 'sortie de blocs procure_v_r_20150923.xls',
-	'inventory' => 'inventaire procure CHU Quebec_v_r_20150923.xls',
-	'arn' => 'ARN_sang_paxgene_v_r_20150420.xls',
-	'biopsy' => 'Biopsies_v_r_20150923.xls',
-	'patho' => 'patho_ATIM_v_r_20150700.xls',
-	'imagery' => 'Req_Imagerie 24-04-2015_20150918_v_r_20150923.xls',
-	'other tumor' => 'autres cancer_20150918_v_r_20150923.xls',
-	'sent to processing site' => 'resume des sorties echantillon pour ATIM_v_r_20151001.xls',
+	'patient' => 'Patients_to_build_on_migration_day_v_b_20150900_v_r_20151005.xls',
+	'patient_status' => 'Deces juin 2015_v_r_20150918_v_r_20151005.xls',
+	'consent' => '5-05-2015Copie de consentement_v20150420_v_r_20151005.xls',
+	'psa' => 'r_vis. 30 mars 2015 APS et traitements_v_r_20151005.xls',	
+	'treatment' => 'r_vis. 30 mars 2015 APS et traitements_v_r_20151005.xls',	
+	'frozen block' => 'taille tissus_v_r_20151005.xls',
+	'paraffin block' => 'sortie de blocs procure_v_r_20151005.xls',
+	'inventory' => 'inventaire procure CHU Quebec_v_r_20151005.xls',
+	'arn' => 'ARN sang paxgene_v_r_20151005.xls',
+	'biopsy' => 'Biopsies_v_r_20151005.xls',
+	'patho' => 'patho ATIM juin 2015 pour Nicolas_v_r_20151005.xls',
+	'imagery' => 'Req_Imagerie 24-04-2015.xls',
+	'other tumor' => 'autres cancer_v_r_20151005.xls',
+	'sent to processing site' => 'résumé des sorties échantillon pour ATIM_v_r_20151005.xls',
 	'revision' => 'revision du Dr Lacombe en janvier 2015.xls'
 );
+foreach($files_name as $key => $val) $files_name[$key] = utf8_decode($val);
+
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure_chuq\\data\\';
 //$files_path = "/ATiM/atim-procure/TmpChuq/data/";
 require_once 'Excel/reader.php';
@@ -406,6 +420,7 @@ WHERE Participant.deleted <> 1 AND AliquotMaster.barcode NOT REGEXP CONCAT('^', 
 
 dislayErrorAndMessage($import_summary);
 
+updateAliquotUseAndVolume();
 insertIntoRevs();
 
 $query = "UPDATE versions SET permissions_regenerated = 0;";
@@ -815,6 +830,349 @@ function truncate() {
 	);
 	
 	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
+}
+
+function updateAliquotUseAndVolume() {
+	
+	foreach(getViewCreateStatement() AS $table => $create_sql) {
+		customQuery('DROP TABLE IF EXISTS '.$table, __FILE__, __LINE__);
+		customQuery('DROP VIEW IF EXISTS '.$table, __FILE__, __LINE__);
+		customQuery($create_sql, __FILE__, __LINE__);
+	}
+	foreach(getView() AS $table => $view_sql) {
+		$queries = explode("UNION ALL", $view_sql);
+		foreach($queries as $query){
+			customQuery('INSERT INTO '.$table. '('.str_replace('%%WHERE%%', '', $query).')', __FILE__, __LINE__);
+		}
+	}
+
+	//-A-Use counter
+	$use_counters_updated = array();
+	//Search all aliquots linked to at least one use and having use_counter = 0
+	$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, us.use_counter
+		FROM aliquot_masters am
+		INNER JOIN (SELECT count(*) AS use_counter, aliquot_master_id FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON am.id = us.aliquot_master_id
+		WHERE am.deleted <> 1 AND (am.use_counter IS NULL OR am.use_counter = 0)";
+	$results = customQuery($tmp_sql, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$query = "UPDATE aliquot_masters SET use_counter = '".$row['use_counter']."' WHERE id = ".$row['aliquot_master_id'];
+		customQuery($query, __FILE__, __LINE__);
+	}
+	//Search all unused aliquots having use_counter != 0
+	$tmp_sql = "SELECT id AS aliquot_master_id, barcode, aliquot_label FROM aliquot_masters WHERE deleted <> 1 AND use_counter != 0 AND id NOT IN (SELECT DISTINCT aliquot_master_id FROM view_aliquot_uses);";
+	$results = customQuery($tmp_sql, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$query = "UPDATE aliquot_masters SET use_counter = '".$row['use_counter']."' WHERE id = ".$row['aliquot_master_id'];
+		customQuery($query, __FILE__, __LINE__);
+	}	
+	//Search all aliquots having use_counter != real use counter (from view_aliquot_uses)
+	$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label,us.use_counter FROM aliquot_masters am INNER JOIN (SELECT aliquot_master_id, count(*) AS use_counter FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON us.aliquot_master_id = am.id WHERE am.deleted <> 1 AND us.use_counter != am.use_counter;";
+	$results = customQuery($tmp_sql, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$query = "UPDATE aliquot_masters SET use_counter = '".$row['use_counter']."' WHERE id = ".$row['aliquot_master_id'];
+		customQuery($query, __FILE__, __LINE__);
+	}
+	
+	//-B-Current Volume
+	//Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
+	$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
+	$results = customQuery($tmp_sql, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$query = "UPDATE aliquot_masters SET current_volume = '0' WHERE id = ".$row['aliquot_master_id'];
+		customQuery($query, __FILE__, __LINE__);
+	}
+	//Search all aliquots having current_volume != initial volume - used_volume (from view_aliquot_uses) > initial_volume
+	$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume >= us.sum_used_volumes AND am.current_volume != (am.initial_volume - us.sum_used_volumes);";
+	$results = customQuery($tmp_sql, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$query = "UPDATE aliquot_masters SET current_volume = '".($row['initial_volume'] - $row['sum_used_volumes'])."' WHERE id = ".$row['aliquot_master_id'];
+		customQuery($query, __FILE__, __LINE__);
+	}
+	
+	/*
+	//-C-Used Volume
+	$used_volume_updated = array();
+	//Search all aliquot internal use having used volume not null but no volume unit
+	$tmp_sql = "SELECT AliquotInternalUse.id AS aliquot_internal_use_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			AliquotInternalUse.used_volume AS used_volume,
+			AliquotControl.volume_unit
+			FROM aliquot_internal_uses AS AliquotInternalUse
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE AliquotInternalUse.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND AliquotInternalUse.used_volume IS NOT NULL;";
+	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+	if($aliquots_to_clean_up) {
+		$AliquotInternalUse_model = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
+		$AliquotInternalUse_model->check_writable_fields = false;
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotInternalUse_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotInternalUse_model->id = $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'];
+			if(!$AliquotInternalUse_model->save(array('AliquotInternalUse' => array('id' => $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+		}
+	}
+	//Search all aliquot used as source aliquot, used volume not null but no volume unit
+	$tmp_sql = "SELECT SourceAliquot.id AS source_aliquot_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			SourceAliquot.used_volume AS used_volume,
+			AliquotControl.volume_unit AS aliquot_volume_unit
+			FROM source_aliquots AS SourceAliquot
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE SourceAliquot.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND SourceAliquot.used_volume IS NOT NULL;";
+	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+	if($aliquots_to_clean_up) {
+		$SourceAliquot_model = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
+		$SourceAliquot_model->check_writable_fields = false;
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$SourceAliquot_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$SourceAliquot_model->id = $new_aliquot['SourceAliquot']['source_aliquot_id'];
+			if(!$SourceAliquot_model->save(array('SourceAliquot' => array('id' => $new_aliquot['SourceAliquot']['source_aliquot_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+		}
+	}
+	//Search all aliquot used as parent aliquot, used volume not null but no volume unit
+	$tmp_sql = "SELECT Realiquoting.id AS realiquoting_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			Realiquoting.parent_used_volume AS used_volume,
+			AliquotControl.volume_unit AS aliquot_volume_unit
+			FROM realiquotings AS Realiquoting
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE Realiquoting.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND Realiquoting.parent_used_volume IS NOT NULL;";
+	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+	if($aliquots_to_clean_up) {
+		$Realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+		$Realiquoting_model->check_writable_fields = false;
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$Realiquoting_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$Realiquoting_model->id = $new_aliquot['Realiquoting']['realiquoting_id'];
+			if(!$Realiquoting_model->save(array('Realiquoting' => array('id' => $new_aliquot['Realiquoting']['realiquoting_id'], 'parent_used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+		}
+	}
+	//Search all aliquot used for quality conbtrol, used volume not null but no volume unit
+	$tmp_sql = "SELECT QualityCtrl.id AS quality_control_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			QualityCtrl.used_volume AS used_volume,
+			AliquotControl.volume_unit AS aliquot_volume_unit
+			FROM quality_ctrls AS QualityCtrl
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE QualityCtrl.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND QualityCtrl.used_volume IS NOT NULL;";
+	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+	if($aliquots_to_clean_up) {
+		$QualityCtrl_model = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
+		$QualityCtrl_model->check_writable_fields = false;
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$QualityCtrl_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$QualityCtrl_model->id = $new_aliquot['QualityCtrl']['quality_control_id'];
+			if(!$QualityCtrl_model->save(array('QualityCtrl' => array('id' => $new_aliquot['QualityCtrl']['quality_control_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+		}
+	}
+	if($used_volume_updated) {
+		$ViewAliquotUse_model = AppModel::getInstance('InventoryManagement', 'ViewAliquotUse');
+		foreach(explode("UNION ALL", $ViewAliquotUse_model::$table_query) as $query) {
+			$ViewAliquotUse_model->query('REPLACE INTO '.$ViewAliquotUse_model->table. '('.str_replace('%%WHERE%%', 'AND AliquotMaster.id IN ('.implode(',',array_keys($used_volume_updated)).')', $query).')');
+		}
+		AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ').(implode(', ', $used_volume_updated)));
+	}
+	*/
+	
+}
+
+function getViewCreateStatement() {
+	$data = array( 'view_aliquot_uses' => 
+		"CREATE TABLE view_aliquot_uses (
+			  id varchar(20) NOT NULL,
+			  aliquot_master_id int NOT NULL,
+			  use_definition varchar(50) NOT NULL DEFAULT '',
+			  use_code varchar(250) NOT NULL DEFAULT '',
+			  use_details VARchar(250) NOT NULL DEFAULT '',
+			  used_volume decimal(10,5) DEFAULT NULL,
+			  aliquot_volume_unit varchar(20) DEFAULT NULL,
+			  use_datetime datetime DEFAULT NULL,
+			  use_datetime_accuracy char(1) NOT NULL DEFAULT '',
+			  duration VARCHAR(250) NOT NULL DEFAULT '',
+			  duration_unit VARCHAR(250) NOT NULL DEFAULT '',
+			  used_by VARCHAR(50) DEFAULT NULL,
+			  created datetime NOT NULL,
+			  detail_url varchar(250) NOT NULL DEFAULT '',
+			  sample_master_id int(11) NOT NULL,
+			  collection_id int(11) NOT NULL,
+			  study_summary_id int(11) DEFAULT NULL,
+			  procure_created_by_bank char(1) DEFAULT '')");
+	return $data;
+	
+}
+function getView() {
+	
+	$data = array( 'view_aliquot_uses' => 
+	"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		AliquotInternalUse.type AS use_definition,
+		AliquotInternalUse.use_code AS use_code,
+		AliquotInternalUse.use_details AS use_details,
+		AliquotInternalUse.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		AliquotInternalUse.use_datetime AS use_datetime,
+		AliquotInternalUse.use_datetime_accuracy AS use_datetime_accuracy,
+		AliquotInternalUse.duration AS duration,
+		AliquotInternalUse.duration_unit AS duration_unit,
+		AliquotInternalUse.used_by AS used_by,
+		AliquotInternalUse.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		AliquotInternalUse.study_summary_id AS study_summary_id,
+AliquotInternalUse.procure_created_by_bank AS procure_created_by_bank
+		FROM aliquot_internal_uses AS AliquotInternalUse
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE AliquotInternalUse.deleted <> 1 %%WHERE%%
+	
+		UNION ALL
+	
+		SELECT CONCAT(SourceAliquot.id,1) AS `id`,
+		AliquotMaster.id AS aliquot_master_id,
+		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
+		SampleMaster.sample_code AS use_code,
+		'' AS `use_details`,
+		SourceAliquot.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		DerivativeDetail.creation_datetime AS use_datetime,
+		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
+		'' AS `duration`,
+		'' AS `duration_unit`,
+		DerivativeDetail.creation_by AS used_by,
+		SourceAliquot.created AS created,
+		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
+		SampleMaster2.id AS sample_master_id,
+		SampleMaster2.collection_id AS collection_id,
+		'-1' AS study_summary_id,
+SampleMaster.procure_created_by_bank AS procure_created_by_bank
+		FROM source_aliquots AS SourceAliquot
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
+		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
+		WHERE SourceAliquot.deleted <> 1 %%WHERE%%
+	
+		UNION ALL
+	
+		SELECT CONCAT(Realiquoting.id ,2) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'realiquoted to' AS use_definition,
+		AliquotMasterChild.barcode AS use_code,
+		'' AS use_details,
+		Realiquoting.parent_used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		Realiquoting.realiquoting_datetime AS use_datetime,
+		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		Realiquoting.realiquoted_by AS used_by,
+		Realiquoting.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id,
+AliquotMasterChild.procure_created_by_bank AS procure_created_by_bank
+		FROM realiquotings AS Realiquoting
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE Realiquoting.deleted <> 1 %%WHERE%%
+	
+		UNION ALL
+	
+		SELECT CONCAT(QualityCtrl.id,3) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'quality control' AS use_definition,
+		QualityCtrl.qc_code AS use_code,
+		'' AS use_details,
+		QualityCtrl.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		QualityCtrl.date AS use_datetime,
+		QualityCtrl.date_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		QualityCtrl.run_by AS used_by,
+		QualityCtrl.created AS created,
+		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id,
+QualityCtrl.procure_created_by_bank AS procure_created_by_bank
+		FROM quality_ctrls AS QualityCtrl
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
+	
+		UNION ALL
+	
+		SELECT CONCAT(OrderItem.id,4) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'aliquot shipment' AS use_definition,
+		Shipment.shipment_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		Shipment.datetime_shipped AS use_datetime,
+		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		Shipment.shipped_by AS used_by,
+		Shipment.created AS created,
+		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
+'p' AS procure_created_by_bank
+		FROM order_items OrderItem
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		JOIN `orders` AS `Order` ON  Order.id = OrderLine.order_id
+		WHERE OrderItem.deleted <> 1 %%WHERE%%
+	
+		UNION ALL
+	
+		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'specimen review' AS use_definition,
+		SpecimenReviewMaster.review_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		SpecimenReviewMaster.review_date AS use_datetime,
+		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		'' AS used_by,
+		AliquotReviewMaster.created AS created,
+		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id,
+'' AS procure_created_by_bank
+		FROM aliquot_review_masters AS AliquotReviewMaster
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
+		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%");
+	return $data;
 }
 
 ?>
