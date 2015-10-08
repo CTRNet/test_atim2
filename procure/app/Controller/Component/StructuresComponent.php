@@ -205,7 +205,19 @@ class StructuresComponent extends Component {
 			}
 			$this->updateAccuracyChecks($return['structure']);
 		}
-		
+
+        // seek file fields
+        foreach($return as $structure) {
+            if (!isset($structure['Sfs'])) {
+                continue;
+            }
+            foreach($structure['Sfs'] as $field) {
+                if($field['type'] == 'file') {
+                    $prefix = $field['model'].'.'.$field['field'];
+                    $this->controller->allowed_file_prefixes[$prefix] = null;
+                }
+            }
+        }
 		
 		return $return;
 	}

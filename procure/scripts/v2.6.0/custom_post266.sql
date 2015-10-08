@@ -84,7 +84,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='aliquot concentration' AND `language_tag`=''), '0', '40', 'concentration - if applicable', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_concentration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en,fr) VALUES ('concentration - if applicable', '', '');
+INSERT INTO i18n (id,en,fr) VALUES ('concentration - if applicable', 'Concentration (If applicable)', 'Concentration (Si applicable)');
 ALTER TABLE quality_ctrls
   ADD COLUMN `procure_concentration` decimal(10,2) DEFAULT NULL,
   ADD COLUMN `procure_concentration_unit` varchar(20) DEFAULT NULL;
@@ -208,6 +208,22 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en,fr) VALUES ("no aliquot to test exists","No aliquot to test exists.","Aucun aliquot à tester existe.");
 
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- BATCH ACTIONS & REPORT
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions SET flag_active = 1
+WHERE datamart_structure_id IN (
+	SELECT id FROM datamart_structures 
+	WHERE model IN ('ConsentMaster',
+		'SpecimenReviewMaster',
+		'AliquotReviewMaster'))
+AND label IN ('number of elements per participant');
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE datamart_structure_id IN (
+	SELECT id FROM datamart_structures 
+	WHERE model IN ('Participant'))
+AND label IN ('edit');
 
 
 
@@ -217,6 +233,37 @@ INSERT INTO i18n (id,en,fr) VALUES ("no aliquot to test exists","No aliquot to t
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+UPDATE versions SET branch_build_number = '6189' WHERE version_number = '2.6.4';
 
 
 
