@@ -1113,7 +1113,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 		$this->set('url_to_cancel', $url_to_cancel);
 		
-		$this->Structures->set(($aliquot_volume_unit? 'aliquotinternaluses_volume,' : '').'aliquotinternaluses,aliq_in_stock_details_for_use_in_batch_process');
+		$this->Structures->set(($aliquot_volume_unit? 'aliquotinternaluses_volume,' : '').'aliquotinternaluses,aliq_in_stock_details_to_use_in_batch_process');
 	
 		//MANAGE DATA
 	

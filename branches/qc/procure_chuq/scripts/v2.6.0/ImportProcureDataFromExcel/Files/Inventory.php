@@ -806,7 +806,15 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 	$collection_id = null;
 	$collection_data = null;
 	if($prostatectomy_data_from_inv_file) {
+		$collection_to_create = false;
 		if(in_array($new_line_data['Tissus prélevé congelé'], array('1', '1 retour patho')) ){
+			$collection_to_create = true;
+			$new_line_data['Tissus prélevé congelé'] = ($new_line_data['Tissus prélevé congelé'] == '1 retour patho')? 'retour patho' : '';
+		} else if(array_key_exists($participant_identifier, $psp_nbr_to_paraffin_blocks_data['blocks'])) {
+			$import_summary['Inventory - Tissue (V01)']['@@WARNING@@']["Collection created based on paraffin block only"][] = "The field 'Tissus prélevé congelé' was not equal to 1 (= '".$new_line_data['Tissus prélevé congelé']."') but paraffin block have been defined. So created a tissue collection. Please confirm. See patient '$participant_identifier'.  [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
+			$collection_to_create = true;
+		}
+		if($collection_to_create) {
 			//Create collection + add retour patho if required
 			$date_of_collection = getDateTimeAndAccuracy($new_line_data, 'date chirurgie', "hre de prélèvement tissus (sortie de l'abdomen)", 'Inventory - Tissue', $file_name, $line_counter);
 			$collection_data = array(
@@ -814,7 +822,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 				'collection_datetime' => $date_of_collection['datetime'],
 				'collection_datetime_accuracy' => $date_of_collection['accuracy'],
 				'collection_property' => 'participant collection',
-				'collection_notes' => ($new_line_data['Tissus prélevé congelé'] == '1 retour patho')? '1 retour patho' : '',
+				'collection_notes' => $new_line_data['Tissus prélevé congelé'],
 				'procure_visit' => 'V01');				
 			$collection_id = customInsert($collection_data, 'collections', __FILE__, __LINE__);	
 		} else if(!preg_match('/^((0)|(non))$/', $new_line_data['Tissus prélevé congelé']) || !strlen($new_line_data['Tissus prélevé congelé'])) {
@@ -1102,18 +1110,9 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 				
 		//$duplicated_label_check = array();
 		foreach($patient_paraffin_block_data as $new_blocks_set) {
-			$patho_nbr_from_paraffin_block_file = $new_blocks_set['# patho'];
-			if(empty($patho_nbr_from_paraffin_block_file)) {
-				$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['No Patho Number for paraffin block'][] = "The pathology number is not defined for the paraffin block file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>. No block will be created. See patient '$participant_identifier'. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";
+			if(empty($patho_nbr_from_participant_file)) {
+				$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['No Patho Number for paraffin block'][] = "The pathology number is not defined into the patient excel file to create paraffin block of the patient '$participant_identifier'. No block will be created. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";
 			} else {
-				if(empty($patho_nbr_from_participant_file)) {
-					$patho_nbr_from_participant_file = $patho_nbr_from_paraffin_block_file;
-					$import_summary['Inventory - Tissue (V01)']['@@MESSAGE@@']['Used Patho Number of paraffin block'][] = "The pathology number ($patho_nbr_from_paraffin_block_file) is just set into the paraffin block file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>. Will use this one for both sample and pathology report data. See patient '$participant_identifier'. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";	
-					$query = "UPDATE ".$tissue_sample_controls['detail_tablename']." SET procure_report_number = '".str_replace("'", "''", $patho_nbr_from_participant_file)."' WHERE sample_master_id = $sample_master_id;";
-					customQuery($query, __FILE__, __LINE__);
-				} else if($patho_nbr_from_participant_file != $patho_nbr_from_paraffin_block_file){
-					$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Patho Numbers conflict'][] = "The pathology number ($patho_nbr_from_participant_file) previously defined into patient excel file does not match the number ($patho_nbr_from_paraffin_block_file) defined into the paraffin block file <b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>. Please confrim. See patient '$participant_identifier'. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";
-				}
 				foreach(array('bloc tumoral 1', 'bloc tumoral 2', 'bloc normal 1', 'bloc normal 2') as $block_key) {
 					if($new_blocks_set[$block_key]) {
 						if(!preg_match('/^[A-Z]+[0-9]+$/', $new_blocks_set[$block_key])) {
@@ -1126,7 +1125,7 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 									'collection_id' => $collection_id,
 									'sample_master_id' => $sample_master_id,
 									'aliquot_control_id' => $tissue_sample_controls['aliquots']['block']['aliquot_control_id'],
-									'barcode' => "$patho_nbr_from_paraffin_block_file-".$new_blocks_set[$block_key],
+									'barcode' => "$patho_nbr_from_participant_file-".$new_blocks_set[$block_key],
 									'in_stock' => 'yes - available'),
 								'AliquotDetail' => array(
 									'block_type' => 'paraffin',
@@ -1171,7 +1170,7 @@ function loadRNA(&$XlsReader, $files_path, $file_name) {
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	//LoadConsentAndQuestionnaireData
 	$headers = array();
-	for($visit_id=1;$visit_id<6;$visit_id++) {
+	for($visit_id=1;$visit_id<7;$visit_id++) {
 		$worksheet = "V0".$visit_id;	
 		$paxgene_blood_tubes = array();	
 		$query = "SELECT par.participant_identifier, am.collection_id, am.sample_master_id, am.barcode, am.id AS aliquot_master_id, am.storage_master_id, stm.selection_label
