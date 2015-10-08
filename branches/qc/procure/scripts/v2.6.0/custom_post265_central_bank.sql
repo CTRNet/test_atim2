@@ -29,6 +29,9 @@ UNION ALL SELECT 'CLinicalCollectionLink.Delete' as '### TODO ### : Buttons of t
 -- PROFILE
 
 UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_last_modification_by_bank');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_batchedit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_chart_checked_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- CONSENT
 
@@ -85,18 +88,18 @@ UNION ALL SELECT 'Collection.Edit' as '### TODO ### : Buttons of the Inventory M
 UNION ALL SELECT 'Collection.Delete' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'Collection.template' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 
-SELECT 'SampleMaster.Add' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
+UNION ALL SELECT 'SampleMaster.Add' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'SampleMaster.batchDerivative' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'SampleMaster.Edit' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'SampleMaster.Delete' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 
-SELECT 'AliquotMaster.Add' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
+UNION ALL SELECT 'AliquotMaster.Add' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'AliquotMaster.Edit' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'AliquotMaster.Realiquot' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'AliquotMaster.DefineRealiquotedChildren' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'AliquotMaster.Delete' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 
-SELECT 'QualityCtrl.Add' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
+UNION ALL SELECT 'QualityCtrl.Add' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'QualityCtrl.Edit' as '### TODO ### : Buttons of the Inventory Management Module to inactivate'
 UNION ALL SELECT 'QualityCtrl.Delete' as '### TODO ### : Buttons of the Inventory Management Module to inactivate';
 
