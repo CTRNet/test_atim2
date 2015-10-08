@@ -170,9 +170,31 @@ INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_inp
 VALUES
 ('tech. patho', '', '',  '1', @control_id, NOW(), NOW(), 1, 1);
 
-
-
-
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET site_branch_build_number = '62??' WHERE version_number = '2.6.6';
+UPDATE versions SET trunk_build_number = '6287', site_branch_build_number = '6302' WHERE version_number = '2.6.6';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

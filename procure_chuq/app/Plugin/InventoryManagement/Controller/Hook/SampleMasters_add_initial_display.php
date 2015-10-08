@@ -79,6 +79,7 @@
 		
 		$this->request->data['DerivativeDetail']['creation_datetime'] = $parent_sample_data['SpecimenDetail']['reception_datetime'];
 		$this->request->data['DerivativeDetail']['creation_datetime_accuracy'] =  'h';
+		
 	}
 		
 ?>

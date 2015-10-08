@@ -77,7 +77,7 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 	$line_counter = 0;
 	$headers = array();
 	$psp_nbr_to_participant_id_and_patho = array();
-	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Patients')]]['cells'] as $line => $new_line) {
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Feuil1')]]['cells'] as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
 			$headers = $new_line;
@@ -398,20 +398,20 @@ function loadPathos(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participan
 				$event_date  = getDateAndAccuracy($new_line_data, 'date du rapport', 'Pathology Report', $file_name, $line_counter);
 				//Event Details Data
 				$event_details = array();
-				if($new_line_data['# patho']) {
-					if($psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']) {
-						if($new_line_data['# patho'] != $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']) {
-							$import_summary['Pathology Report']['@@ERROR@@']["Patho # does not match"][] = "The patho# defined into participant file ".$psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']." does not match the patho# defined into the patho file ".$new_line_data['# patho'].". Will use value of the patho file. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
-						}
-					} else {
-						$import_summary['Pathology Report']['@@MESSAGE@@']["Patho # not defined into participant excel file - use # from patho file"][] = "Will use value ".$new_line_data['# patho']." of the patho file. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
-					}
-					$psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'] = $new_line_data['# patho'];
-					$event_details['path_number'] = $new_line_data['# patho'];
-				} else if($psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']) {
-					$event_details['path_number'] = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'];
-					$import_summary['Pathology Report']['@@WARNING@@']["Patho # defined in another excel file"][] = "The patho# is not defined into the patho excel file but this one was defined defined into participant file ".$psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'].". Will use this one. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
-				}
+// 				if($new_line_data['# patho']) {
+// 					if($psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']) {
+// 						if($new_line_data['# patho'] != $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']) {
+// 							$import_summary['Pathology Report']['@@ERROR@@']["Patho # does not match"][] = "The patho# defined into participant file ".$psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']." does not match the patho# defined into the patho file ".$new_line_data['# patho'].". Will use value of the patho file. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+// 						}
+// 					} else {
+// 						$import_summary['Pathology Report']['@@MESSAGE@@']["Patho # not defined into participant excel file - use # from patho file"][] = "Will use value ".$new_line_data['# patho']." of the patho file. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+// 					}
+// 					$psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'] = $new_line_data['# patho'];
+// 					$event_details['path_number'] = $new_line_data['# patho'];
+// 				} else if($psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#']) {
+ 				$event_details['path_number'] = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'];
+// 					$import_summary['Pathology Report']['@@WARNING@@']["Patho # defined in another excel file"][] = "The patho# is not defined into the patho excel file but this one was defined defined into participant file ".$psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'].". Will use this one. See patient '$participant_identifier'. [file <b>$file_name</b>- line: <b>$line_counter</b>]";
+// 				}
 				$event_details['pathologist_name'] = $new_line_data['pathologiste'];
 				$tmp_array = array(
 					'prostate_length_cm' => 'dimension prostate long.',
@@ -972,7 +972,7 @@ function loadOtherDx(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participa
 	$results = customQuery($sql, __FILE__, __LINE__);
 	while($row = $results->fetch_assoc()){
 		$unsupported_procure_chuq_icd10_code = $row['procure_chuq_icd10_code'];
-		$new_procure_chuq_icd10_code = $unsupported_procure_chuq_icd10_code.'0';
+		$new_procure_chuq_icd10_code = $unsupported_procure_chuq_icd10_code.'9';
 		$sql = "SELECT id FROM coding_icd10_who WHERE id = '$new_procure_chuq_icd10_code'";
 		$results_2 = customQuery($sql, __FILE__, __LINE__);
 		if($results_2->num_rows) {
@@ -1085,6 +1085,10 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 							$period = getPermissibleCustomValue($new_line_data['Periode'], $periods, $period_control_id);
 							$tx_protocol = getPermissibleCustomValue($new_line_data['Protocole'], $tx_protocols, $tx_protocol_control_id);
 						 	$drug_ids = array();
+						 	if($new_line_data['Med'] == 'HORMONO ADJUVANTE DE COURTE DURÉE ET CONCOMITANTE AVEC RADIO') {
+						 		$treatment_notes = 'HORMONO ADJUVANTE DE COURTE DURÉE ET CONCOMITANTE AVEC RADIO. '.$treatment_notes;
+						 		$new_line_data['Med'] = '';
+						 	}
 							if(preg_match('/^((LHRH)|(MDV))\-/', $new_line_data['Med'])) {
 								$drug_ids[] = getDrugId($new_line_data['Med'], 'hormonotherapy', $drugs);					
 							} else {
