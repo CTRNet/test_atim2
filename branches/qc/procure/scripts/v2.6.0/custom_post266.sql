@@ -225,55 +225,30 @@ WHERE datamart_structure_id IN (
 	WHERE model IN ('Participant'))
 AND label IN ('edit');
 
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Slide to block creation : inactivate
+-- Block to block activated
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(9);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(48);
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Inactivate link collection to consent, treatment and event into databrowser
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster', 'TreatmentMaster', 'EventMaster'))
+AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection'));
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster', 'TreatmentMaster', 'EventMaster'))
+AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection'));
+
+		
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-UPDATE versions SET branch_build_number = '6189' WHERE version_number = '2.6.4';
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE versions SET branch_build_number = '6301' WHERE version_number = '2.6.4';
