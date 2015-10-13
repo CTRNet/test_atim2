@@ -246,9 +246,19 @@ SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
 WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster', 'TreatmentMaster', 'EventMaster'))
 AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection'));
 
-		
+-- ------------------------------------------------------------------------------------------------------------------------------------------
+-- See blood in tree view
+-- ------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type') AND `flag_confidential`='0');
 
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Set tissue patho report number to confidential
+-- ----------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_fields SET flag_confidential = 1 WHERE `field` LIKE 'procure_report_number';
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6301' WHERE version_number = '2.6.4';
