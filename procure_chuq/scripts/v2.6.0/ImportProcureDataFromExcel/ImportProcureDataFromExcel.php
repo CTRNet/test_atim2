@@ -113,8 +113,6 @@ PROCURE - Data Migration to ATiM<br>
 $import_date<br>
 =====================================================================</FONT><br>";
 
-echo "<br><FONT COLOR=\"red\" ><b>Check all dates in excel have been formated to date format 2000-00-00 (including treatment worksheet)</b></FONT><br><br>";
-
 //TODO
 truncate();
 
@@ -418,6 +416,31 @@ FROM participants Participant
 INNER JOIN collections Collection ON Collection.participant_id = Participant.id AND Collection.deleted <> 1
 INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1
 WHERE Participant.deleted <> 1 AND AliquotMaster.barcode NOT REGEXP CONCAT('^', Participant.participant_identifier, '\ ', Collection.procure_visit, '\ ');";
+
+echo "<br><br><FONT COLOR=\"red\" >
+=====================================================================<br>
+TODO AFTER MIGRATION BY ADMMINISTRATOR<br>
+=====================================================================</FONT><br>";
+
+echo "<br><FONT COLOR=\"red\" ><b>Check all dates in excel have been formated to date format 2000-00-00 (including treatment worksheet)</b></FONT><br>";
+
+echo "<br><FONT COLOR=\"red\" ><b>UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (current_volume*concentration/1000000)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND current_volume NOT LIKE '' AND current_volume IS NOT NULL
+AND concentration_unit = 'pg/ul';</b></FONT><br>";
+
+echo "<br><FONT COLOR=\"red\" ><b>UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (current_volume*concentration/1000)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND current_volume NOT LIKE '' AND current_volume IS NOT NULL
+AND concentration_unit = 'ng/ul';</b></FONT><br>";
+
+echo "<br><FONT COLOR=\"red\" ><b>UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (current_volume*concentration)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND current_volume NOT LIKE '' AND current_volume IS NOT NULL
+AND concentration_unit = 'ug/ul';</b></FONT><br>";
 
 dislayErrorAndMessage($import_summary);
 

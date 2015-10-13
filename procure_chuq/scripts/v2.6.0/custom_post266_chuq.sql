@@ -171,30 +171,19 @@ VALUES
 ('tech. patho', '', '',  '1', @control_id, NOW(), NOW(), 1, 1);
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Display aliquot label for paraffin block (to keep patho number)
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structures(`alias`) VALUES ('procure_chuq_aliquot_label');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'input',  NULL , '1', '', '', '', 'aliquot label', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_chuq_aliquot_label'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '301', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET flag_confidential = 1 WHERE `field` LIKE 'aliquot_label';
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_chuq_aliquot_label') WHERE detail_form_alias = 'ad_spec_tiss_blocks';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET trunk_build_number = '6287', site_branch_build_number = '6302' WHERE version_number = '2.6.6';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE versions SET trunk_build_number = '6287', site_branch_build_number = '6308' WHERE version_number = '2.6.6';

@@ -1113,11 +1113,13 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 			if(empty($patho_nbr_from_participant_file)) {
 				$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['No Patho Number for paraffin block'][] = "The pathology number is not defined into the patient excel file to create paraffin block of the patient '$participant_identifier'. No block will be created. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";
 			} else {
+				$par_counter = 0;
 				foreach(array('bloc tumoral 1', 'bloc tumoral 2', 'bloc normal 1', 'bloc normal 2') as $block_key) {
 					if($new_blocks_set[$block_key]) {
 						if(!preg_match('/^[A-Z]+[0-9]+$/', $new_blocks_set[$block_key])) {
 							$import_summary['Inventory - Tissue (V01)']['@@ERROR@@']['Bloc Tumoral Value Not Suported'][] = "The format of the $block_key value (".$new_blocks_set[$block_key].") is not supported. The block won't be created. Please confrim. See patient '$participant_identifier'. [<b>".$psp_nbr_to_paraffin_blocks_data['file_name']."</b>, line <b>".$new_blocks_set['excel_line']."</b>]";
 						} else {
+							$par_counter++;
 							$block_created = true;
 							//Create aliquot
 							$aliquot_data = array(
@@ -1125,7 +1127,8 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_froze
 									'collection_id' => $collection_id,
 									'sample_master_id' => $sample_master_id,
 									'aliquot_control_id' => $tissue_sample_controls['aliquots']['block']['aliquot_control_id'],
-									'barcode' => "$patho_nbr_from_participant_file-".$new_blocks_set[$block_key],
+									'barcode' => "$participant_identifier V01 -PAR".$par_counter,
+									'aliquot_label' => "$patho_nbr_from_participant_file-".$new_blocks_set[$block_key],
 									'in_stock' => 'yes - available'),
 								'AliquotDetail' => array(
 									'block_type' => 'paraffin',
@@ -1539,7 +1542,7 @@ function getStorageMasterId($participant_identifier, $excel_storage_label, $samp
 				case 'rna':
 					if(preg_match('/^(R[0-9]+)[\-]{0,1}(B[0-9]+)$/',$excel_storage_label, $matches)) {
 						$rack_label = $matches[1];
-						$box_label = $matches[2];
+						$box_label = $matches[1].$matches[2];
 					} else {
 						$import_summary[$data_type]['@@ERROR@@']["Unable to extract both rack and box labels"][] = "Unable to extract the rack and box labels for $sample_type box with value '$excel_storage_label'. Box label will be set to '$excel_storage_label' and no rack will be created. See patient $participant_identifier. [file <b>$file_name</b> (<b>$worksheet</b>) - line: <b>$line_counter</b>]";
 						$box_label = $excel_storage_label;
