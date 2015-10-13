@@ -314,17 +314,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
-('data to apply to all','Data to Apply to All','Données à appliquer à l''ensemble');
-
-
-
-
-
-
-
-
-
-
+('data to apply to all','Data to Apply to All','Données à appliquer à l''ensemble'),
+('at least one data has to be created','At least one data has to be created','Au moins une donnée doit être crée');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
@@ -332,4 +323,4 @@ VALUES
 
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.6', NOW(),'???','n/a');
+VALUES('2.6.6', NOW(),'6304','n/a');
