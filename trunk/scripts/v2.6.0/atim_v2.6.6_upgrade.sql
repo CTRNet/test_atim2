@@ -52,14 +52,14 @@ VALUES
 
 SET @flag_Active = (SELECT flag_active FROM datamart_structure_functions WHERE label = 'create uses/events (aliquot specific)');
 UPDATE datamart_structure_functions SET flag_active = @flag_Active WHERE label = 'create use/event (applied to all)';
-INSERT INTO structures(`alias`) VALUES ('aliq_in_stock_details_for_use_in_batch_process');
+INSERT INTO structures(`alias`) VALUES ('aliq_in_stock_details_to_use_in_batch_process');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='aliq_in_stock_details_for_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='in_stock' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='aliquot_in_stock_help' AND `language_label`='aliquot in stock' AND `language_tag`='new value'), '1', '400', 'aliquots data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='aliq_in_stock_details_for_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail')  AND `flag_confidential`='0'), '1', '500', '', '0', '0', '', '1', 'new value', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='aliq_in_stock_details_for_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_in_stock_detail' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='or delete data'), '1', '501', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='aliq_in_stock_details_for_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '701', '', '0', '0', '', '1', 'new storage selection label', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='aliq_in_stock_details_for_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_from_storage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '702', '', '0', '0', '', '1', 'or remove', '0', '', '1', 'checkbox', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
-UPDATE structure_formats SET `flag_add`='1', `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliq_in_stock_details_for_use_in_batch_process');
+((SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='in_stock' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='aliquot_in_stock_help' AND `language_label`='aliquot in stock' AND `language_tag`='new value'), '1', '400', 'aliquots data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail')  AND `flag_confidential`='0'), '1', '500', '', '0', '0', '', '1', 'new value', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_in_stock_detail' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='or delete data'), '1', '501', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '701', '', '0', '0', '', '1', 'new storage selection label', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_from_storage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '702', '', '0', '0', '', '1', 'or remove', '0', '', '1', 'checkbox', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process');
 INSERT INTO i18n (id,en,fr) VALUES ('aliquots data','Aliquots Data', 'Données des aliquots');
 
 UPDATE structure_fields SET language_tag = 'or erase data' WHERE language_tag = 'or delete data' AND field LIKE 'remove_%';
@@ -290,22 +290,31 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
                       "Vous n'êtes pas authorisé à ouvrir le fichier (%1$s)"),
 ('open the file', 'open the file', 'ouvrir le fichier');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- File Upload...
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='in_stock' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliq_in_stock_details_to_use_in_batch_process'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_from_storage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '702', '', '0', '1', 'storage', '0', '', '0', '', '1', 'checkbox', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('fields values of the section below will be applied to all other sections if entered and will replace sections fields values',
+'Fields values of the section below will be applied to all other sections if entered (Will replace following sections fields values)!',
+'Les valeurs des champs de la section ci-dessous seront appliquées à toutes les autres sections si saisies (Remplaceront les valeurs des champs des sections suivantes)!'),
+('fields values of the first section have been applied to all other sections',
+'Fields values of the first section have been applied to all other sections!',
+'Les valeurs des champs de la première section ont été appliquées à toutes les autres sections!');
+UPDATE structures SET alias='batch_process_aliq_storage_and_in_stock_details' WHERE alias='aliq_in_stock_details_to_use_in_batch_process';
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='batch_process_aliq_storage_and_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `field`='remove_in_stock_detail');
+UPDATE structure_formats SET `flag_edit`='0' WHERE language_heading = 'aliquots data' AND structure_id=(SELECT id FROM structures WHERE alias='batch_process_aliq_storage_and_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='in_stock' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='batch_process_aliq_storage_and_in_stock_details'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='in_stock' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='aliquot_in_stock_help' AND `language_label`='aliquot in stock' AND `language_tag`='new value'), '1', '400', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('data to apply to all','Data to Apply to All','Données à appliquer à l''ensemble');
 
 
 
