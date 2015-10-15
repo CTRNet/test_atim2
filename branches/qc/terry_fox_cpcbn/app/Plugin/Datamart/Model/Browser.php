@@ -619,6 +619,7 @@ class Browser extends DatamartAppModel {
 				}
 				if(is_array($cell)){
 					$cell_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['model'], true);
+					if($cell_model->table == 'tma_slides') AppController::addWarningMsg(__('links between storage and tma slides are limited to tma blocks and slides created from these blocks - different than slide storage'));					
 					$class = '';
 					if($cell['active']){
 						$class .= " active ";
@@ -1127,7 +1128,7 @@ class Browser extends DatamartAppModel {
 		if($node[self::SUB_MODEL_ID]){
 		    $conditions[$model->name.".".$model->getControlForeign()] = $node[self::SUB_MODEL_ID];
 		}
-		array_unshift($fields, 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS '.$node[self::MODEL]->name);
+		array_unshift($fields, 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS `'.$node[self::MODEL]->name.'`');
 		$conditions[$model->name.".".$node[self::USE_KEY]] = $primary_node_ids;
 		$this->search_parameters = array(
 			'fields'		=> $fields,

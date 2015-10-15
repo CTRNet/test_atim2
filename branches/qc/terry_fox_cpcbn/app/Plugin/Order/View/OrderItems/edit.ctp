@@ -2,7 +2,7 @@
 
 	$structure_links = array(
 		'top'=>'/Order/OrderItems/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
-		'bottom'=>array('cancel'=>'/Order/OrderLines/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/')
+		'bottom'=>array('cancel'=>empty($atim_menu_variables['OrderLine.id'])? '/Order/Orders/detail/'.$atim_menu_variables['Order.id'].'/' : '/Order/OrderLines/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/')
 	);
 	
 	$final_atim_structure = $atim_structure; 

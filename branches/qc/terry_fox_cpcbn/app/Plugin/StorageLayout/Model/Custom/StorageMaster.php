@@ -43,6 +43,10 @@ class StorageMasterCustom extends StorageMaster{
 			return empty($aliquot_data['ViewAliquot']['participant_identifier'])?
 				$aliquot_data['ViewAliquot']['aliquot_label'] :
 				'p#'.$aliquot_data['ViewAliquot']['participant_identifier'].' ['.$aliquot_data['ViewAliquot']['aliquot_label'].']';
+		} else if(($type_key == 'TmaSlide')) {
+			$TmaSlideModel = AppModel::getInstance('StorageLayout', 'TmaSlide', true);
+			$tma_data = $TmaSlideModel->find('first', array('conditions' => array('TmaSlide.id' => $children_array['TmaSlide']['id'])));
+			return $tma_data['Block']['short_label'].'-'.$tma_data['TmaSlide']['qc_tf_cpcbn_section_id'];
 		}
 		return $children_array[$type_key][$label_key];
 	}
