@@ -981,6 +981,26 @@ function initActions(){
 		setTimeout(cookieWatch, 4000);//4 seconds error margin
 	}
 	
+        function initFileOptions(scope) {
+            $(scope).find("input.fileOption[value=replace]").each(function() {
+                // $(this).next("input") is not working, so using next().next()
+                $(this).data("browse-html", $(this).next().next()[0].outerHTML);
+                $(this).next().next().remove();
+                $(this).data("replace-html", $(this).next()[0].outerHTML);
+            });
+            $(scope).find("input.fileOption").click(function(event) {
+                if ($(this).val() == 'replace') {
+                    $(this).next().remove();
+                    $(this).after($(this).data("browse-html"));
+                }
+                else {
+                    $(this).parent().find("input.fileOption[value=replace]").each(function() {
+                        $(this).next().remove();
+                        $(this).after($(this).data("replace-html"));
+                    });
+                }
+            });
+        }
 	
 	function initJsControls(){
 		if(history.replaceState){
@@ -1112,6 +1132,7 @@ function initActions(){
 		
 		initCheckAll(document);
 		initCheckboxes(document);
+                initFileOptions(document);
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){

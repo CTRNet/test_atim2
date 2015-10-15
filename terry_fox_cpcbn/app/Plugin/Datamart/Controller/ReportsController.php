@@ -271,7 +271,7 @@ class ReportsController extends DatamartAppController {
 			// Set criteria to build report/csv
 			$criteria_to_build_report = null;
 			$criteria_to_sort_report = array();
-			if($csv_creation) {			
+			if($csv_creation) {		
 				if(array_key_exists('Config', $this->request->data)) {
 					$config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data)? $this->request->data[0] : array()));
 					unset($this->request->data[0]);
@@ -281,15 +281,13 @@ class ReportsController extends DatamartAppController {
 				// Get criteria from session data for csv 
 				$criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
 				$criteria_to_sort_report = isset($_SESSION['report'][$report_id]['sort_criteria'])? $_SESSION['report'][$report_id]['sort_criteria'] : array();
-				if($LinkedModel) {
-					// Take care about selected items
-					if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
-						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-					}
+				if($LinkedModel && isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
+					// Take care about selected items (the number of records did not reach the limit of items that could be displayed)
 					$ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
-					if(empty($ids)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-					$criteria_to_build_report['SelectedItemsForCsv'][$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
-				}		
+					if(!empty($ids)) {
+						$criteria_to_build_report['SelectedItemsForCsv'][$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
+					}
+				}
 			} else if(array_key_exists('sort', $this->passedArgs)) {
 				// Data sort: Get criteria from session data
 				$criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
@@ -300,26 +298,28 @@ class ReportsController extends DatamartAppController {
 				$criteria_to_build_report = empty($this->request->data)? array() : $this->request->data;
 				// Manage data from csv file			
 				foreach($criteria_to_build_report as $model => $fields_parameters) {
-					foreach($fields_parameters as $field => $parameters) {
-						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
-							$matched_field_name = $matches[1];
-							if(!isset($criteria_to_build_report[$model][$matched_field_name])) $criteria_to_build_report[$model][$matched_field_name] = array();
-							if(strlen($parameters['tmp_name'])) {
-								if(!preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
-									$this->redirect('/Pages/err_submitted_file_extension', null, true);
-								} else {
-									$handle = fopen($parameters['tmp_name'], "r");
-									if($handle) {
-										while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-											$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
-										}
-										fclose($handle);
+					if(!($model == 'exact_search' && !is_array($fields_parameters))) {
+						foreach($fields_parameters as $field => $parameters) {
+							if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
+								$matched_field_name = $matches[1];
+								if(!isset($criteria_to_build_report[$model][$matched_field_name])) $criteria_to_build_report[$model][$matched_field_name] = array();
+								if(strlen($parameters['tmp_name'])) {
+									if(!preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
+										$this->redirect('/Pages/err_submitted_file_extension', null, true);
 									} else {
-										$this->redirect('/Pages/err_opening_submitted_file', null, true);
+										$handle = fopen($parameters['tmp_name'], "r");
+										if($handle) {
+											while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+												$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+											}
+											fclose($handle);
+										} else {
+											$this->redirect('/Pages/err_opening_submitted_file', null, true);
+										}
 									}
 								}
+								unset($criteria_to_build_report[$model][$field]);
 							}
-							unset($criteria_to_build_report[$model][$field]);
 						}
 					}
 				}	
@@ -374,14 +374,14 @@ class ReportsController extends DatamartAppController {
 				$this->set('csv_creation', false);
 				$this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
 			
-			} else if(sizeof($data_returned_by_fct['data']) > Configure::read('databrowser_and_report_results_display_limit')) {
+			} else if(sizeof($data_returned_by_fct['data']) > Configure::read('databrowser_and_report_results_display_limit') && !$csv_creation) {
 				// Too many results
 				$this->request->data = array();
 				$this->Structures->set('empty', 'result_form_structure');
 				$this->set('result_form_type', 'index');
 				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function'])? false:true);
 				$this->set('csv_creation', false);			
-				$this->Report->validationErrors[][] = 'the report contains too many results - please redefine search criteria';
+				$this->Report->validationErrors[][] = __('the report contains too many results - please redefine search criteria').' ['.sizeof($data_returned_by_fct['data']).' '.__('lines').']';
 				
 			} else {
 				// Set data for display/csv		
@@ -1110,14 +1110,15 @@ class ReportsController extends DatamartAppController {
 		}
 		
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
-		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));		
-		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
-			return array(
-					'header' => null,
-					'data' => null,
-					'columns_names' => null,
-					'error_msg' => 'the report contains too many results - please redefine search criteria');
-		}
+// *** NOTE: It's user choice to display report in csv whatever the number of records ***
+//		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));	
+// 		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+// 			return array(
+// 					'header' => null,
+// 					'data' => null,
+// 					'columns_names' => null,
+// 					'error_msg' => 'the report contains too many results - please redefine search criteria');
+// 		}
 		$misc_identifiers = $misc_identifier_model->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
 		$data = array();
 		foreach($misc_identifiers as $new_ident){
@@ -1170,12 +1171,13 @@ class ReportsController extends DatamartAppController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count =  $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+// *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
 		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
 				'columns_names' => null,
-				'error_msg' => 'the report contains too many results - please redefine search criteria');
+				'error_msg' => __('the report contains too many results - please redefine search criteria')." [> $tmp_res_count ".__('lines').']');
 		}
 		$studied_samples = $sample_master_model->find('all', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
 		$res = array();
@@ -1236,12 +1238,13 @@ class ReportsController extends DatamartAppController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count = $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+// *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
 		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
 					'columns_names' => null,
-					'error_msg' => 'the report contains too many results - please redefine search criteria');
+					'error_msg' => __('the report contains too many results - please redefine search criteria')." [> $tmp_res_count ".__('lines').']');
 		}
 		$studied_samples = $sample_master_model->find('all', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
 		$res = array();
@@ -1285,12 +1288,13 @@ class ReportsController extends DatamartAppController {
 		$storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 		// Build Res
 		$tmp_res_count = $storage_master_model->find('count', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
+// *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
 		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
 					'columns_names' => null,
-					'error_msg' => 'the report contains too many results - please redefine search criteria');
+					'error_msg' => __('the report contains too many results - please redefine search criteria')." [> $tmp_res_count ".__('lines').']');
 		}
 		$studied_storages = $storage_master_model->find('all', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
 		$res = array();
@@ -1343,12 +1347,13 @@ class ReportsController extends DatamartAppController {
 					'foreignKey'    => 'participant_id'))), false);
 		$diagnosis_master_model->unbindModel(array('hasMany' => array('Collection')), false);
 		$tmp_res_count = $diagnosis_master_model->find('count', array('conditions' => $conditions, 'fields' => array('DISTINCT primary_id'), 'recursive' => '0'));
+// *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
 		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
 					'columns_names' => null,
-					'error_msg' => 'the report contains too many results - please redefine search criteria');
+					'error_msg' => __('the report contains too many results - please redefine search criteria')." [> $tmp_res_count ".__('lines').']');
 		}
 		$tmp_primary_ids = $diagnosis_master_model->find('all', array('conditions' => $conditions, 'fields' => array('DISTINCT primary_id'), 'recursive' => '0'));
 		$primary_ids = array();
@@ -1432,13 +1437,14 @@ class ReportsController extends DatamartAppController {
 		
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$data = $participant_model->tryCatchQuery($query);
-		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
-			return array(
-					'header' => null,
-					'data' => null,
-					'columns_names' => null,
-					'error_msg' => 'the report contains too many results - please redefine search criteria');
-		}
+// *** NOTE: It's user choice to display report in csv whatever the number of records ***		
+// 		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
+// 			return array(
+// 					'header' => null,
+// 					'data' => null,
+// 					'columns_names' => null,
+// 					'error_msg' => 'the report contains too many results - please redefine search criteria');
+// 		}
 		foreach($data as &$new_row) $new_row['Generated'] = $new_row['0'];
 		return array(
 			'header' => $header,
