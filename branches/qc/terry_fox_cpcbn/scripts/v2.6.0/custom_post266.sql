@@ -147,7 +147,7 @@ VALUES
 ('approval/review','Approval/Review'),
 ('sc initial review','Study Committee Initial review'), 	
 ('opt tma image review','Date of Opt-TMA Image Review'), 	
-('sc review of test array series data','Date of Study Committee Teview of Test-Array Series Data'), 	
+('sc review of test array series data','Date of Study Committee Review of Test-Array Series Data'), 	
 ('sc review of whole rp tma series data','Date of Study Committee Review of Whole RP TMA Series Data'), 	
 ('sc review of rt tma access','Date of Study Committee Review for RT-TMA Access'), 	
 ('sc approval to access profiling data','Date of Study Committee Approval to Access Profiling Data'), 	
@@ -160,6 +160,23 @@ VALUES
 ('erb documents','ERB Documents'),
 ('mta documents','MTA Documents'),
 ('publications','Publications');
+
+ALTER TABLE study_summaries
+  ADD COLUMN qc_tf_cpcbn_publication_details TEXT;
+ALTER TABLE study_summaries_revs
+  ADD COLUMN qc_tf_cpcbn_publication_details TEXT;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_cpcbn_publication_details', 'textarea',  NULL , '0', '', '', '', 'publications details', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_cpcbn_publication_details' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='publications details' AND `language_tag`=''), '2', '304', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('publications details','Publications Details');
+
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv_search_structure_alias`, `display_name`, `control_master_model`, `index_link`, `batch_edit_link`) VALUES
+(null, 'Study', 'StudySummary', (SELECT id FROM structures WHERE alias='studysummaries'), NULL, 'study', '', '/Study/StudySummaries/detail/%%StudySummary.id%%/', '');
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'TmaSlide'), (SELECT id FROM datamart_structures WHERE model='StudySummary'), 1, 1, 'study_summary_id');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TMA Slide
