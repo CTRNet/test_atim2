@@ -437,3 +437,57 @@ DELETE FROM sample_masters_revs WHERE sample_control_id =  @xenograft_tissue_sam
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6271' WHERE version_number = '2.6.4';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 2015-10-16 .....
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Change xeno-dna to dna // xeno-rna to rna
+
+SELECT DISTINCT ParentSampleControl.sample_type AS parent, ChildSampleControl.sample_type AS child
+FROM sample_masters AS ParentSampleMaster INNER JOIN sample_controls ParentSampleControl ON ParentSampleControl.id = ParentSampleMaster.sample_control_id
+INNER JOIN sample_masters AS ChildSampleMaster ON ChildSampleMaster.parent_id = ParentSampleMaster.id INNER JOIN sample_controls ChildSampleControl ON ChildSampleControl.id = ChildSampleMaster.sample_control_id
+WHERE ChildSampleControl.sample_type LIKE 'xeno-%';
+
+SET @xeno_dna_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'xeno-dna');
+SET @dna_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'dna');
+SET @xeno_dna_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xeno_dna_sample_control_id AND aliquot_type = 'tube');
+SET @dna_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @dna_sample_control_id AND aliquot_type = 'tube');
+UPDATE sample_masters SET sample_control_id = @dna_sample_control_id WHERE sample_control_id = @xeno_dna_sample_control_id;
+UPDATE sample_masters_revs SET sample_control_id = @dna_sample_control_id WHERE sample_control_id = @xeno_dna_sample_control_id;
+INSERT INTO sd_der_dnas (sample_master_id) (SELECT sample_master_id FROM sd_xeno_dnas);
+DELETE FROM sd_xeno_dnas;
+INSERT INTO sd_der_dnas_revs (sample_master_id, version_created) (SELECT sample_master_id, version_created FROM sd_xeno_dnas_revs ORDER BY version_id ASC);
+DELETE FROM sd_xeno_dnas_revs;
+UPDATE aliquot_masters SET aliquot_control_id =  @dna_tube_aliquot_control_id WHERE aliquot_control_id =  @xeno_dna_tube_aliquot_control_id;
+UPDATE aliquot_masters_revs SET aliquot_control_id =  @dna_tube_aliquot_control_id WHERE aliquot_control_id =  @xeno_dna_tube_aliquot_control_id;
+
+SET @xeno_rna_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'xeno-rna');
+SET @rna_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'rna');
+SET @xeno_rna_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @xeno_rna_sample_control_id AND aliquot_type = 'tube');
+SET @rna_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @rna_sample_control_id AND aliquot_type = 'tube');
+UPDATE sample_masters SET sample_control_id = @rna_sample_control_id WHERE sample_control_id = @xeno_rna_sample_control_id;
+UPDATE sample_masters_revs SET sample_control_id = @rna_sample_control_id WHERE sample_control_id = @xeno_rna_sample_control_id;
+INSERT INTO sd_der_rnas (sample_master_id) (SELECT sample_master_id FROM sd_xeno_rnas);
+DELETE FROM sd_xeno_rnas;
+INSERT INTO sd_der_rnas_revs (sample_master_id, version_created) (SELECT sample_master_id, version_created FROM sd_xeno_rnas_revs ORDER BY version_id ASC);
+DELETE FROM sd_xeno_rnas_revs;
+UPDATE aliquot_masters SET aliquot_control_id =  @rna_tube_aliquot_control_id WHERE aliquot_control_id =  @xeno_rna_tube_aliquot_control_id;
+UPDATE aliquot_masters_revs SET aliquot_control_id =  @rna_tube_aliquot_control_id WHERE aliquot_control_id =  @xeno_rna_tube_aliquot_control_id;
+
+-- Add tumore site to secondary display in diagnosis_tree_view
+
+INSERT INTO structures(`alias`) VALUES ('qc_lady_diagnosis_tree_view');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_diagnosis_tree_view'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_secondaries' AND `field`='qc_lady_tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- Add pdx identifier
+
+INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) VALUES
+('pdx', 1, 10, '', '', 0, 0, 1, 0, '', '');
+INSERT IGNORE (id,en,fr) VALUES ('pdx','PDX','PDX');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6313' WHERE version_number = '2.6.4';
