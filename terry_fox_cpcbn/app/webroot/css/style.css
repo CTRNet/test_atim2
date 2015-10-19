@@ -1211,6 +1211,7 @@ span.help {
 .icon16.storage, .icon16.storages, .icon16.form.plugin.storagelayout { background-position: -16px -32px; }
 .icon16.shipping, .icon16.shipments{ background-position: -16px -16px; }
 .icon16.specific{ background-position: -96px -48px; }
+.icon16.study { background-position: -96px -128px; }
 .icon16.submit{ background-position: -64px -16px; }
 .icon16.template { background-position: -32px -96px; }
 .icon16.thumbsdown { background-position: -96px -32px; }
