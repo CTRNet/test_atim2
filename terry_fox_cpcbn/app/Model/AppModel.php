@@ -122,8 +122,8 @@ class AppModel extends Model {
                             unlink($dir.'/'.$prev_data[$model_name][$field_name]);
                         }
                         $target_name = $this->getKeyIncrement('atim_internal_file', $target_name);
-                        array_push($move_files, ['tmpName' => $value['tmp_name'],
-                                                 'targetName' => $target_name]);
+                        array_push($move_files, array('tmpName' => $value['tmp_name'],
+                                                 'targetName' => $target_name));
                         $data[$model_name][$field_name] = $target_name;
                     }
                     else if (isset($value['option'])) {

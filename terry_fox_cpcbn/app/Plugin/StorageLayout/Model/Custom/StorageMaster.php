@@ -46,7 +46,7 @@ class StorageMasterCustom extends StorageMaster{
 		} else if(($type_key == 'TmaSlide')) {
 			$TmaSlideModel = AppModel::getInstance('StorageLayout', 'TmaSlide', true);
 			$tma_data = $TmaSlideModel->find('first', array('conditions' => array('TmaSlide.id' => $children_array['TmaSlide']['id'])));
-			return $tma_data['Block']['short_label'].'-'.$tma_data['TmaSlide']['qc_tf_cpcbn_section_id'];
+			return (($tma_data['Block']['qc_tf_tma_name'] == CONFIDENTIAL_MARKER)? $tma_data['Block']['short_label'] : $tma_data['Block']['qc_tf_tma_name']).'-'.$tma_data['TmaSlide']['qc_tf_cpcbn_section_id'];
 		}
 		return $children_array[$type_key][$label_key];
 	}
