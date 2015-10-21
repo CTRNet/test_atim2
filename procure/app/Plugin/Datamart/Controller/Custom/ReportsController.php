@@ -947,7 +947,7 @@ class ReportsControllerCustom extends ReportsController {
 			FROM participants Participant
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$participant_data = $participant_model->query($query);
-		if(sizeof($participant_data) > 4) {
+		if(sizeof($participant_data) > 10) {
 			return array(
 					'header' => null,
 					'data' => null,
