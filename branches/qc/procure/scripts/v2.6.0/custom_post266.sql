@@ -225,6 +225,12 @@ WHERE datamart_structure_id IN (
 	WHERE model IN ('Participant'))
 AND label IN ('edit');
 
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE datamart_structure_id IN (
+	SELECT id FROM datamart_structures 
+	WHERE model IN ('TmaSlide'))
+OR label IN ('create tma slide');
+																	
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- Slide to block creation : inactivate
 -- Block to block activated
@@ -259,6 +265,34 @@ UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM
 UPDATE structure_fields SET flag_confidential = 1 WHERE `field` LIKE 'procure_report_number';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Fix bug on procure_transferred_aliquots_details form : copy/past duplicated
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_addgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Remove TmaSlide from databrowser
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'))
+OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6319' WHERE version_number = '2.6.6';
