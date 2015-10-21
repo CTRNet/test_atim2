@@ -84,7 +84,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='aliquot concentration' AND `language_tag`=''), '0', '40', 'concentration - if applicable', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_concentration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en,fr) VALUES ('concentration - if applicable', '', '');
+INSERT INTO i18n (id,en,fr) VALUES ('concentration - if applicable', 'Concentration (If applicable)', 'Concentration (Si applicable)');
 ALTER TABLE quality_ctrls
   ADD COLUMN `procure_concentration` decimal(10,2) DEFAULT NULL,
   ADD COLUMN `procure_concentration_unit` varchar(20) DEFAULT NULL;
@@ -208,6 +208,76 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en,fr) VALUES ("no aliquot to test exists","No aliquot to test exists.","Aucun aliquot à tester existe.");
 
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- BATCH ACTIONS & REPORT
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions SET flag_active = 1
+WHERE datamart_structure_id IN (
+	SELECT id FROM datamart_structures 
+	WHERE model IN ('ConsentMaster',
+		'SpecimenReviewMaster',
+		'AliquotReviewMaster'))
+AND label IN ('number of elements per participant');
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE datamart_structure_id IN (
+	SELECT id FROM datamart_structures 
+	WHERE model IN ('Participant'))
+AND label IN ('edit');
+
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE datamart_structure_id IN (
+	SELECT id FROM datamart_structures 
+	WHERE model IN ('TmaSlide'))
+OR label IN ('create tma slide');
+																	
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Slide to block creation : inactivate
+-- Block to block activated
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(9);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(48);
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Inactivate link collection to consent, treatment and event into databrowser
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster', 'TreatmentMaster', 'EventMaster'))
+AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection'));
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster', 'TreatmentMaster', 'EventMaster'))
+AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection'));
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------
+-- See blood in tree view
+-- ------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type') AND `flag_confidential`='0');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Set tissue patho report number to confidential
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET flag_confidential = 1 WHERE `field` LIKE 'procure_report_number';
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Fix bug on procure_transferred_aliquots_details form : copy/past duplicated
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_addgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Remove TmaSlide from databrowser
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'))
+OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
 
 
 
@@ -223,10 +293,6 @@ INSERT INTO i18n (id,en,fr) VALUES ("no aliquot to test exists","No aliquot to t
 
 
 
+-- ----------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
+UPDATE versions SET branch_build_number = '6319' WHERE version_number = '2.6.6';

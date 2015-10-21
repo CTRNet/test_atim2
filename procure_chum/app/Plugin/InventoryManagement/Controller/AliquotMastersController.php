@@ -186,7 +186,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else {
 				// User don't work in batch mode and deleted all aliquot rows
 				if(empty($sample_master_id)){
-					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+					return;
 				}
 				$sample_master_ids = array($sample_master_id);
 			}
@@ -291,6 +292,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// 2- VALIDATE PROCESS
 			$errors = array();
 			$prev_data = $this->request->data;
+			if(empty($prev_data)) {
+				$this->flash(__("at least one data has to be created"), "javascript:history.back();", 5);
+				return;
+			}
 			$this->request->data = array();
 			$record_counter = 0;
 			foreach($prev_data as $sample_master_id => $created_aliquots){
@@ -643,6 +648,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	function addAliquotInternalUse($aliquot_master_id = null) {
 		//GET DATA
 		
+		$submited_request_data_empty = empty($this->request->data);	
+		
 		$initial_display = false;
 		$aliquot_ids = array();
 		$this->setUrlToCancel();
@@ -652,7 +659,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($aliquot_master_id != null){
 			// User is workning on a collection
 			$aliquot_ids = array($aliquot_master_id);
-			if(empty($this->request->data)) $initial_display = true;
+			if(empty($this->request->data) && $submited_request_data_empty) $initial_display = true;
 			
 		} else if(isset($this->request->data['ViewAliquot']['aliquot_master_id'])){
 			if($this->request->data['ViewAliquot']['aliquot_master_id'] == 'all' && isset($this->request->data['node'])) {
@@ -664,8 +671,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$initial_display = true;
 			
 		}else{
-			$aliquot_ids = array_keys($this->request->data);
-			
+			//Remove 'FunctionManagement' and 'AliquotMaster' to get aliquot master ids
+			$tmp_data = $this->request->data;
+			unset($tmp_data['FunctionManagement']);
+			unset($tmp_data['AliquotMaster']);
+			$aliquot_ids = array_keys($tmp_data);
 		}
 		
 		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $aliquot_ids)));
@@ -710,6 +720,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		$this->Structures->set('used_aliq_in_stock_details', "aliquots_structure");
 		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'aliquots_volume_structure');
+		$this->set('display_batch_process_aliq_storage_and_in_stock_details', (sizeof(array_filter($aliquot_ids)) > 1));
+		$this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
 		$this->Structures->set('aliquotinternaluses', 'aliquotinternaluses_structure');
 		$this->Structures->set('aliquotinternaluses_volume,aliquotinternaluses', 'aliquotinternaluses_volume_structure');
 		
@@ -729,11 +741,26 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			
 		} else {
+			// Parse First Section To Apply To All
+			list($used_aliquot_data_to_apply_to_all, $errors_on_first_section_to_apply_to_all) = $this->AliquotMaster->getAliquotDataStorageAndStockToApplyToAll($this->request->data);
+				
+			unset($this->request->data['FunctionManagement']);
+			unset($this->request->data['AliquotMaster']);
+			
 			$previous_data = $this->request->data;
 			$this->request->data = array();
 			
+			if(empty($previous_data)) {
+				$this->flash(__("at least one data has to be created"), "javascript:history.back();", 5);
+				return;
+			}
+
+			if($used_aliquot_data_to_apply_to_all) {
+				AppController::addWarningMsg(__('fields values of the first section have been applied to all other sections'));
+			}
+			
 			//validate
-			$errors = array();
+			$errors =  $errors_on_first_section_to_apply_to_all;
 			$aliquot_data_to_save = array();
 			$uses_to_save = array();
 			$line = 0;
@@ -746,6 +773,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$record_counter = 0;
 			foreach($previous_data as $key_aliquot_master_id => $data_unit){
 				$record_counter++;
+				
+				if($used_aliquot_data_to_apply_to_all) $data_unit = array_replace_recursive($data_unit, $used_aliquot_data_to_apply_to_all);
 				
 				if(!array_key_exists($key_aliquot_master_id, $sorted_aliquot_data)){
 					$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
@@ -1113,7 +1142,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 		$this->set('url_to_cancel', $url_to_cancel);
 		
-		$this->Structures->set(($aliquot_volume_unit? 'aliquotinternaluses_volume,' : '').'aliquotinternaluses,aliq_in_stock_details_for_use_in_batch_process');
+		$this->Structures->set(($aliquot_volume_unit? 'aliquotinternaluses_volume,' : '').'aliquotinternaluses,batch_process_aliq_storage_and_in_stock_details');
 	
 		//MANAGE DATA
 	
@@ -1686,7 +1715,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function realiquot($aliquot_id = null){
 		$initial_display = false;
-		$parent_aliquots_ids = array();
+		$parent_aliquots_ids = '';
 		if(empty($this->request->data)){ 
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
 			return;
@@ -1759,6 +1788,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		//AliquotMaster is used for parent save and child save. The parent detail might change from parent to parent.
 		//We need to manage writable fields
 		$this->Structures->set('used_aliq_in_stock_details', 'in_stock_detail', array('model_table_assoc' => array('AliquotDetail' => 'tmp_detail_table')));
+		$this->set('display_batch_process_aliq_storage_and_in_stock_details', (sizeof(array_filter(explode(',',$parent_aliquots_ids))) > 1));
+		$this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
 		$parent_no_vol_writable_fields = AppModel::$writable_fields;
 		AppModel::$writable_fields = array();
 		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail_volume', array('model_table_assoc' => array('AliquotDetail' => 'tmp_detail_table')));
@@ -1833,16 +1864,34 @@ class AliquotMastersController extends InventoryManagementAppController {
 			unset($this->request->data['Realiquoting']);
 			unset($this->request->data['url_to_cancel']);
 			
+			// Parse First Section To Apply To All
+			list($used_aliquot_data_to_apply_to_all, $errors_on_first_section_to_apply_to_all) = $this->AliquotMaster->getAliquotDataStorageAndStockToApplyToAll($this->request->data);
+			
+			unset($this->request->data['FunctionManagement']);
+			unset($this->request->data['AliquotMaster']);
+			
+			if(empty($this->request->data)) {
+				$this->flash(__("at least one data has to be created"), "javascript:history.back();", 5);
+				return;
+			}
+			
+			if($used_aliquot_data_to_apply_to_all) {
+				AppController::addWarningMsg(__('fields values of the first section have been applied to all other sections'));
+			}
+			
 			// 2- VALIDATE PROCESS
 		
-			$errors = array();
+			$errors = $errors_on_first_section_to_apply_to_all;
+			
 			$validated_data = array();
 			$record_counter = 0;
-			
+			$child_got_volume = false;
 			foreach($this->request->data as $parent_id => $parent_and_children) {
 				$record_counter++;
 				
 				//A- Validate parent aliquot data
+				
+				if($used_aliquot_data_to_apply_to_all) $parent_and_children = array_replace_recursive($parent_and_children, $used_aliquot_data_to_apply_to_all);
 				
 				$this->AliquotMaster->id = null;
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
@@ -1876,7 +1925,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//B- Validate new aliquot created + realiquoting data
 				
 				$new_aliquot_created = false;
-				$child_got_volume = false;
 				foreach($parent_and_children as $tmp_id => $child) {
 					
 					if(is_numeric($tmp_id)) {
@@ -2082,6 +2130,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function defineRealiquotedChildren($aliquot_master_id = null){
+		$used_aliquot_data_to_apply_to_all = array();
+		if(isset($this->request->data['FunctionManagement'])) {
+			$used_aliquot_data_to_apply_to_all['FunctionManagement'] = $this->request->data['FunctionManagement'];
+			$used_aliquot_data_to_apply_to_all['AliquotMaster'] = $this->request->data['AliquotMaster'];
+			unset($this->request->data['FunctionManagement']);
+			unset($this->request->data['AliquotMaster']);
+		}
+		
 		$initial_display = false;
 		$parent_aliquots_ids = array();
 		if(empty($this->request->data)){ 
@@ -2162,7 +2218,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
 		}
 		$this->Structures->set('empty', 'empty_structure');
-				
+		
+		$this->set('display_batch_process_aliq_storage_and_in_stock_details', (sizeof(array_filter(explode(",", $parent_aliquots_ids))) > 1));
+		$this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
+		
 		$this->setUrlToCancel();
 		
 		$hook_link = $this->hook('format');
@@ -2262,7 +2321,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		} else {
 			
 			// LAUNCH VALIDATE & SAVE PROCESSES
-
+			
+			// Parse First Section To Apply To All
+			list($used_aliquot_data_to_apply_to_all, $errors_on_first_section_to_apply_to_all) = $this->AliquotMaster->getAliquotDataStorageAndStockToApplyToAll($used_aliquot_data_to_apply_to_all);
+			
 			unset($this->request->data['sample_ctrl_id']);
 			unset($this->request->data['realiquot_into']);
 			unset($this->request->data['realiquot_from']);
@@ -2270,15 +2332,26 @@ class AliquotMastersController extends InventoryManagementAppController {
 			unset($this->request->data['Realiquoting']);
 			unset($this->request->data['url_to_cancel']);
 			
-			$errors = array();
+			if(empty($this->request->data)) {
+				$this->flash(__("at least one data has to be created"), "javascript:history.back();", 5);
+				return;
+			}
+				
+			if($used_aliquot_data_to_apply_to_all) {
+				AppController::addWarningMsg(__('fields values of the first section have been applied to all other sections'));
+			}
+			
+			$errors = $errors_on_first_section_to_apply_to_all;
 			$validated_data = array();
 			$record_counter = 0;
 			$relations = array();
-					
+			
 			foreach($this->request->data as $parent_id => $parent_and_children){
 				$record_counter++;
 				
 				//A- Validate parent aliquot data
+				
+				if($used_aliquot_data_to_apply_to_all) $parent_and_children = array_replace_recursive($parent_and_children, $used_aliquot_data_to_apply_to_all);
 				
 				$this->AliquotMaster->id = null; 
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
