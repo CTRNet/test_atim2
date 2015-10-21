@@ -446,6 +446,8 @@ Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// Quality
 Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
 Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
 
+Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add()
+
 /**
  * Set the allowed links that exists between an OrderItem and different Order plugin objects:
  * 		1 => link OrderItem to both Order and OrderLine (order line submodule available) 
@@ -454,6 +456,8 @@ Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipmen
  */
 Configure::write('order_item_to_order_objetcs_link_setting', 3);		// SampleMasters.batchDerivative()
 
+Configure::write('uploadDirectory', './atimUploadDirectory');
+
 unset($debug);
 
 /**
@@ -461,7 +465,7 @@ unset($debug);
  * 	- 1 to 4 for the 4 collections sites
  *  - p for the processing bank
  */
-Configure::write('procure_bank_id', 'p');
+Configure::write('procure_bank_id', '1');
 
 /**
  * PROCURE ATiM Version: 'procure_atim_version'
@@ -472,6 +476,6 @@ Configure::write('procure_bank_id', 'p');
  *      path review, shipping to research groups, etc.
  *    - CENTRAL: ATiM version that gathering all the data of ATiM install to help the head office in the project management. 
  */
-//Configure::write('procure_atim_version', 'BANK');
-Configure::write('procure_atim_version', 'PROCESSING');
+Configure::write('procure_atim_version', 'BANK');
+//Configure::write('procure_atim_version', 'PROCESSING');
 //Configure::write('procure_atim_version', 'CENTRAL');

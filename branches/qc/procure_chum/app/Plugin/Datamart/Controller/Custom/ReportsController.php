@@ -384,9 +384,9 @@ class ReportsControllerCustom extends ReportsController {
 			if($res['sample_controls']['sample_type'] == 'blood') $blood_detail_tablename = $res['sample_controls']['detail_tablename'];
 		}
 //*** PROCURE CHUM *****************************************************
-		$query = "SELECT id FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name = 'prostate bank no lab';";
-		$misc_identifier_control_id = null;
-		foreach($participant_model->query($query) as $res) $misc_identifier_control_id = $res['misc_identifier_controls']['id'];
+		$query = "SELECT id, misc_identifier_name FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name IN ('ramq nbr', 'prostate bank no lab');";
+		$misc_identifier_control_ids = null;
+		foreach($participant_model->query($query) as $res) $misc_identifier_control_ids[$res['misc_identifier_controls']['misc_identifier_name']] = $res['misc_identifier_controls']['id'];
 //*** END PROCURE CHUM *****************************************************
 		
 		$empty_form_array = array(
@@ -418,14 +418,19 @@ class ReportsControllerCustom extends ReportsController {
 			Participant.id,
 			Participant.participant_identifier,
 -- *** PROCURE CHUM *****************************************************
+			Participant.first_name,
+			Participant.last_name,
+			Participant.participant_identifier,
 			MiscIdentifier.identifier_value,
+			MiscIdentifierRamq.identifier_value AS qc_nd_ramq,
 -- *** END PROCURE CHUM *****************************************************
 			EventMaster.procure_form_identification,
 			EventMaster.event_date,
 			EventMaster.event_date_accuracy
 			FROM participants Participant
 -- *** PROCURE CHUM *****************************************************
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
+			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = ".$misc_identifier_control_ids['prostate bank no lab']."
+			LEFT JOIN misc_identifiers MiscIdentifierRamq ON MiscIdentifierRamq.participant_id = Participant.id AND MiscIdentifierRamq.deleted <> 1 AND MiscIdentifierRamq.misc_identifier_control_id = ".$misc_identifier_control_ids['ramq nbr']."		
 -- *** END PROCURE CHUM *****************************************************
 			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $followup_event_control_id AND EventMaster.deleted <> 1
 			LEFT JOIN $followup_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
@@ -438,7 +443,8 @@ class ReportsControllerCustom extends ReportsController {
 			if(!isset($data[$participant_id])) $data[$participant_id] = array(
 				'Participant' => $res['Participant'], 
 //*** PROCURE CHUM *****************************************************
-				'MiscIdentifier' => $res['MiscIdentifier'], 
+				'MiscIdentifier' => $res['MiscIdentifier'],
+				'Generated' => array_merge($res['MiscIdentifierRamq'], array('qc_nd_all_phone_numbers' => '')),
 //*** END PROCURE CHUM *****************************************************
 				'0' => $empty_form_array);
 			$procure_form_identification = $res['EventMaster']['procure_form_identification'];
@@ -468,6 +474,24 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		if($display_warning_1) AppController::addWarningMsg(__('at least one patient is linked to more than one followup worksheet for the same visit'));
 		if($display_warning_2) AppController::addWarningMsg(__('at least one procure form identification format is not supported'));
+		
+//*** PROCURE CHUM *****************************************************
+		//Get phone numbers
+		$query = "SELECT participant_id, GROUP_CONCAT(phone SEPARATOR '####') AS phone_1, GROUP_CONCAT(phone_secondary SEPARATOR '####') AS phone_2
+			FROM participant_contacts
+			WHERE relationship = 'the participant' 
+			AND (phone NOT LIKE '' OR phone_secondary NOT LIKE '') 
+			AND deleted <>1
+			AND participant_id IN (".implode(',',array_keys($data)).")
+			GROUP BY participant_id;";
+		foreach($participant_model->query($query) as $res) {
+			$participant_id = $res['participant_contacts']['participant_id'];
+			$participant_phones = array_filter(array_merge(explode('####',$res['0']['phone_1']), explode('####',$res['0']['phone_2'])));
+			if($participant_phones) {
+				$data[$participant_id]['Generated']['qc_nd_all_phone_numbers'] = implode(" & ",$participant_phones);
+			}
+		}
+//*** END PROCURE CHUM *****************************************************
 		
 		//Get medication
 		$query = "SELECT
@@ -1078,7 +1102,7 @@ class ReportsControllerCustom extends ReportsController {
 -- *** END PROCURE CHUM *****************************************************
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$participant_data = $participant_model->query($query);
-		if(sizeof($participant_data) > 4) {
+		if(sizeof($participant_data) > 10) {
 			return array(
 					'header' => null,
 					'data' => null,

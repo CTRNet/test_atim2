@@ -469,6 +469,7 @@ class OrderItemsController extends OrderAppController {
 		// MANAGE DATA
 		
 		if(!$order_line_id) {
+			if(!isset($order_id)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
 			$order_data = $this->Order->getOrRedirect($order_id);
 		} else {
 			$order_line_data = $this->OrderLine->getOrRedirect($order_line_id);
@@ -479,7 +480,9 @@ class OrderItemsController extends OrderAppController {
 		if($order_line_id) $criteria['OrderItem.order_line_id'] = $order_line_id;
 		$items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 
-		if(empty($items_data)) { $this->flash(__($order_line_id? 'no unshipped item exists into this order line' : 'no unshipped item exists into this order'), (!$order_line_id)? "/Order/Orders/detail/$order_id/" : '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); }
+		if(empty($items_data)) { 
+			$this->flash(__($order_line_id? 'no unshipped item exists into this order line' : 'no unshipped item exists into this order'), (!$order_line_id)? "/Order/Orders/detail/$order_id/" : '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); 
+		}
 
 		// Set array to get id from barcode
 		$order_item_id_by_barcode = array();
@@ -507,20 +510,20 @@ class OrderItemsController extends OrderAppController {
 			$submitted_data_validates = true;	
 			
 			$errors = array();	
+			$record_counter = 0;
 			foreach($this->request->data as $key => $new_studied_item){
+				$record_counter++;
+				// Get order item id
+				if(!isset($order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				$new_studied_item['OrderItem']['id'] = $order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']];
 				// Launch Order Item validation
 				$this->OrderItem->set($new_studied_item);
 				$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;
 				$new_studied_item = $this->OrderItem->data;
 				foreach($this->OrderItem->validationErrors as $field => $msgs) {
 					$msgs = is_array($msgs)? $msgs : array($msgs);
-					foreach($msgs as $msg) $errors['OrderItem'][$field][$msg]= '-';
+					foreach($msgs as $msg) $errors['OrderItem'][$field][$msg][]= $record_counter;
 				}
-				
-				// Get order item id
-				if(!isset($order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-				$new_studied_item['OrderItem']['id'] = $order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']];
-			
 				// Reset data
 				$this->request->data[$key] = $new_studied_item;				
 			}						
@@ -530,36 +533,37 @@ class OrderItemsController extends OrderAppController {
 				require($hook_link);
 			}
 		
-			if (!$submitted_data_validates) {
-				// Set error message
-				foreach($errors as $model => $field_messages) {
-					$this->{$model}->validationErrors = array();
-					foreach($field_messages as $field => $messages) {
-						foreach($messages as $message => $tmp) {
-							if(!array_key_exists($field, $this->{$model}->validationErrors)) {
-								$this->{$model}->validationErrors[$field][] = $message;
-							} else {
-								$this->{$model}->validationErrors[][] = $message;
-							}
-						}
-					}
-				}
-			} else {
+			if ($submitted_data_validates) {
 				// Launch save process
-				$hook_link = $this->hook('postsave_process');
 				foreach($this->request->data as $order_item){
 					// Save data
 					$this->OrderItem->id = $order_item['OrderItem']['id'];
-					if(!$this->OrderItem->save($order_item['OrderItem'], false)) { 
-						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					if(!$this->OrderItem->save($order_item['OrderItem'], false)) {
+						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
-					if( $hook_link ) { 
-						require($hook_link); 
-					}
+				}
+
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
 				}
 				
 				// Redirect
 				$this->atimFlash(__('your data has been saved'), $order_line_id? '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/' : '/Order/Orders/detail/'.$order_id);
+			} else {
+				// Set error message
+				foreach($errors as $model => $field_messages) {
+					$this->{$model}->validationErrors = array();
+					foreach($field_messages as $field => $messages) {
+						foreach($messages as $message => $lines_nbr) {
+							if(!array_key_exists($field, $this->{$model}->validationErrors)) {
+								$this->{$model}->validationErrors[$field][] = $message.' - ' . str_replace('%s', implode(',',$lines_nbr), __('see line %s'));
+							} else {
+								$this->{$model}->validationErrors[][] = $message.' - ' . str_replace('%s', implode(',',$lines_nbr), __('see line %s'));
+							}
+						}
+					}
+				}
 			}
 		}
 	}
