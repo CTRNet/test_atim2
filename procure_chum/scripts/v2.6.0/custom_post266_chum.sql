@@ -46,13 +46,24 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `display_order`='-5' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_followups_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='-4' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_followups_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- Change consent stop follow-up option
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_stop_followup", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES ("y","yes"),("n","no"),("y-pho.acc.","yes (but accept to be contacted)");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_stop_followup"), (SELECT id FROM structure_permissible_values WHERE value="n" AND language_alias="no"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_stop_followup"), (SELECT id FROM structure_permissible_values WHERE value="y" AND language_alias="yes"), "", "2"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_stop_followup"), (SELECT id FROM structure_permissible_values WHERE value="y-pho.acc."), "", "4");
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_stop_followup')  WHERE model='ConsentDetail' AND tablename='procure_cd_sigantures' AND field='qc_nd_stop_followup' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+("yes (but accept to be contacted)","Yes (But accept to be contacted)","Oui (Mais accepte d'être contacté"),
+('participant stopped the followup but accept to be contacted', 'Participant stopped the followup but accept to be contacted', 'Le participant a arrêté le suivi mais accepte d''être contacté');
 
-
-
-
-
-
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET site_branch_build_number = '62??' WHERE version_number = '2.6.5';
+UPDATE versions SET site_branch_build_number = '6223' WHERE version_number = '2.6.6';

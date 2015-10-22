@@ -43,6 +43,8 @@ class ParticipantCustom extends Participant {
 					AppController::addWarningMsg(__('participant does not allow followup'));
 				} else if($consent_data['ConsentDetail']['qc_nd_stop_followup'] == 'y') {
 					AppController::addWarningMsg(__('participant stopped the followup'));
+				} else if($consent_data['ConsentDetail']['qc_nd_stop_followup'] == 'y-pho.acc.') {
+					AppController::addWarningMsg(__('participant stopped the followup but accept to be contacted'));
 				}
 			} else {
 				AppController::addWarningMsg(__('no consent is linked to the current participant'));
