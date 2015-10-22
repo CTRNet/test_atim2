@@ -28,7 +28,7 @@ UPDATE structure_formats SET `flag_edit_readonly`='1', `flag_editgrid_readonly`=
 
 SELECT 'Check participant_identifier with the good procure_bank_id for each atim bank installation (Re-run all other checks on consent, aliquot, etc if you corrected data)' AS '### TODO ###';
 SELECT Participant.participant_identifier AS '### TODO ### : Wrong participant idenitifier format : to correct'
-FROM participants Participant WHERE Participant.participant_identifier NOT REGEXP '^PS[1-4]P[0-9]{4}$';
+FROM participants Participant WHERE Participant.participant_identifier NOT REGEXP '^PS[1-4]P[0-9]{4}$' AND Participant.deleted <> 1;
 
 -- Participant Identifier of the processing bank
 
