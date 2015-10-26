@@ -628,10 +628,12 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
 			if($is_specimen) { 
+				$this->SpecimenDetail->id = $sample_master_id;
 				$this->SpecimenDetail->set($this->request->data);
 				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false;
 				$this->request->data['SpecimenDetail'] = $this->SpecimenDetail->data['SpecimenDetail'];
 			}else{
+				$this->DerivativeDetail->id = $sample_master_id;
 				$this->DerivativeDetail->set($this->request->data);
 				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false;
 				$this->request->data['DerivativeDetail'] = $this->DerivativeDetail->data['DerivativeDetail'];
