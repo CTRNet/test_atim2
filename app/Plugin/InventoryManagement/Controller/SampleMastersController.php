@@ -628,12 +628,10 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
 			if($is_specimen) { 
-				$this->SpecimenDetail->id = $sample_master_id;
 				$this->SpecimenDetail->set($this->request->data);
 				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false;
 				$this->request->data['SpecimenDetail'] = $this->SpecimenDetail->data['SpecimenDetail'];
 			}else{
-				$this->DerivativeDetail->id = $sample_master_id;
 				$this->DerivativeDetail->set($this->request->data);
 				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false;
 				$this->request->data['DerivativeDetail'] = $this->DerivativeDetail->data['DerivativeDetail'];
@@ -664,12 +662,16 @@ class SampleMastersController extends InventoryManagementAppController {
 					if($is_specimen){
 						// SpecimenDetail
 						$this->SpecimenDetail->id = $sample_master_id;
+						$this->request->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
+						$this->SpecimenDetail->addWritableField(array('sample_master_id'));
 						if(!$this->SpecimenDetail->save($this->request->data['SpecimenDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 					} else {
 						// DerivativeDetail
 						$this->DerivativeDetail->id = $sample_master_id;
+						$this->request->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
+						$this->DerivativeDetail->addWritableField(array('sample_master_id'));
 						if(!$this->DerivativeDetail->save($this->request->data['DerivativeDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
