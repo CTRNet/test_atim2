@@ -52,7 +52,7 @@ class ShipmentsController extends OrderAppController {
 		}
 	}
 
-	function add( $order_id ) {
+	function add( $order_id, $copied_shipment_id = null ) {
 
 		// MANAGE DATA
 		
@@ -71,7 +71,17 @@ class ShipmentsController extends OrderAppController {
 			require($hook_link);
 		}
 		
-		if ( !empty($this->request->data) ) {
+		if ( empty($this->request->data) ) {
+			if($copied_shipment_id) {
+				$this->request->data = $this->Shipment->find('first', array('conditions' => array('Shipment.id' => $copied_shipment_id), 'recursive' => '-1'));
+			}
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+		} else {
+			
 			// Set order id
 			$this->request->data['Shipment']['order_id'] = $order_id;
 			
@@ -88,7 +98,7 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash(__('your data has been saved'),'/Order/Orders/detail/'.$order_id.'/' );
+				$this->atimFlash(__('your data has been saved'),'/Order/Shipments/addToShipment/'.$order_id.'/'.$this->Shipment->getLastInsertId() );
 			}
 		}	
 	}
@@ -199,7 +209,7 @@ class ShipmentsController extends OrderAppController {
 		$shipment_data = $this->Shipment->getOrRedirect($shipment_id);
 		
 		// Get available order items
-		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
+		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderItem.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
 		if(empty($available_order_items)) { 
 			$this->flash(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);  
 		}
@@ -208,7 +218,8 @@ class ShipmentsController extends OrderAppController {
 		
 		$this->set('atim_menu_variables', array('Order.id' => $order_id, 'Shipment.id' => $shipment_id));
 		
-		$this->Structures->set('shippeditems');		
+		$this->Structures->set('shippeditems');	
+		$this->Structures->set('shippeditems,orderitems_and_lines', 'atim_structure_with_order_lines');
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -217,17 +228,26 @@ class ShipmentsController extends OrderAppController {
 		
 		if(empty($this->request->data)){
 			$this->request->data = $this->formatDataForShippedItemsSelection($available_order_items);
-		
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		} else {	
 				
 			// Launch validation
 			$submitted_data_validates = true;
 			$data_to_save = array_filter($this->request->data['OrderItem']['id']);
 			
+			$aliquot_limit = Configure::read('AddAliquotToShipment_processed_items_limit');
 			if(empty($data_to_save)) { 
 				$this->OrderItem->validationErrors[] = 'no item has been defined as shipped';	
 				$submitted_data_validates = false;	
 				$this->request->data = $this->formatDataForShippedItemsSelection($available_order_items);
+			} else if(sizeof($data_to_save) > $aliquot_limit) {
+				$this->flash(__("batch init - number of submitted records too big")." (>$aliquot_limit)", '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id, 5);
+				return;
 			}
 			
 			$hook_link = $this->hook('presave_process');
@@ -241,7 +261,7 @@ class ShipmentsController extends OrderAppController {
 				
 				// Launch Save Process
 				$order_line_to_update = array();
-				
+
 				$available_order_items = AppController::defineArrayKey($available_order_items, 'OrderItem', 'id', true);
 				
 				foreach($data_to_save as $order_item_id){
@@ -289,10 +309,9 @@ class ShipmentsController extends OrderAppController {
 					
 					// 4- Set order line to update
 					$order_line_id = $order_item['OrderLine']['id'];
-					$order_line_to_update[$order_line_id] = $order_line_id;
+					if($order_line_id) $order_line_to_update[$order_line_id] = $order_line_id;
 				}
 				
-				$hook_link_line = $this->hook('postsave_process_line');
 				foreach($order_line_to_update as $order_line_id){
 					$items_counts = $this->OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status != "shipped"')));
 					if($items_counts == 0){
@@ -323,23 +342,33 @@ class ShipmentsController extends OrderAppController {
 	function formatDataForShippedItemsSelection($order_items){
 		$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
 		$aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
+		$data = array();
+		$name_to_id = array();
 		foreach($order_items as $order_item){
 			if(!isset($data[$order_item['OrderLine']['id']])){
-				$sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);
-				$name = __($sample_ctrl['SampleControl']['sample_type']);
-				if($order_item['OrderLine']['aliquot_control_id']){
-					$aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
-					$name .= ' - '.$aliquot_ctrl['AliquotControl']['aliquot_type'];
-				}
-				if($order_item['OrderLine']['sample_aliquot_precision']){
-					$name .= ' - '.$order_item['OrderLine']['sample_aliquot_precision'];
-				}
-				$data[$order_item['OrderLine']['id']] = array('name' => $name, 'data' => array());
+				$name = '';
+				if($order_item['OrderLine']['id']) {
+					$sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);
+					$name = __($sample_ctrl['SampleControl']['sample_type']);
+					if($order_item['OrderLine']['aliquot_control_id']){
+						$aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
+						$name .= ' - '.$aliquot_ctrl['AliquotControl']['aliquot_type'];
+					}
+					if($order_item['OrderLine']['sample_aliquot_precision']){
+						$name .= ' - '.$order_item['OrderLine']['sample_aliquot_precision'];
+					}
+				}				
+				$data[$order_item['OrderLine']['id']] = array('name' => $name, 'order_line_id' => $order_item['OrderLine']['id'], 'data' => array());
+				$name_to_id[$name][] = $order_item['OrderLine']['id'];
 			}
 			$data[$order_item['OrderLine']['id']]['data'][] = $order_item;
 		}
-		
-		return isset($data) ? $data : array();
+		//Sort array
+		$tmp_data = $data;
+		$data = array();
+		ksort($name_to_id);
+		foreach($name_to_id as $ids) foreach($ids as $id) $data[$id] = $tmp_data[$id];
+		return $data;
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
@@ -398,7 +427,7 @@ class ShipmentsController extends OrderAppController {
 			}
 			
 			// -> Update order line
-			if($remove_done) {			
+			if($remove_done && $order_line_id) {			
 				$order_line = array();
 				$order_line['OrderLine']['status'] = "pending";
 				$this->OrderLine->addWritableField(array('status'));

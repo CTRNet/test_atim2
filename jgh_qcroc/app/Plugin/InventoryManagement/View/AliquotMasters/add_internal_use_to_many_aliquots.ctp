@@ -1,7 +1,10 @@
 <?php 
 	
+	AppController::addInfoMsg(__('aliquots data'). ': '.__('all changes will be applied to the all'));
+	AppController::addInfoMsg(__('aliquots data'). ': '.__("keep the 'new value' field empty to not change data and use the 'erase/remove' checkbox to erase the data"));
+	
 	$structure_links = array(
-		'top' => '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/'.$storage_master_id,
+		'top' => '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/',
 		'bottom' => array('cancel' => $url_to_cancel)
 	);
 	

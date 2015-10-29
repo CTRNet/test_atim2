@@ -503,12 +503,12 @@ CREATE TABLE IF NOT EXISTS `qcroc_ar_tissue_slides` (
   `sample_pct_normal` decimal(5,1) DEFAULT NULL,
   `sample_pct_necrosis` decimal(5,1) DEFAULT NULL,
   `sample_pct_fibrosis` decimal(5,1) DEFAULT NULL,
-  `tumor_pct_tumor_cells` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_neoplasia` decimal(5,1) DEFAULT NULL,
   `tumor_pct_necrosis` decimal(5,1) DEFAULT NULL,
-  `tumor_pct_benign_cell_non_neoplastic` decimal(5,1) DEFAULT NULL,
-  `tumor_pct_stroma` decimal(5,1) DEFAULT NULL,
+  `tumor pct_fibrosis` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_benign_normal` decimal(5,1) DEFAULT NULL,
   `should_be_macrodissected` char(1) DEFAULT '',
-  `microdissection_lines` char(1) DEFAULT '',
+  `macrodissection_lines` char(1) DEFAULT '',
   KEY `FK_qcroc_ar_tissue_slides_aliquot_review_masters` (`aliquot_review_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `qcroc_ar_tissue_slides`
@@ -519,12 +519,12 @@ CREATE TABLE IF NOT EXISTS `qcroc_ar_tissue_slides_revs` (
   `sample_pct_normal` decimal(5,1) DEFAULT NULL,
   `sample_pct_necrosis` decimal(5,1) DEFAULT NULL,
   `sample_pct_fibrosis` decimal(5,1) DEFAULT NULL,
-  `tumor_pct_tumor_cells` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_neoplasia` decimal(5,1) DEFAULT NULL,
   `tumor_pct_necrosis` decimal(5,1) DEFAULT NULL,
-  `tumor_pct_benign_cell_non_neoplastic` decimal(5,1) DEFAULT NULL,
-  `tumor_pct_stroma` decimal(5,1) DEFAULT NULL,
+  `tumor pct_fibrosis` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_benign_normal` decimal(5,1) DEFAULT NULL,
   `should_be_macrodissected` char(1) DEFAULT '',
-  `microdissection_lines` char(1) DEFAULT '',
+  `macrodissection_lines` char(1) DEFAULT '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
@@ -555,32 +555,32 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'sample_pct_normal', 'float_positive',  NULL , '0', 'size=5', '', '', 'normal percentage', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'sample_pct_necrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'necrosis percentage', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'sample_pct_fibrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'fibrosis percentage', ''), 
-('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_tumor_cells', 'float_positive',  NULL , '0', 'size=5', '', '', 'tumor cells percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_neoplasia', 'float_positive',  NULL , '0', 'size=5', '', '', 'neoplasia percentage', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_necrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'necrosis percentage', ''), 
-('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_benign_cell_non_neoplastic', 'float_positive',  NULL , '0', 'size=5', '', '', 'benign cell non-neoplastic percentage', ''), 
-('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_stroma', 'float_positive',  NULL , '0', 'size=5', '', '', 'stroma percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor pct_fibrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'fibrosis percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_benign_normal', 'float_positive',  NULL , '0', 'size=5', '', '', 'benign normal percentage', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'should_be_macrodissected', 'yes_no',  NULL , '0', '', '', '', 'should_be_macrodissected', ''), 
-('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'microdissection_lines', 'yes_no',  NULL , '0', '', '', '', 'microdissection lines', '');
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'macrodissection_lines', 'yes_no',  NULL , '0', '', '', '', 'macrodissection lines', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_tumor'), '0', '10', 'sample', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_normal'), '0', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_necrosis'), '0', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_fibrosis'), '0', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_tumor_cells'), '0', '20', 'tumor', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_neoplasia'), '0', '20', 'tumor', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_necrosis'), '0', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_benign_cell_non_neoplastic' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='benign cell non-neoplastic percentage' AND `language_tag`=''), '0', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_stroma'), '0', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor pct_fibrosis' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='fibrosis percentage' AND `language_tag`=''), '0', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_benign_normal'), '0', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='should_be_macrodissected'), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='microdissection_lines'), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='macrodissection_lines'), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
 INSERT INTO i18n (id,en,fr)
 VALUES
 ('should_be_macrodissected','Should be Macrodissected', 'Doit être Macro-dissecté'), 
-('microdissection lines','Microdissection Lines','Lignes de microdissection'),        	
+('macrodissection lines','Macrodissection Lines','Lignes de macrodissection'),        	
 ('tumor percentage','T&#37;','T&#37;'),     	   	
 ('necrosis percentage','NEC&#37;','NEC&#37;'),     	
-('fibrosis percentage','FIB&#37;','FIB&#37;'),     	
-('tumor cells percentage','Tumor Cells &#37;','Cellules tumorales &#37;'),     	   	
-('benign cell non-neoplastic percentage','Benign Cell Non-Neoplastic &#37;','Cellules bénigne non-néoplasiques &#37;');    	
+('fibrosis percentage','FIB&#37;','FIB&#37;'),  
+('benign normal percentage','&#37; Benign/Normal ','&#37; Bénin/normal'),   	
+('neoplasia percentage','&#37; Neoplasia','&#37; Neoplasie');    	
 ALTER TABLE aliquot_review_masters
   ADD COLUMN qcroc_notes text;
 ALTER TABLE aliquot_review_masters_revs
@@ -939,4 +939,4 @@ UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qcro
 -- --------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '62xx' WHERE version_number = '2.6.4';
+UPDATE versions SET branch_build_number = '' WHERE version_number = '2.6.4';

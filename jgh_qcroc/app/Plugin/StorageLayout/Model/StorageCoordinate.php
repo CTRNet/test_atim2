@@ -23,7 +23,7 @@ class StorageCoordinate extends StorageLayoutAppModel {
 	 * @since 2008-02-04
 	 * @updated A. Suggitt
 	 */
-	function allowDeletion($storage_master_id, $storage_coordinate_data){
+	function allowDeletion($storage_master_id, $storage_coordinate_data = array()){
 		// Check storage contains no chlidren storage stored within this position
 		$storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 		$nbr_children_storages = $storage_master_model->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => $storage_coordinate_data['StorageCoordinate']['coordinate_value']), 'recursive' => '-1'));
