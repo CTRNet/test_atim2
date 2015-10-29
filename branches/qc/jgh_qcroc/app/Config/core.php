@@ -390,7 +390,7 @@ Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 
 Cache::config('default', array('engine' => 'File'));
 
 Configure::write('use_compression', true);
-Configure::write('Session.timeout', $debug ? 3600 : 600);
+Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 /**
  * Define the complexity of a password format:
@@ -444,5 +444,18 @@ Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotM
 Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
 	
 Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
+Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
+
+Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add()
+
+/**
+ * Set the allowed links that exists between an OrderItem and different Order plugin objects:
+ * 		1 => link OrderItem to both Order and OrderLine (order line submodule available) 
+ * 		2 => link OrderItem to OrderLine only (order line submodule available) 
+ * 		3 => link OrderItem to Order only (order line submodule not available) 
+ */
+Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
+
+Configure::write('uploadDirectory', './atimUploadDirectory');
 
 unset($debug);

@@ -42,6 +42,17 @@
 		<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 	$this->Structures->build($empty_structure, $empty_structure_options);
 	
+	if($display_batch_process_aliq_storage_and_in_stock_details) {
+		// Form to aplly data to all parents
+		$structure_options = $parent_options;
+		$structure_options['settings']['header'] = array(
+				'title' => __('realiquoting process').' : '. __('data to apply to all'),
+				'description' => __('fields values of the section below will be applied to all other sections if entered and will replace sections fields values'));
+		$structure_options['settings']['section_start'] = false;
+		$hook_link = $this->Structures->hook('apply_to_all');
+		$this->Structures->build($batch_process_aliq_storage_and_in_stock_details, $structure_options);
+	}
+	
 	//BUILD FORM
 	$hook_link = $this->Structures->hook('loop');
 	$counter = 0;

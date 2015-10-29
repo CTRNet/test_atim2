@@ -13,6 +13,7 @@
 		// No children storage could be added to a TMA block
 		// Add button to create slide
 		$structure_links['bottom']['add tma slide'] = '/StorageLayout/TmaSlides/add/' . $atim_menu_variables['StorageMaster.id'];
+		$structure_links['bottom']['edit tma slides'] = '/StorageLayout/TmaSlides/editInBatch/' . $atim_menu_variables['StorageMaster.id'];
 	} else{
 		$add_links = array();
 		foreach ($storage_types_from_id as $storage_control_id => $translated_storage_type) {
@@ -93,7 +94,11 @@
 					</div>
 				</div>'; 
 				
-			$final_options['links']['bottom'] = array_merge(array('move storage content' => array('link' => '/StorageLayout/StorageMasters/storageLayout/'.$atim_menu_variables['StorageMaster.id'], 'icon' => 'edit')), $final_options['links']['bottom']);
+			$final_options['links']['bottom'] = array_merge(
+				$final_options['links']['bottom'],
+				array(
+					'move storage content' => array('link' => '/StorageLayout/StorageMasters/storageLayout/'.$atim_menu_variables['StorageMaster.id'], 'icon' => 'edit'), 
+					'export as CSV file (comma-separated values)' => sprintf("javascript:setCsvPopup('/StorageLayout/StorageMasters/storageLayout/".$atim_menu_variables['StorageMaster.id']."/0/1/');", 0)));
 		} else {
 			$final_options['extras'] = __('no layout exists');
 		}

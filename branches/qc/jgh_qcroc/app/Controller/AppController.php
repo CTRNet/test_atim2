@@ -30,7 +30,7 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-	private static $missing_translations = array();
+    private static $missing_translations = array();
 	private static $me = NULL;
 	private static $acl = null;
 	public static $beignFlash = false;
@@ -45,7 +45,14 @@ class AppController extends Controller {
 	private static $cal_info_long_translated = false;
 	
 	static $highlight_missing_translations = true;
+
+    // Used as a set from the array keys
+    public $allowed_file_prefixes = array();
 	
+    /**
+     * This function is executed before every action in the controller. It’s a
+     * handy place to check for an active session or inspect user permissions.
+     **/
 	function beforeFilter() {
 		App::uses('Sanitize', 'Utility');
 		AppController::$me = $this;
@@ -101,6 +108,9 @@ class AppController extends Controller {
 		}
 		// get default STRUCTRES, used for forms, views, and validation
 		$this->Structures->set();
+		if(isset($this->request->query['file'])) {
+            pr($this->request->query['file']);
+		}
 	}
 	
 	function hook( $hook_extension='' ) {
@@ -116,8 +126,52 @@ class AppController extends Controller {
 	
 		return $hook_file;
 	}
+
+    private function handleFileRequest() {
+        $file = $this->request->query['file'];
+
+        $redirect_invalid_file = function($case_type) use (&$file) {
+            CakeLog::error("User tried to download invalid file (".$case_type."): ".$file);
+            if ($case_type === 3) {
+                AppController::getInstance()->redirect("/Pages/err_file_not_auth?p[]=".$file);
+            } else {
+                AppController::getInstance()->redirect("/Pages/err_file_not_found?p[]=".$file);
+            }
+        };
+
+        $index = -1;
+        foreach (range(0, 1) as $_) {
+            $index = strpos($file, '.', $index + 1);
+        }
+        $prefix = substr($file, 0, $index);
+        if ($prefix && array_key_exists($prefix, $this->allowed_file_prefixes)) {
+		    $dir = Configure::read('uploadDirectory');
+            // NOTE: Cannot use flash for errors because file is still in the
+            // url and that would cause an infinite loop
+            if (strpos($file, '/') > -1 || strpos($file, '\\') > -1) {
+                $redirect_invalid_file(1);
+            }
+            $full_file = $dir.'/'.$file;
+            if (!file_exists($full_file)) {
+                $redirect_invalid_file(2);
+            }
+            $index = strpos($file, '.', $index + 1) + 1;
+            $this->response->file($full_file,
+                                  array('name' => substr($file, $index)));
+            return $this->response;
+        }
+        $redirect_invalid_file(3);
+    }
 	
+    /**
+     * Called after controller action logic, but before the view is rendered.
+     * This callback is not used often, but may be needed if you are calling
+     * render() manually before the end of a given action.
+     **/
 	function beforeRender(){
+        if (isset($this->request->query['file'])) {
+            return $this->handleFileRequest();
+        }
 		//Fix an issue where cakephp 2.0 puts the first loaded model with the key model in the registry.
 		//Causes issues on validation messages
 		ClassRegistry::removeObject('model');

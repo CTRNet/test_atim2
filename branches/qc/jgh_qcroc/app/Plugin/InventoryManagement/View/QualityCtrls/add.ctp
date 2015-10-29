@@ -81,6 +81,18 @@ $empty_structure_options['extras'] ='<input type="hidden" name="data[url_to_canc
 
 $this->Structures->build(array(), $empty_structure_options);
 
+if($display_batch_process_aliq_storage_and_in_stock_details) {
+	// Form to aplly data to all parents
+	$structure_options = $options_parent;
+	$structure_options['settings']['header'] = array(
+			'title' => __('quality control creation process').' : '. __('data to apply to all'),
+			'description' => __('fields values of the section below will be applied to all other sections if entered and will replace sections fields values'));
+	$structure_options['settings']['language_heading'] = __('used aliquot');
+	$structure_options['settings']['section_start'] = false;
+	$hook_link = $this->Structures->hook('apply_to_all');
+	$this->Structures->build($batch_process_aliq_storage_and_in_stock_details, $structure_options);
+}
+
 //print the layout
 
 $hook_link = $this->Structures->hook('loop');
