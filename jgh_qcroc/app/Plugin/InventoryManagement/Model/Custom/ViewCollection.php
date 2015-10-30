@@ -15,9 +15,11 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.event_master_id AS event_master_id,
 		Participant.participant_identifier AS participant_identifier,
 --		Collection.acquisition_label AS acquisition_label,
-CAST(CONCAT(SUBSTR(MiscIdentifierControl.misc_identifier_name, 7),"-",
-IF(Collection.qcroc_collection_type = "B", "B", ""),IFNULL(IF(Collection.qcroc_collection_visit = "", "?", Collection.qcroc_collection_visit), "?"),"-",
-IFNULL(LPAD(MiscIdentifier.identifier_value, IF(Collection.qcroc_collection_type = "B", 2, 3), "0"), "?")) AS char(30)) AS acquisition_label,			
+CAST(
+	CONCAT(SUBSTR(MiscIdentifierControl.misc_identifier_name, 7),"-",
+	Collection.qcroc_collection_type,IF(LENGTH(Collection.qcroc_collection_visit) < 2, RIGHT(CONCAT("00", Collection.qcroc_collection_visit), 2), Collection.qcroc_collection_visit),"-",
+	IFNULL(IF(LENGTH(MiscIdentifier.identifier_value) < 3, RIGHT(CONCAT("000", MiscIdentifier.identifier_value), 3), MiscIdentifier.identifier_value), "?")) 
+AS char(30)) AS acquisition_label,
 		Collection.collection_site AS collection_site,
 		Collection.collection_datetime AS collection_datetime,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
@@ -33,7 +35,7 @@ Collection.qcroc_collection_visit
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl on MiscIdentifierControl.id = Collection.qcroc_misc_identifier_control_id
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-	
+
 	function summary($variables=array()) {
 		$return = false;
 	
