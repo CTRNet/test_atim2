@@ -9,10 +9,11 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_name = array(
-	'tissue' => 'Q-CROC-01 Tissue data v14 Selecting patient with all data for DNA RNA tube_20150504.xls',
-	'blood' => 'Q-CROC-01 Blood Data v9  Only clean data from v8_20150504.xls'
+	'tissue' => 'Q-CROC-01 Tissue data v19 with block rename_20151021.xls',
+	'blood' => 'Q-CROC-01 Blood Data v10_20151021.xls'
 );
 $files_path = '/ATiM/qcroctodelete/';
+$files_path = 'C:\_NicolasLuc\Server\www\qcroc\data/';
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -23,9 +24,9 @@ global $db_schema;
 $db_ip			= "127.0.0.1";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "am3-y-4606";
+$db_pwd			= "";
 $db_charset		= "utf8";
-$db_schema	= "tmpjghqcroc";
+$db_schema	= "qcroc";
 
 global $db_connection;
 $db_connection = @mysqli_connect(
@@ -75,7 +76,7 @@ $import_date<br>
 
 
 //TODO remove
-//truncate();
+truncate();
 
 //==============================================================================================
 //MAIN CODE
@@ -234,6 +235,7 @@ function insertIntoRevs() {
 		customQuery($query, __FILE__, __LINE__);
 	}
 }
+
 
 //=================================================================================================================================
 // System Functions
