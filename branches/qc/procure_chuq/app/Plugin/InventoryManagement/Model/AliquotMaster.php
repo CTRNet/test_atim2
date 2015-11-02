@@ -713,5 +713,34 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		return array($aliquot_master_data_to_update, $validates, $position_deletion_warning_message);	
 	}
+	
+	function getAliquotDataStorageAndStockToApplyToAll($data) {
+		$errors = array();
+		$used_aliquot_data_to_apply_to_all = array();
+		if(isset($data['FunctionManagement']) && array_key_exists('in_stock', $data['FunctionManagement'])) {
+			if($data['FunctionManagement']['remove_in_stock_detail'] && strlen($data['AliquotMaster']['in_stock_detail'])) {
+				$errors['in_stock_detail'][__('data conflict: you can not delete data and set a new one')][] = __('data to apply to all');
+				$data['FunctionManagement']['remove_in_stock_detail'] = '';
+				$data['AliquotMaster']['in_stock_detail'] = '';
+			}
+			//In stock detail of parent to apply to all
+			foreach(array('FunctionManagement','AliquotMaster') as $tmp_model) {
+				if(isset($data[$tmp_model])) {
+					foreach($data[$tmp_model] as $tmp_field => $tmp_field_value) {
+						if(!empty($data[$tmp_model][$tmp_field])) {
+							if($tmp_model.'.'.$tmp_field == 'FunctionManagement.in_stock') {
+								$used_aliquot_data_to_apply_to_all['AliquotMaster'][$tmp_field] = $data[$tmp_model][$tmp_field];
+							} else if($tmp_model.'.'.$tmp_field == 'FunctionManagement.remove_in_stock_detail') {
+								$used_aliquot_data_to_apply_to_all['AliquotMaster']['in_stock_detail'] = '';
+							} else {
+								$used_aliquot_data_to_apply_to_all[$tmp_model][$tmp_field] = $data[$tmp_model][$tmp_field];
+							}
+						}
+					}
+				}
+			}
+		}
+		return array($used_aliquot_data_to_apply_to_all, $errors);
+	}
 		
 }

@@ -186,4 +186,4 @@ UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',proc
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET trunk_build_number = '6287', site_branch_build_number = '6308' WHERE version_number = '2.6.6';
+UPDATE versions SET site_branch_build_number = '6333' WHERE version_number = '2.6.6';
