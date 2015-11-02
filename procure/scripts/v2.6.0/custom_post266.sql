@@ -281,4 +281,4 @@ OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6322' WHERE version_number = '2.6.6';
+UPDATE versions SET branch_build_number = '6332' WHERE version_number = '2.6.6';
