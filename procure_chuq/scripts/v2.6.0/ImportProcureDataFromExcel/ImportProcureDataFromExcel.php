@@ -25,31 +25,31 @@ set_time_limit('3600');
 
 global $patients_to_import;
 //TODO set to empty
-$patients_to_import = array('PS2P0034','PS2P0029','PS2P0099');
+$patients_to_import = array();
 
 //$patients_to_import = array();
 $files_name = array(
 	'patient' => 'patients_final.xls',		 //Patients_to_build_on_migration_day_v_b_20150900_v_r_20151005.xls',
-	'patient_status' => 'copie décès juin 2015_final.xls',		 //Deces juin 2015_v_r_20150918_v_r_20151005.xls',
+	'patient_status' => 'copie deces juin 2015_final.xls',		 //Deces juin 2015_v_r_20150918_v_r_20151005.xls',
 	'consent' => '5-05-2015Copie de consentement_v20150420_final.xls',		 //5-05-2015Copie de consentement_v20150420_v_r_20151005.xls',
-	'psa' => 'révis. 30 mars 2015 APS et traitements_final.xls',		 //r_vis. 30 mars 2015 APS et traitements_v_r_20151005.xls',	
-	'treatment' => 'révis. 30 mars 2015 APS et traitements_final.xls',		 //r_vis. 30 mars 2015 APS et traitements_v_r_20151005.xls',	
+	'psa' => 'revis. 30 mars 2015 APS et traitements_final.xls',		 //r_vis. 30 mars 2015 APS et traitements_v_r_20151005.xls',	
+	'treatment' => 'revis. 30 mars 2015 APS et traitements_final.xls',		 //r_vis. 30 mars 2015 APS et traitements_v_r_20151005.xls',	
 	'frozen block' => 'taille tissus_final.xls',		 //taille tissus_v_r_20151005.xls',
 	'paraffin block' => 'sortie de blocs procure_final.xls',		 //sortie de blocs procure_v_r_20151005.xls',
-	'inventory' => 'inventaire procure CHU Québec_final.xls',		 //inventaire procure CHU Quebec_v_r_20151005.xls',
+	'inventory' => 'inventaire procure CHU Quebec_final.xls',		 //inventaire procure CHU Quebec_v_r_20151005.xls',
 	'arn' => 'ARN sang paxgene_final.xls',		 //ARN sang paxgene_v_r_20151005.xls',
 	'biopsy' => 'Biopsies_final.xls',		 //Biopsies_v_r_20151005.xls',
 	'patho' => 'patho ATIM juin 2015 pour Nicolas_final.xls',		 //patho ATIM juin 2015 pour Nicolas_v_r_20151005.xls',
 	'imagery' => 'Req_Imagerie 24-04-2015_final.xls',		 //Req_Imagerie 24-04-2015.xls',
 	'other tumor' => 'autres cancer_final.xls',		 //autres cancer_v_r_20151005.xls',
-	'sent to processing site' => 'résumé des sorties échantillon pour ATIM_final.xls',		 //résumé des sorties échantillon pour ATIM_v_r_20151005.xls',
-	'revision' => 'révision du Dr Lacombe en janvier 2015_final.xls',		 //revision du Dr Lacombe en janvier 2015.xls'
+	'sent to processing site' => 'resume des sorties echantillon pour ATIM_final.xls',		 //resume des sorties echantillon pour ATIM_v_r_20151005.xls',
+	'revision' => 'revision du Dr Lacombe en janvier 2015_final.xls',		 //revision du Dr Lacombe en janvier 2015.xls'
 );
 
 foreach($files_name as $key => $val) $files_name[$key] = utf8_decode($val);
 
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure_chuq\\data\\FichiersMigration20151008\\';
-//$files_path = "/ATiM/atim-procure/TmpChuq/data/";
+$files_path = "/ATiM/atim-procure/TmpChuq/data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -62,8 +62,8 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_charset		= "utf8";
 
-$db_pwd			= "";
-$db_schema	= "procurechuq";
+$db_pwd			= "am3-y-4606";
+$db_schema	= "chuqtmp";
 
 
 global $db_connection;
