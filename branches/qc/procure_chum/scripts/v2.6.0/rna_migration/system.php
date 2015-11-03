@@ -154,6 +154,8 @@ $studied_excel_file_name_properties = null;
 global $modified_database_tables_list;
 $modified_database_tables_list = array();
 
+global $all_queries;
+
 //==================================================================================================================================================================================
 // SYSTEM FUNCTION
 //==================================================================================================================================================================================
@@ -311,6 +313,8 @@ function dislayErrorAndMessage($commit = false) {
  */
 function customQuery($query, $insert = false) {
 	global $db_connection;
+	global $all_queries;
+	$all_queries[] = $query;
 	$query_res = mysqli_query($db_connection, $query) or migrationDie(array("ERR_QUERY", mysqli_error($db_connection), $query));
 	return ($insert)? mysqli_insert_id($db_connection) : $query_res;
 }
