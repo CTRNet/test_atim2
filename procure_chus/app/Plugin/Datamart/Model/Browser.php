@@ -619,6 +619,7 @@ class Browser extends DatamartAppModel {
 				}
 				if(is_array($cell)){
 					$cell_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['model'], true);
+					if($cell_model->table == 'tma_slides') AppController::addWarningMsg(__('links between storage and tma slides are limited to tma blocks and slides created from these blocks - different than slide storage'));					
 					$class = '';
 					if($cell['active']){
 						$class .= " active ";
