@@ -85,8 +85,90 @@ class AppModel extends Model {
 			}
 		}
 		parent::__construct($id, $table, $ds);
-	}
+    }
+
+    /**
+     * Finds the uploaded files from the $data array. Update the $data array
+     * with the name the stored file will have and returns the $mode_files
+     * directive array to
+     **/
+    private function filter_move_files(&$data) {
+        $move_files = array();
+        if(!is_array($data)) {
+            return $move_files;
+        }
+        
+        //Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
+		$this_data_tmp_backup = $this->data;
+		
+        $prev_data = $this->id ? $this->read() : null;
+        $dir = Configure::read('uploadDirectory');
+        foreach($data as $model_name => $fields){
+            if (!is_array($fields)) {
+                continue;
+            }
+            foreach ($fields as $field_name => $value) {
+                if (is_array($value)) {
+                    if (isset($value['name'])) {
+                        if (!$value['size']) {
+                            // no file
+                            $data[$model_name][$field_name] = '';
+                            continue;
+                        }
+                        if (!file_exists($value['tmp_name'])) {
+                            die('Error with temporary file');
+                        }
+                        $target_name = $model_name.'.'.$field_name
+                                       .'.%%key_increment%%.'.$value['name'];
+                        
+                        if ($prev_data[$model_name][$field_name]) {
+                            // delete previous file
+                            unlink($dir.'/'.$prev_data[$model_name][$field_name]);
+                        }
+                        $target_name = $this->getKeyIncrement('atim_internal_file', $target_name);
+                        array_push($move_files, array('tmpName' => $value['tmp_name'],
+                                                 'targetName' => $target_name));
+                        $data[$model_name][$field_name] = $target_name;
+                    }
+                    else if (isset($value['option'])) {
+                        if ($value['option'] == 'delete'
+                            && $prev_data[$model_name][$field_name])
+                        {
+                            $data[$model_name][$field_name] = '';
+                            unlink($dir.'/'.$prev_data[$model_name][$field_name]);
+                        }
+                        else {
+                            unset($data[$model_name][$field_name]);
+                        }
+                    }
+                }
+            }
+        }
+		
+        //Reset data to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
+        $this->data = $this_data_tmp_backup;	
+        
+        return $move_files;
+    }
 	
+    /**
+     * Takes the move_files array returned by filter_move_files and moves the
+     * uploaded files to the configured directory with the set file name.
+     **/
+    private function move_files($move_files) {
+		if($move_files) {
+		    //make sure directory exists
+		    $dir = Configure::read('uploadDirectory');
+		    if(!is_dir($dir)) {
+		        mkdir($dir);
+		    }
+    		foreach($move_files as $move_file) {
+    		    $newName = $dir.'/'.$move_file['targetName'];
+    		    move_uploaded_file($move_file['tmpName'], $newName);
+    		}
+        }
+    }
+
 	/**
 	 * Override to prevent saving id directly with the array to avoid hacks
 	 * @see Model::save()
@@ -118,9 +200,13 @@ class AppModel extends Model {
 		    //properly because cake core flushes them out.
 		    //NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
 			$data[$this->name]['-'] = "foo";
-		} 
+		}
 		
-		return parent::save($data, $validate, $fieldList);
+		$move_files = $this->filter_move_files($data);
+		$result = parent::save($data, $validate, $fieldList);
+		$this->move_files($move_files);
+
+		return $result;
 	}
 	
 	/**

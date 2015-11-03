@@ -59,11 +59,11 @@ class CollectionsControllerCustom extends CollectionsController{
 											}
 											$new_line_data['FunctionManagement']['procure_transferred_aliquots_description'] = $sample_aliquot_ctrl_ids_sequence;
 											$new_line_data['AliquotMaster']['barcode'] = $aliquot_barcode;
-											$new_line_data['AliquotMaster']['aliquot_label'] = $aliquot_label;
+											$new_line_data['AliquotMaster']['aliquot_label'] = $aliquot_label == '-'? '' : $aliquot_label;
 											$new_line_data['AliquotMaster']['procure_created_by_bank'] = $this->request->data['AliquotMaster']['procure_created_by_bank'];
 											$new_line_data['FunctionManagement']['procure_transferred_aliquot_reception_date'] = $this->request->data['FunctionManagement']['procure_transferred_aliquot_reception_date'];
-											$new_line_data['AliquotDetail']['concentration'] = $concentration;
-											$new_line_data['AliquotDetail']['concentration_unit'] = $concentration_unit;
+											$new_line_data['AliquotDetail']['concentration'] = $concentration == '-'? '' : $concentration;
+											$new_line_data['AliquotDetail']['concentration_unit'] = $concentration_unit == '-'? '' : $concentration_unit;
 											//Set Data
 											$submitted_data[] = $new_line_data;		
 											$parsed_lines_counter++;
@@ -76,7 +76,7 @@ class CollectionsControllerCustom extends CollectionsController{
 									$this->AliquotMaster->validationErrors[$field][] = __($msg) . ' - ' . str_replace('%s', implode(",", $lines), __('see CSV line(s) %s'));
 								}
 							}
-							$this->request->data = $submitted_data;
+							$this->request->data = $submitted_data;					
 							AppController::addWarningMsg(str_replace('%s', $parsed_lines_counter, __('%s lines have been imported - check line format and data if some data are missing')).' ('. 
 								__('aliquot description').' + '. 
 								__('aliquot procure identification').' + '. 

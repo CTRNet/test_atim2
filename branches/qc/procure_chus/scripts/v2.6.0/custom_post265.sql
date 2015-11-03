@@ -28,7 +28,7 @@ UPDATE structure_formats SET `flag_edit_readonly`='1', `flag_editgrid_readonly`=
 
 SELECT 'Check participant_identifier with the good procure_bank_id for each atim bank installation (Re-run all other checks on consent, aliquot, etc if you corrected data)' AS '### TODO ###';
 SELECT Participant.participant_identifier AS '### TODO ### : Wrong participant idenitifier format : to correct'
-FROM participants Participant WHERE Participant.participant_identifier NOT REGEXP '^PS[1-4]P[0-9]{4}$';
+FROM participants Participant WHERE Participant.participant_identifier NOT REGEXP '^PS[1-4]P[0-9]{4}$' AND Participant.deleted <> 1;
 
 -- Participant Identifier of the processing bank
 
@@ -604,7 +604,6 @@ UPDATE structure_formats SET `display_order`='100' WHERE structure_id=(SELECT id
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='aliquot concentration' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='concentration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
-SELECT 'Corriger bug sur le copy/past du load transferred aliquot (check box)' AS '### TODO ###';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- Last Messages
