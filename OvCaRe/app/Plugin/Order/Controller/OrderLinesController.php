@@ -33,12 +33,17 @@ class OrderLinesController extends OrderAppController {
 	function add( $order_id ) {
 		if ( !$order_id ) { 
 			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		} else if(Configure::read('order_item_to_order_objetcs_link_setting') == 3) {
+			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
 		}
 
 		// MANAGE DATA
 		
 		// Check order
 		$order_data = $this->Order->getOrRedirect($order_id);
+		$this->set('override_data', array(
+			'OrderLine.study_summary_id' => $order_data['Order']['default_study_summary_id'],
+			'OrderLine.date_required' => $order_data['Order']['default_required_date']? substr($order_data['Order']['default_required_date'], 0, (str_replace(array('', 'y','m','d','c'), array('c',4,4,7,10),$order_data['Order']['default_required_date_accuracy']))) : ''));
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -52,51 +57,79 @@ class OrderLinesController extends OrderAppController {
 		if($hook_link){
 			require($hook_link);
 		}
-
-		if ( !empty($this->request->data) ) {
-			// Set sample and aliquot control id
-			if(empty($this->request->data['FunctionManagement']['sample_aliquot_control_id'])){
-				$this->OrderLine->set($this->request->data);
-				$this->OrderLine->validates();
-				// Not necessary to reset because there is no save $this->request->data = $this->OrderLine->data;	//Not necessary because no save after that
-				//manual error on custom field
-				$this->OrderLine->validationErrors['sample_aliquot_control_id'][] = __('this field is required')." (".__('product type').")";
-			}else{
-				$product_controls = explode("|", $this->request->data['FunctionManagement']['sample_aliquot_control_id']);
-				if(sizeof($product_controls) != 2)  { 
-					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		
+		if (empty($this->request->data) ) {
+			$this->request->data = array(array());
+		
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+		} else {
+			
+			$errors_tracking = array();
+			
+			// Validation
+			
+			$row_counter = 0;
+			foreach($this->request->data as &$data_unit){
+				$row_counter++;
+				//Set control id
+				if(empty($data_unit['FunctionManagement']['sample_aliquot_control_id'])) {
+					$errors_tracking['sample_aliquot_control_id'][__('this field is required')." (".__('product type').")"][] = $row_counter;
+				} else {
+					//Set sample/aliquot control id
+					$product_controls = explode("|", $data_unit['FunctionManagement']['sample_aliquot_control_id']);
+					if(sizeof($product_controls) != 2) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					$data_unit['OrderLine']['sample_control_id'] = $product_controls[0];
+					$data_unit['OrderLine']['aliquot_control_id'] = $product_controls[1];
 				}
-				$this->request->data['OrderLine']['sample_control_id'] = $product_controls[0];
-				$this->request->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
-					
-				// Set order id
-				$this->request->data['OrderLine']['order_id'] = $order_id;
-				$this->request->data['OrderLine']['status'] = 'pending';
-					
-				$submitted_data_validates = true;
-				
-				$hook_link = $this->hook('presave_process');
-				if($hook_link){
-					require($hook_link);
-				}
-					
-				if ($submitted_data_validates) {
-					$this->OrderLine->addWritableField(array('sample_control_id', 'aliquot_control_id', 'order_id', 'status'));
-					if( $this->OrderLine->save($this->request->data) ) {
-						$hook_link = $this->hook('postsave_process');
-						if( $hook_link ) {
-							require($hook_link);
-						}
-						$this->atimFlash(__('your data has been saved'),'/Order/OrderLines/detail/'.$order_id.'/'.$this->OrderLine->id );
+				$this->OrderLine->id = null;
+				$this->OrderLine->set($data_unit);
+				if(!$this->OrderLine->validates()){
+					foreach($this->OrderLine->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors_tracking[$field][$msg][] = $row_counter;
 					}
 				}
-			} 
-		}else{
-			$this->request->data = array('OrderLine' => array(
-				'study_summary_id'			=> $order_data['Order']['default_study_summary_id'],
-				'date_required'				=> $order_data['Order']['default_required_date'],
-				'date_required_accuracy'	=> $order_data['Order']['default_required_date_accuracy']
-			));
+				$data_unit = $this->OrderLine->data;
+			}
+			unset($data_unit);
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
+			// Launch Save Process
+			
+			if(empty($errors_tracking)){
+				$this->OrderLine->addWritableField(array('sample_control_id', 'aliquot_control_id', 'order_id', 'status'));
+				AppModel::acquireBatchViewsUpdateLock();
+				//save all
+				foreach($this->request->data as $new_data_to_save) {
+					//Set order id
+					$new_data_to_save['OrderLine']['order_id'] = $order_id;
+					$new_data_to_save['OrderLine']['status'] = 'pending';
+					//Save new recrod
+					$this->OrderLine->id = null;
+					$this->OrderLine->data = array();
+					if(!$this->OrderLine->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+				}
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				AppModel::releaseBatchViewsUpdateLock();
+				$this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/'.$order_id);
+			} else {
+				$this->OrderLine->validationErrors = array();
+				foreach($errors_tracking as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						$this->OrderLine->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
+					}
+				}
+			}
 		}
 	}
 

@@ -205,7 +205,19 @@ class StructuresComponent extends Component {
 			}
 			$this->updateAccuracyChecks($return['structure']);
 		}
-		
+
+        // seek file fields
+        foreach($return as $structure) {
+            if (!isset($structure['Sfs'])) {
+                continue;
+            }
+            foreach($structure['Sfs'] as $field) {
+                if($field['type'] == 'file') {
+                    $prefix = $field['model'].'.'.$field['field'];
+                    $this->controller->allowed_file_prefixes[$prefix] = null;
+                }
+            }
+        }
 		
 		return $return;
 	}
@@ -441,7 +453,11 @@ class StructuresComponent extends Component {
 										);
 										$conditions[] = array("OR" => $tmp_cond);
 									}else{										
-										foreach($data as &$unit) if(is_string($unit)) $unit = trim($unit);
+										if(is_array($data)) {
+											foreach($data as &$unit) if(is_string($unit)) $unit = trim($unit);
+										} else if(is_string($data)) {
+											$data = trim($data);
+										}
 										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
 									}
 								}

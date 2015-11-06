@@ -53,4 +53,5 @@ Collection.ovcare_collection_voa_nbr,
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 	
+	
 }
