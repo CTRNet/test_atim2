@@ -12,18 +12,20 @@
 		$tmp_default_aliquot_data = array(
 			'AliquotMaster.aliquot_label' => 'VOA'.$view_sample['ViewSample']['ovcare_collection_voa_nbr'],
 			'AliquotMaster.ovcare_clinical_aliquot' => 'no');
-		$ovcare_default_storage_datetime = array('ovcare_storage_datetime_buffy_coat' => null, 'ovcare_storage_datetime_plasma_serum' => null);
-		$ovcare_storage_datetime_plasma_serum = null;
-		if(isset(AppController::getInstance()->passedArgs['templateInitId'])) {
-			$template_init_data = AppController::getInstance()->Session->read('Template.init_data.'.AppController::getInstance()->passedArgs['templateInitId']);
-			if($template_init_data && array_key_exists('0', $template_init_data) && array_key_exists('ovcare_storage_datetime_buffy_coat', $template_init_data['0'])) {
-				foreach(array('ovcare_storage_datetime_buffy_coat','ovcare_storage_datetime_plasma_serum') as $tmp_field) {
-					$ovcare_default_storage_datetime[$tmp_field] = null;
-					if($template_init_data['0'][$tmp_field]['year']) $ovcare_default_storage_datetime[$tmp_field] = $template_init_data['0'][$tmp_field]['year'];
-					if($ovcare_default_storage_datetime[$tmp_field] && $template_init_data['0'][$tmp_field]['month']) $ovcare_default_storage_datetime[$tmp_field] .= '-'.$template_init_data['0'][$tmp_field]['month'];
-					if($ovcare_default_storage_datetime[$tmp_field] && $template_init_data['0'][$tmp_field]['day']) $ovcare_default_storage_datetime[$tmp_field] .= '-'.$template_init_data['0'][$tmp_field]['day'];
-					if($ovcare_default_storage_datetime[$tmp_field] && $template_init_data['0'][$tmp_field]['hour']) $ovcare_default_storage_datetime[$tmp_field] .= ' '.$template_init_data['0'][$tmp_field]['hour'];
-					if($ovcare_default_storage_datetime[$tmp_field] && $template_init_data['0'][$tmp_field]['min']) $ovcare_default_storage_datetime[$tmp_field] .= ':'.$template_init_data['0'][$tmp_field]['min'];
+		if(in_array($view_sample['ViewSample']['sample_type'], array('blood cell', 'plasma', 'serum'))) {
+			$tmp_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => 0));
+			$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $tmp_sample_data['DerivativeDetail']['creation_datetime'];
+			if($tmp_sample_data['DerivativeDetail']['creation_datetime_accuracy'] != 'c'){
+				if($tmp_sample_data['DerivativeDetail']['creation_datetime_accuracy'] == 'd'){
+					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, 7);
+				}else if($tmp_sample_data['DerivativeDetail']['creation_datetime_accuracy'] == 'm'){
+					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, 4);
+				}else if($tmp_sample_data['DerivativeDetail']['creation_datetime_accuracy'] == 'y'){
+					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = '±'.substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, 4);
+				}else if($tmp_sample_data['DerivativeDetail']['creation_datetime_accuracy'] == 'h'){
+					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, 10);
+				}else if($tmp_sample_data['DerivativeDetail']['creation_datetime_accuracy'] == 'i'){
+					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, 13);
 				}
 			}
 		}
@@ -32,21 +34,18 @@
 				$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] .= 'BC';
 				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.0';
 				$tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = $default_selection_label;
-				if($ovcare_default_storage_datetime['ovcare_storage_datetime_buffy_coat']) $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $ovcare_default_storage_datetime['ovcare_storage_datetime_buffy_coat'];
 				break;
 			case 'plasma':
 				$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] .= 'P';
 				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.8';
 				$tmp_default_aliquot_data['AliquotDetail.hemolysis_signs'] = 'n';
 				$tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = $default_selection_label;
-				if($ovcare_default_storage_datetime['ovcare_storage_datetime_plasma_serum']) $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $ovcare_default_storage_datetime['ovcare_storage_datetime_plasma_serum'];
 				break;
 			case 'serum':
 				$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] .= 'S';
 				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.8';
 				$tmp_default_aliquot_data['AliquotDetail.hemolysis_signs'] = 'n';
 				$tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = $default_selection_label;
-				if($ovcare_default_storage_datetime['ovcare_storage_datetime_plasma_serum']) $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $ovcare_default_storage_datetime['ovcare_storage_datetime_plasma_serum'];
 				break;
 			case 'ascite':
 				$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] .= 'Ascites';

@@ -24,14 +24,13 @@ if($template) {
 	switch($template['Template']['name']) {
 		case 'Blood collection':
 			$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_datetime;
+			$this->request->data['0']['ovcare_creation_datetime_buffy_coat'] = $collection_datetime;
 			$this->request->data['0']['ovcare_collected_tube_nbr_blood_edta'] = '2';
 			$this->request->data['0']['ovcare_collected_volume_blood_edta'] = '12.0';
 			$this->request->data['0']['ovcare_collected_volume_unit_blood_edta'] = 'ml';
 			$this->request->data['0']['ovcare_collected_tube_nbr_blood_serum'] = '1';
 			$this->request->data['0']['ovcare_collected_volume_blood_serum'] = '6.0';
 			$this->request->data['0']['ovcare_collected_volume_unit_blood_serum'] = 'ml';
-			$this->request->data['0']['ovcare_storage_datetime_buffy_coat'] = $collection_datetime;
-			$this->request->data['0']['ovcare_storage_datetime_plasma_serum'] = $collection_datetime;
 			break;
 		case 'Tissue collection':
 			$this->request->data['SpecimenDetail']['reception_by'] = 'Margaret Luk';
