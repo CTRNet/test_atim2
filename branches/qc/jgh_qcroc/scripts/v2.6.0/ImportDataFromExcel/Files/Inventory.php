@@ -5,7 +5,7 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 	global $controls;
 	
 //TODO
-$limit_data = true;
+$limit_data = false;
 $limit_pattern = '((001)|(049)|(054))';
 	
 	// Control
@@ -277,7 +277,7 @@ $limit_pattern = '((001)|(049)|(054))';
 									$qcroc_compliant_processing = 'n';
 									break;
 								case '';
-								break;
+									break;
 								default:
 									$import_summary[$summary_title]['@@WARNING@@']['Shipping conditions correct unknown'][] = "See value [".$new_line_data['Shipping conditions correct?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
 							}
@@ -586,8 +586,8 @@ $limit_pattern = '((001)|(049)|(054))';
 				if($limit_data && !preg_match('/^01\-T[0-9]{2}\-'.$limit_pattern.'/', $block_id)) continue;
 				if($new_line_data['Block Type'] != 'Left Over') die('ERR 23 76287 68732 623 '.$line_counter);
 				if(!preg_match("/^$block_id/", $new_line_data['LeftOver Block Id'])) die ('ERR 237 623876 32876 '.$line_counter);
-				if(array_key_exists($block_id, $left_overs)) die('ERR 23 763287 6237 62'.$line_counter);
-				$left_overs[$block_id] = $new_line_data['LeftOver Block Id'];
+				if(array_key_exists($block_id, $left_overs)) $import_summary[$summary_title]['@@WARNING@@']['Two left over lines for the same block'][] = "The Block ID [$block_id] is linked to 2 left over blocks! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+				$left_overs[$block_id][] = $new_line_data['LeftOver Block Id'];
 			} else if($new_line_data['LeftOver Block Id']) {
 				die('ERR234234');
 			}
@@ -624,29 +624,31 @@ $limit_pattern = '((001)|(049)|(054))';
 						);
 						customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
 						if(array_key_exists($block_id, $left_overs)) {
-							$aliquot_data = array(
-								'AliquotMaster' => array(
-									'collection_id' => $collection_id,
-									'sample_master_id' => $tissue_sample_master_id,
-									'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['aliquot_control_id'],
-									'barcode' => getNextTmpBarcode(),
-									'aliquot_label' => $left_overs[$block_id],
-									'in_stock' => 'yes - available',
-									'use_counter' => '0'),
-								'AliquotDetail' => array(
-									'qcroc_left_over' => '1'));
-							$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-							customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
-							//Create realiquoting relation
-							$realiquoting_data = array(
-								'parent_aliquot_master_id' => $block_aliquot_master_id,
-								'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
-								'realiquoting_datetime' => $macrodissection_date['date'],
-								'realiquoting_datetime_accuracy' => $macrodissection_date['accuracy']);
-							customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, false);
-							//Record id
-							$tissue_collections_ids[$sample_tube_id]['left_over_bloc_aliquot_master_ids'][$left_overs[$block_id]]= array('id' => $aliquot_data['AliquotDetail']['aliquot_master_id']);
-							$chil_aliquot_master_ids[] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+							foreach($left_overs[$block_id] as $new_left_over_block_id) {
+								$aliquot_data = array(
+									'AliquotMaster' => array(
+										'collection_id' => $collection_id,
+										'sample_master_id' => $tissue_sample_master_id,
+										'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['aliquot_control_id'],
+										'barcode' => getNextTmpBarcode(),
+										'aliquot_label' => $new_left_over_block_id,
+										'in_stock' => 'yes - available',
+										'use_counter' => '0'),
+									'AliquotDetail' => array(
+										'qcroc_left_over' => '1'));
+								$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+								customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
+								//Create realiquoting relation
+								$realiquoting_data = array(
+									'parent_aliquot_master_id' => $block_aliquot_master_id,
+									'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
+									'realiquoting_datetime' => $macrodissection_date['date'],
+									'realiquoting_datetime_accuracy' => $macrodissection_date['accuracy']);
+								customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, false);
+								//Record id
+								$tissue_collections_ids[$sample_tube_id]['left_over_bloc_aliquot_master_ids'][$new_left_over_block_id]= array('id' => $aliquot_data['AliquotDetail']['aliquot_master_id']);
+								$chil_aliquot_master_ids[] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+							}
 							unset($left_overs[$block_id]);
 						} else {
 							$import_summary[$summary_title]['@@WARNING@@']['Macrodissected Block But No Left Over'][] = "The Block ID [$block_id] was defined as Macrodissected but no left over block is defined and will be created! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
@@ -934,8 +936,7 @@ $limit_pattern = '((001)|(049)|(054))';
 							$import_summary[$summary_title]['@@ERROR@@']['Block Not Defined'][] = "The Sample Block ID [$block_id] used to create RNA [$rna_sample_label] was not defined into the Block (or left over block) worksheet! No RNA will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 						}
 					} else {
-						//Rna id defined twice
-						die('ERR2398723987298732');
+						$import_summary[$summary_title]['@@ERROR@@']['RNA Id Defined Twice'][] = "The RNA Isolation Id value [$rna_sample_label] is defined twice. Second one won't be used for migration. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
 					$import_summary[$summary_title]['@@ERROR@@']['Wrong RNA Id Format'][] = "Unable to extract Sample Tube and Block Id from value [$rna_sample_label] based on ID format! No RNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
@@ -1195,8 +1196,7 @@ $limit_pattern = '((001)|(049)|(054))';
 							$import_summary[$summary_title]['@@ERROR@@']['Block Not Defined'][] = "The Sample Block ID [$block_id] used to create DNA [$dna_sample_label] was not defined into the Block (or left over block) worksheet! No DNA will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 						}
 					} else {
-						//Rna id defined twice
-						die('ERR2398723987298732');
+						$import_summary[$summary_title]['@@ERROR@@']['DNA Id Defined Twice'][] = "The DNA Isolation Id value [$rna_sample_label] is defined twice. Second one won't be used for migration. Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
 				} else {
 					$import_summary[$summary_title]['@@ERROR@@']['Wrong DNA Id Format'][] = "Unable to extract Sample Tube and Block Id from value [$dna_sample_label] based on ID format! No DNA extraction will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
@@ -1267,7 +1267,7 @@ function loadBlood(&$XlsReader, $files_path, $file_name) {
 	global $controls;
 	
 //TODO
-$limit_data = true;
+$limit_data = false;
 $limit_pattern = '((001)|(049)|(054))';
 	
 	// Control
