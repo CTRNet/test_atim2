@@ -37,12 +37,11 @@ if(isset(AppController::getInstance()->passedArgs['templateInitId'])) {
 				}
 			}
 			break;
+		case 'blood cell':
+			$tmp_datetime = $template_init_data['0']['ovcare_creation_datetime_buffy_coat'];
+			$this->request->data['DerivativeDetail']['creation_datetime'] = $tmp_datetime['year'].'-'.$tmp_datetime['month'].'-'.$tmp_datetime['day'].' '.$tmp_datetime['hour'].':'.$tmp_datetime['min'];
 		case 'plasma':
 		case 'serum':
-		case 'blood cell':
-			$this->request->data['DerivativeDetail']['creation_datetime'] = $parent_sample_data['SpecimenDetail']['reception_datetime'];
-			$this->request->data['DerivativeDetail']['creation_datetime_accuracy'] = $parent_sample_data['SpecimenDetail']['reception_datetime_accuracy'];
-			$this->request->data['DerivativeDetail']['creation_by'] = $parent_sample_data['SpecimenDetail']['reception_by'];
 			if(array_key_exists('0', $template_init_data) && array_key_exists('ovcare_ischemia_time_mn_plasma_serum', $template_init_data['0'])) {
 				if($sample_control_data['SampleControl']['sample_type'] != 'blood cell') {
 					$this->request->data['SampleDetail']['ovcare_ischemia_time_mn'] = $template_init_data['0']['ovcare_ischemia_time_mn_plasma_serum'];;
