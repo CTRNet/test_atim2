@@ -1,19 +1,34 @@
-<?php 
+<?php
+	//ATiM PROCURE PROCESSING BANK
 	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/Participants/add',
-		'bottom'=>array(
-			'cancel ok '=>'/ClinicalAnnotation/Participants/search'
-		)
+		'top' => '/ClinicalAnnotation/DiagnosisMasters/createOvcareDxInBatch/0',
+		'bottom' => array('cancel' => 'javascript:history.go(-1)')
 	);
 	
-	// Set form structure and option 
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
+	if($browse_csv) $structure_links['bottom']['skip'] = array('link' => '/ClinicalAnnotation/DiagnosisMasters/createOvcareDxInBatch/0', 'icon' => 'add');
 	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
+	$final_atim_structure = $atim_structure; 
+	$final_options = $browse_csv?
+		array('links'=>$structure_links, 
+			'settings'=>array(
+				'header' => __('diagnosis creation in batch', null)),
+			'type'=>'add') :		
+		array('links'=>$structure_links,
+			'settings'=>array(
+				'header' => __('diagnosis creation in batch', null),
+				'pagination' => false,
+				'add_fields' => true,
+				'del_fields' => true,
+				'paste_disabled_fields' => array('FunctionManagement.ovcare_participant_voa')),
+			'type'=>'addgrid',
+			'override' => array('DiagnosisMaster.ovcare_tumor_site' => 'female genital-ovary')
+		);
+	 
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
+	//ATiM PROCURE PROCESSING BANK
 ?>
+
+<script type="text/javascript">
+var copyControl = true;
+</script>
