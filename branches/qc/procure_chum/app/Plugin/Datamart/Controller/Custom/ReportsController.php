@@ -389,6 +389,7 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($participant_model->query($query) as $res) $misc_identifier_control_ids[$res['misc_identifier_controls']['misc_identifier_name']] = $res['misc_identifier_controls']['id'];
 //*** END PROCURE CHUM *****************************************************
 		
+		$max_visit = 20;
 		$empty_form_array = array(
 			'procure_prostatectomy_date' => '',
 			'procure_prostatectomy_date_accuracy' => '',
@@ -398,14 +399,17 @@ class ReportsControllerCustom extends ReportsController {
 			'procure_followup_worksheets_nbr' => array(),
 			'procure_medication_worksheets_nbr' => array(),
 			'procure_number_of_visit_with_collection' => array());
-		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
+		for($tmp_visit_id = 1; $tmp_visit_id < $max_visit; $tmp_visit_id++) {
 			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
 			$empty_form_array["procure_".$visit_id."_followup_worksheet_date"]= null;
 			$empty_form_array["procure_".$visit_id."_followup_worksheet_date_accuracy"]= null;
+			$empty_form_array["procure_".$visit_id."_followup_worksheet_month"]= null;
 			$empty_form_array["procure_".$visit_id."_medication_worksheet_date"]= null;
 			$empty_form_array["procure_".$visit_id."_medication_worksheet_date_accuracy"]= null;
+			$empty_form_array["procure_".$visit_id."_medication_worksheet_month"]= null;
 			$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
 			$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= null;
+			$empty_form_array["procure_".$visit_id."_first_collection_month"]= null;
 			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
@@ -594,22 +598,42 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//Calculate last fields
 		
+		$months_strg = __('months');
 		$query = "SELECT NOW() FROM users LIMIT 0,1;";
 		$res = $participant_model->query($query);
 		$current_date = $res[0][0]['NOW()'];
-		foreach($data as $participant_id => $participant_data){
-			if(!empty($data[$participant_id][0]["procure_last_collection_date"])) {
+		foreach($data as $participant_id => &$participant_data){						
+			if(!empty($participant_data[0]["procure_last_collection_date"])) {
 				$current_date = substr($current_date, 0, 10);
-				$procure_last_collection_date = substr($data[$participant_id][0]["procure_last_collection_date"], 0, 10);
+				$procure_last_collection_date = substr($participant_data[0]["procure_last_collection_date"], 0, 10);
 				$datetime1 = new DateTime($procure_last_collection_date);
 				$datetime2 = new DateTime($current_date);
 				$interval = $datetime1->diff($datetime2);
 				$progression_time_in_months = (($interval->format('%y')*12) + $interval->format('%m'));
-				if(!$interval->invert) $data[$participant_id][0]["procure_time_from_last_collection_months"] = $progression_time_in_months;
+				if(!$interval->invert) $participant_data[0]["procure_time_from_last_collection_months"] = $progression_time_in_months;
 			}
-			$data[$participant_id][0]['procure_followup_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_followup_worksheets_nbr']);
-			$data[$participant_id][0]['procure_medication_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_medication_worksheets_nbr']);
-			$data[$participant_id][0]['procure_number_of_visit_with_collection'] = sizeof($data[$participant_id][0]['procure_number_of_visit_with_collection']);
+			$participant_data[0]['procure_followup_worksheets_nbr'] = sizeof($participant_data[0]['procure_followup_worksheets_nbr']);
+			$participant_data[0]['procure_medication_worksheets_nbr'] = sizeof($participant_data[0]['procure_medication_worksheets_nbr']);
+			$participant_data[0]['procure_number_of_visit_with_collection'] = sizeof($participant_data[0]['procure_number_of_visit_with_collection']);
+			//Calculate spend time in month between visit and prostatectomy
+			if($participant_data[0]['procure_prostatectomy_date']) {
+				$prostatectomy_datetime = new DateTime($participant_data[0]['procure_prostatectomy_date']);
+				for($tmp_visit_id = 1; $tmp_visit_id < $max_visit; $tmp_visit_id++) {
+					$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
+					foreach(array('followup_worksheet', 'medication_worksheet', 'first_collection') as $sub_strg_field)
+					if($participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_date"]) {
+						$accuracy = ($participant_data[0]['procure_prostatectomy_date_accuracy'].$participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_date_accuracy"]!= 'cc')? '±' : '';
+						$visit_datetime = new DateTime($participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_date"]);
+						$interval = $prostatectomy_datetime->diff($visit_datetime);
+						$time_in_months = (($interval->format('%y')*12) + $interval->format('%m'));
+						if(!$interval->invert) {
+							$participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_month"] = '('.$accuracy.$time_in_months.' '.$months_strg.')';
+						} else {
+							$participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_month"] = '(-'.$time_in_months.' '.$months_strg.')';
+						}
+					}
+				}
+			}
 		}
 		
 		return array(
@@ -1351,5 +1375,115 @@ class ReportsControllerCustom extends ReportsController {
 				'data' => $data,
 				'columns_names' => null,
 				'error_msg' => null);
+	}
+	
+	function procureGetListOfBarcodeErrors($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
+		$header = null;
+		$conditions = array('TRUE');
+		if(isset($parameters['ViewAliquot']['participant_identifier_start'])) {
+			$participant_identifier_start = (!empty($parameters['ViewAliquot']['participant_identifier_start']))? $parameters['ViewAliquot']['participant_identifier_start']: null;
+			$participant_identifier_end = (!empty($parameters['ViewAliquot']['participant_identifier_end']))? $parameters['ViewAliquot']['participant_identifier_end']: null;
+			if($participant_identifier_start) $conditions[] = "ViewAliquot.participant_identifier >= '$participant_identifier_start'";
+			if($participant_identifier_end) $conditions[] = "ViewAliquot.participant_identifier <= '$participant_identifier_end'";
+		} else if(isset($parameters['ViewAliquot']['participant_identifier'])) {
+			$participant_identifiers  = array_filter($parameters['ViewAliquot']['participant_identifier']);
+			if($participant_identifiers) $conditions[] = "ViewAliquot.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		$data = array();
+		
+		//Get Controls Data
+		$ViewAliquot_model = AppModel::getInstance("ClinicalAnnotation", "ViewAliquot", true);
+		
+		//Look for duplicated barcodes
+		
+		$query = "SELECT ViewAliquot.*
+			FROM (
+				SELECT barcode, count(*) as nbr_of_aliquots
+				FROM view_aliquots AS ViewAliquot
+				WHERE ". implode(' AND ', $conditions) ." GROUP BY barcode
+			) TmpRes, view_aliquots AS ViewAliquot
+			WHERE TmpRes.nbr_of_aliquots > 1 
+			AND TmpRes.barcode = ViewAliquot.barcode
+			ORDER BY ViewAliquot.barcode;";
+		foreach($ViewAliquot_model->query($query) as $res) {
+			$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array(__('duplicated'))), $res);
+		}
+		
+		//Look for barcodes that don't match format
+		
+		$query = "SELECT ViewAliquot.*
+			FROM view_aliquots AS ViewAliquot
+			WHERE ". implode(' AND ', $conditions) ."
+			AND ViewAliquot.barcode NOT REGEXP '^PS[0-9]P[0-9]{4}\ V[0-9]{2}\ \-[A-Z]{3}';";
+		foreach($ViewAliquot_model->query($query) as $res) {
+			$error = __('wrong format');
+			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
+				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
+			} else {
+				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
+			}
+		}
+		
+		//Look for barcodes that don't match format with participant identifier miscmatch
+		
+		$query = "SELECT ViewAliquot.*
+			FROM view_aliquots AS ViewAliquot
+			WHERE ". implode(' AND ', $conditions) ."
+			AND ViewAliquot.barcode NOT REGEXP CONCAT('^',ViewAliquot.participant_identifier,'\ V[0-9]{2}\ \-[A-Z]{3}');";
+		foreach($ViewAliquot_model->query($query) as $res) {
+			$error = __('wrong participant identifier');
+			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
+				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
+			} else {
+				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
+			}
+		}
+		
+		//Look for barcodes that don't match format with participant identifier miscmatch
+		
+		$query = "SELECT ViewAliquot.*
+			FROM view_aliquots AS ViewAliquot
+			WHERE ". implode(' AND ', $conditions) ."
+			AND ViewAliquot.barcode NOT REGEXP CONCAT('^PS[0-9]P[0-9]{4}\ ',ViewAliquot.procure_visit,'\ \-[A-Z]{3}');";
+		foreach($ViewAliquot_model->query($query) as $res) {
+			$error = __('wrong visit');
+			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
+				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array($error)), $res);
+			} else {
+				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
+			}
+		}
+		
+		$final_data = array();
+		foreach($data as $new_aliquots) {
+			foreach($new_aliquots as $new_aliquot) {
+				$new_aliquot['0']['procure_barcode_error'] = implode(' & ', $new_aliquot['0']);
+				$final_data[] = $new_aliquot;
+			}
+		}
+		pr($final_data);
+		if(sizeof($final_data) > Configure::read('databrowser_and_report_results_display_limit')) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		
+		return array(
+			'header' => $header,
+			'data' => $final_data,
+			'columns_names' => null,
+			'error_msg' => null);
 	}
 }
