@@ -490,4 +490,82 @@ INSERT IGNORE (id,en,fr) VALUES ('pdx','PDX','PDX');
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '6313' WHERE version_number = '2.6.4';
+UPDATE versions SET branch_build_number = '6314' WHERE version_number = '2.6.4';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_lady_last_event_recorded', 'date',  NULL , '0', '', '', '', 'last event recorded', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_lady_last_event_recorded' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last event recorded' AND `language_tag`=''), '3', '8', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_lady_last_contact_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+REPLACE INTO i18n (id,en,fr) VALUES ('last event recorded', 'Last Event Recorded', 'Dernier évenement enregistré');
+ALTER TABLE participants 
+  ADD COLUMN qc_lady_last_event_recorded DATE DEFAULT NULL,
+  ADD COLUMN qc_lady_last_event_recorded_accuracy CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE participants_revs
+  ADD COLUMN qc_lady_last_event_recorded DATE DEFAULT NULL,
+  ADD COLUMN qc_lady_last_event_recorded_accuracy CHAR(1) NOT NULL DEFAULT '';
+
+SET @modified_by = (SELECT id fROM users WHERE id = 1);
+SET @modified = (SELECT NOW() fROM users WHERE id = 1);
+UPDATE participants, (
+	SELECT MAX(final_date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(date_of_death,'#',IFNULL(date_of_death_accuracy,'c')) as date_and_accuracy, id as participant_id FROM participants WHERE date_of_death IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(qc_lady_last_contact_date,'#','c') as date_and_accuracy, id as participant_id FROM participants WHERE qc_lady_last_contact_date IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(consent_signed_date,'#',IFNULL(consent_signed_date_accuracy,'c')) as date_and_accuracy, participant_id FROM consent_masters WHERE consent_signed_date IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(status_date,'#',IFNULL(status_date_accuracy,'c')) as date_and_accuracy, participant_id FROM consent_masters WHERE status_date IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(dx_date,'#',IFNULL(dx_date_accuracy,'c')) as date_and_accuracy, participant_id FROM diagnosis_masters WHERE dx_date IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(event_date,'#',IFNULL(event_date_accuracy,'c')) as date_and_accuracy, participant_id FROM event_masters WHERE event_date IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(start_date,'#',IFNULL(start_date_accuracy,'c')) as date_and_accuracy, participant_id FROM treatment_masters WHERE start_date IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(finish_date,'#',IFNULL(finish_date_accuracy,'c')) as date_and_accuracy, participant_id FROM treatment_masters WHERE finish_date IS NOT NULL AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(SUBSTR(collection_datetime,1,10),'#',IFNULL(collection_datetime_accuracy,'c')) as date_and_accuracy, participant_id FROM collections WHERE collection_datetime IS NOT NULL AND (collection_datetime_accuracy IS NULL OR collection_datetime_accuracy NOT IN ('h', 'i')) AND deleted <> 1
+		) Res GROUP BY participant_id
+		UNION ALL 
+		SELECT max(date_and_accuracy) AS final_date_and_accuracy, participant_id FROM (
+			select concat(SUBSTR(collection_datetime,1,10),'#','c') as date_and_accuracy, participant_id FROM collections WHERE collection_datetime IS NOT NULL AND collection_datetime_accuracy IN ('h', 'i') AND deleted <> 1
+		) Res GROUP BY participant_id		
+	) ResPerParticipant GROUP BY participant_id
+) ResFinal
+SET qc_lady_last_event_recorded = SUBSTR(final_date_and_accuracy,1,10), 
+qc_lady_last_event_recorded_accuracy = SUBSTR(final_date_and_accuracy,12,1),
+modified = @modified,
+modified_by = @modified_by
+WHERE ResFinal.participant_id = participants.id;
+INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,
+marital_status,language_preferred,sex,race,vital_status,notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,
+participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
+qc_lady_spouse_name,qc_lady_last_contact_date,qc_lady_sardo_data_migration_date,qc_lady_last_event_recorded,qc_lady_last_event_recorded_accuracy,modified_by,version_created)
+(SELECT id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,
+marital_status,language_preferred,sex,race,vital_status,notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,
+participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
+qc_lady_spouse_name,qc_lady_last_contact_date,qc_lady_sardo_data_migration_date,qc_lady_last_event_recorded,qc_lady_last_event_recorded_accuracy,modified_by,modified
+FROM participants WHERE modified = @modified AND modified_by = @modified_by);
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6345' WHERE version_number = '2.6.4';
