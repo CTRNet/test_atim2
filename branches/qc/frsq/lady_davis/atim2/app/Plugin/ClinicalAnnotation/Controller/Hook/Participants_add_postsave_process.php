@@ -8,3 +8,5 @@
 	$this->Participant->addWritableField(array('participant_identifier'));
 	if (!$this->Participant->save($new_identifier)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 	
+	$this->Participant->updateParticipantLastEventRecorded($this->Participant->id);
+	
