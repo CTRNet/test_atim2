@@ -393,6 +393,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_barcode_errors_list'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_barcode_error' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='error' AND `language_tag`=''), '0', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
+('error','Error','Erreur'),
 ("duplicated", "Duplicated", 'Dupliqué'),
 ("wrong visit", "Wrong Visit", "Mauvaise visiste"),
 ("wrong participant identifier", "Wrong Participant Identifier", "Mauvais identifiant de patient"),

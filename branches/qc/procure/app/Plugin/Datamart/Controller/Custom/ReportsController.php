@@ -1316,7 +1316,7 @@ class ReportsControllerCustom extends ReportsController {
 				$final_data[] = $new_aliquot;
 			}
 		}
-		pr($final_data);
+		
 		if(sizeof($final_data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
