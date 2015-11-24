@@ -169,8 +169,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
-		JOIN `orders` AS `Order` ON  Order.id = OrderLine.order_id			
+		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id			
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
