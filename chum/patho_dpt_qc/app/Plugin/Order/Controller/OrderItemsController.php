@@ -115,6 +115,7 @@ class OrderItemsController extends OrderAppController {
 			foreach($this->request->data as &$data_unit){
 				$row_counter++;
 				$this->OrderItem->id = null;
+				$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
 				$this->OrderItem->set($data_unit);
 				if(!$this->OrderItem->validates()){
 					foreach($this->OrderItem->validationErrors as $field => $msgs) {
@@ -517,6 +518,8 @@ class OrderItemsController extends OrderAppController {
 				if(!isset($order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_studied_item['OrderItem']['id'] = $order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']];
 				// Launch Order Item validation
+				$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
+				$this->OrderItem->id = $new_studied_item['OrderItem']['id'];
 				$this->OrderItem->set($new_studied_item);
 				$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;
 				$new_studied_item = $this->OrderItem->data;
@@ -537,6 +540,7 @@ class OrderItemsController extends OrderAppController {
 				// Launch save process
 				foreach($this->request->data as $order_item){
 					// Save data
+					$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
 					$this->OrderItem->id = $order_item['OrderItem']['id'];
 					if(!$this->OrderItem->save($order_item['OrderItem'], false)) {
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
