@@ -22,7 +22,7 @@ $files_name = array(
 foreach($files_name as $key => $val) $files_name[$key] = utf8_decode($val);
 
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure\\data\\ProcessingBankDataFiles\\';
-//$files_path = "/ATiM/atim-procure/TmpChuq/data/";
+$files_path = "/ATiM/atim-procure/Test/Data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -36,7 +36,7 @@ $db_user 		= "root";
 $db_charset		= "utf8";
 
 $db_pwd			= "";
-$db_schema		= "procure";
+$db_schema		= "procurep";
 
 
 global $db_connection;
@@ -65,9 +65,8 @@ $sample_code = 0;
 global $sample_storage_types;
 $sample_storage_types = array(
 	'plasma' => 'box100',
-	'urine' => 'box100',
-	'dna' => 'box100 1A-10J'
-//'rack20 (5X4)'		
+	'centrifuged urine' => 'box100',
+	'dna' => 'box100 1A-10J'	
 );
 
 global $storage_master_ids;
@@ -76,6 +75,11 @@ $storage_master_ids = array();
 global $last_storage_code;
 $last_storage_code = 0;
 
+global $participant_identifiers_check;
+$participant_identifiers_check = array(
+	'participant_identifier_to_id' => array(), 
+	'procure_proc_site_participant_identifier_to_id' => array());
+	
 echo "<br><br><FONT COLOR=\"blue\" >
 =====================================================================<br>
 PROCURE - Data Migration to ATiM - Processing Bank<br>
@@ -88,21 +92,25 @@ truncate();
 //Inventory
 //==============================================================================================
 
+$study_summary_id = customInsert(array('title' => 'FRSQ-Innovant'), 'study_summaries', 'No File', '-1');
+
 global $created_collections_and_specimens;
 $created_collections_and_specimens = array();
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (plasma) - File(s) : ".$files_name['plasma']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-$psp_nbr_to_frozen_blocks_data = loadPlasma($XlsReader, $files_path, $files_name['plasma']);
+loadPlasma($XlsReader, $files_path, $files_name['plasma'], $study_summary_id);
 
+echo "<br><FONT COLOR=\"green\" >*** Inventory (urine) - File(s) : ".$files_name['urine']."***</FONT><br>";
 
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadUrine($XlsReader, $files_path, $files_name['urine'], $study_summary_id);
 
+echo "<br><FONT COLOR=\"green\" >*** Inventory (DNA) - File(s) : ".$files_name['dna']."***</FONT><br>";
 
-
-
-
-
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadDna($XlsReader, $files_path, $files_name['dna'], $study_summary_id);
 
 //codes and barcodes update
 
@@ -120,10 +128,63 @@ while($row = $results->fetch_assoc()){
 $query = "UPDATE quality_ctrls SET qc_code = id;";
 customQuery($query, __FILE__, __LINE__);
 
+// *** SQL TO CHECK DATA INTEGRITY ***
+
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT selection_label, CONCAT(storage_coord_x, '-', storage_coord_y) AS position_with_more_than_one_aliquot
+	FROM (
+		SELECT count(*) AS nbr_of_aliquots, storage_master_id, storage_coord_x, '' AS storage_coord_y FROM aliquot_masters WHERE storage_master_id IS NOT NULL AND storage_coord_x IS NOT NULL AND storage_coord_y IS NULL
+		GROUP BY storage_master_id, storage_coord_x
+		UNION All
+		SELECT count(*) AS nbr_of_aliquots, storage_master_id, storage_coord_x, storage_coord_y FROM aliquot_masters WHERE storage_master_id IS NOT NULL AND storage_coord_x IS NOT NULL AND storage_coord_y IS NOT NULL
+		GROUP BY storage_master_id, storage_coord_x, storage_coord_y
+	) Res INNER JOIN storage_masters ON storage_master_id = id
+	WHERE res.nbr_of_aliquots > 1;";
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT barcode as 'aliquot_not_in_stock_with_postion' FROM aliquot_masters WHERE in_stock = 'no' AND storage_master_id IS NOT NULL;";
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT participant_identifier AS '### MESSAGE ### Wrong participant_identifier format to correct', id AS participant_id FROM participants WHERE deleted <> 1 AND participant_identifier NOT REGEXP'^PS[1-4]P0[0-9]+$';";
+// $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT barcode AS '### MESSAGE ### List of aliquots with missing concentration unit.'
+// FROM aliquot_masters
+// INNER JOIN ad_tubes ON id = aliquot_master_id
+// WHERE deleted <> 1 AND concentration NOT LIKE '' AND concentration IS NOT NULL AND (concentration_unit IS NULL OR concentration_unit LIKE '');";
+// $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT count(*) AS '### MESSAGE ### Number of procure_total_quantity_ug values updated. To validate (revs data not updated).', concentration_unit
+// FROM aliquot_masters, ad_tubes
+// WHERE deleted <> 1 AND id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+// AND current_volume NOT LIKE '' AND current_volume IS NOT NULL
+// AND concentration_unit IN ('ug/ul', 'ng/ul', 'pg/ul') GROUP BY concentration_unit;";
+// $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "UPDATE aliquot_masters, ad_tubes
+// SET procure_total_quantity_ug = (current_volume*concentration/1000000)
+// WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+// AND current_volume NOT LIKE '' AND current_volume IS NOT NULL
+// AND concentration_unit = 'pg/ul';";
+// $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "UPDATE aliquot_masters, ad_tubes
+// SET procure_total_quantity_ug = (current_volume*concentration/1000)
+// WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+// AND current_volume NOT LIKE '' AND current_volume IS NOT NULL
+// AND concentration_unit = 'ng/ul';";
+// $import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "UPDATE aliquot_masters, ad_tubes
+// SET procure_total_quantity_ug = (current_volume*concentration)
+// WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+// AND current_volume NOT LIKE '' AND current_volume IS NOT NULL
+// AND concentration_unit = 'ug/ul';";
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT Participant.participant_identifier AS '### TODO ### : Wrong participant idenitifier format : to correct'
+FROM participants Participant WHERE Participant.participant_identifier NOT REGEXP '^PS[1-4]P[0-9]{4}$';";
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT Collection.id AS '### MESSAGE ### : Collections with no visit - Has to be corrected'
+FROM collections Collection
+WHERE Collection.deleted <> 1 AND (Collection.procure_visit IS NULL OR Collection.procure_visit LIKE '');";
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT AliquotMaster.barcode AS '### MESSAGE ### : Aliquots not linked to a participant - Has to be corrected'
+FROM aliquot_masters AliquotMaster
+INNER JOIN collections Collection ON Collection.id = AliquotMaster.collection_id
+WHERE AliquotMaster.deleted <> 1 AND Collection.deleted <> 1 AND (Collection.participant_id IS NULL OR Collection.participant_id LIKE '');";
+$import_summary['TODO']['@@WARNING@@']['SQL TO CHECK DATA INTEGRITY'][] = "SELECT 'Aliquot Barcode Control : Check barcodes match participant_identifier + visit (Correct data if list below is not empty)' AS '### MESSAGE ###';
+SELECT CONCAT('AliquotMaster', '.', AliquotMaster.id) AS 'Model.id', Participant.participant_identifier, Collection.procure_visit, AliquotMaster.barcode
+FROM participants Participant
+INNER JOIN collections Collection ON Collection.participant_id = Participant.id AND Collection.deleted <> 1
+INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1
+WHERE Participant.deleted <> 1 AND AliquotMaster.barcode NOT REGEXP CONCAT('^', Participant.participant_identifier, '\ ', Collection.procure_visit, '\ ')
+AND procure_created_by_bank != 'p';";
+
 //==============================================================================================
 //End of the process
 //==============================================================================================
-
 
 dislayErrorAndMessage($import_summary);
 
@@ -150,23 +211,18 @@ function insertIntoRevs() {
 		'derivative_details' => 1,
 		'sd_spe_bloods' => 1,
 		'sd_der_plasmas' => 1,
-			
-// 		'sd_spe_tissues' => 1,
-// 		'sd_der_serums' => 1,
-// 		'sd_der_pbmcs' => 1,
-// 		'sd_spe_urines' => 1,
-// 		'sd_der_urine_cents' => 1,
-// 		'sd_der_rnas' => 1,
+ 		'sd_der_pbmcs' => 1,
+ 		'sd_der_dnas' => 1,
+		'sd_spe_urines' => 1,
+		'sd_der_urine_cents' => 1,
 		
 		'aliquot_masters' => 0,
 		'ad_tubes' => 1,
-// 		'ad_whatman_papers' => 1,
-// 		'ad_blocks' => 1,
 	
 		'aliquot_internal_uses' => 0,	
 		'source_aliquots' => 0	,
 		'realiquotings' => 0,
-//		'quality_ctrls' => 0,
+		'quality_ctrls' => 0,
 
 		'study_summaries' => 0,
 		'orders' => 0,
@@ -311,42 +367,6 @@ function customInsert($data, $table_name, $file, $line, $is_detail_table = false
 	return $record_id;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function getDateAndAccuracy($data, $field, $data_type, $file, $line) {
 	global $import_summary;
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 732 $field $file, $line");
@@ -375,74 +395,6 @@ function getDateAndAccuracy($data, $field, $data_type, $file, $line) {
 		$import_summary[$data_type]['@@ERROR@@']['Date Format Error'][] = "Format of date '$date' is not supported! [field <b>$field</b> - file <b>$file</b> - line: <b>$line</b>]";
 		return array('date' => null, 'accuracy' =>null);
 	}	
-}
-
-
-function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $file, $line) {
-	global $import_summary;
-	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??', '?', 'X'), array('', '', '', '', '', '', '', ''), $data[$field_time]);
-	//Get Date
-	$tmp_date = getDateAndAccuracy($data, $field_date, $data_type, $file, $line);
-	if(!$tmp_date['date']) {
-		if(strlen($time) && $time != '-') $import_summary[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "See following fields details. [fields <b>$field_date</b> & <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
-		return array('datetime' => null, 'accuracy' =>null);
-	} else {
-		$formatted_date = $tmp_date['date'];
-		$formatted_date_accuracy = $tmp_date['accuracy'];
-		//Combine date and time
-		if(!strlen($time) || $time == '-' || $time == '­') {
-			return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
-		} else {
-			if($formatted_date_accuracy != 'c') {
-				$import_summary[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Date and time are set but date is unaccuracy. No datetime will be set! [fields <b>$field_date</b> & <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
-				return array('datetime' => null, 'accuracy' =>null);
-			} else if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
-				return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
-			} else if(preg_match('/^0\.[0-9]+$/', $time)) {
-				$hour = floor(24*$time);
-				$mn = round((24*$time - $hour)*60);
-				$mn = (strlen($mn) == 1)? '0'.$mn  : $mn ;
-				if($mn == '60') {
-					$mn = '00';
-					$hour += 1;
-				}
-				if($hour > 23) die('ERR time >= 24 79904044--4-44');
-				$time=$hour.':'.$mn;				
-				return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
-			} else {
-				$import_summary[$data_type]['@@ERROR@@']['Time Format Error (1)'][] = "Format of time '".$data[$field_time]."' is not supported! [field <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
-				return array('datetime' => null, 'accuracy' =>null);;
-			}
-		}
-	}
-}
-
-function getTime($data, $field_time, $data_type, $file, $line) {
-	global $import_summary;
-	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??', '?', 'X'), array('', '', '', '', '', '', '', ''), $data[$field_time]);
-	if(!strlen($time) || $time == '-' || $time == '­') {
-		return null;
-	} else {
-		if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
-			return (strlen($time) == 5)? $time : '0'.$time;
-		} else if(preg_match('/^0\.[0-9]+$/', $time)) {
-			$hour = floor(24*$time);
-			$mn = round((24*$time - $hour)*60);
-			$mn = (strlen($mn) == 1)? '0'.$mn  : $mn ;
-			if($mn == '60') {
-				$mn = '00';
-				$hour += 1;
-			}
-			if($hour > 23) die('ERR time >= 24 79904044--4-44');
-			$time=$hour.':'.$mn;
-			return (strlen($time) == 5)? $time : '0'.$time;
-		} else {
-			$import_summary[$data_type]['@@ERROR@@']['Time Format Error (2)'][] = "Format of time '".$data[$field_time]."' is not supported! [field <b>$field_time</b> - file <b>$file</b> - line: <b>$line</b>]";
-			return null;
-		}
-	}
 }
 
 function getDecimal($data, $field, $data_type, $file_name, $line_counter) {
@@ -523,22 +475,18 @@ function truncate() {
 		'DELETE FROM  orders;', 'DELETE FROM  orders_revs;',	
 			
   		'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
-//  		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+  		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
   		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
   		'TRUNCATE realiquotings;', 'TRUNCATE realiquotings_revs;',
 		
-//  		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
-//  		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
  		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
  		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 
-//  		'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
-//  		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
-//  		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
-//  		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
-//  		'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
-//  		'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
- 		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
+  		'TRUNCATE sd_der_dnas;', 'TRUNCATE sd_der_dnas_revs;',
+  		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
+  		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
+  		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
+		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
  		'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
  		'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
  		'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
@@ -603,119 +551,6 @@ function updateAliquotUseAndVolume() {
 		$query = "UPDATE aliquot_masters SET use_counter = '".$row['use_counter']."' WHERE id = ".$row['aliquot_master_id'];
 		customQuery($query, __FILE__, __LINE__);
 	}
-	
-	//-B-Current Volume
-	//Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
-	$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
-	$results = customQuery($tmp_sql, __FILE__, __LINE__);
-	while($row = $results->fetch_assoc()) {
-		$query = "UPDATE aliquot_masters SET current_volume = '0' WHERE id = ".$row['aliquot_master_id'];
-		customQuery($query, __FILE__, __LINE__);
-	}
-	//Search all aliquots having current_volume != initial volume - used_volume (from view_aliquot_uses) > initial_volume
-	$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume >= us.sum_used_volumes AND am.current_volume != (am.initial_volume - us.sum_used_volumes);";
-	$results = customQuery($tmp_sql, __FILE__, __LINE__);
-	while($row = $results->fetch_assoc()) {
-		$query = "UPDATE aliquot_masters SET current_volume = '".($row['initial_volume'] - $row['sum_used_volumes'])."' WHERE id = ".$row['aliquot_master_id'];
-		customQuery($query, __FILE__, __LINE__);
-	}
-	
-	/*
-	//-C-Used Volume
-	$used_volume_updated = array();
-	//Search all aliquot internal use having used volume not null but no volume unit
-	$tmp_sql = "SELECT AliquotInternalUse.id AS aliquot_internal_use_id,
-			AliquotMaster.id AS aliquot_master_id,
-			AliquotMaster.barcode AS barcode,
-			AliquotInternalUse.used_volume AS used_volume,
-			AliquotControl.volume_unit
-			FROM aliquot_internal_uses AS AliquotInternalUse
-			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
-			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-			WHERE AliquotInternalUse.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND AliquotInternalUse.used_volume IS NOT NULL;";
-	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-	if($aliquots_to_clean_up) {
-		$AliquotInternalUse_model = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
-		$AliquotInternalUse_model->check_writable_fields = false;
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$AliquotInternalUse_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$AliquotInternalUse_model->id = $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'];
-			if(!$AliquotInternalUse_model->save(array('AliquotInternalUse' => array('id' => $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
-		}
-	}
-	//Search all aliquot used as source aliquot, used volume not null but no volume unit
-	$tmp_sql = "SELECT SourceAliquot.id AS source_aliquot_id,
-			AliquotMaster.id AS aliquot_master_id,
-			AliquotMaster.barcode AS barcode,
-			SourceAliquot.used_volume AS used_volume,
-			AliquotControl.volume_unit AS aliquot_volume_unit
-			FROM source_aliquots AS SourceAliquot
-			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
-			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-			WHERE SourceAliquot.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND SourceAliquot.used_volume IS NOT NULL;";
-	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-	if($aliquots_to_clean_up) {
-		$SourceAliquot_model = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-		$SourceAliquot_model->check_writable_fields = false;
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$SourceAliquot_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$SourceAliquot_model->id = $new_aliquot['SourceAliquot']['source_aliquot_id'];
-			if(!$SourceAliquot_model->save(array('SourceAliquot' => array('id' => $new_aliquot['SourceAliquot']['source_aliquot_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
-		}
-	}
-	//Search all aliquot used as parent aliquot, used volume not null but no volume unit
-	$tmp_sql = "SELECT Realiquoting.id AS realiquoting_id,
-			AliquotMaster.id AS aliquot_master_id,
-			AliquotMaster.barcode AS barcode,
-			Realiquoting.parent_used_volume AS used_volume,
-			AliquotControl.volume_unit AS aliquot_volume_unit
-			FROM realiquotings AS Realiquoting
-			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
-			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-			WHERE Realiquoting.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND Realiquoting.parent_used_volume IS NOT NULL;";
-	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-	if($aliquots_to_clean_up) {
-		$Realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
-		$Realiquoting_model->check_writable_fields = false;
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$Realiquoting_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$Realiquoting_model->id = $new_aliquot['Realiquoting']['realiquoting_id'];
-			if(!$Realiquoting_model->save(array('Realiquoting' => array('id' => $new_aliquot['Realiquoting']['realiquoting_id'], 'parent_used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
-		}
-	}
-	//Search all aliquot used for quality conbtrol, used volume not null but no volume unit
-	$tmp_sql = "SELECT QualityCtrl.id AS quality_control_id,
-			AliquotMaster.id AS aliquot_master_id,
-			AliquotMaster.barcode AS barcode,
-			QualityCtrl.used_volume AS used_volume,
-			AliquotControl.volume_unit AS aliquot_volume_unit
-			FROM quality_ctrls AS QualityCtrl
-			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
-			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-			WHERE QualityCtrl.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND QualityCtrl.used_volume IS NOT NULL;";
-	$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-	if($aliquots_to_clean_up) {
-		$QualityCtrl_model = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
-		$QualityCtrl_model->check_writable_fields = false;
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$QualityCtrl_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$QualityCtrl_model->id = $new_aliquot['QualityCtrl']['quality_control_id'];
-			if(!$QualityCtrl_model->save(array('QualityCtrl' => array('id' => $new_aliquot['QualityCtrl']['quality_control_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
-		}
-	}
-	if($used_volume_updated) {
-		$ViewAliquotUse_model = AppModel::getInstance('InventoryManagement', 'ViewAliquotUse');
-		foreach(explode("UNION ALL", $ViewAliquotUse_model::$table_query) as $query) {
-			$ViewAliquotUse_model->query('REPLACE INTO '.$ViewAliquotUse_model->table. '('.str_replace('%%WHERE%%', 'AND AliquotMaster.id IN ('.implode(',',array_keys($used_volume_updated)).')', $query).')');
-		}
-		AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ').(implode(', ', $used_volume_updated)));
-	}
-	*/
-	
 }
 
 function getViewCreateStatement() {
