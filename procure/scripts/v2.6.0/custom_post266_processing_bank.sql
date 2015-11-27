@@ -28,11 +28,18 @@ VALUES
 ('rack20 (5X4)','Rack 20 (5X4)','Râtelier 20 (5X4)',  '1', @control_id, NOW(), NOW(), 1, 1),
 ('box100 1A-10J','Box81 1A-10J','Boîte81 1A-10J',  '1', @control_id, NOW(), NOW(), 1, 1);
 
+-- ================================================================================================================================================================
+-- Quality Control
+-- ================================================================================================================================================================
 
-
-
-
-
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("picogreen", "picogreen");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_type"), (SELECT id FROM structure_permissible_values WHERE value="picogreen" AND language_alias="picogreen"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("280", "280");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_unit"), (SELECT id FROM structure_permissible_values WHERE value="280" AND language_alias="280"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("260", "260");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_unit"), (SELECT id FROM structure_permissible_values WHERE value="260" AND language_alias="260"), "", "1");
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="quality_control_unit") AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="ng/ul" AND language_alias="ng/ul");
+INSERT INTO i18n (id,en,fr) VALUES("picogreen", "Picogreen", "Picogreen");
 
 
 
