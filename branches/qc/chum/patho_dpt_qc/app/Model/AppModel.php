@@ -97,6 +97,10 @@ class AppModel extends Model {
         if(!is_array($data)) {
             return $move_files;
         }
+        
+        //Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
+		$this_data_tmp_backup = $this->data;
+		
         $prev_data = $this->id ? $this->read() : null;
         $dir = Configure::read('uploadDirectory');
         foreach($data as $model_name => $fields){
@@ -122,8 +126,8 @@ class AppModel extends Model {
                             unlink($dir.'/'.$prev_data[$model_name][$field_name]);
                         }
                         $target_name = $this->getKeyIncrement('atim_internal_file', $target_name);
-                        array_push($move_files, ['tmpName' => $value['tmp_name'],
-                                                 'targetName' => $target_name]);
+                        array_push($move_files, array('tmpName' => $value['tmp_name'],
+                                                 'targetName' => $target_name));
                         $data[$model_name][$field_name] = $target_name;
                     }
                     else if (isset($value['option'])) {
@@ -140,6 +144,10 @@ class AppModel extends Model {
                 }
             }
         }
+		
+        //Reset data to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
+        $this->data = $this_data_tmp_backup;	
+        
         return $move_files;
     }
 	
@@ -193,10 +201,10 @@ class AppModel extends Model {
 		    //NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
 			$data[$this->name]['-'] = "foo";
 		}
-
-                $move_files = $this->filter_move_files($data);
+		
+		$move_files = $this->filter_move_files($data);
 		$result = parent::save($data, $validate, $fieldList);
-                $this->move_files($move_files);
+		$this->move_files($move_files);
 
 		return $result;
 	}

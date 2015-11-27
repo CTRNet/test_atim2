@@ -298,26 +298,28 @@ class ReportsController extends DatamartAppController {
 				$criteria_to_build_report = empty($this->request->data)? array() : $this->request->data;
 				// Manage data from csv file			
 				foreach($criteria_to_build_report as $model => $fields_parameters) {
-					foreach($fields_parameters as $field => $parameters) {
-						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
-							$matched_field_name = $matches[1];
-							if(!isset($criteria_to_build_report[$model][$matched_field_name])) $criteria_to_build_report[$model][$matched_field_name] = array();
-							if(strlen($parameters['tmp_name'])) {
-								if(!preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
-									$this->redirect('/Pages/err_submitted_file_extension', null, true);
-								} else {
-									$handle = fopen($parameters['tmp_name'], "r");
-									if($handle) {
-										while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-											$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
-										}
-										fclose($handle);
+					if(!($model == 'exact_search' && !is_array($fields_parameters))) {
+						foreach($fields_parameters as $field => $parameters) {
+							if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
+								$matched_field_name = $matches[1];
+								if(!isset($criteria_to_build_report[$model][$matched_field_name])) $criteria_to_build_report[$model][$matched_field_name] = array();
+								if(strlen($parameters['tmp_name'])) {
+									if(!preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
+										$this->redirect('/Pages/err_submitted_file_extension', null, true);
 									} else {
-										$this->redirect('/Pages/err_opening_submitted_file', null, true);
+										$handle = fopen($parameters['tmp_name'], "r");
+										if($handle) {
+											while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+												$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+											}
+											fclose($handle);
+										} else {
+											$this->redirect('/Pages/err_opening_submitted_file', null, true);
+										}
 									}
 								}
+								unset($criteria_to_build_report[$model][$field]);
 							}
-							unset($criteria_to_build_report[$model][$field]);
 						}
 					}
 				}	
@@ -634,10 +636,10 @@ class ReportsController extends DatamartAppController {
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
-		if(empty($parameters[0]['report_date_range_period']['0'])) {
+		if(empty($parameters[0]['report_date_range_period'])) {
 			return array('error_msg' => 'no period has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
 		}
-		$month_period = ($parameters[0]['report_date_range_period']['0'] == 'month')? true:false;
+		$month_period = ($parameters[0]['report_date_range_period'] == 'month')? true:false;
 		
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
