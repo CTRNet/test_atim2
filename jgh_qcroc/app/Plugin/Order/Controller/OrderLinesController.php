@@ -85,6 +85,7 @@ class OrderLinesController extends OrderAppController {
 					$data_unit['OrderLine']['aliquot_control_id'] = $product_controls[1];
 				}
 				$this->OrderLine->id = null;
+				$this->OrderLine->data = array(); // *** To guaranty no merge will be done with previous data ***
 				$this->OrderLine->set($data_unit);
 				if(!$this->OrderLine->validates()){
 					foreach($this->OrderLine->validationErrors as $field => $msgs) {
