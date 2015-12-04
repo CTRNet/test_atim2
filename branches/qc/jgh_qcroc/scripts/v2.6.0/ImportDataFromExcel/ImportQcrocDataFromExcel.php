@@ -12,7 +12,7 @@ $files_name = array(
 	'tissue' => 'Q-CROC-01 Tissue data v19 with block rename_20151021.xls',
 	'blood' => 'Q-CROC-01 Blood Data v10_20151021.xls'
 );
-$files_path = '/ATiM/qcroctodelete/';
+$files_path = '/ATiM/todelete/data/';
 $files_path = 'C:\_NicolasLuc\Server\www\qcroc\data/';
 require_once 'Excel/reader.php';
 
