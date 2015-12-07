@@ -386,3 +386,24 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6318' WHERE version_number = '2.6.6';
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Add study field : Evaluation of the ​Response to Reviewer​​s
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE study_summaries
+  ADD COLUMN qc_tf_cpcbn_sc_response_evaluation DATE DEFAULT NULL,
+  ADD COLUMN qc_tf_cpcbn_sc_response_evaluation_accuracy CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE study_summaries_revs
+  ADD COLUMN qc_tf_cpcbn_sc_response_evaluation DATE DEFAULT NULL,
+  ADD COLUMN qc_tf_cpcbn_sc_response_evaluation_accuracy CHAR(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'qc_tf_cpcbn_sc_response_evaluation', 'date',  NULL , '0', '', '', '', 'evaluation of the ​response to reviewer​​s', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_tf_cpcbn_sc_response_evaluation' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='evaluation of the ​response to reviewer​​s' AND `language_tag`=''), '1', '100', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO i18n (id,en)
+VALUES
+('evaluation of the response to reviewers','Evaluation of the Response to Reviewers');
+
+UPDATE versions SET branch_build_number = '6355' WHERE version_number = '2.6.6';
