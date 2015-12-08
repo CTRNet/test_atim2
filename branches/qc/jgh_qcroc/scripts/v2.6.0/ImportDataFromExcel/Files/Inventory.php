@@ -6,6 +6,7 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 	
 //TODO
 $limit_data = false;
+if($limit_data) pr('!!!!!!!!!!!!!!!!!!!!!!! limit data set');
 $limit_pattern = '((001)|(049)|(054))';
 	
 	// Control
@@ -44,13 +45,13 @@ $limit_pattern = '((001)|(049)|(054))';
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			if(strlen($new_line_data['Collection'])) {
-				if(preg_match('/^(01)\-T([0-9]{2})\-([0-9]{3})$/', $new_line_data['Collection'], $matches)) {
+			if(strlen($new_line_data['Collection ID'])) {
+				if(preg_match('/^(01)\-T([0-9]{2})\-([0-9]{3})$/', $new_line_data['Collection ID'], $matches)) {
 					if($limit_data && !preg_match($limit_pattern, $matches[3])) continue;
 					$collection_id = getCollectionId($matches[1], $matches[3], 'T', $matches[2], $new_line_data['Date'], '',  $new_line_data['Note'], $summary_title, $file_name, $worksheet, $line_counter);
-					$tissue_collection_and_sample_ids[$new_line_data['Collection']] = array('collection_id' => $collection_id, 'sample_master_id' => null, 'created_aliquots' => false);
+					$tissue_collection_and_sample_ids[$new_line_data['Collection ID']] = array('collection_id' => $collection_id, 'sample_master_id' => null, 'created_aliquots' => false);
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [".$new_line_data['Collection']."]! The collection won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [".$new_line_data['Collection ID']."]! The collection won't be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
 			} else if(strlen($new_line_data['Date'])) {
 				die('ERR 23 23 32');
@@ -86,12 +87,14 @@ $limit_pattern = '((001)|(049)|(054))';
 								$import_summary[$summary_title]['@@WARNING@@']['Tissue Source unknown'][] = "See value [$tissue_source]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
 								$tissue_source = '';
 							}
-							$tissue_laterality = strtolower($new_line_data['Laterality']);
+//							$tissue_laterality = strtolower($new_line_data['Laterality']);
+							$tissue_laterality = '';
 							if(!in_array($tissue_laterality, array('', 'left', 'right', 'unknown', 'not applicable'))) {
 								$import_summary[$summary_title]['@@WARNING@@']['Tissue Laterality unknown'][] = "See value [$tissue_laterality]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
 								$tissue_laterality = '';
 							}					
-							$qcroc_behavior = strtolower($new_line_data['Behavior']);
+//							$qcroc_behavior = strtolower($new_line_data['Behavior']);
+							$qcroc_behavior = '';
 							if(!in_array($qcroc_behavior, array('', 'tumor', 'metastatic'))) {
 								$import_summary[$summary_title]['@@WARNING@@']['Tissue Behavior unknown'][] = "See value [$qcroc_behavior]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
 								$qcroc_behavior = '';
@@ -1268,6 +1271,7 @@ function loadBlood(&$XlsReader, $files_path, $file_name) {
 	
 //TODO
 $limit_data = false;
+if($limit_data) pr('!!!!!!!!!!!!!!!!!!!!!!! limit data set');
 $limit_pattern = '((001)|(049)|(054))';
 	
 	// Control

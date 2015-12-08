@@ -9,11 +9,11 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_name = array(
-	'tissue' => 'Q-CROC-01 Tissue data v19 with block rename_20151021.xls',
-	'blood' => 'Q-CROC-01 Blood Data v10_20151021.xls'
+	'tissue' => 'Q-CROC-01 Tissue data v20_r20151208.xls',
+	'blood' => 'Q-CROC-01 Blood Data v10_20151021_r20151208.xls'
 );
 $files_path = '/ATiM/todelete/data/';
-$files_path = 'C:\_NicolasLuc\Server\www\qcroc\data/';
+//$files_path = 'C:\_NicolasLuc\Server\www\qcroc\data/';
 require_once 'Excel/reader.php';
 
 global $import_summary;
