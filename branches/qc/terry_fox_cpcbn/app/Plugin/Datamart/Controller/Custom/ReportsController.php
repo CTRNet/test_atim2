@@ -446,7 +446,7 @@ class ReportsControllerCustom extends ReportsController {
 			$sql = "
 				SELECT Collection.participant_id, GROUP_CONCAT(AliquotReviewDetail.grade SEPARATOR '##') AS qc_tf_participant_reviewed_grades
 				FROM collections Collection 
-				INNER JOIN aliquot_masters AS AliquotMAster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1
+				INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1
 				INNER JOIN aliquot_review_masters AliquotReviewMaster ON AliquotReviewMaster.aliquot_master_id = AliquotMaster.id AND AliquotReviewMaster.deleted <> 1 AND AliquotReviewMaster.aliquot_review_control_id = 2
 				INNER JOIN qc_tf_ar_tissue_cores AliquotReviewDetail ON AliquotReviewDetail.aliquot_review_master_id = AliquotReviewMaster.id
 				WHERE Collection.deleted <> 1 AND Collection.participant_id IN (".implode(',',$participant_ids).")
