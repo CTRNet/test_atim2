@@ -407,3 +407,16 @@ VALUES
 ('evaluation of the response to reviewers','Evaluation of the Response to Reviewers');
 
 UPDATE versions SET branch_build_number = '6355' WHERE version_number = '2.6.6';
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Add reviewed grades to summary
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structures(`alias`) VALUES ('qc_tf_cpcbn_summary_participant_reviewed_grades');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', 'Generated', '', 'qc_tf_participant_reviewed_grades', 'input',  NULL , '0', '', '', '', 'participant reviewed grades', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_participant_reviewed_grades'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_tf_participant_reviewed_grades' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='participant reviewed grades' AND `language_tag`=''), '0', '1051', 'revisions', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE datamart_reports SET form_alias_for_results = CONCAT(form_alias_for_results,',qc_tf_cpcbn_summary_participant_reviewed_grades') WHERE name = 'CPCBN Summary - Level1';
+INSERT IGNORE INTO i18n (id,en) VALUES ('revisions', 'Revisions'),('participant reviewed grades','Reviewed Grades');
+UPDATE versions SET branch_build_number = '6360' WHERE version_number = '2.6.6';

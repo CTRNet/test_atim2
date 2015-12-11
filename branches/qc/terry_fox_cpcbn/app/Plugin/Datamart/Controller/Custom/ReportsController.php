@@ -438,6 +438,27 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
+		// *********** Get Core Review ***********
+		
+		$participant_ids_to_revised_grades = null;
+		if(!$display_cores_positions) {
+			$participant_ids_to_revised_grades = array();
+			$sql = "
+				SELECT Collection.participant_id, GROUP_CONCAT(AliquotReviewDetail.grade SEPARATOR '##') AS qc_tf_participant_reviewed_grades
+				FROM collections Collection 
+				INNER JOIN aliquot_masters AS AliquotMAster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1
+				INNER JOIN aliquot_review_masters AliquotReviewMaster ON AliquotReviewMaster.aliquot_master_id = AliquotMaster.id AND AliquotReviewMaster.deleted <> 1 AND AliquotReviewMaster.aliquot_review_control_id = 2
+				INNER JOIN qc_tf_ar_tissue_cores AliquotReviewDetail ON AliquotReviewDetail.aliquot_review_master_id = AliquotReviewMaster.id
+				WHERE Collection.deleted <> 1 AND Collection.participant_id IN (".implode(',',$participant_ids).")
+				GROUP BY Collection.participant_id";
+			foreach($this->Report->tryCatchQuery($sql) as $new_patient_revised_grades) {
+				$qc_tf_participant_reviewed_grades = explode('##',$new_patient_revised_grades['0']['qc_tf_participant_reviewed_grades']);
+				asort($qc_tf_participant_reviewed_grades);
+				
+				$participant_ids_to_revised_grades[$new_patient_revised_grades['Collection']['participant_id']] = implode(' ', $qc_tf_participant_reviewed_grades);
+			}
+		}
+		
 		// *********** Merge all data ***********
 		
 		$dfs_psa_template = array(
@@ -472,7 +493,7 @@ class ReportsControllerCustom extends ReportsController {
 					'first_bcr_type' => ''
 			)
 		);
-		foreach($main_results as &$new_participant) {		
+		foreach($main_results as &$new_participant) {
 			if(isset($dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
 				$new_participant = array_merge_recursive($new_participant, $dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
@@ -508,6 +529,13 @@ class ReportsControllerCustom extends ReportsController {
 				list($model_calculated,$field_calculated) = explode('.', $model_field_calculated);
 				$new_participant[$model_calculated][$field_calculated] = $this->getDateDiffInMonths($new_participant['TreatmentMaster']['start_date'], $new_participant[$model_data][$field_data]);	
 				if($new_participant[$model_data][$field_data.'_accuracy'].$new_participant['TreatmentMaster']['start_date_accuracy'] != 'cc' && $new_participant[$model_data][$field_data] && $new_participant['TreatmentMaster']['start_date'] ) $warnings[] = __('intervals from rp have been calculated with at least one inaccuracy date');
+			}
+			if(!is_null($participant_ids_to_revised_grades)) {
+				if(array_key_exists($new_participant['Participant']['id'], $participant_ids_to_revised_grades)) {
+					$new_participant['Generated']['qc_tf_participant_reviewed_grades'] = $participant_ids_to_revised_grades[$new_participant['Participant']['id']];
+				} else {
+					$new_participant['Generated']['qc_tf_participant_reviewed_grades'] = '';
+				}
 			}
 			if(($_SESSION['Auth']['User']['group_id'] != '1') && ($new_participant['Participant']['qc_tf_bank_id'] != $user_bank_id)) {
 				$new_participant['Participant']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
