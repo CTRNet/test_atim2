@@ -419,4 +419,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_participant_reviewed_grades'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_tf_participant_reviewed_grades' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='participant reviewed grades' AND `language_tag`=''), '0', '1051', 'revisions', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 UPDATE datamart_reports SET form_alias_for_results = CONCAT(form_alias_for_results,',qc_tf_cpcbn_summary_participant_reviewed_grades') WHERE name = 'CPCBN Summary - Level1';
 INSERT IGNORE INTO i18n (id,en) VALUES ('revisions', 'Revisions'),('participant reviewed grades','Reviewed Grades');
-UPDATE versions SET branch_build_number = '6360' WHERE version_number = '2.6.6';
+UPDATE versions SET branch_build_number = '6361' WHERE version_number = '2.6.6';
