@@ -122,9 +122,9 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icord_manner_death') ,  `setting`='' WHERE model='Participant' AND tablename='participants' AND field='icord_manner_of_death' AND `type`='input' AND structure_value_domain  IS NULL ;
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
-('misadventure', 'misadventure', ''),
-('homicide', 'homicide', ''),
-('suicide', 'suicide', '');
+('misadventure', 'Misadventure', ''),
+('homicide', 'Homicide', ''),
+('suicide', 'Suicide', '');
 
 -- Increase size for cause of death
 UPDATE structure_fields SET  `setting`='size=30' WHERE model='Participant' AND tablename='participants' AND field='icord_cause_of_death' AND `type`='input' AND structure_value_domain  IS NULL ;
@@ -323,8 +323,55 @@ UPDATE structure_formats SET `display_column`='1', `display_order`='22' WHERE st
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('Consent National', 'iCord Consent', 'iCord Consent');
 
-
-
 -- Change date of death to datetime
--- UPDATE structure_fields SET  `type`='datetime' WHERE model='Participant' AND tablename='participants' AND field='date_of_death' AND `type`='date' AND structure_value_domain  IS NULL ;
--- UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `type`='datetime' WHERE model='Participant' AND tablename='participants' AND field='date_of_death' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Configure inventory sample types
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 193, 203, 142, 143, 141, 144, 192, 194, 140);
+
+-- Activate Annotation Menu
+UPDATE menus SET flag_active=false WHERE id IN('clin_CAN_27', 'clin_CAN_28', 'clin_CAN_30', 'clin_CAN_33');
+UPDATE menus SET flag_active=true WHERE id IN('clin_CAN_4');
+
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='20';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='22';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='50';
+
+
+-- Add Annotation form and table for animal data
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES ('general', 'clinical', 'animal data', '1', 'ed_all_clinical_animal_data', 'ed_all_clinical_animal_data', '0', 'clinical|general|animal', '0', '0', '0');
+
+INSERT INTO `structures` (`alias`) VALUES ('ed_all_clinical_animal_data');
+
+CREATE TABLE `ed_all_clinical_animal_data` (
+  `species` varchar(100) NULL,
+  `breed` varchar(100) NULL,
+  `weight` decimal(5,2) NULL,
+  `injury_type` varchar(100) NULL,
+  `injury_height` varchar(10) NULL,
+  `injury_force` varchar(100) NULL,
+  `compresssion` varchar(100) NULL,
+  `compression_time` varchar(10) NULL,
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`),
+  CONSTRAINT `ed_all_clinical_animal_data_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ 
+CREATE TABLE `ed_all_clinical_animal_data_revs` (
+  `species` varchar(100) NULL,
+  `breed` varchar(100) NULL,
+  `weight` decimal(5,2) NULL,
+  `injury_type` varchar(100) NULL,
+  `injury_height` varchar(10) NULL,
+  `injury_force` varchar(100) NULL,
+  `compresssion` varchar(100) NULL,
+  `compression_time` varchar(10) NULL,
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('animal data', 'Animal Data', 'Animal Data');
