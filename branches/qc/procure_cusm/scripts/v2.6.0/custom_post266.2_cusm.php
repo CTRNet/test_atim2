@@ -165,6 +165,10 @@ $query = "INSERT INTO  procure_txd_medications_revs (patient_identity_verified,m
 	WHERE modified = '$date' AND modified_by = $user_id)";
 customQuery($query);
 
+customQuery("UPDATE treatment_masters SET start_date = null WHERE start_date like '0000-00-00';");
+customQuery("UPDATE treatment_masters SET finish_date = null WHERE finish_date like '0000-00-00';");
+customQuery("UPDATE treatment_masters_revs SET start_date = null WHERE start_date like '0000-00-00';");
+customQuery("UPDATE treatment_masters_revs SET finish_date = null WHERE finish_date like '0000-00-00';");
 
 pr("<br><br>=======================================================================================================================================<br>");
 foreach($all_queries as $new_query) pr("<i>$new_query</i>");
