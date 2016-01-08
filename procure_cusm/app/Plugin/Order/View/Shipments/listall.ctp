@@ -3,6 +3,7 @@
 		'top'=>null,
 		'index'=> array(
 			'detail' => '/Order/Shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/',
+			'copy for new shipment' => array('link' => '/Order/Shipments/add/%%Shipment.order_id%%/%%Shipment.id%%/', 'icon' => 'copy'),
 			'add items to shipment' => array('link'=> '/Order/Shipments/addToShipment/%%Shipment.order_id%%/%%Shipment.id%%/', 'icon' => 'add_to_shipment'),
 			'delete' => '/Order/Shipments/delete/%%Shipment.order_id%%/%%Shipment.id%%/'),
 		'bottom'=>array(

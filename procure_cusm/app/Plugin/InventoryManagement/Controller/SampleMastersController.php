@@ -73,15 +73,13 @@ class SampleMastersController extends InventoryManagementAppController {
 		$this->set("collection_id", $collection_id);
 		$this->set("is_ajax", $is_ajax);
 		
-		// Unbind models
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
-		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
-		
+		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail'),'hasMany' => array('AliquotMaster')),false);
 		if($sample_master_id == 0){
 			//fetch all
 			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id IS NULL"), 'recursive' => 0));
 		}else{
-			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id" => $sample_master_id), 'recursive' => 0));
+			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id" => $sample_master_id), 'order' => 'DerivativeDetail.creation_datetime ASC, SampleMaster.id ASC', 'recursive' => 0));
+			foreach($this->request->data as &$new_sample) $new_sample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h','h','h'), $new_sample['DerivativeDetail']['creation_datetime_accuracy']);
 		}
 		
 		$ids = array();
@@ -94,6 +92,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		}
 		if($sample_master_id != 0){
 			//aliquots that are not realiquots
+			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 			$aliquot_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
 			$aliquot_ids = array_diff($aliquot_ids, $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids), 'group' => array("Realiquoting.child_aliquot_master_id"))));
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
@@ -105,7 +104,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
 				$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 			}
-			$this->request->data = array_merge($this->request->data, $aliquots);
+			$this->request->data = array_merge($aliquots, $this->request->data);
 		}
 
 		// Set menu variables
@@ -390,7 +389,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					$default_reception_datetime = $collection['Collection']['collection_datetime'];
 					$default_reception_datetime_accuracy = $collection['Collection']['collection_datetime_accuracy'];
 				}else{
-					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => array('SpecimenDetail.reception_datetime')));
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_category' => 'specimen'), 'order' => array('SpecimenDetail.reception_datetime DESC')));
 					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
 					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
@@ -663,12 +662,16 @@ class SampleMastersController extends InventoryManagementAppController {
 					if($is_specimen){
 						// SpecimenDetail
 						$this->SpecimenDetail->id = $sample_master_id;
+						$this->request->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
+						$this->SpecimenDetail->addWritableField(array('sample_master_id'));
 						if(!$this->SpecimenDetail->save($this->request->data['SpecimenDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 					} else {
 						// DerivativeDetail
 						$this->DerivativeDetail->id = $sample_master_id;
+						$this->request->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
+						$this->DerivativeDetail->addWritableField(array('sample_master_id'));
 						if(!$this->DerivativeDetail->save($this->request->data['DerivativeDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
@@ -962,7 +965,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		$ids = array_key_exists('ids', $this->request->data['SampleMaster']) ? $this->request->data['SampleMaster']['ids'] : $this->request->data['sample_master_ids'];
 		$this->set('sample_master_ids', $ids);
 		unset($this->request->data['sample_master_ids']);
-
+		
 		if(is_null($aliquot_master_id)) {
 			$this->setBatchMenu(array('SampleMaster' => $ids));
 		} else {
@@ -990,6 +993,8 @@ class SampleMastersController extends InventoryManagementAppController {
 			)
 		);
 		
+		$display_batch_process_aliq_storage_and_in_stock_details = false;
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
@@ -998,6 +1003,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(isset($this->request->data['SampleMaster']['ids'])){
 			//1- INITIAL DISPLAY
 			$parent_sample_data_for_display = array();
+			$display_limit = Configure::read('SampleDerivativeCreation_processed_items_limit');
 			if(!empty($this->request->data['AliquotMaster']['ids'])){
 				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 				$aliquots = $this->AliquotMaster->find('all', array(
@@ -1006,14 +1012,25 @@ class SampleMastersController extends InventoryManagementAppController {
 					'recursive'		=> 0,
 					'joins'			=> $joins)
 				);
+				if(sizeof($aliquots) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+					return;
+				}
 				$this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
 				$this->request->data = array();
 				foreach($aliquots as $aliquot){
 					$this->request->data[] = array('parent' => $aliquot, 'children' => array());
 					$parent_sample_data_for_display[] = $aliquot;	
-				}			
+				}
+				
+				$display_batch_process_aliq_storage_and_in_stock_details = sizeof($this->request->data) > 1;
+				
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
+				if(sizeof($samples) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+					return;
+				}
 				$this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
 				$this->request->data = array();
 				foreach($samples as $sample){
@@ -1032,11 +1049,20 @@ class SampleMastersController extends InventoryManagementAppController {
 				
 			// 2- VALIDATE PROCESS
 			
+			// Parse First Section To Apply To All
+			list($used_aliquot_data_to_apply_to_all, $errors_on_first_section_to_apply_to_all) = $this->AliquotMaster->getAliquotDataStorageAndStockToApplyToAll($this->request->data);
+			
+			unset($this->request->data['FunctionManagement']);
+			unset($this->request->data['AliquotMaster']);
 			unset($this->request->data['SampleMaster']);
 			
-			$errors = array();
 			$prev_data = $this->request->data;
+			if(empty($prev_data)) {
+				$this->flash(__("at least one data has to be created"), "javascript:history.back();", 5);
+				return;
+			}
 			$this->request->data = array();
+			$errors = $errors_on_first_section_to_apply_to_all;
 			$record_counter = 0;
 			$aliquots_data = array();
 			$validation_iterations = array('SampleMaster', 'DerivativeDetail', 'SourceAliquot');
@@ -1046,6 +1072,8 @@ class SampleMastersController extends InventoryManagementAppController {
 				$parent = null;
 				$record_counter++;
 				if(isset($children['AliquotMaster'])){
+					if($used_aliquot_data_to_apply_to_all) $children = array_replace_recursive($children, $used_aliquot_data_to_apply_to_all);
+					
 					$set_source_aliquot = true;					
 					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 					$parent = $this->AliquotMaster->find('first', array(
@@ -1119,6 +1147,11 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data_for_display));
 			
 			$this->SourceAliquot->validationErrors = null;
+
+			$display_batch_process_aliq_storage_and_in_stock_details = sizeof($aliquots_data) > 1;
+			if($used_aliquot_data_to_apply_to_all) {
+				AppController::addWarningMsg(__('fields values of the first section have been applied to all other sections'));
+			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -1234,6 +1267,9 @@ class SampleMastersController extends InventoryManagementAppController {
 				}
 			}
 		}
+		
+		$this->set('display_batch_process_aliq_storage_and_in_stock_details', $display_batch_process_aliq_storage_and_in_stock_details);
+		$this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
 	}
 }
 	

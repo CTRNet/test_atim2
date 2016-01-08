@@ -27,4 +27,41 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='BR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='PR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.1';
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_aps_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_aps_ibfk_2;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_2;
+
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP KEY procure_ed_clinical_followup_worksheet_aps_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP KEY procure_ed_clinical_followup_worksheet_aps_ibfk_2;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_2;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='patient_identity_verified' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(188, 192);
+
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders contacts')" WHERE domain_name = 'orders_contact';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders institutions')" WHERE domain_name = 'orders_institution';
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('procure slice origins')" WHERE domain_name = 'procure_slice_origins';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('questionnaire version date')" WHERE domain_name = 'procure_questionnaire_version';
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_hemolysis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='hemolysis_signs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='302' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('pbmc', 'Buffy Coat', 'Couche Leucocytaire');
+
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='title' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='person title') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='middle_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='title' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='person title') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='participant' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
+

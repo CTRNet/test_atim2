@@ -1,7 +1,9 @@
 <?php 
 	
-	if(isset($default_aliquot_barcodes[$parent['AliquotMaster']['sample_master_id']])) {
-		$final_options_children['override']['AliquotMaster.barcode'] = $default_aliquot_barcodes[$parent['AliquotMaster']['sample_master_id']];
+	if(isset($procure_default_aliquot_data[$parent['AliquotMaster']['sample_master_id']])) {
+		foreach($procure_default_aliquot_data[$parent['AliquotMaster']['sample_master_id']] as $mode_field => $procure_value) {
+			$final_options_children['override'][$mode_field] =  $procure_value;
+		}
 	}
 	
 ?>

@@ -1,5 +1,14 @@
 <?php 
 		
+	//Note there are no interest to add control for CENTRAL BANK because data will be erased
+	if(Configure::read('procure_atim_version') != 'BANK') {
+		if($sample_control_data['SampleControl']['sample_category'] == 'specimen') {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else if($parent_sample_data['SampleMaster']['procure_created_by_bank'] != 'p'){
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	}
+	
 	//--------------------------------------------------------------------------------
 	//  BLOOD
 	//--------------------------------------------------------------------------------
@@ -22,6 +31,7 @@
 			
 			$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_blood_samples[0]['SpecimenDetail']['reception_datetime'];
 			$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $collection_blood_samples[0]['SpecimenDetail']['reception_datetime_accuracy'];
+			$this->request->data['SpecimenDetail']['procure_refrigeration_time'] = $collection_blood_samples[0]['SpecimenDetail']['procure_refrigeration_time'];
 			
 			$this->request->data['SampleDetail']['procure_collection_site'] = $collection_blood_samples[0]['SampleDetail']['procure_collection_site'];
 			$this->request->data['SampleDetail']['procure_collection_without_incident'] = $collection_blood_samples[0]['SampleDetail']['procure_collection_without_incident'];
@@ -54,9 +64,6 @@
 				break;
 			case 'tissue':
 				$participant_identifier = empty($collection['ViewCollection']['participant_identifier'])? '?' : $collection['ViewCollection']['participant_identifier'];
-				
-				
-				
 				$this->request->data['SampleDetail']['procure_tissue_identification'] = $participant_identifier. ' ' . $collection['ViewCollection']['procure_visit'] . ' -PST1';
 				break;			
 		}

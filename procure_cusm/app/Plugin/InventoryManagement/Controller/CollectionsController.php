@@ -373,7 +373,14 @@ class CollectionsController extends InventoryManagementAppController {
 		}
 		
 		$template_init_id = null;
-		if(!empty($this->request->data)){
+		if(empty($this->request->data)){
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}	
+			
+		} else {
 			//validate and stuff
 			$data_validates = true;
 			

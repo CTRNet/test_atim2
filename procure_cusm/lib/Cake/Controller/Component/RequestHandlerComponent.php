@@ -17,7 +17,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Controller.Component
  * @since         CakePHP(tm) v 0.10.4.1076
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Component', 'Controller');
@@ -159,7 +159,7 @@ class RequestHandlerComponent extends Component {
 			return;
 		}
 
-		$accepts = $this->response->mapType($this->request->parseAccept());
+		$accepts = $this->response->mapType($accept);
 		$preferedTypes = current($accepts);
 		if (array_intersect($preferedTypes, array('html', 'xhtml'))) {
 			return null;
@@ -518,11 +518,14 @@ class RequestHandlerComponent extends Component {
 		}
 
 		list($contentType) = explode(';', env('CONTENT_TYPE'));
+		if ($contentType === '') {
+			list($contentType) = explode(';', CakeRequest::header('CONTENT_TYPE'));
+		}
 		if (!$type) {
 			return $this->mapType($contentType);
 		}
 		if (is_string($type)) {
-			return ($type == $this->mapType($contentType));
+			return ($type === $this->mapType($contentType));
 		}
 	}
 

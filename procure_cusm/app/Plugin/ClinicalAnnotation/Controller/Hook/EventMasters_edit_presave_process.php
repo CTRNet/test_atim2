@@ -1,8 +1,10 @@
 <?php 
 	
-	if(($event_master_data['EventControl']['event_type'] == 'procure follow-up worksheet') && ($this->request->data['EventMaster']['procure_form_identification'] != $event_master_data['EventMaster']['procure_form_identification'])) {
-		$this->request->data['EventMaster']['tmp_launch_linked_event_update'] = 1;
-	} else {
-		$this->request->data['EventMaster']['tmp_launch_linked_event_update'] = 0;
-	}	
+	if($event_master_data['EventControl']['event_type'] == 'procure follow-up worksheet') {
+		if(empty($this->request->data['EventMaster']['event_date']['year'])) {
+			$this->EventMaster->validationErrors['event_date'][] = 'the visite date has to be completed';
+			$submitted_data_validates = false;
+		}
+	}
 	
+	$this->Participant->setParticipantIdentifierForFormValidation($participant_id);

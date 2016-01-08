@@ -1,6 +1,6 @@
 <?php 
 	$structure_links = array(
-		'index' => array('detail' => '/Order/OrderLines/detail/%%OrderLine.order_id%%/%%OrderLine.id%%/'),
+		'index' => array('detail' => '/Order/Orders/detail/%%OrderItem.order_id%%/'),
 		'bottom' => array(
 			'new search' => OrderAppController::$search_links,
 			'add order' => '/Order/Orders/add/'
