@@ -28,6 +28,7 @@ class Browser extends DatamartAppModel {
 	const USE_KEY = 3;
 	const ANCESTOR_IS_CHILD = 4;
 	const JOIN_FIELD = 5;
+	const SUB_MODEL_ID = 6;
 	
 	public static $cache = array();
 	
@@ -618,6 +619,7 @@ class Browser extends DatamartAppModel {
 				}
 				if(is_array($cell)){
 					$cell_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['model'], true);
+					if($cell_model->table == 'tma_slides') AppController::addWarningMsg(__('links between storage and tma slides are limited to tma blocks and slides created from these blocks - different than slide storage'));					
 					$class = '';
 					if($cell['active']){
 						$class .= " active ";
@@ -1083,28 +1085,29 @@ class Browser extends DatamartAppModel {
 		return $nodes_to_fetch;
 	}
 	
+	private function getModelAlias($node){
+	    return $node[self::NODE_ID]."_".$node[self::MODEL]->name;
+	}
+	
 	/**
 	 * Builds the search parameters array
 	 * @note: Hardcoded for collections
 	 */
-	private function buildBufferedSearchParameters($primary_node_ids){
+	private function buildBufferedSearchParameters($primary_node_ids, $order){
 		$joins = array();
 		$fields = array();
-		$order = array();
 		for($i = 1; $i < count($this->nodes); ++ $i){
 			$node = $this->nodes[$i];
 			$ancestor_node = $this->nodes[$i - 1];
 			$condition = null;
-			$alias = $node[self::MODEL]->name."Browser";
-			$ancestor_alias = $i > 1 ? $ancestor_node[self::MODEL]->name."Browser" : $ancestor_node[self::MODEL]->name;
+			$alias = $this->getModelAlias($node);
+			$ancestor_alias = $i > 1 ? $this->getModelAlias($ancestor_node) : $ancestor_node[self::MODEL]->name;
 			if($node[self::ANCESTOR_IS_CHILD]){
 				$condition = $alias.".".$node[self::USE_KEY]." = ".$ancestor_alias.".".$node[self::JOIN_FIELD];
 			}else{
 				$condition = $alias.".".$node[self::JOIN_FIELD]." = ".$ancestor_alias.".".$ancestor_node[self::USE_KEY];
 			}
 			$fields[] = 'CONCAT("", '.$alias.".".$node[self::USE_KEY].') AS '.$alias;
-			$order[] = $alias;
-			
 			$joins[] = array(
 				'table' => $node[self::MODEL]->table,
 				'alias'	=> $alias,
@@ -1114,17 +1117,25 @@ class Browser extends DatamartAppModel {
 					$alias.".".$node[self::USE_KEY] => $node[self::IDS]
 				)
 			);
+			if($node[self::SUB_MODEL_ID]){
+			    $joins[] = $node[self::MODEL]->getDetailJoin($node[self::SUB_MODEL_ID], $alias);
+			}
 		}
 		
 		$node = $this->nodes[0];
-		array_unshift($fields, 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS '.$node[self::MODEL]->name);
-		array_unshift($order, $node[self::MODEL]->name);
+		$conditions = array();
+		$model = $node[self::MODEL];
+		if($node[self::SUB_MODEL_ID]){
+		    $conditions[$model->name.".".$model->getControlForeign()] = $node[self::SUB_MODEL_ID];
+		}
+		array_unshift($fields, 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS `'.$node[self::MODEL]->name.'`');
+		$conditions[$model->name.".".$node[self::USE_KEY]] = $primary_node_ids;
 		$this->search_parameters = array(
 			'fields'		=> $fields,
 			'joins'			=> $joins, 
-			'conditions'	=> array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $primary_node_ids),
+			'conditions'	=> $conditions,
 			'order'			=> $order,
-			'recursive'		=> -1
+			'recursive'		=> 1
 		);
 	}
 	
@@ -1134,7 +1145,7 @@ class Browser extends DatamartAppModel {
 	 * @param int $merge_to Node id of the target node to merge with
 	 * @param array $primary_node_ids The ids of the primary node to use
 	 */
-	public function initDataLoad(array $browsing, $merge_to, array $primary_node_ids){
+	public function initDataLoad(array $browsing, $merge_to, array $primary_node_ids, $order = null){
 		$result = array();
 		$start_id = NULL;
 		$end_id = null;
@@ -1166,15 +1177,12 @@ class Browser extends DatamartAppModel {
 		foreach($nodes_to_fetch as $node){
 			$current_browsing = self::$browsing_result_model->findById($node);
 			$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['model'], true);
+			$current_sub_model = null;
+			if ($current_browsing['BrowsingResult']['browsing_structures_sub_id']) {
+			    $current_sub_model = $current_browsing['BrowsingResult']['browsing_structures_sub_id'];
+			}
 			$ids = explode(",", $current_browsing['BrowsingResult']['id_csv']);
 			$ids[] = 0;
-			
-			$control_id = empty($current_browsing['DatamartStructure']['control_master_model']) ? false : $current_model->find('all', array(
-				'fields' => array($current_model->getControlForeign()),
-				'conditions' => array($current_browsing['DatamartStructure']['model'].".".$current_model->primaryKey => $ids),
-				'group' => array($current_model->getControlForeign()), 
-				'limit' => 2));
-			
 			$model_and_struct_for_node = self::$browsing_result_model->getModelAndStructureForNode($current_browsing);
 			$structure = $model_and_struct_for_node['structure'];
 			$header_sub_type = ($model_and_struct_for_node['header_sub_type'] ? "/".self::getTranslatedDatabrowserLabel($model_and_struct_for_node['header_sub_type']) : '').' ';
@@ -1182,7 +1190,6 @@ class Browser extends DatamartAppModel {
 				//must use the generic structure (or its empty...)
 				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));
 			} 
-			
 			if($this->checklist_model == null){
 				$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
 				$this->checklist_use_key = $current_model->primaryKey;
@@ -1192,7 +1199,7 @@ class Browser extends DatamartAppModel {
 			$prefix = '';
 			if($iteration_count > 1){
 				//prefix all models with their node id, except for the first node
-				$prefix = $node.'-';
+				$prefix = $node.'_';
 			}
 			//structure merge, add 100 * iteration count to display column
 			foreach($structure['Sfs'] as $sfs){
@@ -1234,15 +1241,17 @@ class Browser extends DatamartAppModel {
 			}
 			
 			//update header
-			$count = $current_model->find('count', array('conditions' => array($current_model->name.".".$current_model->primaryKey => $ids)));
+			$count = $current_model->find('count', array('conditions' => array($current_model->name.".".$current_model->primaryKey => $ids),
+			                                             'recursive' => -1));
 			$header[] = __($current_browsing['DatamartStructure']['display_name']).$header_sub_type."(".$count.")";
 			$this->nodes[] = array(
-				self::NODE_ID => $node, 
+				self::NODE_ID => $node,
 				self::IDS => $ids, 
 				self::MODEL => $current_model, 
 				self::USE_KEY => $current_model->primaryKey,
 				self::ANCESTOR_IS_CHILD => $ancestor_is_child,
-				self::JOIN_FIELD => $join_field
+				self::JOIN_FIELD => $join_field,
+			    self::SUB_MODEL_ID => $current_sub_model
 			);
 			$last_browsing = $current_browsing;
 			++ $iteration_count;
@@ -1250,8 +1259,11 @@ class Browser extends DatamartAppModel {
 		
 		
 		//prepare buffer conditions
-		$this->buildBufferedSearchParameters($primary_node_ids);
-		$this->count = $this->nodes[0][self::MODEL]->find('count', array('joins' => $this->search_parameters['joins'], 'conditions' => $this->search_parameters['conditions'], 'recursive' => 0));
+		$this->buildBufferedSearchParameters($primary_node_ids, $order);
+		$this->count = $this->nodes[0][self::MODEL]->find('count', 
+            array('joins' => $this->search_parameters['joins'],
+                  'conditions' => $this->search_parameters['conditions'],
+                  'recursive' => -1));
 		$this->checklist_header = implode(" - ", $header); 
 		$this->result_structure = $result_structure;
 	}
@@ -1259,7 +1271,6 @@ class Browser extends DatamartAppModel {
 	private function fillBuffer($chunk_size){
 		$this->search_parameters['limit'] = $chunk_size;
 		$this->search_parameters['offset'] = $this->offset;
-		
 		$lines = $this->nodes[0][self::MODEL]->find('all', $this->search_parameters);
 		$this->offset += $chunk_size;
 
@@ -1295,7 +1306,7 @@ class Browser extends DatamartAppModel {
 				$prefix = '';
 				if($count){
 					//set a prefix when model != 0 (the first one cannot be prefixed because of links and checkboxes)
-					$prefix = $node[self::NODE_ID].'-';
+					$prefix = $node[self::NODE_ID].'_';
 				}
 				$model_data_tmp = $node[self::MODEL]->find('all', array(
 					'fields'	=> '*',

@@ -1,3 +1,7 @@
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+-- First script to run to migrate PROCURE CUSM v254 (rev 5166) to v266.
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------
+
 -- laparoscopy
 
 UPDATE structure_permissible_values_customs SET `value` = 'laparoscopy', `en` = 'Laparoscopy', `fr` = 'Laparoscopie' WHERE `value` = 'laparascopy';

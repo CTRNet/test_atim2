@@ -2,8 +2,6 @@
 /**
  * BasicsTest file
  *
- * PHP 5
- *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -19,6 +17,7 @@
  */
 
 require_once CAKE . 'basics.php';
+
 App::uses('Folder', 'Utility');
 App::uses('CakeResponse', 'Network');
 
@@ -278,7 +277,7 @@ class BasicsTest extends CakeTestCase {
 
 		Configure::write('Cache.disable', false);
 		$result = cache('basics_test', 'simple cache write');
-		$this->assertTrue((boolean)$result);
+		$this->assertTrue((bool)$result);
 		$this->assertTrue(file_exists(CACHE . 'basics_test'));
 
 		$result = cache('basics_test');
@@ -860,7 +859,7 @@ EXPECTED;
  * @return void
  */
 	public function testPr() {
-		$this->skipIf(php_sapi_name() == 'cli', 'Skipping web test in cli mode');
+		$this->skipIf(php_sapi_name() === 'cli', 'Skipping web test in cli mode');
 		ob_start();
 		pr('this is a test');
 		$result = ob_get_clean();

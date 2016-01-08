@@ -660,7 +660,7 @@ function initActions(){
         var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
         if(!lastTd.length){
             //no more rows
-            lastTd = $(table).find("thead th:last").eq(0);
+            lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
         }
         var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
         width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
@@ -981,6 +981,26 @@ function initActions(){
 		setTimeout(cookieWatch, 4000);//4 seconds error margin
 	}
 	
+        function initFileOptions(scope) {
+            $(scope).find("input.fileOption[value=replace]").each(function() {
+                // $(this).next("input") is not working, so using next().next()
+                $(this).data("browse-html", $(this).next().next()[0].outerHTML);
+                $(this).next().next().remove();
+                $(this).data("replace-html", $(this).next()[0].outerHTML);
+            });
+            $(scope).find("input.fileOption").click(function(event) {
+                if ($(this).val() == 'replace') {
+                    $(this).next().remove();
+                    $(this).after($(this).data("browse-html"));
+                }
+                else {
+                    $(this).parent().find("input.fileOption[value=replace]").each(function() {
+                        $(this).next().remove();
+                        $(this).after($(this).data("replace-html"));
+                    });
+                }
+            });
+        }
 	
 	function initJsControls(){
 		if(history.replaceState){
@@ -1029,7 +1049,6 @@ function initActions(){
 			drawTree($.parseJSON(window.wizardTreeData));
 		}
 		if($(".ajax_search_results").length == 1){
-			$(".ajax_search_results").parent().hide();
 			if(history.replaceState){
 				//doesn't work for IE < 10
 				//TODO: prevent over clicking the submit btn
@@ -1067,14 +1086,9 @@ function initActions(){
 		if(history.replaceState){
 			window.onpopstate = function(event) {
 				//retrieving result from history
-				if(event.state == null){
+				if(event.state == null || typeof(event.state) == "object"){
 					//new / refresh
 					initIndexZones(false);
-					if($(".ajax_search_results_default")){
-						$(".ajax_search_results").html($(".ajax_search_results_default").html());
-						$(".ajax_search_results").parent().show();
-						$(".ajax_search_results_default").remove();
-					}
 				}else{
 					//back/forward
 					$(".ajax_search_results_default").remove();
@@ -1085,13 +1099,11 @@ function initActions(){
 				}
 			};
 			
-			if(navigator.userAgent.indexOf("Firefox") != -1){
-				$(".ajax_search_results").html($(".ajax_search_results_default").html());
-				$(".ajax_search_results").parent().show();
-				$(".ajax_search_results_default").remove();
-				handleSearchResultLinks();
-				initIndexZones(false);
-			}
+			$(".ajax_search_results").html($(".ajax_search_results_default").html());
+			$(".ajax_search_results").parent().show();
+			$(".ajax_search_results_default").remove();
+			handleSearchResultLinks();
+			initIndexZones(false);
 		}else{
 			//unknown, always consider new
 			initIndexZones(false);
@@ -1120,6 +1132,7 @@ function initActions(){
 		
 		initCheckAll(document);
 		initCheckboxes(document);
+                initFileOptions(document);
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){
@@ -1689,6 +1702,7 @@ function initActions(){
 				});
 				return false;
 			});
+			fctLinksToAjax(popup.frame);
 		});
 		
 		
