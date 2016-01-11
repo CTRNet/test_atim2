@@ -92,6 +92,9 @@ ALTER TABLE quality_ctrls_revs
   ADD COLUMN `procure_concentration` decimal(10,2) DEFAULT NULL,
   ADD COLUMN `procure_concentration_unit` varchar(20) DEFAULT NULL;
 
+UPDATE structure_formats SET `display_order`='50' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_concentration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='51' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_concentration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit') AND `flag_confidential`='0');
+
 -- Path REview
 
 UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
@@ -282,3 +285,132 @@ OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6332' WHERE version_number = '2.6.6';
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Display Aliquot Label in index view, list, etc...
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+SET @flag_aliquot_label = (SELECT flag_detail FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label'));
+UPDATE structure_formats SET `flag_edit`=@flag_aliquot_label, `flag_edit_readonly`=@flag_aliquot_label, `flag_search`=@flag_aliquot_label, `flag_index`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='200', `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`=@flag_aliquot_label, `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`=@flag_aliquot_label, `flag_addgrid_readonly`=@flag_aliquot_label, `flag_editgrid`=@flag_aliquot_label, `flag_editgrid_readonly`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`=@flag_aliquot_label, `flag_edit_readonly`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`=@flag_aliquot_label, `flag_edit_readonly`=@flag_aliquot_label, `flag_index`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`=@flag_aliquot_label, `flag_detail`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`=@flag_aliquot_label, `flag_edit_readonly`=@flag_aliquot_label, `flag_addgrid`=@flag_aliquot_label, `flag_addgrid_readonly`=@flag_aliquot_label, `flag_editgrid`=@flag_aliquot_label, `flag_editgrid_readonly`=@flag_aliquot_label, `flag_index`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`=@flag_aliquot_label, `flag_index`=@flag_aliquot_label WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Aliquot Barcode And Label Update
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('at least one aliquot procure identification does not match the collection visit', 'At least one aliquot procure identification does not match the collection visit.', 'Au moins une identification d''aliquot ne correspond pas à la visite de la collection.');
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'update aliquot barcode (and label)', '/InventoryManagement/AliquotMasters/editBarcodeAndLabel/', 1, '');
+
+INSERT INTO structures(`alias`) VALUES ('procure_aliquot_barcode_and_label_update');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='participant identifier' AND `language_tag`=''), '0', '-1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='procure_visit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_collection_visit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='visit' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample type' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot type' AND `language_tag`=''), '0', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'size=30,class=file', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='in_stock' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='aliquot_in_stock_help' AND `language_label`='aliquot in stock' AND `language_tag`=''), '0', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage' AND `language_tag`=''), '0', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='storage_coord_x' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=11' AND `default`='' AND `language_help`='' AND `language_label`='position into storage' AND `language_tag`=''), '0', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=11' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='aliquot procure identification' AND `language_tag`=''), '0', '50', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '51', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `language_heading`='new data' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_aliquot_barcode_and_label_update') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('update aliquot barcode (and label)', 'Update Aliquot Identifications (and Labels)', 'Modifier identifications et étiquettes'),
+('aliquot barcode (and label) update', 'Aliquot Identifications (and Labels) Update', 'Modification des identifications et étiquettes'),
+('you can not edit 2 aliquots with the same barcode','You can not edit 2 aliquots with the same identification','Vous ne pouvez pas modified deux aliquots avec la même identification'),
+('you are editing aliquots that have already been sent to processing site', 'You are editing aliquots that have already been sent to processing site', 'Vous modifiez des aliquots qui ont été déjà envoyés au site de traitement'),
+('new data', 'New Data', 'Nouvelles Données');
+
+SELECT 'Allow only administrator to update aliquot identification (barcode) and label' AS '### TODO ###';
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Add Month Into Follow-up Report
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_order`= (`display_order` * 10) WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_followups_report_result');
+UPDATE structure_formats SET `display_order`=(`display_order` + 5) WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_followups_report_result') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field` LIKE 'procure_%_first_collection_date');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) 
+(SELECT 'Datamart', '0', '', REPLACE(field, '_date', '_month'), 'integer',  NULL , '0', '', '', '', 'month', '' FROM structure_fields WHERE model = '0' AND field LIKE 'procure_%_followup_worksheet_date');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) 
+(SELECT 'Datamart', '0', '', REPLACE(field, '_date', '_month'), 'integer',  NULL , '0', '', '', '', 'month', '' FROM structure_fields WHERE model = '0' AND field LIKE 'procure_%_medication_worksheet_date');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) 
+(SELECT 'Datamart', '0', '', REPLACE(field, '_date', '_month'), 'integer',  NULL , '0', '', '', '', 'month', '' FROM structure_fields WHERE model = '0' AND field LIKE 'procure_%_first_collection_date');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `flag_index`)
+(SELECT sfo.structure_id, sfi_m.id, sfo.display_column, (sfo.display_order+1), '1'
+FROM structure_fields sfi_d, structure_fields sfi_m, structure_formats sfo
+WHERE sfo.structure_field_id = sfi_d.id
+AND sfi_d.field LIKE 'procure_%_followup_worksheet_date' 
+AND sfi_m.field LIKE 'procure_%_followup_worksheet_month'
+AND SUBSTRING(sfi_d.field, 1, 10) = SUBSTRING(sfi_m.field, 1, 10));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `flag_index`)
+(SELECT sfo.structure_id, sfi_m.id, sfo.display_column, (sfo.display_order+1), '1'
+FROM structure_fields sfi_d, structure_fields sfi_m, structure_formats sfo
+WHERE sfo.structure_field_id = sfi_d.id
+AND sfi_d.field LIKE 'procure_%_medication_worksheet_date' 
+AND sfi_m.field LIKE 'procure_%_medication_worksheet_month'
+AND SUBSTRING(sfi_d.field, 1, 10) = SUBSTRING(sfi_m.field, 1, 10));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `flag_index`)
+(SELECT sfo.structure_id, sfi_m.id, sfo.display_column, (sfo.display_order+1), '1'
+FROM structure_fields sfi_d, structure_fields sfi_m, structure_formats sfo
+WHERE sfo.structure_field_id = sfi_d.id
+AND sfi_d.field LIKE 'procure_%_first_collection_date' 
+AND sfi_m.field LIKE 'procure_%_first_collection_month'
+AND SUBSTRING(sfi_d.field, 1, 10) = SUBSTRING(sfi_m.field, 1, 10));
+UPDATE structure_fields SET language_label = '', language_tag = '' WHERE model = '0' AND (field LIKE 'procure_%_medication_worksheet_month' OR field LIKE 'procure_%_first_collection_month' OR field LIKE 'procure_%_followup_worksheet_month');
+INSERT INTO i18n (id,en,fr) VALUES ('months','Months','Mois');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Barcode Error List
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) VALUES
+(null, 'procure barcode errors', 'procure barcode errors description', 'procure_barcode_errors_list', 'procure_barcode_errors_list,view_aliquot_joined_to_sample_and_collection', 'index', 'procureGetListOfBarcodeErrors', 1, (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 0);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('procure barcode errors', 'PROCURE - Wrong Aliquot Identifiers Formats', 'PROCURE - Mauvais format d''identifiants d''aliquots'),
+('procure barcode errors description', 'List all wrong aliquot identifiers formats based on participant identifier and visit.', 'Liste tous les mauvais formats d''identifiants d''aliquots selon l''identifieant du patient et la visite.');
+
+INSERT INTO structures(`alias`) VALUES ('procure_barcode_errors_list');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_barcode_error', 'input',  NULL , '0', '', '', '', 'error', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_barcode_errors_list'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,class=range file' AND `default`='' AND `language_help`='' AND `language_label`='participant identifier' AND `language_tag`=''), '0', '-1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_barcode_errors_list'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_barcode_error' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='error' AND `language_tag`=''), '0', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('error','Error','Erreur'),
+("duplicated", "Duplicated", 'Dupliqué'),
+("wrong visit", "Wrong Visit", "Mauvaise visiste"),
+("wrong participant identifier", "Wrong Participant Identifier", "Mauvais identifiant de patient"),
+("wrong suffix (-AAA)", "Wrong Suffix (-AAA)", "Mauvais suffix (-AAA)"),
+("wrong format", "Wrong Format", "Mauvais format");
+
+SELECT "Please run 'PROCURE - Wrong Aliquot Identifiers Formats' to list any barcode error." AS MSG;
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('aliquot barcode format errror - should begin with the participant identifier and the visit PS0P0000 V00 -AAA', 
+'Identification (alq.) format errror. This one should start with the participant identification and the visit (PS0P0000 V00 -AAA)', 
+'Erreur de format de l''identification (alq.). Cette donnée doit commencer avec l''identifiant du patient puis le numéro de visit (PS0P0000 V00 -AAA)');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '6342' WHERE version_number = '2.6.6';
