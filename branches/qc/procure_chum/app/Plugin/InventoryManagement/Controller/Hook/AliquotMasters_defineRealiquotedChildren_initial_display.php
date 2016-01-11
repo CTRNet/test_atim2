@@ -6,7 +6,6 @@
 				if($tmp_procure_new_children_aliquot_record['AliquotMaster']['procure_created_by_bank'] != 'p') {
 					$excluded_parent_aliquot[] = $this->request->data[$tmp_procure_key_1]['children'][$tmp_procure_key_2];
 					unset($this->request->data[$tmp_procure_key_1]['children'][$tmp_procure_key_2]);
-					pr($this->request->data[$tmp_procure_key_1]['children']);
 				}
 			}
 			if(empty($this->request->data[$tmp_procure_key_1]['children'])) {
