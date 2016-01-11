@@ -90,6 +90,11 @@
 				case 'tissue-block':
 					$barcode_suffix = '-FRZ';
 					break;
+				// PROCURE CHUS
+				case 'tissue-slide':
+					$barcode_suffix = '-SLI';
+					break;
+				// END PROCURE CHUS
 				//--------------------------------------------------------------------------------
 				//  RNA
 				//--------------------------------------------------------------------------------
