@@ -14,7 +14,7 @@ class ViewAliquotCustom extends ViewAliquot {
 			Collection.participant_id, 
 			
 			Participant.participant_identifier, 
-Participant.procure_proc_site_participant_identifier,
+Participant.procure_participant_attribution_number,
 			
 			Collection.acquisition_label, 
 Collection.procure_visit AS procure_visit,
