@@ -535,13 +535,25 @@ class ReportsControllerCustom extends ReportsController {
 			$participant_data[0]['procure_number_of_visit_with_collection'] = sizeof($participant_data[0]['procure_number_of_visit_with_collection']);
 			//Calculate spend time in month between visit and prostatectomy
 			if($participant_data[0]['procure_prostatectomy_date']) {
-				$prostatectomy_datetime = new DateTime($participant_data[0]['procure_prostatectomy_date']);
+				$strat_date = $participant_data[0]['procure_prostatectomy_date'];
+				if(strlen($strat_date) == 4) {
+					$strat_date .= '-06-01';
+				} else if(strlen($strat_date) == 7) { 
+					$strat_date .= '-01';
+				}
+				$prostatectomy_datetime = new DateTime($strat_date);
 				for($tmp_visit_id = 1; $tmp_visit_id < $max_visit; $tmp_visit_id++) {
 					$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
 					foreach(array('followup_worksheet', 'medication_worksheet', 'first_collection') as $sub_strg_field)
 					if($participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_date"]) {
 						$accuracy = ($participant_data[0]['procure_prostatectomy_date_accuracy'].$participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_date_accuracy"]!= 'cc')? '±' : '';
-						$visit_datetime = new DateTime($participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_date"]);
+					$finish_date = $participant_data[0]["procure_".$visit_id."_".$sub_strg_field."_date"];
+					if(strlen($finish_date) == 4) {
+						$finish_date .= '-06-01';
+					} else if(strlen($finish_date) == 7) {
+						$finish_date .= '-01';
+					}
+					$visit_datetime = new DateTime($finish_date);
 						$interval = $prostatectomy_datetime->diff($visit_datetime);
 						$time_in_months = (($interval->format('%y')*12) + $interval->format('%m'));
 						if(!$interval->invert) {

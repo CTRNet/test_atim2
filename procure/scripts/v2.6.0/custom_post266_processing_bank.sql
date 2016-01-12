@@ -41,7 +41,13 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="quality_control_unit") AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="ng/ul" AND language_alias="ng/ul");
 INSERT INTO i18n (id,en,fr) VALUES("picogreen", "Picogreen", "Picogreen");
 
+-- ================================================================================================================================================================
+-- ================================================================================================================================================================
 
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 
+-- ================================================================================================================================================================
+-- ================================================================================================================================================================
 
-
+UPDATE versions SET site_branch_build_number = '6370' WHERE version_number = '2.6.6';
+UPDATE versions SET permissions_regenerated = 0;
