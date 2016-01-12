@@ -21,7 +21,7 @@ Collection.procure_chus_collection_specimen_sample_control_id AS procure_chus_co
 -- END PROCURE CHUS
 Collection.procure_collected_by_bank AS procure_collected_by_bank,
 		Participant.participant_identifier AS participant_identifier,
-Participant.procure_proc_site_participant_identifier,
+Participant.procure_participant_attribution_number,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
 		Collection.collection_datetime AS collection_datetime,
