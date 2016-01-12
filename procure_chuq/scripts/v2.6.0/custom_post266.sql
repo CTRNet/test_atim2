@@ -414,3 +414,24 @@ VALUES
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6342' WHERE version_number = '2.6.6';
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE participants CHANGE procure_proc_site_participant_identifier procure_participant_attribution_number INT(10);
+ALTER TABLE participants_revs CHANGE procure_proc_site_participant_identifier procure_participant_attribution_number INT(10);
+UPDATE structure_fields SET language_label = 'procure participant attribution number' WHERE language_label = 'procure processing site participant identifier';
+UPDATE structure_fields SET field = 'procure_participant_attribution_number' WHERE field = 'procure_proc_site_participant_identifier';
+INSERT INTO i18n (id,en,fr) VALUES ('procure participant attribution number', 'Attribution  #', '# Attribution');
+
+UPDATE structure_formats SET `display_order`='199' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en,fr) VALUES ("you have been redirected to the 'add transferred aliquots' form",
+"You have been redirected to the 'Add Transferred Aliquots' form",
+"Vous avez été redirigé vers l'écran de 'Creation des aliquots transférés");
+
+UPDATE versions SET branch_build_number = '6370' WHERE version_number = '2.6.6';
+UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.6';
+UPDATE versions SET permissions_regenerated = 0;
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
