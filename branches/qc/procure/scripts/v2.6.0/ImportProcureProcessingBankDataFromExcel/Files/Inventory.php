@@ -1,6 +1,6 @@
 <?php
 
-function getParticipantIdAndSite($participant_identifier, $procure_proc_site_participant_identifier, $file_name, $worksheet, $line_counter) {
+function getParticipantIdAndSite($participant_identifier, $procure_participant_attribution_number, $file_name, $worksheet, $line_counter) {
 	global $import_summary;
 	global $import_date;
 	global $participant_identifiers_check;
@@ -12,31 +12,31 @@ function getParticipantIdAndSite($participant_identifier, $procure_proc_site_par
 	//Get Site From participant_identifier
 	$site_id = $matches[1];
 	//Get Participant Id
-	if(isset($participant_identifiers_check['participant_identifier_to_id'][$participant_identifier]) && isset($participant_identifiers_check['procure_proc_site_participant_identifier_to_id'][$procure_proc_site_participant_identifier])) {
-		if($participant_identifiers_check['participant_identifier_to_id'][$participant_identifier] == $participant_identifiers_check['procure_proc_site_participant_identifier_to_id'][$procure_proc_site_participant_identifier]) {
+	if(isset($participant_identifiers_check['participant_identifier_to_id'][$participant_identifier]) && isset($participant_identifiers_check['procure_participant_attribution_number_to_id'][$procure_participant_attribution_number])) {
+		if($participant_identifiers_check['participant_identifier_to_id'][$participant_identifier] == $participant_identifiers_check['procure_participant_attribution_number_to_id'][$procure_participant_attribution_number]) {
 			//Existing Patient
 			return array($participant_identifiers_check['participant_identifier_to_id'][$participant_identifier], $site_id);
 		} else {
 			//Linked to 2 differents patients
-			$import_summary['Patient Creation']['@@ERROR@@']["A Patient Identifiers Seams To Be Linked To 2 Different procure_proc_site_participant_identifier in Excel Files"][] = "Check procure_proc_site_participant_identifier linked to patient participant_identifier = '$participant_identifier' in all excel file. No sample of the line will be created. Please check data integrity. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+			$import_summary['Patient Creation']['@@ERROR@@']["A Patient Identifiers Seams To Be Linked To 2 Different Attribution # in Excel Files"][] = "Check Attribution # linked to patient participant_identifier = '$participant_identifier' in all excel file. No sample of the line will be created. Please check data integrity. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		}
 	} else if(!isset($participant_identifiers_check['participant_identifier_to_id'][$participant_identifier])
-	&& !isset($participant_identifiers_check['procure_proc_site_participant_identifier_to_id'][$procure_proc_site_participant_identifier])) {
+	&& !isset($participant_identifiers_check['procure_participant_attribution_number_to_id'][$procure_participant_attribution_number])) {
 		//New Patient
 		$data = array(
 			'participant_identifier' => $participant_identifier,
-			'procure_proc_site_participant_identifier' => $procure_proc_site_participant_identifier,
+			'procure_participant_attribution_number' => $procure_participant_attribution_number,
 			'last_modification' => $import_date
 		);
 		$participant_id = customInsert($data, 'participants', __FILE__, __LINE__);
 		$participant_identifiers_check['participant_identifier_to_id'][$participant_identifier] = $participant_id;
-		$participant_identifiers_check['procure_proc_site_participant_identifier_to_id'][$procure_proc_site_participant_identifier] = $participant_id;
+		$participant_identifiers_check['procure_participant_attribution_number_to_id'][$procure_participant_attribution_number] = $participant_id;
 		return array($participant_id, $site_id);	
 	} else if(isset($participant_identifiers_check['participant_identifier_to_id'][$participant_identifier])) { 
-		$import_summary['Patient Creation']['@@ERROR@@']["The Patient Identifiers Is Already Linked To Another procure_proc_site_participant_identifier"][] = "The patient participant_identifier = '$participant_identifier' is already linked to a procure_proc_site_participant_identifier different than '$procure_proc_site_participant_identifier'. No new patient will be created then no sample. Please check data integrity. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+		$import_summary['Patient Creation']['@@ERROR@@']["The Patient Identifiers Is Already Linked To Another procure_participant_attribution_number"][] = "The patient participant_identifier = '$participant_identifier' is already linked to a procure_participant_attribution_number different than '$procure_participant_attribution_number'. No new patient will be created then no sample. Please check data integrity. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		return array(null, null);
 	} else {
-		$import_summary['Patient Creation']['@@ERROR@@']["The procure_proc_site_participant_identifier Is Already Linked To Another Patient Identifiers"][] = "The patient procure_proc_site_participant_identifier = '$procure_proc_site_participant_identifier' is already linked to a participant_identifier different than '$participant_identifier'. No new patient will be created then no sample. Please check data integrity. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+		$import_summary['Patient Creation']['@@ERROR@@']["The Attribution # Is Already Linked To Another Patient Identifiers"][] = "The patient Attribution # = '$procure_participant_attribution_number' is already linked to a participant_identifier different than '$participant_identifier'. No new patient will be created then no sample. Please check data integrity. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		return array(null, null);
 	}
 }
@@ -89,9 +89,9 @@ function loadPlasma(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 								if(preg_match('/^(PLA[0-9])\.'.$tube_nbr.'(V[0-9]{2})\-([0-9]{4})$/', $realiquoted_plasma_tube_barcode, $matches)) {
 									$source_tube_suffix = $matches[1];
 									$visit = $matches[2];
-									$procure_proc_site_participant_identifier_from_barcode = ltrim($matches[3], "0");
-									if($new_line_data['patient Attri'] != $procure_proc_site_participant_identifier_from_barcode) {
-										$import_summary['Inventory - Plasma']['@@WARNING@@']["Wrong 'patient Attri' of the barcode"][] = "The 'patient Attri' written into the tube barcode ($procure_proc_site_participant_identifier_from_barcode) does not match this one defined into the excel file (".$new_line_data['patient Attri']."). Please validate. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+									$procure_participant_attribution_number_from_barcode = ltrim($matches[3], "0");
+									if($new_line_data['patient Attri'] != $procure_participant_attribution_number_from_barcode) {
+										$import_summary['Inventory - Plasma']['@@WARNING@@']["Wrong 'patient Attri' of the barcode"][] = "The 'patient Attri' written into the tube barcode ($procure_participant_attribution_number_from_barcode) does not match this one defined into the excel file (".$new_line_data['patient Attri']."). Please validate. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 									}
 									//Collection
 									if(!isset($created_collections_and_specimens[$participant_identifier]['collections'][$visit])) {
@@ -260,10 +260,10 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 							if(preg_match('/^(URN[0-9])\.1(V01)\-([0-9]{4})$/', $new_line_data['Identification des aliquots'], $matches)) {
 								$source_tube_suffix = $matches[1];
 								$visit = $matches[2];
-								$procure_proc_site_participant_identifier_from_barcode = ltrim($matches[3], "0");
+								$procure_participant_attribution_number_from_barcode = ltrim($matches[3], "0");
 								$created_tube_barcode_format = "$source_tube_suffix.%%id%%V01-".$matches[3];
-								if($new_line_data['# attribution'] != $procure_proc_site_participant_identifier_from_barcode) {
-									$import_summary['Inventory - Urine']['@@WARNING@@']["Wrong '# attribution' of the barcode"][] = "The '# attribution' written into the tube barcode ($procure_proc_site_participant_identifier_from_barcode) does not match this one defined into the excel file (".$new_line_data['# attribution']."). Please validate. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+								if($new_line_data['# attribution'] != $procure_participant_attribution_number_from_barcode) {
+									$import_summary['Inventory - Urine']['@@WARNING@@']["Wrong '# attribution' of the barcode"][] = "The '# attribution' written into the tube barcode ($procure_participant_attribution_number_from_barcode) does not match this one defined into the excel file (".$new_line_data['# attribution']."). Please validate. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 								}
 								//Collection
 								if(!isset($created_collections_and_specimens[$participant_identifier]['collections'][$visit])) {
@@ -337,8 +337,8 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 								$shipped_tube = false;
 								if($new_line_data['Québec']) {
 									$shipped_tube = true;
-									if($new_line_data['Québec'] != $procure_proc_site_participant_identifier_from_barcode) {
-										$import_summary['Inventory - Urine']['@@WARNING@@']["Wrong 'Québec' value"][] = "The 'Québec' value '".$new_line_data['Québec']."' is different than the procure_proc_site_participant_identifier_from_barcode '$procure_proc_site_participant_identifier_from_barcode'. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+									if($new_line_data['Québec'] != $procure_participant_attribution_number_from_barcode) {
+										$import_summary['Inventory - Urine']['@@WARNING@@']["Wrong 'Québec' value"][] = "The 'Québec' value '".$new_line_data['Québec']."' is different than the procure_participant_attribution_number_from_barcode '$procure_participant_attribution_number_from_barcode'. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 									}
 								}
 								$stored_tube_nbr = getInteger($new_line_data, '# aliquots au CUSM', 'Inventory - Urine', $file_name, $line_counter);
@@ -454,7 +454,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 				$dna_sample_label = str_replace(' ', '', $new_line_data['Nouvelle identification (x = aliquot)']);
 				if(preg_match('/^DNA([0-9x\+]{1,3})\.x(V[0-9]{2})\-([0-9]{4})$/', $dna_sample_label, $matches_dna_label)) {
 					$visit = $matches_dna_label[2];
-					$procure_proc_site_participant_identifier = ltrim($matches_dna_label[3], "0");
+					$procure_participant_attribution_number = ltrim($matches_dna_label[3], "0");
 					if(!preg_match('/^(PS[1-4])[\ ]*(P[0-9]{4})[\ ]*(V[0-9]{2})[\ ]*DNA$/', $new_line_data['Identification'], $matches_identification)) {
 						$import_summary['System Error']['@@ERROR@@']["99999993"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 					} else {
@@ -463,13 +463,13 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 						if($visit != $matches_identification[3]) {
 							$import_summary['System Error']['@@ERROR@@']["934455993"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 						}
-						if($procure_proc_site_participant_identifier != $new_line_data['# attribution']) {
-							$import_summary['Inventory - DNA']['@@ERROR@@']['# attribution Does Not Match (1)'][] = "See $procure_proc_site_participant_identifier (defined from $dna_sample_label) != ".$new_line_data['# attribution'].". Please correct data. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+						if($procure_participant_attribution_number != $new_line_data['# attribution']) {
+							$import_summary['Inventory - DNA']['@@ERROR@@']['# attribution Does Not Match (1)'][] = "See $procure_participant_attribution_number (defined from $dna_sample_label) != ".$new_line_data['# attribution'].". Please correct data. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 						}
 						if(!isset($dna_samples_data_from_excel[$dna_sample_label])) {
 							$dna_samples_data_from_excel[$dna_sample_label] = array(
 								'participant_identifier' => $participant_identifier,
-								'procure_proc_site_participant_identifier' => $procure_proc_site_participant_identifier,
+								'procure_participant_attribution_number' => $procure_participant_attribution_number,
 								'visit' => $visit,
 								'extraction_date' => null,
 								'extraction_date_accuracy' => null,
@@ -480,10 +480,10 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 						} else {
 							$import_summary['Inventory - DNA']['@@WARNING@@']["DNA quality controls defined twice"][] = "Two lines of quality controls exist for the same sample DNA [$dna_sample_label]. All QC will be created. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 							if($participant_identifier != $dna_samples_data_from_excel[$dna_sample_label]['participant_identifier']) {
-								$import_summary['Inventory - DNA']['@@ERROR@@']['Participant Identifier Does Not Match (1)'][] = "See $participant_identifier != ".$dna_samples_data_from_excel[$dna_sample_label]['participant_identifier']." and attribution number $procure_proc_site_participant_identifier. Please correct data. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+								$import_summary['Inventory - DNA']['@@ERROR@@']['Participant Identifier Does Not Match (1)'][] = "See $participant_identifier != ".$dna_samples_data_from_excel[$dna_sample_label]['participant_identifier']." and attribution number $procure_participant_attribution_number. Please correct data. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 							}
 							if($visit != $dna_samples_data_from_excel[$dna_sample_label]['visit']) $import_summary['System Error']['@@ERROR@@']["414333"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
-							if($procure_proc_site_participant_identifier != $dna_samples_data_from_excel[$dna_sample_label]['procure_proc_site_participant_identifier']) $import_summary['System Error']['@@ERROR@@']["444433"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+							if($procure_participant_attribution_number != $dna_samples_data_from_excel[$dna_sample_label]['procure_participant_attribution_number']) $import_summary['System Error']['@@ERROR@@']["444433"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 						}
 						//Load quality control
 						$qc_test = array(
@@ -527,7 +527,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 				$dna_sample_label = str_replace(' ', '', $new_line_data['Identif.']);
 				if(preg_match('/^DNA([0-9x\+]{1,3})\.x(V[0-9]{2})\-([0-9]{4})$/', $dna_sample_label, $matches_dna_label)) {
 					$visit = $matches_dna_label[2];
-					$procure_proc_site_participant_identifier = ltrim($matches_dna_label[3], "0");
+					$procure_participant_attribution_number = ltrim($matches_dna_label[3], "0");
 					if(!preg_match('/^(PS[1-4])[\ ]*(P[0-9]{4})[\ ]*(V[0-9]{2})[\ ]*BFC(.*)$/', ($new_line_data['Patient'].$new_line_data['Visite + BFC']), $matches_identification)) {
 						$import_summary['System Error']['@@ERROR@@']["9332133393"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 					} else {
@@ -536,7 +536,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 						if($visit != $matches_identification[3]) {
 							$import_summary['System Error']['@@ERROR@@']["9344259943"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 						}
-						if($procure_proc_site_participant_identifier != $new_line_data['# attribution']) {
+						if($procure_participant_attribution_number != $new_line_data['# attribution']) {
 							$import_summary['System Error']['@@ERROR@@']["48847333"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 						}
 						$creation_date = getDateAndAccuracy($new_line_data, 'Date purif.', 'Inventory - DNA', "$file_name (<b>$worksheet</b>)", $line_counter);
@@ -545,7 +545,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 						if(!isset($dna_samples_data_from_excel[$dna_sample_label])) {					
 							$dna_samples_data_from_excel[$dna_sample_label] = array(
 								'participant_identifier' => $participant_identifier,
-								'procure_proc_site_participant_identifier' => $procure_proc_site_participant_identifier,
+								'procure_participant_attribution_number' => $procure_participant_attribution_number,
 								'visit' => $visit,
 								'extraction_date' => $creation_date['date'],
 								'extraction_date_accuracy' => $creation_date['accuracy'],
@@ -554,10 +554,10 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 								'aliquot_loaded_once' => true);
 						} else {
 							if($participant_identifier != $dna_samples_data_from_excel[$dna_sample_label]['participant_identifier']) {
-								$import_summary['Inventory - DNA']['@@ERROR@@']['Participant Identifier Does Not Match (2)'][] = "See $participant_identifier != ".$dna_samples_data_from_excel[$dna_sample_label]['participant_identifier']." and attribution number $procure_proc_site_participant_identifier. Please check data in the same worksheet or between the 2 worksheets and correct data. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";	
+								$import_summary['Inventory - DNA']['@@ERROR@@']['Participant Identifier Does Not Match (2)'][] = "See $participant_identifier != ".$dna_samples_data_from_excel[$dna_sample_label]['participant_identifier']." and attribution number $procure_participant_attribution_number. Please check data in the same worksheet or between the 2 worksheets and correct data. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";	
 							}
 							if($visit != $dna_samples_data_from_excel[$dna_sample_label]['visit']) $import_summary['System Error']['@@ERROR@@']["414333"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
-							if($procure_proc_site_participant_identifier != $dna_samples_data_from_excel[$dna_sample_label]['procure_proc_site_participant_identifier']) $import_summary['System Error']['@@ERROR@@']["444433"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+							if($procure_participant_attribution_number != $dna_samples_data_from_excel[$dna_sample_label]['procure_participant_attribution_number']) $import_summary['System Error']['@@ERROR@@']["444433"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 							if($dna_samples_data_from_excel[$dna_sample_label]['aliquot_loaded_once']) $import_summary['Inventory - DNA']['@@WARNING@@']["DNA storage position defined twice"][] = "Two lines of tubes positions exist for the same sample DNA [$dna_sample_label]. Please check and validate data migration. <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 							$dna_samples_data_from_excel[$dna_sample_label]['aliquot_loaded_once'] = true;
 							if(!$dna_samples_data_from_excel[$dna_sample_label]['extraction_date']) {
@@ -595,9 +595,9 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 	$qc_code_counter = 0;
 	foreach($dna_samples_data_from_excel as $dna_sample_label => $dna_sample_data) {
 		$participant_identifier = $dna_sample_data['participant_identifier'];
-		$procure_proc_site_participant_identifier = $dna_sample_data['procure_proc_site_participant_identifier'];
+		$procure_participant_attribution_number = $dna_sample_data['procure_participant_attribution_number'];
 		$visit = $dna_sample_data['visit'];
-		list($participant_id, $site_id) = getParticipantIdAndSite($participant_identifier, $procure_proc_site_participant_identifier,'DNA', 'all', '-1');
+		list($participant_id, $site_id) = getParticipantIdAndSite($participant_identifier, $procure_participant_attribution_number,'DNA', 'all', '-1');
 		if($participant_id) {
 			if(!isset($created_collections_and_specimens[$participant_identifier])) $created_collections_and_specimens[$participant_identifier] = array('participant_id' => $participant_id, 'collections' => array());
 			if(preg_match('/^DNA([0-9x\+]{1,3})\.x(V[0-9]{2})\-([0-9]{4})$/', $dna_sample_label, $matches)) {

@@ -78,7 +78,7 @@ $last_storage_code = 0;
 global $participant_identifiers_check;
 $participant_identifiers_check = array(
 	'participant_identifier_to_id' => array(), 
-	'procure_proc_site_participant_identifier_to_id' => array());
+	'procure_participant_attribution_number_to_id' => array());
 	
 echo "<br><br><FONT COLOR=\"blue\" >
 =====================================================================<br>
