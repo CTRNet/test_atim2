@@ -9,16 +9,7 @@ class EventMasterCustom extends EventMaster {
 			
 		if(array_key_exists('procure_form_identification', $this->data['EventMaster'])) {
 			//Form identification validation
-			$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
-
-pr('Check TODO cusm shoule be added in EventMasterCustom');			
-//TODO verifeier section doit être ajouté			
-//TODO DELETE THIS SECTION FOR OTHER BANK
-//Custom code for cusm to track additional biopdy event
-//if($Participant->bank_identification == 'PS3P0' && strtoupper($this->data['EventMaster']['procure_form_identification']) == 'N/A' && array_key_exists('biopsy_pre_surgery_date', $this->data['EventDetail'])) {
-////	$this->data['EventMaster']['procure_form_identification'] = 'N/A';
-//	return $result;
-//}			
+			$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);		
 			
 			$error = $Participant->validateFormIdentification($this->data['EventMaster']['procure_form_identification'], 'EventMaster', $this->id, (isset($this->data['EventMaster']['event_control_id'])? $this->data['EventMaster']['event_control_id']: null));
 			if($error) {

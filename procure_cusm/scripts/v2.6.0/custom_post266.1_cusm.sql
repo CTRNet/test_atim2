@@ -174,6 +174,7 @@ UPDATE quality_ctrls_revs SET procure_created_by_bank = '3';
 
 SELECT count(*) AS 'Wrong Participant Identifier (should be equal to 0)' FROM participants WHERE participant_identifier NOT LIKE 'PS3P0%';
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
+UPDATE versions SET site_branch_build_number = '6371' WHERE version_number = '2.6.6';

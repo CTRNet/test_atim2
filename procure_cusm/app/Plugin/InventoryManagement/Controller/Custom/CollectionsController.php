@@ -105,7 +105,9 @@ class CollectionsControllerCustom extends CollectionsController{
 				$errors_tracking = array();
 					
 				// Validation
-					
+				
+				$this->Structures->set('aliquotinternaluses', 'load_structure_for_internal_use_data_validation');
+				
 				$row_counter = 0;
 				$studied_participants = array();
 				foreach($this->request->data as &$data_unit){
@@ -150,7 +152,12 @@ class CollectionsControllerCustom extends CollectionsController{
 					$this->AliquotInternalUse->id = null;
 					$this->AliquotInternalUse->data = null;
 					$this->AliquotInternalUse->set(array('AliquotInternalUse' => $new_aliquot_internal_use));
-					if(!$this->AliquotInternalUse->validates())$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					if(!$this->AliquotInternalUse->validates()) {
+						foreach($this->AliquotInternalUse->validationErrors as $field => $msgs) {
+							$msgs = is_array($msgs)? $msgs : array($msgs);
+							foreach($msgs as $msg) $errors_tracking[(($field == 'use_datetime')? 'procure_transferred_aliquot_reception_date' : $field)][$msg][$row_counter] = $row_counter;
+						}
+					}
 					$data_unit['AliquotInternalUse'] = $this->AliquotInternalUse->data['AliquotInternalUse'];
 				}
 				unset($data_unit);
@@ -166,18 +173,18 @@ class CollectionsControllerCustom extends CollectionsController{
 					$this->Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 					$atim_participants = $this->Participant->find('all', array('conditions' => array('Participant.participant_identifier' => array_keys($studied_participants)), 'fields' => array('Participant.id', 'Participant.participant_identifier'), 'recursive' => '-1'));
 					
-					$next_procure_proc_site_participant_identifier = $this->Participant->find('first', array('fields' => array('MAX(Participant.procure_proc_site_participant_identifier) AS next_procure_proc_site_participant_identifier'), 'recursive' => '-1'));
-					$next_procure_proc_site_participant_identifier = empty($next_procure_proc_site_participant_identifier[0]['next_procure_proc_site_participant_identifier'])? '1' : ($next_procure_proc_site_participant_identifier[0]['next_procure_proc_site_participant_identifier'] + 1);
+					$next_procure_participant_attribution_number = $this->Participant->find('first', array('fields' => array('MAX(Participant.procure_participant_attribution_number) AS next_procure_participant_attribution_number'), 'recursive' => '-1'));
+					$next_procure_participant_attribution_number = empty($next_procure_participant_attribution_number[0]['next_procure_participant_attribution_number'])? '1' : ($next_procure_participant_attribution_number[0]['next_procure_participant_attribution_number'] + 1);
 					$atim_participants = $this->Participant->find('all', array('conditions' => array('Participant.participant_identifier' => array_keys($studied_participants)), 'fields' => array('Participant.id', 'Participant.participant_identifier'), 'recursive' => '-1'));			
 					foreach($atim_participants as $new_participant) $studied_participants[$new_participant['Participant']['participant_identifier']] = $new_participant['Participant']['id'];
-					$this->Participant->addWritableField(array('participant_identifier','procure_proc_site_participant_identifier'));
+					$this->Participant->addWritableField(array('participant_identifier','procure_participant_attribution_number'));
 					foreach($studied_participants as $participant_identifier => $participant_id) {
 						if($participant_id == '-1') {
 							$this->Participant->id = null;
 							$this->Participant->data = array();
-							if(!$this->Participant->save(array('participant_identifier' => $participant_identifier, 'procure_proc_site_participant_identifier' => $next_procure_proc_site_participant_identifier), false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+							if(!$this->Participant->save(array('participant_identifier' => $participant_identifier, 'procure_participant_attribution_number' => $next_procure_participant_attribution_number), false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 							$studied_participants[$participant_identifier] = $this->Participant->getLastInsertId();		
-							$next_procure_proc_site_participant_identifier++;
+							$next_procure_participant_attribution_number++;
 						}
 					}
 					$atim_participants = $studied_participants;
