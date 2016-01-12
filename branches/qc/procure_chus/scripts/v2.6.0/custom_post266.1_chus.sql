@@ -27,4 +27,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET site_branch_build_number = '6335' WHERE version_number = '2.6.6';
+UPDATE versions SET site_branch_build_number = '6372' WHERE version_number = '2.6.6';
