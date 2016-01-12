@@ -76,13 +76,4 @@ REPLACE INTO i18n (id,en,fr) VALUES ('aliquot label', 'Label (ICM)', 'Étiquette
 REPLACE INTO i18n (id,en,fr) VALUES ('used aliquot label', 'Label (ICM)', 'Étiquette (ICM)');
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET site_branch_build_number = '6347' WHERE version_number = '2.6.6';
-
-
-
-
-
-
-
-
-
+UPDATE versions SET site_branch_build_number = '6374' WHERE version_number = '2.6.6';
