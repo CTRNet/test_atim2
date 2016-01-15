@@ -4,11 +4,15 @@ function getParticipantIdAndSite($participant_identifier, $procure_participant_a
 	global $import_summary;
 	global $import_date;
 	global $participant_identifiers_check;
+	global $patients_to_import;
 	
 	if(!preg_match('/^PS([0-9])P[0-9]{4}$/', $participant_identifier, $matches)) {
 		$import_summary['Patient Creation']['@@ERROR@@']["Wrong Patient Identifiers Format"][] = "The format of the participant_identifier '$participant_identifier' is wrong. No patient will be created. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		return array(null, null);
 	}
+	if(!in_array($participant_identifier, $patients_to_import)) {
+		return array(null, null);
+	}	
 	//Get Site From participant_identifier
 	$site_id = $matches[1];
 	//Get Participant Id
@@ -253,8 +257,14 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 				list($participant_id, $site_id) = getParticipantIdAndSite($participant_identifier, $new_line_data['# attribution'],$file_name, $worksheet, $line_counter);
 				if($participant_id) {
 					if(!isset($created_collections_and_specimens[$participant_identifier])) $created_collections_and_specimens[$participant_identifier] = array('participant_id' => $participant_id, 'collections' => array());
-					if($new_line_data['Québec'] || $new_line_data['# aliquots au CUSM']) {
-						if(empty($new_line_data['Identification des aliquots'])) {
+					//Tube received when date set
+					$creation_date = getDateAndAccuracy($new_line_data, 'Date', 'Inventory - Urine', $file_name, $line_counter);
+					$creation_date['accuracy'] = str_replace('c', 'h', $creation_date['accuracy']);
+					if($creation_date['date']) {
+						if(!$new_line_data['Québec'] && !$new_line_data['# aliquots au CUSM']) {
+							//At least one data should be set
+							$import_summary['System Error']['@@ERROR@@']["99593922"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+						} else if(empty($new_line_data['Identification des aliquots'])) {
 							$import_summary['System Error']['@@ERROR@@']["99999992"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 						} else {
 							if(preg_match('/^(URN[0-9])\.1(V01)\-([0-9]{4})$/', $new_line_data['Identification des aliquots'], $matches)) {
@@ -331,8 +341,6 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 								}
 								$source_aliquot_master_id = $centrifuged_urine_already_created[$centrifuged_urine_sample_system_identifier]['aliquots'][$source_tube_aliquot_barcode];
 								//New tubes created
-								$creation_date = getDateAndAccuracy($new_line_data, 'Date', 'Inventory - Urine', $file_name, $line_counter);
-								$creation_date['accuracy'] = str_replace('c', 'h', $creation_date['accuracy']);
 								$last_aliquot_volume = getInteger($new_line_data, 'Volume du dernier aliquot (ul)', 'Inventory - Urine', $file_name, $line_counter);
 								$shipped_tube = false;
 								if($new_line_data['Québec']) {
@@ -398,7 +406,11 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 							}
 						}
 					} else {
-						$import_summary['Inventory - Urine']['@@MESSAGE@@']["No urine created"][] = "No urine defined as recieved and processed. No urine will be created for Patient '$participant_identifier'. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+						if(strlen($new_line_data['Date'])) {
+							$import_summary['Inventory - Urine']['@@WARNING@@']["No urine created but a date value is set"][] = "No urine defined as recieved and processed (based on Date field empty) but date field seams to not be empty. No urine will be created for Patient '$participant_identifier'. Please confirm. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+						} else {
+							$import_summary['Inventory - Urine']['@@MESSAGE@@']["No urine created"][] = "No urine defined as recieved and processed (based on Date field empty). No urine will be created for Patient '$participant_identifier'. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+						}
 					}
 				}
 			} else if($new_line_data['Québec'] || $new_line_data['# aliquots au CUSM']) {
@@ -570,6 +582,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 							for($tub_id = 2; $tub_id < 6; $tub_id++) {
 								$dna_tube_barcode = str_replace('.xV', ".".$tub_id."V", $dna_sample_label);
 								$volume = getDecimal($new_line_data, "x.$tub_id ul", 'Inventory - DNA', "$file_name ($worksheet)", $line_counter);
+								if(strlen($volume)) $volume = round($volume, 1);
 								$box_label = $new_line_data["x.$tub_id pos"];
 								if(strlen($volume) || strlen($box_label)) {
 									if(!array_key_exists($dna_tube_barcode, $dna_samples_data_from_excel[$dna_sample_label]['aliquots'])) {

@@ -430,6 +430,23 @@ INSERT INTO i18n (id,en,fr) VALUES ("you have been redirected to the 'add transf
 "You have been redirected to the 'Add Transferred Aliquots' form",
 "Vous avez été redirigé vers l'écran de 'Creation des aliquots transférés");
 
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Xenograft%';
+SELECT 'Set flag_active = 0 to unused structure_permissible_values_custom_controls (see list below)' AS '### TODO ###';
+SELECT st.alias, sfi.field, ctrl.name AS 'List control name'
+FROM structures st
+INNER JOIN structure_formats sfo ON sfo.structure_id = st.id
+INNER JOIN structure_fields sfi ON sfi.id = sfo.structure_field_id
+INNER JOIN structure_value_domains svd ON svd.id = sfi.structure_value_domain
+INNER JOIN structure_permissible_values_custom_controls ctrl ON svd.source LIKE CONCAT('%',ctrl.name,'%')
+WHERE sfo.flag_detail = 1 AND svd.source LIKE 'StructurePermissibleValuesCustom::getCustomDropdown%' AND ctrl.flag_active = 1
+ORDER BY ctrl.name;
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
 UPDATE versions SET branch_build_number = '6370' WHERE version_number = '2.6.6';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.6';
 UPDATE versions SET permissions_regenerated = 0;

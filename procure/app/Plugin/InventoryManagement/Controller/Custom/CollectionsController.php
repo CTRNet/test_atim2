@@ -114,7 +114,7 @@ class CollectionsControllerCustom extends CollectionsController{
 					$row_counter++;
 					//Check aliquot barcode format
 					$data_unit['AliquotMaster']['barcode'] = trim($data_unit['AliquotMaster']['barcode']);
-					if(preg_match('/^(PS[1-4]P[0-9]{4})\ (V(([01][1-9])|(10)))\ /', $data_unit['AliquotMaster']['barcode'], $matches)) {
+					if(preg_match('/^(PS[1-4]P[0-9]{4})\ (V(([01][1-9])|(10)))\ \-[A-Z]{3}/', $data_unit['AliquotMaster']['barcode'], $matches)) {
 						$studied_participants[$matches[1]] = '-1';
 						$data_unit['Participant']['participant_identifier'] = $matches[1];
 						$data_unit['Collection']['procure_visit'] = $matches[2];

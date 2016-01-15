@@ -10,7 +10,73 @@ set_time_limit('3600');
 
 global $patients_to_import;
 //TODO set to empty
-$patients_to_import = array();
+$patients_to_import = array(
+	'PS1P0003',
+	'PS1P0018',
+	'PS1P0149',
+	'PS1P0172',
+	'PS1P0174',
+	'PS1P0175',
+	'PS1P0203',
+	'PS1P0360',
+	'PS1P0403',
+	'PS1P0405',
+	'PS1P0494',
+	'PS1P0590',
+	'PS1P0591',
+	'PS1P0615',	
+				
+	'PS2P0068',
+	'PS2P0070',
+	'PS2P0072',
+	'PS2P0075',
+	'PS2P0079',
+	'PS2P0080',
+	'PS2P0081',
+	'PS2P0109',
+	'PS2P0110',
+	'PS2P0117',
+	'PS2P0119',
+	'PS2P0129',
+	'PS2P0180',
+	'PS2P0392',
+		
+	'PS3P0004',
+	'PS3P0007',
+	'PS3P0110',
+	'PS3P0111',
+	'PS3P0135',
+	'PS3P0138',
+	'PS3P0207',
+	'PS3P0210',
+	'PS3P0211',
+	'PS3P0219',
+	'PS3P0221',
+	'PS3P0223',
+	'PS3P0240',
+	'PS3P0278',
+		
+	'PS4P0002',
+	'PS4P0013',
+	'PS4P0017',
+	'PS4P0113',
+	'PS4P0114',
+	'PS4P0119',
+	'PS4P0120',
+	'PS4P0121',
+	'PS4P0168',
+	'PS4P0169',
+	'PS4P0175',
+	'PS4P0176',
+	'PS4P0180',
+	'PS4P0181',
+	'PS4P0182',
+	'PS4P0356',
+	'PS4P0358',
+	'PS4P0380',
+	'PS4P0391',
+	'PS4P0394'
+);
 
 //$patients_to_import = array();
 $files_name = array(
@@ -22,7 +88,7 @@ $files_name = array(
 foreach($files_name as $key => $val) $files_name[$key] = utf8_decode($val);
 
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure\\data\\ProcessingBankDataFiles\\';
-$files_path = "/ATiM/atim-procure/Test/Data/";
+//$files_path = "/ATiM/atim-procure/Test/Data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -36,7 +102,7 @@ $db_user 		= "root";
 $db_charset		= "utf8";
 
 $db_pwd			= "";
-$db_schema		= "procurep";
+$db_schema		= "procureprocessing";
 
 
 global $db_connection;
@@ -85,6 +151,8 @@ echo "<br><br><FONT COLOR=\"blue\" >
 PROCURE - Data Migration to ATiM - Processing Bank<br>
 $import_date<br>
 =====================================================================</FONT><br>";
+
+if(!empty($patients_to_import)) echo "<br><br><FONT COLOR=\"red\" ><b>PROCESS LIMITED TO A SUBSET OF PATIENT (TEST CONFIGURATION)</b></font><br><br>";
 
 truncate();
 	
