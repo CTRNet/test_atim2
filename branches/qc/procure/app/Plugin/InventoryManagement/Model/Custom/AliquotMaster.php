@@ -35,13 +35,9 @@ class AliquotMasterCustom extends AliquotMaster {
 		return $val_res;
 	}
 	
-	function validateBarcode($barcode, $procure_participant_identifier = null, $procure_visit = null) {
+	function validateBarcode($barcode, $procure_created_by_bank, $procure_participant_identifier = null, $procure_visit = null) {
 		$error = false;
-		if(Configure::read('procure_atim_version') == 'PROCESSING') {
-			if(!preg_match('/^[0-9]+$/', $barcode)) {
-				$error = 'aliquot barcode format errror - integer value expected';
-			}
-		} else {
+		if($procure_created_by_bank != 'p') {
 			if(!$procure_participant_identifier || !$procure_visit || !preg_match('/^'.$procure_participant_identifier.' '.$procure_visit.' \-[A-Z]{3}/', $barcode)) {
 				$error = 'aliquot barcode format errror - should begin with the participant identifier and the visit PS0P0000 V00 -AAA';
 			}
