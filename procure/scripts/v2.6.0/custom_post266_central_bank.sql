@@ -5,14 +5,10 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`=
 
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='procure_created_by_bank');
 
-
-
-Bien positioner les procure_created_by_bank
-
-
-
-
-
-
+ALTER TABLE realiquotings 
+	ADD COLUMN procure_central_is_transfer tinyint(1) DEFAULT '0';
+ALTER TABLE realiquotings_revs 
+	ADD COLUMN procure_central_is_transfer tinyint(1) DEFAULT '0';
+	
 UPDATE versions SET site_branch_build_number = '6370' WHERE version_number = '2.6.6';
 UPDATE versions SET permissions_regenerated = 0;

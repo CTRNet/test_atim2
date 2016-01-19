@@ -30,7 +30,8 @@ function getParticipantIdAndSite($participant_identifier, $procure_participant_a
 		$data = array(
 			'participant_identifier' => $participant_identifier,
 			'procure_participant_attribution_number' => $procure_participant_attribution_number,
-			'last_modification' => $import_date
+			'last_modification' => $import_date,
+			'procure_last_modification_by_bank' => 'p'
 		);
 		$participant_id = customInsert($data, 'participants', __FILE__, __LINE__);
 		$participant_identifiers_check['participant_identifier_to_id'][$participant_identifier] = $participant_id;
