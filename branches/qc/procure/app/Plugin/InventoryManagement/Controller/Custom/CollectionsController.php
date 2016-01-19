@@ -177,12 +177,12 @@ class CollectionsControllerCustom extends CollectionsController{
 					$next_procure_participant_attribution_number = empty($next_procure_participant_attribution_number[0]['next_procure_participant_attribution_number'])? '1' : ($next_procure_participant_attribution_number[0]['next_procure_participant_attribution_number'] + 1);
 					$atim_participants = $this->Participant->find('all', array('conditions' => array('Participant.participant_identifier' => array_keys($studied_participants)), 'fields' => array('Participant.id', 'Participant.participant_identifier'), 'recursive' => '-1'));			
 					foreach($atim_participants as $new_participant) $studied_participants[$new_participant['Participant']['participant_identifier']] = $new_participant['Participant']['id'];
-					$this->Participant->addWritableField(array('participant_identifier','procure_participant_attribution_number'));
+					$this->Participant->addWritableField(array('participant_identifier','procure_participant_attribution_number', 'procure_last_modification_by_bank'));
 					foreach($studied_participants as $participant_identifier => $participant_id) {
 						if($participant_id == '-1') {
 							$this->Participant->id = null;
 							$this->Participant->data = array();
-							if(!$this->Participant->save(array('participant_identifier' => $participant_identifier, 'procure_participant_attribution_number' => $next_procure_participant_attribution_number), false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+							if(!$this->Participant->save(array('participant_identifier' => $participant_identifier, 'procure_participant_attribution_number' => $next_procure_participant_attribution_number, 'procure_last_modification_by_bank' => Configure::read('procure_bank_id')), false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 							$studied_participants[$participant_identifier] = $this->Participant->getLastInsertId();		
 							$next_procure_participant_attribution_number++;
 						}
