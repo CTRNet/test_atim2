@@ -479,8 +479,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Define if aliquot is included into an order
 		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id)));
 		if(!empty($order_item)){
-			$this->set('order_line_id', $order_item['OrderLine']['id']);
-			$this->set('order_id', $order_item['OrderLine']['order_id']);
+			$this->set('order_line_id', $order_item['OrderItem']['order_line_id']);
+			$this->set('order_id', $order_item['OrderItem']['order_id']);
 		}
 		
 		$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id), 'recursive' => -1));
