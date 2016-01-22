@@ -447,6 +447,28 @@ ORDER BY ctrl.name;
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("s","system option");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="s" AND language_alias="system option"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ("system option","Sys","Sys");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('you can not select the system option as bank sending sample', 'You can not select the ''System'' as bank sending sample', 'Vous ne pouvez pas choisir le ''Système'' comme banque ayant envoyé les échantillons'),
+('at least one data is linked to the sample of the aliquot - delete all records then delete the aliquot of the sample', 
+'At least one data is linked to the sample of the aliquot. Please delete all records first, then the trsnferred aliquot then the sample.', 
+"Au moins une données est liée à l'échantillon de l'aliquot. Veuillez supprimer tous les enregistrements, puis l'aliquot transféré et enfin l'échantillon.");
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_order`='101', `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='site' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='procure_created_by_bank' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='101', `flag_override_label`='1', `language_label`='site', `flag_override_tag`='1', `language_tag`='site' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='procure_created_by_bank' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
 UPDATE versions SET branch_build_number = '6370' WHERE version_number = '2.6.6';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.6';
 UPDATE versions SET permissions_regenerated = 0;

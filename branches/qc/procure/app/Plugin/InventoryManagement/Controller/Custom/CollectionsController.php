@@ -131,6 +131,8 @@ class CollectionsControllerCustom extends CollectionsController{
 					//Check Bank sending data
 					if($data_unit['AliquotMaster']['procure_created_by_bank'] == 'p') {
 						$errors_tracking['procure_created_by_bank']['you can not select the processing bank as bank sending sample'][] = $row_counter;
+					} else if($data_unit['AliquotMaster']['procure_created_by_bank'] == 's') {
+						$errors_tracking['procure_created_by_bank']['you can not select the system option as bank sending sample'][] = $row_counter;
 					}
 					//Check Concentration
 					if(!preg_match('/^([0-9]+([.,][0-9]+){0,1}){0,1}$/', $data_unit['AliquotDetail']['concentration'])) {
@@ -245,20 +247,26 @@ class CollectionsControllerCustom extends CollectionsController{
 						$initial_specimen_sample_id = null;
 						$initial_specimen_sample_type = null;
 						$parent_sample_master_id = null;
-						$parent_sample_type = null;				
-						foreach(explode('-',$sample_control_ids_sequence) as $sample_control_id) {
+						$parent_sample_type = null;		
+						
+						$sample_control_ids = explode('-',$sample_control_ids_sequence);
+						while($sample_control_id = array_shift($sample_control_ids)) {
 							if(!array_key_exists($sample_control_id, $sample_controls)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-							$is_specimen = is_null($initial_specimen_sample_id)? true : false;							
-							$conditions = array(
-								'SampleMaster.collection_id' => $collection_id, 
-								'SampleMaster.sample_control_id' => $sample_control_id,
-								'SampleMaster.procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']);
-							if(!$is_specimen) $conditions['SampleMaster.parent_id'] = $parent_sample_master_id;
+							$is_specimen = is_null($initial_specimen_sample_id)? true : false;
+							$is_sample_of_the_created_aliquot = empty($sample_control_ids);
 							$sample_master_id = null;
-							$sample_data = $this->SampleMaster->find('first', array('conditions' => $conditions, 'recursive' => '-1'));
-							if($sample_data) {
-								$sample_master_id = $sample_data['SampleMaster']['id'];
-							} else {
+							if(!$is_sample_of_the_created_aliquot) {
+								//Is creating a system sample (not linked to the received and created aliquot)
+								//Check if this one already exists
+								$conditions = array(
+									'SampleMaster.collection_id' => $collection_id, 
+									'SampleMaster.sample_control_id' => $sample_control_id,
+									'SampleMaster.procure_created_by_bank' => 's');
+								if(!$is_specimen) $conditions['SampleMaster.parent_id'] = $parent_sample_master_id;
+								$sample_data = $this->SampleMaster->find('first', array('conditions' => $conditions, 'recursive' => '-1'));
+								if($sample_data) $sample_master_id = $sample_data['SampleMaster']['id'];
+							}
+							if(!$sample_master_id) {
 								//New Sample Master Data Record
 								$this->SampleMaster->addWritableField(array('collection_id', 'sample_control_id', 'initial_specimen_sample_type', 'initial_specimen_sample_id', 'parent_id', 'parent_sample_type', 'procure_created_by_bank'));
 								$this->SampleMaster->addWritableField(array('sample_master_id'), $sample_controls[$sample_control_id]['detail_tablename']);
@@ -270,17 +278,23 @@ class CollectionsControllerCustom extends CollectionsController{
 										'initial_specimen_sample_id' => $initial_specimen_sample_id,	//NULL if specimen, will be set later
 										'parent_sample_type' => $parent_sample_type,					//NULL if specimen
 										'parent_id' => $parent_sample_master_id,						//NULL if specimen
-										'procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']),
+										'procure_created_by_bank' => $is_sample_of_the_created_aliquot? $data_unit['AliquotMaster']['procure_created_by_bank'] : 's'),
 									'SampleDetail' => array());		
 								$this->SampleMaster->id = null;	
 								$this->SampleMaster->data = array();
 								if(!$this->SampleMaster->save($sample_data_to_record, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 								$sample_master_id = $this->SampleMaster->getLastInsertId();
 								$query_to_update = null;
+								$sample_code = $sample_master_id;
+								if($is_sample_of_the_created_aliquot) {
+									if(preg_match('/(PS[0-9]P[0-9]+\ V[0-9]{2}) \-(.*)/', $data_unit['AliquotMaster']['barcode'], $matches)) {
+										$sample_code = str_replace("'","''",$matches[2].' ('.$matches[1].')') ;
+									}									
+								}
 								if($is_specimen){
-									$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = sample_masters.id, sample_masters.initial_specimen_sample_id = sample_masters.id WHERE sample_masters.id = $sample_master_id;";
+									$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = '$sample_code', sample_masters.initial_specimen_sample_id = sample_masters.id WHERE sample_masters.id = $sample_master_id;";
 								}else{
-									$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = sample_masters.id WHERE sample_masters.id = $sample_master_id;";
+									$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = '$sample_code' WHERE sample_masters.id = $sample_master_id;";
 								}
 								$this->SampleMaster->tryCatchQuery($query_to_update);
 								$this->SampleMaster->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));

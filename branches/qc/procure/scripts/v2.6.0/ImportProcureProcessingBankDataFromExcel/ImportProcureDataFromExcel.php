@@ -11,71 +11,19 @@ set_time_limit('3600');
 global $patients_to_import;
 //TODO set to empty
 $patients_to_import = array(
-	'PS1P0003',
 	'PS1P0018',
-	'PS1P0149',
-	'PS1P0172',
-	'PS1P0174',
-	'PS1P0175',
-	'PS1P0203',
-	'PS1P0360',
-	'PS1P0403',
-	'PS1P0405',
-	'PS1P0494',
-	'PS1P0590',
-	'PS1P0591',
-	'PS1P0615',	
-				
-	'PS2P0068',
 	'PS2P0070',
-	'PS2P0072',
-	'PS2P0075',
-	'PS2P0079',
-	'PS2P0080',
-	'PS2P0081',
-	'PS2P0109',
-	'PS2P0110',
-	'PS2P0117',
-	'PS2P0119',
-	'PS2P0129',
-	'PS2P0180',
 	'PS2P0392',
-		
-	'PS3P0004',
-	'PS3P0007',
-	'PS3P0110',
-	'PS3P0111',
-	'PS3P0135',
-	'PS3P0138',
-	'PS3P0207',
-	'PS3P0210',
+	'PS1P0203',
 	'PS3P0211',
-	'PS3P0219',
-	'PS3P0221',
-	'PS3P0223',
-	'PS3P0240',
 	'PS3P0278',
-		
-	'PS4P0002',
-	'PS4P0013',
-	'PS4P0017',
-	'PS4P0113',
-	'PS4P0114',
 	'PS4P0119',
-	'PS4P0120',
-	'PS4P0121',
-	'PS4P0168',
-	'PS4P0169',
-	'PS4P0175',
-	'PS4P0176',
-	'PS4P0180',
-	'PS4P0181',
 	'PS4P0182',
-	'PS4P0356',
-	'PS4P0358',
-	'PS4P0380',
-	'PS4P0391',
-	'PS4P0394'
+	'PS4P0394',
+	'PS1P0203',
+	'PS1P0003',
+	'PS1P0591',
+	'PS1P0615'
 );
 
 //$patients_to_import = array();
@@ -182,7 +130,7 @@ loadDna($XlsReader, $files_path, $files_name['dna'], $study_summary_id);
 
 //codes and barcodes update
 
-$query = "UPDATE sample_masters SET sample_code = id;";
+$query = "UPDATE sample_masters SET sample_code = id WHERE sample_code LIKE 'tmp##%';";
 customQuery($query, __FILE__, __LINE__);
 $query = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE sample_control_id IN (SELECT id FROM sample_controls WHERE sample_category = 'specimen');";
 customQuery($query, __FILE__, __LINE__);
@@ -546,14 +494,17 @@ function truncate() {
   		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
   		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
   		'TRUNCATE realiquotings;', 'TRUNCATE realiquotings_revs;',
-		
+
+		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
  		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
  		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 
+  		'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
   		'TRUNCATE sd_der_dnas;', 'TRUNCATE sd_der_dnas_revs;',
   		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
   		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
   		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
+  		'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
 		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
  		'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
  		'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',

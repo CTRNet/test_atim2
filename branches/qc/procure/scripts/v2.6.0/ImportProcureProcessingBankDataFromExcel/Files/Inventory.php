@@ -114,14 +114,14 @@ function loadPlasma(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 												'collection_id' => $collection_id,
 												'sample_control_id' =>$sample_aliquot_controls['blood']['sample_control_id'],
 												'initial_specimen_sample_type' => 'blood',
-												'procure_created_by_bank' => $site_id),
+												'procure_created_by_bank' => 's'),
 											'SpecimenDetail' => array(),
 											'SampleDetail' => array());
 										$created_collections_and_specimens[$participant_identifier]['collections'][$visit]['specimens']['blood'] = createSample($sample_data_to_record, $sample_aliquot_controls['blood']['detail_tablename']);
 									}
 									$blood_sample_master_id = $created_collections_and_specimens[$participant_identifier]['collections'][$visit]['specimens']['blood'] ;
 									//Plasma
-									$plasma_sample_system_identifier = "$participant_identifier $visit";
+									$plasma_sample_system_identifier = "$participant_identifier $visit -$source_tube_suffix";
 									if(!isset($plasma_already_created[$plasma_sample_system_identifier])) {
 										$sample_data_to_record = array(
 											'SampleMaster' => array(
@@ -131,6 +131,7 @@ function loadPlasma(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 												'initial_specimen_sample_id' => $blood_sample_master_id,
 												'parent_sample_type' => 'blood',
 												'parent_id' => $blood_sample_master_id,
+												'sample_code' => "$source_tube_suffix ($participant_identifier $visit)",
 												'procure_created_by_bank' => $site_id),
 											'DerivativeDetail' => array(),
 											'SampleDetail' => array());
@@ -138,7 +139,7 @@ function loadPlasma(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 									}
 									$plasma_sample_master_id = $plasma_already_created[$plasma_sample_system_identifier]['sample_master_id'];
 									//Tube received from bank
-									$source_tube_aliquot_barcode = "$participant_identifier $visit -$source_tube_suffix";
+									$source_tube_aliquot_barcode = $plasma_sample_system_identifier;
 									if(!isset($plasma_already_created[$plasma_sample_system_identifier]['aliquots'][$source_tube_aliquot_barcode])) {
 										$aliquot_data =  array(
 											'AliquotMaster' => array(
@@ -292,14 +293,14 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 											'collection_id' => $collection_id,
 											'sample_control_id' =>$sample_aliquot_controls['urine']['sample_control_id'],
 											'initial_specimen_sample_type' => 'urine',
-											'procure_created_by_bank' => $site_id),
+											'procure_created_by_bank' => 's'),
 										'SpecimenDetail' => array(),
 										'SampleDetail' => array());
 									$created_collections_and_specimens[$participant_identifier]['collections'][$visit]['specimens']['urine'] = createSample($sample_data_to_record, $sample_aliquot_controls['urine']['detail_tablename']);
 								}
 								$urine_sample_master_id = $created_collections_and_specimens[$participant_identifier]['collections'][$visit]['specimens']['urine'] ;
 								//Centrifuged urine
-								$centrifuged_urine_sample_system_identifier = "$participant_identifier $visit";
+								$centrifuged_urine_sample_system_identifier = "$participant_identifier $visit -$source_tube_suffix";
 								if(!isset($centrifuged_urine_already_created[$centrifuged_urine_sample_system_identifier])) {
 									$sample_data_to_record = array(
 										'SampleMaster' => array(
@@ -309,6 +310,7 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 											'initial_specimen_sample_id' => $urine_sample_master_id,
 											'parent_sample_type' => 'urine',
 											'parent_id' => $urine_sample_master_id,
+											'sample_code' => "$source_tube_suffix ($participant_identifier $visit)",
 											'procure_created_by_bank' => $site_id),
 										'DerivativeDetail' => array(),
 										'SampleDetail' => array());
@@ -316,7 +318,7 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 								}
 								$centrifuged_urine_sample_master_id = $centrifuged_urine_already_created[$centrifuged_urine_sample_system_identifier]['sample_master_id'];
 								//Tube received from bank
-								$source_tube_aliquot_barcode = "$participant_identifier $visit -$source_tube_suffix";
+								$source_tube_aliquot_barcode = $centrifuged_urine_sample_system_identifier;
 								if(!isset($centrifuged_urine_already_created[$centrifuged_urine_sample_system_identifier]['aliquots'][$source_tube_aliquot_barcode])) {
 									$aliquot_data =  array(
 										'AliquotMaster' => array(
@@ -632,14 +634,14 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 							'collection_id' => $collection_id,
 							'sample_control_id' =>$sample_aliquot_controls['blood']['sample_control_id'],
 							'initial_specimen_sample_type' => 'blood',
-							'procure_created_by_bank' => $site_id),
+							'procure_created_by_bank' => 's'),
 						'SpecimenDetail' => array(),
 						'SampleDetail' => array());
 					$created_collections_and_specimens[$participant_identifier]['collections'][$visit]['specimens']['blood'] = createSample($sample_data_to_record, $sample_aliquot_controls['blood']['detail_tablename']);
 				}
 				$blood_sample_master_id = $created_collections_and_specimens[$participant_identifier]['collections'][$visit]['specimens']['blood'] ;
 				//Buffy coat
-				$pbmc_sample_system_identifier = "$participant_identifier $visit";
+				$pbmc_sample_system_identifier = "$participant_identifier $visit -BFC$bfc_source_tube_suffix";
 				if(!isset($pbmc_already_created[$pbmc_sample_system_identifier])) {
 					$sample_data_to_record = array(
 						'SampleMaster' => array(
@@ -649,6 +651,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 							'initial_specimen_sample_id' => $blood_sample_master_id,
 							'parent_sample_type' => 'blood',
 							'parent_id' => $blood_sample_master_id,
+							'sample_code' => "BFC$bfc_source_tube_suffix ($participant_identifier $visit)",
 							'procure_created_by_bank' => $site_id),
 						'DerivativeDetail' => array(),
 						'SampleDetail' => array());
@@ -656,7 +659,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 				}
 				$pbmc_sample_master_id = $pbmc_already_created[$pbmc_sample_system_identifier]['sample_master_id'];
 				//Tube received from bank
-				$source_tube_aliquot_barcode = "$participant_identifier $visit -BFC$bfc_source_tube_suffix";
+				$source_tube_aliquot_barcode = $pbmc_sample_system_identifier;
 				if(!preg_match('/^[0-9]$/', $bfc_source_tube_suffix)) {
 					$import_summary['Inventory - DNA']['@@WARNING@@']["The BFC tube suffix does not match -BFC[0-9]"][] = "The suffix of the BFC tube used is flagged as 'BFC$bfc_source_tube_suffix'. Please validate. [file <b>DNA</b> (<b>all</b>), line : <b>-1</b>]";
 				}
@@ -786,7 +789,7 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 function createSample($sample_data, $detail_tablename) {
 	global $sample_code;
 
-	$sample_data['SampleMaster']['sample_code'] = 'tmp'.($sample_code++);
+	if(!isset($sample_data['SampleMaster']['sample_code'])) $sample_data['SampleMaster']['sample_code'] = 'tmp##'.($sample_code++);
 	//Master
 	$sample_master_id = customInsert($sample_data['SampleMaster'], 'sample_masters', __FILE__, __LINE__, false);
 	//Specimen/Derivative
