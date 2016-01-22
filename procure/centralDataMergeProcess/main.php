@@ -13,9 +13,9 @@ connectToCentralDatabase();
 
 $bank_databases = array(
 	'chum' => $db_chum_schemas,
-	'chuq' => $db_chuq_schemas,
-	'chus' => $db_chus_schemas,
-	'cusm' => $db_cusm_schemas
+	'chuq' =>	null,// $db_chuq_schemas,
+	'chus' =>	null,//  $db_chus_schemas,
+	'cusm' => 	null,// $db_cusm_schemas
 );
 foreach($bank_databases as $site => $db_schema) {
 	if(!testDbSchemas($db_schema, $site)) $bank_databases[$site] = null;
@@ -82,7 +82,7 @@ foreach($sites_atim_controls as $bank_site => $site_atim_controls) {
 						//Content of these control table should be identical
 						if(!array_key_exists($atim_control_type, $sites_atim_controls['central'][$control_table_name])) {
 							//Control does not exist into ATiM Central
-							recordErrorAndMessage('ATiM Controls Data Check', '@@ERROR@@', "Missing control table in central bank", "The $control_table_name control '$atim_control_type' of site $bank_site is missing into central.");
+							recordErrorAndMessage('ATiM Controls Data Check', '@@ERROR@@', "Missing control table in central bank", '', "The $control_table_name control '$atim_control_type' of site $bank_site is missing into central.");
 							$control_data_mismatch_detected = false;
 						} else {
 							$diff1 = array_diff_assoc($sites_atim_controls['central'][$control_table_name][$atim_control_type], $atim_control_data);
@@ -93,7 +93,7 @@ foreach($sites_atim_controls as $bank_site => $site_atim_controls) {
 								foreach($diff1 as $field => $value) {
 									$field_messages[] = " $field [$value !=  ".$diff2[$field]."]";
 								}
-								recordErrorAndMessage('ATiM Controls Data Check', '@@ERROR@@', "Control '$control_table_name' data not compatible", "Following fields values are different in [the 'central' ATiM database and the '$bank_site' ATiM database : ".implode(' & ', $field_messages));
+								recordErrorAndMessage('ATiM Controls Data Check', '@@ERROR@@', "Control '$control_table_name' data not compatible", '', "Following fields values are different in [the 'central' ATiM database and the '$bank_site' ATiM database : ".implode(' & ', $field_messages));
 								$control_data_mismatch_detected = false;
 							}
 						}
@@ -105,7 +105,7 @@ foreach($sites_atim_controls as $bank_site => $site_atim_controls) {
 }
 if($control_data_mismatch_detected) {
 //TODO: à afficher dans le résumé....
-	recordErrorAndMessage('Merge Information', '@@ERROR@@', "Merge Process Aborted", "The data control values are not compatible.");
+	recordErrorAndMessage('Merge Information', '@@ERROR@@', "Merge Process Aborted", '', "The data control values are not compatible.");
 	dislayErrorAndMessage(false);
 	mergeDie("ERR_CONTROLS_MISMATCHES_DETECTED (please see summary).");
 }
@@ -167,6 +167,8 @@ $tables_to_truncate[] = 'study_summaries';
 //...
 $tables_to_truncate[] = 'datamart_batch_ids';
 $tables_to_truncate[] = 'datamart_batch_sets';
+$tables_to_truncate[] = 'datamart_browsing_indexes';
+$tables_to_truncate[] = 'datamart_browsing_results';
 $structure_permissible_values_custom_control_names = array(
 	'Aliquot Use and Event Types',
 	'Consent Form Versions',
@@ -390,7 +392,7 @@ foreach(array_merge(array('processing site' => $db_processing_schemas), $bank_da
 }
 
 //==============================================================================================
-// 3- Clean up duplicated data
+// 3- Clean up data
 //==============================================================================================
 
 // Merge duplicated drugs
@@ -422,9 +424,9 @@ foreach($populated_tables_information as $table_name => $populated_table_data) {
 }
 if($drug_ids_to_delete) customQuery("DELETE FROM drugs WHERE id IN (".implode(',', $drug_ids_to_delete).")");
 
-// Merge duplicated patient. 
-// Note we won't merge patient created in the processing site database
-// These patient should be deleted in section below
+// Merge duplicated patients: 
+//    Note we won't merge patient created in the processing site database
+//    These patient should be deleted in section below
 
 $query = "SELECT ids, participant_identifier
 	FROM (
@@ -465,9 +467,9 @@ foreach($duplicated_participants as $new_duplicated_participants_data) {
 	$query = "UPDATE participants SET notes = '".str_replace("'", "''", implode(' ',$all_notes_to_merge))."' WHERE id = ".$participants_data_to_display['id'];
 	customQuery($query);
 	//Record merge process message
-	recordErrorAndMessage('Participants', '@@MESSAGE@@', "Transferred participant", "Participant $participant_identifier is recorded into more than one bank (see banks $participants_banks). All data of the participants will be merged and linked to the last modified participant profile.");
-	if(!$check_all_flagged_as_transferred) recordErrorAndMessage('Participants', '@@WARNING@@', "Participant not flagged as 'Transferred Participant'", "At least one bank did not flagged participant $participant_identifier as 'Transferred Participant' (see banks $participants_banks). Please validate with banks.");
-	if(!$check_all_data_similar) recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Participant' data mismatches", "The profile data of at least one 'Transferred Participant' with identifier $participant_identifier does not match the data of the other sites (see banks $participants_banks). Please validate with banks.");
+	recordErrorAndMessage('Participants', '@@MESSAGE@@', "Transferred participant", "Participant is recorded into more than one bank. All data of the participant will be merged and linked to the last modified participant profile.", "$participant_identifier in banks $participants_banks");
+	if(!$check_all_flagged_as_transferred) recordErrorAndMessage('Participants', '@@WARNING@@', "Participant not flagged as 'Transferred Participant'", "At least one bank did not flagged participant listed in more than one bank as 'Transferred Participant'. Please validate with banks.", "$participant_identifier in banks $participants_banks");
+	if(!$check_all_data_similar) recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Participant' data mismatches", "The profile of a 'Transferred Participant' does not match the profile of the same patient in the other bank(s). Please validate with banks.", "$participant_identifier in banks $participants_banks");
 }
 $participant_ids_to_delete = array();
 $merged_participant_ids = array();
@@ -481,26 +483,41 @@ foreach($populated_tables_information as $table_name => $populated_table_data) {
 		}
 	}
 }
+$main_participant_ids = array_keys($matching_participant_ids);
+if($main_participant_ids) {
+	$query = "UPDATE participants SET procure_transferred_participant = 'y' WHERE id IN (".implode(',',$main_participant_ids).")";
+	customQuery($query);
+}
 if($participant_ids_to_delete) customQuery("DELETE FROM participants WHERE id IN (".implode(',', $participant_ids_to_delete).")");
+
+// Delete all quality controls different than 'nanodrop', 'bioanalyzer', 'spectrophotometer'
+
+$queries = array();
+$queries[] = "UPDATE quality_ctrls QualityCtrl, aliquot_masters AliquotMaster
+	SET AliquotMaster.use_counter = (AliquotMaster.use_counter - 1)
+	WHERE QualityCtrl.aliquot_master_id = AliquotMaster.id AND AliquotMaster.deleted <> 1 AND QualityCtrl.deleted <> 1
+	AND QualityCtrl.type NOT IN ('nanodrop', 'bioanalyzer', 'spectrophotometer');";
+$queries[] = "UPDATE quality_ctrls SET deleted = '1' WHERE type NOT IN ('nanodrop', 'bioanalyzer', 'spectrophotometer');";
+foreach($queries as $query) customQuery($query);
 
 //==============================================================================================
 // 4- Import Data From Processing Site
 //==============================================================================================
 
 // 1- Link Bank aliquots to Psp aliquots when match exists on barcode
-//    and change the procure_created_by_bank field of these aliquot from bank code to 'p'
+//    and change the procure_created_by_bank field of these aliquots from bank code to 'p'
 
 $queries = array();
-$queries[] = "DROP TABLE IF EXISTS procure_tmp_link_transfered_aliquots;";
-$queries[] = "CREATE TABLE procure_tmp_link_transfered_aliquots (
-	collection_id int(11) DEFAULT NULL,
-	sample_master_id int(11) DEFAULT NULL,
-	aliquot_master_id int(11) DEFAULT NULL,
-	link_to_collection_id int(11) DEFAULT NULL,
-	link_to_sample_master_id int(11) DEFAULT NULL,
-	link_to_aliquot_master_id int(11) DEFAULT NULL);";
-$queries[] = "INSERT INTO procure_tmp_link_transfered_aliquots (collection_id, sample_master_id, aliquot_master_id, link_to_collection_id, link_to_sample_master_id, link_to_aliquot_master_id)	
-	(SELECT CollectionPsp.id, AliquotMasterPsp.sample_master_id, AliquotMasterPsp.id, CollectionBank.id, AliquotMasterBank.sample_master_id, AliquotMasterBank.id
+$queries[] = "DROP TABLE IF EXISTS procure_tmp_transfered_aliquot_ids;";
+$queries[] = "CREATE TABLE procure_tmp_transfered_aliquot_ids (
+	bank_aliquot_collection_id int(11) DEFAULT NULL,
+	bank_aliquot_sample_master_id int(11) DEFAULT NULL,
+	bank_aliquot_master_id int(11) DEFAULT NULL,
+	psp_aliquot_collection_id int(11) DEFAULT NULL,
+	psp_aliquot_sample_master_id int(11) DEFAULT NULL,
+	psp_aliquot_master_id int(11) DEFAULT NULL);";
+$queries[] = "INSERT INTO procure_tmp_transfered_aliquot_ids (bank_aliquot_collection_id, bank_aliquot_sample_master_id, bank_aliquot_master_id, psp_aliquot_collection_id, psp_aliquot_sample_master_id, psp_aliquot_master_id)	
+	(SELECT CollectionBank.id, AliquotMasterBank.sample_master_id, AliquotMasterBank.id, CollectionPsp.id, AliquotMasterPsp.sample_master_id, AliquotMasterPsp.id
 	FROM participants ParticipantBank, collections CollectionBank, aliquot_masters AliquotMasterBank,
 	participants ParticipantPsp, collections CollectionPsp, aliquot_masters AliquotMasterPsp
 	WHERE AliquotMasterBank.deleted <> 1 AND AliquotMasterBank.collection_id = CollectionBank.id AND CollectionBank.participant_id = ParticipantBank.id
@@ -511,108 +528,165 @@ $queries[] = "INSERT INTO procure_tmp_link_transfered_aliquots (collection_id, s
 	AND AliquotMasterBank.aliquot_control_id = AliquotMasterPsp.aliquot_control_id
 	AND AliquotMasterBank.procure_created_by_bank =  AliquotMasterPsp.procure_created_by_bank);";
 $queries[] = "INSERT INTO realiquotings (parent_aliquot_master_id, child_aliquot_master_id, procure_central_is_transfer, created, created_by, modified, modified_by) 
-	(SELECT aliquot_master_id, link_to_aliquot_master_id, '1', '$import_date',$imported_by, '$import_date',$imported_by FROM procure_tmp_link_transfered_aliquots);";
-$queries[] = "UPDATE aliquot_masters AliquotMaster, procure_tmp_link_transfered_aliquots Link
+	(SELECT TransferedIdsTable.bank_aliquot_master_id, TransferedIdsTable.psp_aliquot_master_id, '1', '$import_date',$imported_by, '$import_date',$imported_by FROM procure_tmp_transfered_aliquot_ids TransferedIdsTable);";
+$queries[] = "UPDATE aliquot_masters AliquotMaster, procure_tmp_transfered_aliquot_ids TransferedIdsTable
 	SET AliquotMaster.procure_created_by_bank = 'p'
-	WHERE AliquotMaster.id = Link.aliquot_master_id;";
-$queries[] = "UPDATE aliquot_masters AliquotMaster, procure_tmp_link_transfered_aliquots Link SET AliquotMaster.use_counter = (AliquotMaster.use_counter+1) 
-	WHERE AliquotMaster.id = Link.aliquot_master_id";
+	WHERE AliquotMaster.id = TransferedIdsTable.psp_aliquot_master_id;";
+$queries[] = "UPDATE aliquot_masters AliquotMaster, procure_tmp_transfered_aliquot_ids TransferedIdsTable 
+	SET AliquotMaster.use_counter = (AliquotMaster.use_counter + 1) 
+	WHERE AliquotMaster.id = TransferedIdsTable.bank_aliquot_master_id;";
 foreach($queries as $query) customQuery($query);
 
 // 2- List all Psp aliquots defined as received from bank
 //    that the system is not able to connect to a bank aliquot
-//    then set their procure_created_by_bank field to 'p'
 
-$query = "SELECT AliquotMasterPsp.id, AliquotMasterPsp.barcode, AliquotMasterPsp.procure_created_by_bank
-	FROM participants ParticipantPsp, collections CollectionPsp, aliquot_masters AliquotMasterPsp
-	WHERE AliquotMasterPsp.deleted <> 1 AND AliquotMasterPsp.collection_id = CollectionPsp.id AND CollectionPsp.participant_id = ParticipantPsp.id
-	AND ParticipantPsp.procure_last_modification_by_bank = 'p' AND ParticipantPsp.procure_last_modification_by_bank != AliquotMasterPsp.procure_created_by_bank;";
-$unmatching_bank_aliquot_master_ids = array();
-foreach(getSelectQueryResult($query) as $new_aliquot) {
-	$unmatching_bank_aliquot_master_ids[] = $new_aliquot['id'];
-	recordErrorAndMessage('Aliquots', '@@WARNING@@', "Source of a 'Processing Site' aliquot not found", "The aliquot '".$new_aliquot['barcode']."' listed in the 'Processing Site' ATiM database and defined as shipped by bank '".$new_aliquot['procure_created_by_bank']."' does not exist into the ATiM database of the bank. Please see batchset 'Psp aliquots unlinked to Banks aliquots' created then validate with banks.");
-}
-createBatchSet('ViewAliquot', 'Psp aliquots unlinked to Banks aliquots', $unmatching_bank_aliquot_master_ids);
-$query = "SELECT AliquotMasterPsp.id, AliquotMasterPsp.barcode, AliquotMasterPsp.procure_created_by_bank
+$query = "SELECT AliquotMasterPsp.id, AliquotMasterPsp.barcode, AliquotMasterPsp.procure_created_by_bank,
+	AliquotMasterBank.deleted AS bank_aliquot_deleted, 
+	AliquotMasterBank.aliquot_control_id bank_aliquot_control_id, AliquotMasterPsp.aliquot_control_id psp_aliquot_control_id,
+	AliquotMasterBank.procure_created_by_bank aliquot_bank, AliquotMasterPsp.procure_created_by_bank aliquot_bank_in_psp
 	FROM participants ParticipantBank, collections CollectionBank, aliquot_masters AliquotMasterBank,
 	participants ParticipantPsp, collections CollectionPsp, aliquot_masters AliquotMasterPsp
-	WHERE AliquotMasterBank.deleted = 1 AND AliquotMasterBank.collection_id = CollectionBank.id AND CollectionBank.participant_id = ParticipantBank.id
+	WHERE AliquotMasterBank.collection_id = CollectionBank.id AND CollectionBank.participant_id = ParticipantBank.id
 	AND ParticipantBank.procure_last_modification_by_bank != 'p' AND ParticipantBank.procure_last_modification_by_bank = AliquotMasterBank.procure_created_by_bank
 	AND AliquotMasterPsp.deleted <> 1 AND AliquotMasterPsp.collection_id = CollectionPsp.id AND CollectionPsp.participant_id = ParticipantPsp.id
 	AND ParticipantPsp.procure_last_modification_by_bank = 'p' AND ParticipantPsp.procure_last_modification_by_bank != AliquotMasterPsp.procure_created_by_bank
-	AND AliquotMasterBank.barcode = AliquotMasterPsp.barcode
-	AND AliquotMasterBank.aliquot_control_id = AliquotMasterPsp.aliquot_control_id
-	AND AliquotMasterBank.procure_created_by_bank =  AliquotMasterPsp.procure_created_by_bank";
+	AND AliquotMasterBank.barcode = AliquotMasterPsp.barcode;";
 $deleted_bank_aliquot_master_ids = array();
+$aliquot_master_ids_with_control_id_msimatch = array();
+$aliquot_master_ids_with_bank_msimatch = array();
 foreach(getSelectQueryResult($query) as $new_aliquot) {
-	$deleted_bank_aliquot_master_ids[] = $new_aliquot['id'];
-	recordErrorAndMessage('Aliquots', '@@WARNING@@', "Source of a 'Processing Site' aliquot not found cause deleted in bank", "The aliquot '".$new_aliquot['barcode']."' listed in the 'Processing Site' ATiM database and defined as shipped by bank '".$new_aliquot['procure_created_by_bank']."' does not exist into the ATiM database of the bank. Please see batchset 'Psp aliquots linked to Banks aliquots deleted' created then validate with banks.");
+	if($new_aliquot['bank_aliquot_deleted']) {
+		$deleted_bank_aliquot_master_ids[] = $new_aliquot['id'];
+		recordErrorAndMessage('Aliquots', '@@WARNING@@', "'Processing Site' aliquot flagged as transfered deleted in bank", "Aliquot listed in the 'Processing Site' ATiM database and defined transfered from a bank to the processing site that has been deleted into the ATiM database of the bank. Please see batchset 'Psp aliquots linked to deleted bank aliquots' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$new_aliquot['procure_created_by_bank']."'");
+	} else if($new_aliquot['bank_aliquot_control_id'] != $new_aliquot['psp_aliquot_control_id']) {
+		$aliquot_master_ids_with_control_id_msimatch[] = $new_aliquot['id'];
+		recordErrorAndMessage('Aliquots', '@@WARNING@@', "'Processing Site' aliquot flagged as transfered but aliquot type mismatch", "Aliquot listed in the 'Processing Site' ATiM database and defined transfered from a bank to the processing site and having an aliquot type recorded in the 'Processing Site' ATiM database different than this one defined in bank. Please see batchset 'Psp aliquots linked to bank aliquots with type mismatch' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$new_aliquot['procure_created_by_bank']."'");
+	} else if($new_aliquot['aliquot_bank'] != $new_aliquot['aliquot_bank_in_psp']) {
+		$aliquot_master_ids_with_bank_msimatch[] = $new_aliquot['id'];
+		recordErrorAndMessage('Aliquots', '@@WARNING@@', "'Processing Site' aliquot flagged as transfered but source bank mismatch", "Aliquot listed in the 'Processing Site' ATiM database and defined transfered from a bank to the processing site and having a 'Source Bank' recorded in the 'Processing Site' ATiM database different then the real bank that shipped the aliquot. Please see batchset 'Psp aliquots linked to bank aliquots with bank value mismatch' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$new_aliquot['procure_created_by_bank']."'");
+	} else {
+		mergeDie('ERR_MATCHING_BARCODE_ERROR_DETECTION_IS_MISSING');
+	}
 }
-createBatchSet('ViewAliquot', 'Psp aliquots linked to Banks aliquots deleted', $deleted_bank_aliquot_master_ids);
+foreach(array(array($deleted_bank_aliquot_master_ids, 'Psp aliquots linked to deleted bank aliquots'), array($aliquot_master_ids_with_control_id_msimatch, 'Psp aliquots linked to bank aliquots with type mismatch'), array($aliquot_master_ids_with_bank_msimatch, 'Psp aliquots linked to bank aliquots with bank value mismatch')) as $tmp_batchset_data) {
+	list($batchset_ids, $batchset_title) = $tmp_batchset_data;
+	createBatchSet('ViewAliquot', $batchset_title, $batchset_ids);
+}
+$not_in_ids = array_merge($deleted_bank_aliquot_master_ids, $aliquot_master_ids_with_control_id_msimatch, $aliquot_master_ids_with_bank_msimatch, array('-1'));
+$query = "SELECT AliquotMasterPsp.id, AliquotMasterPsp.barcode, AliquotMasterPsp.procure_created_by_bank
+	FROM participants ParticipantPsp, collections CollectionPsp, aliquot_masters AliquotMasterPsp
+	WHERE AliquotMasterPsp.deleted <> 1 AND AliquotMasterPsp.collection_id = CollectionPsp.id AND CollectionPsp.participant_id = ParticipantPsp.id
+	AND ParticipantPsp.procure_last_modification_by_bank = 'p' AND ParticipantPsp.procure_last_modification_by_bank != AliquotMasterPsp.procure_created_by_bank
+	AND AliquotMasterPsp.id NOT IN (".implode(',', $not_in_ids).");";
+$unmatching_bank_aliquot_master_ids = array();
+foreach(getSelectQueryResult($query) as $new_aliquot) {
+	$unmatching_bank_aliquot_master_ids[] = $new_aliquot['id'];
+	recordErrorAndMessage('Aliquots', '@@WARNING@@', "'Processing Site' aliquot flagged as transfered but not 'linked' to a bank's aliquot", "Aliquot listed in the 'Processing Site' ATiM database and defined as transfered from a bank to the processing site that does not exist into the ATiM database of a bank. Please see batchset 'Psp aliquots received that does not exist in bank' created then validate with banks.", $new_aliquot['barcode']." of bank '".$new_aliquot['procure_created_by_bank']."'");
+}
+createBatchSet('ViewAliquot', 'Psp aliquots received that does not exist in bank', $unmatching_bank_aliquot_master_ids);
+
+// 3- Set procure_created_by_bank field of all aliquots created in Psp ATiM database to 'p'
+
 $query = "UPDATE participants ParticipantPsp, collections CollectionPsp, aliquot_masters AliquotMasterPsp
 	SET AliquotMasterPsp.procure_created_by_bank = 'p'
 	WHERE AliquotMasterPsp.deleted <> 1 AND AliquotMasterPsp.collection_id = CollectionPsp.id AND CollectionPsp.participant_id = ParticipantPsp.id
-	AND ParticipantPsp.procure_last_modification_by_bank = 'p' AND ParticipantPsp.procure_last_modification_by_bank != AliquotMasterPsp.procure_created_by_bank;";
+	AND ParticipantPsp.procure_last_modification_by_bank = 'p';";
 customQuery($query);
 
-// 3- Update sample_master_id foreign_key values for all aliquots, order_items, quality_ctrls, path_reviews and 'derivatives' records 
-//    matching a value of the field procure_tmp_link_transfered_aliquots.sample_master_id 
-//    to the value of the field procure_tmp_link_transfered_aliquots.link_to_sample_master_id
+// 4- Update sample_master_id foreign_key values for all aliquot_masters, quality_ctrls, path_reviews 
+//    and 'derivatives' sample_masters records that was linked to the sample of the transfered aliquot
+//    into the processing site database.
 
-$queries[] = "UPDATE aliquot_masters AliquotMaster, procure_tmp_link_transfered_aliquots Link
-	SET AliquotMaster.collection_id = Link.link_to_collection_id,  AliquotMaster.sample_master_id = Link.link_to_sample_master_id
-	WHERE AliquotMaster.sample_master_id = Link.sample_master_id;";
-$queries[] = "UPDATE quality_ctrls QualityCtrl, procure_tmp_link_transfered_aliquots Link
-	SET QualityCtrl.sample_master_id = Link.link_to_sample_master_id
-	WHERE QualityCtrl.sample_master_id = Link.sample_master_id;";
-$queries[] = "UPDATE specimen_review_masters SpecimenReviewMaster, procure_tmp_link_transfered_aliquots Link
-	SET SpecimenReviewMaster.collection_id = Link.link_to_collection_id, SpecimenReviewMaster.sample_master_id = Link.link_to_sample_master_id
-	WHERE SpecimenReviewMaster.sample_master_id = Link.sample_master_id;";
-$queries[] = "UPDATE sample_masters ParentSampleMaster, sample_masters DerivatvieSampleMaster, procure_tmp_link_transfered_aliquots Link
-	SET DerivatvieSampleMaster.collection_id = ParentSampleMaster.collection_id, 
-	DerivatvieSampleMaster.initial_specimen_sample_id = ParentSampleMaster.initial_specimen_sample_id, 
-	DerivatvieSampleMaster.initial_specimen_sample_type = ParentSampleMaster.initial_specimen_sample_type, 
-	DerivatvieSampleMaster.collection_id = ParentSampleMaster.collection_id, 
-	DerivatvieSampleMaster.parent_id = ParentSampleMaster.id
-	WHERE DerivatvieSampleMaster.parent_id = Link.sample_master_id AND ParentSampleMaster.id = Link.sample_master_id;";
+// AliquotMaster.collection_id & AliquotMaster.sample_master_id
+$queries = array();
+$queries[] = "UPDATE aliquot_masters AliquotMaster, procure_tmp_transfered_aliquot_ids TransferedIdsTable
+	SET AliquotMaster.collection_id = TransferedIdsTable.bank_aliquot_collection_id,  
+	AliquotMaster.sample_master_id = TransferedIdsTable.bank_aliquot_sample_master_id
+	WHERE AliquotMaster.sample_master_id = TransferedIdsTable.psp_aliquot_sample_master_id;";
+// QualityCtrl.sample_master_id
+$queries[] = "UPDATE quality_ctrls QualityCtrl, procure_tmp_transfered_aliquot_ids TransferedIdsTable
+	SET QualityCtrl.sample_master_id = TransferedIdsTable.bank_aliquot_sample_master_id
+	WHERE QualityCtrl.sample_master_id = TransferedIdsTable.psp_aliquot_sample_master_id;";
+// SpecimenReviewMaster.collection_id & SpecimenReviewMaster.sample_master_id	
+$queries[] = "UPDATE specimen_review_masters SpecimenReviewMaster, procure_tmp_transfered_aliquot_ids TransferedIdsTable
+	SET SpecimenReviewMaster.collection_id = TransferedIdsTable.bank_aliquot_collection_id, 
+	SpecimenReviewMaster.sample_master_id = TransferedIdsTable.bank_aliquot_sample_master_id
+	WHERE SpecimenReviewMaster.sample_master_id = TransferedIdsTable.psp_aliquot_sample_master_id;";
+//Move all psp derivative samples to link them to the bank sample linked to the transfered aliquot...	
+$queries[] = "UPDATE sample_masters NewParentSampleMaster, sample_masters PspDerivativeSampleMaster, procure_tmp_transfered_aliquot_ids TransferedIdsTable
+	SET PspDerivativeSampleMaster.collection_id = NewParentSampleMaster.collection_id, 
+	PspDerivativeSampleMaster.initial_specimen_sample_id = NewParentSampleMaster.initial_specimen_sample_id, 
+	PspDerivativeSampleMaster.initial_specimen_sample_type = NewParentSampleMaster.initial_specimen_sample_type,
+	PspDerivativeSampleMaster.parent_id = NewParentSampleMaster.id
+	WHERE NewParentSampleMaster.id = TransferedIdsTable.bank_aliquot_sample_master_id
+	AND PspDerivativeSampleMaster.parent_id = TransferedIdsTable.psp_aliquot_sample_master_id;";
 foreach($queries as $query) customQuery($query);
-$query_to_test = "SELECT DerivativeSampleMaster.id
-	FROM sample_masters ParentSampleMaster, sample_masters DerivativeSampleMaster
-	WHERE ParentSampleMaster.id = DerivativeSampleMaster.parent_id 
-	AND (ParentSampleMaster.collection_id != DerivativeSampleMaster.collection_id OR ParentSampleMaster.initial_specimen_sample_id != DerivativeSampleMaster.initial_specimen_sample_id);";
+//... then update all derivatives and the sub-derivatives of the derivative updated above
+$query_to_test = "SELECT PspDerivativeSampleMaster.id
+	FROM sample_masters NewParentSampleMaster, sample_masters PspDerivativeSampleMaster
+	WHERE NewParentSampleMaster.id = PspDerivativeSampleMaster.parent_id 
+	AND (NewParentSampleMaster.collection_id != PspDerivativeSampleMaster.collection_id 
+	OR NewParentSampleMaster.initial_specimen_sample_id != PspDerivativeSampleMaster.initial_specimen_sample_id);";
 while(!empty(getSelectQueryResult($query_to_test))) {
-	$query = "UPDATE sample_masters ParentSampleMaster, sample_masters DerivativeSampleMaster
-		SET DerivativeSampleMaster.collection_id = ParentSampleMaster.collection_id, DerivativeSampleMaster.initial_specimen_sample_id = ParentSampleMaster.initial_specimen_sample_id 
-		WHERE ParentSampleMaster.id = DerivativeSampleMaster.parent_id
-		AND (ParentSampleMaster.collection_id != DerivativeSampleMaster.collection_id OR ParentSampleMaster.initial_specimen_sample_id != DerivativeSampleMaster.initial_specimen_sample_id);";
+	$query = "UPDATE sample_masters NewParentSampleMaster, sample_masters PspDerivativeSampleMaster
+		SET PspDerivativeSampleMaster.collection_id = NewParentSampleMaster.collection_id, 
+		PspDerivativeSampleMaster.initial_specimen_sample_id = NewParentSampleMaster.initial_specimen_sample_id,
+		PspDerivativeSampleMaster.initial_specimen_sample_type = NewParentSampleMaster.initial_specimen_sample_type
+		WHERE NewParentSampleMaster.id = PspDerivativeSampleMaster.parent_id
+		AND (NewParentSampleMaster.collection_id != PspDerivativeSampleMaster.collection_id 
+		OR NewParentSampleMaster.initial_specimen_sample_id != PspDerivativeSampleMaster.initial_specimen_sample_id);";
 	customQuery($query);
 }
-
-// 4- Set the procure_participant_attribution_number to bank participants
-
-$query = "UPDATE participants BankParticipant, participants ProcSiteParticipant
-	SET BankParticipant.procure_participant_attribution_number = ProcSiteParticipant.procure_participant_attribution_number
-	WHERE BankParticipant.procure_last_modification_by_bank != 'p' AND BankParticipant.deleted <> 1
-	AND ProcSiteParticipant.procure_last_modification_by_bank = 'p' AND ProcSiteParticipant.deleted <> 1
-	AND BankParticipant.participant_identifier = ProcSiteParticipant.participant_identifier;";
+//Set collection_id of all aliquots of the derivatvies updated
+$query = "UPDATE sample_masters SampleMaster, aliquot_masters AliquotMaster
+	SET AliquotMaster.collection_id = SampleMaster.collection_id
+	WHERE AliquotMaster.collection_id != SampleMaster.collection_id
+	AND AliquotMaster.sample_master_id = SampleMaster.id;";
 customQuery($query);
 
-// 5- Clean up samples, collections and participants created in processing site
+// 5- Set the procure_participant_attribution_number to bank participants
+
+$query = "UPDATE participants BankParticipant, participants PspParticipant
+	SET BankParticipant.procure_participant_attribution_number = PspParticipant.procure_participant_attribution_number
+	WHERE BankParticipant.procure_last_modification_by_bank != 'p' AND BankParticipant.deleted <> 1
+	AND PspParticipant.procure_last_modification_by_bank = 'p' AND PspParticipant.deleted <> 1
+	AND BankParticipant.participant_identifier = PspParticipant.participant_identifier;";
+customQuery($query);
+
+// 6- Clean up samples, collections and participants created in processing site
 
 $queries = array();
-$queries[] = "UPDATE collections SET deleted = '-99' WHERE id NOT IN (SELECT DISTINCT collection_id FROM aliquot_masters)";
-$queries[] = "DELETE FROM quality_ctrls WHERE sample_master_id IN (SELECT DISTINCT sample_masters.id FROM collections INNER JOIN sample_masters ON collections.id = collection_id WHERE collections.deleted = '-99')";
-$queries[] = "DELETE FROM specimen_review_masters WHERE collection_id IN (SELECT DISTINCT collection_id FROM collections WHERE deleted = '-99')";
-$queries[] = "UPDATE sample_masters SET parent_id = null WHERE collection_id IN (SELECT DISTINCT collection_id FROM collections WHERE deleted = '-99')";
-$queries[] = "DELETE FROM sample_masters WHERE collection_id IN (SELECT DISTINCT collection_id FROM collections WHERE deleted = '-99')";
-$queries[] = "DELETE FROM collections WHERE deleted = '-99'";
-$queries[] = "DELETE FROM participants WHERE procure_last_modification_by_bank = 'p' AND id NOT IN (SELECT distinct participant_id FROM collections WHERE participant_id IS NOT NULL)";
+$queries[] = "UPDATE collections Collection 
+	SET Collection.deleted = '99' 
+	WHERE Collection.id NOT IN (SELECT DISTINCT collection_id FROM aliquot_masters WHERE deleted <> 1);";
+$queries[] = "UPDATE quality_ctrls QualityCtrls, sample_masters SampleMaster, collections Collection
+	SET QualityCtrls.deleted = 1 
+	WHERE QualityCtrls.sample_master_id = SampleMaster.id AND SampleMaster.collection_id = Collection.id AND Collection.deleted = '99';";
+$queries[] = "UPDATE aliquot_review_masters ReviewMaster, aliquot_masters AliquotMaster, collections Collection
+	SET ReviewMaster.deleted = 1
+	WHERE ReviewMaster.aliquot_master_id = AliquotMaster.id AND AliquotMaster.collection_id = Collection.id AND Collection.deleted = '99';";
+$queries[] = "UPDATE specimen_review_masters ReviewMaster, collections Collection
+	SET ReviewMaster.deleted = 1
+	WHERE ReviewMaster.collection_id = Collection.id AND Collection.deleted = '99';";
+$queries[] = "UPDATE sample_masters SampleMaster, collections Collection
+	SET SampleMaster.deleted = 1
+	WHERE SampleMaster.collection_id = Collection.id AND Collection.deleted = '99';";
+$queries[] = "UPDATE collections Collection 
+	SET Collection.deleted = '1' 
+	WHERE Collection.deleted = '99';";
+$queries[] = "UPDATE participants Participant 
+	SET Participant.deleted = '1' 
+	WHERE Participant.procure_last_modification_by_bank = 'p' AND Participant.id NOT IN (SELECT distinct participant_id FROM collections WHERE participant_id IS NOT NULL AND deleted <> 1);";
+$queries[] = "UPDATE participants Participant, misc_identifiers MiscIdentifier 
+	SET MiscIdentifier.deleted = '1' 
+	WHERE Participant.procure_last_modification_by_bank = 'p' AND Participant.deleted = '1' AND Participant.id = MiscIdentifier.participant_id;";
 foreach($queries as $query) customQuery($query);
+
 $query = "SELECT id, procure_participant_attribution_number, participant_identifier FROM participants WHERE deleted <> 1 AND procure_last_modification_by_bank = 'p'";
 $participant_ids = array();
 foreach(getSelectQueryResult($query) as $new_participant) {
 	$participant_ids[] = $new_participant['id'];
-	recordErrorAndMessage('Participants', '@@WARNING@@', "Un-merged participants created in Psp", "At least one aliquot of the participant '".$new_participant['participant_identifier']."' listed in the 'Processing Site' ATiM database can not be linked to a sample created in a ATiM database of a 'Bank'. Please see batchset 'Psp participants un-deleted' created then validate with banks.");
+	recordErrorAndMessage('Participants', '@@WARNING@@', "Un-merged participants created in Psp", "At least one aliquot of a participant listed in the 'Processing Site' ATiM database can not be linked to a sample created in a ATiM database of a 'Bank'. Please see batchset 'Psp participants un-deleted' created then validate with banks.", $new_participant['participant_identifier']);
 }
 createBatchSet('Participant', 'Psp participants un-deleted', $participant_ids);
 
@@ -622,15 +696,11 @@ $query = "SELECT id, procure_participant_attribution_number, participant_identif
 $participant_ids = array();
 foreach(getSelectQueryResult($query) as $new_participant) {
 	$participant_ids[] = $new_participant['id'];
-	recordErrorAndMessage('Participants', '@@WARNING@@', "Unknown participants created in Psp", "At least one participant '".$new_participant['participant_identifier']."' listed in the 'Processing Site' ATiM database is not be listed in any 'Bank' ATiM database. Please see batchset 'Psp participants un-known' created then validate with banks.");
+	recordErrorAndMessage('Participants', '@@WARNING@@', "Unknown participants created in Psp", "Participant listed in the 'Processing Site' ATiM database is not listed in a 'Bank' ATiM database. Please see batchset 'Psp participants unknown' created then validate with banks.", $new_participant['participant_identifier']);
 }
-createBatchSet('Participant', 'Psp participants un-known', $participant_ids);
+createBatchSet('Participant', 'Psp participants unknown', $participant_ids);
 
-//TODOverifier le statut des aliquots
-//TODOverifier que aliquot defined as shipped....
-//TODO dans les utilisations jouer avec le champs procure_central_is_transfer
-
-customQuery("DROP TABLE IF EXISTS procure_tmp_link_transfered_aliquots;");
+customQuery("DROP TABLE IF EXISTS procure_tmp_transfered_aliquot_ids;");		
 		
 //**********************************************************************************************************************************************************************************************
 //
@@ -638,7 +708,7 @@ customQuery("DROP TABLE IF EXISTS procure_tmp_link_transfered_aliquots;");
 //
 //**********************************************************************************************************************************************************************************************
 
-// PROCURE Form Identification
+// Duplicated PROCURE form Identification (tx, cst, event)
 
 foreach(array('consent_masters' => 'Consents', 'treatment_masters' => 'Treatments', 'event_masters' => 'Events') as $table_name => $data_type) {
 	$query = "SELECT procure_created_by_banks, procure_form_identification
@@ -647,29 +717,63 @@ foreach(array('consent_masters' => 'Consents', 'treatment_masters' => 'Treatment
 		) res WHERE procure_created_by_banks LIKE '%,%'
 		ORDER BY procure_form_identification;";
 	$duplicated_forms = getSelectQueryResult($query);
-	foreach($duplicated_forms as $new_form_set) recordErrorAndMessage($data_type, '@@WARNING@@', "Form Identification Duplicated", "See '".$new_form_set['procure_form_identification']."' from banks '".$new_form_set['procure_created_by_banks']."'.");
+	foreach($duplicated_forms as $new_form_set) recordErrorAndMessage($data_type, '@@WARNING@@', "Form Identification Duplicated", '', $new_form_set['procure_form_identification']."' in bank(s) '".$new_form_set['procure_created_by_banks']."'.");
 }
 
-// PROCURE Aliquot Identification
+// Duplicated PROCURE aliquot barcode
 
-//TODO : Be sure aliquot recorded into processing site created in other bank are flagged as created in processing site?
 $query = "SELECT procure_created_by_bank, barcode
 	FROM (
-		SELECT GROUP_CONCAT(procure_created_by_bank) as procure_created_by_bank, barcode FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode
+		SELECT GROUP_CONCAT(procure_created_by_bank) as procure_created_by_bank, barcode FROM aliquot_masters 
+		WHERE deleted <> 1 AND id NOT IN (
+			SELECT child_aliquot_master_id FROM realiquotings WHERE procure_central_is_transfer = '1'
+		) GROUP BY barcode
 	) res WHERE procure_created_by_bank LIKE '%,%'
 	ORDER BY barcode;";
 $duplicated_forms = getSelectQueryResult($query);
-foreach($duplicated_forms as $new_form_set) recordErrorAndMessage('Aliquots', '@@WARNING@@', "Barcode Duplicated", "See aliquot '".$new_form_set['barcode']."' from banks '".$new_form_set['procure_created_by_bank']."'.");
+foreach($duplicated_forms as $new_form_set) recordErrorAndMessage('Aliquots', '@@WARNING@@', "Barcode Duplicated", '', $new_form_set['barcode']."' in bank(s) '".$new_form_set['procure_created_by_bank']."'.");
 
+// Participant flagged as 'Transferred participant' listed in only one bank
 
+$merged_participant_ids = array_merge($merged_participant_ids, array('-1'));
+$query = "SELECT participant_identifier, procure_last_modification_by_bank FROM participants WHERE deleted <> 1 AND procure_transferred_participant = 'y' AND id NOT IN (".implode(',', $merged_participant_ids).")";
+foreach(getSelectQueryResult($query) as $new_particiant) recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Participant' listed in only one bank", "Participant is flagged as 'Transferred Participant' but this one is just recorded into one bank database. Please validate with banks.", $new_particiant['participant_identifier'].' in bank '.$new_particiant['procure_last_modification_by_bank']);
 
+// In stock values of transferred aliquots
 
+$query = "SELECT BankAliquotMaster.id, BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank, PspAliquotMaster.id as psp_id
+	FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink, aliquot_masters PspAliquotMaster
+	WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id AND PspAliquotMaster.id = TransferLink.child_aliquot_master_id 
+	AND BankAliquotMaster.in_stock = 'yes - available' AND PspAliquotMaster.in_stock = 'yes - available'";
+$barcodes = getSelectQueryResult($query);
+$aliquot_ids = array();
+foreach($barcodes as $new_aliquot) {
+	$aliquot_ids[] = $new_aliquot['id'];
+	$aliquot_ids[] = $new_aliquot['psp_id'];
+	recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Aliquot' in stock conflict", "Aliquot is flagged as in stock and available in both bank and processing site. Please see 'Transferred aliquot with stock value conflict' batchset and correct data in site.", $new_aliquot['barcode'].' in bank '.$new_aliquot['procure_created_by_bank']);
+}
+createBatchSet('ViewAliquot', 'Transferred aliquot with stock value conflict', $aliquot_ids);
 
-// 'Transferred participant' listed in only one bank
+$query = "SELECT BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank
+	FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink, aliquot_masters PspAliquotMaster
+	WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id AND PspAliquotMaster.id = TransferLink.child_aliquot_master_id 
+	AND BankAliquotMaster.in_stock = 'yes - not available' AND PspAliquotMaster.in_stock = 'yes - available'";
+$barcodes = getSelectQueryResult($query);
+foreach($barcodes as $new_aliquot) recordErrorAndMessage('Participants', '@@MESSAGE@@', "'Transferred Aliquot' in stock warning", "Aliquot is flagged as in stock and available in processing site and in stock but not available in bank. Please validate with bank.", $new_aliquot['barcode'].' in bank '.$new_aliquot['procure_created_by_bank']);
 
-$query = "SELECT GROUP_CONCAT(participant_identifier) AS participant_identifiers FROM participants WHERE deleted <> 1 AND procure_transferred_participant = 'y' AND id NOT IN (".implode(',', $merged_participant_ids).")";
-$participants_list = getSelectQueryResult($query);
-if($participants_list && isset($participants_list[0]['participant_identifiers'])) recordErrorAndMessage('Participants', '@@WARNING@@', "Transferred participant listed in only one bank", "Following participants are flagged as 'Transferred Participant' but are not found in more than one bank  (see ".$participants_list[0]['participant_identifiers']."). Please validate with banks.");
+// Check aliquots are defined as chiped
+
+$query = "SELECT  BankAliquotMaster.id, BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank
+	FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink
+	WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id
+	AND BankAliquotMaster.id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE type = 'sent to processing site' AND deleted <> 1)";
+$barcodes = getSelectQueryResult($query);
+$aliquot_ids = array();
+foreach($barcodes as $new_aliquot) {
+	$aliquot_ids[] = $new_aliquot['id'];
+	recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Aliquot' in stock conflict", "Aliquot is transferred to processing site but no inforamtion is recorded in bank database. Please see 'Transferred aliquot not defined as sent' batchset and correct data in site.", $new_aliquot['barcode'].' in bank '.$new_aliquot['procure_created_by_bank']);
+}
+createBatchSet('ViewAliquot', 'Transferred aliquot not defined as sent', $aliquot_ids);
 
 //**********************************************************************************************************************************************************************************************
 //
@@ -700,146 +804,13 @@ foreach($sites_to_sitecodes as $bank_site => $site_code) {
 
 updateStorageLftRghtAndLabel();
 
-
-
-
-
-
-
-
-
-
-//TODO Effacer les batchset ids??
+// ...
 
 customQuery("UPDATE versions SET permissions_regenerated = 0");
-
 dislayErrorAndMessage(true);
-
 pr('<br>******************************************************************************************');
 pr('PROCESS DONE');
 pr('******************************************************************************************');
-
-//==================================================================================================================================================================================
-// CUSTOM FUNCTIONS
-//==================================================================================================================================================================================
-
-function magicSelectInsert($bank_schema, $table_name, $table_foreign_keys = array(), $specific_select_field_rules = array()) {
-	$table_information = getTablesInformation($table_name);
-
-	//Get fields of table
-	$insert_table_fields = $select_table_fields = $table_information['fields'];
-	
-	//Check Primary Key exists and increment this one if required
-	if($table_information['primary_key']) {
-		$primary_key = $table_information['primary_key'];
-		$key_id = array_search($primary_key, $select_table_fields);
-		$select_table_fields[$key_id] = "($primary_key + ".$table_information['last_downloaded_bank_max_pk_value'].")";
-	}
-	
-	//Increment foreign_key if required (or id in specific cases like revs table (table_revs.id ref table.id))
-	foreach($table_foreign_keys as $field => $linked_table_name) {
-		$key_id = array_search($field, $select_table_fields);
-		if($key_id !== false) {
-			$linked_table_information = getTablesInformation($linked_table_name);
-			if(!$linked_table_information['primary_key']) mergeDie("ER_magicSelectInsert_001 (".$table_name.".".$field." to ".$linked_table_name.").");
-			$select_table_fields[$key_id] = "(".$field." + ".$linked_table_information['last_downloaded_bank_max_pk_value'].")";
-		} else {
-			recordErrorAndMessage('Function magicSelectInsert() : Messages for administrator', '@@WARNING@@', 'Validate field of $table_foreign_keys does not exist into table', "Field $field is not a field of $table_name", $field.$table_name);
-		}
-	}
-	
-	//Add specific field import rule
-	foreach($specific_select_field_rules as $field => $rule) {
-		$key_id = array_search($field, $select_table_fields);
-		if($key_id === false) mergeDie("ER_magicSelectInsert_002 (".$table_name.".".$field.").");
-		$select_table_fields[$key_id] = "($rule)";
-	}
-	
-	//Select & Insert
-	$query = "INSERT INTO $table_name (".implode(',',$insert_table_fields).") (SELECT ".implode(',',$select_table_fields)." FROM ".$bank_schema.".$table_name)";
-	customQuery($query);	
-}
-
-function getTablesInformation($table_name) {
-	global $populated_tables_information;
-	
-	if(!isset($populated_tables_information[$table_name])) {
-		//First bank downloaded: Get fields and set previous max id to 0
-		$table_fields = array();
-		$primary_key = null;
-		foreach(getSelectQueryResult("SHOW columns FROM $table_name;") as $new_field_data) {
-			$table_fields[] = $new_field_data['Field'];
-			if($new_field_data['Key'] == 'PRI') $primary_key = $new_field_data['Field'];
-		}
-		$populated_tables_information[$table_name] = array(
-			'fields' => $table_fields, 
-			'primary_key' => $primary_key,
-			'last_downloaded_bank_max_pk_value' => strlen($primary_key)? 0 : null);
-	}
-	return $populated_tables_information[$table_name];
-}
-
-function regenerateTablesInformation() {
-	global $populated_tables_information;
-	
-	foreach($populated_tables_information as $table_name => $table_information) {
-		if($table_information['primary_key']) {
-			//Get the last primarey key value (max()) recorded into this table
-			$atim_table_data = getSelectQueryResult("SELECT MAX(".$table_information['primary_key'].") AS max_record_id FROM $table_name");
-			$populated_tables_information[$table_name]['last_downloaded_bank_max_pk_value'] = ($atim_table_data && $atim_table_data['0']['max_record_id'])? $atim_table_data['0']['max_record_id'] : 0;
-		}
-	}
-}
-
-function updateStorageLftRghtAndLabel() {
-	$lft_rght_id = 0;
-	foreach(getSelectQueryResult("SELECT id, short_label FROM storage_masters WHERE deleted <> 1 AND (parent_id IS NULL OR parent_id LIKE '')") as $new_storage) {
-		$storage_master_id = $new_storage['id'];
-		$short_label= $new_storage['short_label'];
-		$lft_rght_id++;
-		$lft = $lft_rght_id;
-		updateChildrenStorageLftRghtAndLabel($storage_master_id, $lft_rght_id,$short_label);
-		$lft_rght_id++;
-		$rght = $lft_rght_id;
-		customQuery("UPDATE storage_masters SET lft = '$lft', rght = '$rght', selection_label = '".str_replace("'","''",$short_label)."' WHERE id = $storage_master_id");
-	}
-}
-
-function updateChildrenStorageLftRghtAndLabel($parent_id, &$lft_rght_id, $parent_selection_label) {
-	foreach(getSelectQueryResult("SELECT id, short_label FROM storage_masters WHERE deleted <> 1 AND parent_id = $parent_id") as $new_storage) {
-		$storage_master_id = $new_storage['id'];
-		$short_label= $new_storage['short_label'];
-		$selection_label = $parent_selection_label.'-'.$short_label;
-		$lft_rght_id++;
-		$lft = $lft_rght_id;
-		updateChildrenStorageLftRghtAndLabel($storage_master_id, $lft_rght_id, $selection_label);
-		$lft_rght_id++;
-		$rght = $lft_rght_id;
-		customQuery("UPDATE storage_masters SET lft = '$lft', rght = '$rght', selection_label = '".str_replace("'","''",$selection_label)."' WHERE id = $storage_master_id");
-	}
-	return;
-}
-
-function createBatchSet($model, $title, $ids) {
-	global $imported_by;
-	global $import_date;
-	
-	if($ids) {
-		$ids = is_array($ids)?  implode(',',$ids) : $ids ;
-		if(!preg_match('/^[0-9,]+$/', $ids))  mergeDie("ERR_createBatchSet_#1 ('$title', '$model', '$ids')!");
-		$datamart_structure_id = getSelectQueryResult("SELECT id FROM datamart_structures WHERE model = '$model';");
-		if(!$datamart_structure_id || !isset($datamart_structure_id[0]['id'])) mergeDie("ERR_createBatchSet_#2 ('$title', '$model', '$ids')!");
-		$datamart_structure_id = $datamart_structure_id[0]['id'];
-		$query = "INSERT INTO `datamart_batch_sets` (user_id, group_id, sharing_status, title, `datamart_structure_id`, `created`, `created_by`, `modified`, `modified_by`) 
-			(SELECT id, group_id, 'all', '$title', $datamart_structure_id, '$import_date', $imported_by, '$import_date', $imported_by FROM users WHERE id = $imported_by);";
-		customQuery($query, true);
-		$datamart_batch_set_id = getSelectQueryResult("SELECT id FROM datamart_batch_sets WHERE title = '$title'");
-		if(!($datamart_batch_set_id && $datamart_batch_set_id['0']['id'])) mergeDie("ERR_createBatchSet_#3 ('$title', '$model', '$ids')!");
-		$datamart_batch_set_id = $datamart_batch_set_id['0']['id'];
-		$query = "INSERT INTO datamart_batch_ids (set_id, lookup_id) VALUES ($datamart_batch_set_id, ".str_replace(",", "), ($datamart_batch_set_id, ", $ids).");";
-		customQuery($query, true);
-	}
-}
 
 ?>
 		

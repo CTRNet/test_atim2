@@ -4,6 +4,7 @@
 		'top' => '/InventoryManagement/Collections/loadTransferredAliquotsData/0',
 		'bottom' => array('cancel' => 'javascript:history.go(-1)')
 	);
+	if($browse_csv) $structure_links['bottom']['add (with no file)'] =  array('icon' => 'add', 'link' => '/InventoryManagement/Collections/loadTransferredAliquotsData/0');
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = $browse_csv?

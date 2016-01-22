@@ -95,21 +95,21 @@ function testDbSchemas($db_schema, $site) {
 	
 	if($db_schema) {
 		if(!@mysqli_select_db($db_connection, $db_schema)) {
-			recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Wrong DB schema", "Unable to connect to the schema $db_schema defined for site $site. No data will be imported.");
+			recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Wrong DB schema", '', "Unable to connect to the schema $db_schema defined for site $site. No data will be imported.");
 			return false;
 		} else {
 			$atim_dump_data = getSelectQueryResult('SELECT created FROM atim_procure_dump_information LIMIT 0 ,1');
 			if($atim_dump_data) {
 				$atim_dump_data['0']['created'];
-				recordErrorAndMessage('Merge Information', '@@MESSAGE@@', "Site Dump Information", "Use of database dump of '$site' created on '".$atim_dump_data['0']['created'].".");
+				recordErrorAndMessage('Merge Information', '@@MESSAGE@@', "Site Dump Information", '', "Use of database dump of '$site' created on '".$atim_dump_data['0']['created'].".");
 				return true;
 			} else {
-				recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Missing atim_procure_dump_information Table Data", "See data of site '$site'. No data will be imported.");
+				recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Missing atim_procure_dump_information Table Data", '', "See data of site '$site'. No data will be imported.");
 				return false;
 			}
 		}
 	} else {
-		recordErrorAndMessage('ATiM Database Check', '@@WARNING@@', "No DB schema defined", "No schema defined for site '$site'. No data will be imported.");
+		recordErrorAndMessage('ATiM Database Check', '@@WARNING@@', "No DB schema defined", '', "No schema defined for site '$site'. No data will be imported.");
 		return false;
 	}
 	return false;
@@ -123,10 +123,10 @@ function selectCentralDatabase() {
 }
 
 //==================================================================================================================================================================================
-// ATiM CONTROLS DATA
+// FUNCTIONS ON MERGED DATA
 //==================================================================================================================================================================================
 
-// Controls
+// CONTROLS
 
 function getControls($db_schema) {
 	$atim_controls = array();
@@ -201,8 +201,95 @@ function getActiveSampleControlIds($relations, $current_check){
 	return array_unique($active_ids);
 }
 
+// POPULATED TABLES
+
+function getTablesInformation($table_name) {
+	global $populated_tables_information;
+
+	if(!isset($populated_tables_information[$table_name])) {
+		//First bank downloaded: Get fields and set previous max id to 0
+		$table_fields = array();
+		$primary_key = null;
+		foreach(getSelectQueryResult("SHOW columns FROM $table_name;") as $new_field_data) {
+			$table_fields[] = $new_field_data['Field'];
+			if($new_field_data['Key'] == 'PRI') $primary_key = $new_field_data['Field'];
+		}
+		$populated_tables_information[$table_name] = array(
+				'fields' => $table_fields,
+				'primary_key' => $primary_key,
+				'last_downloaded_bank_max_pk_value' => strlen($primary_key)? 0 : null);
+	}
+	return $populated_tables_information[$table_name];
+}
+
+function regenerateTablesInformation() {
+	global $populated_tables_information;
+
+	foreach($populated_tables_information as $table_name => $table_information) {
+		if($table_information['primary_key']) {
+			//Get the last primarey key value (max()) recorded into this table
+			$atim_table_data = getSelectQueryResult("SELECT MAX(".$table_information['primary_key'].") AS max_record_id FROM $table_name");
+			$populated_tables_information[$table_name]['last_downloaded_bank_max_pk_value'] = ($atim_table_data && $atim_table_data['0']['max_record_id'])? $atim_table_data['0']['max_record_id'] : 0;
+		}
+	}
+}
+
+// STORAGE
+
+function updateStorageLftRghtAndLabel() {
+	$lft_rght_id = 0;
+	foreach(getSelectQueryResult("SELECT id, short_label FROM storage_masters WHERE deleted <> 1 AND (parent_id IS NULL OR parent_id LIKE '')") as $new_storage) {
+		$storage_master_id = $new_storage['id'];
+		$short_label= $new_storage['short_label'];
+		$lft_rght_id++;
+		$lft = $lft_rght_id;
+		updateChildrenStorageLftRghtAndLabel($storage_master_id, $lft_rght_id,$short_label);
+		$lft_rght_id++;
+		$rght = $lft_rght_id;
+		customQuery("UPDATE storage_masters SET lft = '$lft', rght = '$rght', selection_label = '".str_replace("'","''",$short_label)."' WHERE id = $storage_master_id");
+	}
+}
+
+function updateChildrenStorageLftRghtAndLabel($parent_id, &$lft_rght_id, $parent_selection_label) {
+	foreach(getSelectQueryResult("SELECT id, short_label FROM storage_masters WHERE deleted <> 1 AND parent_id = $parent_id") as $new_storage) {
+		$storage_master_id = $new_storage['id'];
+		$short_label= $new_storage['short_label'];
+		$selection_label = $parent_selection_label.'-'.$short_label;
+		$lft_rght_id++;
+		$lft = $lft_rght_id;
+		updateChildrenStorageLftRghtAndLabel($storage_master_id, $lft_rght_id, $selection_label);
+		$lft_rght_id++;
+		$rght = $lft_rght_id;
+		customQuery("UPDATE storage_masters SET lft = '$lft', rght = '$rght', selection_label = '".str_replace("'","''",$selection_label)."' WHERE id = $storage_master_id");
+	}
+	return;
+}
+
+// BATCHSET
+
+function createBatchSet($model, $title, $ids) {
+	global $imported_by;
+	global $import_date;
+
+	if($ids) {
+		$ids = is_array($ids)?  implode(',',$ids) : $ids ;
+		if(!preg_match('/^[0-9,]+$/', $ids))  mergeDie("ERR_createBatchSet_#1 ('$title', '$model', '$ids')!");
+		$datamart_structure_id = getSelectQueryResult("SELECT id FROM datamart_structures WHERE model = '$model';");
+		if(!$datamart_structure_id || !isset($datamart_structure_id[0]['id'])) mergeDie("ERR_createBatchSet_#2 ('$title', '$model', '$ids')!");
+		$datamart_structure_id = $datamart_structure_id[0]['id'];
+		$query = "INSERT INTO `datamart_batch_sets` (user_id, group_id, sharing_status, title, `datamart_structure_id`, `created`, `created_by`, `modified`, `modified_by`)
+		(SELECT id, group_id, 'all', '$title', $datamart_structure_id, '$import_date', $imported_by, '$import_date', $imported_by FROM users WHERE id = $imported_by);";
+		customQuery($query, true);
+		$datamart_batch_set_id = getSelectQueryResult("SELECT id FROM datamart_batch_sets WHERE title = '$title'");
+		if(!($datamart_batch_set_id && $datamart_batch_set_id['0']['id'])) mergeDie("ERR_createBatchSet_#3 ('$title', '$model', '$ids')!");
+		$datamart_batch_set_id = $datamart_batch_set_id['0']['id'];
+		$query = "INSERT INTO datamart_batch_ids (set_id, lookup_id) VALUES ($datamart_batch_set_id, ".str_replace(",", "), ($datamart_batch_set_id, ", $ids).");";
+		customQuery($query, true);
+	}
+}
+
 //==================================================================================================================================================================================
-// SYSTEM FUNCTION
+// MESSAGE DISPLAY
 //==================================================================================================================================================================================
 
 function mergeDie($error_messages) {
@@ -226,13 +313,6 @@ function pr($var) {
 	echo '</pre>';
 }
 
-// ---- TITLE, ERROR AND MESSAGE DISPLAY  ------------------------------------------------------------------------------------------------------------------------------------------
-
-/**
- * Display the title of the merge (html format).
- * 
- * @param string $title Title of the merge process
- */
 function displayMergeTitle($title) {
 	global $import_date;
 	global $merge_process_version;
@@ -244,40 +324,15 @@ function displayMergeTitle($title) {
 		<FONT COLOR=\"blue\">=====================================================================</FONT><br>";
 }
 
-/**
- * Record an error or message that could be dispalyed in html format using function dislayErrorAndMessage().
- * The format of the display will be similar than the example below
- * 
- * =====================================================================
- * $summary_section_title
- * =====================================================================
- * 
- * $summary_title
- * - $summary_details 1
- * - $summary_details 2
- * - $summary_details 3
- * - $summary_details ...
- * 
- * @param string $summary_section_title Title of a section gathering error or message linked to the same task, data type, etc.
- * @param string $summary_type @@ERROR@@ or @@WARNING@@ or @@MESSAGE@@
- * @param string $summary_title Error type
- * @param string $summary_details Details of the error (to inlude excel line number or a patient identifier, etc)
- * @param string $message_detail_key Key to not duplicate summary details for a same error.
- */
-function recordErrorAndMessage($summary_section_title, $summary_type, $summary_title, $summary_details, $message_detail_key = null) {
+function recordErrorAndMessage($msg_data_type, $msg_level, $msg_title, $msg_description, $msg_detail, $msg_detail_key = null) {
 	global $import_summary;
-	if(is_null($message_detail_key)) {
-		$import_summary[$summary_section_title][$summary_type][$summary_title][] = $summary_details;
+	if(is_null($msg_detail_key)) {
+		$import_summary[$msg_data_type][$msg_level]["$msg_title#@#@#$msg_description"][] = $msg_detail;
 	} else {
-		$import_summary[$summary_section_title][$summary_type][$summary_title][$message_detail_key] = $summary_details;
+		$import_summary[$msg_data_type][$msg_level]["$msg_title#@#@#$msg_description"][$msg_detail_key] = $msg_detail;
 	}
 }
 
-/**
- * Display any errors or messages recorded by function recordErrorAndMessage() in html forma.
- * 
- * @param boolean $commit Commit all sql statements.
- */
 function dislayErrorAndMessage($commit = false) {
 	global $import_summary;
 	global $db_connection;
@@ -290,15 +345,15 @@ function dislayErrorAndMessage($commit = false) {
 		<b>Merge Summary</b><br>
 		=====================================================================</FONT><br>";
 	$err_counter = 0;
-	foreach($import_summary as $summary_section_title => $data1) {
+	foreach($import_summary as $msg_data_type => $data1) {
 		echo "<br><br><FONT COLOR=\"0066FF\" >
 		=====================================================================<br>
-		$summary_section_title<br>
+		$msg_data_type<br>
 		=====================================================================</FONT><br>";
-		foreach($data1 as $message_type => $data2) {
+		foreach($data1 as $msg_level => $data2) {
 			$color = 'black';
 			$code = 'ER';
-			switch($message_type) {
+			switch($msg_level) {
 				case '@@ERROR@@':
 					$color = 'red';
 					$code = 'ER';
@@ -312,12 +367,16 @@ function dislayErrorAndMessage($commit = false) {
 					$code = 'MSG';
 					break;
 				default:
-					echo '<br><br><br>UNSUPORTED message_type : '.$message_type.'<br><br><br>';
+					echo '<br><br><br>UNSUPORTED message_type : '.$msg_level.'<br><br><br>';
 			}
-			foreach($data2 as $error => $details) {
+			foreach($data2 as $msg_title_and_description => $details) {
+				preg_match('/^(.+)(#@#@#)(.*)$/', $msg_title_and_description, $matches);
+				$msg_title = $matches[1];
+				$msg_description = $matches[3];
 				$err_counter++;
-				$error = str_replace("\n", ' ', utf8_decode("[$code#$err_counter] $error"));
-				echo "<br><br><FONT COLOR=\"$color\" ><b>$error</b></FONT><br>";
+				$msg_title = str_replace("\n", ' ', utf8_decode("[$code#$err_counter] $msg_title"));
+				echo "<br><br><FONT COLOR='$color' ><b>$msg_title</b></FONT><br>";
+				if($msg_description) echo "<i><FONT COLOR=\black\" >".utf8_decode($msg_description)."</FONT></i><br>";
 				foreach($details as $detail) {
 					$detail = str_replace("\n", ' ', $detail);
 					echo ' - '.utf8_decode($detail)."<br>";
@@ -339,7 +398,9 @@ function dislayErrorAndMessage($commit = false) {
 		=====================================================================</FONT><br>";
 }
 
-// ---- QUERY FUNCTIONS ------------------------------------------------------------------------------------------------------------------------------------------------------------
+//==================================================================================================================================================================================
+// QUERY FUNCTIONS
+//==================================================================================================================================================================================
 
 /**
  * Exeute an sql statement.
@@ -363,7 +424,7 @@ function addQueryToMessages() {
 	global $executed_queries;
 	
 	foreach($executed_queries as $query) {
-		recordErrorAndMessage('Executed Queries', '@@MESSAGE@@', "List of queries", $query);
+		recordErrorAndMessage('Executed Queries', '@@MESSAGE@@', "List of queries", '', $query);
 	}
 }
 
@@ -384,283 +445,41 @@ function getSelectQueryResult($query) {
 	return $select_result;
 }
 
-/**
- * Record new data into ATiM table.
- * 
- * Submitted data format:
- * 
- * 1- Simple Table
- * 
- * array(table_name => array(field1 => value, field2 => value, etc)
- * 
- * array('participants' => array('first_name' => 'James', 'last_name' => 'Bond))
- * 
- * 2- Master/Detail Tables
- * 
- * array(master_table_name => array(master_control_id => value, field1 => value, field2 => value, etc)
- * 		detail_table_name => array(field1 => value, field2 => value, etc))
- * 
- * array('aliquot_masters' => array(aliquot_control_id => 12, field1 => value, field2 => value, etc)
- * 		'ad_tubes' => array(field1 => value, field2 => value, etc))
- * 
- * 3- Sample Master/Detail Tables
- * 
- * array(master_table_name => array(master_control_id => value, field1 => value, field2 => value, etc)
- * 		specimen_details/derivativ_details => array(field1 => value, field2 => value, etc)
- * 		detail_table_name => array(field1 => value, field2 => value, etc))
- * 
- * @param array $tables_data Data to insert. See format above.
- * 
- * @return string Id of the created record
- */
-function customInsertRecord($tables_data) {
-	global $import_date;
-	global $imported_by;
-	global $atim_controls;
-	$record_id = null;
-	$main_table_data = array();
-	$details_tables_data = array();
-//TODO: Add control on detail table based on _control_id	
-	if($tables_data) {
-		//--1-- Check data
-		switch(sizeof($tables_data)) {
-			case '1':
-				$table_name = array_shift(array_keys($tables_data));
-				if(preg_match('/_masters$/', $table_name)) mergeDie("ERR_FUNCTION_customInsertRecord(): Detail table is missing to record data into $table_name");
-				$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
-				break;
-			case '3':
-				$details_table_name = '';
-				foreach(array_keys($tables_data) as $table_name) {
-					if(in_array($table_name, array('specimen_details', 'derivative_details'))) {
-						$details_tables_data[] = array('name' => $table_name, 'data' => $tables_data[$table_name]);
-						unset($tables_data[$table_name]);
-					} else if($table_name == 'sample_masters') {
-						$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
-						unset($tables_data[$table_name]);
-					} else {
-						$details_table_name = $table_name;
-					}
-				}
-				if(empty($main_table_data)) mergeDie("ERR_FUNCTION_customInsertRecord(): Table sample_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(empty($details_tables_data)) mergeDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details' or 'derivative_details' is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(sizeof($tables_data) != 1) mergeDie("ERR_FUNCTION_customInsertRecord(): Wrong 3 tables names for a new sample (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				$details_tables_data[] = array('name' => $details_table_name, 'data' => $tables_data[$details_table_name]);
-				break;
-			case '2':
-				$details_table_name = '';
-				foreach(array_keys($tables_data) as $table_name) {
-					if(in_array($table_name, array('specimen_details', 'derivative_details', 'sample_masters'))) {
-						mergeDie("ERR_FUNCTION_customInsertRecord(): Table 'sample_masters', 'specimen_details' or 'derivative_details' defined for a record different than Sample or wrong tables definition for a sample creation (See table names: ".implode(' & ', array_keys($tables_data)).")");
-						exit;
-					} else if(preg_match('/_masters$/', $table_name)) {
-						$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
-						unset($tables_data[$table_name]);
-					} else {
-						$details_table_name = $table_name;
-					}
-				}
-				if(empty($main_table_data)) mergeDie("ERR_FUNCTION_customInsertRecord(): Table %%_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(sizeof($tables_data) != 1) mergeDie("ERR_FUNCTION_customInsertRecord(): Wrong 2 tables names for a master/detail model record (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				$details_tables_data[] = array('name' => $details_table_name, 'data' => $tables_data[$details_table_name]);
-				break;
-			default:
-				mergeDie("ERR_FUNCTION_customInsertRecord(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
-		}
-		//-- 2 -- Main or master table record
-		if(isset($main_table_data['data']['sample_control_id'])) {
-			if(!isset($atim_controls['sample_controls']['***id_to_type***'][$main_table_data['data']['sample_control_id']])) mergeDie('ERR_FUNCTION_customInsertRecord(): Unsupported sample control id.');
-			$sample_type = $atim_controls['sample_controls']['***id_to_type***'][$main_table_data['data']['sample_control_id']];
-			if($atim_controls['sample_controls'][$sample_type]['sample_category'] == 'specimen') {
-				if(isset($main_table_data['data']['initial_specimen_sample_id'])) unset($main_table_data['data']['initial_specimen_sample_id']);
-				$main_table_data['data']['initial_specimen_sample_type'] = $sample_type;
-				if(isset($main_table_data['data']['parent_id'])) unset($main_table_data['data']['parent_id']);
-				if(isset($main_table_data['data']['parent_sample_type'])) unset($main_table_data['data']['parent_sample_type']);
-				if(!isset($main_table_data['data']['sample_code'])) $main_table_data['data']['sample_code'] = "@@@TO_GENERATE@@";
-			} else {
-				if(!isset($main_table_data['data']['initial_specimen_sample_id'])) mergeDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : initial_specimen_sample_id.');
-				if(!isset($main_table_data['data']['initial_specimen_sample_type'])) mergeDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : initial_specimen_sample_type.');
-				if(!isset($main_table_data['data']['parent_id'])) mergeDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : parent_id.');
-				if(!isset($main_table_data['data']['parent_sample_type'])) mergeDie('ERR_FUNCTION_customInsertRecord(): Missing sample information : parent_sample_type.');
-				if(!isset($main_table_data['data']['sample_code'])) $main_table_data['data']['sample_code'] = "@@@TO_GENERATE@@";
-			}
-		}
-		$main_table_data['data'] = array_merge($main_table_data['data'], array("created" => $import_date, "created_by" => $imported_by, "modified" => "$import_date", "modified_by" => $imported_by));
-		$query = "INSERT INTO `".$main_table_data['name']."` (`".implode("`, `", array_keys($main_table_data['data']))."`) VALUES (\"".implode("\", \"", array_values($main_table_data['data']))."\")";
-		$record_id = customQuery($query, true);
-		if(isset($main_table_data['data']['diagnosis_control_id'])) {
-			if(in_array($main_table_data['data']['diagnosis_control_id'], $atim_controls['diagnosis_controls']['***primary_control_ids***'])) {
-				customQuery("UPDATE diagnosis_masters SET primary_id=id WHERE id = $record_id;", true);
-			} else {
-				if(!isset($main_table_data['data']['primary_id']) || !isset($main_table_data['data']['parent_id']))
-					mergeDie('ERR_FUNCTION_customInsertRecord(): Missing diagnosis_masters primary_id or parent_id key.');
-			}
-		} else if(isset($main_table_data['data']['sample_control_id'])) {
-			$sample_type = $atim_controls['sample_controls']['***id_to_type***'][$main_table_data['data']['sample_control_id']];
-			$set_strings = array();
-			if($atim_controls['sample_controls'][$sample_type]['sample_category'] == 'specimen') $set_strings[] = "initial_specimen_sample_id=id";
-			if($main_table_data['data']['sample_code'] == "@@@TO_GENERATE@@") $set_strings[] = "sample_code=id";
-			if($set_strings) {
-				customQuery("UPDATE sample_masters SET ".implode(',',$set_strings)." WHERE id = $record_id;", true);
-			}
-		}			
-		//-- 3 -- Details tables record
-		if(isset($main_table_data['data']['sample_control_id'])) {
-			if(sizeof($details_tables_data) != 2) mergeDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details', 'derivative_details' or 'SampleDetail' is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
+function magicSelectInsert($bank_schema, $table_name, $table_foreign_keys = array(), $specific_select_field_rules = array()) {
+	$table_information = getTablesInformation($table_name);
+
+	//Get fields of table
+	$insert_table_fields = $select_table_fields = $table_information['fields'];
+
+	//Check Primary Key exists and increment this one if required
+	if($table_information['primary_key']) {
+		$primary_key = $table_information['primary_key'];
+		$key_id = array_search($primary_key, $select_table_fields);
+		$select_table_fields[$key_id] = "($primary_key + ".$table_information['last_downloaded_bank_max_pk_value'].")";
+	}
+
+	//Increment foreign_key if required (or id in specific cases like revs table (table_revs.id ref table.id))
+	foreach($table_foreign_keys as $field => $linked_table_name) {
+		$key_id = array_search($field, $select_table_fields);
+		if($key_id !== false) {
+			$linked_table_information = getTablesInformation($linked_table_name);
+			if(!$linked_table_information['primary_key']) mergeDie("ER_magicSelectInsert_001 (".$table_name.".".$field." to ".$linked_table_name.").");
+			$select_table_fields[$key_id] = "(".$field." + ".$linked_table_information['last_downloaded_bank_max_pk_value'].")";
 		} else {
-			if(sizeof($details_tables_data) > 2) mergeDie("ERR_FUNCTION_customInsertRecord(): Too many tables are declared (>2) (See table names: ".implode(' & ', array_keys($tables_data)).")");
-		}
-		$tmp_detail_tablename = null;
-		if($details_tables_data) {
-			$foreign_key = str_replace('_masters', '_master_id', $main_table_data['name']);
-			foreach($details_tables_data as $detail_table) {
-				$detail_table['data'] = array_merge($detail_table['data'], array($foreign_key => $record_id));
-				$query = "INSERT INTO `".$detail_table['name']."` (`".implode("`, `", array_keys($detail_table['data']))."`) VALUES (\"".implode("\", \"", array_values($detail_table['data']))."\")";
-				customQuery($query, true);
-				if(!in_array($detail_table['name'], array('specimen_details', 'derivative_details'))) $tmp_detail_tablename = $detail_table['name'];
-			}
+			//TODO Should if be displayed? recordErrorAndMessage('Function magicSelectInsert() : Messages for administrator', '@@WARNING@@', 'Validate field of $table_foreign_keys does not exist into table', "Field $field is not a field of $table_name", $field.$table_name);
 		}
 	}
-	return $record_id;
-}
 
-/**
- * Update an ATim table record.
- * 
- * @param string $id Id of the record to update
- * @param array $tables_data Data to update (see format above)
- */
-function updateTableData($id, $tables_data) {
-	global $import_date;
-	global $imported_by;
-	if($tables_data) {
-		$to_update = false;
-		//Check data passed in args
-		$main_or_master_tablename = null;
-		switch(sizeof($tables_data)) {
-			case '1':
-				$main_or_master_tablename = array_shift(array_keys($tables_data));
-				if(!empty($tables_data[$main_or_master_tablename])) $to_update = true;
-				break;
-			case '2':
-			case '3':
-				foreach(array_keys($tables_data) as $table_name) {
-					if(preg_match('/_masters$/', $table_name)) {
-						if(!is_null($main_or_master_tablename)) mergeDie("ERR_FUNCTION_updateTableData(): 2 Master tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
-						$main_or_master_tablename = $table_name;
-					}
-					if(!empty($tables_data[$table_name])) $to_update = true;
-				}
-				if(is_null($main_or_master_tablename)) mergeDie("ERR_FUNCTION_updateTableData(): Master table not passed in arguments: ".implode(', ',array_keys($tables_data)).".");
-				break;
-			default:
-				mergeDie("ERR_FUNCTION_updateTableData(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
-		}
-		if($to_update) {
-			//Master/Main Table Update
-			$table_name = $main_or_master_tablename;
-			$table_data = $tables_data[$main_or_master_tablename];
-			unset($tables_data[$main_or_master_tablename]);
-			$set_sql_strings = array();
-			foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
-			$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `id` = $id;";
-			customQuery($query);
-			//Detail or SpecimenDetail/DerivativeDetail Table Update
-			$foreaign_key = str_replace('_masters', '_master_id', $main_or_master_tablename);
-			$tmp_detail_tablename = null;
-			foreach($tables_data as $table_name => $table_data) {
-				if(!empty($table_data)) {
-					$set_sql_strings = array();
-					foreach($table_data  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
-					$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `$foreaign_key` = $id;";
-					customQuery($query);
-					if(!in_array($table_name, array('specimen_details', 'derivative_details'))) $tmp_detail_tablename = $table_name;
-				}
-			}
-		}
-	}	
-}
-
-// ---- VALUE DOMAIN FUNCTIONS & EXCEL LIST VALIDATION FUNCTION --------------------------------------------------------------------------------------------------------------------
-
-global $domains_values;
-$domains_values = array();
-
-/**
- * Validate a value is a value of a system list or a custom drop down list and return
- * the formatted value as it exists into database (when cases are different).
- * 
- * @param unknown $value Value to validate
- * @param unknown $domain_name Domain name of the list
- * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
- * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
- * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
- * 
- * @return string Formatted value to use to match value in database. 
- */
-function validateAndGetStructureDomainValue($value, $domain_name, $summary_section_title, $summary_title_add_in = '', $summary_details_add_in = '') {
-	global $import_summary;
-	global $domains_values;
-	if(!array_key_exists($domain_name, $domains_values)) {
-		$domains_values[$domain_name] = array();
-		$domain_data_results = getSelectQueryResult("SELECT id, source FROM structure_value_domains WHERE domain_name = '$domain_name'");
-		if(!empty($domain_data_results)) {
-			$domain_data_results = $domain_data_results[0];
-			if($domain_data_results['source']) {
-				if(preg_match('/getCustomDropdown\(\'(.*)\'\)/', $domain_data_results['source'], $matches)) {
-					$query = "SELECT val.value
-						FROM structure_permissible_values_custom_controls AS ct
-						INNER JOIN structure_permissible_values_customs val ON val.control_id = ct.id
-						WHERE ct.name = '".$matches[1]."';";
-					foreach(getSelectQueryResult($query) as $domain_value)  $domains_values[$domain_name][strtolower($domain_value['value'])] = $domain_value['value'];
-				} else {
-					mergeDie("ERR_STRUCTURE_DOMAIN: Source value format for domain_name '$domain_name' is not supported by the merge process.");
-				}
-			} else {
-				$query = "SELECT val.value
-					FROM structure_permissible_values val
-					INNER JOIN structure_value_domains_permissible_values link ON link.structure_permissible_value_id = val.id
-					WHERE link.structure_value_domain_id = ".$domain_data_results['id']." AND link.flag_active = '1';";
-				foreach(getSelectQueryResult($query) as $domain_value) $domains_values[$domain_name][strtolower($domain_value['value'])] = $domain_value['value'];
-			}
-		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name'".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The '$domain_name' Structure Domain (defined as domain of value '$value') does not exist. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
-			$value = '';
-		}
+	//Add specific field import rule
+	foreach($specific_select_field_rules as $field => $rule) {
+		$key_id = array_search($field, $select_table_fields);
+		if($key_id === false) mergeDie("ER_magicSelectInsert_002 (".$table_name.".".$field.").");
+		$select_table_fields[$key_id] = "($rule)";
 	}
-	if(strlen($value)) {
-		if(array_key_exists(strtolower($value), $domains_values[$domain_name])) {
-			$value = $domains_values[$domain_name][strtolower($value)];	//To set the right case
-		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a value of the '$domain_name' Structure Domain. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
-			$value = '';
-		}
-	}
-	return $value;
-}
 
-/**
- * Test an excel value match a predefined list of values and return the value to record in database.
- * 
- * @param string $value Value to test
- * @param array $values_matches List of good values (key being a value you can find in excel and value being the value to record in database (ex: array('yes' => 'y', 'y' => 'y', 'unknown' => 'u', '?' => 'u', etc)
- * @param string $str_to_lower Should the case of the value to test change to lower for test
- * @param unknown $summary_section_title Section title if an error is generated by the function (See recordErrorAndMessage() description)
- * @param string $summary_title_add_in Additional information to add to summary title if an error is generated by the function (See recordErrorAndMessage() description)
- * @param string $summary_details_add_in Additional information to add to seummary detail if an error is generated by the function (See recordErrorAndMessage() description)
- * 
- * @return string Tested value (in lower case if expected)
- */
-function validateAndGetExcelValueFromList($value, $values_matches, $str_to_lower = false, $summary_section_title = '', $summary_title_add_in = '', $summary_details_add_in = '') {
-	if(strlen($value)) {
-		if($str_to_lower) $value = strtolower($value);
-		if(array_key_exists($value, $values_matches)) {
-			$value = $values_matches[$value];
-		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong Excel Value".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Value '$value' is not a supported eexcel value. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]")); 
-		}
-	}
-	return $value;
+	//Select & Insert
+	$query = "INSERT INTO $table_name (".implode(',',$insert_table_fields).") (SELECT ".implode(',',$select_table_fields)." FROM ".$bank_schema.".$table_name)";
+	customQuery($query);
 }
 	
 ?>
