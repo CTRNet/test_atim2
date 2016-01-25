@@ -375,3 +375,130 @@ CREATE TABLE `ed_all_clinical_animal_data_revs` (
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('animal data', 'Animal Data', 'Animal Data');
+
+-- Fix If Other position on participant form
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_injury_level_anatomical' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_injury_level_neurological' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='neuro_injury_level') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_clinical_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='34' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_neurological_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Fix language translations for dropdown
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('homicide', 'Homicide', ''),
+('misadventure', 'Misadventure', ''),
+('icord_animal','Animal Data',''),
+('animal data','Animal Data'),
+('breed','Breed',''),
+('injury type','Injury Type',''),
+('suicide', 'Suicide', '');
+
+-- Relabel Clinical Tab
+UPDATE `menus` SET `language_title`='icord_animal', `language_description`='icord_animal' WHERE `id`='clin_CAN_31';
+
+-- Create species field and value domain (no values)
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("species", "", "", NULL);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'species', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='species') , '0', '', '', '', 'species', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='species' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='species')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='species' AND `language_tag`=''), '1', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- Breed field
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("breed", "", "", NULL);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'breed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='breed') , '0', '', '', '', 'breed', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='breed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='breed')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='breed' AND `language_tag`=''), '1', '15', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- Weight
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'weight', 'float', (SELECT id FROM structure_value_domains WHERE domain_name='breed') , '0', 'size=8', '', '', 'weight', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='weight' AND `type`='float' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='breed')  AND `flag_confidential`='0' AND `setting`='size=8' AND `default`='' AND `language_help`='' AND `language_label`='weight' AND `language_tag`=''), '1', '20', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- Injury Type
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("injury_type", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("contusion", "contusion");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_type"), (SELECT id FROM structure_permissible_values WHERE value="contusion" AND language_alias="contusion"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("compression", "compression");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_type"), (SELECT id FROM structure_permissible_values WHERE value="compression" AND language_alias="compression"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("contusion+compression", "contusion+compression");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_type"), (SELECT id FROM structure_permissible_values WHERE value="contusion+compression" AND language_alias="contusion+compression"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'injury_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='injury_type') , '0', '', '', '', 'injury type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='injury_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='injury_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='injury type' AND `language_tag`=''), '1', '21', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('contusion', 'Contusion', ''),
+('compression', 'Compression', ''),
+('contusion+compression','Contusion + Compression','');
+
+-- Injury Force
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("injury_height", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("5cm", "5cm");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_height"), (SELECT id FROM structure_permissible_values WHERE value="5cm" AND language_alias="5cm"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("10cm", "10cm");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_height"), (SELECT id FROM structure_permissible_values WHERE value="10cm" AND language_alias="10cm"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("20cm", "20cm");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_height"), (SELECT id FROM structure_permissible_values WHERE value="20cm" AND language_alias="20cm"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("40cm", "40cm");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_height"), (SELECT id FROM structure_permissible_values WHERE value="40cm" AND language_alias="40cm"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("50cm", "50cm");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_height"), (SELECT id FROM structure_permissible_values WHERE value="50cm" AND language_alias="50cm"), "5", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="injury_height"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "6", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('5cm', '5cm', ''),
+('10cm', '10cm', ''),
+('20cm','20cm',''),
+('40cm','40cm',''),
+('50cm','50cm','');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'injury_height', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='injury_height') , '0', '', '', '', 'injury height', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='injury_height' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='injury_height')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='injury height' AND `language_tag`=''), '1', '30', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='25' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='injury_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='injury_type') AND `flag_confidential`='0');
+
+-- Injury Force 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'injury_force', 'float',  NULL , '0', 'size=8', '', '', 'injury force', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='injury_force' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=8' AND `default`='' AND `language_help`='' AND `language_label`='injury force' AND `language_tag`=''), '1', '35', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- Compression
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'compression', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'compression', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='compression' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='compression' AND `language_tag`=''), '1', '40', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- Compression Time
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("compression_time", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("5m", "5m");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="compression_time"), (SELECT id FROM structure_permissible_values WHERE value="5m" AND language_alias="5m"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("1 hr", "1 hr");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="compression_time"), (SELECT id FROM structure_permissible_values WHERE value="1 hr" AND language_alias="1 hr"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("3 hr", "3 hr");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="compression_time"), (SELECT id FROM structure_permissible_values WHERE value="3 hr" AND language_alias="3 hr"), "3", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="compression_time"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "4", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'compression_time', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='compression_time') , '0', '', '', '', 'compression time', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='compression_time' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='compression_time')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='compression time' AND `language_tag`=''), '1', '45', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('5m', '5m', ''),
+('1 hr', '1 hr', ''),
+('3 hr','3 hr','');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('compression time', 'Compression Time', ''),
+('injury force', 'Injury Force', ''),
+('injury height', 'Injury Height', ''),
+('injury type', 'Injury Type', ''),
+('breed', 'Breed', '');
