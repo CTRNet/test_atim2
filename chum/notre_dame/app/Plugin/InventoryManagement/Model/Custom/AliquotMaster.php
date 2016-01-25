@@ -81,7 +81,20 @@ class AliquotMasterCustom extends AliquotMaster {
 					break;
 			}
 			$default_aliquot_label = $idenitfier_value . ' ' . $visit_label . ' ' . $label;
+			
+		} else if($view_sample['ViewSample']['bank_id'] == 8) {
+			
+			// *** Autopsy Bank ***
+			
+			$this->Collection = AppModel::getInstance('InventoryManagement', 'Collection', true);
+			$tmp_col_data = $this->Collection->find('first', array('conditions' => array('id' => $view_sample['ViewSample']['collection_id']), 'recursive' => '-1'));
+			$collection_date_time =  (!empty($tmp_col_data['Collection']['collection_datetime']) && preg_match('/^[0-9]{2}([0-9]{2})\-[0-9]{2}\-[0-9]{2}/', $tmp_col_data['Collection']['collection_datetime'], $matches))? $matches['1'] : '?';
+			$idenitfier_value = empty($view_sample['ViewSample']['identifier_value'])? '?': substr($view_sample['ViewSample']['identifier_value'], 3, 3);
+			$qc_nd_sample_label = (!empty($view_sample['ViewSample']['qc_nd_sample_label']) && preg_match('/A\-([A-Z]+)/', $view_sample['ViewSample']['qc_nd_sample_label'], $matches))? $matches['1'] : '?';
+			$default_aliquot_label = $collection_date_time.$idenitfier_value.$qc_nd_sample_label;
+			
 		} else {
+			
 			// *** Other Bank ***
 			
 			// Set date for aliquot label			
