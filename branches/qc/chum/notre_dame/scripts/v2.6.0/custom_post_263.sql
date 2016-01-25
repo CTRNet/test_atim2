@@ -2250,3 +2250,94 @@ ALTER TABLE qc_nd_ed_prostate_pathology_reviews_revs MODIFY pct_of_prostate_invo
 UPDATE structure_fields SET  `type`='float_positive' WHERE model='EventDetail' AND tablename='qc_nd_ed_prostate_pathology_reviews' AND field='pct_of_prostate_involved_by_tumor' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
 
 UPDATE versions SET branch_build_number = '6309' WHERE version_number = '2.6.3';
+
+-- 20160125 ------------------------------------------------------------------------------------
+
+INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
+('autopsy bank no lab', 900000);
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) VALUES
+(null, 'autopsy bank no lab', 1, 2, 'autopsy bank no lab', '%%key_increment%%', 1, 0, 1, 0, '', '');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('autopsy bank no lab', "'No Labo' of Autopsy Bank", "'No Labo' de la banque d'autopsie");
+
+INSERT INTO `banks` (`id`, `name`, `description`, `misc_identifier_control_id`, `created_by`, `created`, `modified_by`, `modified`, `deleted`) VALUES
+(8, 'Autopsy/Autopsie', '', (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'autopsy bank no lab'), 1, NOW(), 1, NOW(), 0);
+
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'chum - autopsy', 1, 'qc_nd_cd_icm_autopsies', 'qc_nd_cd_icm_autopsies', 0, 'chum - autopsy');
+CREATE TABLE IF NOT EXISTS `qc_nd_cd_icm_autopsies` (
+  `consent_master_id` int(11) NOT NULL,
+  `restrictions` char(1) NOT NULL DEFAULT '',
+  KEY `consent_master_id` (`consent_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_cd_icm_autopsies_revs` (
+  `consent_master_id` int(11) NOT NULL,
+  `restrictions` char(1) NOT NULL DEFAULT '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+ALTER TABLE `qc_nd_cd_icm_autopsies`
+  ADD CONSTRAINT `qc_nd_cd_icm_autopsies_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_cd_icm_autopsies');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_icm_autopsies', 'restrictions', 'yes_no',  NULL , '0', '', '', '', 'restrictions', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_icm_autopsies'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_icm_autopsies' AND `field`='restrictions' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='restrictions' AND `language_tag`=''), '2', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('chum - autopsy', "CHUM - Autopsy", "CHUM - Autopsie"),
+('restrictions','Restrictions','Restrictions');
+UPDATE structure_formats SET `language_heading`='agreements' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_cd_icm_autopsies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_icm_autopsies' AND `field`='restrictions' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE participants 
+   ADD COLUMN qc_nd_status_at_consent_time varchar(100) DEFAULT NULL;
+ALTER TABLE participants_revs 
+   ADD COLUMN qc_nd_status_at_consent_time varchar(100) DEFAULT NULL; 
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_status_at_consent_time', "StructurePermissibleValuesCustom::getCustomDropdown(\'Patient Status At Consent Time\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Patient Status At Consent Time', 1, 100, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Patient Status At Consent Time');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('post-radical prostatectomy follow-up', 'Post-Radical Prostatectomy Follow-up', 'Suivi Post-Prostatectomie Radicale', '1', @control_id, NOW(), NOW(), 1, 1),
+('metastatic', 'Metastatic', 'Métastatique', '1', @control_id, NOW(), NOW(), 1, 1),
+('radical prostatectomy', 'Radical Prostatectomy', 'Prostatectomie radicale', '1', @control_id, NOW(), NOW(), 1, 1),
+('radiotherapy', 'Radiotherapy', 'Radiothérapie', '1', @control_id, NOW(), NOW(), 1, 1),
+('post-radiation follow-up', 'Post-Radiation Follow-up', 'Suivi Post-Radiothérapie', '1', @control_id, NOW(), NOW(), 1, 1),
+('benign', 'Benign', 'Bénin', '1', @control_id, NOW(), NOW(), 1, 1),
+('active surveillance', 'Active Surveillance', 'Surveillance Active', '1', @control_id, NOW(), NOW(), 1, 1);   
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_nd_status_at_consent_time', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_status_at_consent_time') , '0', '', '', '', 'status at consent time', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_status_at_consent_time' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_status_at_consent_time')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status at consent time' AND `language_tag`=''), '1', '8', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('status at consent time', 'Status at Consent Time', 'Statut au recrutement');
+    
+INSERT INTO `lab_type_laterality_match` (`selected_type_code`, `selected_labo_laterality`, `sample_type_matching`, `tissue_source_matching`, `nature_matching`, `laterality_matching`) VALUES
+('A-CE', '', 'tissue', 'brain', '', ''),
+('A-CO', '', 'tissue', 'heart', '', ''),
+('A-FO', '', 'tissue', 'liver', '', ''),
+('A-PO', '', 'tissue', 'lung', '', ''),
+('A-PO', 'D', 'tissue', 'lung', '', 'right'),
+('A-PO', 'G', 'tissue', 'lung', '', 'left'),
+('A-AM', '', 'tissue', 'tonsil', '', ''),
+('A-PA', '', 'tissue', 'pancreas', '', ''),
+('A-SE', '', 'tissue', 'breast', '', ''),
+('A-SE', 'D', 'tissue', 'breast', '', 'right'),
+('A-SE', 'G', 'tissue', 'breast', '', 'left'),
+('A-PR', '', 'tissue', 'prostate', '', ''),
+('A-OV', '', 'tissue', 'ovary', '', ''),
+('A-OV', 'D', 'tissue', 'ovary', '', 'right'),
+('A-OV', 'G', 'tissue', 'ovary', '', 'left'),
+('A-RE', '', 'tissue', 'kidney', '', ''),
+('A-RE', 'D', 'tissue', 'kidney', '', 'right'),
+('A-RE', 'G', 'tissue', 'kidney', '', 'left');
+INSERT INTO i18n (id,en,fr) VALUES ('heart', 'Heart', 'Coeur'), ('tonsil', 'Tonsil', 'Amygdale');
+
+UPDATE versions SET branch_build_number = '6380' WHERE version_number = '2.6.3';

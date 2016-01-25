@@ -1,5 +1,5 @@
 <?php
-class StudySummariesControllerCustom extends StudySummariesController{
+class StudySummariesControllerCustom extends StudySummariesController {
 	
 	function listAllLinkedParticipants( $study_summary_id ) {
 		if(!$this->checkLinkPermission('/ClinicalAnnotation/Participants/profile/')) $this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE );
