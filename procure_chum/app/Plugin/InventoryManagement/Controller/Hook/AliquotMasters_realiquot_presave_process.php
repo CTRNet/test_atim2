@@ -9,7 +9,7 @@
 			$procure_visit = $matches[2];
 		}
 		foreach($procure_aliquot_data_set['children'] as $procure_aliquot_data) {
-			$barcode_error = $this->AliquotMaster->validateBarcode($procure_aliquot_data['AliquotMaster']['barcode'], $procure_participant_identifier, $procure_visit);
+			$barcode_error = $this->AliquotMaster->validateBarcode($procure_aliquot_data['AliquotMaster']['barcode'], Configure::read('procure_bank_id'), $procure_participant_identifier, $procure_visit);
 			if($barcode_error) $errors['barcode'][$barcode_error][$record_counter] = $record_counter;
 		}
 	}
