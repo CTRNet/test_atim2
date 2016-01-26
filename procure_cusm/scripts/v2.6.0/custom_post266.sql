@@ -430,7 +430,96 @@ INSERT INTO i18n (id,en,fr) VALUES ("you have been redirected to the 'add transf
 "You have been redirected to the 'Add Transferred Aliquots' form",
 "Vous avez été redirigé vers l'écran de 'Creation des aliquots transférés");
 
-UPDATE versions SET branch_build_number = '6370' WHERE version_number = '2.6.6';
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name LIKE 'Xenograft%';
+SELECT 'Set flag_active = 0 to unused structure_permissible_values_custom_controls (see list below)' AS '### TODO ###';
+SELECT st.alias, sfi.field, ctrl.name AS 'List control name'
+FROM structures st
+INNER JOIN structure_formats sfo ON sfo.structure_id = st.id
+INNER JOIN structure_fields sfi ON sfi.id = sfo.structure_field_id
+INNER JOIN structure_value_domains svd ON svd.id = sfi.structure_value_domain
+INNER JOIN structure_permissible_values_custom_controls ctrl ON svd.source LIKE CONCAT('%',ctrl.name,'%')
+WHERE sfo.flag_detail = 1 AND svd.source LIKE 'StructurePermissibleValuesCustom::getCustomDropdown%' AND ctrl.flag_active = 1
+ORDER BY ctrl.name;
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("s","system option");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_banks"), (SELECT id FROM structure_permissible_values WHERE value="s" AND language_alias="system option"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ("system option","Sys","Sys");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('you can not select the system option as bank sending sample', 'You can not select the ''System'' as bank sending sample', 'Vous ne pouvez pas choisir le ''Système'' comme banque ayant envoyé les échantillons'),
+('at least one data is linked to the sample of the aliquot - delete all records then delete the aliquot of the sample', 
+'At least one data is linked to the sample of the aliquot. Please delete all records first, then the trsnferred aliquot then the sample.', 
+"Au moins une données est liée à l'échantillon de l'aliquot. Veuillez supprimer tous les enregistrements, puis l'aliquot transféré et enfin l'échantillon.");
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `display_order`='101', `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='site' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='procure_created_by_bank' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='101', `flag_override_label`='1', `language_label`='site', `flag_override_tag`='1', `language_tag`='site' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='procure_created_by_bank' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') AND `flag_confidential`='0');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS procure_banks_data_merge_messages;
+CREATE TABLE IF NOT EXISTS `procure_banks_data_merge_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  message_nbr int(10) default null,
+  title varchar(250) default null,
+  description varchar(500) default null,
+  details varchar(250) default null,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+DROP TABLE IF EXISTS procure_banks_data_merge_messages_revs;
+CREATE TABLE IF NOT EXISTS `procure_banks_data_merge_messages_revs` (
+  `id` int(11) NOT NULL,
+  message_nbr int(10) default null,
+  title varchar(250) default null,
+  description varchar(500) default null,
+  details varchar(250) default null,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `default_required_date_accuracy` char(1) DEFAULT 'c',
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('core_CAN_41_procure_merge', 'core_CAN_41', 0, 7, 'procure banks data merge summary', '', '/Administrate/ProcureBanksDataMergeSummary/listAll/', '', 1, 1);
+
+INSERT INTO structures(`alias`) VALUES ('procure_banks_data_merge_summary');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Generated', '', 'procure_banks_data_merge_date', 'date',  NULL , '0', '', '', '', 'last banks data merge process', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_banks_data_merge_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last banks data merge process' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO structures(`alias`) VALUES ('procure_banks_data_merge_messages');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'ProcureBanksDataMergeMessage', 'procure_banks_data_merge_messages', 'details', 'input',  NULL , '0', '', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_messages'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('last banks data merge process', 'Last Banks Data Merge', 'Dernière fusion des données des banques'),
+('procure banks data merge summary', 'Banks Data Merge Summary', 'Résumé de la fusion des données des banques');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '6381' WHERE version_number = '2.6.6';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.6';
 UPDATE versions SET permissions_regenerated = 0;
 

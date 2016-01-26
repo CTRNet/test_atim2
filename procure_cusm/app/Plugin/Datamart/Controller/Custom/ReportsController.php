@@ -1276,12 +1276,14 @@ class ReportsControllerCustom extends ReportsController {
 			$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']] = array_merge(array('0'=> array(__('duplicated'))), $res);
 		}
 		
-		//Look for barcodes that don't match format
+		//Look for barcodes that don't match format (limited to bank aliquots)
 		
+		$wrong_format_aliquot_master_ids = array();
 		$query = "SELECT ViewAliquot.*
 			FROM view_aliquots AS ViewAliquot
 			WHERE ". implode(' AND ', $conditions) ."
-			AND ViewAliquot.barcode NOT REGEXP '^PS[0-9]P[0-9]{4}\ V[0-9]{2}\ \-[A-Z]{3}';";
+			AND ViewAliquot.barcode NOT REGEXP '^PS[0-9]P[0-9]{4}\ V[0-9]{2}\ \-[A-Z]{3}'
+			AND ViewAliquot.procure_created_by_bank != 'p';";
 		foreach($ViewAliquot_model->query($query) as $res) {
 			$error = __('wrong format');
 			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
@@ -1289,14 +1291,17 @@ class ReportsControllerCustom extends ReportsController {
 			} else {
 				$data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']]['0'][] = $error;
 			}
+			$wrong_format_aliquot_master_ids[] = $res['ViewAliquot']['aliquot_master_id'];
 		}
 		
-		//Look for barcodes that don't match format with participant identifier miscmatch
+		//Look for barcodes that don't match the participant identifier of the collection participant (limited to bank aliquots)
 		
 		$query = "SELECT ViewAliquot.*
 			FROM view_aliquots AS ViewAliquot
 			WHERE ". implode(' AND ', $conditions) ."
-			AND ViewAliquot.barcode NOT REGEXP CONCAT('^',ViewAliquot.participant_identifier,'\ V[0-9]{2}\ \-[A-Z]{3}');";
+			AND ViewAliquot.barcode NOT REGEXP CONCAT('^',ViewAliquot.participant_identifier,'\ V[0-9]{2}\ \-[A-Z]{3}')
+			AND ViewAliquot.procure_created_by_bank != 'p'
+			AND ViewAliquot.aliquot_master_id NOT IN (".implode(',',$wrong_format_aliquot_master_ids).");";
 		foreach($ViewAliquot_model->query($query) as $res) {
 			$error = __('wrong participant identifier');
 			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {
@@ -1306,12 +1311,14 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
-		//Look for barcodes that don't match format with participant identifier miscmatch
+		//Look for barcodes that don't match the visit of the collection (limited to bank aliquots)
 		
 		$query = "SELECT ViewAliquot.*
 			FROM view_aliquots AS ViewAliquot
 			WHERE ". implode(' AND ', $conditions) ."
-			AND ViewAliquot.barcode NOT REGEXP CONCAT('^PS[0-9]P[0-9]{4}\ ',ViewAliquot.procure_visit,'\ \-[A-Z]{3}');";
+			AND ViewAliquot.barcode NOT REGEXP CONCAT('^PS[0-9]P[0-9]{4}\ ',ViewAliquot.procure_visit,'\ \-[A-Z]{3}')
+			AND ViewAliquot.procure_created_by_bank != 'p'
+			AND ViewAliquot.aliquot_master_id NOT IN (".implode(',',$wrong_format_aliquot_master_ids).");";
 		foreach($ViewAliquot_model->query($query) as $res) {
 			$error = __('wrong visit');
 			if(!isset($data[$res['ViewAliquot']['barcode']][$res['ViewAliquot']['aliquot_master_id']])) {

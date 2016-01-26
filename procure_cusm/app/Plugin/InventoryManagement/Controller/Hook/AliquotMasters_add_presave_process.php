@@ -9,7 +9,7 @@
 		$line_counter = 0;
 		foreach($procure_new_sample_aliquots_set['children'] as &$procure_new_aliquot){
 			$line_counter++;
-			$barcode_error = $this->AliquotMaster->validateBarcode($procure_new_aliquot['AliquotMaster']['barcode'], $procure_participant_identifier, $procure_visit);
+			$barcode_error = $this->AliquotMaster->validateBarcode($procure_new_aliquot['AliquotMaster']['barcode'], Configure::read('procure_bank_id'), $procure_participant_identifier, $procure_visit);
 			if($barcode_error) $errors['barcode'][$barcode_error][] = ($is_batch_process? $record_counter : $line_counter);
 			$procure_new_aliquot['AliquotMaster']['procure_created_by_bank'] = Configure::read('procure_bank_id');
 		}
