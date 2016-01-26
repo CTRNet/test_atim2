@@ -46,12 +46,14 @@ class AliquotMastersControllerCustom extends AliquotMastersController{
 		if(!empty($aliquots_used_barcode)) AppController::addWarningMsg(__('you are editing aliquots that have already been sent to processing site').'. '.str_replace('%s', '['.implode('] ,[',$aliquots_used_barcode).']', __('see # %s')));
 		
 		$current_barcode_to_aliquot_master_id = array();
+		$current_barcode_to_procure_created_by_bank = array();
 		foreach($aliquot_data as $new_aliquot) {
 			if(isset($current_barcode_to_aliquot_master_id[$new_aliquot['AliquotMaster']['barcode']])) {
 				$this->flash((__('you can not edit 2 aliquots with the same barcode')), $url_to_cancel, 5);
 				return;
 			}
 			$current_barcode_to_aliquot_master_id[$new_aliquot['AliquotMaster']['barcode']] = $new_aliquot['AliquotMaster']['id'];
+			$current_barcode_to_procure_created_by_bank[$new_aliquot['AliquotMaster']['barcode']] = $new_aliquot['AliquotMaster']['procure_created_by_bank'];
 		}
 		
 		$this->set('aliquot_ids_to_update', implode(',', $aliquot_ids));
@@ -90,7 +92,9 @@ class AliquotMastersControllerCustom extends AliquotMastersController{
 						foreach($msgs as $msg) $errors['AliquotMaster'][$field][$msg][]= $record_counter;
 					}
 				}
-				$barcode_error = $this->AliquotMaster->validateBarcode($new_studied_aliquot['AliquotMaster']['barcode'], $new_studied_aliquot['ViewAliquot']['participant_identifier'], $new_studied_aliquot['ViewAliquot']['procure_visit']);
+				if(!isset($current_barcode_to_procure_created_by_bank[$new_studied_aliquot['ViewAliquot']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				$procure_created_by_bank = $current_barcode_to_procure_created_by_bank[$new_studied_aliquot['ViewAliquot']['barcode']];
+				$barcode_error = $this->AliquotMaster->validateBarcode($new_studied_aliquot['AliquotMaster']['barcode'], $procure_created_by_bank, $new_studied_aliquot['ViewAliquot']['participant_identifier'], $new_studied_aliquot['ViewAliquot']['procure_visit']);
 				if($barcode_error) $errors['AliquotMaster']['barcode'][__($barcode_error)][] = $record_counter;
 				// Reset data
 				$this->request->data[$key] = $new_studied_aliquot;
