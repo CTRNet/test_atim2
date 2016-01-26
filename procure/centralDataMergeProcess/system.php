@@ -54,6 +54,9 @@ $executed_queries = array();
 global $track_queries;
 $track_queries = false;
 
+global $populated_tables_information;
+$populated_tables_information = array();
+
 //==================================================================================================================================================================================
 // DATABSE CONNECTION
 //==================================================================================================================================================================================
@@ -101,7 +104,7 @@ function testDbSchemas($db_schema, $site) {
 			$atim_dump_data = getSelectQueryResult('SELECT created FROM atim_procure_dump_information LIMIT 0 ,1');
 			if($atim_dump_data) {
 				$atim_dump_data['0']['created'];
-				recordErrorAndMessage('Merge Information', '@@MESSAGE@@', "Site Dump Information", '', "Use of database dump of '$site' created on '".$atim_dump_data['0']['created'].".");
+				recordErrorAndMessage('Merge Information', '@@MESSAGE@@', "Site Dump Information", '', "Dump of '$site' database created on '".$atim_dump_data['0']['created'].".");
 				return true;
 			} else {
 				recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Missing atim_procure_dump_information Table Data", '', "See data of site '$site'. No data will be imported.");
@@ -337,8 +340,12 @@ function dislayErrorAndMessage($commit = false) {
 	global $import_summary;
 	global $db_connection;
 	global $track_queries;
+	global $import_date;
+	global $imported_by;
 	
 	if($track_queries) addQueryToMessages();
+	
+	customQuery("TRUNCATE procure_banks_data_merge_messages");
 	
 	echo "<br><FONT COLOR=\"blue\">
 		=====================================================================<br>
@@ -356,30 +363,37 @@ function dislayErrorAndMessage($commit = false) {
 			switch($msg_level) {
 				case '@@ERROR@@':
 					$color = 'red';
-					$code = 'ER';
+					$code = 'Err';
 					break;
 				case '@@WARNING@@':
 					$color = 'orange';
-					$code = 'WAR';
+					$code = 'War';
 					break;
 				case '@@MESSAGE@@':
 					$color = 'green';
-					$code = 'MSG';
+					$code = 'Msg';
 					break;
 				default:
 					echo '<br><br><br>UNSUPORTED message_type : '.$msg_level.'<br><br><br>';
 			}
 			foreach($data2 as $msg_title_and_description => $details) {
 				preg_match('/^(.+)(#@#@#)(.*)$/', $msg_title_and_description, $matches);
-				$msg_title = $matches[1];
-				$msg_description = $matches[3];
+				$msg_title = str_replace("\n", ' ', $matches[1]);
+				$msg_title_for_db = str_replace("'", "''", $msg_title);
+				$msg_description = str_replace("\n", ' ', $matches[3]);
+				$msg_description_for_db = str_replace("'", "''", $msg_description);
 				$err_counter++;
-				$msg_title = str_replace("\n", ' ', utf8_decode("[$code#$err_counter] $msg_title"));
-				echo "<br><br><FONT COLOR='$color' ><b>$msg_title</b></FONT><br>";
+				echo "<br><br><FONT COLOR='$color' ><b>".utf8_decode("[$code#$err_counter] $msg_title")."</b></FONT><br>";
 				if($msg_description) echo "<i><FONT COLOR=\black\" >".utf8_decode($msg_description)."</FONT></i><br>";
 				foreach($details as $detail) {
 					$detail = str_replace("\n", ' ', $detail);
 					echo ' - '.utf8_decode($detail)."<br>";
+					//Record data in db
+					$detail = str_replace("'", "''", $detail);
+					$query = "INSERT INTO procure_banks_data_merge_messages (message_nbr, title, description, details, created, created_by, modified, modified_by)
+						VALUES 
+						($err_counter, '$msg_title_for_db', '$msg_description_for_db', '$detail', '$import_date', $imported_by, '$import_date', $imported_by);";
+					customQuery($query, true);
 				}
 			}
 		}
@@ -396,6 +410,7 @@ function dislayErrorAndMessage($commit = false) {
 		=====================================================================<br>
 		<b>Merge Done $ccl</b><br>
 		=====================================================================</FONT><br>";
+
 }
 
 //==================================================================================================================================================================================

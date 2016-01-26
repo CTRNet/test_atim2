@@ -469,7 +469,57 @@ UPDATE structure_formats SET `display_order`='101', `flag_override_label`='1', `
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6370' WHERE version_number = '2.6.6';
+DROP TABLE IF EXISTS procure_banks_data_merge_messages;
+CREATE TABLE IF NOT EXISTS `procure_banks_data_merge_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  message_nbr int(10) default null,
+  title varchar(250) default null,
+  description varchar(500) default null,
+  details varchar(250) default null,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+DROP TABLE IF EXISTS procure_banks_data_merge_messages_revs;
+CREATE TABLE IF NOT EXISTS `procure_banks_data_merge_messages_revs` (
+  `id` int(11) NOT NULL,
+  message_nbr int(10) default null,
+  title varchar(250) default null,
+  description varchar(500) default null,
+  details varchar(250) default null,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `default_required_date_accuracy` char(1) DEFAULT 'c',
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('core_CAN_41_procure_merge', 'core_CAN_41', 0, 7, 'procure banks data merge summary', '', '/Administrate/ProcureBanksDataMergeSummary/listAll/', '', 1, 1);
+
+INSERT INTO structures(`alias`) VALUES ('procure_banks_data_merge_summary');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Generated', '', 'procure_banks_data_merge_date', 'date',  NULL , '0', '', '', '', 'last banks data merge process', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_banks_data_merge_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last banks data merge process' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO structures(`alias`) VALUES ('procure_banks_data_merge_messages');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'ProcureBanksDataMergeMessage', 'procure_banks_data_merge_messages', 'details', 'input',  NULL , '0', '', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_messages'), (SELECT id FROM structure_fields WHERE `model`='ProcureBanksDataMergeMessage' AND `tablename`='procure_banks_data_merge_messages' AND `field`='details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('last banks data merge process', 'Last Banks Data Merge', 'Dernière fusion des données des banques'),
+('procure banks data merge summary', 'Banks Data Merge Summary', 'Résumé de la fusion des données des banques');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '6381' WHERE version_number = '2.6.6';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.6';
 UPDATE versions SET permissions_regenerated = 0;
 
