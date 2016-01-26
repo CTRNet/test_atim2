@@ -241,4 +241,4 @@ REPLACE INTO i18n (id,en,fr) VALUES ('aliquot label', 'Label (CHUQ)', 'Étiquett
 
 UPDATE structure_formats SET flag_add = '1', flag_add_readonly = '0', flag_edit = '0', flag_edit_readonly = '0', flag_search = '0', flag_search_readonly = '0', flag_addgrid = '1', flag_addgrid_readonly = '0', flag_editgrid = '0', flag_editgrid_readonly = '0', flag_batchedit = '0', flag_batchedit_readonly = '0', flag_index = '0', flag_detail = '0', flag_summary = '0' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='aliquot_label') AND structure_id = (SELECT id FROM structures WHERE alias='procure_chuq_aliquot_label');
 
-UPDATE versions SET site_branch_build_number = '6383' WHERE version_number = '2.6.6';
+UPDATE versions SET site_branch_build_number = '6384' WHERE version_number = '2.6.6';
