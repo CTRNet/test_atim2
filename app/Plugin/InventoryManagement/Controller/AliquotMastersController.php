@@ -2774,6 +2774,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		ksort($sorted_data);
 		$this->request->data = $sorted_data;
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 	
 	function editInBatch(){
