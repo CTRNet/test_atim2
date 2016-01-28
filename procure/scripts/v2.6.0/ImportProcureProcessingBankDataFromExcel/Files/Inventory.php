@@ -10,7 +10,7 @@ function getParticipantIdAndSite($participant_identifier, $procure_participant_a
 		$import_summary['Patient Creation']['@@ERROR@@']["Wrong Patient Identifiers Format"][] = "The format of the participant_identifier '$participant_identifier' is wrong. No patient will be created. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 		return array(null, null);
 	}
-	if(!in_array($participant_identifier, $patients_to_import)) {
+	if(!empty($patients_to_import) && !in_array($participant_identifier, $patients_to_import)) {
 		return array(null, null);
 	}	
 	//Get Site From participant_identifier
