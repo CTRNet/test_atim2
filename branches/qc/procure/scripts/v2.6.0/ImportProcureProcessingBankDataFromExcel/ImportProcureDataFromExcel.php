@@ -10,21 +10,7 @@ set_time_limit('3600');
 
 global $patients_to_import;
 //TODO set to empty
-$patients_to_import = array(
-	'PS1P0018',
-	'PS2P0070',
-	'PS2P0392',
-	'PS1P0203',
-	'PS3P0211',
-	'PS3P0278',
-	'PS4P0119',
-	'PS4P0182',
-	'PS4P0394',
-	'PS1P0203',
-	'PS1P0003',
-	'PS1P0591',
-	'PS1P0615'
-);
+$patients_to_import = array();
 
 //$patients_to_import = array();
 $files_name = array(
@@ -36,7 +22,7 @@ $files_name = array(
 foreach($files_name as $key => $val) $files_name[$key] = utf8_decode($val);
 
 $files_path = 'C:\\_NicolasLuc\\Server\\www\\procure\\data\\ProcessingBankDataFiles\\';
-//$files_path = "/ATiM/atim-procure/Test/Data/";
+$files_path = "/ATiM/todelete/Data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;

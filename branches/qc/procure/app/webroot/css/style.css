@@ -1107,6 +1107,14 @@ span.help {
 				div.nodeBlock .rightPart.disabled{
 					color: grey;
 				}
+/* PROCURE */			
+div.nodeBlock .rightPart.transfered_aliquot{
+	color: #1550ea;
+}
+div.nodeBlock .rightPart.disabled_transfered_aliquot{
+	color: #4f69b0;
+}
+/* END PROCURE */
 				div.nodeBlock .rightPart.sample_disabled{
 					color: grey;
 					font-style: italic;

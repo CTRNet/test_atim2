@@ -13,9 +13,9 @@ connectToCentralDatabase();
 
 $bank_databases = array(
 	'CHUM' => $db_chum_schemas,
-	'CHUQ' =>	null,// $db_chuq_schemas,
-	'CHUS' =>	null,//  $db_chus_schemas,
-	'CUSM' => 	null,// $db_cusm_schemas
+	'CHUQ' => $db_chuq_schemas,
+	'CHUS' => $db_chus_schemas,
+	'CUSM' => $db_cusm_schemas
 );
 foreach($bank_databases as $site => $db_schema) {
 	if(!testDbSchemas($db_schema, $site)) $bank_databases[$site] = null;
@@ -33,14 +33,13 @@ displayMergeTitle('PROCURE CENTRAL ATIM : Data Sites Merge Process');
 
 $track_queries = false;
 
-$sites_to_sitecodes = array(
-	'PROCESSING SITE' => 'psp',
-	'CHUM' => 'ps1',
-	'CHUQ' => 'ps2',
-	'CHUS' => 'ps4',
-	'CUSM' => 'ps3'
+$sitecodes_to_sites = array(
+	'p' => 'PROCESSING SITE',
+	'1' => 'CHUM',
+	'2' => 'CHUQ',
+	'4' => 'CHUS',
+	'3' => 'CUSM'
 );
-$sitecodes_to_sites = array_flip($sites_to_sitecodes);
 
 //**********************************************************************************************************************************************************************************************
 //
@@ -193,17 +192,12 @@ foreach($all_queries as $new_query) customQuery($new_query);
 //==============================================================================================
 
 $populated_tables_information = array();
-
-$tmp_realiquoting_table = getTablesInformation('realiquotings');
-if(in_array('procure_central_is_transfer', $tmp_realiquoting_table['fields'])) {
-	customQuery("ALTER TABLE realiquotings DROP COLUMN procure_central_is_transfer;");
-	$key = array_search('procure_central_is_transfer', $tmp_realiquoting_table['fields']);
-	unset($populated_tables_information['realiquotings']['fields'][$key]);
-}
-
 foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_databases) as $site => $site_schema) {
 	//New Bank or Processing Site
+	
+	$sites_to_sitecodes = array_flip($sitecodes_to_sites);
 	$site_code = $sites_to_sitecodes[$site];
+	
 	if($site_schema) {
 		
 		// I - STUDY
@@ -332,7 +326,7 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		//AliquotMastersRevs
 		magicSelectInsert($site_schema, 'aliquot_masters_revs', array('id' => 'aliquot_masters', 'collection_id' => 'collections', 'sample_master_id' => 'sample_masters', 'storage_master_id' => 'storage_masters'));
 		// Realiquoting
-		magicSelectInsert($site_schema, 'realiquotings', array('parent_aliquot_master_id' => 'aliquot_masters', 'child_aliquot_master_id' => 'aliquot_masters'));
+		magicSelectInsert($site_schema, 'realiquotings', array('parent_aliquot_master_id' => 'aliquot_masters', 'child_aliquot_master_id' => 'aliquot_masters'), array('procure_central_is_transfer' => '0'));
 		// Source Aliquot
 		magicSelectInsert($site_schema, 'source_aliquots', array('sample_master_id' => 'sample_masters', 'aliquot_master_id' => 'aliquot_masters'));
 		// Aliquot Internal Uses
@@ -459,7 +453,7 @@ foreach($duplicated_participants as $new_duplicated_participants_data) {
 	$check_all_data_similar = true;
 	foreach($participants_data as $duplicated_participant) {
 		$matching_participant_ids[$participants_data_to_display['id']][] = $duplicated_participant['id'];
-		$participants_banks[] = "'".$sitecodes_to_sites['ps'.$duplicated_participant['procure_last_modification_by_bank']]."'";
+		$participants_banks[] = "'".$sitecodes_to_sites[$duplicated_participant['procure_last_modification_by_bank']]."'";
 		if(strlen($duplicated_participant['notes'])) $all_notes_to_merge[] = $duplicated_participant['notes'];
 		if($duplicated_participant['procure_transferred_participant'] != 'y') $check_all_flagged_as_transferred = false;
 		foreach(array('date_of_birth', 'vital_status', 'date_of_death', 'procure_cause_of_death', 'procure_patient_withdrawn', 'procure_patient_withdrawn_date', 'procure_patient_withdrawn_reason') as $studied_field) {
@@ -509,8 +503,6 @@ foreach($queries as $query) customQuery($query);
 //==============================================================================================
 // 4- Import Data From Processing Site
 //==============================================================================================
-
-customQuery("ALTER TABLE realiquotings ADD COLUMN procure_central_is_transfer tinyint(1) DEFAULT '0'");
 
 // 1- Link Bank aliquots to Psp aliquots when match exists on barcode
 //    and change the procure_created_by_bank field of these aliquots from bank code to 'p'
@@ -565,13 +557,13 @@ $aliquot_master_ids_with_bank_msimatch = array();
 foreach(getSelectQueryResult($query) as $new_aliquot) {
 	if($new_aliquot['bank_aliquot_deleted']) {
 		$deleted_bank_aliquot_master_ids[] = $new_aliquot['id'];
-		recordErrorAndMessage('Aliquots', '@@WARNING@@', "'PROCESSING SITE' aliquot flagged as transfered deleted in bank", "Aliquot listed in the 'PROCESSING SITE' ATiM database and defined transfered from a bank to the processing site that has been deleted into the ATiM database of the bank. Please see batchset 'Psp aliquots linked to deleted bank aliquots' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$sitecodes_to_sites['ps'.$new_aliquot['procure_created_by_bank']]."'");
+		recordErrorAndMessage('Aliquots', '@@WARNING@@', "Processing site aliquot flagged as transfered deleted in bank", "Aliquot listed in the processing site ATiM database and defined transfered from a bank to the processing site that has been deleted into the ATiM database of the bank. Please see batchset 'Psp aliquots linked to deleted bank aliquots' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 	} else if($new_aliquot['bank_aliquot_control_id'] != $new_aliquot['psp_aliquot_control_id']) {
 		$aliquot_master_ids_with_control_id_msimatch[] = $new_aliquot['id'];
-		recordErrorAndMessage('Aliquots', '@@WARNING@@', "'PROCESSING SITE' aliquot flagged as transfered but aliquot type mismatch", "Aliquot listed in the 'PROCESSING SITE' ATiM database and defined transfered from a bank to the processing site and having an aliquot type recorded in the 'PROCESSING SITE' ATiM database different than this one defined in bank. Please see batchset 'Psp aliquots linked to bank aliquots with type mismatch' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$sitecodes_to_sites['ps'.$new_aliquot['procure_created_by_bank']]."'");
+		recordErrorAndMessage('Aliquots', '@@WARNING@@', "processing site aliquot flagged as transfered but aliquot type mismatch", "Aliquot listed in the processing site ATiM database and defined transfered from a bank to the processing site and having an aliquot type recorded in the processing site ATiM database different than this one defined in bank. Please see batchset 'Psp aliquots linked to bank aliquots with type mismatch' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 	} else if($new_aliquot['aliquot_bank'] != $new_aliquot['aliquot_bank_in_psp']) {
 		$aliquot_master_ids_with_bank_msimatch[] = $new_aliquot['id'];
-		recordErrorAndMessage('Aliquots', '@@WARNING@@', "'PROCESSING SITE' aliquot flagged as transfered but source bank mismatch", "Aliquot listed in the 'PROCESSING SITE' ATiM database and defined transfered from a bank to the processing site and having a 'Source Bank' recorded in the 'PROCESSING SITE' ATiM database different then the real bank that shipped the aliquot. Please see batchset 'Psp aliquots linked to bank aliquots with bank value mismatch' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$sitecodes_to_sites['ps'.$new_aliquot['procure_created_by_bank']]."'");
+		recordErrorAndMessage('Aliquots', '@@WARNING@@', "Processing site aliquot flagged as transfered but source bank mismatch", "Aliquot listed in the processing site ATiM database and defined transfered from a bank to the processing site and having a 'Source Bank' recorded in the processing site ATiM database different then the real bank that shipped the aliquot. Please see batchset 'Psp aliquots linked to bank aliquots with bank value mismatch' created then validate with banks. Aliquot won't be linked in the central ATiM.", $new_aliquot['barcode']." of bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 	} else {
 		mergeDie('ERR_MATCHING_BARCODE_ERROR_DETECTION_IS_MISSING');
 	}
@@ -589,7 +581,7 @@ $query = "SELECT AliquotMasterPsp.id, AliquotMasterPsp.barcode, AliquotMasterPsp
 $unmatching_bank_aliquot_master_ids = array();
 foreach(getSelectQueryResult($query) as $new_aliquot) {
 	$unmatching_bank_aliquot_master_ids[] = $new_aliquot['id'];
-	recordErrorAndMessage('Aliquots', '@@WARNING@@', "'PROCESSING SITE' aliquot flagged as transfered but not 'linked' to a bank's aliquot", "Aliquot listed in the 'PROCESSING SITE' ATiM database and defined as transfered from a bank to the processing site that does not exist into the ATiM database of a bank. Please see batchset 'Psp aliquots received that does not exist in bank' created then validate with banks.", $new_aliquot['barcode']." of bank '".$new_aliquot['procure_created_by_bank']."'");
+	recordErrorAndMessage('Aliquots', '@@WARNING@@', "Processing site aliquot flagged as transfered from a bank that does not exist in bank", "Aliquot listed in the processing site ATiM database and defined as transfered from a bank to the processing site that does not exist into the ATiM database of the bank (match based on aliquot identification). Please see batchset 'Psp aliquots received that does not exist in bank' created then validate with banks.", $new_aliquot['barcode']." of bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 }
 createBatchSet('ViewAliquot', 'Psp aliquots received that does not exist in bank', $unmatching_bank_aliquot_master_ids);
 
@@ -694,7 +686,7 @@ $query = "SELECT id, procure_participant_attribution_number, participant_identif
 $participant_ids = array();
 foreach(getSelectQueryResult($query) as $new_participant) {
 	$participant_ids[] = $new_participant['id'];
-	recordErrorAndMessage('Participants', '@@WARNING@@', "Un-merged participants created in Psp", "At least one aliquot of a participant listed in the 'PROCESSING SITE' ATiM database can not be linked to a sample created in a ATiM database of a 'Bank'. Please see batchset 'Psp participants un-deleted' created then validate with banks.", $new_participant['participant_identifier']);
+	recordErrorAndMessage('Participants', '@@WARNING@@', "Un-merged participants created by the system in Psp", "At least one aliquot of a participant created by the system in the processing site ATiM database and defined as transfered from a bank to the processing site can not be linked to a sample created in a ATiM database of a 'Bank'. Psp Participant created by system can not been deleted. Please see batchset 'Psp participants un-deleted' created then validate with banks.", $new_participant['participant_identifier']);
 }
 createBatchSet('Participant', 'Psp participants un-deleted', $participant_ids);
 
@@ -704,12 +696,19 @@ $query = "SELECT id, procure_participant_attribution_number, participant_identif
 $participant_ids = array();
 foreach(getSelectQueryResult($query) as $new_participant) {
 	$participant_ids[] = $new_participant['id'];
-	recordErrorAndMessage('Participants', '@@WARNING@@', "Unknown participants created in Psp", "Participant listed in the 'PROCESSING SITE' ATiM database is not listed in a 'Bank' ATiM database. Please see batchset 'Psp participants unknown' created then validate with banks.", $new_participant['participant_identifier']);
+	recordErrorAndMessage('Participants', '@@WARNING@@', "Unknown participants created in Psp", "Participant created by the system in the processing site ATiM database is not created in any 'Bank' ATiM database. Please see batchset 'Psp participants unknown' created then validate with banks.", $new_participant['participant_identifier']);
 }
 createBatchSet('Participant', 'Psp participants unknown', $participant_ids);
 
-customQuery("DROP TABLE IF EXISTS procure_tmp_transfered_aliquot_ids;");		
-		
+customQuery("DROP TABLE IF EXISTS procure_tmp_transfered_aliquot_ids;");
+
+$control_name = 'aliquot use and event types';
+$atim_control_id = getSelectQueryResult("SELECT id FROM structure_permissible_values_custom_controls WHERE name = '$control_name'");
+if(!($atim_control_id && $atim_control_id['0']['id'])) mergeDie('ERR_MISSING_VALUES_CONTROL_2::'.$control_name);
+$atim_control_id = $atim_control_id['0']['id'];
+$query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id) VALUES ('###system_transfer_flag###' ,'Transfer (System Record)', 'Transfert (donnée système)', '1', $atim_control_id);";
+customQuery($query);
+
 //**********************************************************************************************************************************************************************************************
 //
 // CHECK DATA INTEGRITY
@@ -739,13 +738,13 @@ foreach(array('consent_masters' => 'Consents', 'treatment_masters' => 'Treatment
 
 // Duplicated PROCURE aliquot barcode
 
-$query = "SELECT procure_created_by_bank, barcode
+$query = "SELECT procure_created_by_banks, barcode
 	FROM (
-		SELECT GROUP_CONCAT(procure_created_by_bank) as procure_created_by_bank, barcode FROM aliquot_masters 
+		SELECT GROUP_CONCAT(procure_created_by_bank) as procure_created_by_banks, barcode FROM aliquot_masters 
 		WHERE deleted <> 1 AND id NOT IN (
 			SELECT child_aliquot_master_id FROM realiquotings WHERE procure_central_is_transfer = '1'
 		) GROUP BY barcode
-	) res WHERE procure_created_by_bank LIKE '%,%'
+	) res WHERE procure_created_by_banks LIKE '%,%'
 	ORDER BY barcode;";
 $duplicated_forms = getSelectQueryResult($query);
 foreach($duplicated_forms as $new_form_set) recordErrorAndMessage('Aliquots', '@@WARNING@@', "Barcode Duplicated", '', $new_form_set['barcode']."' in bank(s) ".str_replace($site_search, $site_replace, $new_form_set['procure_created_by_banks']));
@@ -755,33 +754,35 @@ foreach($duplicated_forms as $new_form_set) recordErrorAndMessage('Aliquots', '@
 $merged_participant_ids = array_merge($merged_participant_ids, array('-1'));
 $query = "SELECT participant_identifier, procure_last_modification_by_bank FROM participants WHERE deleted <> 1 AND procure_transferred_participant = 'y' AND id NOT IN (".implode(',', $merged_participant_ids).")";
 
-foreach(getSelectQueryResult($query) as $new_particiant) recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Participant' listed in only one bank", "Participant is flagged as 'Transferred Participant' but this one is just recorded into one bank database. Please validate with banks.", $new_particiant['participant_identifier']." in bank '".$sitecodes_to_sites['ps'.$new_particiant['procure_last_modification_by_bank']]."'");
+foreach(getSelectQueryResult($query) as $new_particiant) recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Participant' recorde in only one bank", "Participant is flagged as 'Transferred Participant' (cause followed by many banks) but this one is just recorded into one bank database. Please validate with banks.", $new_particiant['participant_identifier']." in bank '".$sitecodes_to_sites[$new_particiant['procure_last_modification_by_bank']]."'");
 
 // In stock values of transferred aliquots
 
 $query = "SELECT BankAliquotMaster.id, BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank, PspAliquotMaster.id as psp_id
 	FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink, aliquot_masters PspAliquotMaster
 	WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id AND PspAliquotMaster.id = TransferLink.child_aliquot_master_id 
-	AND BankAliquotMaster.in_stock = 'yes - available' AND PspAliquotMaster.in_stock = 'yes - available'";
+	AND BankAliquotMaster.in_stock = 'yes - available' 
+	AND PspAliquotMaster.in_stock IN ('yes - available', 'yes - not available')";
 $barcodes = getSelectQueryResult($query);
 $aliquot_ids = array();
 foreach($barcodes as $new_aliquot) {
 	$aliquot_ids[] = $new_aliquot['id'];
 	$aliquot_ids[] = $new_aliquot['psp_id'];
-	recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Aliquot' in stock conflict", "Aliquot is flagged as in stock and available in both bank and processing site. Please see 'Transferred aliquot with stock value conflict' batchset and correct data in bank and/or processing site.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites['ps'.$new_aliquot['procure_created_by_bank']]."'");
+	recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Aliquot' in stock conflict", "Aliquot is flagged as  as 'In Stock' in processing site and 'In Stock and Available' in bank. Please see 'Transferred aliquot with in stock value conflict' batchset and correct data in bank and/or processing site.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 }
-createBatchSet('ViewAliquot', 'Transferred aliquot with stock value conflict', $aliquot_ids);
+createBatchSet('ViewAliquot', 'Transferred aliquot with in stock value conflict', $aliquot_ids);
 
 $query = "SELECT BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank
 	FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink, aliquot_masters PspAliquotMaster
 	WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id AND PspAliquotMaster.id = TransferLink.child_aliquot_master_id 
-	AND BankAliquotMaster.in_stock = 'yes - not available' AND PspAliquotMaster.in_stock = 'yes - available'";
+	AND BankAliquotMaster.in_stock = 'yes - not available' 
+	AND PspAliquotMaster.in_stock IN ('yes - available', 'yes - not available')";
 $barcodes = getSelectQueryResult($query);
-foreach($barcodes as $new_aliquot) recordErrorAndMessage('Participants', '@@MESSAGE@@', "'Transferred Aliquot' in stock warning", "Aliquot is flagged as in stock and available in processing site and in stock but not available in bank. Please validate data with bank.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites['ps'.$new_aliquot['procure_created_by_bank']]."'");
+foreach($barcodes as $new_aliquot) recordErrorAndMessage('Participants', '@@MESSAGE@@', "'Transferred Aliquot' in stock warning", "Aliquot is flagged as 'In Stock' in processing site and 'In Stock but Not Available' in bank. Please validate data with bank.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 
-// Check aliquots are defined as transferred in bank
+// Check all transferred aliquots are defined as 'sent to processing site' in bank
 
-$query = "SELECT  BankAliquotMaster.id, BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank
+$query = "SELECT BankAliquotMaster.id, BankAliquotMaster.barcode, BankAliquotMaster.procure_created_by_bank
 	FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink
 	WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id
 	AND BankAliquotMaster.id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE type = 'sent to processing site' AND deleted <> 1)";
@@ -789,20 +790,45 @@ $barcodes = getSelectQueryResult($query);
 $aliquot_ids = array();
 foreach($barcodes as $new_aliquot) {
 	$aliquot_ids[] = $new_aliquot['id'];
-	recordErrorAndMessage('Participants', '@@WARNING@@', "Missing 'Transferred Aliquot' information in bank database", "Aliquot is transferred to processing site but no information is recorded in bank database. Information will be temporary added to the central database. Please see 'Transferred aliquot not flagged in bank' batchset and create use 'sent to processing site' in bank database.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites['ps'.$new_aliquot['procure_created_by_bank']]."'");
+	recordErrorAndMessage('Participants', '@@WARNING@@', "Missing 'Sent to Processing Site' information in bank database for a 'Transferred Aliquot'", "Aliquot is recored as transferred from bank to processing site based on the barcodes match of a bank aliquot and a processing site aliquot flagged as transfered but no interal use 'Sent to Processing Site' has not been recorded and linked to the aliquot in the bank database. Please see 'Transferred aliquot not flagged in bank' batchset then add internal use 'Sent to Processing Site' to the aliquot of the bank database.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 }
 createBatchSet('ViewAliquot', 'Transferred aliquot not flagged in bank', $aliquot_ids);
-if($aliquot_ids) {
-	$query = "INSERT INTO aliquot_internal_uses (aliquot_master_id, type, use_code, procure_created_by_bank, created, created_by, modified, modified_by)
-		(SELECT  BankAliquotMaster.id, 'sent to processing site', 'Created by merge process', procure_created_by_bank, '$import_date', $imported_by, '$import_date', $imported_by
-		FROM aliquot_masters BankAliquotMaster 
-		WHERE BankAliquotMaster.id IN (".implode(',',$aliquot_ids)."));";
-	customQuery($query);
-	$query = "UPDATE aliquot_masters BankAliquotMaster 
-		SET BankAliquotMaster.use_counter = (BankAliquotMaster.use_counter + 1)
-		WHERE BankAliquotMaster.id IN (".implode(',',$aliquot_ids).");";
-	customQuery($query);
+
+// Check all transferred aliquots are defined as 'received from bank' in processing site
+
+$query = "SELECT PspAliquotMaster.id, PspAliquotMaster.barcode, PspAliquotMaster.procure_created_by_bank
+	FROM aliquot_masters PspAliquotMaster, realiquotings TransferLink
+	WHERE TransferLink.procure_central_is_transfer = '1' AND PspAliquotMaster.id = TransferLink.child_aliquot_master_id
+	AND PspAliquotMaster.id NOT IN (SELECT aliquot_master_id FROM aliquot_internal_uses WHERE type = 'received from bank' AND deleted <> 1)";
+$barcodes = getSelectQueryResult($query);
+$aliquot_ids = array();
+foreach($barcodes as $new_aliquot) {
+	$aliquot_ids[] = $new_aliquot['id'];
+	recordErrorAndMessage('Participants', '@@WARNING@@', "Missing 'Received From Bank' information in processing site database for a 'Transferred Aliquot'", "Aliquot is recored as transferred from bank to processing site based on the barcodes match of a bank aliquot and a processing site aliquot flagged as transfered but no interal use 'received from bank' has been recorded and linked to the aliquot in the processing site database. Please see 'Transferred aliquot not flagged in processing site' batchset and create use 'Received From Bank' to the aliquot of the processing site database.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 }
+createBatchSet('ViewAliquot', 'Transferred aliquot not flagged in processing site', $aliquot_ids);
+
+// Check only transferred aliquots are defined as 'sent to processing site' in bank
+
+$query = "SELECT aliquot_masters.id, aliquot_masters.barcode, aliquot_masters.procure_created_by_bank
+	FROM aliquot_internal_uses, aliquot_masters
+	WHERE aliquot_masters.id = aliquot_internal_uses.aliquot_master_id 
+	AND aliquot_internal_uses.type = 'sent to processing site' 
+	AND aliquot_masters.deleted <> 1 AND aliquot_internal_uses.deleted <> 1
+	AND aliquot_masters.id NOT IN (
+		SELECT BankAliquotMaster.id
+		FROM aliquot_masters BankAliquotMaster, realiquotings TransferLink
+		WHERE TransferLink.procure_central_is_transfer = '1' AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id)";	
+$barcodes = getSelectQueryResult($query);
+$aliquot_ids = array();
+foreach($barcodes as $new_aliquot) {
+	$aliquot_ids[] = $new_aliquot['id'];
+	recordErrorAndMessage('Participants', '@@WARNING@@', "'Sent to Processing Site' information in bank database for a 'Untransferred Aliquot'", "Aliquot is not recored as transferred from bank to processing (no barcodes match between the bank aliquot and a processing site aliquot flagged as transfered) but an interal use 'Sent to Processing Site' has been recorded and linked to the aliquot in the bank database. Please see 'Untransferred aliquot flagged as sent to p. site' batchset and correct in bank.", $new_aliquot['barcode']." in bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
+}
+createBatchSet('ViewAliquot', 'Untransferred alq. flagged as sent to p. site', $aliquot_ids);
+
+// Check only transferred aliquots are defined as 'received from bank' in processing site
+// Note: Check done in bank
 
 //**********************************************************************************************************************************************************************************************
 //
@@ -821,8 +847,8 @@ $atim_control_id = $atim_control_id['0']['id'];
 $query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id) VALUES ('site', 'Site', 'Site', 1, $atim_control_id)";
 customQuery($query);
 
-foreach($sites_to_sitecodes as $bank_site => $site_code) {
-	$query = "INSERT INTO storage_masters (code,storage_control_id,short_label,created,created_by,modified,modified_by)  VALUES ('$site_code', $storage_control_id, '$site_code', '$import_date', $imported_by, '$import_date', $imported_by);";
+foreach($sitecodes_to_sites as $site_code => $bank_site) {
+	$query = "INSERT INTO storage_masters (code,storage_control_id,short_label,created,created_by,modified,modified_by)  VALUES ('ps$site_code', $storage_control_id, '$site_code', '$import_date', $imported_by, '$import_date', $imported_by);";
 	$storage_master_id = customQuery($query, true);
 	$query = "INSERT INTO std_rooms (storage_master_id) VALUES ($storage_master_id);";
 	customQuery($query, true);
@@ -834,8 +860,6 @@ foreach($sites_to_sitecodes as $bank_site => $site_code) {
 updateStorageLftRghtAndLabel();
 
 // ...
-
-customQuery("ALTER TABLE realiquotings DROP COLUMN procure_central_is_transfer;");
 
 customQuery("UPDATE versions SET permissions_regenerated = 0");
 
