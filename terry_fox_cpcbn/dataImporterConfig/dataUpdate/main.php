@@ -557,7 +557,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy']),
 									$atim_controls['diagnosis_controls']['primary-other']['detail_tablename'] => array(
 										'type' => $excel_diagnosis_data['type']));
-								customInsertRecord($unknown_dx);
+								customInsertRecord($other_primary_dx);
 								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created other primary diagnosis', $excel_diagnosis_data);
 							}
 						} 
