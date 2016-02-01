@@ -8,13 +8,9 @@ set_time_limit('3600');
 // Variables
 //==============================================================================================
 
-$files_path = "C:\_Perso\Server\\tfri_cpcbn\data\update2014\\";
-$files_names = array('mcgill2014 update.xls' => 'McGill-Aprikian #3', 
-		'Nov-25-2014 VPC Update TFRI-CPCBN Ali-1.xls' => 'VPC-Gleave #5', 
-		'TFRI-CPCBN-clinical dataV2(1)   UpDate  2015-01-14 -HDQ.xls' => 'CHUQ-Lacombe #2', 
-		'TMA3 mcgill update patient and Pathology sent.xls' => 'McGill-Aprikian #3', 
-		'UHN -RTupdate.xls' => 'PMH-Bristow #6', 
-		'update 2014fleshner.xls' => 'PMH-Fleshner #4');
+$files_path = "C:/_NicolasLuc/Server/www/tfri_cpcbn/data/";
+$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateGleasonAndTNM/data/";
+$files_names = array('fleshnerupdate2015_nl_revised_2.xls' => 'PMH-Fleshner #4');
 
 global $import_summary;
 $import_summary = array();
@@ -26,7 +22,7 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
 $db_charset		= "utf8";
-$db_schema	= "tfricpcbn";
+$db_schema	= "atimtfricpcbn";
 
 global $db_connection;
 $db_connection = @mysqli_connect(
@@ -38,6 +34,7 @@ if(!mysqli_set_charset($db_connection, $db_charset)){
 	die("Invalid charset");
 }
 @mysqli_select_db($db_connection, $db_schema) or die("db selection failed 2 $db_user $db_schema ");
+mysqli_autocommit($db_connection, false);
 
 global $import_date;
 global $import_by;
@@ -102,7 +99,8 @@ foreach($files_names as $file => $bank) {
 		} else if($line_counter > 2){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			if(strlen($new_line_data['Patient # in biobank'])) {
-				$query = "SELECT id AS participant_id FROM participants WHERE qc_tf_bank_id = $bank_id AND qc_tf_bank_participant_identifier = '".$new_line_data['Patient # in biobank']."';";
+				$file_qc_tf_bank_participant_identifier = $new_line_data['Patient # in biobank'];
+				$query = "SELECT id AS participant_id FROM participants WHERE qc_tf_bank_id = $bank_id AND qc_tf_bank_participant_identifier = '$file_qc_tf_bank_participant_identifier';";
 				$results = customQuery($query, __FILE__, __LINE__);
 				if($results->num_rows == 1) {
 					$row = $results->fetch_assoc();
@@ -113,11 +111,11 @@ foreach($files_names as $file => $bank) {
 					$excel_gleason_grade = $new_line_data['Gleason Grade at biopsy (X+Y)'];
 					$excel_ctnm = str_replace('t', '', strtolower($new_line_data['cTNM RT']));
 					if($excel_ctnm && !in_array($excel_ctnm, $domains_values['qc_tf_ctnm'])) {
-						$import_summary[$file]['@@WARNING@@']['Unknown cTNM'][] = "cTNM value '$excel_ctnm' is unknown. Value won't be migrated. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+						$import_summary[$file]['@@WARNING@@']['Unknown cTNM'][] = "cTNM value '$excel_ctnm' is unknown. Value won't be migrated. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 						$excel_ctnm = '';
 					}
 					if($excel_gleason_grade && !in_array($excel_gleason_grade, $domains_values['qc_tf_gleason_grades'])) {
-						$import_summary[$file]['@@WARNING@@']['Unknown Gleason Grade at biopsy'][] = "Gleason Grade at biopsy value '$excel_gleason_grade' is unknown. Value won't be migrated. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+						$import_summary[$file]['@@WARNING@@']['Unknown Gleason Grade at biopsy'][] = "Gleason Grade at biopsy value '$excel_gleason_grade' is unknown. Value won't be migrated. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 						$excel_gleason_grade = '';
 					}
 					if(strlen($excel_gleason_grade.$excel_ctnm)) {
@@ -138,7 +136,7 @@ foreach($files_names as $file => $bank) {
 								} else {
 									$data_to_update[] = "TreatmentDetail.gleason_grade = '$excel_gleason_grade'";
 									if(strlen($atim_gleason_grade)) {
-										$import_summary[$file]['@@WARNING@@']['Updated Gleason Grade at biopsy'][] = "From '$atim_gleason_grade' to '$excel_gleason_grade'. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+										$import_summary[$file]['@@WARNING@@']['Updated Gleason Grade at biopsy'][] = "From '$atim_gleason_grade' to '$excel_gleason_grade'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -149,7 +147,7 @@ foreach($files_names as $file => $bank) {
 								} else {
 									$data_to_update[] = "TreatmentDetail.ctnm = '$excel_ctnm'";
 									if(strlen($atim_ctnm)) {
-										$import_summary[$file]['@@WARNING@@']['Updated cTNM'][] = "From '$atim_ctnm' to '$excel_ctnm'. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+										$import_summary[$file]['@@WARNING@@']['Updated cTNM'][] = "From '$atim_ctnm' to '$excel_ctnm'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -160,16 +158,16 @@ foreach($files_names as $file => $bank) {
 								customQuery($query, __FILE__, __LINE__, TRUE);	
 							}
 						} else if($results->num_rows == 0) {
-							$import_summary[$file]['@@WARNING@@']['No Biopsy'][] = "No biopsy was created for the Patient # '".$new_line_data['Patient # in biobank']."' of the bank '$bank'. System won't be able to set values : gleason_grade = [$excel_gleason_grade] and ctnm = [$excel_ctnm]. To do manualy!";		
+							$import_summary[$file]['@@WARNING@@']['No Biopsy'][] = "No biopsy was created for the Patient # '$file_qc_tf_bank_participant_identifier' of the bank '$bank'. System won't be able to set values : gleason_grade = [$excel_gleason_grade] and ctnm = [$excel_ctnm]. To do manualy!";		
 						} else {
-							$import_summary[$file]['@@WARNING@@']['More than one Biopsy'][] = "Too many biopsies were created for the Patient # '".$new_line_data['Patient # in biobank']."' of the bank '$bank'. System won't be able to set values : gleason_grade = [$excel_gleason_grade] and ctnm = [$excel_ctnm]. To do manualy!";			
+							$import_summary[$file]['@@WARNING@@']['More than one Biopsy'][] = "Too many biopsies were created for the Patient # '$file_qc_tf_bank_participant_identifier' of the bank '$bank'. System won't be able to set values : gleason_grade = [$excel_gleason_grade] and ctnm = [$excel_ctnm]. To do manualy!";			
 						}
 					}
 					//** Surgery Update **
 					if(!array_key_exists('Gleason RP (X+Y)', $new_line_data)) die('ERR [Gleason RP (X+Y)] - '.$file);
 					$excel_qc_tf_gleason_grade = $new_line_data['Gleason RP (X+Y)'];
 					if($excel_qc_tf_gleason_grade && !in_array($excel_qc_tf_gleason_grade, $domains_values['qc_tf_gleason_grades'])) {
-						$import_summary[$file]['@@WARNING@@']['Unknown Gleason RP (X+Y)'][] = "Gleason RP (X+Y) value '$excel_qc_tf_gleason_grade' is unknown. Value won't be migrated. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+						$import_summary[$file]['@@WARNING@@']['Unknown Gleason RP (X+Y)'][] = "Gleason RP (X+Y) value '$excel_qc_tf_gleason_grade' is unknown. Value won't be migrated. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 						$excel_qc_tf_gleason_grade = '';
 					}
 					if(strlen($excel_qc_tf_gleason_grade)) {
@@ -190,7 +188,7 @@ foreach($files_names as $file => $bank) {
 								} else {
 									$data_to_update[] = "TreatmentDetail.qc_tf_gleason_grade = '$excel_qc_tf_gleason_grade'";
 									if(strlen($atim_qc_tf_gleason_grade)) {
-										$import_summary[$file]['@@WARNING@@']['Updated Gleason RP (X+Y)'][] = "From '$atim_qc_tf_gleason_grade' to '$excel_qc_tf_gleason_grade'. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+										$import_summary[$file]['@@WARNING@@']['Updated Gleason RP (X+Y)'][] = "From '$atim_qc_tf_gleason_grade' to '$excel_qc_tf_gleason_grade'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -201,9 +199,9 @@ foreach($files_names as $file => $bank) {
 								customQuery($query, __FILE__, __LINE__, TRUE);	
 							}
 						} else if($results->num_rows == 0) {
-							$import_summary[$file]['@@WARNING@@']['No RP'][] = "No RP was created for the Patient # '".$new_line_data['Patient # in biobank']."' of the bank '$bank'. System won't be able to set values : qc_tf_gleason_grade = [$excel_qc_tf_gleason_grade]. To do manualy!";
+							$import_summary[$file]['@@WARNING@@']['No RP'][] = "No RP was created for the Patient # '$file_qc_tf_bank_participant_identifier' of the bank '$bank'. System won't be able to set values : qc_tf_gleason_grade = [$excel_qc_tf_gleason_grade]. To do manualy!";
 						} else {
-							$import_summary[$file]['@@WARNING@@']['More than one RP'][] = "Too many RP were created for the Patient # '".$new_line_data['Patient # in biobank']."' of the bank '$bank'. System won't be able to set values : qc_tf_gleason_grade = [$excel_qc_tf_gleason_grade]. To do manualy!";
+							$import_summary[$file]['@@WARNING@@']['More than one RP'][] = "Too many RP were created for the Patient # '$file_qc_tf_bank_participant_identifier' of the bank '$bank'. System won't be able to set values : qc_tf_gleason_grade = [$excel_qc_tf_gleason_grade]. To do manualy!";
 						}
 					}
 						
@@ -211,7 +209,7 @@ foreach($files_names as $file => $bank) {
 					if(!array_key_exists('pTNM RP', $new_line_data)) die('ERR [pTNM RP] - '.$file);
 					$excel_ptnm = $new_line_data['pTNM RP'];
 					if($excel_ptnm && !in_array($excel_ptnm, $domains_values['qc_tf_ptnm'])) {
-						$import_summary[$file]['@@WARNING@@']['Unknown pTNM RP'][] = "pTNM RP value '$excel_ptnm' is unknown. Value won't be migrated. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+						$import_summary[$file]['@@WARNING@@']['Unknown pTNM RP'][] = "pTNM RP value '$excel_ptnm' is unknown. Value won't be migrated. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 						$excel_ptnm = '';
 					}
 					if(strlen($excel_ptnm)) {
@@ -232,7 +230,7 @@ foreach($files_names as $file => $bank) {
 								} else {
 									$data_to_update[] = "DiagnosisDetail.ptnm = '$excel_ptnm'";
 									if(strlen($atim_ptnm)) {
-										$import_summary[$file]['@@WARNING@@']['Updated pTNM RP'][] = "From '$atim_ptnm' to '$excel_ptnm'. See Patient # '".$new_line_data['Patient # in biobank']."'.";
+										$import_summary[$file]['@@WARNING@@']['Updated pTNM RP'][] = "From '$atim_ptnm' to '$excel_ptnm'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -243,13 +241,13 @@ foreach($files_names as $file => $bank) {
 								customQuery($query, __FILE__, __LINE__, TRUE);	
 							}
 						} else if($results->num_rows == 0) {
-							$import_summary[$file]['@@WARNING@@']['No Prostate Primary Diagnosis'][] = "No Prostate Primary Diagnosis was created for the Patient # '".$new_line_data['Patient # in biobank']."' of the bank '$bank'. System won't be able to set values : ptnm = [$excel_ptnm]. To do manualy!";
+							$import_summary[$file]['@@WARNING@@']['No Prostate Primary Diagnosis'][] = "No Prostate Primary Diagnosis was created for the Patient # '$file_qc_tf_bank_participant_identifier' of the bank '$bank'. System won't be able to set values : ptnm = [$excel_ptnm]. To do manualy!";
 						} else {
-							$import_summary[$file]['@@WARNING@@']['More than one Prostate Primary Diagnosis'][] = "Too many Prostate Primary Diagnosis were created for the Patient # '".$new_line_data['Patient # in biobank']."' of the bank '$bank'. System won't be able to set values : ptnm = [$excel_ptnm]. To do manualy!";
+							$import_summary[$file]['@@WARNING@@']['More than one Prostate Primary Diagnosis'][] = "Too many Prostate Primary Diagnosis were created for the Patient # '$file_qc_tf_bank_participant_identifier' of the bank '$bank'. System won't be able to set values : ptnm = [$excel_ptnm]. To do manualy!";
 						}
 					}
 				} else if(!$results->num_rows) {
-					$import_summary[$file]['@@ERROR@@']['Unknown Patient #'][] = "The Patient # '".$new_line_data['Patient # in biobank']."' of the bank '$bank' does not exist into ATiM. No data will be updated!";;
+					$import_summary[$file]['@@ERROR@@']['Unknown Patient #'][] = "The Patient # '$file_qc_tf_bank_participant_identifier' of the bank '$bank' does not exist into ATiM. No data will be updated!";;
 				} else {
 					die('ERR 2873 62876 28762 3');
 				}
@@ -276,6 +274,16 @@ insertIntoRevsBasedOnModifiedValues($import_date, $import_by, 'treatment_masters
 insertIntoRevsBasedOnModifiedValues($import_date, $import_by, 'diagnosis_masters', $controls['DiagnosisControl']['primary']['prostate']['detail_tablename']);
 
 dislayErrorAndMessage($import_summary);
+
+$commit_strg = 'not committed';
+if(true) {
+	$commit_strg = 'committed';
+	mysqli_commit($db_connection);
+}
+echo "<br><br><FONT COLOR=\"red\" >
+=====================================================================<br>
+Data $commit_strg<br>
+=====================================================================</FONT><br>";
 
 //==================================================================================================================================================================================
 //==================================================================================================================================================================================
@@ -423,7 +431,7 @@ function dislayErrorAndMessage($import_summary) {
 	foreach($import_summary as $worksheet => $data1) {
 		echo "<br><br><FONT COLOR=\"blue\" >
 		=====================================================================<br>
-		Errors on $worksheet<br>
+		Messages based on $worksheet data export<br>
 		=====================================================================</FONT><br>";
 		foreach($data1 as $message_type => $data2) {
 			$color = 'black';
