@@ -20,23 +20,38 @@ class ViewStorageMasterCustom extends ViewStorageMaster {
 	
 	function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
-		if($_SESSION['Auth']['User']['group_id'] != '1') {
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]['ViewStorageMaster']['qc_tf_bank_id']) || isset($results[0]['ViewStorageMaster']['qc_tf_tma_label_site']) || isset($results[0]['ViewStorageMaster']['qc_tf_tma_name'])) {
-				foreach($results as &$result){
-					if((!isset($result['ViewStorageMaster']['qc_tf_bank_id'])) || empty($result['ViewStorageMaster']['qc_tf_bank_id']) || $result['ViewStorageMaster']['qc_tf_bank_id'] != $user_bank_id) {
-						$result['ViewStorageMaster']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewStorageMaster']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
-						$result['ViewStorageMaster']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
+		
+		if(isset($results[0]['ViewStorageMaster'])) {
+			//Get user and bank information
+				// NOTE: Will Use data returned by StorageMaster.afterFind() function
+			//Process data
+			$StorageMasterModel = null;
+			foreach($results as &$result) {
+				//Manage confidential information and create the storage information label to display
+					// NOTE: Will Use data returned by StorageMaster.afterFind() function
+				$storage_master_data = null;
+				if(isset($result['ViewStorageMaster']['id'])) {
+					if(!isset($result['StorageMaster'])) {
+						if(!$StorageMasterModel) $StorageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+						$storage_master_data = $StorageMasterModel->find('first', array('conditions' => array('StorageMaster.id' => $result['StorageMaster']['id']), 'recursive' => '-1'));
+					} else {
+						$storage_master_data = array('StorageMaster' => $result['StorageMaster']);
 					}
 				}
-			} else if(isset($results['ViewStorageMaster'])){
-				pr('TODO afterFind storage');
-				pr($results);
-				exit;
+				if($storage_master_data) {
+					if(isset($result['ViewStorageMaster']['qc_tf_bank_id'])) $result['ViewStorageMaster']['qc_tf_bank_id'] =  $storage_master_data['StorageMaster']['qc_tf_bank_id'];
+					if(isset($result['ViewStorageMaster']['qc_tf_tma_label_site'])) $result['ViewStorageMaster']['qc_tf_tma_label_site'] = $storage_master_data['StorageMaster']['qc_tf_tma_label_site'];;
+					if(isset($result['ViewStorageMaster']['qc_tf_tma_name'])) $result['ViewStorageMaster']['qc_tf_tma_name'] = $storage_master_data['StorageMaster']['qc_tf_tma_name'];;
+					if(isset($result['ViewStorageMaster']['short_label'])) {
+						$result['ViewStorageMaster']['procure_generated_label_for_display'] = $storage_master_data['StorageMaster']['procure_generated_label_for_display'];
+						$result['ViewStorageMaster']['selection_label'] = $storage_master_data['StorageMaster']['selection_label'];
+					}
+				}
 			}
+		} else if(isset($results['ViewStorageMaster'])){
+			pr('TODO afterFind ViewStorageMaster');
+			pr($results);
+			exit;
 		}
 	
 		return $results;
