@@ -7,23 +7,58 @@ class TmaSlideCustom extends TmaSlide{
 	
 	function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
-		if($_SESSION['Auth']['User']['group_id'] != '1') {
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]['Block']['qc_tf_bank_id']) || isset($results[0]['Block']['qc_tf_tma_label_site']) || isset($results[0]['Block']['qc_tf_tma_name'])) {
-				foreach($results as &$result){
-					if((!isset($result['Block']['qc_tf_bank_id'])) || empty($result['Block']['qc_tf_bank_id']) || $result['Block']['qc_tf_bank_id'] != $user_bank_id) {
-						$result['Block']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
-						$result['Block']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
-						$result['Block']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
-					}
-				}
-			} else if(isset($results['Block'])){
-				pr('TODO afterFind tma slide');
-				pr($results);
-				exit;
+		
+		if(isset($results[0]['TmaSlide'])) {
+			//Get user and bank information
+			$user_bank_id = '-1';
+			if($_SESSION['Auth']['User']['group_id'] == '1') {
+				$user_bank_id = 'all';
+			} else {
+				$GroupModel = AppModel::getInstance("", "Group", true);
+				$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+				if($group_data) $user_bank_id = $group_data['Group']['bank_id'];
 			}
+			$BankModel = AppModel::getInstance("Administrate", "Bank", true);
+			$bank_list = $BankModel->getBankPermissibleValuesForControls();
+			//Process data
+			$StorageMasterModel = null;
+			$blocks_from_storage_master_ids = array();
+			foreach($results as &$result){
+				//Manage confidential information
+				$block_data = null;
+				if(!isset($result['Block'])) {
+					if(!isset($blocks_from_storage_master_ids[$result['TmaSlide']['tma_block_storage_master_id']])) {
+						if(!$StorageMasterModel) $StorageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+						$block_data = $StorageMasterModel->find('first', array('conditions' => array('StorageMaster.id' => $result['TmaSlide']['tma_block_storage_master_id'])));
+						$blocks_from_storage_master_ids[$result['TmaSlide']['tma_block_storage_master_id']] = $block_data['StorageMaster'];
+					}
+					$result['Block'] = $blocks_from_storage_master_ids[$result['TmaSlide']['tma_block_storage_master_id']];
+				}
+				$set_to_confidential = ($user_bank_id != 'all' && (!isset($result['Block']['qc_tf_bank_id']) || $result['Block']['qc_tf_bank_id'] != $user_bank_id))? true : false;
+				if($set_to_confidential) {
+					if(isset($result['Block']['qc_tf_bank_id']))$result['Block']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+					if(isset($result['Block']['qc_tf_tma_label_site'])) $result['Block']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
+					if(isset($result['Block']['qc_tf_tma_name'])) $result['Block']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
+				}
+				//Create the TMASLide information label to display
+ 				if(isset($result['TmaSlide']['barcode'])) {
+ 					$result['TmaSlide']['procure_generated_label_for_display'] = $result['TmaSlide']['barcode'];
+ 					if(isset($result['Block']['short_label'])) {
+ 						$result['TmaSlide']['procure_generated_label_for_display'] = $result['Block']['short_label'].' ('.$result['TmaSlide']['barcode'].')';
+ 						if(isset($result['Block']['qc_tf_tma_name'])) {
+ 							if($user_bank_id == 'all') {
+ 								$result['TmaSlide']['procure_generated_label_for_display'] = $result['Block']['qc_tf_tma_name'].' Sect#'.$result['TmaSlide']['qc_tf_cpcbn_section_id'].(isset($result['Block']['qc_tf_bank_id'])? ' ('.$bank_list[$result['Block']['qc_tf_bank_id']].')' : '');
+ 							} else if($result['Block']['qc_tf_bank_id'] == $user_bank_id) {
+ 								$result['TmaSlide']['procure_generated_label_for_display'] = $result['Block']['qc_tf_tma_label_site'].' Sect#'.$result['TmaSlide']['qc_tf_cpcbn_section_id'];
+ 							}
+ 						}
+ 					}
+ 				}
+			}
+		} else if(isset($results['TmaSlide'])){
+			pr('TODO afterFind tma slide');
+			pr($results);
+			exit;
 		}
 	
 		return $results;
