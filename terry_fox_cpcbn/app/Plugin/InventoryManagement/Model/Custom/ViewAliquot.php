@@ -146,15 +146,16 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qc_tf_ban
 						//Particiapnt Tissue
 						$result['ViewAliquot']['procure_generated_label_for_display'] = 
 							$result['ViewAliquot']['aliquot_label'].
-							(empty($result['ViewAliquot']['participant_identifier'])? '' : ' p#'.$result['ViewAliquot']['participant_identifier']);
+							(empty($result['ViewAliquot']['participant_identifier'])? '' : ' - P# '.$result['ViewAliquot']['participant_identifier']);
 						if($user_bank_id == 'all') {
-							$result['ViewAliquot']['procure_generated_label_for_display'] .= " (bp#".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].' ['.$result['ViewAliquot']['participant_bank_name'].'])';
+							$result['ViewAliquot']['procure_generated_label_for_display'] .= " (".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].' ['.$result['ViewAliquot']['participant_bank_name'].'])';
 						} else if($result['ViewAliquot']['bank_id'] == $user_bank_id) {
-							$result['ViewAliquot']['procure_generated_label_for_display'] .= " (bp#".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].')';
+							$result['ViewAliquot']['procure_generated_label_for_display'] .= " (".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].')';
 						}
 					}
 				}
-			}
+				$result['ViewAliquot']['procure_generated_selection_label_precision_for_display'] = (isset($result['StorageMaster']) && isset($result['StorageMaster']['procure_generated_selection_label_precision_for_display']))? $result['StorageMaster']['procure_generated_selection_label_precision_for_display']: '';
+			}			
 		} else if(isset($results['ViewAliquot'])){
 			pr('TODO #2 afterFind ViewAliquot');
 			pr($results);

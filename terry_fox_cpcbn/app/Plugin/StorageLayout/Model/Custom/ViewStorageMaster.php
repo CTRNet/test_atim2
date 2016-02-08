@@ -44,7 +44,6 @@ class ViewStorageMasterCustom extends ViewStorageMaster {
 					if(isset($result['ViewStorageMaster']['qc_tf_tma_name'])) $result['ViewStorageMaster']['qc_tf_tma_name'] = $storage_master_data['StorageMaster']['qc_tf_tma_name'];;
 					if(isset($result['ViewStorageMaster']['short_label'])) {
 						$result['ViewStorageMaster']['procure_generated_label_for_display'] = $storage_master_data['StorageMaster']['procure_generated_label_for_display'];
-						$result['ViewStorageMaster']['selection_label'] = $storage_master_data['StorageMaster']['selection_label'];
 					}
 				}
 			}

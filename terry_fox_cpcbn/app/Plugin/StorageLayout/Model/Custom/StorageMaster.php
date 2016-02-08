@@ -92,10 +92,8 @@ class StorageMasterCustom extends StorageMaster{
 							$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_label_site'];
 						}
 					}
-					if(isset($result['StorageMaster']['selection_label']) && $result['StorageMaster']['procure_generated_label_for_display'] != $result['StorageMaster']['short_label'])
-						$result['StorageMaster']['selection_label'] = preg_replace('/'.$result['StorageMaster']['short_label'].'$/', $result['StorageMaster']['procure_generated_label_for_display'], $result['StorageMaster']['selection_label']);
+					$result['StorageMaster']['procure_generated_selection_label_precision_for_display'] = ($result['StorageMaster']['procure_generated_label_for_display'] == $result['StorageMaster']['short_label'])? '' : '|| '.$result['StorageMaster']['procure_generated_label_for_display'];
 				}
-
 			}
 		} else if(isset($results['StorageMaster'])){
 			pr('TODO afterFind storage');
