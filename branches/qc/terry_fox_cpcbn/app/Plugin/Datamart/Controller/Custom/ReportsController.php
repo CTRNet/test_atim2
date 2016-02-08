@@ -182,7 +182,7 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.survival_in_months,
 				DiagnosisDetail.bcr_in_months".
 				
-				($display_cores_positions?  ', StorageMaster.selection_label, AliquotMaster.storage_coord_x, AliquotMaster.storage_coord_y ' : ' ').
+				($display_cores_positions?  ', StorageMaster.selection_label, AliquotMaster.storage_coord_x, AliquotMaster.storage_coord_y, StorageMaster.short_label, StorageMaster.qc_tf_tma_name, StorageMaster.qc_tf_tma_label_site, StorageMaster.qc_tf_bank_id' : ' ').
 				
 				($display_cores_data? ',AliquotDetail.qc_tf_core_nature_site, AliquotDetail.qc_tf_core_nature_revised, AliquotReviewDetail.revised_nature, AliquotReviewDetail.grade ' : ' ')
 				
@@ -208,6 +208,11 @@ class ReportsControllerCustom extends ReportsController {
 		
 		$primary_ids = array();
 		$participant_ids = array();
+		$bank_list = null;
+		if($display_cores_positions) {
+			$BankModel = AppModel::getInstance("Administrate", "Bank", true);
+			$bank_list = $BankModel->getBankPermissibleValuesForControls();
+		}
 		foreach($main_results as &$new_participant) {
 			$participant_ids[] = $new_participant['Participant']['id'];
 			$new_participant['Generated']['is_suspected_date_of_death'] = '';
@@ -220,6 +225,25 @@ class ReportsControllerCustom extends ReportsController {
 			}
 			if(!empty($new_participant['DiagnosisMaster']['primary_id'])) $primary_ids[] = $new_participant['DiagnosisMaster']['primary_id'];
 			$new_participant['Generated']['qc_tf_gleason_grade_rp'] = $new_participant['TreatmentDetail']['qc_tf_gleason_grade'];
+			if($display_cores_positions) {
+				//Manage tma block confidential information
+				$set_to_confidential = ($_SESSION['Auth']['User']['group_id'] != '1' && (!isset($new_participant['StorageMaster']['qc_tf_bank_id']) || $new_participant['StorageMaster']['qc_tf_bank_id'] != $user_bank_id))? true : false;
+				if($set_to_confidential) {
+					if(isset($new_participant['StorageMaster']['qc_tf_bank_id'])) $new_participant['StorageMaster']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+					if(isset($new_participant['StorageMaster']['qc_tf_tma_label_site'])) $new_participant['StorageMaster']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
+					if(isset($new_participant['StorageMaster']['qc_tf_tma_name'])) $new_participant['StorageMaster']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
+				}
+				//Create the storage information label to display$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['short_label'];
+				$procure_generated_label_for_display = $new_participant['StorageMaster']['short_label'];
+				if(isset($new_participant['StorageMaster']['qc_tf_tma_name'])) {
+					if($_SESSION['Auth']['User']['group_id'] == '1') {
+						$procure_generated_label_for_display = $new_participant['StorageMaster']['qc_tf_tma_name'].(isset($new_participant['StorageMaster']['qc_tf_bank_id'])? ' ('.$bank_list[$new_participant['StorageMaster']['qc_tf_bank_id']].')' : '');
+					} else if($new_participant['StorageMaster']['qc_tf_bank_id'] == $user_bank_id) {
+						$procure_generated_label_for_display = $new_participant['StorageMaster']['qc_tf_tma_label_site'];
+					}
+				}
+				$new_participant['StorageMaster']['procure_generated_selection_label_precision_for_display'] = ($procure_generated_label_for_display == $new_participant['StorageMaster']['short_label'])? '' : '|| '.$procure_generated_label_for_display;	
+			}
 		}
 		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';
 		$participant_ids = empty($participant_ids)? array('-1') : $participant_ids;
