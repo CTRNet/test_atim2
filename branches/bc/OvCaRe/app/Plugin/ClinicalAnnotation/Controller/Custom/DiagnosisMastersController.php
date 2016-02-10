@@ -46,7 +46,6 @@ class DiagnosisMastersControllerCustom extends DiagnosisMastersController{
 								'clinical diagnosis' => 'DiagnosisMaster.ovcare_clinical_diagnosis',
 								'diagnosis notes' => 'DiagnosisMaster.notes',
 								'path report date' => 'EventMaster.event_date',
-								'path report diagnosis' => 'EventDetail.diagnosis_report',
 								'path report type' => 'EventDetail.path_report_type',
 								'pathologist' => 'EventDetail.pathologist',
 								'path report summary' => 'EventMaster.event_summary',
@@ -57,25 +56,31 @@ class DiagnosisMastersControllerCustom extends DiagnosisMastersController{
 								'uterine histopathology' => 'EventDetail.uterine_histology',
 								'presence of benign lesions precursor' => 'EventDetail.benign_lesions_precursor_presence',
 								'fallopian tube lesions' => 'EventDetail.fallopian_tube_lesions');
-							$headers_validation_done = false;
+							$csv_headers = null;
 							$row_counter = 0;
 							$submitted_data_to_display = array();
 							while (($csv_data = fgetcsv($handle, 1000, $this->request->data['Config']['define_csv_separator'], '"')) !== FALSE) {	
 								$row_counter++;
 								if(array_filter($csv_data)) {
-									if(!$headers_validation_done) {
-										$missing_headers = array_diff(array_keys($fields_matches), array_map('strtolower', $csv_data));
-										if($missing_headers) {
-											$csv_file_error = __('wrong csv file format - check csv separator or the list of missing fields').' : '.implode(', ', $missing_headers);
+									if(!$csv_headers) {
+										if(sizeof($csv_data) == '1') {
+											$csv_file_error = __('wrong csv file format - check csv separator');
 											break;
 										}
-										$headers_validation_done = true;
-									} else {
-										$csv_data = array_combine($fields_matches, $csv_data);
+										$csv_headers = array_map('strtolower', $csv_data);
+										$missing_headers = array_diff(array_keys($fields_matches), $csv_headers);
+										if($missing_headers) AppController::addWarningMsg(__('wrong csv file format - check csv separator or the list of missing fields').' : '.implode(' && ', $missing_headers));
+										$unsupported_headers = array_diff($csv_headers, array_keys($fields_matches));
+										if($unsupported_headers) AppController::addWarningMsg(__('wrong csv file format - check csv separator or the list of unsupported fields').' : '.implode(' && ', $unsupported_headers));
+									} else {							
+										$csv_data = array_combine($csv_headers, $csv_data);
 										$new_data_set = array();
-										foreach($csv_data as $model_field => $value) {
-											list($model, $field) = explode('.', $model_field);
-											$new_data_set[$model][$field] = utf8_encode($value);
+										foreach($csv_data as $csv_header => $value) {
+											if(array_key_exists($csv_header, $fields_matches)) {
+												$model_field = $fields_matches[$csv_header];
+												list($model, $field) = explode('.', $model_field);
+												$new_data_set[$model][$field] = utf8_encode($value);
+											}
 										}
 										list($new_data_set, $new_data_set_errors) = $this->DiagnosisMaster->validateDxCsvFileDataSubmitted($new_data_set, $structure_aliases_to_create_dx);			
 										foreach($new_data_set_errors as $field => $msg) {
@@ -117,7 +122,7 @@ class DiagnosisMastersControllerCustom extends DiagnosisMastersController{
 				$this->MiscIdentifierControl = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
 				$this->MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 				
-				$mic_identifier_control = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.misc_identifier_name' => 'VOA#')));
+				$misc_identifier_control = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.misc_identifier_name' => 'VOA#')));
 				$diagnosis_control = $this->DiagnosisControl->find('first', array('conditions' => array('category' => 'primary', 'controls_type' => 'ovary or endometrium tumor')));
 				$event_control = $this->EventControl->find('first', array('conditions' => array('event_type' => 'ovary or endometrium path report')));
 				
@@ -131,7 +136,7 @@ class DiagnosisMastersControllerCustom extends DiagnosisMastersController{
 						
 					// Validate participant
 					
-					$misc_identifier = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.identifier_value' => $data_unit['FunctionManagement']['ovcare_participant_voa'], 'MiscIdentifier.misc_identifier_control_id' => $mic_identifier_control['MiscIdentifierControl']['id']), 'recursive' => '-1'));
+					$misc_identifier = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.identifier_value' => $data_unit['FunctionManagement']['ovcare_participant_voa'], 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_control['MiscIdentifierControl']['id']), 'recursive' => '-1'));
 					if(empty($misc_identifier)) {
 						$errors_tracking['ovcare_participant_voa']['voa# unknown'][$data_unit['FunctionManagement']['ovcare_participant_voa']] = "$row_counter (VOA# ".$data_unit['FunctionManagement']['ovcare_participant_voa'].")";
 						continue;

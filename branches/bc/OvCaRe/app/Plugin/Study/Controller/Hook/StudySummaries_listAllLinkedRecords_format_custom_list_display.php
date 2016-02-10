@@ -1,6 +1,6 @@
 <?php
 
-	if($specific_list_header == 'participants') {
+	if($specific_list_header == 'participants (based on file maker application)') {
 		if(!isset($this->Participant)) {
 			$this->Participant = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
 		}$participant_ids = array();
