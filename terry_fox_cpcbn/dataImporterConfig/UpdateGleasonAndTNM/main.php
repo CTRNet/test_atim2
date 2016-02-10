@@ -9,8 +9,11 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_path = "C:/_NicolasLuc/Server/www/tfri_cpcbn/data/";
-$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateGleasonAndTNM/data/";
-$files_names = array('fleshnerupdate2015_nl_revised_2.xls' => 'PMH-Fleshner #4');
+//$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateGleasonAndTNM/data/";
+$files_names = array(
+	'HDQupdate2015.xls' => 'CHUQ-Lacombe #2',
+	'mcgillupdate2015.xls' => 'McGill-Aprikian #3',
+	'VPCupdate2015.xls' => 'VPC-Gleave #5');
 
 global $import_summary;
 $import_summary = array();
@@ -22,7 +25,7 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
 $db_charset		= "utf8";
-$db_schema	= "atimtfricpcbn";
+$db_schema	= "tfricpcbn";
 
 global $db_connection;
 $db_connection = @mysqli_connect(
@@ -84,6 +87,8 @@ foreach(array('qc_tf_gleason_grades', 'qc_tf_ctnm', 'qc_tf_ptnm') as $domain_nam
 }
 
 foreach($files_names as $file => $bank) {
+	$import_summary[$file]['@@MESSAGE@@']['New File'][$file] = "Loaded file '$file' of bank '$bank'.";
+	$studied_patient_nbr = 0;
 	if(!array_key_exists($bank, $banks_to_id)) die('ERR 23i7 62876 32 '.$bank);
 	$bank_id = $banks_to_id[$bank];
 	$XlsReader = new Spreadsheet_Excel_Reader();
@@ -103,6 +108,7 @@ foreach($files_names as $file => $bank) {
 				$query = "SELECT id AS participant_id FROM participants WHERE qc_tf_bank_id = $bank_id AND qc_tf_bank_participant_identifier = '$file_qc_tf_bank_participant_identifier';";
 				$results = customQuery($query, __FILE__, __LINE__);
 				if($results->num_rows == 1) {
+					$studied_patient_nbr++;
 					$row = $results->fetch_assoc();
 					$pariticpant_id = $row['participant_id'];
 					//** Biopsy Update **
@@ -137,6 +143,8 @@ foreach($files_names as $file => $bank) {
 									$data_to_update[] = "TreatmentDetail.gleason_grade = '$excel_gleason_grade'";
 									if(strlen($atim_gleason_grade)) {
 										$import_summary[$file]['@@WARNING@@']['Updated Gleason Grade at biopsy'][] = "From '$atim_gleason_grade' to '$excel_gleason_grade'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
+									} else {
+										$import_summary[$file]['@@MESSAGE@@']['Loaded Gleason Grade at biopsy'][] = "Value = '$excel_gleason_grade'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -148,6 +156,8 @@ foreach($files_names as $file => $bank) {
 									$data_to_update[] = "TreatmentDetail.ctnm = '$excel_ctnm'";
 									if(strlen($atim_ctnm)) {
 										$import_summary[$file]['@@WARNING@@']['Updated cTNM'][] = "From '$atim_ctnm' to '$excel_ctnm'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
+									} else {
+										$import_summary[$file]['@@MESSAGE@@']['Loaded cTNM'][] = "Value = '$excel_ctnm'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -189,6 +199,8 @@ foreach($files_names as $file => $bank) {
 									$data_to_update[] = "TreatmentDetail.qc_tf_gleason_grade = '$excel_qc_tf_gleason_grade'";
 									if(strlen($atim_qc_tf_gleason_grade)) {
 										$import_summary[$file]['@@WARNING@@']['Updated Gleason RP (X+Y)'][] = "From '$atim_qc_tf_gleason_grade' to '$excel_qc_tf_gleason_grade'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
+									} else {
+										$import_summary[$file]['@@MESSAGE@@']['Loaded Gleason RP (X+Y)'][] = "Value = '$excel_qc_tf_gleason_grade'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -231,6 +243,8 @@ foreach($files_names as $file => $bank) {
 									$data_to_update[] = "DiagnosisDetail.ptnm = '$excel_ptnm'";
 									if(strlen($atim_ptnm)) {
 										$import_summary[$file]['@@WARNING@@']['Updated pTNM RP'][] = "From '$atim_ptnm' to '$excel_ptnm'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
+									} else {
+										$import_summary[$file]['@@MESSAGE@@']['Loaded pTNM RP'][] = "Value = '$excel_ptnm'. See Patient # '$file_qc_tf_bank_participant_identifier'.";
 									}
 								}
 							}
@@ -255,6 +269,7 @@ foreach($files_names as $file => $bank) {
 		}
 	}
 	unset($XlsReader);
+	$import_summary[$file]['@@MESSAGE@@']['New File'][$file] = "$studied_patient_nbr patients studied.";
 }
 
 //Update Diagnosis ctn
