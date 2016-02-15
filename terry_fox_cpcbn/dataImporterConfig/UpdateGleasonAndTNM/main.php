@@ -9,7 +9,7 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_path = "C:/_NicolasLuc/Server/www/tfri_cpcbn/data/";
-//$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateGleasonAndTNM/data/";
+$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateGleasonAndTNM/data/";
 $files_names = array(
 	'HDQupdate2015.xls' => 'CHUQ-Lacombe #2',
 	'mcgillupdate2015.xls' => 'McGill-Aprikian #3',
@@ -25,7 +25,7 @@ $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
 $db_charset		= "utf8";
-$db_schema	= "tfricpcbn";
+$db_schema	= "atimtfricpcbn";
 
 global $db_connection;
 $db_connection = @mysqli_connect(
