@@ -27,12 +27,12 @@ class Config{
 	
 	//--------------------------------------------------------------------------------------------------------------------------
 	//TODO: To change anytime
-	static $relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/clinic/';
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/testdrug.xls';
+	static $relative_path = 'C:/_NicolasLuc/Server/www/tfri_cpcbn/dataImporterConfig/clinic/';
+	static $xls_file_path = 'C:/_NicolasLuc/Server/www/tfri_cpcbn/data/BristowADN-ARN_nl_revised.xls';
 	//static $relative_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/';
 	//static $xls_file_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/data/';
 	static $active_surveillance_project = false;
-	static $use_windows_xls_offset = true;
+	static $use_windows_xls_offset = false;
 	//--------------------------------------------------------------------------------------------------------------------------
 	
 	static $xls_header_rows = 2;

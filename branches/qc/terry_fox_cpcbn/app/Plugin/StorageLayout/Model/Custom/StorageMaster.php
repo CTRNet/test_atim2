@@ -87,7 +87,7 @@ class StorageMasterCustom extends StorageMaster{
 					$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['short_label'];
 					if(isset($result['StorageMaster']['qc_tf_tma_name'])) {
 						if($user_bank_id == 'all') {
-							$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_name'].(isset($result['StorageMaster']['qc_tf_bank_id'])? ' ('.$bank_list[$result['StorageMaster']['qc_tf_bank_id']].')' : '');
+							$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_name']." [".$result['StorageMaster']['short_label']."]".(isset($result['StorageMaster']['qc_tf_bank_id'])? ' ('.$bank_list[$result['StorageMaster']['qc_tf_bank_id']].')' : '');
 						} else if($result['StorageMaster']['qc_tf_bank_id'] == $user_bank_id) {
 							$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_label_site'];
 						}
