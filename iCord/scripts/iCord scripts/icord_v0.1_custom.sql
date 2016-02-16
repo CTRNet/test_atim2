@@ -501,4 +501,57 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('injury force', 'Injury Force', ''),
 ('injury height', 'Injury Height', ''),
 ('injury type', 'Injury Type', ''),
-('breed', 'Breed', '');
+('breed', 'Breed', ''),
+('date of death', 'Datetime of Death', ''),
+('icord postmortum interal', 'Postmortum Interval', '');
+
+-- Reorganize participant layout based on user feedback (Jan 25th meeting)
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icord_asia_grade') ,  `language_label`='',  `language_tag`='icord asia grade' WHERE model='Participant' AND tablename='participants' AND field='icord_asia_grade' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icord_asia_grade');
+UPDATE structure_formats SET `display_order`='26' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_injury_level_neurological' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='neuro_injury_level') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_mechanism_of_injury' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='mechanism_injury') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='29' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_injury_level_anatomical' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_clinical_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_mechanism_of_injury_other' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Add postmortum Internal
+ALTER TABLE `participants` 
+ADD COLUMN `icord_postmortum_interal` INT(11) NULL DEFAULT NULL AFTER `icord_injury_datetime`;
+
+ALTER TABLE `participants_revs` 
+ADD COLUMN `icord_postmortum_interal` INT(11) NULL DEFAULT NULL AFTER `icord_injury_datetime`;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'icord_postmortum_interal', 'integer',  NULL , '0', 'size=10', '', '', 'icord postmortum interal', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_postmortum_interal' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='icord postmortum interal' AND `language_tag`=''), '3', '30', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_asia_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='icord_asia_grade') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_mechanism_of_injury' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='mechanism_injury') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_injury_level_anatomical' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='icord_injury_level_neurological' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='neuro_injury_level') AND `flag_confidential`='0');
+
+-- New animal data fields
+ALTER TABLE `ed_all_clinical_animal_data` 
+ADD COLUMN `velocity` INT(11) NULL DEFAULT NULL AFTER `compression_time`,
+ADD COLUMN `displacement` INT(11) NULL DEFAULT NULL AFTER `velocity`,
+ADD COLUMN `intervention` VARCHAR(100) NULL DEFAULT NULL AFTER `displacement`;
+
+ALTER TABLE `ed_all_clinical_animal_data_revs` 
+ADD COLUMN `velocity` INT(11) NULL DEFAULT NULL AFTER `compression_time`,
+ADD COLUMN `displacement` INT(11) NULL DEFAULT NULL AFTER `velocity`,
+ADD COLUMN `intervention` VARCHAR(100) NULL DEFAULT NULL AFTER `displacement`;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'velocity', 'integer',  NULL , '0', 'size=10', '', '', 'velocity', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'displacement', 'integer',  NULL , '0', 'size=10', '', '', 'displacement', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_animal_data', 'intervention', 'input',  NULL , '0', 'size=10', '', '', 'intervention', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='velocity' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='velocity' AND `language_tag`=''), '1', '50', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='displacement' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='displacement' AND `language_tag`=''), '1', '55', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_animal_data'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_animal_data' AND `field`='intervention' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='intervention' AND `language_tag`=''), '1', '60', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('velocity', 'Velocity', ''),
+('displacement', 'Displacement', ''),
+('intervention', 'Intervention', '');
