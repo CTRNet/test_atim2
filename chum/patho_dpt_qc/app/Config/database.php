@@ -65,10 +65,16 @@ class DATABASE_CONFIG {
 		'host' => '127.0.0.1',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'trunk',
+		'database' => 'chumpatho',
 		'prefix' => '',
 		'encoding' => 'utf8',
 		'port'	=> 3306
 	);
 
+	<<<<<<< .mine
+	This is fun stuff!
+	=======
+	This is a documentation file
+	>>>>>>> .r6
+	
 }
