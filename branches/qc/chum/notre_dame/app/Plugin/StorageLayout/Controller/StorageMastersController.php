@@ -353,11 +353,12 @@ class StorageMastersController extends StorageLayoutAppController {
 					// Manage children selection label
 					if(strcmp($this->request->data['StorageMaster']['selection_label'], $storage_data['StorageMaster']['selection_label']) != 0) {	
 						$this->StorageMaster->updateChildrenStorageSelectionLabel($storage_master_id, $this->request->data);
-					}		
+					}
+
+					AppModel::releaseBatchViewsUpdateLock();
+					
 					$this->atimFlash(__('your data has been updated'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id); 
 				}
-
-				AppModel::releaseBatchViewsUpdateLock();
 			}
 		}
 	}
