@@ -70,11 +70,15 @@ class DATABASE_CONFIG {
 		'encoding' => 'utf8',
 		'port'	=> 3306
 	);
-
-	<<<<<<< .mine
-	This is fun stuff!
-	=======
-	This is a documentation file
-	>>>>>>> .r6
+	=====
+	TITLE
+	=====
 	
+	Chapter
+	=======
+	
+	Section
+	-------
+	
+	blablabla
 }
