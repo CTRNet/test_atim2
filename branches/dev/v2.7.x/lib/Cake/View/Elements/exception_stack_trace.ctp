@@ -52,7 +52,7 @@ App::uses('Debugger', 'Utility');
 		$called = isset($stack['class']) ? $stack['class'] . $stack['type'] . $stack['function'] : $stack['function'];
 
 		printf(
-			'<a href="#" onclick="traceToggle(event, \'trace-args-%s\')">%s(%s)</a>',
+			'<a href="#" onclick="traceToggle(event, \'trace-args-%s\')">%s(%s)</a> ',
 			$i,
 			$called,
 			h(implode(', ', $args))
