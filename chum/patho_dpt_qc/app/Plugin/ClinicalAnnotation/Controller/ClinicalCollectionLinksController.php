@@ -232,6 +232,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}else{
 				$this->request->data['Collection']['deleted'] = 1;
 				$fields[] = 'deleted';
+				$fields[] = 'created_by';
+				$fields[] = 'modified_by';
 			}
 			$this->request->data['Collection']['participant_id'] = $participant_id;
 			$this->Collection->id = $this->request->data['Collection']['id'] ?: null;

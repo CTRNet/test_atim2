@@ -8,3 +8,5 @@
 			'list'		=> '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/',
 			'details' => array('collection'=> '/InventoryManagement/Collections/detail/'.$atim_menu_variables['Collection.id'])
 	);
+	$final_options['settings']['header']['description'] = '';
+	
