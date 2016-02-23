@@ -251,7 +251,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				if(!is_array($studied_aliquot_master_ids) && strpos($studied_aliquot_master_ids, ',')){
 					//User launched action from databrowser but the number of items was bigger than databrowser_and_report_results_display_limit
-					$this->flash(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
+					$this->atimFlash(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
 					return;
 				}
 				$studied_aliquot_master_ids = array_filter($studied_aliquot_master_ids);
@@ -259,7 +259,7 @@ class OrderItemsController extends OrderAppController {
 				
 				//Check all aliquots have been defined once
 				if(sizeof(array_flip($studied_aliquot_master_ids)) != sizeof($studied_aliquot_master_ids)) {
-					$this->flash(__('an aliquot can only be added once to an order'), $url_to_redirect);
+					$this->atimFlash(__('an aliquot can only be added once to an order'), $url_to_redirect);
 					return;
 				}
 
@@ -270,7 +270,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				$display_limit = Configure::read('AddAliquotToOrder_processed_items_limit');
 				if($aliquots_count > $display_limit) {
-					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_redirect, 5);
+					$this->atimFlash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_redirect, 5);
 					return;
 				}				
 			}
@@ -298,7 +298,7 @@ class OrderItemsController extends OrderAppController {
 			
 			if(!$submitted_aliquots_validates) {	
 				// Error has been detected: Redirect
-				$this->flash(__($error_message), $url_to_redirect);
+				$this->atimFlash(__($error_message), $url_to_redirect);
 				return;
 				
 			} else {
@@ -327,7 +327,7 @@ class OrderItemsController extends OrderAppController {
 		$this->Order->unbindModel(array('hasMany' => array('OrderLine','Shipment')));
 		$order_data_tmp = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed'))), 'order' => 'Order.order_number ASC'));
   		if(!$order_data_tmp) {
-			$this->flash(__('no order to complete is actually defined'), $url_to_redirect);
+			$this->atimFlash(__('no order to complete is actually defined'), $url_to_redirect);
 			return;
 		}
 		foreach($order_data_tmp as $new_order) {
@@ -341,7 +341,7 @@ class OrderItemsController extends OrderAppController {
 		$this->OrderLine->unbindModel(array('belongsTo' => array('Order')));
 		$order_line_data_tmp = $this->OrderLine->find('all', array('conditions' => array('OrderLine.order_id' => array_keys($order_and_order_line_data)), 'order' => 'OrderLine.date_required ASC'));
 		if(!$order_line_data_tmp && (Configure::read('order_item_to_order_objetcs_link_setting') == 2)) {
-			$this->flash(__('no order to complete is actually defined'), $url_to_redirect);
+			$this->atimFlash(__('no order to complete is actually defined'), $url_to_redirect);
 			return;
 		}
 		foreach($order_line_data_tmp as $new_line) {
@@ -482,7 +482,7 @@ class OrderItemsController extends OrderAppController {
 		$items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 
 		if(empty($items_data)) { 
-			$this->flash(__($order_line_id? 'no unshipped item exists into this order line' : 'no unshipped item exists into this order'), (!$order_line_id)? "/Order/Orders/detail/$order_id/" : '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); 
+			$this->atimFlash(__($order_line_id? 'no unshipped item exists into this order line' : 'no unshipped item exists into this order'), (!$order_line_id)? "/Order/Orders/detail/$order_id/" : '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); 
 		}
 
 		// Set array to get id from barcode
@@ -631,10 +631,10 @@ class OrderItemsController extends OrderAppController {
 				// Redirect
 				$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
+				$this->atimFlash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
+			$this->atimFlash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
 		}
 	}
 }

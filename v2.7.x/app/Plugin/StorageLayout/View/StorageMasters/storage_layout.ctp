@@ -38,10 +38,18 @@ $this->Structures->build($empty_structure, array(
 ?>
 
 <script>
-var removeString = "<?php echo(__("remove;")); ?>";;
-var unclassifyString = "<?php echo(__("unclassify;")); ?>";;
-var detailString = "<?php echo(__("detail;")); ?>";;
-var loadingStr = "<?php echo __("loading;"); ?>";;
+    var removeString = "<?php echo(__("
+    remove;;
+    ")); ?>";
+    var unclassifyString = "<?php echo(__("
+unclassify;;
+")); ?>";
+var detailString = "<?php echo(__("
+detail;;
+")); ?>";
+var loadingStr = "<?php echo __("
+loading;;
+"); ?>";
 var storageLayout = true;
 var STR_NAVIGATE_UNSAVED_DATA = "<?php echo __('STR_NAVIGATE_UNSAVED_DATA') ?>";
 var STR_VALIDATION_ERROR = "<?php echo __('validation error'); ?>";

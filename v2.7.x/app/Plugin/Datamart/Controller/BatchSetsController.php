@@ -68,7 +68,7 @@ class BatchSetsController extends DatamartAppController {
 		//check permissions
 		$datamart_structure_data = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
 		if(!AppController::checkLinkPermission($datamart_structure_data['DatamartStructure']['index_link'])){
-			$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+			$this->atimFlash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			return;
 		}
 		
@@ -223,6 +223,7 @@ class BatchSetsController extends DatamartAppController {
 				}
 				$this->request->data['BatchSet']['datamart_structure_id'] = $browsing_result['DatamartStructure']['id'];
 			}else if(array_key_exists('BatchSet', $this->request->data) && isset($this->request->data['BatchSet']['datamart_structure_id'])){
+                // Todo: This is a silly assignment
 				$this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['BatchSet']['datamart_structure_id'];
 			}else if(array_key_exists('Report', $this->request->data) && isset($this->request->data['Report']['datamart_structure_id'])){
 				$this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['Report']['datamart_structure_id'];
@@ -495,7 +496,7 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->save(array('locked' => 0));
 			$this->atimFlash(__('your data has been updated'), "/Datamart/BatchSets/listall/$batch_set_id");
 		} else {
-			$this->flash(__('you are not allowed to unlock this batchset'), "/Datamart/BatchSets/index/user");
+			$this->atimFlash(__('you are not allowed to unlock this batchset'), "/Datamart/BatchSets/index/user");
 		}
 	}
 }

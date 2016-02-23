@@ -64,12 +64,10 @@ class BanksController extends AdministrateAppController {
 			if ($this->Bank->atimDelete( $bank_id )) {
 				$this->atimFlash(__('your data has been deleted'), '/Administrate/Banks/index');
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), '/Administrate/Banks/index');
+				$this->atimFlash(__('error deleting data - contact administrator'), '/Administrate/Banks/index');
 			}
 		} else {
-			$this->flash(__('this bank is being used and cannot be deleted').': '.__($arr_allow_deletion['msg']),  '/Administrate/Banks/detail/'.$bank_id."/");
+			$this->atimFlash(__('this bank is being used and cannot be deleted').': '.__($arr_allow_deletion['msg']),  '/Administrate/Banks/detail/'.$bank_id."/");
 		}
 	}
 }
-
-?>

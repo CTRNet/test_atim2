@@ -181,10 +181,10 @@ exit;
 				if( $this->StudyContact->atimDelete( $study_contact_id ) ) {
 					$this->atimFlash(__('your data has been deleted'), '/Study/StudyContacts/listall/'.$study_summary_id );
 				} else {
-					$this->flash(__('error deleting data - contact administrator.'), '/Study/StudyContacts/listall/'.$study_summary_id );
+					$this->atimFlash(__('error deleting data - contact administrator.'), '/Study/StudyContacts/listall/'.$study_summary_id );
 				}
 			}else {
-					$this->flash(__($arr_allow_deletion['msg']), '/Study/StudyContacts/detail/'.$study_summary_id.'/'.$study_contact_id);
+					$this->atimFlash(__($arr_allow_deletion['msg']), '/Study/StudyContacts/detail/'.$study_summary_id.'/'.$study_contact_id);
 			}
 	}
 }

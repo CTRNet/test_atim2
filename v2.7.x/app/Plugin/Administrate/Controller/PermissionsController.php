@@ -44,7 +44,7 @@ class PermissionsController extends AdministrateAppController {
 			break;
 		case 'User':
 			$parent = $this->Aro->find('first', array('conditions' => 'Aro.id = "'.$aro['Aro']['parent_id'].'"', 'order'=>'alias ASC', 'recursive' => -1));
-			list($type,$gid) = split('::',$parent['Aro']['alias']);
+			list($type,$gid) = explode('::',$parent['Aro']['alias']);
 			$this->redirect('/Administrate/Permissions/tree/'.$gid.'/'.$id);
 			break;
 		}
@@ -173,7 +173,7 @@ class PermissionsController extends AdministrateAppController {
 			$this->SystemVar->setVar('permission_timestamp', time());
 			Cache::clear(false, "menus");
 			//straight flash because we redirect to the edit screen
-			$this->flash(__('your data has been updated'), '/Administrate/Permissions/tree/'.$group_id.'/'.$user_id);
+			$this->atimFlash(__('your data has been updated'), '/Administrate/Permissions/tree/'.$group_id.'/'.$user_id);
 			return;
 		}
 		
@@ -302,5 +302,3 @@ class PermissionsController extends AdministrateAppController {
 		$this->PermissionsPreset->atimDelete($preset_id);
 	}
 }
-
-?>

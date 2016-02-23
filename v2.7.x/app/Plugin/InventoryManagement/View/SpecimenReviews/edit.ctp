@@ -79,9 +79,20 @@
 
 <div id="debug"></div>
 <script type="text/javascript">
-var copyStr = "<?php echo(__("copy;", null)); ?>";;
-var pasteStr = "<?php echo(__("paste;")); ?>";;
-var copyingStr = "<?php echo(__("copying;")); ?>";;
-var pasteOnAllLinesStr = "<?php echo(__("paste;; on; all; lines")); ?>";;
+    var copyStr = "<?php echo(__("
+    copy;;
+    ", null)); ?>";
+    var pasteStr = "<?php echo(__("
+paste;;
+")); ?>";
+var copyingStr = "<?php echo(__("
+copying;;
+")); ?>";
+var pasteOnAllLinesStr = "<?php echo(__("
+paste;;
+on;
+all;
+lines
+")); ?>";;
 var copyControl = true;
 </script>

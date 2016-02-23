@@ -34,7 +34,7 @@
     var permissionPreset =;
     <
     ? php echo;
-    AppController::checkLinkPermission('/Administrate/Permissions/loadPreset/') ? "true" : "false" ?
+    AppController::checkLinkPermission('/Administrate/Permissions/loadPreset/') ? "true" : "false" ?;
     >
     function loadPresetFrame(){
 		$("#frame").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");

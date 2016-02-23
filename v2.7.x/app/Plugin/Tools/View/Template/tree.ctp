@@ -77,7 +77,7 @@ if(isset($is_ajax)){
     <
     ? php echo;
     isset($collection_id) ? $collection_id : null;
-    ?
+    ?;
     >
     function drawTree(treeData){
 		modelsData = $.parseJSON(modelsData);
@@ -120,9 +120,8 @@ if(isset($is_ajax)){
         }
 
 		setTimeout(dataSavedFadeout, 3500);
-	};;
-
-	function drawTreeRecur(treeData, node){
+    };;
+    function drawTreeRecur(treeData, node){
 		var newNode = addNode(treeData, node);
 		for(i in treeData.children){
 			drawTreeRecur(treeData.children[i], newNode);
@@ -253,9 +252,8 @@ if(isset($is_ajax)){
 		}); 
 		bindButtons(li); 
 		return li;
-	};
-
-	function getDropdownOptions(parent_id){
+    };
+    function getDropdownOptions(parent_id){
 		var options = "";
 		if(parent_id != ""){
 			options += "<optgroup label='<?php echo __('derivative'); ?>'>";

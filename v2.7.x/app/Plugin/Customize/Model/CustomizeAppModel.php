@@ -2,5 +2,3 @@
 
 class CustomizeAppModel extends AppModel {
 }
-
-?>

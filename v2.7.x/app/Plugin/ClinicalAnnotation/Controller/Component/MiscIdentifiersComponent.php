@@ -7,5 +7,3 @@ class MiscIdentifiersComponent extends Object {
 	}
 	
 }
-
-?>

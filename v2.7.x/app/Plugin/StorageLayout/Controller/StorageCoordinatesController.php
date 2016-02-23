@@ -141,11 +141,11 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 			if($this->StorageCoordinate->atimDelete($storage_coordinate_id)) {
 				$this->atimFlash(__('your data has been deleted'), $flash_url);
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), $flash_url);
+				$this->atimFlash(__('error deleting data - contact administrator'), $flash_url);
 			}		
 		
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), $flash_url);
+			$this->atimFlash(__($arr_allow_deletion['msg']), $flash_url);
 		}			
 	}
 }

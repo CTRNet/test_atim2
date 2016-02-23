@@ -553,7 +553,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				
 			$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/SpecimenReviews/listAll/' . $collection_id . '/' . $sample_master_id);
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);
+			$this->atimFlash(__($arr_allow_deletion['msg']), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);
 		}			
 	}
 }

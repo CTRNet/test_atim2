@@ -7,5 +7,3 @@ class AdministratesComponent extends Object {
 	}
 	
 }
-
-?>

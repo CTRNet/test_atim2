@@ -80,4 +80,3 @@ class VersionsController extends AdministrateAppController {
 		
 	}
 }
-?>

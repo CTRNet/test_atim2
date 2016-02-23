@@ -88,11 +88,28 @@
 ?>
 <script>
 var datamartActions = true;
-var errorYouMustSelectAnAction = "<?php echo __("you;; must; select; an; action"); ?>";;
-var errorYouNeedToSelectAtLeastOneItem = "<?php echo __("you;; need; to; select; at; least; one; item"); ?>";;
+var errorYouMustSelectAnAction = "<?php echo __("
+you;;
+must;
+select;
+an;
+action
+"); ?>";;
+var errorYouNeedToSelectAtLeastOneItem = "<?php echo __("
+you;;
+need;
+to;
+select;
+at;
+least;
+one;
+item
+"); ?>";;
 var menuItems = '<?php echo json_encode(Sanitize::clean($dropdown_options)); ?>';
 var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
-var STR_BACK = '<?php echo __('back;'); ?>';;
+var STR_BACK = '<?php echo __('
+back;;
+'); ?>';
 var csvMergeData = '<?php echo json_encode(isset($csv_merge_data) ? $csv_merge_data : array()) ; ?>';
 var STR_DATAMART_STRUCTURE_RELATIONSHIPS = "<?php echo __('data types relationship diagram'); ?>";
 var STR_LANGUAGE = "<?php echo (($_SESSION['Config']['language'] == 'eng')? 'en' : 'fr'); ?>";

@@ -47,5 +47,3 @@ class PreferencesAdminController extends AdministrateAppController {
 		}
 	}
 }
-
-?>

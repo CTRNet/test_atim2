@@ -20,6 +20,6 @@
     <
     ? php echo;
     $alpha_order ? "true" : "false";
-    ?
+    ?;
     >
 </script>
