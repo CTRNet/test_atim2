@@ -134,6 +134,10 @@ class StudySummariesController extends StudyAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// DELETE DATA
 			if( $this->StudySummary->atimDelete( $study_summary_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Study/StudySummaries/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Study/StudySummaries/search/');

@@ -147,6 +147,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->ParticipantContact->atimDelete( $participant_contact_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 			else {

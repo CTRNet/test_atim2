@@ -1078,6 +1078,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($deletion_done) {
 			if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $deletion_done = false; }
 		}
+
+		$hook_link = $this->hook('postsave_process');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
 		if($deletion_done) {
 			$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), $flash_url); 
 		} else {
@@ -1540,6 +1546,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		$flash_url = '/InventoryManagement/SampleMasters/detail/' . $source_data['SampleMaster']['collection_id'] . '/' . $source_data['SampleMaster']['id'];
+		
+
+		$hook_link = $this->hook('postsave_process');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
 		if($deletion_done) {
 			$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), $flash_url); 
 		} else {

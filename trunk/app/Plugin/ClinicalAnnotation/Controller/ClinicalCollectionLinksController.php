@@ -395,7 +395,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-			
+				
 				$this->atimFlash(__('your data has been deleted').'<br>'.__('use inventory management module to delete the entire collection') , '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$participant_id.'/');
 			}else{	
 				$this->flash(__('error deleting data - contact administrator'),'/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$collection_id.'/');
