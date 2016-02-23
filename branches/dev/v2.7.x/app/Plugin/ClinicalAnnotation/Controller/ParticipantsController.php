@@ -174,10 +174,10 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			if ( $this->Participant->atimDelete( $participant_id ) ) {
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/search/');
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
+				$this->atimFlash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
 			}
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+			$this->atimFlash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 		}
 	}
 

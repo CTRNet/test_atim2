@@ -104,7 +104,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		}
 		$display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
 		if(sizeof($tma_blocks_from_id) > $display_limit) {
-			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+			$this->atimFlash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
 		}
 		if(sizeof($tma_blocks_from_id) != sizeof($tma_block_ids)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 
@@ -408,12 +408,12 @@ class TmaSlidesController extends StorageLayoutAppController {
 		
 		$slides_data = $this->TmaSlide->find('all', array('conditions' => $criteria, 'order' => 'TmaSlide.barcode ASC'));
 		if(empty($slides_data)) {
-			$this->flash(__('no slide to update'), $url_to_cancel);
+			$this->atimFlash(__('no slide to update'), $url_to_cancel);
 		}
 		if($tma_slide_ids_for_sorting) $this->TmaSlide->sortForDisplay($slides_data, $tma_slide_ids_for_sorting);
 		$display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
 		if(sizeof($slides_data) > $display_limit) {
-			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+			$this->atimFlash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
 		}
 		
 		// Set array to get id from barcode
@@ -579,10 +579,10 @@ class TmaSlidesController extends StorageLayoutAppController {
 			if($this->TmaSlide->atimDelete($tma_slide_id)) {
 				$this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/detail/' . $tma_block_storage_master_id);
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
+				$this->atimFlash(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 			}		
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
+			$this->atimFlash(__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 		}		
 	}
 }

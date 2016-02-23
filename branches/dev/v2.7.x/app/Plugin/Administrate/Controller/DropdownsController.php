@@ -232,7 +232,7 @@ class DropdownsController extends AdministrateAppController {
 			
 			$this->request->data = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id), 'recursive' => -1, 'order' => array('display_order', 'value')));
 			if(empty($this->request->data)){
-				$this->flash(__("you cannot configure an empty list"), "javascript:history.back();", 5);
+				$this->atimFlash(__("you cannot configure an empty list"), "javascript:history.back();", 5);
 			}
 			$this->set('alpha_order', $this->request->data[0]['StructurePermissibleValuesCustom']['display_order'] == 0);
 		}else{

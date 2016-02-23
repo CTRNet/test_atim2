@@ -13,4 +13,3 @@ class UserLogsController extends AdministrateAppController {
 		$this->request->data = $this->paginate($this->UserLog, array('UserLog.user_id'=>$user_id));
 	}
 }
-?>

@@ -42,7 +42,7 @@ class AdminUsersController extends AdministrateAppController {
 					$this->User->validationErrors[][] = __('this user name is already in use');
 				}
 				
-				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);
+//				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);
 				$password_data = array('User' => array('new_password' => $this->request->data['User']['password'], 'confirm_password' => $this->request->data['Generated']['field1']));
 				$this->User->validatePassword($password_data, $this->request->data['User']['username']);
 				
@@ -74,7 +74,7 @@ class AdminUsersController extends AdministrateAppController {
 				$this->request->data['Generated']['field1'] = "";
 			}
 		}else{
-			$this->flash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/".$group_id."/");
+			$this->atimFlash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/".$group_id."/");
 		}
 	}
 	
@@ -157,7 +157,7 @@ class AdminUsersController extends AdministrateAppController {
 			$this->User->atimDelete($user_id);
 			$this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/".$group_id);
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.back()');
+			$this->atimFlash(__($arr_allow_deletion['msg']), 'javascript:history.back()');
 		}
 	}
 	

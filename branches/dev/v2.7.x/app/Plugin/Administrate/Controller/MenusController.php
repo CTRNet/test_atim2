@@ -40,5 +40,3 @@ class MenusController extends AdministrateAppController {
 		}
 	}
 }
-
-?>

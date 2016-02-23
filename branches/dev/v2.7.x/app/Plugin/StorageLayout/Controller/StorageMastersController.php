@@ -404,10 +404,10 @@ class StorageMastersController extends StorageLayoutAppController {
 			if($atim_flash){
 				$this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/search/');
 			}else{
-				$this->flash(__('error deleting data - contact administrator'), '/StorageLayout/StorageMasters/search/');
+				$this->atimFlash(__('error deleting data - contact administrator'), '/StorageLayout/StorageMasters/search/');
 			}
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+			$this->atimFlash(__($arr_allow_deletion['msg']), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
 		}		
 	}
 	
@@ -472,7 +472,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['InitialStorageMaster'], $tree_data);
 			if(sizeof($tree_data) > $storages_nbr_limit) {
-				$this->flash(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
+				$this->atimFlash(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
 				return;
 			}			
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/search');
@@ -558,7 +558,7 @@ class StorageMastersController extends StorageLayoutAppController {
 					echo json_encode(array('valid' => 0));
 					exit;
 				}else{
-					$this->flash(__('no layout exists - add coordinates first'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+					$this->atimFlash(__('no layout exists - add coordinates first'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
 					return;
 				}
 			}
@@ -570,7 +570,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				echo json_encode(array('valid' => 0));
 				exit;	
 			}else{
-				$this->flash(__('no storage layout is defined for this storage type'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);	
+				$this->atimFlash(__('no storage layout is defined for this storage type'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);	
 				return;
 			} 
 		}

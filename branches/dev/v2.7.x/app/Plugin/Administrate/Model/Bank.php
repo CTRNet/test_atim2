@@ -54,5 +54,3 @@ class Bank extends AdministrateAppModel {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
-
-?>

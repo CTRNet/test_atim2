@@ -2,5 +2,3 @@
 
 class DrugAppController extends AppController {	
 }
-
-?>

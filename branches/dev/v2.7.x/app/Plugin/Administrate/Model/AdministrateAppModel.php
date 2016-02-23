@@ -2,5 +2,3 @@
 
 class AdministrateAppModel extends AppModel {
 }
-
-?>

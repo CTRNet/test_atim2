@@ -101,7 +101,7 @@ class MaterialsController extends MaterialAppController {
 		if( $this->Material->atimDelete( $material_id ) ) {
 			$this->atimFlash(__('your data has been deleted'), '/material/materials/index/');
 		} else {
-			$this->flash(__('error deleting data - contact administrator'), '/material/materials/listall/');
+			$this->atimFlash(__('error deleting data - contact administrator'), '/material/materials/listall/');
 		}
   	}
 

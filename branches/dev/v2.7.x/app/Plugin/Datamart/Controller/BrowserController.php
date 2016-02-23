@@ -60,7 +60,7 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
 			$this->atimFlash(__('your data has been deleted'), '/Datamart/Browser/index/');
 		} else {
-			$this->flash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
+			$this->atimFlash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
 		}
 	}
 	
@@ -215,7 +215,7 @@ class BrowserController extends DatamartAppController {
 			    explode(",", $browsing['BrowsingResult']['id_csv']), $order);
 			
 			if(!$this->Browser->valid_permission){
-				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+				$this->atimFlash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			}
 			
 			$browsing_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -281,7 +281,7 @@ class BrowserController extends DatamartAppController {
 
 		}else if($browsing){
 			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
-				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+				$this->atimFlash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			}
 			//search screen
 			$tmp_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -376,7 +376,7 @@ class BrowserController extends DatamartAppController {
 		$browsing = $this->BrowsingResult->findById($node_id);
 		
 		if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
-			$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+			$this->atimFlash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			return;
 		}
 		
@@ -423,7 +423,7 @@ class BrowserController extends DatamartAppController {
 			foreach($browsing_results as $browsing_result){
 				//permissions
 				if(!AppController::checkLinkPermission($browsing_result['DatamartStructure']['index_link'])){
-					$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+					$this->atimFlash(__("You are not authorized to access that location."), 'javascript:history.back()');
 					return;
 				}
 				
@@ -469,7 +469,7 @@ class BrowserController extends DatamartAppController {
 			$this->Browser->InitDataLoad($browsing, $config['redundancy'] == 'same' ? 0 : $merge_to, $ids);
 			
 			if(!$this->Browser->valid_permission){
-				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+				$this->atimFlash(__("You are not authorized to access that location."), 'javascript:history.back()');
 				return;
 			}
 			

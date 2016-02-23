@@ -126,10 +126,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 			if( $this->ParticipantMessage->atimDelete( $participant_message_id ) ) {
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantMessages/listall/'.$participant_id );
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantMessages/listall/'.$participant_id );
+				$this->atimFlash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantMessages/listall/'.$participant_id );
 			}		
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ParticipantMessages/detail/'.$participant_id.'/'.$participant_message_id);
+			$this->atimFlash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ParticipantMessages/detail/'.$participant_id.'/'.$participant_message_id);
 		}
 	}
 	

@@ -67,10 +67,8 @@ class AnnouncementsController extends AdministrateAppController {
 		if( $this->Announcement->atimDelete( $announcement_id ) ) {
 			$this->atimFlash(__('your data has been deleted'), '/Administrate/Announcements/index/'.$group_id.'/'.$user_id.'/');
 		} else {
-			$this->flash(__('error deleting data - contact administrator'), '/Administrate/Announcements/index/'.$group_id.'/'.$user_id.'/');
+			$this->atimFlash(__('error deleting data - contact administrator'), '/Administrate/Announcements/index/'.$group_id.'/'.$user_id.'/');
 		}
 	}
 
 }
-
-?>

@@ -36,5 +36,3 @@ class StructureFormatsController extends AdministrateAppController {
 		}
 	}	
 }
-
-?>
