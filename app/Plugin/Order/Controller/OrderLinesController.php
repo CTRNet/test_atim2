@@ -234,6 +234,10 @@ class OrderLinesController extends OrderAppController {
 			
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->OrderLine->atimDelete($order_line_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/'.$order_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), 'javascript:history.go(-1)');

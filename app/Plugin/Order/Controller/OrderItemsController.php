@@ -628,6 +628,11 @@ class OrderItemsController extends OrderAppController {
 					}
 				}
 				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
 				// Redirect
 				$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), '/Order/Orders/detail/'.$order_id);
 			} else {

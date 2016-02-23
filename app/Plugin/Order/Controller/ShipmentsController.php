@@ -190,6 +190,10 @@ class ShipmentsController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Shipment->atimDelete( $shipment_id )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/'.$order_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
@@ -435,6 +439,12 @@ class ShipmentsController extends OrderAppController {
 				if(!$this->OrderLine->save($order_line, false)) { 
 					$remove_done = false; 
 				}	
+			}
+			
+
+			$hook_link = $this->hook('postsave_process');
+			if( $hook_link ) {
+				require($hook_link);
 			}
 
 			// Redirect
