@@ -6,7 +6,7 @@ class DrugsController extends DrugAppController {
 		'Drug.Drug'
 	);
 		
-	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 
+	var $paginate = array('Drug'=>array('order'=>'Drug.generic_name ASC')); 
 
 	function search($search_id = 0) {
 		$this->searchHandler($search_id, $this->Drug, 'drugs', '/Drug/Drugs/search');

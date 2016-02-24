@@ -11,7 +11,7 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		
 		'InventoryManagement.AliquotMaster');
 	
-	var $paginate = array('StorageCoordinate' => array('limit' => pagination_amount,'order' => 'StorageCoordinate.order ASC'));
+	var $paginate = array('StorageCoordinate' => array('order' => 'StorageCoordinate.order ASC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS

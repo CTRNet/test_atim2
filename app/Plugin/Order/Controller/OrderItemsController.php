@@ -15,9 +15,9 @@ class OrderItemsController extends OrderAppController {
 		'Order.Shipment');
 		
 	var $paginate = array(
-		'OrderItem'=>array('limit'=>pagination_amount,'order'=>'AliquotMaster.barcode'),
-		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
+		'OrderItem'=>array('order'=>'AliquotMaster.barcode'),
+		'ViewAliquot' => array('order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotMaster' => array('order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));

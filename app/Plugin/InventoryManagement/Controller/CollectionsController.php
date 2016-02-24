@@ -19,8 +19,8 @@ class CollectionsController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'Collection' 		=> array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
-		'ViewCollection'	=> array('limit' => pagination_amount, 'order' => 'ViewCollection.acquisition_label ASC')
+		'Collection' 		=> array('order' => 'Collection.acquisition_label ASC'),
+		'ViewCollection'	=> array('order' => 'ViewCollection.acquisition_label ASC')
 	);
 	
 	function search($search_id = 0, $is_ccl_ajax = false){

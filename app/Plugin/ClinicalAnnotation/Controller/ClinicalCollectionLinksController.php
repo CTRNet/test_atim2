@@ -44,7 +44,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		}
 	}
 	
-	//var $paginate = array('Collection' => array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
+	//var $paginate = array('Collection' => array('order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
 		$participant_data = $this->Participant->getOrRedirect($participant_id);

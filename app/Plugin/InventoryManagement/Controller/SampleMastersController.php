@@ -28,9 +28,9 @@ class SampleMastersController extends InventoryManagementAppController {
 		'ExternalLink');
 	
 	var $paginate = array(
-		'SampleMaster' => array('limit' => pagination_amount, 'order' => 'SampleMaster.sample_code DESC'),
-		'ViewSample' => array('limit' =>pagination_amount , 'order' => 'ViewSample.sample_code DESC'), 
-		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
+		'SampleMaster' => array('order' => 'SampleMaster.sample_code DESC'),
+		'ViewSample' => array('order' => 'ViewSample.sample_code DESC'), 
+		'AliquotMaster' => array('order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));

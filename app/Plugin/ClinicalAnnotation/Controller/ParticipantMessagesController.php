@@ -5,7 +5,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.ParticipantMessage',
 		'ClinicalAnnotation.Participant');
-	var $paginate = array('ParticipantMessage'=>array('limit' => pagination_amount,'order'=>'ParticipantMessage.date_requested'));
+	var $paginate = array('ParticipantMessage'=>array('order'=>'ParticipantMessage.date_requested'));
 
 	function listall( $participant_id ) {
 		// MANAGE DATA

@@ -11,7 +11,7 @@ class StorageControlsController extends AdministrateAppController {
 		'StructurePermissibleValuesCustom',
 		'StructurePermissibleValuesCustomControl');
 	
-	var $paginate = array('StorageCtrl' => array('limit' => pagination_amount, 'order' => 'StorageCtrl.storage_type ASC'));
+	var $paginate = array('StorageCtrl' => array('order' => 'StorageCtrl.storage_type ASC'));
 
 	function listAll(){	
 		$list_args = $this->StorageCtrl->getListArgs($this->passedArgs);	

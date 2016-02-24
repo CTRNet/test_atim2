@@ -9,7 +9,7 @@ class OrderLinesController extends OrderAppController {
 		'Order.Shipment' 
 	);
 	
-	var $paginate = array('OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
+	var $paginate = array('OrderLine'=>array('order'=>'OrderLine.date_required DESC'));
 
 	function listall( $order_id ) {
 		// MANAGE DATA

@@ -6,7 +6,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		'Protocol.ProtocolControl', 
 		'Protocol.ProtocolMaster');
 		
-	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.code DESC'));
+	var $paginate = array('ProtocolMaster'=>array('order'=>'ProtocolMaster.code DESC'));
 	
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
