@@ -16,7 +16,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		'CodingIcd.CodingIcdo3Topo',//required by model
 		'CodingIcd.CodingIcdo3Morpho'//required by model
 	);
-	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date'));
+	var $paginate = array('DiagnosisMaster'=>array('order'=>'DiagnosisMaster.dx_date'));
 
 	function listall( $participant_id, $parent_dx_id = null, $is_ajax = 0 ) {
 		// MANAGE DATA

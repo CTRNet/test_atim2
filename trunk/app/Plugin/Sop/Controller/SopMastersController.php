@@ -3,7 +3,7 @@
 class SopMastersController extends SopAppController {
 
 	var $uses = array('Sop.SopControl', 'Sop.SopMaster');
-	var $paginate = array('SopMaster'=>array('limit' => pagination_amount,'order'=>'SopMaster.title DESC'));
+	var $paginate = array('SopMaster'=>array('order'=>'SopMaster.title DESC'));
 	
 	function listall() {
 		$this->request->data = $this->paginate($this->SopMaster, array());

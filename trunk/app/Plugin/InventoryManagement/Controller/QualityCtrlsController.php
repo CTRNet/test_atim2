@@ -11,7 +11,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		'InventoryManagement.QualityCtrl'
 	);
 	
-	var $paginate = array('QualityCtrl' => array('limit' => pagination_amount, 'order' => 'QualityCtrl.date ASC'));
+	var $paginate = array('QualityCtrl' => array('order' => 'QualityCtrl.date ASC'));
 	
 	function listAll($collection_id, $sample_master_id) {
 		// MANAGE DATA

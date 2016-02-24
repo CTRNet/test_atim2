@@ -34,8 +34,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'AliquotMaster' => array('limit' => pagination_amount , 'order' => 'AliquotMaster.barcode DESC'), 
-		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC')
+		'AliquotMaster' => array('order' => 'AliquotMaster.barcode DESC'), 
+		'ViewAliquot' => array('order' => 'ViewAliquot.barcode DESC')
 	);
 
 	/* --------------------------------------------------------------------------
@@ -2553,7 +2553,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Get/Manage Parent Aliquots
 		$this->request->data = $this->Realiquoting->find('all', array(
-			'limit' => pagination_amount , 
+			
 			'order' => 'Realiquoting.realiquoting_datetime DESC',
 			'fields' => array('*'),
 			'joins' => array(AliquotMaster::joinOnAliquotDup('Realiquoting.parent_aliquot_master_id'), AliquotMaster::$join_aliquot_control_on_dup),

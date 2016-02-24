@@ -23,6 +23,57 @@ UPDATE structure_formats SET `display_column`='0', `display_order`='-5' WHERE st
 UPDATE structure_formats SET `display_column`='0', `display_order`='-4' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='short_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='0', `display_order`='-3' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_blocks_for_slide_creation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Block' AND `tablename`='storage_masters' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue # 3295 : Set all foreign key datamart_structure_id to int(10) 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE datamart_batch_sets MODIFY `datamart_structure_id` int(10) unsigned NOT NULL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

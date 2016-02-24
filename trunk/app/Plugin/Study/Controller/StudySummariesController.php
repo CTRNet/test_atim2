@@ -12,7 +12,16 @@ class StudySummariesController extends StudyAppController {
 		'Order.Order',
 		'Order.OrderLine');
 	
-	var $paginate = array('StudySummary'=>array('limit' => pagination_amount,'order'=>'StudySummary.title'));
+	var $paginate = array(
+		'StudySummary'=>array('limit' => 5, 'order'=>'StudySummary.title'),
+		'Participant'=>array('limit' => 5, 'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
+		'MiscIdentifier'=>array('limit' => 5, 'order'=>'MiscIdentifier.study_summary_id ASC,MiscIdentifierControl.misc_identifier_name ASC'),
+		'ConsentMaster'=>array('limit' => 5, 'order'=>'ConsentMaster.date_first_contact ASC'),
+		'AliquotMaster'=>array('limit' => 5, 'order'=>'AliquotMaster.barcode ASC'),
+		'Order'=>array('limit' => 5, 'order'=>'Order.date_order_placed DESC'), 
+		'OrderLine'=>array('limit' => 5, 'order'=>'OrderLine.date_required DESC'),
+		'TmaSlide' => array('limit' => 5, 'order' => 'TmaSlide.barcode DESC')
+	);
 	
 	function search($search_id = ''){
 		// CUSTOM CODE: FORMAT DISPLAY DATA

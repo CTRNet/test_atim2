@@ -8,7 +8,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		'CodingIcd.CodingIcd10Who',
 		'CodingIcd.CodingIcd10Ca');
 	
-	var $paginate = array('FamilyHistory'=>array('limit' => pagination_amount,'order'=>'FamilyHistory.relation'));
+	var $paginate = array('FamilyHistory'=>array('order'=>'FamilyHistory.relation'));
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS

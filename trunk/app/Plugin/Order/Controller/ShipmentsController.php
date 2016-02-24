@@ -12,7 +12,7 @@ class ShipmentsController extends OrderAppController {
 		
 		'InventoryManagement.AliquotMaster');
 		
-	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
+	var $paginate = array('Shipment'=>array('order'=>'Shipment.datetime_shipped DESC'));
 
 	function search($search_id = 0){
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
