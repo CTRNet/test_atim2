@@ -29,75 +29,40 @@ UPDATE structure_formats SET `display_column`='0', `display_order`='-3' WHERE st
 
 ALTER TABLE datamart_batch_sets MODIFY `datamart_structure_id` int(10) unsigned NOT NULL;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue # 3116 : Add Participant Message in batch + change 'task list' to be custom list
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Participant Message Types\')" WHERE domain_name = 'message_type';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Participant Message Types', 1, 20, 'clinical - message');
+SET @control_id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains_permissible_values AS svdpv 
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id
+LEFT JOIN i18n ON spv.value = i18n.id
+WHERE svd.domain_name="message_type" AND flag_active = 1);
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="message_type");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - message", "clinical - message");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - message" AND language_alias="clinical - message"), "0", "1");
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('clinical - message', 'Clinical - Message','Clinique - Message');
+
+SELECT "Created funtion 'Create message (applied to all)'. Run following query to activate the function." AS '### MESSAGE ###'
+UNION ALL
+SELECT "UPDATE datamart_structure_functions SET flag_active = 1 WHERE label = 'create participant message (applied to all)';" AS '### MESSAGE ###';
+INSERT INTO `datamart_structure_functions` (`datamart_structure_id`, `label`, `link`, `flag_active`) 
+(SELECT id, 'create participant message (applied to all)', '/ClinicalAnnotation/ParticipantMessages/add\/', 0 FROM datamart_structures WHERE model IN ('Participant'));
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('create participant message (applied to all)', 'Create message (applied to all)', 'Créer message (applicabl à tous)'),
+('you are about to create a message for %d participant(s)', 'You are about to create a message for %d participant(s)', 'Vous êtes sur le point de créer un message pour %d participants'),
+('at least one participant should be selected', 'At least one participant should be selected', 'Au moins un participant devrait être sélectionné');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue # 
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
 
 
