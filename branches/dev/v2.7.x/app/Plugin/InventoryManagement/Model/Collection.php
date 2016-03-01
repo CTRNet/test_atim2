@@ -124,5 +124,3 @@ class Collection extends InventoryManagementAppModel {
 	}
 	
 }
-
-?>
