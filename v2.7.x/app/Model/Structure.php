@@ -126,7 +126,7 @@ class Structure extends AppModel {
 							continue;
 						}
 						
-						$not_empty = $rule == 'notEmpty';
+						$not_empty = $rule == 'notBlank';
 						$rule_array = array(
 							'rule' => $rule,
 							'allowEmpty' => !$not_empty
@@ -141,7 +141,7 @@ class Structure extends AppModel {
 						}
 						if($validation['language_message']){
 							$rule_array['message'] = __($validation['language_message']);
-						}else if($rule_array['rule'] == 'notEmpty'){
+						}else if($rule_array['rule'] == 'notBlank'){
 							$rule_array['message'] = __("this field is required");
 						}else if($rule_array['rule'] == 'isUnique'){
 							$rule_array['message'] = __("this field must be unique");

@@ -2091,7 +2091,7 @@ class StructuresHelper extends AppHelper {
 						if(count($sfs['StructureValidation']) > 0 && $options['type'] != "search"){
 							
 							foreach($sfs['StructureValidation'] as $validation){
-								if($validation['rule'] == 'notEmpty'){
+								if($validation['rule'] == 'notBlank'){
 									if($options['type'] != 'batchedit'){
 										$settings["class"] .= " required";
 										$settings["required"] = "required";
@@ -2192,7 +2192,7 @@ class StructuresHelper extends AppHelper {
 							if(count($sfs['StructureValidation']) > 0 && (in_array($options['type'], array('edit', 'editgrid', 'add', 'addgrid')))){
 								//check if the field can be empty or not
 								foreach($sfs['StructureValidation'] as $validation){
-									if($validation['rule'] == 'notEmpty'){
+									if($validation['rule'] == 'notBlank'){
 										if(in_array($options['type'], array('edit', 'editgrid')) || 
 											!empty($sfs['default']) || 
 											(isset($options['override'][$model_dot_field]) && !empty($options['override'][$model_dot_field]))
