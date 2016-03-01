@@ -229,11 +229,11 @@ class AppController extends Controller {
 	
 	function atimFlash($message, $url){
 		if(Configure::read('debug') > 0){
-			$this->Flash->set($message, $url);
+			$this->Flash->set($message);
 		}else{
 			$_SESSION['ctrapp_core']['confirm_msg'] = $message;
-			$this->redirect($url);
 		}
+        $this->redirect($url);
 	}
 	
 	static function getInstance(){
