@@ -301,6 +301,7 @@ class ShipmentsController extends OrderAppController {
 
 					$this->OrderItem->addWritableField(array('shipment_id', 'status'));
 					
+					$this->OrderItem->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->OrderItem->id = $order_item_id;
 					if(!$this->OrderItem->save($order_item_data, false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -323,6 +324,7 @@ class ShipmentsController extends OrderAppController {
 						$order_line = array();
 						$order_line['OrderLine']['status'] = "shipped";
 						$this->OrderLine->addWritableField(array('status'));
+						$this->OrderLine->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						$this->OrderLine->id = $order_line_id;
 						if(!$this->OrderLine->save($order_line, false)) { 
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 

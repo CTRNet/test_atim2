@@ -860,6 +860,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					unset($new_aliquot_to_save['tmp_remove_from_storage']);
 					
+					$this->AliquotMaster->data = array();
 					$this->AliquotMaster->id = $new_aliquot_to_save['id'];
 					if(!$this->AliquotMaster->save($new_aliquot_to_save, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
@@ -1438,6 +1439,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// - SourceAliquot
 					$this->SourceAliquot->id = null;
+					$this->SourceAliquot->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$source_aliquot_pointer['SourceAliquot']['aliquot_master_id'] = $aliquot_master_id;
 					$source_aliquot_pointer['SourceAliquot']['sample_master_id'] = $sample_master_id;
 					//barcode,aliquot_label,storage_coord_x,storage_coord_y
@@ -2096,7 +2098,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		 				$realiquoting_data['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
 		 				
 						$this->Realiquoting->id = NULL;
-		  				if(!$this->Realiquoting->save($realiquoting_data, false)){
+		  				$this->Realiquoting->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						if(!$this->Realiquoting->save($realiquoting_data, false)){
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 						}
 					}

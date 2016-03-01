@@ -471,7 +471,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 			$record_counter = 0;
 			foreach($this->request->data as $key => $new_studied_tma){
 				$record_counter++;
-				// Get order item id
+				// Get id
 				if(!isset($slide_id_by_barcode[$new_studied_tma['TmaSlide']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_studied_tma['TmaSlide']['id'] = $slide_id_by_barcode[$new_studied_tma['TmaSlide']['barcode']];
 				// Launch Slide validation
@@ -498,10 +498,11 @@ class TmaSlidesController extends StorageLayoutAppController {
 				// Launch save process
 				$this->TmaSlide->addWritableField(array('storage_master_id'));
 				$this->TmaSlide->writable_fields_mode = 'editgrid';
-				foreach($this->request->data as $order_item){
+				foreach($this->request->data as $tma_data){
 					// Save data
-					$this->TmaSlide->id = $order_item['TmaSlide']['id'];
-					if(!$this->TmaSlide->save($order_item['TmaSlide'], false)) { 
+					$this->TmaSlide->data = array();
+					$this->TmaSlide->id = $tma_data['TmaSlide']['id'];
+					if(!$this->TmaSlide->save($tma_data['TmaSlide'], false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 				}
