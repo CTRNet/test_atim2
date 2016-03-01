@@ -425,6 +425,7 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem']['aliquot_master_id'] = $added_aliquot_master_id;
 					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->request->data['OrderItem']);
 					$this->OrderItem->addWritableField(array('status', 'aliquot_master_id'));
+					$this->OrderItem->data = null;
 					$this->OrderItem->id = null;
 					if(!$this->OrderItem->save($new_order_item_data, false)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
