@@ -40,7 +40,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			if($this->request->is('ajax')){
 				die(__('You are not authorized to access that location.'));
 			}
-			$this->atimFlash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
 		}
 	}
 	
