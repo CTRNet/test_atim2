@@ -65,20 +65,20 @@ class TmaSlidesController extends StorageLayoutAppController {
 			}
 		}
 		unset($this->request->data['url_to_cancel']);
-				
+		
 		if($tma_block_storage_master_id != null){
 			// User is workning on a tma block
 			$tma_block_ids = array($tma_block_storage_master_id);
 			if(empty($this->request->data)) $initial_display = true;
-		} else if(isset($this->request->data['ViewStorageMaster']['id'])){
+		} else if(isset($this->request->data['TmaBlock']['id'])){
 			// User launched an action from the DataBrowser or a Report Form
-			if($this->request->data['ViewStorageMaster']['id'] == 'all' && isset($this->request->data['node'])) {
+			if($this->request->data['TmaBlock']['id'] == 'all' && isset($this->request->data['node'])) {
 				//The displayed elements number was higher than the databrowser_and_report_results_display_limit
 				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
 				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
-				$this->request->data['ViewStorageMaster']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				$this->request->data['TmaBlock']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 			}
-			$tma_block_ids = array_filter($this->request->data['ViewStorageMaster']['id']);
+			$tma_block_ids = array_filter($this->request->data['TmaBlock']['id']);
 			$initial_display = true;
 		}else if(!empty($this->request->data)) {
 			// User submit data of the TmaSlide.add() form

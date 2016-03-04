@@ -61,17 +61,48 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('at least one participant should be selected', 'At least one participant should be selected', 'Au moins un participant devrait être sélectionné');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Issue # 
+-- Issue #3283: Be able to search storages that contain TMA slide into the databrowser 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structures(`alias`) VALUES ('tma_blocks');
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES
+('tma_block_storage_types_from_control_id', 'StorageLayout.StorageControl::getTmaBlockStorageTypePermissibleValues');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'TmaBlock', '', 'code', 'input',  NULL , '0', 'size=30', '', 'storage_code_help', 'storage code', ''), 
+('StorageLayout', 'TmaBlock', '', 'storage_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tma_block_storage_types_from_control_id') , '0', '', '', '', 'storage type', ''), 
+('StorageLayout', 'TmaBlock', '', 'short_label', 'input',  NULL , '0', 'size=6', '', 'stor_short_label_defintion', 'storage short label', ''), 
+('StorageLayout', 'TmaBlock', '', 'selection_label', 'input',  NULL , '0', 'size=20,url=/storagelayout/storage_masters/autoComplete/', '', 'stor_selection_label_defintion', 'storage selection label', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='' AND `field`='code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='storage_code_help' AND `language_label`='storage code' AND `language_tag`=''), '1', '100', 'system data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='' AND `field`='storage_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tma_block_storage_types_from_control_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='' AND `field`='short_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='stor_short_label_defintion' AND `language_label`='storage short label' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+SET @flag_active = (SELECT IF(count(*) = 0, 0, 1) AS flag FROM storage_controls WHERE is_tma_block = 1 AND flag_active = 1);
 
+DELETE FROM datamart_browsing_controls WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
+DELETE FROM datamart_browsing_controls WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv_search_structure_alias`, `display_name`, `control_master_model`, `index_link`, `batch_edit_link`) VALUES
+(null, 'StorageLayout', 'TmaBlock', (SELECT id FROM structures WHERE alias = 'tma_blocks'), NULL, 'tma blocks (sub-set of storage for databrowser)', '', '/StorageLayout/StorageMasters/detail/%%TmaBlock.id%%/', '');
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), (SELECT id FROM datamart_structures WHERE model = 'TmaBlock'), @flag_active, @flag_active, 'storage_master_id'),
+((SELECT id FROM datamart_structures WHERE model = 'TmaSlide'), (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'), @flag_active, @flag_active, 'storage_master_id'),
+((SELECT id FROM datamart_structures WHERE model = 'TmaSlide'), (SELECT id FROM datamart_structures WHERE model = 'TmaBlock'), @flag_active, @flag_active, 'tma_block_storage_master_id'),
+((SELECT id FROM datamart_structures WHERE model = 'TmaBlock'), (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'), @flag_active, @flag_active, 'parent_id');
 
+UPDATE datamart_structures SET display_name = 'tma blocks (storages sub-set)' WHERE model = 'TmaBlock';
 
+INSERT INTO i18n (id,en,fr) VALUES ('tma blocks (storages sub-set)', 'Storages (TMA Blocks only)', "Entreposages (Blocs de TMA exclusivement)");
 
+UPDATE datamart_structure_functions SET datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock') WHERE label = 'create tma slide';
 
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("TmaBlock", "tma blocks");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="models"), (SELECT id FROM structure_permissible_values WHERE value="TmaBlock" AND language_alias="tma blocks"), "", "1");
 
+INSERT INTO i18n (id,en,fr) VALUES ('tma blocks', 'TMA Blocks', "Blocs de TMA");
 
+SELECT "Updated 'Databrowser Relationship Diagram' to add TMA blocks to TMA slides relationship. To customize." AS '### MESSAGE ###';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
