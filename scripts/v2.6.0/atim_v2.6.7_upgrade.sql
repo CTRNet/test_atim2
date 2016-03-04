@@ -111,4 +111,4 @@ SELECT "Updated 'Databrowser Relationship Diagram' to add TMA blocks to TMA slid
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.7', NOW(),'????','n/a');
+('2.6.7', NOW(),'6426','n/a');
