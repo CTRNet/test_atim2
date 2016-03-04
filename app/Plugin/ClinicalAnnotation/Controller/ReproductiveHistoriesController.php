@@ -137,6 +137,10 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			// DELETE DATA
 			$flash_link = '/ClinicalAnnotation/ReproductiveHistories/listall/'.$participant_id;
 			if ($this->ReproductiveHistory->atimDelete($reproductive_history_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), $flash_link );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), $flash_link );
