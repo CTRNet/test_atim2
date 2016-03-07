@@ -28,9 +28,9 @@ class SampleMastersController extends InventoryManagementAppController {
 		'ExternalLink');
 	
 	var $paginate = array(
-		'SampleMaster' => array('limit' => pagination_amount, 'order' => 'SampleMaster.sample_code DESC'),
-		'ViewSample' => array('limit' =>pagination_amount , 'order' => 'ViewSample.sample_code DESC'), 
-		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
+		'SampleMaster' => array('order' => 'SampleMaster.sample_code DESC'),
+		'ViewSample' => array('order' => 'ViewSample.sample_code DESC'), 
+		'AliquotMaster' => array('order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
@@ -1180,6 +1180,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					foreach($children as &$child_to_save){
 						// save sample master
 						$this->SampleMaster->id = null;
+						$this->SampleMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						if(!$this->SampleMaster->save($child_to_save, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 							
@@ -1191,6 +1192,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						$this->SampleMaster->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
 
 						// Save derivative detail
+						$this->DerivativeDetail->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						$this->DerivativeDetail->id = $child_id;
 						$child_to_save['DerivativeDetail']['sample_master_id'] = $child_id;
 						if(!$this->DerivativeDetail->save($child_to_save, false)){ 
