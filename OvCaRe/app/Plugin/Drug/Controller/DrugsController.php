@@ -6,7 +6,7 @@ class DrugsController extends DrugAppController {
 		'Drug.Drug'
 	);
 		
-	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 
+	var $paginate = array('Drug'=>array('order'=>'Drug.generic_name ASC')); 
 
 	function search($search_id = 0) {
 		$this->searchHandler($search_id, $this->Drug, 'drugs', '/Drug/Drugs/search');
@@ -148,6 +148,10 @@ class DrugsController extends DrugAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			$this->Drug->data = null;
 			if( $this->Drug->atimDelete( $drug_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Drug/Drugs/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Drug/Drugs/search/');

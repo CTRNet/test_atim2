@@ -12,7 +12,7 @@ class ShipmentsController extends OrderAppController {
 		
 		'InventoryManagement.AliquotMaster');
 		
-	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
+	var $paginate = array('Shipment'=>array('order'=>'Shipment.datetime_shipped DESC'));
 
 	function search($search_id = 0){
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
@@ -190,6 +190,10 @@ class ShipmentsController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Shipment->atimDelete( $shipment_id )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/'.$order_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
@@ -297,6 +301,7 @@ class ShipmentsController extends OrderAppController {
 
 					$this->OrderItem->addWritableField(array('shipment_id', 'status'));
 					
+					$this->OrderItem->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->OrderItem->id = $order_item_id;
 					if(!$this->OrderItem->save($order_item_data, false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -319,6 +324,7 @@ class ShipmentsController extends OrderAppController {
 						$order_line = array();
 						$order_line['OrderLine']['status'] = "shipped";
 						$this->OrderLine->addWritableField(array('status'));
+						$this->OrderLine->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						$this->OrderLine->id = $order_line_id;
 						if(!$this->OrderLine->save($order_line, false)) { 
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -435,6 +441,12 @@ class ShipmentsController extends OrderAppController {
 				if(!$this->OrderLine->save($order_line, false)) { 
 					$remove_done = false; 
 				}	
+			}
+			
+
+			$hook_link = $this->hook('postsave_process');
+			if( $hook_link ) {
+				require($hook_link);
 			}
 
 			// Redirect
