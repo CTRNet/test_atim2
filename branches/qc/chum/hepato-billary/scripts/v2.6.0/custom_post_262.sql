@@ -369,7 +369,7 @@ UPDATE versions SET branch_build_number = '6238' WHERE version_number = '2.6.2';
 -- 20150903 --------------------------------------------------------------------------------------------------------
 
 ALTER TABLE qc_hb_txd_surgery_livers ADD COLUMN liver_first tinyint(1) DEFAULT '0',  ADD COLUMN two_steps tinyint(1) DEFAULT '0';
-ALTER TABLE qc_hb_txd_surgery_livers_Revs ADD COLUMN liver_first tinyint(1) DEFAULT '0',  ADD COLUMN two_steps tinyint(1) DEFAULT '0';
+ALTER TABLE qc_hb_txd_surgery_livers_revs ADD COLUMN liver_first tinyint(1) DEFAULT '0',  ADD COLUMN two_steps tinyint(1) DEFAULT '0';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'liver_first', 'checkbox',  NULL , '0', '', '', '', 'liver first', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'two_steps', 'checkbox',  NULL , '0', '', '', '', 'two steps', '');
@@ -377,4 +377,16 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='liver_first' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='liver first' AND `language_tag`=''), '2', '35', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='two_steps' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='two steps' AND `language_tag`=''), '2', '36', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en) VALUES ('liver first' ,'Liver First'),('two steps','Two Steps');
-UPDATE versions SET branch_build_number = '6238' WHERE version_number = '2.6.2';
+UPDATE versions SET branch_build_number = '6260' WHERE version_number = '2.6.2';
+
+-- 20160307 --------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `type`='float' WHERE model='EventDetail' AND tablename='ed_cap_report_colon_rectum_resections' AND field='specimen_length_specify' AND `type`='integer' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='float' WHERE model='EventDetail' AND tablename='ed_cap_report_colon_rectum_resections' AND field='distance_of_invasive_carcinoma_from_closest_margin' AND `type`='integer' AND structure_value_domain  IS NULL ;
+ALTER TABLE ed_cap_report_colon_rectum_resections 
+  MODIFY specimen_length_specify decimal(5,1) DEFAULT NULL,
+  MODIFY distance_of_invasive_carcinoma_from_closest_margin decimal(5,1) DEFAULT NULL;
+ALTER TABLE ed_cap_report_colon_rectum_resections_revs 
+  MODIFY specimen_length_specify decimal(5,1) DEFAULT NULL,
+  MODIFY distance_of_invasive_carcinoma_from_closest_margin decimal(5,1) DEFAULT NULL;
+UPDATE versions SET branch_build_number = '6428' WHERE version_number = '2.6.2';
