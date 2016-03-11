@@ -6,6 +6,7 @@ class StudySummaryCustom extends StudySummary
 	var $useTable = 'study_summaries';
 	
 	function allowDeletion($study_summary_id) {	
+		
 		$ctrl_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
 		$ctrl_value = $ctrl_model->find('count', array(
 			'conditions' => array('EventDetail.study_summary_id' => $study_summary_id), 
@@ -14,6 +15,15 @@ class StudySummaryCustom extends StudySummary
 		if($ctrl_value > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a participant'); 
 		}
+		
+		$ctrl_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+		$ctrl_value = $ctrl_model->find('count', array(
+				'conditions' => array('Collection.ovcare_study_summary_id' => $study_summary_id),
+				'recursive' => '-1'));
+		if($ctrl_value > 0) {
+			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a collection');
+		}
+		
 		return parent::allowDeletion($study_summary_id);
 	}
 	

@@ -67,38 +67,66 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => 'you need privileges to access this page');
 		}
 		
-		// 1- Build header
+		// 1- Build Criteria
 		
-		if(empty($parameters['0']['year']) || empty($parameters['0']['year']['0'])) {
+		$years = array_filter($parameters['0']['year']);	
+		if(empty($years)) {
 			return array(
 				'header' => array(),
 				'data' => array(),
 				'columns_names' => null,
 				'error_msg' => 'please select the year of this report');
-		} else if(sizeof($parameters['0']['year']) > 1) {
+		} else if(sizeof($years) > 1) {
 			return array(
 				'header' => array(),
 				'data' => array(),
 				'columns_names' => null,
 				'error_msg' => 'only one year can be selected');
 		}
+		$year = array_shift($years);
+		$start_date_for_sql = AppController::getFormatedDatetimeSQL(array('year' => $year), 'start');
+		$end_date_for_sql = AppController::getFormatedDatetimeSQL(array('year' => $year), 'end');
+		
+		$study_summary_ids = implode(',', array_filter($parameters[0]['study_summary_id']));
+		
+		$linked_to = array_filter($parameters[0]['ovcare_study_applied_to']);
+		if($linked_to) {
+			if(sizeof($linked_to) > 1)
+				return array(
+					'header' => array(),
+					'data' => array(),
+					'columns_names' => null,
+					'error_msg' => 'only one linked to value can be selected');
+			$linked_to = array_shift($linked_to);
+		} else {
+			$linked_to = 'all';
+		}		
+		
+		// 2- Build header
 		
 		$header = array(
-			'title' => __('year').' '.$parameters['0']['year']['0'],
-			'description' => '');
-		
-		// 2- Build Criteria
-		
-		$start_date_for_sql = AppController::getFormatedDatetimeSQL(array('year' => $parameters[0]['year']['0']), 'start');
-		$end_date_for_sql = AppController::getFormatedDatetimeSQL(array('year' => $parameters[0]['year']['0']), 'end');	
-		$study_summary_ids = implode(',',array_filter(array_merge(array('-1'), $parameters[0]['study_summary_id'])));
+			'title' => __('studies')." on $year : ",
+			'description' => null);
+		if($study_summary_ids) {
+			$query = "SELECT title FROM study_summaries WHERE id IN ($study_summary_ids) AND deleted <> 1";
+			$study_titles = array();
+			foreach($this->Report->tryCatchQuery($query) as $new_study) $study_titles[] = "'".$new_study['study_summaries']['title']."'";
+			$header['title'] .= implode(' & ', $study_titles);
+			$header['description'] = __('linked to').' : '.($linked_to == 'all'? __('all records') : __($linked_to));
+		} else {
+			$header['title'] = __('all')." on $year (".__('no study selection').')';
+		}
 		
 		// 3- Get data
+		
 		$data = array();
 		for($id = 1; $id < 13; $id++) $data["ovcare_month_$id"] = array();
-		$columns_names = array(__('ascite') => __('ascite'), 
-			__('blood') => __('blood'), 
-			__('tissue') => __('tissue'));
+		
+		$sample_control_model = AppModel::getInstance("InventoryManagement", "SampleControl", true);
+		$columns_names = array();
+		foreach($sample_control_model->getPermissibleSamplesArray(null) as $new_specimen) $columns_names[__($new_specimen['SampleControl']['sample_type'])] = __($new_specimen['SampleControl']['sample_type']);
+		ksort($columns_names);	
+		
 		$total_nbr = array();
 		
 		$query = "SELECT count(*) AS nbr_of_cases, collection_month, sample_type
@@ -125,33 +153,82 @@ class ReportsControllerCustom extends ReportsController {
 				$total_nbr[$column_key] += $new_data['0']['nbr_of_cases'];
 		}
 		
-		$query = "SELECT count(*) AS nbr_of_cases, collection_month, sample_type, study
-			FROM (
-				SELECT DISTINCT col.participant_id,
+		if($study_summary_ids) {
+			$link_index = 0;
+			if(preg_match('/collection/', $linked_to)) $link_index += 1;
+			if(preg_match('/aliquot/', $linked_to)) $link_index += 2;
+			if(preg_match('/event/', $linked_to)) $link_index += 4;
+			if(!$link_index) $link_index = 7;
+			
+			$study_queries = array();
+			if(in_array($link_index, array(1,3,7))) {
+				$study_queries[] = "SELECT DISTINCT col.participant_id,
+					MONTH(col.collection_datetime) AS collection_month,
+					sm.initial_specimen_sample_type,
+					st.title AS study
+					FROM collections AS col
+					INNER JOIN study_summaries AS st ON col.ovcare_study_summary_id = st.id
+					INNER JOIN sample_masters AS sm ON col.id = sm.collection_id
+					WHERE col.participant_id IS NOT NULL AND col.participant_id != '0' AND col.deleted != '1'
+					AND (col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql')
+					AND sm.deleted != '1'
+					AND st.deleted != '1' AND st.id IN ($study_summary_ids)";
+			}
+			if(in_array($link_index, array(2,3,6,7))) {
+				$study_queries[] = "SELECT DISTINCT col.participant_id,
+					MONTH(col.collection_datetime) AS collection_month,
+					sm.initial_specimen_sample_type,
+					st.title AS study
+					FROM collections AS col
+					INNER JOIN sample_masters AS sm ON col.id = sm.collection_id
+					INNER JOIN aliquot_masters AS am ON sm.id = am.sample_master_id 
+					INNER JOIN study_summaries AS st ON am.study_summary_id = st.id
+					WHERE col.participant_id IS NOT NULL AND col.participant_id != '0' AND col.deleted != '1'
+					AND (col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql')
+					AND sm.deleted != '1'
+					AND am.deleted != '1'
+					AND st.deleted != '1' AND st.id IN ($study_summary_ids)";
+			}		
+			if(in_array($link_index, array(4,6,7))) {
+				$study_queries[] = "SELECT DISTINCT col.participant_id,
 				MONTH(col.collection_datetime) AS collection_month,
-				sc.sample_type,
+				sm.initial_specimen_sample_type,
 				st.title AS study
 				FROM collections AS col
 				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id
-				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
-				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id
-				INNER JOIN study_summaries AS st ON st.id = am.study_summary_id
-				WHERE col.participant_id IS NOT NULL
-				AND col.participant_id != '0'
+				INNER JOIN aliquot_masters AS am ON sm.id = am.sample_master_id
+				INNER JOIN aliquot_internal_uses AS au ON am.id = au.aliquot_master_id
+				INNER JOIN study_summaries AS st ON au.study_summary_id = st.id
+				WHERE col.participant_id IS NOT NULL AND col.participant_id != '0' AND col.deleted != '1'
 				AND (col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql')
-				AND col.deleted != '1'
 				AND sm.deleted != '1'
 				AND am.deleted != '1'
-				AND st.deleted != '1' AND st.id IN ($study_summary_ids)
-			) AS res GROUP BY collection_month, sample_type, study
-			ORDER BY study, sample_type";
-		$collection_res = $this->Report->tryCatchQuery($query);
-		foreach($collection_res as $new_data) {
-			$column_key = $new_data['res']['study'].' - '.__($new_data['res']['sample_type']);
-			$data['ovcare_month_'.$new_data['res']['collection_month']][$column_key] = $new_data['0']['nbr_of_cases'];
-			$columns_names[$column_key] = $column_key;
-			if(!isset($total_nbr[$column_key])) $total_nbr[$column_key] = 0;
-			$total_nbr[$column_key] += $new_data['0']['nbr_of_cases'];
+				AND au.deleted <> 1
+				AND st.deleted != '1' AND st.id IN ($study_summary_ids)";
+			}
+			if(!$study_queries) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
+			$study_queries = implode(' UNION ALL ', $study_queries);
+			
+			$query = "SELECT count(*) AS nbr_of_cases, collection_month, initial_specimen_sample_type, study
+				FROM (
+					SELECT DISTINCT res2.participant_id,
+					res2.collection_month,
+					res2.initial_specimen_sample_type,
+					res2.study
+					FROM (
+						$study_queries
+					) res2
+				) AS res GROUP BY collection_month, initial_specimen_sample_type, study
+				ORDER BY study, initial_specimen_sample_type";
+			
+			$collection_res = $this->Report->tryCatchQuery($query);
+			foreach($collection_res as $new_data) {
+				$column_key = $new_data['res']['study'].' - '.__($new_data['res']['initial_specimen_sample_type']);
+				$data['ovcare_month_'.$new_data['res']['collection_month']][$column_key] = $new_data['0']['nbr_of_cases'];
+				$columns_names[$column_key] = $column_key;
+				if(!isset($total_nbr[$column_key])) $total_nbr[$column_key] = 0;
+				$total_nbr[$column_key] += $new_data['0']['nbr_of_cases'];
+			}	
 		}
 		
 		$data['ovcare_total'] = $total_nbr;
@@ -174,20 +251,44 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => 'you need privileges to access this page');
 		}
 		
-		// 1- Build header
+		// 1- Build Criteria
 		
-		$header = array('title' => '', 'description' => '');
+		$study_summary_ids = implode(',', array_filter($parameters[0]['study_summary_id']));
+		$linked_to = array_filter($parameters[0]['ovcare_study_applied_to']);
+		if($linked_to) {
+			if(sizeof($linked_to) > 1)
+				return array(
+					'header' => array(),
+					'data' => array(),
+					'columns_names' => null,
+					'error_msg' => 'only one linked to value can be selected');
+			$linked_to = array_shift($linked_to);
+		} else {
+			$linked_to = 'all';
+		}
 		
-		// 2- Build Criteria
+		// 2- Build header
 		
-		$study_summary_ids = implode(',', array_merge(array('-1'), $parameters[0]['study_summary_id']));
+		$header = array(
+			'title' => __('study').' : '.__('no study selection'), 
+			'description' => null);
+		if($study_summary_ids) {
+			$query = "SELECT title FROM study_summaries WHERE id IN ($study_summary_ids) AND deleted <> 1";
+			$study_titles = array();
+			foreach($this->Report->tryCatchQuery($query) as $new_study) $study_titles[] = "'".$new_study['study_summaries']['title']."'";
+			$header['title'] = __('study').' : '.implode(' & ', $study_titles);
+			$header['description'] = __('linked to').' : '.($linked_to == 'all'? __('all records') : __($linked_to));			
+		}
 		
 		// 3- Get data
 		$data = array('ovcare_year_other' => array());
 		for($id = 2000; $id < 2021; $id++) $data["ovcare_year_$id"] = array();
-		$columns_names = array(__('ascite') => __('ascite'), 
-			__('blood') => __('blood'), 
-			__('tissue') => __('tissue'));
+		
+		$sample_control_model = AppModel::getInstance("InventoryManagement", "SampleControl", true);
+		$columns_names = array();
+		foreach($sample_control_model->getPermissibleSamplesArray(null) as $new_specimen) $columns_names[__($new_specimen['SampleControl']['sample_type'])] = __($new_specimen['SampleControl']['sample_type']);
+		ksort($columns_names);	
+		
 		$total_nbr = array();
 		
 		$query = "SELECT count(*) AS nbr_of_cases, collection_year, sample_type
@@ -218,37 +319,82 @@ class ReportsControllerCustom extends ReportsController {
 				$total_nbr[$column_key] += $new_data['0']['nbr_of_cases'];
 		}
 		
-		$query = "SELECT count(*) AS nbr_of_cases, collection_year, sample_type, study
-			FROM (
-				SELECT DISTINCT col.participant_id,
+		if($study_summary_ids) {
+			$link_index = 0;
+			if(preg_match('/collection/', $linked_to)) $link_index += 1;
+			if(preg_match('/aliquot/', $linked_to)) $link_index += 2;
+			if(preg_match('/event/', $linked_to)) $link_index += 4;
+			if(!$link_index) $link_index = 7;
+			
+			$study_queries = array();
+			if(in_array($link_index, array(1,3,7))) {
+				$study_queries[] = "SELECT DISTINCT col.participant_id,
+					YEAR(col.collection_datetime) AS collection_year,
+					sm.initial_specimen_sample_type,
+					st.title AS study
+					FROM collections AS col
+					INNER JOIN study_summaries AS st ON col.ovcare_study_summary_id = st.id
+					INNER JOIN sample_masters AS sm ON col.id = sm.collection_id
+					WHERE col.participant_id IS NOT NULL AND col.participant_id != '0' AND col.deleted != '1'
+					AND sm.deleted != '1'
+					AND st.deleted != '1' AND st.id IN ($study_summary_ids)";
+			}
+			if(in_array($link_index, array(2,3,6,7))) {
+				$study_queries[] = "SELECT DISTINCT col.participant_id,
+					YEAR(col.collection_datetime) AS collection_year,
+					sm.initial_specimen_sample_type,
+					st.title AS study
+					FROM collections AS col
+					INNER JOIN sample_masters AS sm ON col.id = sm.collection_id
+					INNER JOIN aliquot_masters AS am ON sm.id = am.sample_master_id 
+					INNER JOIN study_summaries AS st ON am.study_summary_id = st.id
+					WHERE col.participant_id IS NOT NULL AND col.participant_id != '0' AND col.deleted != '1'
+					AND sm.deleted != '1'
+					AND am.deleted != '1'
+					AND st.deleted != '1' AND st.id IN ($study_summary_ids)";
+			}		
+			if(in_array($link_index, array(4,6,7))) {
+				$study_queries[] = "SELECT DISTINCT col.participant_id,
 				YEAR(col.collection_datetime) AS collection_year,
-				sc.sample_type,
+				sm.initial_specimen_sample_type,
 				st.title AS study
 				FROM collections AS col
 				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id
-				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
-				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id
-				INNER JOIN study_summaries AS st ON st.id = am.study_summary_id
-				WHERE col.participant_id IS NOT NULL
-				AND col.participant_id != '0'
-				AND col.deleted != '1'
+				INNER JOIN aliquot_masters AS am ON sm.id = am.sample_master_id
+				INNER JOIN aliquot_internal_uses AS au ON am.id = au.aliquot_master_id
+				INNER JOIN study_summaries AS st ON au.study_summary_id = st.id
+				WHERE col.participant_id IS NOT NULL AND col.participant_id != '0' AND col.deleted != '1'
 				AND sm.deleted != '1'
 				AND am.deleted != '1'
-				AND st.deleted != '1' AND st.id IN ($study_summary_ids)
-			) AS res GROUP BY collection_year, sample_type, study
-			ORDER BY sample_type";
-		$collection_res = $this->Report->tryCatchQuery($query);
-		foreach($collection_res as $new_data) {
-			$column_key = $new_data['res']['study'].' - '.__($new_data['res']['sample_type']);
-			If(!is_null($new_data['res']['collection_year']) && $new_data['res']['collection_year'] >= '2000' && $new_data['res']['collection_year'] <= '2020') {
-				$data['ovcare_year_'.$new_data['res']['collection_year']][$column_key] = $new_data['0']['nbr_of_cases'];
-			} else {
-				if(!array_key_exists($column_key, $data['ovcare_year_other'])) $data['ovcare_year_other'][$column_key]  = 0;
-				$data['ovcare_year_other'][$column_key] += $new_data['0']['nbr_of_cases'];
+				AND au.deleted <> 1
+				AND st.deleted != '1' AND st.id IN ($study_summary_ids)";
 			}
-			$columns_names[$column_key] = $column_key;
-			if(!isset($total_nbr[$column_key])) $total_nbr[$column_key] = 0;
-			$total_nbr[$column_key] += $new_data['0']['nbr_of_cases'];
+			if(!$study_queries) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
+			$study_queries = implode(' UNION ALL ', $study_queries);
+			$query = "SELECT count(*) AS nbr_of_cases, collection_year, initial_specimen_sample_type, study
+				FROM (
+					SELECT DISTINCT res2.participant_id,
+					res2.collection_year,
+					res2.initial_specimen_sample_type,
+					res2.study
+					FROM (
+						$study_queries
+					) AS res2
+				) AS res GROUP BY collection_year, initial_specimen_sample_type, study
+				ORDER BY initial_specimen_sample_type";
+			$collection_res = $this->Report->tryCatchQuery($query);
+			foreach($collection_res as $new_data) {
+				$column_key = $new_data['res']['study'].' - '.__($new_data['res']['initial_specimen_sample_type']);
+				If(!is_null($new_data['res']['collection_year']) && $new_data['res']['collection_year'] >= '2000' && $new_data['res']['collection_year'] <= '2020') {
+					$data['ovcare_year_'.$new_data['res']['collection_year']][$column_key] = $new_data['0']['nbr_of_cases'];
+				} else {
+					if(!array_key_exists($column_key, $data['ovcare_year_other'])) $data['ovcare_year_other'][$column_key]  = 0;
+					$data['ovcare_year_other'][$column_key] += $new_data['0']['nbr_of_cases'];
+				}
+				$columns_names[$column_key] = $column_key;
+				if(!isset($total_nbr[$column_key])) $total_nbr[$column_key] = 0;
+				$total_nbr[$column_key] += $new_data['0']['nbr_of_cases'];
+			}
 		}
 		
 		$data['ovcare_total'] = $total_nbr;

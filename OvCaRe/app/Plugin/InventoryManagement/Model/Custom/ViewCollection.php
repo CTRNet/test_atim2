@@ -23,6 +23,7 @@ Collection.ovcare_collection_voa_nbr,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 Collection.ovcare_collection_type,
+Collection.ovcare_study_summary_id,
 TreatmentDetail.path_num
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
@@ -33,16 +34,22 @@ LEFT JOIN txd_surgeries as TreatmentDetail ON TreatmentDetail.treatment_master_i
 		$return = false;
 		
 		if(isset($variables['Collection.id'])) {
-			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
+			$collection_data = $this->find('first', array('conditions'=> array('ViewCollection.collection_id' => $variables['Collection.id'])));
+			
+			$study_title = '';
+			if($collection_data['ViewCollection']['ovcare_study_summary_id']) {
+				$study_summary_model = AppModel::getInstance("Study", "StudySummary", true);
+				$collection_study = $study_summary_model->find('first', array('conditions' => array('StudySummary.id' => $collection_data['Collection']['ovcare_study_summary_id'])));		
+				if($collection_study) $study_title = ' | '.$collection_study['StudySummary']['title'].' ';
+			}
 			
 			$title = '';
 			if(empty($collection_data['ViewCollection']['participant_identifier'])) {
-				$title = __('VOA#').': - [-]';
+				$title = __('VOA#').': - '.$study_title.'[-]';
 			} else {
-				$title = __('VOA#').': '.(empty($collection_data['ViewCollection']['ovcare_collection_voa_nbr'])? '-':$collection_data['ViewCollection']['ovcare_collection_voa_nbr'])." [".$collection_data['ViewCollection']['participant_identifier']."]";
+				$title = __('VOA#').': '.(empty($collection_data['ViewCollection']['ovcare_collection_voa_nbr'])? '-':$collection_data['ViewCollection']['ovcare_collection_voa_nbr'])."$study_title [".$collection_data['ViewCollection']['participant_identifier']."]";
 			}
 			
-			$participant_identifier = empty($collection_data['ViewCollection']['participant_identifier'])? 'n/a' : $collection_data['ViewCollection']['participant_identifier'];
 			$return = array(
 				'menu' => array(null, $title),
 				'title' => array(null, $title),

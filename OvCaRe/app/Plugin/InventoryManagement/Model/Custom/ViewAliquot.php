@@ -18,6 +18,7 @@ class ViewAliquotCustom extends ViewAliquot {
 			Collection.acquisition_label,
 Collection.ovcare_collection_type, 
 Collection.ovcare_collection_voa_nbr,
+Collection.ovcare_study_summary_id,
 		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -76,5 +77,12 @@ AliquotMaster.study_summary_id,
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
+	
+	function addOvcareStudySummaryIdToParent(&$request_data) {
+		foreach($request_data as $key1 => $key1_data) {
+			$study_data = $this->find('first', array('conditions' => array('ViewAliquot.aliquot_master_id' => $key1_data['parent']['AliquotMaster']['id']), 'fields' => array('ViewAliquot.ovcare_study_summary_id'), 'recursive' => '-1'));
+			$request_data[$key1]['parent']['ViewAliquot']['ovcare_study_summary_id'] = $study_data['ViewAliquot']['ovcare_study_summary_id'];
+		}
+	}
 	
 }

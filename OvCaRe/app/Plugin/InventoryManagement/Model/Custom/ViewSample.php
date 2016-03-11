@@ -19,6 +19,7 @@ class ViewSampleCustom extends ViewSample {
 		Collection.acquisition_label,
 Collection.ovcare_collection_type,
 Collection.ovcare_collection_voa_nbr, 
+Collection.ovcare_study_summary_id,
 	
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
