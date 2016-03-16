@@ -15,9 +15,9 @@ class OrderItemsController extends OrderAppController {
 		'Order.Shipment');
 		
 	var $paginate = array(
-		'OrderItem'=>array('limit'=>pagination_amount,'order'=>'AliquotMaster.barcode'),
-		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
+		'OrderItem'=>array('order'=>'AliquotMaster.barcode'),
+		'ViewAliquot' => array('order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotMaster' => array('order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
@@ -115,6 +115,7 @@ class OrderItemsController extends OrderAppController {
 			foreach($this->request->data as &$data_unit){
 				$row_counter++;
 				$this->OrderItem->id = null;
+				$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
 				$this->OrderItem->set($data_unit);
 				if(!$this->OrderItem->validates()){
 					foreach($this->OrderItem->validationErrors as $field => $msgs) {
@@ -424,6 +425,7 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem']['aliquot_master_id'] = $added_aliquot_master_id;
 					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->request->data['OrderItem']);
 					$this->OrderItem->addWritableField(array('status', 'aliquot_master_id'));
+					$this->OrderItem->data = null;
 					$this->OrderItem->id = null;
 					if(!$this->OrderItem->save($new_order_item_data, false)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
@@ -517,6 +519,8 @@ class OrderItemsController extends OrderAppController {
 				if(!isset($order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_studied_item['OrderItem']['id'] = $order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']];
 				// Launch Order Item validation
+				$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
+				$this->OrderItem->id = $new_studied_item['OrderItem']['id'];
 				$this->OrderItem->set($new_studied_item);
 				$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;
 				$new_studied_item = $this->OrderItem->data;
@@ -537,6 +541,7 @@ class OrderItemsController extends OrderAppController {
 				// Launch save process
 				foreach($this->request->data as $order_item){
 					// Save data
+					$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
 					$this->OrderItem->id = $order_item['OrderItem']['id'];
 					if(!$this->OrderItem->save($order_item['OrderItem'], false)) {
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
@@ -622,6 +627,11 @@ class OrderItemsController extends OrderAppController {
 					if(!$this->OrderLine->save($order_line_data)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
 					}
+				}
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
 				}
 				
 				// Redirect

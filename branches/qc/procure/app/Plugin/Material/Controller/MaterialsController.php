@@ -2,7 +2,7 @@
 
 class MaterialsController extends MaterialAppController {
 	var $uses = array('Material.Material');
-	var $paginate = array('Material'=>array('limit' => pagination_amount,'order'=>'Material.item_name'));
+	var $paginate = array('Material'=>array('order'=>'Material.item_name'));
 	
 	function index() {
 		// CUSTOM CODE: FORMAT DISPLAY DATA

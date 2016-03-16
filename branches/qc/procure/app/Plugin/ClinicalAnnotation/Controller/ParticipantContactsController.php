@@ -6,7 +6,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.ParticipantContact',
 		'ClinicalAnnotation.Participant'
 	);
-	var $paginate = array('ParticipantContact'=>array('limit' => pagination_amount,'order'=>'ParticipantContact.contact_type ASC'));	
+	var $paginate = array('ParticipantContact'=>array('order'=>'ParticipantContact.contact_type ASC'));	
 	
 	function listall( $participant_id ) {
 		// MANAGE DATA
@@ -147,6 +147,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->ParticipantContact->atimDelete( $participant_contact_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 			else {
