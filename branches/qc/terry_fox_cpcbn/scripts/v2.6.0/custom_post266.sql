@@ -699,3 +699,15 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6395' WHERE version_number = '2.6.6';
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Change procure_generated to qc_tf_generated
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET field = 'qc_tf_generated_label_for_display' WHERE field = 'procure_generated_label_for_display';
+UPDATE structure_fields SET field = 'qc_tf_generated_selection_label_precision_for_display' WHERE field = 'procure_generated_selection_label_precision_for_display';
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6436' WHERE version_number = '2.6.6';

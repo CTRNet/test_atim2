@@ -63,7 +63,7 @@ class AliquotMasterCustom extends AliquotMaster {
 						$aliquot_view_data = array('ViewAliquot' => $result['ViewAliquot']);
 					}
 					if(isset($result['AliquotMaster']['aliquot_label'])) $result['AliquotMaster']['aliquot_label'] = $aliquot_view_data['ViewAliquot']['aliquot_label'];
-					if(isset($aliquot_view_data['ViewAliquot']['procure_generated_label_for_display'])) $result['AliquotMaster']['procure_generated_label_for_display'] = $aliquot_view_data['ViewAliquot']['procure_generated_label_for_display'];
+					if(isset($aliquot_view_data['ViewAliquot']['qc_tf_generated_label_for_display'])) $result['AliquotMaster']['qc_tf_generated_label_for_display'] = $aliquot_view_data['ViewAliquot']['qc_tf_generated_label_for_display'];
 				}
 			}
 		} else if(isset($results['AliquotMaster'])){

@@ -233,16 +233,16 @@ class ReportsControllerCustom extends ReportsController {
 					if(isset($new_participant['StorageMaster']['qc_tf_tma_label_site'])) $new_participant['StorageMaster']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
 					if(isset($new_participant['StorageMaster']['qc_tf_tma_name'])) $new_participant['StorageMaster']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
 				}
-				//Create the storage information label to display$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['short_label'];
-				$procure_generated_label_for_display = $new_participant['StorageMaster']['short_label'];
+				//Create the storage information label to display$result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['short_label'];
+				$qc_tf_generated_label_for_display = $new_participant['StorageMaster']['short_label'];
 				if(isset($new_participant['StorageMaster']['qc_tf_tma_name'])) {
 					if($_SESSION['Auth']['User']['group_id'] == '1') {
-						$procure_generated_label_for_display = $new_participant['StorageMaster']['qc_tf_tma_name'].(isset($new_participant['StorageMaster']['qc_tf_bank_id'])? ' ('.$bank_list[$new_participant['StorageMaster']['qc_tf_bank_id']].')' : '');
+						$qc_tf_generated_label_for_display = $new_participant['StorageMaster']['qc_tf_tma_name'].(isset($new_participant['StorageMaster']['qc_tf_bank_id'])? ' ('.$bank_list[$new_participant['StorageMaster']['qc_tf_bank_id']].')' : '');
 					} else if($new_participant['StorageMaster']['qc_tf_bank_id'] == $user_bank_id) {
-						$procure_generated_label_for_display = $new_participant['StorageMaster']['qc_tf_tma_label_site'];
+						$qc_tf_generated_label_for_display = $new_participant['StorageMaster']['qc_tf_tma_label_site'];
 					}
 				}
-				$new_participant['StorageMaster']['procure_generated_selection_label_precision_for_display'] = ($procure_generated_label_for_display == $new_participant['StorageMaster']['short_label'])? '' : '|| '.$procure_generated_label_for_display;	
+				$new_participant['StorageMaster']['qc_tf_generated_selection_label_precision_for_display'] = ($qc_tf_generated_label_for_display == $new_participant['StorageMaster']['short_label'])? '' : '|| '.$qc_tf_generated_label_for_display;	
 			}
 		}
 		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';

@@ -138,23 +138,23 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qc_tf_ban
 				if(array_key_exists('aliquot_label', $result['ViewAliquot'])) {
 					if($result['ViewAliquot']['qc_tf_is_tma_sample_control'] == 'y') {
 						//Tissue Control
-						$result['ViewAliquot']['procure_generated_label_for_display'] = 
+						$result['ViewAliquot']['qc_tf_generated_label_for_display'] = 
 							$result['ViewAliquot']['qc_tf_tma_sample_control_code']." ".
 							$result['ViewAliquot']['aliquot_label']." (".__('control').
 							(empty($result['ViewAliquot']['qc_tf_tma_sample_control_bank_id'])? '' : ' - '.$bank_list[$result['ViewAliquot']['qc_tf_tma_sample_control_bank_id']]).')';
 					} else {
 						//Particiapnt Tissue
-						$result['ViewAliquot']['procure_generated_label_for_display'] = 
+						$result['ViewAliquot']['qc_tf_generated_label_for_display'] = 
 							$result['ViewAliquot']['aliquot_label'].
 							(empty($result['ViewAliquot']['participant_identifier'])? '' : ' - P# '.$result['ViewAliquot']['participant_identifier']);
 						if($user_bank_id == 'all') {
-							$result['ViewAliquot']['procure_generated_label_for_display'] .= " (".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].' ['.$result['ViewAliquot']['participant_bank_name'].'])';
+							$result['ViewAliquot']['qc_tf_generated_label_for_display'] .= " (".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].' ['.$result['ViewAliquot']['participant_bank_name'].'])';
 						} else if($result['ViewAliquot']['bank_id'] == $user_bank_id) {
-							$result['ViewAliquot']['procure_generated_label_for_display'] .= " (".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].')';
+							$result['ViewAliquot']['qc_tf_generated_label_for_display'] .= " (".$result['ViewAliquot']['qc_tf_bank_participant_identifier'].')';
 						}
 					}
 				}
-				$result['ViewAliquot']['procure_generated_selection_label_precision_for_display'] = (isset($result['StorageMaster']) && isset($result['StorageMaster']['procure_generated_selection_label_precision_for_display']))? $result['StorageMaster']['procure_generated_selection_label_precision_for_display']: '';
+				$result['ViewAliquot']['qc_tf_generated_selection_label_precision_for_display'] = (isset($result['StorageMaster']) && isset($result['StorageMaster']['qc_tf_generated_selection_label_precision_for_display']))? $result['StorageMaster']['qc_tf_generated_selection_label_precision_for_display']: '';
 			}			
 		} else if(isset($results['ViewAliquot'])){
 			pr('TODO #2 afterFind ViewAliquot');

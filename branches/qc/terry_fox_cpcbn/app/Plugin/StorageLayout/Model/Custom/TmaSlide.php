@@ -29,7 +29,7 @@ class TmaSlideCustom extends TmaSlide{
 				$tma_block_storage_master_id = $result['TmaSlide']['tma_block_storage_master_id'];
 				if(!isset($blocks_from_storage_master_ids[$tma_block_storage_master_id])) {
 					//First time a slide of this block is listed
-					//Use StorageMaster.afterFind() function to add Block.procure_generated_label_for_display
+					//Use StorageMaster.afterFind() function to add Block.qc_tf_generated_label_for_display
 					if(!$StorageMasterModel) $StorageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 					$block_data = $StorageMasterModel->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
 					$blocks_from_storage_master_ids[$tma_block_storage_master_id] = $block_data['StorageMaster'];
@@ -43,14 +43,14 @@ class TmaSlideCustom extends TmaSlide{
 				}
 				//Create the TMASLide information label to display
  				if(isset($result['TmaSlide']['barcode'])) {
- 					$result['TmaSlide']['procure_generated_label_for_display'] = $result['TmaSlide']['barcode'];
+ 					$result['TmaSlide']['qc_tf_generated_label_for_display'] = $result['TmaSlide']['barcode'];
  					if(isset($result['Block']['short_label'])) {
- 						$result['TmaSlide']['procure_generated_label_for_display'] = $result['Block']['short_label'].' ('.$result['TmaSlide']['barcode'].')';
+ 						$result['TmaSlide']['qc_tf_generated_label_for_display'] = $result['Block']['short_label'].' ('.$result['TmaSlide']['barcode'].')';
  						if(isset($result['Block']['qc_tf_tma_name'])) {
  							if($user_bank_id == 'all') {
- 								$result['TmaSlide']['procure_generated_label_for_display'] = $result['Block']['qc_tf_tma_name'].' Sect#'.$result['TmaSlide']['qc_tf_cpcbn_section_id'].(isset($result['Block']['qc_tf_bank_id'])? ' ('.$bank_list[$result['Block']['qc_tf_bank_id']].')' : '');
+ 								$result['TmaSlide']['qc_tf_generated_label_for_display'] = $result['Block']['qc_tf_tma_name'].' Sect#'.$result['TmaSlide']['qc_tf_cpcbn_section_id'].(isset($result['Block']['qc_tf_bank_id'])? ' ('.$bank_list[$result['Block']['qc_tf_bank_id']].')' : '');
  							} else if($result['Block']['qc_tf_bank_id'] == $user_bank_id) {
- 								$result['TmaSlide']['procure_generated_label_for_display'] = $result['Block']['qc_tf_tma_label_site'].' Sect#'.$result['TmaSlide']['qc_tf_cpcbn_section_id'];
+ 								$result['TmaSlide']['qc_tf_generated_label_for_display'] = $result['Block']['qc_tf_tma_label_site'].' Sect#'.$result['TmaSlide']['qc_tf_cpcbn_section_id'];
  							}
  						}
  					}

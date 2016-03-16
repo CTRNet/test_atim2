@@ -9,7 +9,7 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster {
 			$ViewAliquotModel = AppModel::getInstance('InventoryManagement', 'ViewAliquot', true);
 			$aliquot_data = $ViewAliquotModel->find('first', array('conditions' => array('ViewAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		}
-		return $aliquot_data['ViewAliquot']['barcode'].' ['.$aliquot_data['ViewAliquot']['procure_generated_label_for_display'].']';
+		return $aliquot_data['ViewAliquot']['barcode'].' ['.$aliquot_data['ViewAliquot']['qc_tf_generated_label_for_display'].']';
 	}
 }
 
