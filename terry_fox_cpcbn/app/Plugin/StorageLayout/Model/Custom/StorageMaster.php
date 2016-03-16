@@ -37,8 +37,8 @@ class StorageMasterCustom extends StorageMaster{
 	}
 	
 	function getLabel(array $children_array, $type_key, $label_key) {
-		if(isset($children_array[$type_key]['procure_generated_label_for_display'])) {
-			return $children_array[$type_key]['procure_generated_label_for_display'];
+		if(isset($children_array[$type_key]['qc_tf_generated_label_for_display'])) {
+			return $children_array[$type_key]['qc_tf_generated_label_for_display'];
 		}
 		return $children_array[$type_key][$label_key];
 	}
@@ -84,15 +84,18 @@ class StorageMasterCustom extends StorageMaster{
 				}
 				//Create the storage information label to display
 				if(isset($result['StorageMaster']['short_label'])) {
-					$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['short_label'];
+					$result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['short_label'];
 					if(isset($result['StorageMaster']['qc_tf_tma_name'])) {
 						if($user_bank_id == 'all') {
-							$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_name']." [".$result['StorageMaster']['short_label']."]".(isset($result['StorageMaster']['qc_tf_bank_id'])? ' ('.$bank_list[$result['StorageMaster']['qc_tf_bank_id']].')' : '');
+							$result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_name']." [".$result['StorageMaster']['short_label']."]".(isset($result['StorageMaster']['qc_tf_bank_id'])? ' ('.$bank_list[$result['StorageMaster']['qc_tf_bank_id']].')' : '');
 						} else if($result['StorageMaster']['qc_tf_bank_id'] == $user_bank_id) {
-							$result['StorageMaster']['procure_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_label_site'];
+							$result['StorageMaster']['qc_tf_generated_label_for_display'] = $result['StorageMaster']['qc_tf_tma_label_site'];
 						}
 					}
-					$result['StorageMaster']['procure_generated_selection_label_precision_for_display'] = ($result['StorageMaster']['procure_generated_label_for_display'] == $result['StorageMaster']['short_label'])? '' : '|| '.$result['StorageMaster']['procure_generated_label_for_display'];
+					$result['StorageMaster']['qc_tf_generated_selection_label_precision_for_display'] = ($result['StorageMaster']['qc_tf_generated_label_for_display'] == $result['StorageMaster']['short_label'])? '' : '|| '.$result['StorageMaster']['qc_tf_generated_label_for_display'];
+				} else {
+					$result['StorageMaster']['qc_tf_generated_label_for_display'] = '';
+					$result['StorageMaster']['qc_tf_generated_selection_label_precision_for_display'] = '';
 				}
 			}
 		} else if(isset($results['StorageMaster'])){
