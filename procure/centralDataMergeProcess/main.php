@@ -830,6 +830,21 @@ createBatchSet('ViewAliquot', 'Untransferred alq. flagged as sent to p. site', $
 // Check only transferred aliquots are defined as 'received from bank' in processing site
 // Note: Check done in bank
 
+// Count the number of transferred aliquot available un bank
+
+$query = "SELECT count(*) AS nbr, BankAliquotMaster.procure_created_by_bank, BankAliquotControl.databrowser_label
+	FROM aliquot_masters BankAliquotMaster, aliquot_controls BankAliquotControl, realiquotings TransferLink
+	WHERE TransferLink.procure_central_is_transfer = '1' 
+	AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id
+	AND BankAliquotControl.id = BankAliquotMaster.aliquot_control_id
+	AND BankAliquotMaster.in_stock IN ('yes - available', 'yes - not available')
+	GROUP BY BankAliquotMaster.procure_created_by_bank
+	ORDER BY BankAliquotMaster.procure_created_by_bank, BankAliquotControl.databrowser_label";
+$available_transferred_aliquot_count = getSelectQueryResult($query);
+foreach($available_transferred_aliquot_count as $new_count) {
+	recordErrorAndMessage('Participants', '@@WARNING@@', "'Transferred Aliquot' flagged as 'In stock' in bank", "Number of aliquots defined as 'In Stock' in the bank database and recored as transferred from bank to processing site based on the barcodes match of a bank aliquot and a processing site aliquot flagged as transfered. Please validate with bank.", $new_count['nbr'].' '.str_replace('|', ' ', $new_count['databrowser_label'])."' in '".$sitecodes_to_sites[$new_count['procure_created_by_bank']]."'");
+}
+
 //**********************************************************************************************************************************************************************************************
 //
 // FINAL PROCESSES

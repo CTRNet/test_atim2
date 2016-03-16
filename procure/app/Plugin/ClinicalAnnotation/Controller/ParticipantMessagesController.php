@@ -5,7 +5,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.ParticipantMessage',
 		'ClinicalAnnotation.Participant');
-	var $paginate = array('ParticipantMessage'=>array('limit' => pagination_amount,'order'=>'ParticipantMessage.date_requested'));
+	var $paginate = array('ParticipantMessage'=>array('order'=>'ParticipantMessage.date_requested'));
 
 	function listall( $participant_id ) {
 		// MANAGE DATA
@@ -38,37 +38,129 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	}
 	
 	function add( $participant_id=null ) {
-		// MANAGE DATA
-		$participant_data = $this->Participant->getOrRedirect($participant_id);
+		//GET DATA
+		
+		$initial_display = false;
+		$participant_ids = array();
 	
+		$url_to_cancel = 'javascript:history.go(-1)';
+		if(isset($this->request->data['url_to_cancel'])) {
+			$url_to_cancel = $this->request->data['url_to_cancel'];
+			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
+				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
+				$url_to_cancel = 'javascript:history.go('.$back.')';
+			}
+		}
+		unset($this->request->data['url_to_cancel']);
+		$this->set('url_to_cancel', $url_to_cancel);
+	
+		if($participant_id){
+			// User is working on a participant
+			$participant_ids = array($participant_id);
+			if(empty($this->request->data)) $initial_display = true;
+		} else if(isset($this->request->data['Participant']['id'])){
+			// User launched an action from the DataBrowser or a Report Form
+			if($this->request->data['Participant']['id'] == 'all' && isset($this->request->data['node'])) {
+				//The displayed elements number was higher than the databrowser_and_report_results_display_limit
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data['Participant']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
+			$participant_ids = array_filter($this->request->data['Participant']['id']);
+			$initial_display = true;
+		} else if(isset($this->request->data['participant_ids'])) {
+			$participant_ids = explode(',',$this->request->data['participant_ids']);
+			unset($this->request->data['participant_ids']);
+		} else {
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
+			return;
+		}
+		
+		// Get participants data
+		
+		$participants = $this->Participant->find('all', array('conditions' => array('Participant.id' => $participant_ids), 'recursive' => '0'));
+		if(!$participants)
+			$this->flash((__('at least one participant should be selected')), $url_to_cancel, 5);
+		$display_limit = Configure::read('ParticipantMessageCreation_processed_participants_limit');
+		if(sizeof($participants) > $display_limit) 
+			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+		$this->set('participant_ids',implode(',',$participant_ids));
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		if(!$participant_id) {
+			$this->set('atim_menu', $this->Menus->get('/InventoryManagement/'));
+		}
 		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
+		//MANAGE DATA
+		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if($hook_link){
+			require($hook_link);
+		}
 		
-		if ( !empty($this->request->data) ) {
-			$this->request->data['ParticipantMessage']['participant_id'] = $participant_id;
+		if($initial_display) {
+				
+			$this->request->data = array();
+				
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+		
+		} else {
 			
 			$submitted_data_validates = true;
-			// ... special validations
+				
+			// Validation
+				
+			$this->ParticipantMessage->id = null;
+			$this->ParticipantMessage->data = null;
+			$this->ParticipantMessage->set($this->request->data);
+			if(!$this->ParticipantMessage->validates()) $submitted_data_validates = false;
+			$this->request->data = $this->ParticipantMessage->data;
 			
-			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { 
-				require($hook_link); 
-			}	
-			
+			if($hook_link){
+				require($hook_link);
+			}
+
 			if($submitted_data_validates) {
-				$this->ParticipantMessage->addWritableField('participant_id');
-				if ( $this->ParticipantMessage->save($this->request->data) ) {
-					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) {
-						require($hook_link);
-					}
+				
+				//saving
+				
+				$this->ParticipantMessage->addWritableField(array('participant_id'));
+				$this->ParticipantMessage->writable_fields_mode = 'add';
+				foreach($participant_ids as $message_participant_id) {
+					$this->ParticipantMessage->id = null;
+					$this->ParticipantMessage->data = null;
+					$this->request->data['ParticipantMessage']['participant_id'] = $message_participant_id;
+					if (!$this->ParticipantMessage->save($this->request->data, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+			
+				$hook_link = $this->hook('postsave_process');
+				if($hook_link){
+					require($hook_link);
+				}
+			
+				if($participant_id) {
 					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/ParticipantMessages/detail/'.$participant_id.'/'.$this->ParticipantMessage->id );
-				}			
+				} else {
+					//batch
+					$batch_ids = $participant_ids;
+					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+						
+					$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id'	=> $datamart_structure->getIdByModelName('Participant'),
+						'flag_tmp' => true
+					));
+						
+					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
+					
+					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+				}
 			}
 		}
 	}
@@ -124,6 +216,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 		
 			if( $this->ParticipantMessage->atimDelete( $participant_message_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantMessages/listall/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantMessages/listall/'.$participant_id );

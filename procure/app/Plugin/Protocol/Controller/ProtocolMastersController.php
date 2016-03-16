@@ -6,7 +6,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		'Protocol.ProtocolControl', 
 		'Protocol.ProtocolMaster');
 		
-	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.code DESC'));
+	var $paginate = array('ProtocolMaster'=>array('order'=>'ProtocolMaster.code DESC'));
 	
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
@@ -129,6 +129,10 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->ProtocolMaster->atimDelete( $protocol_master_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Protocol/ProtocolMasters/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
