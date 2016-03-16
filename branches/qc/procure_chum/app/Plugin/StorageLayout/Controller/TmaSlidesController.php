@@ -10,7 +10,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		'StorageLayout.StorageCoordinate',
 		'StorageLayout.StorageControl');
 	
-	var $paginate = array('TmaSlide' => array('limit' => pagination_amount,'order' => 'TmaSlide.barcode DESC'));
+	var $paginate = array('TmaSlide' => array('order' => 'TmaSlide.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -65,20 +65,20 @@ class TmaSlidesController extends StorageLayoutAppController {
 			}
 		}
 		unset($this->request->data['url_to_cancel']);
-				
+		
 		if($tma_block_storage_master_id != null){
 			// User is workning on a tma block
 			$tma_block_ids = array($tma_block_storage_master_id);
 			if(empty($this->request->data)) $initial_display = true;
-		} else if(isset($this->request->data['ViewStorageMaster']['id'])){
+		} else if(isset($this->request->data['TmaBlock']['id'])){
 			// User launched an action from the DataBrowser or a Report Form
-			if($this->request->data['ViewStorageMaster']['id'] == 'all' && isset($this->request->data['node'])) {
+			if($this->request->data['TmaBlock']['id'] == 'all' && isset($this->request->data['node'])) {
 				//The displayed elements number was higher than the databrowser_and_report_results_display_limit
 				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
 				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
-				$this->request->data['ViewStorageMaster']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				$this->request->data['TmaBlock']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 			}
-			$tma_block_ids = array_filter($this->request->data['ViewStorageMaster']['id']);
+			$tma_block_ids = array_filter($this->request->data['TmaBlock']['id']);
 			$initial_display = true;
 		}else if(!empty($this->request->data)) {
 			// User submit data of the TmaSlide.add() form
@@ -471,7 +471,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 			$record_counter = 0;
 			foreach($this->request->data as $key => $new_studied_tma){
 				$record_counter++;
-				// Get order item id
+				// Get id
 				if(!isset($slide_id_by_barcode[$new_studied_tma['TmaSlide']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_studied_tma['TmaSlide']['id'] = $slide_id_by_barcode[$new_studied_tma['TmaSlide']['barcode']];
 				// Launch Slide validation
@@ -498,10 +498,11 @@ class TmaSlidesController extends StorageLayoutAppController {
 				// Launch save process
 				$this->TmaSlide->addWritableField(array('storage_master_id'));
 				$this->TmaSlide->writable_fields_mode = 'editgrid';
-				foreach($this->request->data as $order_item){
+				foreach($this->request->data as $tma_data){
 					// Save data
-					$this->TmaSlide->id = $order_item['TmaSlide']['id'];
-					if(!$this->TmaSlide->save($order_item['TmaSlide'], false)) { 
+					$this->TmaSlide->data = array();
+					$this->TmaSlide->id = $tma_data['TmaSlide']['id'];
+					if(!$this->TmaSlide->save($tma_data['TmaSlide'], false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 				}
@@ -577,6 +578,10 @@ class TmaSlidesController extends StorageLayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete tma slide
 			if($this->TmaSlide->atimDelete($tma_slide_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/detail/' . $tma_block_storage_master_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);

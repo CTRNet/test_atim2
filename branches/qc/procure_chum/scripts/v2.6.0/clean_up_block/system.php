@@ -392,7 +392,8 @@ function updateTableData($id, $tables_data, $db_schema) {
 		$main_or_master_tablename = null;
 		switch(sizeof($tables_data)) {
 			case '1':
-				$main_or_master_tablename = array_shift(array_keys($tables_data));
+				$main_or_master_tablename = array_keys($tables_data);
+				$main_or_master_tablename = array_shift($main_or_master_tablename);
 				if(!empty($tables_data[$main_or_master_tablename])) $to_update = true;
 				break;
 			case '2':

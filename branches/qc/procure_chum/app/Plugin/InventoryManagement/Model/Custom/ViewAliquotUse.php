@@ -85,7 +85,7 @@ SampleMaster.procure_created_by_bank AS procure_created_by_bank
 	
 		SELECT CONCAT(Realiquoting.id ,2) AS id,
 		AliquotMaster.id AS aliquot_master_id,
-		'realiquoted to' AS use_definition,
+IF(Realiquoting.procure_central_is_transfer = '1', '###system_transfer_flag###', 'realiquoted to') AS use_definition,
 		AliquotMasterChild.barcode AS use_code,
 		'' AS use_details,
 		Realiquoting.parent_used_volume AS used_volume,

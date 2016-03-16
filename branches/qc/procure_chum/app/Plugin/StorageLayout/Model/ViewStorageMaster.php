@@ -10,7 +10,7 @@ class ViewStorageMaster extends StorageLayoutAppModel {
 			'className'    => 'StorageLayout.StorageControl',
 			'foreignKey'    => 'storage_control_id'
 		),'StorageMaster'	=> array(
-			'className'    => 'StorageLayour.StorageMaster',
+			'className'    => 'StorageLayout.StorageMaster',
 			'foreignKey'    => 'id',
 			'type'			=> 'INNER')
 	);
@@ -19,6 +19,7 @@ class ViewStorageMaster extends StorageLayoutAppModel {
 	
 	static $table_query = '
 		SELECT StorageMaster.*, 
+		StorageControl.is_tma_block,
 		IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(ChildStorageMaster.id)) AS empty_spaces 
 		FROM storage_masters AS StorageMaster
 		INNER JOIN storage_controls AS StorageControl ON StorageMaster.storage_control_id=StorageControl.id
