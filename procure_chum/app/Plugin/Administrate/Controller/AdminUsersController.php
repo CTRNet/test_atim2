@@ -2,7 +2,7 @@
 
 class AdminUsersController extends AdministrateAppController {
 	var $uses = array('User', 'Group');
-	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC'));
+	var $paginate = array('User'=>array('order'=>'User.username ASC'));
 
 	function beforeFilter(){
 		parent::beforeFilter();

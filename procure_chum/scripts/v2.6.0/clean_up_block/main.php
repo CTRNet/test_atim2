@@ -7,7 +7,7 @@ require_once 'system.php';
 // Main Code
 //==============================================================================================
 
-$excel_file_name = 'ListFrozenBlocksATiMs_20140807_revised.xls';
+$excel_file_name = 'ListFrozenBlocksATiMs_20160215_revised.xls';
 
 displayMigrationTitle('PROCURE Blocks Clean Up', array($excel_file_name));
 
@@ -18,7 +18,7 @@ if(!testExcelFile(array($excel_file_name))) {
 
 $new_procure_box_master_ids = array();
 
-$max_rght = getSelectQueryResult('select max(rght) as last_rght from storage_masters WHERE deleted <> 1;');
+$max_rght = getSelectQueryResult("select max(rght) as last_rght from $procure_db_schema.storage_masters WHERE deleted <> 1;");
 $max_rght = $max_rght[0]['last_rght'];
 
 $worksheet_name = 'Feuil1';
@@ -67,14 +67,14 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 				INNER JOIN $procure_db_schema.sd_spe_tissues sd ON sd.sample_master_id = sam.id
 				INNER JOIN $procure_db_schema.collections col ON col.id = sam.collection_id
 				INNER JOIN $procure_db_schema.participants p ON p.id = col.participant_id
-				LEFT JOIN $procure_db_schema.storage_masters stm ON stm.id = am.storage_master_id
+				LEFT JOIN $procure_db_schema.storage_masters stm ON stm.id = am.storage_master_id AND stm.deleted <> 1
 				LEFT JOIN $procure_db_schema.misc_identifiers mid_nolabo ON mid_nolabo.participant_id = p.id AND mid_nolabo.deleted <> 1 AND mid_nolabo.misc_identifier_control_id = ".$atim_controls[$procure_db_schema]['misc_identifier_controls']['prostate bank no lab']['id']."
 				LEFT JOIN $procure_db_schema.misc_identifiers mid_nopatho ON mid_nopatho.participant_id = p.id AND mid_nopatho.deleted <> 1 AND mid_nopatho.misc_identifier_control_id = ".$atim_controls[$procure_db_schema]['misc_identifier_controls']['participant patho identifier']['id']."
 				WHERE am.deleted <> 1 AND (ad.block_type = 'frozen' OR ad.procure_freezing_type IN ('OCT', 'ISO+OCT')) 
 				AND %%criteria%%;";
 			$query_criteria = "am.barcode = '$xls_procure_barcode'";
 			$procure_block = getSelectQueryResult(str_replace(array('%%criteria%%'), array($query_criteria), $query));
-			
+						
 			$found_by_position = false;
 			if(!$procure_block) {
 				//In case block not found...
@@ -98,8 +98,13 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 				
 				$update_position = true;
 				
-				if($xls_procure_participant_identifier && $xls_procure_participant_identifier != $atim_procure_block_data['participant_identifier'])
-					recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Identification (part.) mismatch  :: Position update should be done (to check) but the identification clean up won't be. To do manually after update process.", ("See excel value '$xls_procure_participant_identifier' and ATiM value '".$atim_procure_block_data['participant_identifier']."' for the block '$xls_procure_barcode'. ".($found_by_position? 'But please take care aliquot has been found by position.' : '')));
+				if($xls_procure_participant_identifier && $xls_procure_participant_identifier != $atim_procure_block_data['participant_identifier']) {
+					if($found_by_position) {
+						recordErrorAndMessage('PROCURE Block Update', '@@MESSAGE@@', "Identification (part.) mismatch (note aliquot not found by label but by position - label has probably be updated after excel build) :: Position update should be done (to check) but the identification clean up won't be. To do manually after update process.", ("See excel value '$xls_procure_participant_identifier' and ATiM value '".$atim_procure_block_data['participant_identifier']."' for the block '$xls_procure_barcode'. "));
+					} else {
+						recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Identification (part.) mismatch :: Position update should be done (to check) but the identification clean up won't be. To do manually after update process.", ("See excel value '$xls_procure_participant_identifier' and ATiM value '".$atim_procure_block_data['participant_identifier']."' for the block '$xls_procure_barcode'. "));
+					}
+				}
 						
 				if($xls_no_labo != $atim_procure_block_data['mid_nolabo_identifier_value'])
 					recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "NoLabo mismatch  :: Position update should be done (to check) but the NoLabo clean up won't be. To do manually after update process.", "See excel value '$xls_no_labo' and ATiM value '".$atim_procure_block_data['mid_nolabo_identifier_value']."' for the block '$xls_procure_barcode'.");
@@ -134,7 +139,12 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 					recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Origin of slice mismatch :: Position update should be done (to check) but the origin value clean up won't be. To do manually after update process.", "See excel value '$xls_procure_origin_of_slice' and ATiM value '".$atim_procure_block_data['procure_origin_of_slice']."' for the block '$xls_procure_barcode'.");
 				
 				if($xls_storage_selection_label != $atim_procure_block_data['selection_label'] || $xls_storage_coord_x != $atim_procure_block_data['storage_coord_x']) {
-					recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Initial block position mismatch :: But position update should be done (to check).", "See excel value '$xls_storage_selection_label (pos#$xls_storage_coord_x)' and ATiM value '".$atim_procure_block_data['selection_label']." (pos#".$atim_procure_block_data['storage_coord_x'].")' for the block '$xls_procure_barcode'.");
+					if(isset($new_procure_box_master_ids[$atim_procure_block_data['selection_label']])) {
+						$update_position = false;
+						recordErrorAndMessage('PROCURE Block Update', '@@ERROR@@', "Initial block position mismatch - Aliquot seams to be already moved :: Check aliquot is not defined twice. Both the value clean up (no patho, etc) and the postion update won't be done. To do manually after update process.", "See excel value '$xls_storage_selection_label (pos#$xls_storage_coord_x)' and ATiM value '".$atim_procure_block_data['selection_label']." (pos#".$atim_procure_block_data['storage_coord_x'].")' for the block '$xls_procure_barcode'.");
+					} else {
+						recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Initial block position mismatch :: But position update should be done (to check).", "See excel value '$xls_storage_selection_label (pos#$xls_storage_coord_x)' and ATiM value '".$atim_procure_block_data['selection_label']." (pos#".$atim_procure_block_data['storage_coord_x'].")' for the block '$xls_procure_barcode'.");
+					}
 				}
 	
 				if(!$xls_new_storage_selection_label) {
@@ -231,7 +241,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 			} else if(sizeof($procure_block) > 1) {
 				recordErrorAndMessage('PROCURE Block Update', '@@ERROR@@', "More than one block in database :: No value clean up (no patho, etc) and postion update can been done.", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
 			} else {
-				recordErrorAndMessage('PROCURE Block Update', '@@ERROR@@', "Block unknown in database (based on identification or position checks):: No value clean up (no patho, etc) and postion update can been done.", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
+				recordErrorAndMessage('PROCURE Block Update', '@@ERROR@@', "Block not found in database (based on identification or position checks):: No value clean up (no patho, etc) and postion update can been done.", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
 			}
 			
 		} else {
@@ -240,6 +250,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 			
 			$query = "SELECT
 				p.id as participant_id,
+				col.id as collection_id,
 				sam.id as sample_master_id,
 				am.id as aliquot_master_id,
 				mid_nolabo.identifier_value as 'mid_nolabo_identifier_value',
@@ -267,11 +278,14 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 				AND %%criteria%%;";
 			$query_criteria = "am.aliquot_label = '$xls_procure_barcode'";
 			$atim_oncologyaxis_block = getSelectQueryResult(str_replace(array('%%criteria%%'), array($query_criteria), $query));
+			$atim_oncologyaxis_block_based_on_position = array();
 			if(sizeof($atim_oncologyaxis_block) > 1) {
 				//Check by postion
 				$query_criteria = "am.aliquot_label = '$xls_procure_barcode' AND stm.selection_label = '$xls_storage_selection_label' AND am.storage_coord_x = '$xls_storage_coord_x'";
 				$atim_oncologyaxis_block_based_on_position = getSelectQueryResult(str_replace(array('%%criteria%%', "LEFT JOIN $chumoncoaxis_db_schema.storage_masters stm"), array($query_criteria, "INNER JOIN $chumoncoaxis_db_schema.storage_masters stm"), $query));
-				if(sizeof($atim_oncologyaxis_block_based_on_position) == 1) $atim_oncologyaxis_block = $atim_oncologyaxis_block_based_on_position;
+				if(sizeof($atim_oncologyaxis_block_based_on_position) == 1) {
+					$atim_oncologyaxis_block = $atim_oncologyaxis_block_based_on_position;
+				}
 			}
 			
 			if($atim_oncologyaxis_block && sizeof($atim_oncologyaxis_block) == 1) {
@@ -299,10 +313,11 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 					UNION All
 					SELECT aliquot_master_id FROM $chumoncoaxis_db_schema.order_items WHERE deleted <> 1 AND aliquot_master_id = ".$atim_oncologyaxis_block_data['aliquot_master_id']."
 					UNION All
-					SELECT aliquot_master_id FROM $chumoncoaxis_db_schema.aliquot_review_masters WHERE deleted <> 1 AND aliquot_master_id = ".$atim_oncologyaxis_block_data['aliquot_master_id']."";
+					SELECT aliquot_master_id FROM $chumoncoaxis_db_schema.aliquot_review_masters WHERE deleted <> 1 AND aliquot_master_id = ".$atim_oncologyaxis_block_data['aliquot_master_id'];
 				if(getSelectQueryResult($block_use_check_query)) {
 					//ALiquot defined as used
-					recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@ERROR@@', "Aliquot linked to an aliquot use data in Oncology Axis ATiM (internal use, or QC, or order, etc) :: Block won't be moved to PROCURE ATiM.", "See block '$xls_procure_barcode' in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
+ajouter un message et devra etre fait a bras 
+					recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@ERROR@@', "Aliquot linked to an aliquot use data in Oncology Axis ATiM (internal use, or QC, or order, etc) :: Block won't be moved to PROCURE ATiM.", "See block '$xls_procure_barcode' (aliquot_master_id ".$atim_oncologyaxis_block_data['aliquot_master_id'].") in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
 					$move_to_atim_procure = false;
 				}
 				
@@ -536,7 +551,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 							FROM $procure_db_schema.aliquot_masters am
 							INNER JOIN $procure_db_schema.sample_masters sam ON sam.id = am.sample_master_id
 							INNER JOIN $procure_db_schema.collections col ON col.id = sam.collection_id
-							WHERE am.deleted <> 1 AND col.participant_id = $procure_participant_id AND am.barcode LIKE '$procure_participant_identifier V01 -FRZ';";
+							WHERE am.deleted <> 1 AND col.participant_id = $procure_participant_id AND am.barcode LIKE '$procure_participant_identifier V01 -FRZ%';";
 						$max_frz = getSelectQueryResult($query_frz);
 						if($max_frz[0]['max_frz']) $bloc_frz_id = ($max_frz[0]['max_frz'] + 1);
 					}
@@ -552,7 +567,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 							'in_stock_detail' => $atim_oncologyaxis_block_data['in_stock_detail'], 
 							'use_counter' => $sent_to_processing_site? '1' : '0', 
 							'storage_master_id' => $new_procure_box_master_ids[$xls_new_storage_selection_label], 
-							'storage_coord_x' => $xls_storage_coord_x, 
+							'storage_coord_x' => $xls_new_storage_coord_x, 
 							'storage_datetime' => $atim_oncologyaxis_block_data['storage_datetime'],
 							'storage_datetime_accuracy' => $atim_oncologyaxis_block_data['storage_datetime_accuracy'], 
 							'qc_nd_stored_by' => $atim_oncologyaxis_block_data['stored_by'],  
@@ -569,8 +584,13 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 							'qc_nd_tissue_secondary_desc' => $atim_oncologyaxis_block_data['tmp_tissue_secondary_desc'],
 							'qc_nd_tumor_presence' => $atim_oncologyaxis_block_data['tumor_presence']));
 					$aliquot_master_id = customInsertRecord($aliquot_data, $procure_db_schema);
-					recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "PROCURE :: Created new Block", "$procure_participant_identifier V01 -FRZ$bloc_frz_id (".$atim_oncologyaxis_block_data['aliquot_label'].") in $xls_new_storage_selection_label position $xls_storage_coord_x");
+					recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "PROCURE :: Created new Block (validate new identification)", "$procure_participant_identifier V01 -FRZ$bloc_frz_id (".$atim_oncologyaxis_block_data['aliquot_label'].") in $xls_new_storage_selection_label position $xls_new_storage_coord_x");
+
 					
+Si dans icm on a deja -FRZ[0-9] le garder dans procure
+attention bien reconstrauire le label mais garder le -FRZ
+IF(preg_match('/\FRZ/', $atim_oncologyaxis_block_data['aliquot_label'])) recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@WARNING@@', "Renamed -FRZ aliquot label :: Please validate", $atim_oncologyaxis_block_data['aliquot_label']." identification changed to $procure_participant_identifier V01 -FRZ$bloc_frz_id");
+						
 					// Sent to processing site :: Add aliquot internal use
 					if($sent_to_processing_site) {
 						$internal_use_data = array(
@@ -616,11 +636,39 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 						'ad_blocks' => array());
 					updateTableData($atim_oncologyaxis_block_data['aliquot_master_id'], $aliquot_master_data_to_update, $chumoncoaxis_db_schema);
 					recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "ONCO-AXIS :: Deleted aliquot", "$xls_procure_barcode");
+					
+					$check_sample_query = "SELECT CONCAT('Alq#',id) as record FROM $chumoncoaxis_db_schema.aliquot_masters WHERE sample_master_id = ".$atim_oncologyaxis_block_data['sample_master_id']." AND deleted <> 1
+						UNION ALL 
+						SELECT CONCAT('Qc#',id) as record FROM $chumoncoaxis_db_schema.quality_ctrls WHERE sample_master_id = ".$atim_oncologyaxis_block_data['sample_master_id']." AND deleted <> 1
+						UNION ALL 
+						SELECT CONCAT('SpRev#',id) as record FROM $chumoncoaxis_db_schema.specimen_review_masters WHERE sample_master_id = ".$atim_oncologyaxis_block_data['sample_master_id']." AND deleted <> 1
+						UNION ALL 
+						SELECT CONCAT('Sam#',id) as record FROM $chumoncoaxis_db_schema.sample_masters WHERE parent_id = ".$atim_oncologyaxis_block_data['sample_master_id']." AND deleted <> 1";
+					$check_sample_result = getSelectQueryResult($check_sample_query);
+					if(!$check_sample_result) {
+						$sample_master_data_to_update = array(
+							'sample_masters' => array('deleted' => '1'),
+							'sd_spe_tissues' => array());
+						updateTableData($atim_oncologyaxis_block_data['sample_master_id'], $sample_master_data_to_update, $chumoncoaxis_db_schema);
+						recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "ONCO-AXIS :: Deleted sample", $atim_oncologyaxis_block_data['qc_nd_sample_label']);
+						$check_collection_result = getSelectQueryResult("SELECT id FROM $chumoncoaxis_db_schema.sample_masters WHERE collection_id = ".$atim_oncologyaxis_block_data['collection_id']." AND deleted <> 1");
+						if(!$check_collection_result) {
+							$collection_data_to_update = array('collections' => array('deleted' => '1'));
+							updateTableData($atim_oncologyaxis_block_data['collection_id'], $collection_data_to_update, $chumoncoaxis_db_schema);
+							recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "ONCO-AXIS :: Deleted collection", "$procure_participant_identifier ".$atim_oncologyaxis_block_data['visit_label']." (".$atim_oncologyaxis_block_data['collection_id'].")");
+						}
+					}					
 				}
 			} else if(sizeof($atim_oncologyaxis_block) > 1) {
-				recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@ERROR@@', "More than one block in database :: Block won't be moved to PROCURE ATiM. Note that the check has been done on identification + position.", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
+				$barcodes = array();
+				foreach($atim_oncologyaxis_block as $new_block) $barcodes[] = $new_block['barcode'];
+				if(!$atim_oncologyaxis_block_based_on_position) {
+					recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@ERROR@@', "More than one block in database with same label but no one stored in defined position :: Block won't be moved to PROCURE ATiM. Note that the check has been done on identification + position.", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'. See aliquot_master_ids : ".implode(',', $barcodes));
+				} else {
+					recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@ERROR@@', "More than one block in database in same postion :: Block won't be moved to PROCURE ATiM. Note that the check has been done on identification + position.", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)' See aliquot_master_ids : ".implode(',', $barcodes));
+				}			
 			} else {
-				recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@ERROR@@', "Block unknown in database :: Block won't be moved to PROCURE ATiM. Note that check is done based on [identification + position] or [identification only].", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
+				recordErrorAndMessage('Oncology Axis Block Move To PROCURE', '@@ERROR@@', "Block not found in database :: Block won't be moved to PROCURE ATiM. Note that check is done based on [identification + position] or [identification only].", "$xls_procure_barcode defined in excel as stored in '$xls_storage_selection_label (pos#$xls_storage_coord_x)'");
 			}
 		}	
 	}
@@ -637,6 +685,7 @@ if($new_procure_box_master_ids) {
 
 	$query = "SELECT
 		p.id as participant_id,
+		col.id AS collection_id,
 		sam.id as sample_master_id,
 		am.id as aliquot_master_id,
 		mid_nolabo.identifier_value as 'mid_nolabo_identifier_value',
@@ -686,6 +735,8 @@ if($new_procure_box_master_ids) {
 			SELECT aliquot_master_id FROM $procure_db_schema.aliquot_review_masters WHERE deleted <> 1 AND aliquot_master_id = ".$new_procure_block_data_to_move['aliquot_master_id']."";
 		if(getSelectQueryResult($block_use_check_query)) {
 			//ALiquot defined as used
+le block deviendra pas disponible dans procure mais il faudra le créér...	
+car ils ont tt de memme eté envoyé a procure... on ne veut pas casser la chaine
 			recordErrorAndMessage('PROCURE Block Move To Oncology Axis', '@@ERROR@@', "Aliquot linked to an aliquot use data in PROCURE ATiM (internal use, or QC, or order, etc) :: Block won't be moved to Onco Axis ATiM.", "See block '".$new_procure_block_data_to_move['barcode']."'");
 			$move_to_atim_onco = false;
 		}
@@ -903,9 +954,42 @@ if($new_procure_box_master_ids) {
 				'aliquot_masters' => array('deleted' => '1'),
 				'ad_blocks' => array());
 			updateTableData($new_procure_block_data_to_move['aliquot_master_id'], $aliquot_master_data_to_update, $procure_db_schema);
+			recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "PROCURE :: Deleted aliquot", $new_procure_block_data_to_move['barcode']);
+			
+			$check_sample_query = "SELECT CONCAT('Alq#',id) as record FROM $procure_db_schema.aliquot_masters WHERE sample_master_id = ".$new_procure_block_data_to_move['sample_master_id']." AND deleted <> 1
+				UNION ALL
+				SELECT CONCAT('Qc#',id) as record FROM $procure_db_schema.quality_ctrls WHERE sample_master_id = ".$new_procure_block_data_to_move['sample_master_id']." AND deleted <> 1
+				UNION ALL
+				SELECT CONCAT('SpRev#',id) as record FROM $procure_db_schema.specimen_review_masters WHERE sample_master_id = ".$new_procure_block_data_to_move['sample_master_id']." AND deleted <> 1
+				UNION ALL
+				SELECT CONCAT('Sam#',id) as record FROM $procure_db_schema.sample_masters WHERE parent_id = ".$new_procure_block_data_to_move['sample_master_id']." AND deleted <> 1";
+			$check_sample_result = getSelectQueryResult($check_sample_query);
+			if(!$check_sample_result) {
+				$sample_master_data_to_update = array(
+					'sample_masters' => array('deleted' => '1'),
+					'sd_spe_tissues' => array());
+				updateTableData($new_procure_block_data_to_move['sample_master_id'], $sample_master_data_to_update, $procure_db_schema);
+				recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "PROCURE :: Deleted sample", $new_procure_block_data_to_move['mid_nolabo_identifier_value'].' '.$new_procure_block_data_to_move['procure_visit'].' #'.$new_procure_block_data_to_move['sample_code']);
+				$check_collection_result = getSelectQueryResult("SELECT id FROM $procure_db_schema.sample_masters WHERE collection_id = ".$new_procure_block_data_to_move['collection_id']." AND deleted <> 1");
+				if(!$check_collection_result) {
+					$collection_data_to_update = array('collections' => array('deleted' => '1'));
+					updateTableData($new_procure_block_data_to_move['collection_id'], $collection_data_to_update, $procure_db_schema);
+					recordErrorAndMessage('Actions Summary', '@@MESSAGE@@', "PROCURE :: Deleted collection",$new_procure_block_data_to_move['mid_nolabo_identifier_value'].' '.$new_procure_block_data_to_move['procure_visit']);
+				}
+			}
+			
 		}	
 	}
 }
+
+
+//Check no duplicated barcode
+
+$duplicated_barcode = getSelectQueryResult("SELECT am.barcode, am.aliquot_label FROM
+	(SELECT barcode, count(*) as dup_counter FROM aliquot_masters WHERE deleted <> 1 AND barcode LIKE '%-FRZ%' GROUP BY barcode) am_count,
+	aliquot_masters am
+	WHERE am_count.dup_counter > 1 AND am_count.barcode = am.barcode AND am.deleted <> 1;");
+if($duplicated_barcode) die('ERR 232 2332 ');
 
 //==============================================================================================
 // End of the process
