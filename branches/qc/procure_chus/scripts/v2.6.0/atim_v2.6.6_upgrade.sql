@@ -1,6 +1,6 @@
-﻿-- ------------------------------------------------------
+-- ------------------------------------------------------
 -- ATiM v2.6.6 Upgrade Script
--- version: 2.6.6
+-- version: 2.6.6.1
 --
 -- For more information: 
 --    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
