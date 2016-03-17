@@ -11,7 +11,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		'InventoryManagement.QualityCtrl'
 	);
 	
-	var $paginate = array('QualityCtrl' => array('limit' => pagination_amount, 'order' => 'QualityCtrl.date ASC'));
+	var $paginate = array('QualityCtrl' => array('order' => 'QualityCtrl.date ASC'));
 	
 	function listAll($collection_id, $sample_master_id) {
 		// MANAGE DATA
@@ -550,6 +550,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			if($this->QualityCtrl->atimDelete($quality_ctrl_id)) {
 				if($qc_data['QualityCtrl']['aliquot_master_id'] != null){
 					$this->AliquotMaster->updateAliquotUseAndVolume($qc_data['QualityCtrl']['aliquot_master_id'], true, true, false);
+				}
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
 				}
 				$this->atimFlash(__('your data has been deleted'), 
 						'/InventoryManagement/QualityCtrls/listAll/'

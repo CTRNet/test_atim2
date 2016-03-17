@@ -3,7 +3,7 @@
 class StudyResultsController extends StudyAppController {
 			
 	var $uses = array('Study.StudyResult','Study.StudySummary');
-	var $paginate = array('StudyResult'=>array('limit' => pagination_amount,'order'=>'StudyResult.abstract'));
+	var $paginate = array('StudyResult'=>array('order'=>'StudyResult.abstract'));
 	
 	function listall( $study_summary_id ) {
 pr('Has to be reviewed before to be used in prod.');

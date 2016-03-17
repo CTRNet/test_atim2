@@ -13,7 +13,7 @@ class LabBookMastersController extends LabBookAppController {
 		'InventoryManagement.DerivativeDetail'
 	);
 	
-	var $paginate = array('LabBookMaster' => array('limit' => pagination_amount, 'order' => 'LabBookMaster.created ASC'));
+	var $paginate = array('LabBookMaster' => array('order' => 'LabBookMaster.created ASC'));
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
