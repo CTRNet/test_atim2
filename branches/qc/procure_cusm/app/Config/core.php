@@ -389,7 +389,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 /**
@@ -433,6 +433,8 @@ Configure::write('databrowser_and_report_results_display_limit', 1000);
 /**
  * Set the limit of items that could be processed in batch
  */
+Configure::write('ParticipantMessageCreation_processed_participants_limit', 50);		// ParticipantMessage.add()
+
 Configure::write('SampleDerivativeCreation_processed_items_limit', 50);		// SampleMasters.batchDerivative()
 	
 Configure::write('AliquotCreation_processed_items_limit', 50);				// AliquotMasters.add()

@@ -20,8 +20,8 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		'Codingicd.CodingIcd10Ca',
 	);
 	var $paginate = array(
-		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
-		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifier.study_summary_id ASC,MiscIdentifierControl.misc_identifier_name ASC')); 
+		'Participant'=>array('order'=>'Participant.last_name ASC, Participant.first_name ASC'),
+		'MiscIdentifier'=>array('order'=>'MiscIdentifier.study_summary_id ASC,MiscIdentifierControl.misc_identifier_name ASC')); 
 	
 	function search($search_id = ''){
 		$this->searchHandler($search_id, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
@@ -172,6 +172,10 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ( $this->Participant->atimDelete( $participant_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
