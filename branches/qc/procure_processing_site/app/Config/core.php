@@ -479,5 +479,5 @@ Configure::write('procure_bank_id', 'p');
  *    - CENTRAL: ATiM version that gathering all the data of ATiM install to help the head office in the project management. 
  */
 //Configure::write('procure_atim_version', 'BANK');
-//Configure::write('procure_atim_version', 'PROCESSING');
-Configure::write('procure_atim_version', 'CENTRAL');
+Configure::write('procure_atim_version', 'PROCESSING');
+//Configure::write('procure_atim_version', 'CENTRAL');
