@@ -467,7 +467,7 @@ unset($debug);
  * 	- 1 to 4 for the 4 collections sites
  *  - p for the processing bank
  */
-Configure::write('procure_bank_id', 'p');
+Configure::write('procure_bank_id', '-');
 
 /**
  * PROCURE ATiM Version: 'procure_atim_version'
