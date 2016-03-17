@@ -716,9 +716,7 @@ class AppController extends Controller {
 	 * @return array Model query results
 	 */
 	public function paginate($object = null, $scope = array(), $whitelist = array()) {
-		//TODO Temporary fix linked to issue #3040: TreatmentMaster & EventMaster listall: var $paginate data won't be used 
-		if(!is_null($object) && !isset($this->passedArgs['sort']) && isset($this->paginate[$object->name]['order'])) $object->order = $this->paginate[$object->name]['order'];
-		
+		$this->setControlerPaginatorSettings($object);
 		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
 		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
 			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
@@ -767,9 +765,7 @@ class AppController extends Controller {
 			if($limit){
 				$this->request->data = $model->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit));
 			}else{
-			    if (isset($this->paginate[$model->name])) {
-			        $this->Paginator->settings = $this->paginate[$model->name];
-			    }
+				$this->setControlerPaginatorSettings($model);
 				$this->request->data = $this->Paginator->paginate(
 				    $model,
 				    $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
@@ -788,6 +784,17 @@ class AppController extends Controller {
 		if($this->request->is('ajax')) {
 			Configure::write ( 'debug', 0 );
 			$this->set ( 'is_ajax', true );
+		}
+	}
+	
+	/**
+	 * Set the Pagination settings based on user preferences and controller Pagination settings.
+	 * @param Object $model The model to search upon
+	 */
+	function setControlerPaginatorSettings($model) {
+		if(pagination_amount) $this->Paginator->settings = array_merge($this->Paginator->settings, array('limit' => pagination_amount));
+		if($model && isset($this->paginate[$model->name])) {
+			$this->Paginator->settings = array_merge($this->Paginator->settings, $this->paginate[$model->name]);
 		}
 	}
 	

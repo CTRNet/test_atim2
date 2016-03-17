@@ -10,8 +10,8 @@ class OrdersController extends OrderAppController {
 		'Order.Shipment');
 	
 	var $paginate = array(
-		'Order'=>array('limit' => pagination_amount,'order'=>'Order.date_order_placed DESC'), 
-		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
+		'Order'=>array('order'=>'Order.date_order_placed DESC'), 
+		'OrderLine'=>array('order'=>'OrderLine.date_required DESC'));
 	
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
@@ -147,6 +147,10 @@ class OrdersController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Order->atimDelete($order_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/search/');
