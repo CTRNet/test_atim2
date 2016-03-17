@@ -519,6 +519,21 @@ VALUES
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
+ALTER TABLE realiquotings ADD COLUMN procure_central_is_transfer tinyint(1) DEFAULT '0';
+ALTER TABLE realiquotings_revs ADD COLUMN procure_central_is_transfer tinyint(1) DEFAULT '0';
+	
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('this aliquot can not be defined as received from bank', 
+"This aliquot can not be defined as 'Received From Bank' because this one has not been created by the process of transferred aliquot creation.",
+"Cet aliquot ne peut pas être défini comme 'Recu de la Banque' car ce dernier n'a pas été créé par le processus de création des aliquots transférés."),
+('the system is unable to validate all aliquots are transferred aliquots - please use create uses/events aliquot specific',
+"The system is unable to validate all aliquots have been created by the process of transferred aliquot creation. Please use function 'Create uses/events (aliquot specific)'.", 
+"Le système ne peut pas valider que tous les aliquots ont été créés par le processus de création des aliquots transférés. Veuillez utiliser la fonction 'Créer utilisations/événements (aliquot spécifique)'.");
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
 UPDATE versions SET branch_build_number = '6381' WHERE version_number = '2.6.6';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.6';
 UPDATE versions SET permissions_regenerated = 0;

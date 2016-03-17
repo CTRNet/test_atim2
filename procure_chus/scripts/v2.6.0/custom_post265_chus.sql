@@ -1,3 +1,5 @@
+UPDATE aliquot_masters SET `use_counter` = '0' WHERE `use_counter` IS NULL;
+UPDATE aliquot_masters_revs SET `use_counter` = '0' WHERE `use_counter` IS NULL;
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 -- Update created by

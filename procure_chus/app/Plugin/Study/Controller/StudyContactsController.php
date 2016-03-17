@@ -3,7 +3,7 @@
 class StudyContactsController extends StudyAppController {
 	
 	var $uses = array('Study.StudyContact','Study.StudySummary');
-	var $paginate = array('StudyContact'=>array('limit' => pagination_amount,'order'=>'StudyContact.last_name'));
+	var $paginate = array('StudyContact'=>array('order'=>'StudyContact.last_name'));
 	
 	function listall( $study_summary_id ) {
 pr('Has to be reviewed before to be used in prod.');
