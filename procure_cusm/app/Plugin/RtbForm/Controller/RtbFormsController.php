@@ -3,7 +3,7 @@
 class RtbformsController extends RtbformAppController {
 	
 	var $uses = array('Rtbform.Rtbform');
-	var $paginate = array('Rtbform'=>array('limit' => pagination_amount,'order'=>'Rtbform.frmTitle'));
+	var $paginate = array('Rtbform'=>array('order'=>'Rtbform.frmTitle'));
   
 	function index() {
 		$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );

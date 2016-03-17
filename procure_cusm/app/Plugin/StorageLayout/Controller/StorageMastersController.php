@@ -16,7 +16,9 @@ class StorageMastersController extends StorageLayoutAppController {
 		'InventoryManagement.AliquotMaster'
 	);
 	
-	var $paginate = array('StorageMaster' => array('limit' => pagination_amount, 'order' => 'StorageMaster.selection_label ASC'));
+	var $paginate = array('StorageMaster' => array('order' => 'StorageMaster.selection_label ASC'),
+		'ViewStorageMaster' => array('order' => 'ViewStorageMaster.selection_label ASC')
+	);
 
 	function search($search_id = 0, $from_layout_page = false){
 	    $model_to_use = $this->ViewStorageMaster;
@@ -121,12 +123,14 @@ class StorageMastersController extends StorageLayoutAppController {
 		if(!$is_from_tree_view_or_layout && $display_layout) {
 			if(empty($data['StorageControl']['coord_y_type'])) {
 				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => '')))
-				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x' => '')))) {
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x' => '')))
+				|| $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id, 'TmaSlide.storage_coord_x' => '')))) {
 					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
 				}
 			} else {
 				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'OR' => array('StorageMaster.parent_storage_coord_x' => '','StorageMaster.parent_storage_coord_y' => ''))))
-				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'OR' => array('AliquotMaster.storage_coord_x' => '', 'AliquotMaster.storage_coord_y' => ''))))) {
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'OR' => array('AliquotMaster.storage_coord_x' => '', 'AliquotMaster.storage_coord_y' => ''))))
+				|| $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id, 'OR' => array('TmaSlide.storage_coord_x' => '', 'TmaSlide.storage_coord_y' => ''))))) {
 					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
 				}
 			}
@@ -400,6 +404,11 @@ class StorageMastersController extends StorageLayoutAppController {
 				$atim_flash = false;
 			}
 			
+			$hook_link = $this->hook('postsave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate')), false);
 			if($atim_flash){
 				$this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/search/');
@@ -606,7 +615,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				$storage_data = AppController::defineArrayKey($storage_data, 'StorageMaster', 'id', true);
 				
 				$children_coordinate_list = array();
-				if($storage_data[$second_storage_id]['StorageControl']['coord_x_type'] == "list"){
+				if(isset($storage_data[$second_storage_id]) && $storage_data[$second_storage_id]['StorageControl']['coord_x_type'] == "list"){
 					$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $second_storage_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
 					foreach($coordinate_tmp as $key => $value){
 						$children_coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];

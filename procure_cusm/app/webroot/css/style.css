@@ -1107,6 +1107,14 @@ span.help {
 				div.nodeBlock .rightPart.disabled{
 					color: grey;
 				}
+/* PROCURE */			
+div.nodeBlock .rightPart.transfered_aliquot{
+	color: blue;
+}
+div.nodeBlock .rightPart.disabled_transfered_aliquot{
+	color: #1550ea;
+}
+/* END PROCURE */
 				div.nodeBlock .rightPart.sample_disabled{
 					color: grey;
 					font-style: italic;
@@ -1213,6 +1221,7 @@ span.help {
 .icon16.specific{ background-position: -96px -48px; }
 .icon16.study { background-position: -96px -128px; }
 .icon16.submit{ background-position: -64px -16px; }
+.icon16.tma.block, .icon16.tma.blocks { background-position: -112px -128px; }
 .icon16.template { background-position: -32px -96px; }
 .icon16.thumbsdown { background-position: -96px -32px; }
 .icon16.thumbsup { background-position: -96px -16px; }

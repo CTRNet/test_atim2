@@ -19,8 +19,8 @@ class CollectionsController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'Collection' 		=> array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
-		'ViewCollection'	=> array('limit' => pagination_amount, 'order' => 'ViewCollection.acquisition_label ASC')
+		'Collection' 		=> array('order' => 'Collection.acquisition_label ASC'),
+		'ViewCollection'	=> array('order' => 'ViewCollection.acquisition_label ASC')
 	);
 	
 	function search($search_id = 0, $is_ccl_ajax = false){
@@ -295,6 +295,10 @@ class CollectionsController extends InventoryManagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection			
 			if($this->Collection->atimDelete($collection_id, true)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/Collections/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/Collections/search/');

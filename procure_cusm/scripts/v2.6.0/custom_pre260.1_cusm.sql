@@ -140,5 +140,3 @@ WHERE TreatmentMasterRevs.procure_form_identification != TreatmentMaster.procure
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 SELECT 'run custom_pre260.2_cusm.php' AS 'TODO';
-
-6385

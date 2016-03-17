@@ -715,6 +715,7 @@ class StorageMaster extends StorageLayoutAppModel {
 				$storage_data_to_update['StorageMaster']['temperature'] = $parent_temperature;
 				$storage_data_to_update['StorageMaster']['temp_unit'] = $parent_temp_unit;
 	
+				$this->data = array();
 				$this->id = $studied_children_id;					
 				if(!$this->save($storage_data_to_update, false)) { 
 					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
