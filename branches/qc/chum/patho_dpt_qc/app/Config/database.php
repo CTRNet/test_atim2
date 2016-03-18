@@ -70,15 +70,5 @@ class DATABASE_CONFIG {
 		'encoding' => 'utf8',
 		'port'	=> 3306
 	);
-	=====
-	TITLE
-	=====
-	
-	Chapter
-	=======
-	
-	Section
-	-------
-	
-	blablabla
+
 }

@@ -15,9 +15,9 @@ class OrderItemsController extends OrderAppController {
 		'Order.Shipment');
 		
 	var $paginate = array(
-		'OrderItem'=>array('limit'=>pagination_amount,'order'=>'AliquotMaster.barcode'),
-		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
+		'OrderItem'=>array('order'=>'AliquotMaster.barcode'),
+		'ViewAliquot' => array('order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotMaster' => array('order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
@@ -425,6 +425,7 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem']['aliquot_master_id'] = $added_aliquot_master_id;
 					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->request->data['OrderItem']);
 					$this->OrderItem->addWritableField(array('status', 'aliquot_master_id'));
+					$this->OrderItem->data = null;
 					$this->OrderItem->id = null;
 					if(!$this->OrderItem->save($new_order_item_data, false)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
@@ -626,6 +627,11 @@ class OrderItemsController extends OrderAppController {
 					if(!$this->OrderLine->save($order_line_data)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
 					}
+				}
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
 				}
 				
 				// Redirect

@@ -3,7 +3,7 @@
 class SopMastersController extends SopAppController {
 
 	var $uses = array('Sop.SopControl', 'Sop.SopMaster');
-	var $paginate = array('SopMaster'=>array('limit' => pagination_amount,'order'=>'SopMaster.title DESC'));
+	var $paginate = array('SopMaster'=>array('order'=>'SopMaster.title DESC'));
 	
 	function listall() {
 		$this->request->data = $this->paginate($this->SopMaster, array());
@@ -129,6 +129,10 @@ class SopMastersController extends SopAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->SopMaster->atimDelete( $sop_master_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Sop/SopMasters/listall/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Sop/SopMasters/listall/');

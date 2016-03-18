@@ -4,7 +4,7 @@ class GroupsController extends AdministrateAppController {
 	
 	var $uses = array('Group',	'Aco', 'Aro', 'User');
 	
-	var $paginate = array('Group'=>array('limit' => pagination_amount,'order'=>'Group.name ASC')); 
+	var $paginate = array('Group'=>array('order'=>'Group.name ASC')); 
 	
 	function index() {
 		$this->set("atim_menu", $this->Menus->get('/Administrate/Groups/index'));
