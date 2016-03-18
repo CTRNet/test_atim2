@@ -7,7 +7,7 @@ class ReportsController extends DatamartAppController {
 		"Datamart.BatchSet",
 		"Structure");
 
-	var $paginate = array('Report' => array('limit' => pagination_amount , 'order' => 'Report.name ASC'));
+	var $paginate = array('Report' => array('order' => 'Report.name ASC'));
 	
 	// -------------------------------------------------------------------------------------------------------------------
 	// SELECT ELEMENTS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
