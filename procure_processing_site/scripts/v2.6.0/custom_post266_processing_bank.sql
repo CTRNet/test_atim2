@@ -60,5 +60,5 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('add (with no file)', 'Add (with no f
 -- ================================================================================================================================================================
 -- ================================================================================================================================================================
 
-UPDATE versions SET site_branch_build_number = xxxx WHERE version_number = '2.6.6';
+UPDATE versions SET site_branch_build_number = '' WHERE version_number = '2.6.6';
 UPDATE versions SET permissions_regenerated = 0;
