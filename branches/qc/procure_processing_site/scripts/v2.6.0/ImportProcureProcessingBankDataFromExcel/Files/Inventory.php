@@ -423,7 +423,73 @@ function loadUrine(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 	}
 }
 
-function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
+function loadDnaMismatch(&$XlsReader, $files_path, $file_name) {
+	global $import_summary;
+	
+	//Load Worksheet Names
+	
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	
+	$mismath_dnas = array();
+	
+	$headers = array();
+	$worksheet = "Data";
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			if($new_line_data['Nouvelle identification (x = aliquot)']) {
+				$dna_sample_label = str_replace(' ', '', $new_line_data['Nouvelle identification (x = aliquot)']);
+				if(preg_match('/^DNA([0-9x\+]{1,3})\.x(V[0-9]{2})\-([0-9]{4})$/', $dna_sample_label, $matches_dna_label)) {
+					$mismath_dnas[$dna_sample_label] = false;
+				} else {
+					$import_summary['Inventory - DNA Mismatch']['@@WARNING@@']["Wrong 'Nouvelle identification (x = aliquot)' format"][] = "The 'Nouvelle identification (x = aliquot)' value '".$new_line_data['Nouvelle identification (x = aliquot)']."' is not supported. Aliquot won't be flagged as sent to 'Mismatch'. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+				}
+			} else {
+				$import_summary['System Error']['@@ERROR@@']["933339977"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+			}
+		}
+	}
+	
+	$headers = array();
+	$worksheet = "Aliquots + Emplacement";
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 2) {
+			$headers = $new_line;
+		} else if($line_counter > 2){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			if($new_line_data['Identif.']) {
+				$dna_sample_label = str_replace(' ', '', $new_line_data['Identif.']);
+				if(preg_match('/^DNA([0-9x\+]{1,3})\.x(V[0-9]{2})\-([0-9]{4})$/', $dna_sample_label, $matches_dna_label)) {
+					if(!array_key_exists($dna_sample_label, $mismath_dnas)) {
+						$import_summary['Inventory - DNA Mismatch']['@@ERROR@@']["Label defined in 'Identif.' but not defined in 'Nouvelle identification (x = aliquot)'"][] = "See '$dna_sample_label'. Aliquot won't be flagged as sent to 'Mismatch'. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+					} else {
+						$mismath_dnas[$dna_sample_label] = true;
+					}
+				} else {
+					$import_summary['Inventory - DNA Mismatch']['@@WARNING@@']["Wrong 'Identif.' format"][] = "The 'Identif.' value '".$new_line_data['Identif.']."' is not supported. Double check won't be done. [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+				}
+			} else {
+				$import_summary['System Error']['@@ERROR@@']["933339978"][] = "[file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+			}
+		}
+	}
+	
+	foreach($mismath_dnas as $dna_sample_label => $flag) {
+		if(!$flag) {
+			$import_summary['Inventory - DNA Mismatch']['@@ERROR@@']["Label defined in 'Nouvelle identification (x = aliquot)' but not defined in 'Identif.'"][] = "See '$dna_sample_label'. Double check failed. [file <b>$file_name</b>]";
+		}
+		$mismath_dnas[$dna_sample_label] = false;
+	}
+	
+	return $mismath_dnas;
+}
+
+
+function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_ids, $dna_mismatches) {
 	global $import_summary;
 	global $controls;
 	global $created_collections_and_specimens;
@@ -433,9 +499,18 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 	//==============================================================================================
 
 	$study = 'FRSQ-Innovant - Dna';
-	$order_id = customInsert(array('order_number' => $study, 'default_study_summary_id' => $study_summary_id, 'processing_status' => 'completed'), 'orders', 'No File', '-1');
+	$order_id = customInsert(array('order_number' => $study, 'default_study_summary_id' => $study_summary_ids['FRSQ-Innovant'] , 'processing_status' => 'completed'), 'orders', 'No File', '-1');
 	$shipment_id = customInsert(array('shipment_code' =>$study, 'order_id' => $order_id), 'shipments', 'No File', '-1');
-	$order_items_template = array('aliquot_master_id' => null, 'order_id' => $order_id, 'shipment_id' => $shipment_id, 'status' => 'shipped');
+	$frsq_innovant_order_items_template = array('aliquot_master_id' => null, 'order_id' => $order_id, 'shipment_id' => $shipment_id, 'status' => 'shipped');
+
+	//==============================================================================================
+	//Mismatch Order
+	//==============================================================================================
+
+	$study = 'Mismatch - Dna';
+	$order_id = customInsert(array('order_number' => $study, 'default_study_summary_id' => $study_summary_ids['Mismatch'] , 'processing_status' => 'completed'), 'orders', 'No File', '-1');
+	$shipment_id = customInsert(array('shipment_code' =>$study, 'order_id' => $order_id), 'shipments', 'No File', '-1');
+	$mismatch_order_items_template = array('aliquot_master_id' => null, 'order_id' => $order_id, 'shipment_id' => $shipment_id, 'status' => 'shipped');
 
 	//==============================================================================================
 	//DNA
@@ -774,7 +849,13 @@ function loadDna(&$XlsReader, $files_path, $file_name, $study_summary_id) {
 				$aliquot_data['AliquotDetail']['aliquot_master_id'] = $aliquot_master_id;
 				customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['dna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
 				//Orders
-				customInsert(array_merge($order_items_template, array('aliquot_master_id' => $aliquot_master_id)), 'order_items', __FILE__, __LINE__);
+				if(array_key_exists($dna_sample_label, $dna_mismatches)) {
+					customInsert(array_merge($mismatch_order_items_template, array('aliquot_master_id' => $aliquot_master_id)), 'order_items', __FILE__, __LINE__);
+					if($dna_mismatches[$dna_sample_label]) $import_summary['System Error']['@@ERROR@@']['83838383'][] = "$dna_sample_label [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
+					$dna_mismatches[$dna_sample_label] = true;
+				} else {
+					customInsert(array_merge($frsq_innovant_order_items_template, array('aliquot_master_id' => $aliquot_master_id)), 'order_items', __FILE__, __LINE__);
+				}
 			} else {
 				$import_summary['System Error']['@@ERROR@@']["93322334912"][] = "$dna_sample_label [file <b>$file_name</b> (<b>$worksheet</b>), line : <b>$line_counter</b>]";
 			}

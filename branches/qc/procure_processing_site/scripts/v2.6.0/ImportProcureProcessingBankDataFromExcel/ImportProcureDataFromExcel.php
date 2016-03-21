@@ -10,19 +10,88 @@ set_time_limit('3600');
 
 global $patients_to_import;
 //TODO set to empty
-$patients_to_import = array();
+$patients_to_import = array(	'PS1P0003',
+	'PS1P0018',
+	'PS1P0149',
+	'PS1P0172',
+	'PS1P0174',
+	'PS1P0175',
+	'PS1P0203',
+	'PS1P0360',
+	'PS1P0403',
+	'PS1P0405',
+	'PS1P0494',
+	'PS1P0590',
+	'PS1P0591',
+	'PS1P0222',
+	'PS1P0615',
+	
+	'PS2P0068',
+	'PS2P0070',
+	'PS2P0072',
+	'PS2P0075',
+	'PS2P0079',
+	'PS2P0080',
+	'PS2P0081',
+	'PS2P0109',
+	'PS2P0110',
+	'PS2P0117',
+	'PS2P0119',
+	'PS2P0129',
+	'PS2P0180',
+	'PS2P0392',
+	'PS2P0043',
+	
+	'PS3P0004',
+	'PS3P0007',
+	'PS3P0110',
+	'PS3P0111',
+	'PS3P0135',
+	'PS3P0138',
+	'PS3P0207',
+	'PS3P0210',
+	'PS3P0211',
+	'PS3P0219',
+	'PS3P0221',
+	'PS3P0223',
+	'PS3P0240',
+	'PS3P0278',
+	'PS3P0014',
+	
+	'PS4P0002',
+	'PS4P0013',
+	'PS4P0017',
+	'PS4P0113',
+	'PS4P0114',
+	'PS4P0119',
+	'PS4P0120',
+	'PS4P0121',
+	'PS4P0168',
+	'PS4P0169',
+	'PS4P0175',
+	'PS4P0176',
+	'PS4P0180',
+	'PS4P0181',
+	'PS4P0182',
+	'PS4P0356',
+	'PS4P0358',
+	'PS4P0380',
+	'PS4P0391',
+	'PS4P0246',
+	'PS4P0394');
 
 //$patients_to_import = array();
 $files_name = array(
-	'plasma' => 'Plasma-ATiM.xls',
-	'urine' => 'Urine-ATiM.xls',
-	'dna' => 'ADN-ATiM.xls'
+	'plasma' => 'Plasma-ATiM_160318.xls',
+	'urine' => 'Urine-ATiM_160318.xls',
+	'dna' => 'ADN-ATiM_160318.xls',
+	'dna-mismatch' => 'ADN(Mismatch)-ATiM_160318.xls'
 );
 
 foreach($files_name as $key => $val) $files_name[$key] = utf8_decode($val);
 
-$files_path = 'C:\\_NicolasLuc\\Server\\www\\procure\\data\\ProcessingBankDataFiles\\';
-$files_path = "/ATiM/todelete/Data/";
+$files_path = 'C:\\_NicolasLuc\\Server\\www\\procure_processing_site\\data\\';
+//$files_path = "/ATiM/todelete/Data/";
 require_once 'Excel/reader.php';
 
 global $import_summary;
@@ -36,7 +105,7 @@ $db_user 		= "root";
 $db_charset		= "utf8";
 
 $db_pwd			= "";
-$db_schema		= "procureprocessing";
+$db_schema		= "procureprocessingsite";
 
 
 global $db_connection;
@@ -94,7 +163,9 @@ truncate();
 //Inventory
 //==============================================================================================
 
-$study_summary_id = customInsert(array('title' => 'FRSQ-Innovant'), 'study_summaries', 'No File', '-1');
+$study_summary_ids = array();
+$study_summary_ids['FRSQ-Innovant'] = customInsert(array('title' => 'FRSQ-Innovant'), 'study_summaries', 'No File', '-1');
+$study_summary_ids['Mismatch'] = customInsert(array('title' => 'Mismatch'), 'study_summaries', 'No File', '-1');
 
 global $created_collections_and_specimens;
 $created_collections_and_specimens = array();
@@ -102,17 +173,24 @@ $created_collections_and_specimens = array();
 echo "<br><FONT COLOR=\"green\" >*** Inventory (plasma) - File(s) : ".$files_name['plasma']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadPlasma($XlsReader, $files_path, $files_name['plasma'], $study_summary_id);
+loadPlasma($XlsReader, $files_path, $files_name['plasma'], $study_summary_ids['FRSQ-Innovant']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (urine) - File(s) : ".$files_name['urine']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadUrine($XlsReader, $files_path, $files_name['urine'], $study_summary_id);
+loadUrine($XlsReader, $files_path, $files_name['urine'], $study_summary_ids['FRSQ-Innovant']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (DNA) - File(s) : ".$files_name['dna']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadDna($XlsReader, $files_path, $files_name['dna'], $study_summary_id);
+$dna_mismatches = loadDnaMismatch($XlsReader, $files_path, $files_name['dna-mismatch']);
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadDna($XlsReader, $files_path, $files_name['dna'], $study_summary_ids, $dna_mismatches);
+foreach($dna_mismatches as $dna_sample_label => $found) {
+	if(!$found) {
+		$import_summary['Inventory - DNA Mismatch']['@@WARNING@@']["Aliquot nopt found"][] = "The aliquot '$dna_sample_label.' is defined into '".$files_name['dna-mismatch']."' but not in '".$files_name['dna']."'. Please check.";
+	}
+}
 
 //codes and barcodes update
 
@@ -436,7 +514,7 @@ function dislayErrorAndMessage($import_summary) {
 	foreach($import_summary as $worksheet => $data1) {
 		echo "<br><br><FONT COLOR=\"blue\" >
 			=====================================================================<br>
-			Errors on $worksheet<br>
+			$worksheet<br>
 			=====================================================================</FONT><br>";
 		foreach($data1 as $message_type => $data2) {
 			$color = 'black';
