@@ -98,7 +98,7 @@ function testDbSchemas($db_schema, $site) {
 	
 	if($db_schema) {
 		if(!@mysqli_select_db($db_connection, $db_schema)) {
-			recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Wrong DB schema", '', "Unable to connect to the schema $db_schema defined for site $site. No data will be imported.");
+			recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Wrong DB schema", '', "Unable to connect to the schema $db_schema defined for site $site. No data will be imported from this site.");
 			return false;
 		} else {
 			$atim_dump_data = getSelectQueryResult('SELECT created FROM atim_procure_dump_information LIMIT 0 ,1');
@@ -107,12 +107,12 @@ function testDbSchemas($db_schema, $site) {
 				recordErrorAndMessage('Merge Information', '@@MESSAGE@@', "Site Dump Information", '', "Dump of '$site' database created on '".$atim_dump_data['0']['created'].".");
 				return true;
 			} else {
-				recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Missing atim_procure_dump_information Table Data", '', "See data of site '$site'. No data will be imported.");
+				recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Missing atim_procure_dump_information Table Data", '', "See data of site '$site'. No data will be imported from this site.");
 				return false;
 			}
 		}
 	} else {
-		recordErrorAndMessage('ATiM Database Check', '@@WARNING@@', "No DB schema defined", '', "No schema defined for site '$site'. No data will be imported.");
+		recordErrorAndMessage('ATiM Database Check', '@@WARNING@@', "No DB schema defined", '', "No schema defined for site '$site'. No data will be imported from this site.");
 		return false;
 	}
 	return false;
@@ -390,9 +390,9 @@ function dislayErrorAndMessage($commit = false) {
 					echo ' - '.utf8_decode($detail)."<br>";
 					//Record data in db
 					$detail = str_replace("'", "''", $detail);
-					$query = "INSERT INTO procure_banks_data_merge_messages (message_nbr, title, description, details, created, created_by, modified, modified_by)
+					$query = "INSERT INTO procure_banks_data_merge_messages (type, message_nbr, title, description, details, created, created_by, modified, modified_by)
 						VALUES 
-						($err_counter, '$msg_title_for_db', '$msg_description_for_db', '$detail', '$import_date', $imported_by, '$import_date', $imported_by);";
+						('".str_replace('@','',$msg_level)."', $err_counter, '$msg_title_for_db', '$msg_description_for_db', '$detail', '$import_date', $imported_by, '$import_date', $imported_by);";
 					customQuery($query, true);
 				}
 			}
