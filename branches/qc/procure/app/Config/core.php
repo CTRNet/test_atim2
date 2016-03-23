@@ -481,3 +481,5 @@ Configure::write('procure_bank_id', 'p');
 //Configure::write('procure_atim_version', 'BANK');
 //Configure::write('procure_atim_version', 'PROCESSING');
 Configure::write('procure_atim_version', 'CENTRAL');
+
+Configure::write('procure_banks_data_merge_output_file', 'atim_merge_process_summary.htm');
