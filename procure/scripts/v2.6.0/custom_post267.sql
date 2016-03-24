@@ -35,6 +35,57 @@ UPDATE menus SET flag_active = 0
 WHERE use_link LIKE '/Study/%' AND use_link NOT LIKE '%detail%' AND use_link NOT LIKE '%search%' AND use_link NOT LIKE '%listAllLinkedRecords%';
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------
+-- Banks Merge Summary
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS procure_banks_data_merge_messages;
+CREATE TABLE IF NOT EXISTS `procure_banks_data_merge_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  message_nbr int(10) default null,
+  type varchar(20) default null,
+  title varchar(250) default null,
+  description varchar(500) default null,
+  details varchar(250) default null,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  deleted tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+DROP TABLE IF EXISTS procure_banks_data_merge_messages_revs;
+CREATE TABLE IF NOT EXISTS `procure_banks_data_merge_messages_revs` (
+  `id` int(11) NOT NULL,
+  message_nbr int(10) default null,
+  type varchar(20) default null,
+  title varchar(250) default null,
+  description varchar(500) default null,
+  details varchar(250) default null,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Generated', '', 'procure_banks_data_merge_try_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('Administrate', 'Generated', '', 'procure_banks_data_merge_try_result', 'input',  NULL , '0', '', '', '', 'result', ''), 
+('Administrate', 'Generated', '', 'procure_banks_data_merge_try_file', 'file',  NULL , '0', '', '', '', 'summary (htm format)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_banks_data_merge_try_date'), '1', '11', 'last merge try', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_banks_data_merge_try_result'), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_banks_data_merge_try_file'), '1', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field` LIKE 'procure_banks_data_merge_try_%');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('only aliquots or participants batchsets will be saved by the banks merge process','Only Aliquots or Participants batchsets will be preserved by the banks merge process','Seuls les lots de données d''aliquots ou de participants seront conservés par le processus de fusion des données des banques'),
+('failed','Failed','Échoué'),
+('open file', 'Open File', 'Ouverture du fichier'),
+('successful','Successful','Réussi'),
+('summary (htm format)','Summary (Html format)','Résumé (format Html)'),
+('last merge try','Last merge try','Dernière tentative de fusion');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6440' WHERE version_number = '2.6.7';
