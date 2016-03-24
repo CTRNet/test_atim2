@@ -29,7 +29,7 @@ class ProcureBanksDataMergeSummaryController extends AdministrateAppController {
 			foreach($try_data as $new_data) {
 				$this->request->data['Generated']['procure_banks_data_'.$new_data['ProcureBanksDataMergeMessage']['type']] = $new_data['ProcureBanksDataMergeMessage']['details'];
 			}
-			$this->request->data['Generated']['procure_banks_data_merge_try_result'] = ($this->request->data['Generated']['procure_banks_data_merge_date'] != $this->request->data['Generated']['procure_banks_data_merge_try_date'])? __('failed') : __('success');
+			$this->request->data['Generated']['procure_banks_data_merge_try_result'] = ($this->request->data['Generated']['procure_banks_data_merge_date'] != $this->request->data['Generated']['procure_banks_data_merge_try_date'])? __('failed') : __('successful');
 			
 			$this->Structures->set('procure_banks_data_merge_summary');
 		
