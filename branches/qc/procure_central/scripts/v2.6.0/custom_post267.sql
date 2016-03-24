@@ -76,9 +76,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_banks_data_merge_try_result'), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_banks_data_merge_try_file'), '1', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_banks_data_merge_summary') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field` LIKE 'procure_banks_data_merge_try_%');
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
+('only aliquots or participants batchsets will be saved by the banks merge process','Only Aliquots or Participants batchsets will be preserved by the banks merge process','Seuls les lots de données d''aliquots ou de participants seront conservés par le processus de fusion des données des banques'),
 ('failed','Failed','Échoué'),
+('open file', 'Open File', 'Ouverture du fichier'),
 ('successful','Successful','Réussi'),
 ('summary (htm format)','Summary (Html format)','Résumé (format Html)'),
 ('last merge try','Last merge try','Dernière tentative de fusion');

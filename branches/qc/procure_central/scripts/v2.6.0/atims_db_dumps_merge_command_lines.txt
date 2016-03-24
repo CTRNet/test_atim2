@@ -57,8 +57,7 @@ Rem ****************************************************************************
 Rem **** Launch the merge process to populate ATiM Central ***********************
 Rem ******************************************************************************
 
-php "D:\atim\atim_merge_process\scripts\main.php" > atim_merge_process_summary.htm
-COPY atim_merge_process_summary.htm > "D:\atim\wamp\www\procure_central\app\webroot\atimUploadDirectory"
+php "D:\atim\atim_merge_process\scripts\main.php" > "D:\atim\wamp\www\procure_central\app\webroot\atimUploadDirectory\Generated.procure_banks_data_merge_try_file.atim_merge_process_summary.htm"
 mysql -u root -pxxx atim_procure_central -e "DELETE FROM procure_banks_data_merge_messages WHERE type = 'merge_try_date'"
 mysql -u root -pxxx atim_procure_central -e "INSERT INTO procure_banks_data_merge_messages  (type,details) VALUEs ('merge_try_date', DATE(NOW()))"
 

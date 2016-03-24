@@ -21,9 +21,7 @@ foreach($bank_databases as $site => $db_schema) {
 	if(!testDbSchemas($db_schema, $site)) $bank_databases[$site] = null;
 }
 
-if(!testDbSchemas($db_processing_schemas, 'PROCESSING SITE')) $db_processing_schemas = null;;
-
-selectCentralDatabase();
+if(!testDbSchemas($db_processing_schemas, 'PROCESSING SITE')) $db_processing_schemas = null;
 
 //**********************************************************************************************************************************************************************************************
 // VARIOUS ACTIONS & VARIABLES 
@@ -124,7 +122,57 @@ if($control_data_mismatch_detected) {
 //**********************************************************************************************************************************************************************************************
 
 //==============================================================================================
-// 1 - Delete central database data
+// 1 - Backups ALiquot and Participant batchsets
+//==============================================================================================
+
+$batch_set_queries = array();
+$batch_set_queries[] = "DROP TABLE IF EXISTS procure_tmp_datamart_batch_sets;";
+$batch_set_queries[] = "DROP TABLE IF EXISTS procure_tmp_datamart_batch_ids;";
+$batch_set_queries[] = "CREATE TABLE IF NOT EXISTS `procure_tmp_datamart_batch_sets` (
+	`id` int(11) NOT NULL,
+	`user_id` int(11) NOT NULL,
+	`group_id` int(11) NOT NULL,
+	`sharing_status` varchar(50) DEFAULT 'user',
+	`title` varchar(50) NOT NULL DEFAULT 'unknown',
+	`description` text,
+	`datamart_structure_id` int(10) unsigned NOT NULL,
+	`locked` tinyint(1) NOT NULL DEFAULT '0',
+	`flag_tmp` tinyint(1) NOT NULL DEFAULT '0',
+	`created` datetime DEFAULT NULL,
+	`created_by` int(10) unsigned NOT NULL,
+	`modified` datetime DEFAULT NULL,
+	`modified_by` int(10) unsigned NOT NULL);";
+$batch_set_queries[] = "CREATE TABLE IF NOT EXISTS `procure_tmp_datamart_batch_ids` (
+	`set_id` int(11) DEFAULT NULL,
+	`participant_identifier` varchar(50) DEFAULT NULL,
+	`barcode` varchar(60) DEFAULT NULL);";
+$batch_set_queries[] = "INSERT INTO procure_tmp_datamart_batch_sets(`id`, `user_id`, `group_id`, `sharing_status`, `title`, `description`, `datamart_structure_id`, `locked`, `flag_tmp`, `created`, `created_by`, `modified`, `modified_by`)
+	(SELECT `id`, `user_id`, `group_id`, `sharing_status`, `title`, `description`, `datamart_structure_id`, `locked`, `flag_tmp`, `created`, `created_by`, `modified`, `modified_by` 
+	FROM datamart_batch_sets 
+	WHERE (datamart_batch_sets.created_by != $imported_by OR (datamart_batch_sets.created_by = $imported_by AND (datamart_batch_sets.description NOT LIKE '### Merge Process BatchSet ###' OR datamart_batch_sets.description IS NULL)))
+	AND datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('ViewAliquot', 'Participant')));";	
+$batch_set_queries[] = "INSERT INTO procure_tmp_datamart_batch_ids (`set_id`, `participant_identifier`)
+	(SELECT datamart_batch_ids.set_id, participants.participant_identifier
+	FROM participants
+	INNER JOIN datamart_batch_ids ON participants.id = datamart_batch_ids.lookup_id
+	INNER JOIN datamart_batch_sets ON datamart_batch_sets.id = datamart_batch_ids.set_id
+	INNER JOIN datamart_structures ON datamart_structures.id = datamart_batch_sets.datamart_structure_id
+	INNER JOIN procure_tmp_datamart_batch_sets ON datamart_batch_sets.id = procure_tmp_datamart_batch_sets.id
+	WHERE datamart_structures.model = 'Participant'
+	AND participants.deleted <> 1);";
+$batch_set_queries[] = "INSERT INTO procure_tmp_datamart_batch_ids (`set_id`, `barcode`)
+	(SELECT datamart_batch_ids.set_id, aliquot_masters.barcode
+	FROM aliquot_masters
+	INNER JOIN datamart_batch_ids ON aliquot_masters.id = datamart_batch_ids.lookup_id
+	INNER JOIN datamart_batch_sets ON datamart_batch_sets.id = datamart_batch_ids.set_id
+	INNER JOIN datamart_structures ON datamart_structures.id = datamart_batch_sets.datamart_structure_id
+	INNER JOIN procure_tmp_datamart_batch_sets ON datamart_batch_sets.id = procure_tmp_datamart_batch_sets.id
+	WHERE datamart_structures.model = 'ViewAliquot'
+	AND aliquot_masters.deleted <> 1);";
+foreach($batch_set_queries as $new_query) customQuery($new_query);
+
+//==============================================================================================
+// 2 - Delete central database data
 //==============================================================================================
 
 $tables_to_truncate = array();
@@ -196,7 +244,7 @@ foreach($tables_to_truncate as $new_table) $all_queries[] = "DELETE FROM $new_ta
 foreach($all_queries as $new_query) customQuery($new_query);
 
 //==============================================================================================
-// 2- Import Data From The 4 Banks (Collection Sites) + Processing Site
+// 3- Import Data From The 4 Banks (Collection Sites) + Processing Site
 //==============================================================================================
 
 $populated_tables_information = array();
@@ -400,7 +448,7 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 }
 
 //==============================================================================================
-// 3- Clean up data
+// 4- Clean up data
 //==============================================================================================
 
 // Merge duplicated drugs
@@ -509,7 +557,7 @@ $queries[] = "UPDATE quality_ctrls SET deleted = '1' WHERE type NOT IN ('nanodro
 foreach($queries as $query) customQuery($query);
 
 //==============================================================================================
-// 4- Import Data From Processing Site
+// 5- Import Data From Processing Site
 //==============================================================================================
 
 // 1- Link Bank aliquots to Psp aliquots when match exists on barcode
@@ -741,6 +789,40 @@ $atim_control_id = $atim_control_id['0']['id'];
 $query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id) VALUES ('###system_transfer_flag###' ,'Transfer (System Record)', 'Transfert (donnée système)', '1', $atim_control_id);";
 customQuery($query);
 
+//==============================================================================================
+// 6 - Recreates ALiquot and Participant batchsets
+//==============================================================================================
+
+//TODO Fix created because the cautocommit = false seams to not be functional
+$create_previous_id = true;
+$query_result = customQuery('DESC datamart_batch_sets;');
+while($row = $query_result->fetch_assoc()) if($row['Field'] == 'previous_id') $create_previous_id = false;
+
+$batch_set_queries = array();
+if($create_previous_id) $batch_set_queries[] = "ALTER TABLE datamart_batch_sets ADD COLUMN `previous_id` int(11) DEFAULT NULL;";
+$batch_set_queries[] = "INSERT INTO datamart_batch_sets (`previous_id`, `user_id`, `group_id`, `sharing_status`, `title`, `description`, `datamart_structure_id`, `locked`, `flag_tmp`, `created`, `created_by`, `modified`, `modified_by`)
+	(SELECT `id`, `user_id`, `group_id`, `sharing_status`, `title`, `description`, `datamart_structure_id`, `locked`, `flag_tmp`, `created`, `created_by`, `modified`, `modified_by` FROM procure_tmp_datamart_batch_sets);";
+$batch_set_queries[] = "INSERT INTO datamart_batch_ids (`set_id`, `lookup_id`)
+	(SELECT datamart_batch_sets.id, participants.id
+	FROM datamart_batch_sets
+	INNER JOIN procure_tmp_datamart_batch_ids ON datamart_batch_sets.previous_id = procure_tmp_datamart_batch_ids.set_id
+	INNER JOIN participants ON participants.participant_identifier = procure_tmp_datamart_batch_ids.participant_identifier
+	INNER JOIN datamart_structures ON datamart_structures.id = datamart_batch_sets.datamart_structure_id
+	WHERE datamart_structures.model = 'Participant'
+	AND Participants.deleted <> 1);";
+$batch_set_queries[] = "INSERT INTO datamart_batch_ids (`set_id`, `lookup_id`)
+	(SELECT datamart_batch_sets.id, aliquot_masters.id
+	FROM datamart_batch_sets
+	INNER JOIN procure_tmp_datamart_batch_ids ON datamart_batch_sets.previous_id = procure_tmp_datamart_batch_ids.set_id
+	INNER JOIN aliquot_masters ON aliquot_masters.barcode = procure_tmp_datamart_batch_ids.barcode
+	INNER JOIN datamart_structures ON datamart_structures.id = datamart_batch_sets.datamart_structure_id
+	WHERE datamart_structures.model = 'ViewAliquot'
+	AND aliquot_masters.deleted <> 1);";
+$batch_set_queries[] = "ALTER TABLE datamart_batch_sets DROP COLUMN `previous_id`;";
+$batch_set_queries[] = "DROP TABLE IF EXISTS procure_tmp_datamart_batch_sets;";
+$batch_set_queries[] = "DROP TABLE IF EXISTS procure_tmp_datamart_batch_ids;";
+foreach($batch_set_queries as $new_query) customQuery($new_query);
+
 //**********************************************************************************************************************************************************************************************
 //
 // CHECK DATA INTEGRITY
@@ -944,14 +1026,29 @@ foreach($sitecodes_to_sites as $site_code => $bank_site) {
 
 updateStorageLftRghtAndLabel();
 
-// ...
+// views update
 
-customQuery("UPDATE versions SET permissions_regenerated = 0");
+$views = array(
+	'view_collections' => $collection_table_query,
+	'view_samples' => $sample_table_query,
+	'view_aliquots' => $aliquot_table_query,
+	'view_aliquot_uses' => $use_table_query);
+foreach($views as $table_name => $table_query) {
+	$all_table_queries = explode('UNION ALL', $table_query);
+	customQuery("TRUNCATE $table_name;", true);
+	foreach($all_table_queries as $new_query) {
+		$new_query = str_replace('%%WHERE%%','',$new_query);
+		customQuery("INSERT INTO $table_name ($new_query)");
+	}
+}
 
-dislayErrorAndMessage(true);
+// End
 
 $en_datetime = getSelectQueryResult("SELECT NOW() AS 'end_merge_process'");
 $en_datetime = $en_datetime['0']['end_merge_process'];
+
+dislayErrorAndMessage(true);
+
 pr('<br>******************************************************************************************');
 pr('PROCESS DONE '.$en_datetime);
 pr('******************************************************************************************');
