@@ -3,7 +3,7 @@
 class ProcureBanksDataMergeSummaryController extends AdministrateAppController {
 	var $uses = array('Administrate.ProcureBanksDataMergeMessage');
 	
-	var $paginate = array('ProcureBanksDataMergeMessage' => array('limit' => pagination_amount, 'order' => 'ProcureBanksDataMergeMessage.message_nbr ASC, ProcureBanksDataMergeMessage.details ASC'));
+	var $paginate = array('ProcureBanksDataMergeMessage' => array('limit' => 5, 'order' => 'ProcureBanksDataMergeMessage.message_nbr ASC, ProcureBanksDataMergeMessage.details ASC'));
 	
 	function listAll($message_nbr = ''){
 		
@@ -16,13 +16,30 @@ class ProcureBanksDataMergeSummaryController extends AdministrateAppController {
 			
 			// Main form
 			
-			$this->Structures->set('procure_banks_data_merge_summary');
-			$first_record = $this->ProcureBanksDataMergeMessage->find('first');
-			$this->request->data = array('Generated' => array('procure_banks_data_merge_date' => $first_record['ProcureBanksDataMergeMessage']['created']));
+			$this->request->data = array(
+				'Generated' => array(
+					'procure_banks_data_merge_date' => null,
+					'procure_banks_data_merge_try_date' => null,
+					'procure_banks_data_merge_try_result' =>null,
+					'procure_banks_data_merge_try_file' => 'Generated.procure_banks_data_merge_try_file.'.Configure::read('procure_banks_data_merge_output_file')));
+				
+			$try_data = $this->ProcureBanksDataMergeMessage->find('all', array(
+					'conditions' => array('ProcureBanksDataMergeMessage.message_nbr IS NULL', 'ProcureBanksDataMergeMessage.type' => array('merge_date', 'merge_try_date')),
+					'fields' => array('DISTINCT ProcureBanksDataMergeMessage.type, ProcureBanksDataMergeMessage.details')));
+			foreach($try_data as $new_data) {
+				$this->request->data['Generated']['procure_banks_data_'.$new_data['ProcureBanksDataMergeMessage']['type']] = $new_data['ProcureBanksDataMergeMessage']['details'];
+			}
+			$this->request->data['Generated']['procure_banks_data_merge_try_result'] = ($this->request->data['Generated']['procure_banks_data_merge_date'] != $this->request->data['Generated']['procure_banks_data_merge_try_date'])? __('failed') : __('successful');
 			
-			$message_nbrs_tmp = $this->ProcureBanksDataMergeMessage->find('all', array('fields' => array('DISTINCT ProcureBanksDataMergeMessage.message_nbr, ProcureBanksDataMergeMessage.title, ProcureBanksDataMergeMessage.description')));
+			$this->Structures->set('procure_banks_data_merge_summary');
+		
+			// Subforms management
+			
+			$message_nbrs_tmp = $this->ProcureBanksDataMergeMessage->find('all', array(
+				'conditions' => array('ProcureBanksDataMergeMessage.message_nbr IS NOT NULL'),
+				'fields' => array('DISTINCT ProcureBanksDataMergeMessage.message_nbr, ProcureBanksDataMergeMessage.type, ProcureBanksDataMergeMessage.title, ProcureBanksDataMergeMessage.description')));
 			$message_nbrs = array();
-			foreach($message_nbrs_tmp as $val) $message_nbrs[$val['ProcureBanksDataMergeMessage']['message_nbr']] = array($val['ProcureBanksDataMergeMessage']['message_nbr'], $val['ProcureBanksDataMergeMessage']['title'], $val['ProcureBanksDataMergeMessage']['description']);
+			foreach($message_nbrs_tmp as $val) $message_nbrs[$val['ProcureBanksDataMergeMessage']['message_nbr']] = array($val['ProcureBanksDataMergeMessage']['message_nbr'], $val['ProcureBanksDataMergeMessage']['type'].' : '.$val['ProcureBanksDataMergeMessage']['title'], $val['ProcureBanksDataMergeMessage']['description']);
 			$this->set('message_nbrs', $message_nbrs);
 
 		} else {
