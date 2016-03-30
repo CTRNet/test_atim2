@@ -170,6 +170,9 @@ class AppController extends Controller {
      **/
 	function beforeRender(){
         if (isset($this->request->query['file'])) {
+//TODO PROCURE
+//TO review... fix to allow the display of the merge summary
+if(Configure::read('procure_atim_version') == 'CENTRAL') Configure::write('use_compression', false);
             return $this->handleFileRequest();
         }
 		//Fix an issue where cakephp 2.0 puts the first loaded model with the key model in the registry.
