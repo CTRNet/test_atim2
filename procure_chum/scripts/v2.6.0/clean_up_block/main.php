@@ -7,7 +7,7 @@ require_once 'system.php';
 // Main Code
 //==============================================================================================
 
-$excel_file_name = 'ListFrozenBlocksATiMs_20160215_revised_20160330.xls';
+$excel_file_name = 'ListFrozenBlocksATiMs_20160215_revised_20160331.xls';
 
 displayMigrationTitle('PROCURE Blocks Clean Up', array($excel_file_name));
 
@@ -16,10 +16,35 @@ if(!testExcelFile(array($excel_file_name))) {
 	exit;
 }
 
+$query = "SELECT procure.barcode as 'PROCURE', icm.aliquot_label as 'ONCO-AXIS', procure.selection_label, procure.storage_coord_x
+	FROM (
+		SELECT
+		am.id as aliquot_master_id,
+		am.barcode, stm.selection_label, am.storage_coord_x
+		FROM $procure_db_schema.ad_blocks ad
+		INNER JOIN $procure_db_schema.aliquot_masters am ON am.id = ad.aliquot_master_id
+		INNER JOIN $procure_db_schema.storage_masters stm ON stm.id = am.storage_master_id AND stm.deleted <> 1
+		WHERE am.deleted <> 1 AND (ad.block_type = 'frozen' OR ad.procure_freezing_type IN ('OCT', 'ISO+OCT'))
+	) procure, (
+		SELECT
+		am.id as aliquot_master_id,
+		am.barcode, am.aliquot_label, stm.selection_label, am.storage_coord_x
+		FROM $chumoncoaxis_db_schema.ad_blocks ad
+		INNER JOIN $chumoncoaxis_db_schema.aliquot_masters am ON am.id = ad.aliquot_master_id
+		INNER JOIN $chumoncoaxis_db_schema.collections col ON col.id = am.collection_id
+		INNER JOIN $chumoncoaxis_db_schema.storage_masters stm ON stm.id = am.storage_master_id
+		WHERE am.deleted <> 1 AND ad.block_type IN ('frozen', 'OCT', 'isopentane + OCT') AND col.bank_id = 4
+	) icm
+	WHERE procure.selection_label = icm.selection_label AND  procure.storage_coord_x = icm.storage_coord_x;";
+foreach(getSelectQueryResult($query) as $new_conflict) {
+	recordErrorAndMessage('Pre-test', '@@ERROR@@', "Block stored in same position into the 2 ATiM database", "See PROCURE aliquot '".$new_conflict['PROCURE']." and ONCO-AXIS aliquot '".$new_conflict['ONCO-AXIS']." stored in ".$new_conflict['selection_label']." at position ".$new_conflict['storage_coord_x']);
+}
+
+
 $new_procure_box_master_ids = array();
 
-// $max_rght = getSelectQueryResult("select max(rght) as last_rght from $procure_db_schema.storage_masters WHERE deleted <> 1;");
-// $max_rght = $max_rght[0]['last_rght'];
+//TODO
+$tmp_limit_study_to_nolabos = array();
 
 $worksheet_name = 'Feuil1';
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1)) {
@@ -32,6 +57,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 		$xls_procure_barcode = $excel_line_data['Identification (alq.)'];
 		$xls_procure_participant_identifier = $excel_line_data['Identification (part.)'];	
 		$xls_no_labo = $excel_line_data['No Labo'];
+		if($tmp_limit_study_to_nolabos && !in_array($xls_no_labo, $tmp_limit_study_to_nolabos)) continue;
 		$xls_patho_misc_identifier = $excel_line_data['Patho Identifier'];
 		$xls_procure_sd_procure_report_number = $excel_line_data['Pathology #'];
 		
@@ -198,8 +224,6 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 								'code' => 'tmp_'.sizeof($new_procure_box_master_ids),
 								'short_label' => $short_label,
 								'selection_label' => $xls_new_storage_selection_label),
-// 								'lft' => ($max_rght++),
-// 								'rght' => ($max_rght++)),
 							$atim_controls[$procure_db_schema]['storage_controls']['box27']['detail_tablename'] => array());
 						if($parent_id) $storage_data['storage_masters']['parent_id'] = $parent_id;
 						$new_procure_box_master_ids[$xls_new_storage_selection_label] = customInsertRecord($storage_data, $procure_db_schema);
@@ -585,8 +609,6 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 								'code' => 'tmp_'.sizeof($new_procure_box_master_ids),
 								'short_label' => $short_label,
 								'selection_label' => $xls_new_storage_selection_label),
-// 								'lft' => ($max_rght++),
-// 								'rght' => ($max_rght++)),
 							$atim_controls[$procure_db_schema]['storage_controls']['box27']['detail_tablename'] => array());
 						if($parent_id) $storage_data['storage_masters']['parent_id'] = $parent_id;
 						$new_procure_box_master_ids[$xls_new_storage_selection_label] = customInsertRecord($storage_data, $procure_db_schema);
@@ -653,7 +675,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 								'aliquot_master_id' => $aliquot_master_id,
 								'procure_created_by_bank' => '1'));
 						customInsertRecord($internal_use_data, $procure_db_schema);
-						recordErrorAndMessage('PROCURE Actions Summary', '@@MESSAGE@@', "PROCURE :: Created internal Use 'sent to processing site' creation", "For $procure_participant_identifier V01 -FRZ$bloc_frz_id (".$atim_oncologyaxis_block_data['aliquot_label'].")");
+						recordErrorAndMessage('PROCURE Actions Summary', '@@MESSAGE@@', "PROCURE :: Created internal Use 'sent to processing site'", "For $procure_participant_identifier V01 -FRZ$bloc_frz_id (".$atim_oncologyaxis_block_data['aliquot_label'].")");
 					}
 					
 					// Create aliquot internal uses + deletion
@@ -796,7 +818,14 @@ if($new_procure_box_master_ids) {
 		WHERE am.deleted <> 1 AND (ad.block_type = 'frozen' OR ad.procure_freezing_type IN ('OCT', 'ISO+OCT'))
 		AND (am.storage_master_id IS NULL OR am.storage_master_id LIKE '' OR am.storage_master_id NOT IN (".implode(',',$new_procure_box_master_ids)."))
 		ORDER BY am.barcode;";
-	foreach(getSelectQueryResult($query) as $new_procure_block_data_to_move) {
+	if($tmp_limit_study_to_nolabos) {
+		$query = str_replace(
+			array("LEFT JOIN $procure_db_schema.misc_identifiers mid_nolabo", 'WHERE'),				
+			array("INNER JOIN $procure_db_schema.misc_identifiers mid_nolabo", "WHERE mid_nolabo.identifier_value IN ('".implode("','", $tmp_limit_study_to_nolabos)."') AND "),
+			$query);
+	}
+	foreach(getSelectQueryResult($query) as $new_procure_block_data_to_move) {	
+		if($tmp_limit_study_to_nolabos && !in_array($new_procure_block_data_to_move['mid_nolabo_identifier_value'], $tmp_limit_study_to_nolabos)) die('ERR 238 723892 26 323 6 # '.$new_procure_block_data_to_move['mid_nolabo_identifier_value']);
 
 		$deleted_atim_procure_block_ids_for_display = " <b><i>[Deleted PROCURE block (moved to onco) : Identif (alq.) = '".$new_procure_block_data_to_move['barcode']."', ids = '/".$new_procure_block_data_to_move['collection_id']."/".$new_procure_block_data_to_move['sample_master_id']."/".$new_procure_block_data_to_move['aliquot_master_id']."/']</i></b>";
 		
@@ -816,7 +845,8 @@ if($new_procure_box_master_ids) {
 			UNION All
 			SELECT aliquot_master_id FROM $procure_db_schema.aliquot_review_masters WHERE deleted <> 1 AND aliquot_master_id = ".$new_procure_block_data_to_move['aliquot_master_id']."";
 		if(getSelectQueryResult($block_use_check_query)) {
-			//ALiquot defined as usedrecordErrorAndMessage('PROCURE Block Move To Oncology Axis', '@@ERROR@@', "Aliquot linked to an aliquot use data in PROCURE ATiM (Derivative creation, realiquoting, QC, order or review) :: Block won't be moved to Onco Axis ATiM.", "See block '".$new_procure_block_data_to_move['barcode']."'");
+			//ALiquot defined as used
+			recordErrorAndMessage('PROCURE Block Move To Oncology Axis', '@@ERROR@@', "Aliquot linked to an aliquot use data in PROCURE ATiM (Derivative creation, realiquoting, QC, order or review) :: Block won't be moved to Onco Axis ATiM.", "See block '".$new_procure_block_data_to_move['barcode']."'");
 			$move_to_atim_onco = false;
 		}
 		
@@ -928,7 +958,7 @@ if($new_procure_box_master_ids) {
 						'tissue_weight' => $new_procure_block_data_to_move['tissue_weight'],
 						'tissue_weight_unit' => $new_procure_block_data_to_move['tissue_weight_unit'],
 						'tmp_on_ice' => $new_procure_block_data_to_move['procure_transfer_to_pathology_on_ice']));
-				$onco_sample_master_id = customInsertRecord($onco_sample_data, $chumoncoaxis_db_schema);
+				$onco_sample_master_id = customInsertRecord($onco_sample_data, $chumoncoaxis_db_schema);			
 				recordErrorAndMessage('ONCO-AXIS Actions Summary', '@@MESSAGE@@', "ONCO-AXIS :: New tissue (Aliquot move from procure to onco axis will be linked to a new tissue)", "See PR -  ".$new_procure_block_data_to_move['mid_nolabo_identifier_value']." n/a (sample_master_id = $onco_sample_master_id)".$deleted_atim_procure_block_ids_for_display);
 				$procure_sample_master_id_to_onco_data[$new_procure_block_data_to_move['sample_master_id']] = array($onco_collection_id, $onco_sample_master_id, $onco_nopatho_identifier_value);
 			}
@@ -1099,6 +1129,45 @@ if($new_procure_box_master_ids) {
 }
 
 
+//Check PROCURE blocks not stored in PR box
+
+$blocks_in_wrong_storage_query = "SELECT
+	p.id as participant_id,
+	p.participant_identifier as participant_identifier,
+	col.id AS collection_id,
+	sam.id as sample_master_id,
+	am.barcode
+	FROM $procure_db_schema.ad_blocks ad
+	INNER JOIN $procure_db_schema.aliquot_masters am ON am.id = ad.aliquot_master_id
+	INNER JOIN $procure_db_schema.sample_masters sam ON sam.id = am.sample_master_id
+	INNER JOIN $procure_db_schema.collections col ON col.id = sam.collection_id
+	INNER JOIN $procure_db_schema.participants p ON p.id = col.participant_id
+	LEFT JOIN $procure_db_schema.storage_masters stm ON stm.id = am.storage_master_id
+	WHERE am.deleted <> 1 AND (ad.block_type = 'frozen' OR ad.procure_freezing_type IN ('OCT', 'ISO+OCT'))
+	AND (am.storage_master_id IS NULL OR am.storage_master_id LIKE '' OR am.storage_master_id NOT IN (SELECT id FROM storage_masters WHERE short_label LIKE 'PR%' AND id IN (".implode(',',$new_procure_box_master_ids).")))
+	ORDER BY am.barcode;";
+foreach(getSelectQueryResult($blocks_in_wrong_storage_query) as $new_block) {
+	recordErrorAndMessage('PROCURE Block Update', '@@ERROR@@', "FRZ Blocks not stored in 'PR[0-9]' box", $new_block['barcode']);
+}
+
+//Check patient with more or less than 4 frozen blocks in PROCURE
+
+$nbr_of_blocks_query = "SELECT nbr_of_blocks, participant_identifier 
+	FROM (
+		SELECT count(*) as nbr_of_blocks, part.id AS participant_id, part.participant_identifier 
+		FROM $procure_db_schema.ad_blocks ad
+		INNER JOIN $procure_db_schema.aliquot_masters am ON am.id = ad.aliquot_master_id
+		INNER JOIN $procure_db_schema.collections col ON col.id = am.collection_id AND col.deleted <> 1
+		INNER JOIN $procure_db_schema.participants part ON part.id = col.participant_id AND part.deleted <> 1
+		WHERE am.deleted <> 1 AND (ad.block_type = 'frozen' OR ad.procure_freezing_type IN ('OCT', 'ISO+OCT'))
+		GROUP BY part.id
+	) res 
+	WHERE res.nbr_of_blocks != 4
+	ORDER BY res.nbr_of_blocks;";
+foreach(getSelectQueryResult($nbr_of_blocks_query) as $new_participant) {
+	recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Participants with more or less than 4 FRZ blocks", "See ".$new_participant['participant_identifier']." linked to ".$new_participant['nbr_of_blocks']." frozen blocks.");
+}
+
 //Check no duplicated barcode
 
 $duplicated_barcode = getSelectQueryResult("SELECT am.barcode, am.aliquot_label FROM
@@ -1106,6 +1175,41 @@ $duplicated_barcode = getSelectQueryResult("SELECT am.barcode, am.aliquot_label 
 	aliquot_masters am
 	WHERE am_count.dup_counter > 1 AND am_count.barcode = am.barcode AND am.deleted <> 1;");
 if($duplicated_barcode) die('ERR 232 2332 ');
+
+// Replace date 0000-00-00
+
+$table_fields = array(
+	'collections.collection_datetime',
+	'specimen_details.reception_datetime',
+	'aliquot_masters.storage_datetime',
+	'aliquot_internal_uses.use_datetime');
+foreach($table_fields as $table_field) {
+	$table_field = explode('.',$table_field);
+	list($table, $field) = $table_field;
+	$sql_update = "UPDATE %%schema%%.$table SET $field = null WHERE $field LIKE '%0000%'";
+	customQuery(str_replace('%%schema%%', $chumoncoaxis_db_schema, $sql_update));
+	customQuery(str_replace('%%schema%%', $procure_db_schema, $sql_update));
+	customQuery(str_replace(array('%%schema%%', $table), array($chumoncoaxis_db_schema, $table.'_revs'), $sql_update));
+	customQuery(str_replace(array('%%schema%%', $table), array($procure_db_schema, $table.'_revs'), $sql_update));
+}
+
+//Delete empty storage
+
+$empty_storage_query = "SELECT id, selection_label
+	FROM $procure_db_schema.storage_masters 
+	WHERE deleted <> 1 
+	AND id NOT IN (SELECT DISTINCT storage_master_id FROM $procure_db_schema.aliquot_masters WHERE deleted <> 1 AND storage_master_id IS NOT NULL) 
+	AND id NOT IN (SELECT DISTINCT parent_id FROM $procure_db_schema.storage_masters WHERE deleted <> 1 AND parent_id IS NOT NULL)";
+$empty_storages = getSelectQueryResult($empty_storage_query); 	
+while($empty_storages) {
+	foreach($empty_storages as $storage_to_delete) {
+		//Deletion
+		$storage_to_update = array('storage_masters' => array('deleted' => '1'));
+		updateTableData($storage_to_delete['id'], $storage_to_update, $procure_db_schema);
+		recordErrorAndMessage('PROCURE Actions Summary', '@@MESSAGE@@', "PROCURE :: Deleted empty storage",$storage_to_delete['selection_label']);
+	}	
+	$empty_storages = getSelectQueryResult($empty_storage_query);
+}
 
 //==============================================================================================
 // End of the process
