@@ -466,9 +466,35 @@ function addToModifiedDatabaseTablesList($main_table_name, $detail_table_name) {
 function insertIntoRevsBasedOnModifiedValues($main_tablename = null, $detail_tablename = null) {
 	global $import_date;
 	global $imported_by;
+	global $atim_controls;
 	global $modified_database_tables_list;
 	
-	$tables_sets_to_update = is_null($main_tablename)? $modified_database_tables_list : array(array($main_tablename, $detail_tablename));
+	$tables_sets_to_update = $modified_database_tables_list;
+	if(!is_null($main_tablename)) {
+		$key = $main_tablename.'-'.(is_null($detail_tablename)? '' : $detail_tablename);
+		$tables_sets_to_update = array($key => array($main_tablename, $detail_tablename));
+	}
+	
+	//Check masters model alone
+	$initial_tables_sets_to_update = $tables_sets_to_update;
+	foreach($initial_tables_sets_to_update as $key => $tmp) {
+		if(preg_match('/^(.*)\.([a-z]+_masters)\-$/', $key, $matches)) {
+			$tmp_db_schema = $matches[1];
+			$master_table_name = $matches[2];
+			$control_table_name = str_replace('_masters', '_controls', $master_table_name);
+			if(!isset($atim_controls[$tmp_db_schema][$control_table_name])) migrationDie("ERR 778894003 #$master_table_name.$control_table_name");
+			foreach($atim_controls[$tmp_db_schema][$control_table_name] as $control_data) {
+				if(is_array($control_data) && isset($control_data['detail_tablename'])) {
+					$detail_table_name = $control_data['detail_tablename'];
+					$new_key = "$tmp_db_schema.$master_table_name-$tmp_db_schema.$detail_table_name";
+					if(!isset($tables_sets_to_update[$new_key])) $tables_sets_to_update[$new_key] = array("$tmp_db_schema.$master_table_name", "$tmp_db_schema.$detail_table_name");
+				}
+			}
+			unset($tables_sets_to_update[$key]);
+		}
+	}
+	
+	//Insert Into Revs
 	$insert_queries = array();
 	$set_key_done = array();
 	foreach($tables_sets_to_update as $new_tables_set) {
