@@ -7,7 +7,7 @@ require_once 'system.php';
 // Main Code
 //==============================================================================================
 
-$excel_file_name = 'Extractions_ARN_20151030.xls';
+$excel_file_name = 'Extractions ARN 2015_20160401_final.xls';
 
 displayMigrationTitle('PROCURE CHUM RNA Migration', array($excel_file_name));
 
@@ -27,7 +27,7 @@ $sample_controls = $atim_controls['sample_controls'];
 $aliquot_controls = $atim_controls['aliquot_controls'];
 
 //==============================================================================================
-$previous_modified = '2015-11-02 20:00:00';
+$previous_modified = false;//'2015-04-01 01:00:00';
 if($previous_modified) {
 	$queries = array(
 			"UPDATE aliquot_masters SET in_stock = 'yes - available' WHERE modified >= '$previous_modified' AND aliquot_control_id = ".$aliquot_controls['blood-tube']['id'],
@@ -60,7 +60,7 @@ $storage_master_ids = array();
 $rna_boxes = getSelectQueryResult("SELECT id, selection_label from storage_masters WHERE selection_label LIKE 'RNA.%' AND storage_control_id = (SELECT id FROM storage_controls WHERE storage_type = 'box100')");
 foreach($rna_boxes as $new_box) $storage_master_ids[$new_box['selection_label']] = $new_box['id'];
 
-$worksheet_name = 'Feuil1';
+$worksheet_name = 'Sheet1';
 $creation_summaries = array('RNAs' => 0, 'RNA tubes' => 0, 'aliquot source' => 0, 'quality ctrls' => 0);
 while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1)) {
 	$no_labo = $excel_line_data['No Labo'];
@@ -111,8 +111,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 			}
 		}
 	} else {
-		list($date_of_extraction, $date_of_extraction_accuracy) = validateAndGetDateAndAccuracy($excel_line_data["Date d'extraction"], 'RNA Creation', "Field 'Date d'extraction'", "See Patient $participant_identifier // $no_labo and visit $visit (line $line_number).");
-		$date_of_extraction_accuracy = str_replace('c','h', $date_of_extraction_accuracy);
+		list($date_of_extraction, $date_of_extraction_accuracy) = validateAndGetDatetimeAndAccuracy($excel_line_data["Date d'extraction et d'entreposage"], $excel_line_data["Heure d'extraction"], 'RNA Creation', "Field 'Date d'extraction et d'entreposage' & 'Heure d'extraction'", "See Patient $participant_identifier // $no_labo and visit $visit (line $line_number).");
 		if(!$date_of_extraction) {
 			recordErrorAndMessage('RNA Creation', '@@ERROR@@', "No date of extraction", "No RNA will be created. Patient $participant_identifier // $no_labo and visit $visit. See line $line_number.");
 		} else {
@@ -131,7 +130,19 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 				$paxgene_current_volume = $paxgene_tube_data[0]['current_volume'];
 				
 				// * 1 * create RNA
-			
+				$creation_by = '';
+				switch(strtolower($excel_line_data["Créé et entreposé par"])) {
+					case 'genevieve cormier':
+					case 'geneviève cormier':
+						$creation_by = 'genevieve cormier';
+						break;
+					
+					case 'claudia syed':
+						$creation_by = 'claudia syed';
+						break;
+					default:
+						die('ERR 88399383 '.$excel_line_data["Créé et entreposé par"]);
+				}
 				$sample_data = array(
 					'sample_masters' => array(
 						'collection_id' => $paxgene_collection_id,
@@ -147,6 +158,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 						'creation_by' => (preg_match('/^2015/', $date_of_extraction)? "genevieve cormier" : "claudia syed")),
 					$sample_controls['rna']['detail_tablename'] => array(
 						'qc_nd_extraction_method' => "Qiacube Paxgene kit"));
+				if($sample_data[$sample_controls['rna']['detail_tablename']]['qc_nd_extraction_method'] != $excel_line_data["Extraction Method"]) die('ERR 88399384 '.$excel_line_data["Extraction Method"]);
 				$derivative_sample_master_id = customInsertRecord($sample_data);
 				$creation_summaries['RNAs']++;
 				//Create aliquot to sample link
@@ -168,7 +180,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 				$storage_master_id = getStorageMasterId($excel_line_data["Boîte"]);
 				$storage_coordinate_x = null;
 				if(strlen($excel_line_data["Position"])) {
-					if(!preg_match('/^(([1-9])|([1-9][0-9]))$/', $excel_line_data["Position"])) {
+					if(!preg_match('/^(([1-9])|([1-9][0-9])|(100))$/', $excel_line_data["Position"])) {
 						recordErrorAndMessage('RNA Creation', '@@ERROR@@', "Wrong rna tube postion", "Position [".$excel_line_data["Position"]."] won't be set. Patient $participant_identifier // $no_labo and visit $visit. See line $line_number.");
 					} else {
 						if(!$storage_master_id) {
@@ -184,6 +196,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 				} else {
 					$current_volume = $initial_volume;
 				}
+				list($storage_datetime, $storage_datetime_accuracy) = validateAndGetDatetimeAndAccuracy($excel_line_data["Date d'extraction et d'entreposage"], $excel_line_data["Heure d'entreposage"], 'RNA Creation', "Field 'Date d'extraction et d'entreposage' & 'Heure d'entreposage'", "See Patient $participant_identifier // $no_labo and visit $visit (line $line_number).");
 				$aliquot_data = array(
 					'aliquot_masters' => array(
 						'collection_id' => $paxgene_collection_id,
@@ -194,8 +207,8 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 						'initial_volume' => $current_volume,
 						'current_volume' => $current_volume,
 						'use_counter' => '0',
-						'storage_datetime' => $date_of_extraction,
-						'storage_datetime_accuracy' => $date_of_extraction_accuracy,
+						'storage_datetime' => $storage_datetime,
+						'storage_datetime_accuracy' => $storage_datetime_accuracy,
 						'storage_master_id' => $storage_master_id,
 						'storage_coord_x' => $storage_coordinate_x,
 						'storage_coord_y' => null),
@@ -288,7 +301,7 @@ if($paxgene_aliquot_master_ids_to_remove) {
 insertIntoRevsBasedOnModifiedValues();
 customQuery("UPDATE versions SET permissions_regenerated = 0;");
 
-dislayErrorAndMessage(true);
+dislayErrorAndMessage(false);
 
 pr("==================================================================================================================================================================================");
 foreach($all_queries as $new_query) pr($new_query);

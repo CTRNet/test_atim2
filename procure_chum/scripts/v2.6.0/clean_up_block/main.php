@@ -7,7 +7,7 @@ require_once 'system.php';
 // Main Code
 //==============================================================================================
 
-$excel_file_name = 'ListFrozenBlocksATiMs_20160215_revised_20160331.xls';
+$excel_file_name = 'ListFrozenBlocksATiMs_20160215_revised_20160401_final.xls';
 
 displayMigrationTitle('PROCURE Blocks Clean Up', array($excel_file_name));
 
@@ -1165,7 +1165,7 @@ $nbr_of_blocks_query = "SELECT nbr_of_blocks, participant_identifier
 	WHERE res.nbr_of_blocks != 4
 	ORDER BY res.nbr_of_blocks;";
 foreach(getSelectQueryResult($nbr_of_blocks_query) as $new_participant) {
-	recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Participants with more or less than 4 FRZ blocks", "See ".$new_participant['participant_identifier']." linked to ".$new_participant['nbr_of_blocks']." frozen blocks.");
+	recordErrorAndMessage('PROCURE Block Update', '@@WARNING@@', "Participants with more or less than 4 FRZ blocks (at the end of the process)", "See ".$new_participant['participant_identifier']." linked to ".$new_participant['nbr_of_blocks']." frozen blocks.");
 }
 
 //Check no duplicated barcode
