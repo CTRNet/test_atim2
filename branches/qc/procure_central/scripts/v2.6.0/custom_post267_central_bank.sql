@@ -11,5 +11,10 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET site_branch_build_number = '6470' WHERE version_number = '2.6.7';
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE label IN ('update aliquot barcode (and label)', 'list all related diagnosis', 'participant identifiers report');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET site_branch_build_number = '6473' WHERE version_number = '2.6.7';
 UPDATE versions SET permissions_regenerated = 0;
