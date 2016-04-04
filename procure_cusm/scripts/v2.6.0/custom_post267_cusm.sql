@@ -12,5 +12,5 @@ drop database if exists id_linking;
  -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET site_branch_build_number = '6467' WHERE version_number = '2.6.7';
+UPDATE versions SET site_branch_build_number = '6468' WHERE version_number = '2.6.7';
 UPDATE versions SET permissions_regenerated = 0;
