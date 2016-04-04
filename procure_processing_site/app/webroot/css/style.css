@@ -1108,11 +1108,34 @@ span.help {
 					color: grey;
 				}
 /* PROCURE */			
-div.nodeBlock .rightPart.transfered_aliquot{
-	color: blue;
+div.nodeBlock .rightPart.transfered_bank_aliquot{
+	background-color: #BEF781; 
 }
-div.nodeBlock .rightPart.disabled_transfered_aliquot{
-	color: #1550ea;
+div.nodeBlock .rightPart.disabled_transfered_bank_aliquot{
+	color: grey;
+	background-color: #BEF781; 
+}
+div.nodeBlock .rightPart.transfered_psp_aliquot{
+	background-color: #e9b6b6; 
+}
+div.nodeBlock .rightPart.disabled_transfered_psp_aliquot{
+	color: grey;
+	background-color: #e9b6b6; 
+}
+div.nodeBlock .rightPart.psp_aliquot{
+	background-color: #F2DEDE; 
+}
+div.nodeBlock .rightPart.disabled_psp_aliquot{
+	color: grey;
+	background-color: #F2DEDE; 
+}
+div.nodeBlock .rightPart.psp_record{
+	background-color: #F2DEDE; 
+}
+div.nodeBlock .rightPart.disabled_psp_record{
+	color: grey;
+	font-style: italic;
+	background-color: #F2DEDE; 
 }
 /* END PROCURE */
 				div.nodeBlock .rightPart.sample_disabled{
