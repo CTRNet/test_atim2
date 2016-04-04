@@ -242,6 +242,7 @@ $all_queries = array(
 );
 foreach($tables_to_truncate as $new_table) $all_queries[] = "DELETE FROM $new_table";
 foreach($all_queries as $new_query) customQuery($new_query);
+remettre les autocincremente a 0
 
 //==============================================================================================
 // 3- Import Data From The 4 Banks (Collection Sites) + Processing Site
