@@ -10,24 +10,7 @@ set_time_limit('3600');
 
 global $patients_to_import;
 //TODO set to empty
-$patients_to_import = array(
-		'PS1P0222',
-		'PS1P0222',
-		'PS1P0615',
-		'PS1P0615',
-		'PS2P0043',
-		'PS2P0043',
-		'PS2P0392',
-		'PS2P0392',
-		'PS3P0004',
-		'PS3P0004',
-		'PS3P0007',
-		'PS3P0007',
-		'PS4P0246',
-		'PS4P0246',
-		'PS4P0391',
-		'PS4P0391'
-);
+$patients_to_import = array();
 
 //$patients_to_import = array();
 $files_name = array(
