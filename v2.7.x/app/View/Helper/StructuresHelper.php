@@ -822,7 +822,7 @@ class StructuresHelper extends AppHelper {
 				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
-				$display .= self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
+                    $display .= self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "datetime"){
 				$date = $time = null;
 				if(is_array($current_value)){
@@ -2679,7 +2679,17 @@ class StructuresHelper extends AppHelper {
 		if(datetime_input_type == "dropdown"){
 			foreach($pref_date as $part){
 				if($part == "Y"){
-					$result .= $this->Form->year($name, 1900, 2100, array_merge($year_attributes, array('value' => $year)));
+                    if (isset($attributes['minYear'])) {
+                        $minYear = $attributes['minYear'];
+                    } else {
+                        $minYear = 1900;
+                    }
+                    if (isset($attributes['maxYear'])) {
+                        $maxYear = $attributes['maxYear'];
+                    } else {
+                        $maxYear = 2100;
+                    }
+					$result .= $this->Form->year($name, $minYear, $maxYear, array_merge($year_attributes, array('value' => $year)));
 				}else if($part == "M"){
 					$result .= $this->Form->month($name, array_merge($attributes, array('value' => $month)));
 				}else{
