@@ -75,6 +75,7 @@ class ReportsControllerCustom extends ReportsController {
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
+		$display_exact_search_warning = false;
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -87,10 +88,27 @@ class ReportsControllerCustom extends ReportsController {
 			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
 			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
 		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$display_exact_search_warning = true;
 			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
 			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		if(isset($parameters['0']['procure_participant_identifier_prefix'])) {
+			$procure_participant_identifier_prefix  = array_filter($parameters['0']['procure_participant_identifier_prefix']);
+			if($procure_participant_identifier_prefix) {
+				$prefix_conditions = array();
+				foreach($procure_participant_identifier_prefix as $prefix) {
+					if(!in_array($prefix, array('p','s'))) {
+						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
+					}
+				}
+				if($prefix_conditions) {
+					$conditions[] = '('.implode(' OR ', $prefix_conditions).')';
+				} else {
+					$conditions[] =  "Participant.participant_identifier LIKE '-1'";
+				}
+			}
 		}
 			
 		//Get Controls Data
@@ -278,6 +296,8 @@ class ReportsControllerCustom extends ReportsController {
 		
 		if($inaccurate_date) AppController::addWarningMsg(__('at least one participant summary is based on inaccurate date'));
 		
+		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
+		
 		return array(
 				'header' => $header,
 				'data' => $data,
@@ -299,6 +319,7 @@ class ReportsControllerCustom extends ReportsController {
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
+		$display_exact_search_warning = false;
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -311,10 +332,27 @@ class ReportsControllerCustom extends ReportsController {
 			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
 			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
 		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$display_exact_search_warning = true;
 			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
 			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		if(isset($parameters['0']['procure_participant_identifier_prefix'])) {
+			$procure_participant_identifier_prefix  = array_filter($parameters['0']['procure_participant_identifier_prefix']);
+			if($procure_participant_identifier_prefix) {
+				$prefix_conditions = array();
+				foreach($procure_participant_identifier_prefix as $prefix) {
+					if(!in_array($prefix, array('p','s'))) {
+						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
+					}
+				}
+				if($prefix_conditions) {
+					$conditions[] = '('.implode(' OR ', $prefix_conditions).')';
+				} else {
+					$conditions[] =  "Participant.participant_identifier LIKE '-1'";
+				}
+			}
 		}
 		
 		//Get Controls Data
@@ -566,6 +604,8 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
+		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
+		
 		return array(
 			'header' => $header,
 			'data' => $data,
@@ -581,6 +621,7 @@ class ReportsControllerCustom extends ReportsController {
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
+		$display_exact_search_warning = false;
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -593,10 +634,27 @@ class ReportsControllerCustom extends ReportsController {
 			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
 			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
 		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$display_exact_search_warning = true;
 			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
 			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		if(isset($parameters['0']['procure_participant_identifier_prefix'])) {
+			$procure_participant_identifier_prefix  = array_filter($parameters['0']['procure_participant_identifier_prefix']);
+			if($procure_participant_identifier_prefix) {
+				$prefix_conditions = array();
+				foreach($procure_participant_identifier_prefix as $prefix) {
+					if(!in_array($prefix, array('p','s'))) {
+						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
+					}
+				}
+				if($prefix_conditions) {
+					$conditions[] = '('.implode(' OR ', $prefix_conditions).')';
+				} else {
+					$conditions[] =  "Participant.participant_identifier LIKE '-1'";
+				}
+			}
 		}
 		
 		//Get Controls Data
@@ -711,6 +769,8 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => 'the report contains too many results - please redefine search criteria');
 		}
 		
+		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
+		
 		return array(
 			'header' => $header,
 			'data' => $data,
@@ -728,7 +788,8 @@ class ReportsControllerCustom extends ReportsController {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
-	
+		
+		$display_exact_search_warning = false;
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -741,10 +802,27 @@ class ReportsControllerCustom extends ReportsController {
 			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
 			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
 		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$display_exact_search_warning = true;
 			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
 			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		if(isset($parameters['0']['procure_participant_identifier_prefix'])) {
+			$procure_participant_identifier_prefix  = array_filter($parameters['0']['procure_participant_identifier_prefix']);
+			if($procure_participant_identifier_prefix) {
+				$prefix_conditions = array();
+				foreach($procure_participant_identifier_prefix as $prefix) {
+					if(!in_array($prefix, array('p','s'))) {
+						$prefix_conditions[] = "Participant.participant_identifier LIKE 'PS$prefix%'";
+					}
+				}
+				if($prefix_conditions) {
+					$conditions[] = '('.implode(' OR ', $prefix_conditions).')';
+				} else {
+					$conditions[] =  "Participant.participant_identifier LIKE '-1'";
+				}
+			}
 		}
 		
 		$procure_psa_level = 0.2;
@@ -910,7 +988,9 @@ class ReportsControllerCustom extends ReportsController {
 		}
 	
 		if($inaccurate_date) AppController::addWarningMsg(__('at least one participant summary is based on inaccurate date'));
-
+		
+		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
+		
 		return array(
 			'header' => $header,
 			'data' => $data,
@@ -941,6 +1021,7 @@ class ReportsControllerCustom extends ReportsController {
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 	
+		$display_exact_search_warning = false;
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -953,6 +1034,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
 			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
 		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$display_exact_search_warning = true;
 			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
 			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
 		} else {
@@ -1162,6 +1244,8 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
+		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
+		
 		return array(
 			'header' => $header,
 			'data' => $data,
@@ -1241,7 +1325,10 @@ class ReportsControllerCustom extends ReportsController {
 		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
+
+		AppController::addWarningMsg(__('search is only done on banks aliquots'));
 		
+		$display_exact_search_warning = false;
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['ViewAliquot']['participant_identifier_start'])) {
@@ -1250,10 +1337,19 @@ class ReportsControllerCustom extends ReportsController {
 			if($participant_identifier_start) $conditions[] = "ViewAliquot.participant_identifier >= '$participant_identifier_start'";
 			if($participant_identifier_end) $conditions[] = "ViewAliquot.participant_identifier <= '$participant_identifier_end'";
 		} else if(isset($parameters['ViewAliquot']['participant_identifier'])) {
+			$display_exact_search_warning = true;
 			$participant_identifiers  = array_filter($parameters['ViewAliquot']['participant_identifier']);
 			if($participant_identifiers) $conditions[] = "ViewAliquot.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		if(isset($parameters['ViewAliquot']['procure_created_by_bank'])) {
+			$procure_created_by_bank  = array_filter($parameters['ViewAliquot']['procure_created_by_bank']);
+			$conditions[] = "ViewAliquot.procure_created_by_bank IN ('".implode("','",$procure_created_by_bank)."')";
+			if(in_array('p', $procure_created_by_bank) || in_array('s', $procure_created_by_bank)) {
+				$check_procure_created_by_bank = implode('',$procure_created_by_bank);
+				if(in_array($check_procure_created_by_bank, array('p','s','ps','sp'))) $conditions = array("ViewAliquot.procure_created_by_bank = '-1'");
+			}
 		}
 		
 		$data = array();
@@ -1267,7 +1363,7 @@ class ReportsControllerCustom extends ReportsController {
 			FROM (
 				SELECT barcode, count(*) as nbr_of_aliquots
 				FROM view_aliquots AS ViewAliquot
-				WHERE ". implode(' AND ', $conditions) ." GROUP BY barcode
+				WHERE ". implode(' AND ', $conditions) ." AND ViewAliquot.procure_created_by_bank NOT IN ('p','s') GROUP BY barcode
 			) TmpRes, view_aliquots AS ViewAliquot
 			WHERE TmpRes.nbr_of_aliquots > 1 
 			AND TmpRes.barcode = ViewAliquot.barcode
@@ -1278,7 +1374,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//Look for barcodes that don't match format (limited to bank aliquots)
 		
-		$wrong_format_aliquot_master_ids = array();
+		$wrong_format_aliquot_master_ids = array('-1');
 		$query = "SELECT ViewAliquot.*
 			FROM view_aliquots AS ViewAliquot
 			WHERE ". implode(' AND ', $conditions) ."
@@ -1343,6 +1439,8 @@ class ReportsControllerCustom extends ReportsController {
 				'columns_names' => null,
 				'error_msg' => 'the report contains too many results - please redefine search criteria');
 		}
+		
+		if($display_exact_search_warning) AppController::addWarningMsg(__('all searches are considered as exact searches'));
 		
 		return array(
 			'header' => $header,
