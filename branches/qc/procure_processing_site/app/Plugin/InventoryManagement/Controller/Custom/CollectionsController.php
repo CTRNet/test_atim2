@@ -147,7 +147,6 @@ class CollectionsControllerCustom extends CollectionsController{
 					//Create internal use to set date accuracy
 					$new_aliquot_internal_use = array(
 						'aliquot_master_id' => null,
-						'type' => 'received from bank',
 						'use_code' => 'PS'.$data_unit['AliquotMaster']['procure_created_by_bank'],
 						'use_datetime' => $data_unit['FunctionManagement']['procure_transferred_aliquot_reception_date'],
 						'procure_created_by_bank' => 'p');
@@ -161,6 +160,7 @@ class CollectionsControllerCustom extends CollectionsController{
 						}
 					}
 					$data_unit['AliquotInternalUse'] = $this->AliquotInternalUse->data['AliquotInternalUse'];
+					$data_unit['AliquotInternalUse']['type'] = 'received from bank';
 				}
 				unset($data_unit);
 				
@@ -377,7 +377,8 @@ class CollectionsControllerCustom extends CollectionsController{
 					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				
 				} else {
-
+					
+					$this->AliquotInternalUse->validationErrors = array();
 					$this->AliquotMaster->validationErrors = array();
 					foreach($errors_tracking as $field => $msg_and_lines) {
 						foreach($msg_and_lines as $msg => $lines) {
