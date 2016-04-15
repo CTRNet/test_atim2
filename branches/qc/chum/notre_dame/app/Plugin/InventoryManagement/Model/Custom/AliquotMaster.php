@@ -62,9 +62,11 @@ class AliquotMasterCustom extends AliquotMaster {
 					$label = '-PLA';
 					break;
 				case 'pbmc-tube':
+				case 'blood cell-tube':
 					$label = '-BFC';
 					break;
 				case 'urine-cup':
+				case 'urine-tube':
 					$label = '-URI';
 					break;
 				case 'centrifuged urine-tube':

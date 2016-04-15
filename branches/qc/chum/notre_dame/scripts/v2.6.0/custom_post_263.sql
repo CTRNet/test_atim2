@@ -2340,4 +2340,4 @@ INSERT INTO `lab_type_laterality_match` (`selected_type_code`, `selected_labo_la
 ('A-RE', 'G', 'tissue', 'kidney', '', 'left');
 INSERT INTO i18n (id,en,fr) VALUES ('heart', 'Heart', 'Coeur'), ('tonsil', 'Tonsil', 'Amygdale');
 
-UPDATE versions SET branch_build_number = '6380' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '6478' WHERE version_number = '2.6.3';
