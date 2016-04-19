@@ -190,7 +190,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		//set event list
 		$event_data = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventControl.flag_use_for_ccl' => true)));
 		$found_event = false;
-		if(isset($this->request->data['Collection']['treatment_master_id'])){
+		if(isset($this->request->data['Collection']['event_master_id'])){
 			$found_event = $this->setForRadiolist($event_data, 'EventMaster', 'id', $this->request->data, 'Collection', 'event_master_id');
 		}
 		$this->set('event_data', $event_data);
