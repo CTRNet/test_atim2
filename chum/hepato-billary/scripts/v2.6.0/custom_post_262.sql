@@ -390,3 +390,392 @@ ALTER TABLE ed_cap_report_colon_rectum_resections_revs
   MODIFY specimen_length_specify decimal(5,1) DEFAULT NULL,
   MODIFY distance_of_invasive_carcinoma_from_closest_margin decimal(5,1) DEFAULT NULL;
 UPDATE versions SET branch_build_number = '6428' WHERE version_number = '2.6.2';
+
+-- 20160418 --------------------------------------------------------------------------------------------------------
+
+-- I - n_ras
+
+UPDATE structure_value_domains SET domain_name = 'qc_nd_N_K_ras_values' WHERE domain_name = 'qc_nd_K_ras_values';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'n_ras', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_N_K_ras_values') , '0', '', '', '', 'n-ras', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='n_ras' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_N_K_ras_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='n-ras' AND `language_tag`=''), '2', '42', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='n_ras' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_N_K_ras_values') AND `flag_confidential`='0');
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases ADD COLUMN n_ras varchar(50) DEFAULT null;
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases_revs ADD COLUMN n_ras varchar(50) DEFAULT null;
+INSERT INTO i18n (id,en,fr) VALUES ('n-ras','N-ras','N-ras');
+
+-- II - Pathological Report Number Clean UP
+
+SET @modified = (SELECT NOW() FROM users WHERE username = 'NicoEn');
+SET @modified_by = (SELECT id FROM users WHERE username = 'NicoEn');
+
+-- II-a Create TreatmentMaster.qc_hb_operative_pathological_report & TreatmentMaster.qc_hb_pathological_report_nbr
+
+ALTER TABLE treatment_masters 
+  ADD COLUMN qc_hb_operative_pathological_report VARCHAR(3) NOT NULL DEFAULT '', 
+  ADD COLUMN qc_hb_pathological_report_nbr VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE treatment_masters_revs 
+  ADD COLUMN qc_hb_operative_pathological_report VARCHAR(3) NOT NULL DEFAULT '', 
+  ADD COLUMN qc_hb_pathological_report_nbr VARCHAR(50) NOT NULL DEFAULT '';
+
+SELECT DISTINCT pathological_report AS 'ERROR Migration Failed :: TreatmentDetail.pathological_report (should be empty)' FROM qc_hb_txd_surgery_livers WHERE pathological_report IS NOT NULL AND pathological_report NOT LIKE ''
+UNION ALL
+SELECT DISTINCT pathological_report AS 'ERROR Migration Failed :: TreatmentDetail.pathological_report (should be empty)' FROM qc_hb_txd_surgery_pancreas WHERE pathological_report IS NOT NULL AND pathological_report NOT LIKE '';
+
+UPDATE treatment_masters TreatmentMaster, qc_hb_txd_surgery_livers TreatmentDetail 
+SET TreatmentMaster.qc_hb_operative_pathological_report = TreatmentDetail.operative_pathological_report,
+TreatmentMaster.modified = @modified,
+TreatmentMaster.modified_by = @modified_by
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id AND TreatmentMaster.deleted <> 1 AND TreatmentDetail.operative_pathological_report IS NOT NULL AND TreatmentDetail.operative_pathological_report NOT LIKE '';
+
+UPDATE treatment_masters TreatmentMaster, qc_hb_txd_surgery_pancreas TreatmentDetail 
+SET TreatmentMaster.qc_hb_operative_pathological_report = TreatmentDetail.operative_pathological_report,
+TreatmentMaster.modified = @modified,
+TreatmentMaster.modified_by = @modified_by
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id AND TreatmentMaster.deleted <> 1 AND TreatmentDetail.operative_pathological_report IS NOT NULL AND TreatmentDetail.operative_pathological_report NOT LIKE '';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'qc_hb_operative_pathological_report', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns') , '0', '', '', '', 'operative pathological report', ''), 
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'qc_hb_pathological_report_nbr', 'input',  NULL , '0', '', '', '', '', 'no.');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_operative_pathological_report' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='operative pathological report' AND `language_tag`=''), '1', '29', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_pathological_report_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='no.'), '1', '30', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_operative_pathological_report' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='operative pathological report' AND `language_tag`=''), '1', '29', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_pathological_report_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='no.'), '1', '30', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_other_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_operative_pathological_report' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='operative pathological report' AND `language_tag`=''), '1', '40', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_other_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_pathological_report_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='no.'), '1', '41', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('no.', 'No.');
+
+ALTER TABLE qc_hb_txd_surgery_livers 
+  DROP COLUMN pathological_report,
+  DROP COLUMN operative_pathological_report;
+ALTER TABLE qc_hb_txd_surgery_livers_revs 
+  DROP COLUMN pathological_report,
+  DROP COLUMN operative_pathological_report;
+ALTER TABLE qc_hb_txd_surgery_pancreas 
+  DROP COLUMN pathological_report,
+  DROP COLUMN operative_pathological_report;
+ALTER TABLE qc_hb_txd_surgery_pancreas_revs 
+  DROP COLUMN pathological_report,
+  DROP COLUMN operative_pathological_report;
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qc_hb_%' AND `field`='operative_pathological_report');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qc_hb_%' AND `field`='pathological_report');
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qc_hb_%' AND `field`='operative_pathological_report';
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qc_hb_%' AND `field`='pathological_report';
+DELETE FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Surgery: Pathological report');
+DELETE FROM structure_permissible_values_custom_controls WHERE name = 'Surgery: Pathological report';
+DELETE FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_pathological_report';
+
+-- II-b Link collection to surgery
+
+ALTER TABLE collections ADD COLUMN tmp_link_creation_check_failed tinyint(1) DEFAULT 0;
+
+INSERT INTO structures(`alias`) VALUES ('qc_hb_treatmentmasters_for_ccl');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_treatmentmasters_for_ccl'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_operative_pathological_report' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='operative pathological report' AND `language_tag`=''), '1', '40', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_treatmentmasters_for_ccl'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_pathological_report_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='no.'), '1', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_operative_pathological_report' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='operative pathological report' AND `language_tag`=''), '1', '340', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_hb_pathological_report_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='no.'), '1', '341', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection')) AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TreatmentMaster'));
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection')) AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('TreatmentMaster'));
+
+SELECT DISTINCT collection_id AS 'Migration WARNING (But Not Failed) :: Tissue collection not linked to a surgery (through diagnosis). Tissue collection can not be linked to a surgery. To do manually after migration and move patho number from tissue to surgery if required.', Participant.participant_identifier AS 'Participant Bank #', Participant.id
+FROM sample_masters SampleMaster
+INNER JOIN sd_spe_tissues SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+INNER JOIN collections Collection ON  Collection.id = SampleMaster.collection_id
+LEFT JOIN participants Participant ON Participant.id = Collection.participant_id
+WHERE SampleMaster.deleted <> 1 
+AND (
+	Collection.diagnosis_master_id IS NULL
+	OR Collection.diagnosis_master_id NOT IN (
+		SELECT DiagnosisMaster.id
+		FROM treatment_controls TreatmentControl
+		INNER JOIN treatment_masters TreatmentMaster ON TreatmentMaster.treatment_control_id = TreatmentControl.id
+		INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = TreatmentMaster.diagnosis_master_id
+		WHERE TreatmentMaster.deleted <> 1 
+		AND TreatmentControl.flag_active = 1 AND TreatmentControl.tx_method LIKE '%surgery%' AND TreatmentControl.flag_use_for_ccl = '1'
+		AND DiagnosisMaster.deleted <> 1
+	)
+)
+ORDER BY Collection.participant_id;
+
+UPDATE collections 
+SET tmp_link_creation_check_failed = 1
+WHERE id IN (
+	SELECT collection_id 
+	FROM (
+		SELECT DISTINCT collection_id
+		FROM sample_masters SampleMaster
+		INNER JOIN sd_spe_tissues SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+		INNER JOIN collections Collection ON  Collection.id = SampleMaster.collection_id
+		LEFT JOIN participants Participant ON Participant.id = Collection.participant_id
+		WHERE SampleMaster.deleted <> 1 
+		AND (
+			Collection.diagnosis_master_id IS NULL
+			OR Collection.diagnosis_master_id NOT IN (
+				SELECT DiagnosisMaster.id
+				FROM treatment_controls TreatmentControl
+				INNER JOIN treatment_masters TreatmentMaster ON TreatmentMaster.treatment_control_id = TreatmentControl.id
+				INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = TreatmentMaster.diagnosis_master_id
+				WHERE TreatmentMaster.deleted <> 1 
+				AND TreatmentControl.flag_active = 1 AND TreatmentControl.tx_method LIKE '%surgery%' AND TreatmentControl.flag_use_for_ccl = '1'
+				AND DiagnosisMaster.deleted <> 1
+			)
+		)
+	) Res
+);
+
+SELECT collection_id AS 'Migration WARNING (But Not Failed) :: Tissue collection linked to more than one surgery (through diagnosis and based on date). Tissue collection can not be linked to a surgery. To do manually after migration and move patho number from tissue to surgery if required.', Participant.participant_identifier AS 'Participant Bank #', Participant.id 
+FROM (
+	SELECT DISTINCT collection_id, count(*) AS nbr_of_trt
+	FROM (
+		SELECT DISTINCT Collection.id AS collection_id, TreatmentMaster.id
+		FROM sample_masters SampleMaster
+		INNER JOIN sd_spe_tissues SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+		INNER JOIN collections Collection ON  Collection.id = SampleMaster.collection_id
+		INNER JOIN participants Participant ON Participant.id = Collection.participant_id
+		INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = Collection.diagnosis_master_id
+		INNER JOIN treatment_masters TreatmentMaster ON DiagnosisMaster.id = TreatmentMaster.diagnosis_master_id
+		INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id
+		WHERE TreatmentMaster.deleted <> 1 
+		AND SampleMaster.deleted <> 1
+		AND TreatmentControl.flag_active = 1 AND TreatmentControl.tx_method LIKE '%surgery%' AND TreatmentControl.flag_use_for_ccl = '1'
+		AND DiagnosisMaster.deleted <> 1	
+		AND SUBSTR(IFNULL(collection_datetime,''),1,10) = IFNULL(start_date,'')
+	) res
+	GROUP BY collection_id
+) res2
+INNER JOIN collections Collection ON res2.collection_id = Collection.id
+INNER JOIN participants Participant ON Participant.id = Collection.participant_id
+WHERE nbr_of_trt > 1;
+
+UPDATE collections 
+SET tmp_link_creation_check_failed = 1
+WHERE id IN (
+	SELECT collection_id
+	FROM (
+		SELECT DISTINCT collection_id, count(*) AS nbr_of_trt
+		FROM (
+			SELECT DISTINCT Collection.id AS collection_id, TreatmentMaster.id
+			FROM sample_masters SampleMaster
+			INNER JOIN sd_spe_tissues SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+			INNER JOIN collections Collection ON  Collection.id = SampleMaster.collection_id
+			INNER JOIN participants Participant ON Participant.id = Collection.participant_id
+			INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = Collection.diagnosis_master_id
+			INNER JOIN treatment_masters TreatmentMaster ON DiagnosisMaster.id = TreatmentMaster.diagnosis_master_id
+			INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id
+			WHERE TreatmentMaster.deleted <> 1 
+			AND SampleMaster.deleted <> 1
+			AND TreatmentControl.flag_active = 1 AND TreatmentControl.tx_method LIKE '%surgery%' AND TreatmentControl.flag_use_for_ccl = '1'
+			AND DiagnosisMaster.deleted <> 1	
+			AND SUBSTR(IFNULL(collection_datetime,''),1,10) = IFNULL(start_date,'')
+		) res
+		GROUP BY collection_id
+	) res2
+	WHERE nbr_of_trt > 1
+);
+
+UPDATE sample_masters SampleMaster, sd_spe_tissues SampleDetail, collections Collection, diagnosis_masters DiagnosisMaster, treatment_masters TreatmentMaster, treatment_controls TreatmentControl
+SET Collection.treatment_master_id = TreatmentMaster.id,
+Collection.modified = @modified,
+Collection.modified_by = @modified_by
+WHERE TreatmentMaster.deleted <> 1 
+AND SampleMaster.deleted <> 1
+AND SampleMaster.id = SampleDetail.sample_master_id
+AND Collection.id = SampleMaster.collection_id
+AND DiagnosisMaster.id = Collection.diagnosis_master_id
+AND DiagnosisMaster.id = TreatmentMaster.diagnosis_master_id
+AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+AND TreatmentControl.flag_active = 1 AND TreatmentControl.tx_method LIKE '%surgery%' AND TreatmentControl.flag_use_for_ccl = '1'
+AND DiagnosisMaster.deleted <> 1	
+AND SUBSTR(IFNULL(collection_datetime,''),1,10) = IFNULL(start_date,'')
+AND Collection.tmp_link_creation_check_failed <> 1;
+
+SELECT CONCAT(collection_id, ' ' ,Collection.collection_datetime) AS 'Migration WARNING (But Not Failed) :: Tissue collection linked to surgery (through diagnosis) but dates does not match. Tissue collection can not be linked to a surgery. To do manually after migration and move patho number from tissue to surgery if required.', Participant.participant_identifier AS 'Participant Bank #', Participant.id 
+FROM (
+	SELECT DISTINCT Collection.id AS collection_id, Collection.collection_datetime
+	FROM sample_masters SampleMaster
+	INNER JOIN sd_spe_tissues SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+	INNER JOIN collections Collection ON  Collection.id = SampleMaster.collection_id
+	INNER JOIN participants Participant ON Participant.id = Collection.participant_id
+	INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = Collection.diagnosis_master_id
+	INNER JOIN treatment_masters TreatmentMaster ON DiagnosisMaster.id = TreatmentMaster.diagnosis_master_id
+	INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id
+	WHERE TreatmentMaster.deleted <> 1 
+	AND SampleMaster.deleted <> 1
+	AND TreatmentControl.flag_active = 1 AND TreatmentControl.tx_method LIKE '%surgery%' AND TreatmentControl.flag_use_for_ccl = '1'
+	AND DiagnosisMaster.deleted <> 1	
+	AND Collection.tmp_link_creation_check_failed <> 1
+	AND Collection.treatment_master_id IS NULL
+) res2
+INNER JOIN collections Collection ON res2.collection_id = Collection.id
+INNER JOIN participants Participant ON Participant.id = Collection.participant_id;
+
+INSERT INTO collections_revs (id,acquisition_label,bank_id,collection_site,collection_datetime,collection_datetime_accuracy,sop_master_id,
+collection_property,collection_notes,participant_id,diagnosis_master_id,consent_master_id,treatment_master_id,event_master_id,modified_by,version_created)
+(SELECT id,acquisition_label,bank_id,collection_site,collection_datetime,collection_datetime_accuracy,sop_master_id,
+collection_property,collection_notes,participant_id,diagnosis_master_id,consent_master_id,treatment_master_id,event_master_id,modified_by,modified 
+FROM collections 
+WHERE modified = @modified AND modified_by = @modified_by);
+
+ALTER TABLE collections DROP COLUMN tmp_link_creation_check_failed;
+
+-- II-c Move Patho Report Number from tissue to surgery
+
+ALTER TABLE collections ADD COLUMN tmp_patho_move_check_failed tinyint(1) DEFAULT 0;
+
+SELECT collection_id AS 'Migration WARNING (But Not Failed) :: Collection with duplicated tissue patho nbr. Tissue patho nbr has to be move to surgery form manually after migration.', Participant.participant_identifier AS 'Participant Bank #', Participant.id
+FROM (
+	SELECT count(*) AS nbr_of_no, collection_id 
+	FROM (
+		SELECT DISTINCT Collection.id AS collection_id, SampleDetail.qc_hb_patho_report_no
+		FROM sample_masters SampleMaster, sd_spe_tissues SampleDetail, collections Collection
+		WHERE SampleMaster.deleted <> 1 
+		AND  SampleMaster.id = SampleDetail.sample_master_id
+		AND SampleDetail.qc_hb_patho_report_no IS NOT NULL AND SampleDetail.qc_hb_patho_report_no NOT LIKE ''
+		AND Collection.id = SampleMaster.collection_id
+	) AS res
+	GROUP BY collection_id
+) AS res2 
+INNER JOIN collections Collection ON res2.collection_id = Collection.id
+LEFT JOIN participants Participant ON Participant.id = Collection.participant_id
+WHERE res2.nbr_of_no > 1
+ORDER BY Collection.participant_id;
+
+UPDATE collections 
+SET tmp_patho_move_check_failed  = 1 
+WHERE id IN (
+	SELECT collection_id
+	FROM (
+		SELECT count(*) AS nbr_of_no, collection_id 
+		FROM (
+			SELECT DISTINCT Collection.id AS collection_id, SampleDetail.qc_hb_patho_report_no
+			FROM sample_masters SampleMaster, sd_spe_tissues SampleDetail, collections Collection
+			WHERE SampleMaster.deleted <> 1 
+			AND  SampleMaster.id = SampleDetail.sample_master_id
+			AND SampleDetail.qc_hb_patho_report_no IS NOT NULL AND SampleDetail.qc_hb_patho_report_no NOT LIKE ''
+			AND Collection.id = SampleMaster.collection_id
+		) AS res
+		GROUP BY collection_id
+	) AS res2
+	WHERE res2.nbr_of_no > 1
+);
+
+SELECT collection_id AS 'Migration WARNING (But Not Failed) :: Collection with tissue patho nbr but no surgery matching on date and diagnosis. Tissue patho nbr has to be move to surgery form manually after migration.', Participant.participant_identifier AS 'Participant Bank #', Participant.id, qc_hb_patho_report_no AS 'Report Nbr'
+FROM (
+	SELECT DISTINCT Collection.id AS collection_id, SampleDetail.qc_hb_patho_report_no
+	FROM sample_masters SampleMaster, sd_spe_tissues SampleDetail, collections Collection
+	WHERE SampleMaster.deleted <> 1 
+	AND  SampleMaster.id = SampleDetail.sample_master_id
+	AND SampleDetail.qc_hb_patho_report_no IS NOT NULL AND SampleDetail.qc_hb_patho_report_no NOT LIKE ''
+	AND Collection.id = SampleMaster.collection_id
+	AND Collection.treatment_master_id IS NULL
+) AS res2 
+INNER JOIN collections Collection ON res2.collection_id = Collection.id
+LEFT JOIN participants Participant ON Participant.id = Collection.participant_id
+ORDER BY Collection.participant_id;
+
+UPDATE sample_masters SampleMaster, sd_spe_tissues SampleDetail, collections Collection, treatment_masters TreatmentMaster
+SET TreatmentMaster.qc_hb_operative_pathological_report = 'yes',
+TreatmentMaster.qc_hb_pathological_report_nbr = SampleDetail.qc_hb_patho_report_no,
+TreatmentMaster.modified = @modified,
+TreatmentMaster.modified_by = @modified_by
+WHERE SampleMaster.deleted <> 1 
+AND  SampleMaster.id = SampleDetail.sample_master_id
+AND SampleDetail.qc_hb_patho_report_no IS NOT NULL AND SampleDetail.qc_hb_patho_report_no NOT LIKE ''
+AND Collection.id = SampleMaster.collection_id
+AND Collection.treatment_master_id = TreatmentMaster.id
+AND TreatmentMaster.deleted <> 1
+AND Collection.tmp_patho_move_check_failed <> 1;
+
+UPDATE sample_masters SampleMaster, sd_spe_tissues SampleDetail 
+SET SampleMaster.notes =  CONCAT('Report #',SampleDetail.qc_hb_patho_report_no,'. ',SampleMaster.notes),
+SampleMaster.modified = @modified,
+SampleMaster.modified_by = @modified_by
+WHERE SampleMaster.deleted <> 1 
+AND SampleMaster.notes IS NOT NULL 
+AND  SampleMaster.id = SampleDetail.sample_master_id
+AND SampleDetail.qc_hb_patho_report_no IS NOT NULL 
+AND SampleDetail.qc_hb_patho_report_no NOT LIKE '';
+
+UPDATE sample_masters SampleMaster, sd_spe_tissues SampleDetail 
+SET SampleMaster.notes = CONCAT('Report #',SampleDetail.qc_hb_patho_report_no,'. '),
+SampleMaster.modified = @modified,
+SampleMaster.modified_by = @modified_by
+WHERE SampleMaster.deleted <> 1 
+AND SampleMaster.notes IS NULL 
+AND  SampleMaster.id = SampleDetail.sample_master_id
+AND SampleDetail.qc_hb_patho_report_no IS NOT NULL 
+AND SampleDetail.qc_hb_patho_report_no NOT LIKE '';
+
+ALTER TABLE collections DROP COLUMN tmp_patho_move_check_failed;
+
+INSERT INTO treatment_masters_revs (id,treatment_control_id,tx_intent,target_site_icdo,start_date,start_date_accuracy,finish_date,finish_date_accuracy,information_source,facility,notes,
+protocol_master_id,participant_id,diagnosis_master_id,qc_hb_operative_pathological_report,qc_hb_pathological_report_nbr,
+version_created,modified_by)
+(SELECT id,treatment_control_id,tx_intent,target_site_icdo,start_date,start_date_accuracy,finish_date,finish_date_accuracy,information_source,facility,notes,
+protocol_master_id,participant_id,diagnosis_master_id,qc_hb_operative_pathological_report,qc_hb_pathological_report_nbr,
+modified,modified_by FROM treatment_masters WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO qc_hb_txd_surgery_livers_revs (treatment_master_id,	principal_surgery,	associated_surgery_1,	associated_surgery_2,	associated_surgery_3,	local_treatment,	type_of_local_treatment,	other_organ_resection_1,	other_organ_resection_2,	other_organ_resection_3,	surgeon,	operative_time,	laparoscopy,	operative_bleeding,	transfusions,	rbc_units,	plasma_units,	platelets_units,	drainage,	type_of_drain_1,	
+type_of_drain_2,	type_of_drain_3,	biological_glue,	type_of_glue,	operative_ultrasound_ous,	impact_of_ous,	liver_appearance,	vascular_occlusion,	type_of_vascular_occlusion,	resected_liver_weight,	segment_1_resection,	segment_2_resection,	segment_3_resection,	segment_4a_resection,	segment_4b_resection,	segment_5_resection,	segment_6_resection,	segment_7_resection,	segment_8_resection,	lab_report_id,	
+imagery_id,	fong_score_id,	meld_score_id,	gretch_score_id,	clip_score_id,	barcelona_score_id,	okuda_score_id,	type_of_cirrhosis,	esophageal_varices,	gastric_varices,	
+tips,	portacaval_gradient,	portal_thrombosis,	splenomegaly,	splen_size,	gastric_tube_duration_in_days,	survival_time_in_months,	deleted_by,	
+simultaneous_primary_resection,	cell_saver,	cell_saver_volume_ml,	liver_size_x,	liver_size_y,	liver_size_z,	liver_first,	two_steps,	
+version_created)
+(SELECT treatment_master_id,	principal_surgery,	associated_surgery_1,	associated_surgery_2,	associated_surgery_3,	local_treatment,	type_of_local_treatment,	other_organ_resection_1,	other_organ_resection_2,	other_organ_resection_3,	surgeon,	operative_time,	laparoscopy,	operative_bleeding,	transfusions,	rbc_units,	plasma_units,	platelets_units,	drainage,	type_of_drain_1,	
+type_of_drain_2,	type_of_drain_3,	biological_glue,	type_of_glue,	operative_ultrasound_ous,	impact_of_ous,	liver_appearance,	vascular_occlusion,	type_of_vascular_occlusion,	resected_liver_weight,	segment_1_resection,	segment_2_resection,	segment_3_resection,	segment_4a_resection,	segment_4b_resection,	segment_5_resection,	segment_6_resection,	segment_7_resection,	segment_8_resection,	lab_report_id,	
+imagery_id,	fong_score_id,	meld_score_id,	gretch_score_id,	clip_score_id,	barcelona_score_id,	okuda_score_id,	type_of_cirrhosis,	esophageal_varices,	gastric_varices,	
+tips,	portacaval_gradient,	portal_thrombosis,	splenomegaly,	splen_size,	gastric_tube_duration_in_days,	survival_time_in_months,	deleted_by,	
+simultaneous_primary_resection,	cell_saver,	cell_saver_volume_ml,	liver_size_x,	liver_size_y,	liver_size_z,	liver_first,	two_steps,	
+modified FROM treatment_masters INNER JOIN qc_hb_txd_surgery_livers ON id = treatment_master_id WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO qc_hb_txd_surgery_pancreas_revs (
+treatment_master_id,	principal_surgery,	associated_surgery_1,	associated_surgery_2,	associated_surgery_3,	local_treatment,	type_of_local_treatment,	other_organ_resection_1,	other_organ_resection_2,	other_organ_resection_3,	surgeon,	operative_time,	laparoscopy,	operative_bleeding,	transfusions,	rbc_units,	plasma_units,	platelets_units,	drainage,	type_of_drain_1,	
+type_of_drain_2,	type_of_drain_3,	biological_glue,	type_of_glue,	operative_ultrasound_ous,	impact_of_ous,	pancreas_appearance,	wirsung_diameter,	
+recoupe_pancreas,	portal_vein_resection,	arterial_resection,	pancreas_anastomosis,	type_of_pancreas_anastomosis,	pylori_preservation,	preoperative_sandostatin,	lab_report_id,	imagery_id,	fong_score_id,	meld_score_id,	gretch_score_id,	clip_score_id,	barcelona_score_id,	okuda_score_id,	type_of_cirrhosis,	esophageal_varices,	gastric_varices,	tips,	portacaval_gradient,	portal_thrombosis,	splenomegaly,	
+splen_size,	gastric_tube_duration_in_days,	survival_time_in_months,	deleted_by,	simultaneous_primary_resection,	cell_saver,	cell_saver_volume_ml,	
+version_created)
+(SELECT treatment_master_id,	principal_surgery,	associated_surgery_1,	associated_surgery_2,	associated_surgery_3,	local_treatment,	type_of_local_treatment,	other_organ_resection_1,	other_organ_resection_2,	other_organ_resection_3,	surgeon,	operative_time,	laparoscopy,	operative_bleeding,	transfusions,	rbc_units,	plasma_units,	platelets_units,	drainage,	type_of_drain_1,	
+type_of_drain_2,	type_of_drain_3,	biological_glue,	type_of_glue,	operative_ultrasound_ous,	impact_of_ous,	pancreas_appearance,	wirsung_diameter,	
+recoupe_pancreas,	portal_vein_resection,	arterial_resection,	pancreas_anastomosis,	type_of_pancreas_anastomosis,	pylori_preservation,	preoperative_sandostatin,	lab_report_id,	imagery_id,	fong_score_id,	meld_score_id,	gretch_score_id,	clip_score_id,	barcelona_score_id,	okuda_score_id,	type_of_cirrhosis,	esophageal_varices,	gastric_varices,	tips,	portacaval_gradient,	portal_thrombosis,	splenomegaly,	
+splen_size,	gastric_tube_duration_in_days,	survival_time_in_months,	deleted_by,	simultaneous_primary_resection,	cell_saver,	cell_saver_volume_ml,
+modified FROM treatment_masters INNER JOIN qc_hb_txd_surgery_pancreas ON id = treatment_master_id WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO qc_hb_txd_others_revs (treatment_master_id,	type, version_created)
+(SELECT treatment_master_id,	type, modified FROM treatment_masters INNER JOIN qc_hb_txd_others ON id = treatment_master_id WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO sample_masters_revs (id,	sample_code,	sample_control_id,	initial_specimen_sample_id,	initial_specimen_sample_type,	collection_id,	parent_id,	parent_sample_type,	sop_master_id,	product_code,	is_problematic,	notes,
+version_created,modified_by)
+(SELECT id,	sample_code,	sample_control_id,	initial_specimen_sample_id,	initial_specimen_sample_type,	collection_id,	parent_id,	parent_sample_type,	sop_master_id,	product_code,	is_problematic,	notes,
+modified,modified_by FROM sample_masters WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO specimen_details_revs (sample_master_id,supplier_dept,time_at_room_temp_mn,reception_by,qc_hb_sample_code,reception_datetime,reception_datetime_accuracy, version_created)
+(SELECT sample_master_id,supplier_dept,time_at_room_temp_mn,reception_by,qc_hb_sample_code,reception_datetime,reception_datetime_accuracy, modified 
+FROM sample_masters INNER JOIN specimen_details ON id = sample_master_id WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO sd_spe_tissues_revs (sample_master_id,tissue_source,tissue_nature,tissue_laterality,pathology_reception_datetime,pathology_reception_datetime_accuracy,tissue_size,tissue_size_unit,tissue_weight,
+tissue_weight_unit,qc_hb_patho_report_no, version_created)
+(SELECT sample_master_id,tissue_source,tissue_nature,tissue_laterality,pathology_reception_datetime,pathology_reception_datetime_accuracy,tissue_size,tissue_size_unit,tissue_weight,
+tissue_weight_unit,qc_hb_patho_report_no, modified 
+FROM sample_masters INNER JOIN sd_spe_tissues ON id = sample_master_id WHERE modified = @modified AND modified_by = @modified_by);
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_hb_patho_report_no' AND `language_label`='patho report nb' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_hb_patho_report_no' AND `language_label`='patho report nb' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_hb_patho_report_no' AND `language_label`='patho report nb' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE sd_spe_tissues DROP COLUMN qc_hb_patho_report_no;
+ALTER TABLE sd_spe_tissues_revs DROP COLUMN qc_hb_patho_report_no;
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6480' WHERE version_number = '2.6.2';
