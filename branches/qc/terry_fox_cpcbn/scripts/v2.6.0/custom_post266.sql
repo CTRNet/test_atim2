@@ -726,4 +726,4 @@ VALUES
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '6481' WHERE version_number = '2.6.6';
+UPDATE versions SET branch_build_number = '6483' WHERE version_number = '2.6.6';
