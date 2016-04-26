@@ -14,48 +14,53 @@ class BatchSetsController extends DatamartAppController {
 	);
 	
 	var $paginate = array(
-		'BatchSet'=>array('limit'=>pagination_amount,'order'=>'BatchSet.created DESC')
+		'BatchSet'=>array('limit' => 5, 'order'=>'BatchSet.created DESC')
 	);
 
-	function index($type_of_list='user'){
+	function index($type_of_list=null){
 		
-		//keep only the necessary tmp
-		$tmp_batch = $this->BatchSet->find('all', array('conditions' => array('BatchSet.user_id' => $_SESSION['Auth']['User']['id'], 'BatchSet.flag_tmp' => true), 'order' => array('BatchSet.created DESC')));
-		while(count($tmp_batch) > self::$tmp_batch_set_limit){
-			$batch = array_pop($tmp_batch);
-			$this->BatchSet->delete($batch['BatchSet']['id']);
+		if($type_of_list && in_array($type_of_list, array('temporary', 'saved', 'group', 'all'))) {
+			
+			$conditions = array();
+			switch($type_of_list) {
+				 case 'temporary':
+				 	$conditions = array('BatchSet.user_id' => $_SESSION['Auth']['User']['id'], 
+				 		'BatchSet.flag_tmp' => true);
+				 	break;
+				 case 'saved':
+				 	$conditions = array('BatchSet.user_id' => $_SESSION['Auth']['User']['id'], 
+				 		'BatchSet.flag_tmp <> 1');
+				 	break;
+				 case 'group':
+				 	$conditions = array('BatchSet.user_id <> '.$_SESSION['Auth']['User']['id'], 
+				 		'BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 
+				 		'BatchSet.sharing_status' => array('group', 'all'), 
+				 		'BatchSet.flag_tmp <> 1');
+				 	break;
+				 case 'all':
+				 	$conditions = array('BatchSet.user_id <> '.$_SESSION['Auth']['User']['id'], 
+				 		'BatchSet.group_id <> '.$_SESSION['Auth']['User']['group_id'], 
+				 		'BatchSet.sharing_status' => array('all'), 
+				 		'BatchSet.flag_tmp <> 1');
+			}
+			
+			$this->Structures->set('querytool_batch_set');
+			$this->request->data = $this->paginate($this->BatchSet, $conditions);
+			$this->BatchSet->completeData($this->request->data);
+			
+		} else {
+			
+			$type_of_list=null;
+			
+			// CUSTOM CODE: FORMAT DISPLAY DATA
+			$hook_link = $this->hook('format');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
 		}
-		$this->BatchSet->completeData($tmp_batch);
-		$this->set('tmp_batch', $tmp_batch);
 		
-		
-		$batch_set_filter = array();
-		$filter_value = $type_of_list;
-		switch($type_of_list){
-			case 'user':
-				$filter_value = 'my batch sets';
-				$batch_set_filter['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
-				break;
-			case 'group':
-				$batch_set_filter['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
-				$batch_set_filter['BatchSet.sharing_status'] = array('group', 'all');
-				break;
-			case 'all':
-				$batch_set_filter[] = array('OR' => array(
-					array('BatchSet.user_id' => $_SESSION['Auth']['User']['id']),
-					array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'],
-						'BatchSet.sharing_status' => 'group'),
-					array('BatchSet.sharing_status' => 'all')));
-				break;
-			default:
-				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		$this->set('filter_value', $filter_value);
-		
-		$this->Structures->set('querytool_batch_set');
-		$this->request->data = $this->paginate($this->BatchSet, $batch_set_filter);
-		$datamart_structures = array();
-		$this->BatchSet->completeData($this->request->data);
+		$this->set('type_of_list', $type_of_list);
 	}
 	
 	function listall($batch_set_id){

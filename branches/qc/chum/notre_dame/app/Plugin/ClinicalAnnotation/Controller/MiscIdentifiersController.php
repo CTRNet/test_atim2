@@ -9,7 +9,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.MiscIdentifierControl'
 	);
 	
-	var $paginate = array('MiscIdentifier'=>array('limit' => pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC, MiscIdentifier.identifier_value ASC'));
+	var $paginate = array('MiscIdentifier'=>array('order'=>'MiscIdentifierControl.misc_identifier_name ASC, MiscIdentifier.identifier_value ASC'));
 
 	function search($search_id = '') {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
@@ -51,7 +51,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifierControl.id' => $misc_identifier_control_id));
 		
-		$form_alias = $is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers';
+		$form_alias = ($is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers').($controls['MiscIdentifierControl']['flag_link_to_study']? ',miscidentifiers_study' : '');
 		$this->Structures->set($form_alias);
 		
 		// Following boolean created to allow hook to force the add form display when identifier is incremented 
@@ -147,7 +147,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 
-		$form_alias = $is_incremented_identifier ? 'incrementedmiscidentifiers' : 'miscidentifiers';
+		$form_alias = ($is_incremented_identifier ? 'incrementedmiscidentifiers' : 'miscidentifiers').($misc_identifier_data['MiscIdentifierControl']['flag_link_to_study']? ',miscidentifiers_study' : '');
 		$this->Structures->set($form_alias);
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA

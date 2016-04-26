@@ -65,7 +65,7 @@ class DATABASE_CONFIG {
 		'host' => '127.0.0.1',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'icm',
+		'database' => 'chumoncoaxis',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

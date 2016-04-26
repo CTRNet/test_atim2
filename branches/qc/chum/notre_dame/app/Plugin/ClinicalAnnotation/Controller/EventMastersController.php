@@ -10,7 +10,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	);
 	
 	var $paginate = array(
-		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date ASC')
+		'EventMaster'=>array('order'=>'EventMaster.event_date ASC')
 	);
 	
 	function beforeFilter( ) {
@@ -110,7 +110,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	
 	function add( $participant_id, $event_control_id, $diagnosis_master_id = null) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
-			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
 		// MANAGE DATA
@@ -187,7 +187,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				$errors_tracking = array();
 				
 				// Launch Structure Fields Validation
-				$diagnosis_master_id = $this->request->data['EventMaster']['diagnosis_master_id'];
+				$diagnosis_master_id = (array_key_exists('EventMaster', $this->request->data) && array_key_exists('diagnosis_master_id', $this->request->data['EventMaster']))? $this->request->data['EventMaster']['diagnosis_master_id'] : null;
 				unset($this->request->data['EventMaster']);
 						
 				$row_counter = 0;
@@ -249,7 +249,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	
 	function edit( $participant_id, $event_master_id ) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
-			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
 		// MANAGE DATA
@@ -321,6 +321,10 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->EventMaster->atimDelete( $event_master_id )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );

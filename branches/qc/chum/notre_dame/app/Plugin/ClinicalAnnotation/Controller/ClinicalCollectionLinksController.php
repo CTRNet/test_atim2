@@ -44,7 +44,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		}
 	}
 	
-	//var $paginate = array('Collection' => array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
+	//var $paginate = array('Collection' => array('order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
@@ -213,7 +213,14 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			require($hook_link); 
 		}
 	
-		if ( !empty($this->request->data) ) {
+		if ( empty($this->request->data) ) {
+			//Initial Display: Hook call to set default values
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
+		} else {
 			// Launch Save Process
 			$fields = array('participant_id', 'diagnosis_master_id', 'consent_master_id', 'treatment_master_id', 'event_master_id');
 			if($this->request->data['Collection']['id']){
@@ -225,6 +232,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}else{
 				$this->request->data['Collection']['deleted'] = 1;
 				$fields[] = 'deleted';
+				$fields[] = 'created_by';
+				$fields[] = 'modified_by';
 			}
 			$this->request->data['Collection']['participant_id'] = $participant_id;
 			$this->Collection->id = $this->request->data['Collection']['id'] ?: null;
@@ -386,7 +395,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-			
+				
 				$this->atimFlash(__('your data has been deleted').'<br>'.__('use inventory management module to delete the entire collection') , '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$participant_id.'/');
 			}else{	
 				$this->flash(__('error deleting data - contact administrator'),'/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$collection_id.'/');
