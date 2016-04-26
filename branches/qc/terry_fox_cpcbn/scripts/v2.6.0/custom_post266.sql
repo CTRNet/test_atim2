@@ -711,3 +711,19 @@ UPDATE structure_fields SET field = 'qc_tf_generated_selection_label_precision_f
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6436' WHERE version_number = '2.6.6';
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Change TMA layout export in csv
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en) 
+VALUES
+("classical","Classical"),
+("for review (participant_identifier+aliquot_label)", "For Review [ATiM Participant # + Aliquot TFRI Label (Nature)]"),
+("for review (participant_identifier+aliquot_label+aliquot_barcode)", "For Review [ATiM Participant # + Aliquot TFRI Label (Nature) + Aliquot TFRI#]"),
+("for review (aliquot_label+aliquot_barcode)", "For Review [Aliquot TFRI Label (Nature) + Aliquot TFRI#]");
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6481' WHERE version_number = '2.6.6';
