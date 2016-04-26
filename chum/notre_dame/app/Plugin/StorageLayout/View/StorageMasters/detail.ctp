@@ -13,6 +13,7 @@
 		// No children storage could be added to a TMA block
 		// Add button to create slide
 		$structure_links['bottom']['add tma slide'] = '/StorageLayout/TmaSlides/add/' . $atim_menu_variables['StorageMaster.id'];
+		$structure_links['bottom']['edit tma slides'] = '/StorageLayout/TmaSlides/editInBatch/' . $atim_menu_variables['StorageMaster.id'];
 	} else{
 		$add_links = array();
 		foreach ($storage_types_from_id as $storage_control_id => $translated_storage_type) {

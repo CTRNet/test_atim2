@@ -16,7 +16,9 @@ class StorageMastersController extends StorageLayoutAppController {
 		'InventoryManagement.AliquotMaster'
 	);
 	
-	var $paginate = array('StorageMaster' => array('limit' => pagination_amount, 'order' => 'StorageMaster.selection_label ASC'));
+	var $paginate = array('StorageMaster' => array('order' => 'StorageMaster.selection_label ASC'),
+		'ViewStorageMaster' => array('order' => 'ViewStorageMaster.selection_label ASC')
+	);
 
 	function search($search_id = 0, $from_layout_page = false){
 	    $model_to_use = $this->ViewStorageMaster;
@@ -29,6 +31,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			                     $structure_alias, $structure_index, false, 21);
 			if(count($this->request->data) > 20){
 				$this->request->data = array();
+				$this->Structures->set('empty', 'empty_structure');
 				$this->set('overflow', true);
 			}else{
 				$warn = false;
@@ -120,12 +123,14 @@ class StorageMastersController extends StorageLayoutAppController {
 		if(!$is_from_tree_view_or_layout && $display_layout) {
 			if(empty($data['StorageControl']['coord_y_type'])) {
 				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => '')))
-				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x' => '')))) {
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x' => '')))
+				|| $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id, 'TmaSlide.storage_coord_x' => '')))) {
 					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
 				}
 			} else {
 				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'OR' => array('StorageMaster.parent_storage_coord_x' => '','StorageMaster.parent_storage_coord_y' => ''))))
-				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'OR' => array('AliquotMaster.storage_coord_x' => '', 'AliquotMaster.storage_coord_y' => ''))))) {
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'OR' => array('AliquotMaster.storage_coord_x' => '', 'AliquotMaster.storage_coord_y' => ''))))
+				|| $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id, 'OR' => array('TmaSlide.storage_coord_x' => '', 'TmaSlide.storage_coord_y' => ''))))) {
 					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
 				}
 			}
@@ -245,6 +250,8 @@ class StorageMastersController extends StorageLayoutAppController {
 				if($bool_save_done) {
 					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;"); 
 					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters_revs SET storage_masters_revs.code = storage_masters_revs.id WHERE storage_masters_revs.id = $storage_master_id;");
+					$view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
+					$view_storage_master_model->manageViewUpdate('view_storage_masters', 'StorageMaster.id', array($storage_master_id), $view_storage_master_model::$table_query);
 				}
 				
 				$hook_link = $this->hook('postsave_process');
@@ -397,6 +404,11 @@ class StorageMastersController extends StorageLayoutAppController {
 				$atim_flash = false;
 			}
 			
+			$hook_link = $this->hook('postsave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate')), false);
 			if($atim_flash){
 				$this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/search/');
@@ -430,6 +442,13 @@ class StorageMastersController extends StorageLayoutAppController {
 		$storages_nbr_limit = 100;
 		$aliquots_nbr_limit = 400;
 		$tma_slides_nbr_limit = 100;
+		 
+		$fields_to_sort_on = array(
+			'StorageMaster' => array('StorageMaster.short_label'),
+			'InitialStorageMaster' => array('StorageControl.storage_type','StorageMaster.short_label'),
+			'AliquotMaster' => array('AliquotMaster.barcode'),
+			'TmaSlide' => array('TmaSlide.barcode')				
+		);
 		
 		$hook_link = $this->hook('pre_format');
 		if($hook_link){
@@ -443,11 +462,14 @@ class StorageMastersController extends StorageLayoutAppController {
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '0'));
+			$tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['StorageMaster'], $tree_data);
 			if(sizeof($tree_data) > $storages_nbr_limit) $tree_data = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many children storages for display').' ('.sizeof($tree_data).')')));
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '0'));
+			$aliquots = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['AliquotMaster'], $aliquots);
 			if(sizeof($aliquots) > $aliquots_nbr_limit) $aliquots = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many aliquots for display').' ('.sizeof($aliquots).')')));
 			$tree_data = array_merge($tree_data, $aliquots);
 			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '0'));
+			$tma_slides = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['TmaSlide'], $tma_slides);
 			if(sizeof($tma_slides) > $tma_slides_nbr_limit) $tma_slides = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many tma slides for display').' ('.sizeof($tma_slides).')')));
 			$tree_data = array_merge($tree_data, $tma_slides);
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/contentTreeView/%%StorageMaster.id%%');
@@ -457,6 +479,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			}
 		}else{
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
+			$tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['InitialStorageMaster'], $tree_data);
 			if(sizeof($tree_data) > $storages_nbr_limit) {
 				$this->flash(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
 				return;
@@ -592,7 +615,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				$storage_data = AppController::defineArrayKey($storage_data, 'StorageMaster', 'id', true);
 				
 				$children_coordinate_list = array();
-				if($storage_data[$second_storage_id]['StorageControl']['coord_x_type'] == "list"){
+				if(isset($storage_data[$second_storage_id]) && $storage_data[$second_storage_id]['StorageControl']['coord_x_type'] == "list"){
 					$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $second_storage_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
 					foreach($coordinate_tmp as $key => $value){
 						$children_coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
@@ -661,9 +684,23 @@ class StorageMastersController extends StorageLayoutAppController {
 		}
 		$this->request->data = array();
 		
+		$fields_to_sort_on = array(
+			'StorageMaster' => array('StorageMaster.short_label'),
+			'AliquotMaster' => array('AliquotMaster.barcode'),
+			'TmaSlide' => array('TmaSlide.barcode')
+		);
+		
+		$hook_link = $this->hook('pre_format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		$storage_master_c = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
+		$storage_master_c = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['StorageMaster'], $storage_master_c, true);
 		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+		$aliquot_master_c = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['AliquotMaster'], $aliquot_master_c, true);
 		$tma_slide_c = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+		$tma_slide_c = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['TmaSlide'], $tma_slide_c, true);
 					
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -864,5 +901,4 @@ class StorageMastersController extends StorageLayoutAppController {
 			require($hook_link);
 		}
 	}
-	
 }

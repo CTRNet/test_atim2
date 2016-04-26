@@ -8,7 +8,7 @@ $db_ip				= "localhost";
 $db_port 			= "";
 $db_user 			= "root";
 $db_pwd				= "";
-$db_schema	= "icm";
+$db_schema	= "atimoncologyaxisprod";
 $db_charset			= "utf8";
 
 global $db_connection;
@@ -16,11 +16,11 @@ $db_connection = @mysqli_connect(
 		$db_ip.(!empty($db_port)? ":".$db_port : ''),
 		$db_user,
 		$db_pwd
-) or importDie("DB connection: Could not connect to MySQL [".$db_ip.(!empty($db_port)? ":".$db_port : '')." / $db_user]", false);
+) or die("DB connection: Could not connect to MySQL [".$db_ip.(!empty($db_port)? ":".$db_port : '')." / $db_user]");
 if(!mysqli_set_charset($db_connection, $db_charset)){
 	importDie("DB connection: Invalid charset", false);
 }
-@mysqli_select_db($db_connection, $db_schema) or importDie("DB connection: DB selection failed [$icm_db_schema]", false);
+@mysqli_select_db($db_connection, $db_schema) or die("DB connection: DB selection failed [$db_schema]");
 mysqli_autocommit ($db_connection , false);
 
 //-------------------------------------------------------------------------------------------------------------------------
