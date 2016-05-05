@@ -35,7 +35,7 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		AliquotMaster.id AS aliquot_master_id,
 		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
 --		SampleMaster.sample_code AS use_code,
-		CONCAT(SampleMaster.qc_nd_sample_label, ' [', SampleMaster.sample_code,']') AS use_code, 			
+CONCAT(SampleMaster.qc_nd_sample_label, ' [', SampleMaster.sample_code,']') AS use_code, 			
 		'' AS `use_details`,
 		SourceAliquot.used_volume AS used_volume,
 		AliquotControl.volume_unit AS aliquot_volume_unit,

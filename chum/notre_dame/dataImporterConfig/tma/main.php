@@ -42,6 +42,8 @@ $tma_short_label_to_storage_master_id = array();
 //NOTES: When a block is used both as a control and as a patient block used for a core study,
 //	this one will be created twice: first one will be created into 'TMA Controls' collection and the second one as a block of a patients collection.
 
+Doit on mettre le block a not in stock pour les block de control???
+
 $controls_collections = array('collection_id' => array(), 'block_aliquot_master_ids' => array());
 $query = "SELECT Collection.id as collection_id, 
 		AliquotMaster.sample_master_id AS sample_master_id, 
