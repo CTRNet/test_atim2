@@ -4,7 +4,7 @@ class EventControlCustom extends EventControl {
 	var $useTable = 'event_controls';
 	var $name = "EventControl";
 	
-	var $modifiable_event_types = array(/*'ca125', 'psa',*/ 'questionnaire', 'prostate pathology review', 'prostate nodule review', 'study');
+	var $modifiable_event_types = array('ca125', 'psa', 'prostate pathology review', 'prostate nodule review');
 	
 	function buildAddLinks($event_ctrl_data, $participant_id, $event_group){
 		$links = array();

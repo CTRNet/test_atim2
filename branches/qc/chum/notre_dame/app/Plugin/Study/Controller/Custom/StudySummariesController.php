@@ -16,11 +16,4 @@ class StudySummariesControllerCustom extends StudySummariesController {
 		$this->Structures->set('qc_nd_study_participants');
 	}
 	
-	function listAllLinkedConsents( $study_summary_id ) {
-		if(!$this->checkLinkPermission('/ClinicalAnnotation/ConsentMasters/listall/')) $this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE );
-		$this->ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
-		$this->request->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.qc_nd_study_summary_id' => $study_summary_id));
-		$this->Structures->set('consent_masters');
-	}
-	
 }

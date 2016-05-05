@@ -11,7 +11,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "atimoncologyaxisprod";
+$db_schema		= "chumoncoaxis";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -245,12 +245,10 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 }
 customQuery("DELETE FROM qc_nd_txe_sardos;", __LINE__);
 customQuery("DELETE FROM treatment_extend_masters;", __LINE__);
-customQuery("DELETE FROM qc_nd_txe_sardos_revs;", __LINE__);
-customQuery("DELETE FROM treatment_extend_masters_revs;", __LINE__);
+//No SARDO data recorded in _revs table
 customQuery("DELETE FROM qc_nd_txd_sardos;", __LINE__);
 customQuery("DELETE FROM treatment_masters;", __LINE__);
-customQuery("DELETE FROM qc_nd_txd_sardos_revs;", __LINE__);
-customQuery("DELETE FROM treatment_masters_revs;", __LINE__);
+//No SARDO data recorded in _revs table
 
 // Event (rapport)
 
@@ -262,8 +260,7 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 	$rapport_event_controls[$res['event_type']] = $res;
 	customQuery("DELETE FROM ".$res['detail_tablename'].";", __LINE__);
 	customQuery("DELETE FROM event_masters WHERE event_control_id = ".$res['id'].";", __LINE__);
-	customQuery("DELETE FROM ".$res['detail_tablename']."_revs;", __LINE__);
-	customQuery("DELETE FROM event_masters_revs WHERE event_control_id = ".$res['id'].";", __LINE__);
+	//No SARDO data recorded in _revs table
 }
 
 // Event (PSA/CA125)
@@ -279,17 +276,20 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 // Diagnosis
 
 global $diagnosis_controls;
-$query_res = customQuery("SELECT id, detail_tablename, category FROM diagnosis_controls WHERE category IN ('primary','progression') AND controls_type = 'sardo' AND flag_active = 1;", __LINE__);
-if($query_res->num_rows != 2) importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002');
-while($res = mysqli_fetch_assoc($query_res)) $diagnosis_controls[$res['category']] = $res;
-foreach(array('progression','primary') as $category) {
-	customQuery("DELETE FROM ".$diagnosis_controls[$category]['detail_tablename'].";", __LINE__);
-	customQuery("UPDATE diagnosis_masters SET parent_id = null, primary_id = null WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
-	customQuery("DELETE FROM diagnosis_masters WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
-	customQuery("DELETE FROM ".$diagnosis_controls[$category]['detail_tablename']."_revs;", __LINE__);
-	customQuery("UPDATE diagnosis_masters_revs SET parent_id = null, primary_id = null WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
-	customQuery("DELETE FROM diagnosis_masters_revs WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
+$query_res = customQuery("SELECT id, detail_tablename, category, controls_type FROM diagnosis_controls WHERE flag_active = 1;", __LINE__);
+if($query_res->num_rows != 2) importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002.1');
+while($res = mysqli_fetch_assoc($query_res)) {
+	if($res['controls_type'] != 'sardo') importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002.2');
+	$diagnosis_controls[$res['category']] = $res;
 }
+if(!isset($diagnosis_controls['primary']) || !isset($diagnosis_controls['progression'])) importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002.3');
+foreach($diagnosis_controls as $category => $tmp) {
+	customQuery("DELETE FROM ".$diagnosis_controls[$category]['detail_tablename'].";", __LINE__);
+	//No SARDO data recorded in _revs table
+}
+customQuery("UPDATE diagnosis_masters SET parent_id = null, primary_id = null;", __LINE__);
+customQuery("DELETE FROM diagnosis_masters;", __LINE__);
+//No SARDO data recorded in _revs table
 
 // Participant
 //qc_nd_sardo_rec_number won't be erased at this level: Will be used as a flag to tracks any patient matching SARDO patient in the ast but matching no sardo patient anymore
@@ -307,19 +307,7 @@ $query = "UPDATE participants SET
 	qc_nd_sardo_diff_vital_status = '',
 	qc_nd_sardo_diff_reproductive_history = '';";
 customQuery($query, __LINE__);
-$query = "UPDATE participants_revs SET
-	qc_nd_sardo_last_import = null,
-	qc_nd_sardo_cause_of_death = '',
-	qc_nd_sardo_diff_first_name = '',
-	qc_nd_sardo_diff_last_name = '',
-	qc_nd_sardo_diff_date_of_birth = '',
-	qc_nd_sardo_diff_sex = '',
-	qc_nd_sardo_diff_ramq = '',
-	qc_nd_sardo_diff_hospital_nbr = '',
-	qc_nd_sardo_diff_date_of_death = '',
-	qc_nd_sardo_diff_vital_status = '',
-	qc_nd_sardo_diff_reproductive_history = '';";
-customQuery($query, __LINE__);
+// participants_revs table clean up done in finalizePatientUpdate()
 
 // Identifiers
 
@@ -337,13 +325,14 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 
 global $structure_permissible_values_custom_controls;
 $structure_permissible_values_custom_controls = array();
-$query_res = customQuery("SELECT id, name, flag_active, values_max_length, category, values_used_as_input_counter, values_counter FROM structure_permissible_values_custom_controls WHERE name LIKE 'SARDO%';", __LINE__);
+$query_res = customQuery("SELECT type, values_max_length FROM qc_nd_sardo_drop_down_list_properties", __LINE__);
 While($res = mysqli_fetch_assoc($query_res)) {
-	$structure_permissible_values_custom_controls[$res['name']] = array_merge($res, array('new_values' => array()));
+	$structure_permissible_values_custom_controls[$res['type']] = array_merge($res, array('new_values' => array()));
 }
 
 function addValuesToCustomList($control_name, $value) {
 	global $structure_permissible_values_custom_controls;
+	global $import_summary;
 	if(!strlen($value)) return '';
 	if(!isset($structure_permissible_values_custom_controls[$control_name])) importDie("The custom list $control_name does not exist! ERR#_CUSTOMLIST00001");
 	$fr_value = $value;
@@ -361,13 +350,11 @@ function addValuesToCustomList($control_name, $value) {
 function loadCustomLists() {
 	global $structure_permissible_values_custom_controls;
 	foreach($structure_permissible_values_custom_controls as $new_custom_list) {
-		$control_id = $new_custom_list['id'];
-		customQuery("DELETE FROM structure_permissible_values_customs WHERE control_id = $control_id;", __LINE__);
-		customQuery("DELETE FROM structure_permissible_values_customs_revs WHERE control_id = $control_id;", __LINE__);		
+		$type = $new_custom_list['type'];
+		customQuery("DELETE FROM qc_nd_sardo_drop_down_lists WHERE type = '$type';", __LINE__);	
 		foreach($new_custom_list['new_values'] as $new_value => $fr_value) {
-			customInsert(array('value' => $new_value, 'fr' => $fr_value, 'control_id' => $control_id, 'use_as_input' => '1'), 'structure_permissible_values_customs', __LINE__);
+			customInsert(array('value' => $new_value, 'fr' => $fr_value, 'type' => $type), 'qc_nd_sardo_drop_down_lists', __LINE__);
 		}
-		customQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = ".sizeof($new_custom_list['new_values']).", values_used_as_input_counter = ".sizeof($new_custom_list['new_values'])." WHERE id = $control_id;", __LINE__);
 	}
 }
 
@@ -443,6 +430,7 @@ function manageSardoNewPatient($sardo_patient_data) {
 
 finalizePatientUpdate($db_schema);
 finalizeDiagnosisCreation();
+linkCollectionToSardoTreatment();
 loadCustomLists();
 foreach($sql_sardo_tables_creations as $new_query) if(preg_match('/^DROP TABLE/', $new_query)) customQuery($new_query, __LINE__);
 
@@ -479,11 +467,10 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 	
 	$misc_identifier_control_names_to_ids = array_flip($misc_identifier_control_ids_to_names);
 
-	$atim_patient_data_to_update = array(
-			'qc_nd_sardo_rec_number' => $sardo_patient_data['patient_RecNumber'],
-			'qc_nd_sardo_last_import' => $import_date,
-			'modified' => $import_date,
-			'modified_by' => $import_by);
+	$audited_atim_patient_data_to_update = array();
+	$non_audited_sardo_patient_data_to_create = array(
+		'qc_nd_sardo_rec_number' => $sardo_patient_data['patient_RecNumber'],
+		'qc_nd_sardo_last_import' => $import_date);
 	$atim_patient_data_creation_update_summary = array();
 	
 	// Get ATiM patient data
@@ -516,7 +503,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 	if($sardo_ramq) {
 		if(isset($atim_patient_identifiers['ramq nbr'])) {
 			if($atim_patient_identifiers['ramq nbr'] != $sardo_ramq) {
-				$atim_patient_data_to_update['qc_nd_sardo_diff_ramq'] = 'y';
+				$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_ramq'] = 'y';
 			} else {
 				$is_patient_identifier_validated = true;
 			}
@@ -533,7 +520,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			$misc_identifier_control_name = str_replace(array('H', 'S', 'N'), array('hotel-dieu id nbr', 'saint-luc id nbr', 'notre-dame id nbr'), $matches[1]);
 			if(isset($atim_patient_identifiers[$misc_identifier_control_name])) {
 				if($atim_patient_identifiers[$misc_identifier_control_name] != $hospital_nbr) {
-					$atim_patient_data_to_update['qc_nd_sardo_diff_hospital_nbr'] = 'y';
+					$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_hospital_nbr'] = 'y';
 				} else {
 					$is_patient_identifier_validated = true;
 				}
@@ -551,15 +538,15 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 	$sardo_first_name = $sardo_patient_data['Prenom'];
 	if($sardo_first_name) {
 		if(empty($atim_patient_data['first_name'])) {
-			$atim_patient_data_to_update['first_name'] = $sardo_first_name;
+			$audited_atim_patient_data_to_update['first_name'] = $sardo_first_name;
 			$atim_patient_data_creation_update_summary[] = "Recorded first name '$sardo_first_name'";
 		} else if(strtolower($sardo_first_name) != strtolower($atim_patient_data['first_name'])) {
-			$atim_patient_data_to_update['qc_nd_sardo_diff_first_name'] = 'y';
+			$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_first_name'] = 'y';
 		} else {
 			$is_first_name_validated = true;
 		}
 	} else if(!empty($atim_patient_data['first_name'])) {
-		$atim_patient_data_to_update['qc_nd_sardo_diff_first_name'] = 'y';
+		$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_first_name'] = 'y';
 	}
 	
 	//   --> last name
@@ -567,15 +554,15 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 	$sardo_last_name = $sardo_patient_data['Nom'];
 	if($sardo_last_name) {
 		if(empty($atim_patient_data['last_name'])) {
-			$atim_patient_data_to_update['last_name'] = $sardo_last_name;
+			$audited_atim_patient_data_to_update['last_name'] = $sardo_last_name;
 			$atim_patient_data_creation_update_summary[] = "Recorded last name '$sardo_last_name'";
 		} else if(strtolower($sardo_last_name) != strtolower($atim_patient_data['last_name'])) {
-			$atim_patient_data_to_update['qc_nd_sardo_diff_last_name'] = 'y';
+			$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_last_name'] = 'y';
 		} else {
 			$is_last_name_validated = true;
 		}
 	} else if(!empty($atim_patient_data['last_name'])) {
-		$atim_patient_data_to_update['qc_nd_sardo_diff_last_name'] = 'y';
+		$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_last_name'] = 'y';
 	}
 		
 	if(($is_last_name_validated && $is_first_name_validated) || $is_patient_identifier_validated ) {
@@ -598,13 +585,13 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		}
 		if($sardo_sex) {
 			if(empty($atim_patient_data['sex'])) {
-				$atim_patient_data_to_update['sex'] = $sardo_sex;
+				$audited_atim_patient_data_to_update['sex'] = $sardo_sex;
 				$atim_patient_data_creation_update_summary[] = "Recorded sex '$sardo_sex'";
 			} else if($sardo_sex != $atim_patient_data['sex']) {
-				$atim_patient_data_to_update['qc_nd_sardo_diff_sex'] = 'y';
+				$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_sex'] = 'y';
 			}
 		} else if(!empty($atim_patient_data['sex'])) {
-			$atim_patient_data_to_update['qc_nd_sardo_diff_sex'] = 'y';
+			$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_sex'] = 'y';
 		}
 		
 		//   --> date of birth
@@ -612,53 +599,53 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		$sardo_date_of_birth_accuracy = $sardo_patient_data['DateNaissance_accuracy'];
 		if($sardo_date_of_birth) {
 			if(empty($atim_patient_data['date_of_birth'])) {
-				$atim_patient_data_to_update['date_of_birth'] = $sardo_date_of_birth;
-				$atim_patient_data_to_update['date_of_birth_accuracy'] = $sardo_date_of_birth_accuracy;
+				$audited_atim_patient_data_to_update['date_of_birth'] = $sardo_date_of_birth;
+				$audited_atim_patient_data_to_update['date_of_birth_accuracy'] = $sardo_date_of_birth_accuracy;
 				$atim_patient_data_creation_update_summary[] = "Recorded date of birth '$sardo_date_of_birth'";
 			} else if($sardo_date_of_birth != $atim_patient_data['date_of_birth'] || $sardo_date_of_birth_accuracy != $atim_patient_data['date_of_birth_accuracy']) {
-				$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_birth'] = 'y';
+				$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_date_of_birth'] = 'y';
 			}
 		} else if(!empty($atim_patient_data['date_of_birth'])) {
-			$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_birth'] = 'y';
+			$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_date_of_birth'] = 'y';
 		}
 		
 		//   --> death	
-		$atim_patient_data_to_update['qc_nd_sardo_cause_of_death'] = addValuesToCustomList("SARDO : Cause of death", $sardo_patient_data['CauseDeces']);
+		$non_audited_sardo_patient_data_to_create['qc_nd_sardo_cause_of_death'] = addValuesToCustomList("SARDO : Cause of death", $sardo_patient_data['CauseDeces']);
 		$sardo_date_of_death = $sardo_patient_data['DateDeces'];
 		$sardo_date_of_death_accuracy = $sardo_patient_data['DateDeces_accuracy'];
-		$sardo_vital_status = ($sardo_patient_data['censure'] != '1' && (strlen(str_replace(' ', '', $atim_patient_data_to_update['qc_nd_sardo_cause_of_death'])) == 0) && $sardo_date_of_death == '')? '' : 'deceased';
+		$sardo_vital_status = ($sardo_patient_data['censure'] != '1' && (strlen(str_replace(' ', '', $non_audited_sardo_patient_data_to_create['qc_nd_sardo_cause_of_death'])) == 0) && $sardo_date_of_death == '')? '' : 'deceased';
 		if($sardo_vital_status) {
 			if(empty($atim_patient_data['vital_status']) || ($atim_patient_data['vital_status'] == 'unknown')) {
-				$atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
+				$audited_atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
 				$atim_patient_data_creation_update_summary[] = "Recorded vital status '$sardo_vital_status'";
 			} else if($atim_patient_data['vital_status'] == 'alive') {
-				$atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
+				$audited_atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
 				$atim_patient_data_creation_update_summary[] = "Changed vital_status from 'alive' to '$sardo_vital_status'";
 				$import_summary['Patient']['WARNING']["Vital status changed from 'alive' to 'deceased'"][] = "See NoLabo(s) : $no_labos_string";
 			} else  if($sardo_vital_status != $atim_patient_data['vital_status']) {
-				$atim_patient_data_to_update['qc_nd_sardo_diff_vital_status'] = 'y';
+				$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_vital_status'] = 'y';
 				//Not sure this case can exist.... :-)
 			}
 		} else if($atim_patient_data['vital_status'] == 'deceased') {
-			$atim_patient_data_to_update['qc_nd_sardo_diff_vital_status'] = 'y';
+			$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_vital_status'] = 'y';
 		}
 		if($sardo_date_of_death) {
 			if(empty($atim_patient_data['date_of_death'])) {
-				$atim_patient_data_to_update['date_of_death'] = $sardo_date_of_death;
-				$atim_patient_data_to_update['date_of_death_accuracy'] = $sardo_date_of_death_accuracy;
+				$audited_atim_patient_data_to_update['date_of_death'] = $sardo_date_of_death;
+				$audited_atim_patient_data_to_update['date_of_death_accuracy'] = $sardo_date_of_death_accuracy;
 				$atim_patient_data_creation_update_summary[] = "Recorded date_of_death '$sardo_date_of_death'";
 			} else if($sardo_date_of_death != $atim_patient_data['date_of_death'] || $sardo_date_of_death_accuracy != $atim_patient_data['date_of_death_accuracy']) {
-				$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_death'] = 'y';
+				$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_date_of_death'] = 'y';
 			}
 		} else if(!empty($atim_patient_data['date_of_death'])) {
-			$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_death'] = 'y';
+			$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_date_of_death'] = 'y';
 		}
 		
 		//   --> last Contact
 		if($sardo_patient_data['last_visite_date']) {
 			if(empty($atim_patient_data['qc_nd_last_contact']) || $atim_patient_data['qc_nd_last_contact'] < $sardo_patient_data['last_visite_date']) {
-				$atim_patient_data_to_update['qc_nd_last_contact'] = $sardo_patient_data['last_visite_date'];
-				$atim_patient_data_to_update['qc_nd_last_contact_accuracy'] = $sardo_patient_data['last_visite_date_accuracy'];
+				$audited_atim_patient_data_to_update['qc_nd_last_contact'] = $sardo_patient_data['last_visite_date'];
+				$audited_atim_patient_data_to_update['qc_nd_last_contact_accuracy'] = $sardo_patient_data['last_visite_date_accuracy'];
 				if(empty($atim_patient_data['qc_nd_last_contact'])) {
 					$atim_patient_data_creation_update_summary[] = "Recorded last contact date '".$sardo_patient_data['last_visite_date']."'";
 				} else {
@@ -680,14 +667,14 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 				if(empty($atim_patient_data['menopause_status'])) {
 					$atim_reporductive_history_data_to_update['menopause_status'] = 'post';
 				} else if($atim_patient_data['menopause_status'] != 'post') {
-					$atim_patient_data_to_update['qc_nd_sardo_diff_reproductive_history'] = 'y';
+					$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_reproductive_history'] = 'y';
 				}
 				//   -> (menopause date)
 				if(empty($atim_patient_data['lnmp_date'])) {
 					$atim_reporductive_history_data_to_update['lnmp_date'] = $sardo_lnmp.'-01-01';
 					$atim_reporductive_history_data_to_update['lnmp_date_accuracy'] = 'm';
 				} else if($sardo_lnmp != substr($atim_patient_data['lnmp_date'], 0, 4)) {
-					$atim_patient_data_to_update['qc_nd_sardo_diff_reproductive_history'] = 'y';
+					$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_reproductive_history'] = 'y';
 				}
 				if($atim_reporductive_history_data_to_update) {
 					$atim_reporductive_history_data_to_update = array_merge($atim_reporductive_history_data_to_update, array('modified' => $import_date, 'modified_by' => $import_by));
@@ -706,9 +693,17 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		}
 
 		// Update participant data
+		
+		$atim_patient_data_to_update = array_merge($audited_atim_patient_data_to_update, $non_audited_sardo_patient_data_to_create);
+		if($audited_atim_patient_data_to_update) {
+			// To force record in participants_revs table
+			$atim_patient_data_to_update = array(
+				'modified' => $import_date,
+				'modified_by' => $import_by);
+		}
 		$query = "UPDATE participants SET ";
 		$coma = '';
-		foreach($atim_patient_data_to_update as $field => $value ) {
+		foreach($audited_atim_patient_data_to_update as $field => $value ) {
 			if(strlen($value)) $query .= $coma." $field = '".str_replace("'", "''", $value)."'";
 			$coma = ', ';
 		}
@@ -745,6 +740,20 @@ function finalizePatientUpdate($db_schema) {
 		$table_fields = implode(',',$table_fields);
 		customQuery("INSERT INTO ".$tablename."_revs ($table_fields, modified_by, version_created) (SELECT $table_fields, modified_by, modified FROM $tablename WHERE modified_by = $import_by AND modified = '$import_date');", __LINE__);
 	}
+	$query = "UPDATE participants_revs SET
+		qc_nd_sardo_last_import = null,
+		qc_nd_sardo_cause_of_death = '',
+		qc_nd_sardo_rec_number = '',
+		qc_nd_sardo_diff_first_name = '',
+		qc_nd_sardo_diff_last_name = '',
+		qc_nd_sardo_diff_date_of_birth = '',
+		qc_nd_sardo_diff_sex = '',
+		qc_nd_sardo_diff_ramq = '',
+		qc_nd_sardo_diff_hospital_nbr = '',
+		qc_nd_sardo_diff_date_of_death = '',
+		qc_nd_sardo_diff_vital_status = '',
+		qc_nd_sardo_diff_reproductive_history = '';";
+	customQuery($query, __LINE__);
 	
 	// Tracks patients matching SARDO patient in th epast but matching no sardo patient anymore
 	$query = "SELECT id, participant_identifier FROM participants WHERE deleted <> 1 AND (qc_nd_sardo_rec_number IS NOT NULL AND qc_nd_sardo_rec_number NOT LIKE '') AND qc_nd_sardo_last_import IS NULL;";
@@ -756,7 +765,7 @@ function finalizePatientUpdate($db_schema) {
 	}
 	if($participant_ids_to_clean_up) {
 		customQuery("UPDATE participants SET qc_nd_sardo_rec_number = null WHERE id IN (".implode(',',$participant_ids_to_clean_up).");", __LINE__);
-		customQuery("UPDATE participants_revs SET qc_nd_sardo_rec_number = null WHERE id IN (".implode(',',$participant_ids_to_clean_up).");", __LINE__);
+		//All values are null in _revs table (see query above)
 	}
 	
 	// Check identifiers
@@ -777,6 +786,7 @@ function finalizePatientUpdate($db_schema) {
 
 function importDiagnosisData($pariticpant_id, $patient_rec_number, $no_labos_string) {	
 	global $diagnosis_controls;
+	
 	$diagnosis_rec_nbrs_to_ids = array();
 	
 	$query_res = customQuery("SELECT * FROM sardo_diagnostic WHERE ParentRecNumber = '$patient_rec_number';", __LINE__);
@@ -843,8 +853,9 @@ function importDiagnosisData($pariticpant_id, $patient_rec_number, $no_labos_str
 
 function finalizeDiagnosisCreation() {
 	global $diagnosis_controls;
+	
 	customQuery("UPDATE diagnosis_masters SET primary_id = id WHERE diagnosis_control_id = ".$diagnosis_controls['primary']['id'].";", __LINE__);
-	customQuery("UPDATE diagnosis_masters_revs SET primary_id = id WHERE diagnosis_control_id = ".$diagnosis_controls['primary']['id'].";", __LINE__);
+	//No SARDO data recorded in _revs table
 }
 
 // *** Progression *******************************************************************************
@@ -1134,6 +1145,112 @@ function getFormatedDateForATiMDisplay($date, $accuracy)  {
 	return '';
 }
 
+// *** Collection *********************************************************************
+
+function linkCollectionToSardoTreatment($db_schema) {
+	global $import_summary;
+
+	//Check more than one SARDO treatments can be linked to a collection based on date
+	$query = "SELECT bank_name, identifier_value, collection_datetime, visit_label
+		FROM (
+			SELECT count(*) AS nbr_of_treatments, collection_id
+			FROM (
+				SELECT DISTINCT Collection.id collection_id, TreatmentMaster.id treatment_master_id
+				FROM collections Collection, treatment_masters TreatmentMaster, sample_masters SampleMaster, sample_controls SampleControl
+				WHERE Collection.deleted <> 1
+				AND Collection.collection_datetime IS NOT NULL
+				AND Collection.collection_datetime NOT LIKE ''
+				AND SampleMaster.deleted <> 1
+				AND SampleMaster.collection_id = Collection.id
+				AND SampleMaster.sample_control_id = SampleControl.id
+				AND SampleControl.sample_type = 'tissue'
+				AND TreatmentMaster.deleted <> 1
+				AND TreatmentMaster.start_date IS NOT NULL
+				AND TreatmentMaster.start_date NOT LIKE ''
+				AND TreatmentMaster.participant_id = Collection.participant_id
+				AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+				AND TreatmentMaster.treatment_control_id IN (SELECT id FROM treatment_controls WHERE flag_active = 1 AND tx_method IN ('sardo treatment - chir','sardo treatment - biop'))
+			) RES1 GROUP BY collection_id
+		) RES2 INNER JOIN view_collections ON RES2.collection_id = view_collections.collection_id
+		WHERE RES2.nbr_of_treatments > 1;";
+	$query_res = customQuery($query, __LINE__);
+	while($res = mysqli_fetch_assoc($query_res))
+		$import_summary['Collection']['WARNING']["Collection cannot be linked to more than one SARDO treatments - Only one treatment will be linked to the collection"][] = "See collection on ".$res['collection_datetime']." for the participant '".$res['identifier_value']."' (NoLabo of bank ".$res['bank_name'].").";
+	//Set collections.treatment_master_id
+	customQuery("UPDATE collections SET treatment_master_id = null;", __LINE__);
+	customQuery("UPDATE collections_revs SET treatment_master_id = null;", __LINE__);	//Value can be set if user updated a collection already linked to a treatment
+	$update_conditions = array(
+			array('sardo treatment - chir', 'TreatmentDetail.patho_nbr IS NOT NULL'),
+			array('sardo treatment - chir', 'TRUE'),
+			array('sardo treatment - biop', 'TreatmentDetail.patho_nbr IS NOT NULL'),
+			array('sardo treatment - biop', 'TRUE'));
+	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, qc_nd_txd_sardos TreatmentDetail, sample_masters SampleMaster, sample_controls SampleControl
+		SET Collection.treatment_master_id = TreatmentMaster.id
+		WHERE Collection.deleted <> 1
+		AND Collection.collection_datetime IS NOT NULL
+		AND Collection.collection_datetime NOT LIKE ''
+		AND Collection.treatment_master_id IS NULL
+		AND SampleMaster.deleted <> 1
+		AND SampleMaster.collection_id = Collection.id
+		AND SampleMaster.sample_control_id = SampleControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND TreatmentMaster.deleted <> 1
+		AND TreatmentMaster.start_date IS NOT NULL
+		AND TreatmentMaster.start_date NOT LIKE ''
+		AND TreatmentMaster.participant_id = Collection.participant_id
+		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+		AND TreatmentMaster.treatment_control_id = (SELECT id FROM treatment_controls WHERE flag_active = 1 AND tx_method = ('%%tx_method%%'))
+		AND TreatmentDetail.treatment_master_id = TreatmentMaster.id
+		AND %%no_patho_condition%%;";
+	foreach($update_conditions as $new_conditions) {
+		list($tx_method, $no_patho_condition) = $new_conditions;
+		customQuery(str_replace(array('%%tx_method%%', '%%no_patho_condition%%'), array($tx_method, $no_patho_condition), $query), __LINE__);
+	}
+	//Update view_collections
+	$query = "SELECT COUNT(*) AS field_exists
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA='$db_schema' AND TABLE_NAME LIKE 'view_collections' AND COLUMN_NAME = 'qc_nd_pathology_nbr_from_sardo';";
+	$update_view = customQuery($query, __LINE__);
+	$update_view =  mysqli_fetch_assoc($update_view);
+	if($update_view['field_exists']) {
+		$query = "REPLACE INTO view_collections (
+			SELECT
+			Collection.id AS collection_id,
+			Collection.bank_id AS bank_id,
+			Collection.sop_master_id AS sop_master_id,
+			Collection.participant_id AS participant_id,
+			Collection.diagnosis_master_id AS diagnosis_master_id,
+			Collection.consent_master_id AS consent_master_id,
+			Collection.treatment_master_id AS treatment_master_id,
+			Collection.event_master_id AS event_master_id,
+			Participant.participant_identifier AS participant_identifier,
+			Collection.acquisition_label AS acquisition_label,
+			Collection.collection_site AS collection_site,
+			Collection.collection_datetime AS collection_datetime,
+			Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
+			Collection.collection_property AS collection_property,
+			Collection.collection_notes AS collection_notes,
+			Collection.created AS created,
+	Bank.name AS bank_name,
+	MiscIdentifier.identifier_value AS identifier_value,
+	MiscIdentifierControl.misc_identifier_name AS identifier_name,
+	Collection.visit_label AS visit_label,
+	Collection.qc_nd_pathology_nbr,
+	TreatmentDetail.patho_nbr as qc_nd_pathology_nbr_from_sardo
+			FROM collections AS Collection
+			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+	LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
+	LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
+	LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
+	LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
+	LEFT JOIN qc_nd_txd_sardos AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+			WHERE Collection.deleted <> 1);";
+		customQuery($query, __LINE__);
+	} else {
+		customQuery("UPDATE versions SET permissions_regenerated = 0;", __LINE__);
+	}
+}
+
 //=========================================================================================================================================================================================================
 //
 // ******* OTHER FUNCTIONS *******
@@ -1207,6 +1324,7 @@ function customInsert($data, $table_name, $line, $is_detail_table = false, $inse
 
 function recordImportSummary() {
 	global $import_summary;
+	
 	customQuery("TRUNCATE sardo_import_summary;", __LINE__, true);
 	foreach($import_summary as $data_type => $data_1) {
 		foreach($data_1 as $message_type => $data_2) {

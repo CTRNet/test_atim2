@@ -50,6 +50,21 @@ class ParticipantCustom extends Participant {
 		
 		return $return;
 	}
+	
+	function getSardoValues($type_of_list) {
+		$query = "SELECT value, fr FROM qc_nd_sardo_drop_down_lists WHERE type = '".$type_of_list[0]."'";
+		try {
+			$res = $this->query($query);
+			$sardo_values = array();
+			foreach($res as $data) {
+				$sardo_values[$data['qc_nd_sardo_drop_down_lists']['value']] = $data['qc_nd_sardo_drop_down_lists']['fr'];
+			}
+			return $sardo_values;
+		}catch(Exception $e){
+			$bt = debug_backtrace();
+			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	}
 }
 
 ?>

@@ -32,7 +32,7 @@ class ReportsControllerCustom extends ReportsController {
 		$participant_ids = array();
 		foreach($participant_ids_tmp as $new_record) $participant_ids[$new_record['MiscIdentifier']['participant_id']] = $new_record['MiscIdentifier']['participant_id'];
 		
-		if(sizeof($participant_ids) > self::$display_limit) {
+		if(sizeof($participant_ids) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -561,7 +561,7 @@ class ReportsControllerCustom extends ReportsController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count = $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -612,7 +612,7 @@ class ReportsControllerCustom extends ReportsController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count =  $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,

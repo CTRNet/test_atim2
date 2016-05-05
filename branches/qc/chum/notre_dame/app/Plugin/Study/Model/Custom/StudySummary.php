@@ -4,25 +4,26 @@ class StudySummaryCustom extends StudySummary
 {
 	var $name = 'StudySummary';
 	var $useTable = 'study_summaries';
-	
-	function allowDeletion($study_summary_id) {	
-		$ctrl_model = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
-		$ctrl_value = $ctrl_model->find('count', array(
-				'conditions' => array('ConsentMaster.qc_nd_study_summary_id' => $study_summary_id),
-				'recursive' => '-1'));
-		if($ctrl_value > 0) {
-			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a study consent');
+
+	function getStudyPermissibleValues() {
+		$result = array();
+				
+		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+		$institutions = $StructurePermissibleValuesCustom->getCustomDropdown(array('Institutions & Laboratories'));
+		$institutions = array_replace($institutions['defined'], $institutions['previously_defined']);
+		$researchers = $StructurePermissibleValuesCustom->getCustomDropdown(array('researchers'));
+		$researchers = array_replace($researchers['defined'], $researchers['previously_defined']);
+		foreach($this->find('all', array('order' => 'StudySummary.title ASC')) as $new_study) {
+			$qc_nd_researcher = strlen($new_study['StudySummary']['qc_nd_researcher'])? (isset($researchers[$new_study['StudySummary']['qc_nd_researcher']])? $researchers[$new_study['StudySummary']['qc_nd_researcher']] : $new_study['StudySummary']['qc_nd_researcher']): '';
+			$qc_nd_institution = strlen($new_study['StudySummary']['qc_nd_institution'])? (isset($researchers[$new_study['StudySummary']['qc_nd_institution']])? $researchers[$new_study['StudySummary']['qc_nd_institution']] : $new_study['StudySummary']['qc_nd_institution']): '';
+			$prefix = array($qc_nd_researcher, $qc_nd_institution);
+			$prefix = array_filter($prefix);
+			$prefix = $prefix? implode (' - ', $prefix).' - ' : '';
+			$result[$new_study['StudySummary']['id']] = $prefix.$new_study['StudySummary']['title'];
 		}
-		$ctrl_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-		$ctrl_value = $ctrl_model->find('count', array(
-			'conditions' => array('EventDetail.study_summary_id' => $study_summary_id), 
-			'joins' => array(array('table' => 'qc_nd_ed_studies', 'alias' => 'EventDetail', 'type' => 'INNER', 'conditions' => array('EventDetail.event_master_id = EventMaster.id'))),
-			'recursive' => '-1'));
-		if($ctrl_value > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a participant'); 
-		}
-		return parent::allowDeletion($study_summary_id);
+		asort($result);
+		
+		return $result;
 	}
-	
 }
 ?>
