@@ -10,8 +10,8 @@ $import_summary = array();
 $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "";
-$db_schema		= "chumoncoaxis";
+$db_pwd			= "am3-y-4606";
+$db_schema		= "tmponcoaxis";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -247,6 +247,8 @@ customQuery("DELETE FROM qc_nd_txe_sardos;", __LINE__);
 customQuery("DELETE FROM treatment_extend_masters;", __LINE__);
 //No SARDO data recorded in _revs table
 customQuery("DELETE FROM qc_nd_txd_sardos;", __LINE__);
+customQuery("UPDATE collections SET treatment_master_id = null;", __LINE__);
+customQuery("UPDATE collections_revs SET treatment_master_id = null;", __LINE__);	//Value can be set if user updated a collection already linked to a treatment
 customQuery("DELETE FROM treatment_masters;", __LINE__);
 //No SARDO data recorded in _revs table
 
@@ -349,11 +351,12 @@ function addValuesToCustomList($control_name, $value) {
 
 function loadCustomLists() {
 	global $structure_permissible_values_custom_controls;
+	customQuery("DELETE FROM qc_nd_sardo_drop_down_lists;", __LINE__);
 	foreach($structure_permissible_values_custom_controls as $new_custom_list) {
-		$type = $new_custom_list['type'];
-		customQuery("DELETE FROM qc_nd_sardo_drop_down_lists WHERE type = '$type';", __LINE__);	
+		$type = $new_custom_list['type'];	
 		foreach($new_custom_list['new_values'] as $new_value => $fr_value) {
-			customInsert(array('value' => $new_value, 'fr' => $fr_value, 'type' => $type), 'qc_nd_sardo_drop_down_lists', __LINE__);
+			$query = "INSERT INTO qc_nd_sardo_drop_down_lists (value, fr, type) VALUES ('".str_replace("'", "''", $new_value)."', '".str_replace("'", "''", $fr_value)."', '".str_replace("'", "''", $type)."');";
+			customQuery($query, __LINE__, true);
 		}
 	}
 }
@@ -430,7 +433,7 @@ function manageSardoNewPatient($sardo_patient_data) {
 
 finalizePatientUpdate($db_schema);
 finalizeDiagnosisCreation();
-linkCollectionToSardoTreatment();
+linkCollectionToSardoTreatment($db_schema);
 loadCustomLists();
 foreach($sql_sardo_tables_creations as $new_query) if(preg_match('/^DROP TABLE/', $new_query)) customQuery($new_query, __LINE__);
 
@@ -701,14 +704,16 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 				'modified' => $import_date,
 				'modified_by' => $import_by);
 		}
-		$query = "UPDATE participants SET ";
-		$coma = '';
-		foreach($audited_atim_patient_data_to_update as $field => $value ) {
-			if(strlen($value)) $query .= $coma." $field = '".str_replace("'", "''", $value)."'";
-			$coma = ', ';
+		if($atim_patient_data_to_update) {
+			$query = "UPDATE participants SET ";
+			$coma = '';
+			foreach($atim_patient_data_to_update as $field => $value ) {
+				if(strlen($value)) $query .= $coma." $field = '".str_replace("'", "''", $value)."'";
+				$coma = ', ';
+			}
+			$query .= " WHERE id = $participant_id;";
+			customQuery($query, __LINE__);
 		}
-		$query .= " WHERE id = $participant_id;";
-		customQuery($query, __LINE__);
 		
 		// Add missing identifiers
 		foreach($atim_patient_identifiers_to_create as $new_ids) customInsert($new_ids, 'misc_identifiers', __LINE__, false, true);
@@ -1325,7 +1330,7 @@ function customInsert($data, $table_name, $line, $is_detail_table = false, $inse
 function recordImportSummary() {
 	global $import_summary;
 	
-	customQuery("TRUNCATE sardo_import_summary;", __LINE__, true);
+	customQuery("DELETE FROM sardo_import_summary;", __LINE__, true);
 	foreach($import_summary as $data_type => $data_1) {
 		foreach($data_1 as $message_type => $data_2) {
 			foreach($data_2 as $message => $data_3) {
