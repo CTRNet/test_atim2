@@ -56,6 +56,7 @@ class ViewAliquot extends InventoryManagementAppModel {
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
+			AliquotMaster.study_summary_id,
 			
 			StorageMaster.code,
 			StorageMaster.selection_label,

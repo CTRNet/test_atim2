@@ -30,6 +30,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'StorageLayout.StorageMaster',
 		'StorageLayout.StorageCoordinate',
 		
+		'Study.StudySummary',
+		
 		'ExternalLink'
 	);
 	
@@ -345,7 +347,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->request->data[] = array('parent' => $samples[0], 'children' => array());
 			}
 			
-			$this->AliquotMaster->addWritableField(array('collection_id', 'sample_control_id', 'sample_master_id', 'aliquot_control_id', 'storage_master_id', 'current_volume', 'use_counter'));
+			$this->AliquotMaster->addWritableField(array('collection_id', 'sample_control_id', 'sample_master_id', 'aliquot_control_id', 'storage_master_id', 'current_volume', 'use_counter', 'study_summary_id'));
 			$this->AliquotMaster->addWritableField(array('aliquot_master_id'), $aliquot_control['AliquotControl']['detail_tablename']);
 			$this->AliquotMaster->writable_fields_mode = 'addgrid';
 			
@@ -521,6 +523,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if(empty($this->request->data)){
 			$aliquot_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $aliquot_data['StorageMaster']));
+			$aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $aliquot_data['AliquotMaster']['study_summary_id'])));
 			$this->request->data = $aliquot_data;
 			
 			$hook_link = $this->hook('initial_display');
@@ -564,7 +567,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
-				$this->AliquotMaster->addWritableField('storage_master_id');
+				$this->AliquotMaster->addWritableField('storage_master_id', 'study_summary_id');
 				
 				if(!$this->AliquotMaster->save($this->request->data, false)) { 
 					$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -843,7 +846,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				AppModel::acquireBatchViewsUpdateLock();
 				
 				//saving
-				$this->AliquotInternalUse->addWritableField(array('aliquot_master_id'));
+				$this->AliquotInternalUse->addWritableField(array('aliquot_master_id', 'study_summary_id'));
 				$this->AliquotInternalUse->writable_fields_mode = 'addgrid';
 				$this->AliquotInternalUse->saveAll($uses_to_save, array('validate' => false));
 					
@@ -1006,6 +1009,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE DATA RECORD
 		
 		if(empty($this->request->data)) {
+			
+			$use_data['FunctionManagement']['autocomplete_aliquot_internal_use_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $use_data['AliquotInternalUse']['study_summary_id'])));
 			$this->request->data = $use_data;
 			
 			$hook_link = $this->hook('initial_display');
@@ -1027,6 +1032,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->request->data['AliquotInternalUse']['used_volume'] = null;
 			}
 			
+			$this->AliquotInternalUse->addWritableField(array('study_summary_id'));
 			$this->AliquotInternalUse->writable_fields_mode = 'addgrid';
 			
 			$hook_link = $this->hook('presave_process');
@@ -1200,7 +1206,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				//saving
 				$aliquot_internal_use_data = array('AliquotInternalUse' => $this->request->data['AliquotInternalUse']);
-				$this->AliquotInternalUse->addWritableField(array('aliquot_master_id'));
+				$this->AliquotInternalUse->addWritableField(array('aliquot_master_id', 'study_summary_id'));
 				$this->AliquotInternalUse->writable_fields_mode = 'add';
 				$this->AliquotMaster->addWritableField(array('in_stock'));
 				$this->AliquotMaster->writable_fields_mode = 'add';
@@ -2011,7 +2017,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}	
 			}
 
-			$child_writable_fields['aliquot_masters']['addgrid'] = array_merge($child_writable_fields['aliquot_masters']['addgrid'], array('collection_id', 'sample_master_id', 'aliquot_control_id', 'storage_coord_x', 'storage_coord_y', 'storage_master_id', 'use_counter'));
+			$child_writable_fields['aliquot_masters']['addgrid'] = array_merge($child_writable_fields['aliquot_masters']['addgrid'], array('collection_id', 'sample_master_id', 'aliquot_control_id', 'storage_coord_x', 'storage_coord_y', 'storage_master_id', 'use_counter', 'study_summary_id'));
 			$this->Realiquoting->writable_fields_mode = 'addgrid';
 			$child_writable_fields['realiquotings']['addgrid'] = array_merge($child_writable_fields['realiquotings']['addgrid'], array('parent_aliquot_master_id', 'child_aliquot_master_id', 'lab_book_master_id', 'sync_with_lab_book'));
 			if($child_got_volume){

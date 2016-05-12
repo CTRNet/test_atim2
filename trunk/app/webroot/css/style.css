@@ -1190,6 +1190,7 @@ span.help {
 .icon16.news { background-position: 0 -80px; }
 .icon16.no_filter { background-position: -112px -112px; }
 .icon16.not_allowed, .icon16.warning { background-position: -16px 0; }
+.icon16.order.line { background-position: -16px -128px; }
 .icon16.order { background-position: -48px -32px; }
 .icon16.order.items { background-position: -80px -128px; }
 .icon16.participant,.icon16.participants { background-position: -64px -96px; }

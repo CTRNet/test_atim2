@@ -7,7 +7,10 @@ class OrdersController extends OrderAppController {
 	var $uses = array(
 		'Order.Order', 
 		'Order.OrderLine', 
-		'Order.Shipment');
+		'Order.Shipment',
+		
+		'Study.StudySummary'
+	);
 	
 	var $paginate = array(
 		'Order'=>array('order'=>'Order.date_order_placed DESC'), 
@@ -105,6 +108,7 @@ class OrdersController extends OrderAppController {
 		// SAVE PROCESS
 					
 		if ( empty($this->request->data) ) {
+			$order_data['FunctionManagement']['autocomplete_order_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $order_data['Order']['default_study_summary_id'])));
 			$this->request->data = $order_data;
 			
 		} else {			
