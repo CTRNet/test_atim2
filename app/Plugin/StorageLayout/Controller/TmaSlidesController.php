@@ -8,7 +8,10 @@ class TmaSlidesController extends StorageLayoutAppController {
 		'StorageLayout.StorageMaster',
 		'StorageLayout.TmaSlide',
 		'StorageLayout.StorageCoordinate',
-		'StorageLayout.StorageControl');
+		'StorageLayout.StorageControl',
+			
+		'Study.StudySummary'
+	);
 	
 	var $paginate = array('TmaSlide' => array('order' => 'TmaSlide.barcode DESC'));
 
@@ -324,6 +327,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		
 		if(empty($this->request->data)) {
 			$tma_slide_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $tma_slide_data['StorageMaster']));
+			$tma_slide_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $tma_slide_data['TmaSlide']['study_summary_id'])));
 			$this->request->data = $tma_slide_data;
 			
 		} else {
@@ -455,6 +459,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 			$this->request->data = $slides_data;
 			foreach($this->request->data as &$new_slides_data){
 				$new_slides_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $new_slides_data['StorageMaster']));
+				$new_slides_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $new_slides_data['TmaSlide']['study_summary_id'])));
 			}
 				
 			$hook_link = $this->hook('initial_display');

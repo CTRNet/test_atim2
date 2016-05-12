@@ -16,6 +16,8 @@ class OrderLine extends OrderAppModel {
 			'InventoryManagement.ViewAliquotUse' => array('OrderLine.id')
 	);
 	
+	public static $study_model = null;
+	
 	function summary( $variables=array() ) {
 		
 		$return = false;
@@ -44,7 +46,53 @@ class OrderLine extends OrderAppModel {
 		return $return;
 	}
 	
+	function validates($options = array()){
 	
+		$this->validateAndUpdateOrderLineStudyData();
+	
+		parent::validates($options);
+	
+		return empty($this->validationErrors);
+	}
+	
+	/**
+	 * Check order line study definition and set error if required.
+	 */
+	
+	function validateAndUpdateOrderLineStudyData() {
+		$order_line_data =& $this->data;
+	
+		// check data structure
+		$tmp_arr_to_check = array_values($order_line_data);
+		if((!is_array($order_line_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['OrderLine']))) {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	
+		// Launch validation
+		if(array_key_exists('FunctionManagement', $order_line_data) && array_key_exists('autocomplete_order_line_study_summary_id', $order_line_data['FunctionManagement'])) {
+			$order_line_data['OrderLine']['study_summary_id'] = null;
+			$order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id'] = trim($order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id']);
+			if(strlen($order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id'])) {
+				// Load model
+				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
+					
+				// Check the aliquot internal use study definition
+				$arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id']);
+	
+				// Set study summary id
+				if(isset($arr_study_selection_results['StudySummary'])){
+					$order_line_data['OrderLine']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+					$this->addWritableField(array('study_summary_id'));
+				}
+	
+				// Set error
+				if(isset($arr_study_selection_results['error'])){
+					$this->validationErrors['autocomplete_order_line_study_summary_id'][] = $arr_study_selection_results['error'];
+				}
+			}
+	
+		}
+	}
 	
 	function afterFind($results, $primary = false) {
 		$results = parent::afterFind($results, $primary);

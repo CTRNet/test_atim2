@@ -240,6 +240,63 @@ class StudySummariesController extends StudyAppController {
   			require($hook_link);
   		}
   	}
+  	
+  	function autocompleteStudy() {
+  		
+  		//-- NOTE ----------------------------------------------------------
+		//
+		// This function is linked to functions of the StorageMaster model 
+		// called getStudyIdFromStudyDataAndCode() and
+		// getStudyDataAndCodeForDisplay().
+		//
+		// When you override the autocompleteStudy() function, check 
+		// if you need to override these functions.
+		//  
+		//------------------------------------------------------------------
+		
+		//layout = ajax to avoid printing layout
+  		$this->layout = 'ajax';
+  		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+  		
+  		//query the database
+  		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+  		$terms = array();
+  		foreach(explode(' ', $term) as $key_word) $terms[] = "StudySummary.title LIKE '%".$key_word."%'";
+  		
+  		$conditions = array('AND' => $terms);  		
+  		$fields = 'StudySummary.*';
+  		$order = 'StudySummary.title ASC';
+  		$joins = array();
+		
+  		$hook_link = $this->hook('query_args');
+  		if( $hook_link ) {
+  			require($hook_link);
+  		}
+  		
+  		$data = $this->StudySummary->find('all', array(
+ 			'conditions' => $conditions,
+ 			'fields' => $fields,
+  			'order' => $order,
+  			'joins' => $joins,
+  			'limit' => 10));
+		
+  		//build javascript textual array
+  		$result = "";
+  		foreach($data as $data_unit){
+  			$result .= '"'.$this->StudySummary->getStudyDataAndCodeForDisplay($data_unit).'", ';
+  		}
+  		if(sizeof($result) > 0){
+  			$result = substr($result, 0, -2);
+  		}
+  		
+  		$hook_link = $this->hook('format');
+  		if( $hook_link ) {
+  			require($hook_link);
+  		}
+  		
+  		$this->set('result', "[".$result."]");  		
+  	}
  	
 }
 
