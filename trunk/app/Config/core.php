@@ -390,7 +390,7 @@ Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 
 Cache::config('default', array('engine' => 'File'));
 
 Configure::write('use_compression', true);
-Configure::write('Session.timeout', $debug ? 3600 : 600);
+Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 /**
  * Define the complexity of a password format:
@@ -445,8 +445,10 @@ Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotM
 	
 Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
 	
-Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
+Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.add() & OrderItems.addAliquotsInBatch()
 Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
+Configure::write('defineOrderItemsReturned_processed_items_limit', 50);		// OrderItems.defineOrderItemsReturned()
+Configure::write('edit_processed_items_limit', 50);							// OrderItems.edit()
 
 Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add()
 

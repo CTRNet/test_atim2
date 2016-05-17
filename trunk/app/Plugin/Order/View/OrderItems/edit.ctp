@@ -1,12 +1,18 @@
 <?php 
 
 	$structure_links = array(
-		'top'=>'/Order/OrderItems/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
-		'bottom'=>array('cancel'=>empty($atim_menu_variables['OrderLine.id'])? '/Order/Orders/detail/'.$atim_menu_variables['Order.id'].'/' : '/Order/OrderLines/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/')
+		'top'=>"/Order/OrderItems/edit/$is_items_returned/$order_id/$order_line_id/$shipment_id/",
+		'bottom'=>array('cancel'=>$url_to_cancel)
 	);
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'editgrid', 'links'=>$structure_links, 'settings'=> array('pagination' => false));
+	$final_options = array(
+	 	'type' => 'editgrid', 
+		'links'=>$structure_links, 
+		'settings'=> array('pagination' => false, 'header' => __('order items')),
+			'extras' => '<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/><input type="hidden" name="data[order_item_ids_for_sorting]" value="'.$order_item_ids_for_sorting.'"/>'
+	);
+	
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();

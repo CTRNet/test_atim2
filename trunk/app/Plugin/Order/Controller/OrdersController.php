@@ -77,9 +77,12 @@ class OrdersController extends OrderAppController {
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 				
-		// Setorder data
+		// Set order data
 		$this->set('order_data', $order_data);
 		$this->request->data = array();
+		
+		$shipments_list = $this->Shipment->find('all', array('conditions'=>array('Shipment.order_id'=>$order_id), 'recursive' => '-1'));
+		$this->set('shipments_list',$shipments_list);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

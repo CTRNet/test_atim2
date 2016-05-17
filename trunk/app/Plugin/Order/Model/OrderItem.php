@@ -43,6 +43,29 @@ class OrderItem extends OrderAppModel {
 		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
+	
+	/**
+	 * Check if the order item status can be set/changed to 'pending' or 'shipped': 
+	 * An order item linked to an aliquot can have a status equal to 'pending' or 'shipped'
+	 * when no other order item linked to the same aliquot has a status equal to 'pending' or 'shipped'
+	 *
+	 * @param $aliquot_master_id Id of the aliquot linked to the order item (that will be created or that will be updated)
+	 * @param $order_item_id Id of the order item
+	 *
+	 * @return Return results as array:
+	 * 	['allow_order_status'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 *
+	 * @author N. Luc
+	 * @since 2016-05-16
+	 */
+	function checkAliquotOrderItemStatusCanBeSetToPendingShipped($aliquot_master_id, $order_item_id = '-1'){
+		$res = $this->find('count', array('conditions' => array("OrderItem.id != $order_item_id", 'OrderItem.aliquot_master_id' => $aliquot_master_id, 'OrderItem.status' => array('pending', 'shipped')), 'recursive' => '-1'));
+		if($res) {
+			return false;
+		}
+		return true;
+	}
 }
 
 ?>
