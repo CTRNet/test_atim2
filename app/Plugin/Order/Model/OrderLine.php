@@ -103,7 +103,7 @@ class OrderLine extends OrderAppModel {
 				$items_counter = 0;
 				foreach($new_order_line['OrderItem'] as $new_item) {
 					++ $items_counter;	
-					if($new_item['status'] == 'shipped'){
+					if(in_array($new_item['status'], array('shipped', 'shipped & returned'))){
 						++ $shipped_counter; 
 					}
 				}
