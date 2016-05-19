@@ -2726,6 +2726,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$atim_structure['SampleMaster'] = $viewaliquotuses_structures;
 		$atim_structure['SpecimenReviewMaster'] = $viewaliquotuses_structures;
 		$atim_structure['QualityCtrl'] = $viewaliquotuses_structures;
+		$atim_structure['Order'] = $viewaliquotuses_structures;
 		$atim_structure['AliquotInternalUse'] = $viewaliquotuses_structures;
 		$this->set('atim_structure', $atim_structure);
 		
@@ -2762,8 +2763,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 				case 'specimen review':
 					$model = 'SpecimenReviewMaster';
 					break;
+				case 'order preparation':
+					$model = 'OrderItem';
+					break;
 				case 'aliquot shipment':
 					$model = 'Shipment';
+					break;
+				case 'shipped aliquot return':
+					$model = 'OrderItemReturn';
 					break;
 				default:
 					$model = preg_match('/^sample\ derivative\ creation.+$/', $new_aliquot_use['ViewAliquotUse']['use_definition'])? 'SampleMaster': 'AliquotInternalUse';

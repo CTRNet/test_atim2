@@ -69,7 +69,7 @@ class OrdersController extends OrderAppController {
 		} 
 	}
   
-	function detail( $order_id ) {
+	function detail( $order_id , $is_from_tree_view = false) {
 		// MANAGE DATA
 		
 		$order_data = $this->Order->getOrRedirect($order_id);
@@ -83,6 +83,8 @@ class OrdersController extends OrderAppController {
 		
 		$shipments_list = $this->Shipment->find('all', array('conditions'=>array('Shipment.order_id'=>$order_id), 'recursive' => '-1'));
 		$this->set('shipments_list',$shipments_list);
+		
+		$this->set( 'is_from_tree_view', $is_from_tree_view);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

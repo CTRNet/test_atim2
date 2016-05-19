@@ -147,32 +147,47 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
-	
+		
 		SELECT CONCAT(OrderItem.id,4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
-		'aliquot shipment' AS use_definition,
-		Shipment.shipment_code AS use_code,
+		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', 'shipped aliquot return', 'aliquot shipment'), 'order preparation') AS use_definition,
+		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned',  Shipment.shipment_code, Shipment.shipment_code), Order.order_number) AS use_code,
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
-		Shipment.datetime_shipped AS use_datetime,
-		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
+		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', OrderItem.date_returned, Shipment.datetime_shipped), OrderItem.date_added) AS use_datetime,
+		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', IF(OrderItem.date_returned_accuracy = 'c', 'h', OrderItem.date_returned_accuracy), Shipment.datetime_shipped_accuracy), IF(OrderItem.date_added_accuracy = 'c', 'h', OrderItem.date_added_accuracy)) AS use_datetime_accuracy,
 		NULL AS duration,
 		'' AS duration_unit,
-		Shipment.shipped_by AS used_by,
-		Shipment.created AS created,
-		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', OrderItem.reception_by, Shipment.shipped_by), OrderItem.added_by) AS used_by,
+		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', OrderItem.modified, Shipment.created), OrderItem.created) AS created,
+		IF(OrderItem.shipment_id,
+				CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id),
+				IF(OrderItem.order_line_id,
+						CONCAT('/Order/OrderLines/detail/',OrderItem.order_id,'/',OrderItem.order_line_id),
+						CONCAT('/Order/Orders/detail/',OrderItem.order_id))
+		) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
 		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
-		FROM order_items OrderItem
+		FROM (
+				SELECT id, status, 
+				date_added, date_added_accuracy, added_by, created, modified, order_line_id, shipment_id, aliquot_master_id, deleted, order_id, date_returned, date_returned_accuracy, reason_returned, reception_by
+				FROM order_items
+				WHERE deleted <> 1 AND status = 'shipped & returned'
+				UNION
+				SELECT id, REPLACE(status, 'shipped & returned', 'shipped') status,
+				date_added, date_added_accuracy, added_by, created, modified, order_line_id, shipment_id, aliquot_master_id, deleted, order_id, date_returned, date_returned_accuracy, reason_returned, reception_by
+				FROM order_items
+				WHERE deleted <> 1
+		) OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
-		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		LEFT JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
-		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id			
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
-	
+		
 		UNION ALL
 	
 		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
@@ -198,14 +213,15 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 
-
 	function getUseDefinitions() {
 		$result = array(
-				'aliquot shipment'	=> __('aliquot shipment'),
-				'quality control'	=> __('quality control'),
-				'internal use'	=> __('internal use'),
-				'realiquoted to'	=> __('realiquoted to'),
-				'specimen review'	=> __('specimen review'));
+			'aliquot shipment'	=> __('aliquot shipment'),
+			'shipped aliquot return'	=> __('shipped aliquot return'),
+			'order preparation'	=> __('order preparation'),
+			'quality control'	=> __('quality control'),
+			'internal use'	=> __('internal use'),
+			'realiquoted to'	=> __('realiquoted to'),
+			'specimen review'	=> __('specimen review'));
 
 		// Add custom uses
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";

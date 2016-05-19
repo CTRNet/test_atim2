@@ -156,9 +156,6 @@ class ShipmentsController extends OrderAppController {
 		// Manage the add to shipment option (in case we reach the AddAliquotToShipment_processed_items_limit)
 		$conditions = array('OrderItem.order_id' => $order_id, 'OrderItem.shipment_id IS NULL');
 		$available_order_items = $this->OrderItem->find('count', array('conditions' => $conditions));
-		if(empty($available_order_items)) {
-			$this->flash(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);
-		}
 		$order_items_limit = Configure::read('AddAliquotToShipment_processed_items_limit');
 		$add_to_shipments_subset_limits = array();
 		if($available_order_items > $order_items_limit) {
