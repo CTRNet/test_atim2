@@ -402,6 +402,15 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='orderitems'), (SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='id' AND `type`='hidden' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0');
 
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('shipped aliquot return','Shipped Aliquot Return','Retour d''aliquot envoyé'),
+('order preparation','Order Preparation','Préparation de commande');
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES
+('aliquot shipment','Aliquot Shipment','Envoi d''aliquots');
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Fix bug on index_link of the datamart_structures record of a OrderItem
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -414,31 +423,6 @@ UPDATE datamart_structures SET index_link = '/Order/Orders/detail/%%OrderItem.or
 
 
 
-mysql -u root trunk --default-character-set=utf8 < 
-
-
-
-
-0 081 777 octets
-
-
-Finir function OrderItem.edit() pour edited les aliquots retournés
-TODO 99983
-
-
-
--- -----------------------------------------------------------------------------------------------------------------------------------
--- Commande:
--- Un item envoyé peut être retourné
--- Le flager dans Order Item
--- Du coup seul un item retourné peut être ajoutéa a nouveau a une commande
--- -----------------------------------------------------------------------------------------------------------------------------------
-
-
-permettre envoyer aliquot deux fois si retourné
-permettrre changer info de retour en batch
-afficher retour dans view_aliquot_use
-afficher retour dans collections tree view
 
 
 

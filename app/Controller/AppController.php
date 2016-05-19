@@ -1108,7 +1108,7 @@ class AppController extends Controller {
 					$fields[] = $field['COLUMNS']['Field'];
 				}
 			}
-			$this->Version->query('ALTER TABLE '.$view_model->table.' ADD PRIMARY KEY('.$pkey.'), ADD KEY ('.implode('), ADD KEY (', $fields).')');
+			$this->Version->query('ALTER TABLE '.$view_model->table.' ADD KEY('.$pkey.'), ADD KEY ('.implode('), ADD KEY (', $fields).')');
 		}
 		
 		AppController::addWarningMsg(__('views have been rebuilt'));

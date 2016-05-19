@@ -196,7 +196,11 @@ class OrderItemsController extends OrderAppController {
 					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $new_data_to_save['OrderItem']['aliquot_master_id'];
-					if(!$this->AliquotMaster->save($new_aliquot_master_data)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true );					
+					if(!$this->AliquotMaster->save($new_aliquot_master_data)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true );	
+					// Update Aliquot Use Counter
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($new_data_to_save['OrderItem']['aliquot_master_id'], false, true)) {
+						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
 				}
 				if($order_line_id) {
 					// Update Order Line status
@@ -318,7 +322,7 @@ class OrderItemsController extends OrderAppController {
 				// Check aliquot is not already assigned to an order with a 'pending' or 'shipped' status
 				$aliquot_master_ids_to_check = array();
 				foreach($studied_aliquot_master_ids as $new_aliquot_master_id) {
-					if(!$this->OrderItem->checkAliquotOrderItemStatusCanBeSetToPendingShipped($new_aliquot_master_id)) $aliquot_master_ids_to_check = $new_aliquot_master_id;
+					if(!$this->OrderItem->checkAliquotOrderItemStatusCanBeSetToPendingShipped($new_aliquot_master_id)) $aliquot_master_ids_to_check[] = $new_aliquot_master_id;
 				}
 				if($aliquot_master_ids_to_check) {
 					$aliquots_list_for_display = '';
@@ -474,6 +478,11 @@ class OrderItemsController extends OrderAppController {
 					$this->AliquotMaster->id = $added_aliquot_master_id;
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+					}
+					
+					// Update Aliquot Use Counter
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($added_aliquot_master_id, false, true)) {
+						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 				}
 				
@@ -659,6 +668,8 @@ class OrderItemsController extends OrderAppController {
 				
 				AppModel::acquireBatchViewsUpdateLock();
 				
+				if($is_items_returned) $this->OrderItem->writable_fields_mode = 'editgrid';
+				
 				// Launch save process
 				foreach($this->request->data as $order_item){
 					$order_item_id = $order_item['OrderItem']['id'];
@@ -750,6 +761,10 @@ class OrderItemsController extends OrderAppController {
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
 				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
+					$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
+				
+				if(!$this->AliquotMaster->updateAliquotUseAndVolume($order_item_data['OrderItem']['aliquot_master_id'], false, true)) {
 					$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
 				}
 				
@@ -1057,6 +1072,8 @@ class OrderItemsController extends OrderAppController {
 		}
 	
 		if(!$error) {
+			$aliquot_master_id = $order_item_data['OrderItem']['aliquot_master_id'];
+			
 			// Launch status change
 			$order_item_data = array();
 			$order_item_data['OrderItem']['status'] = 'shipped';
@@ -1068,6 +1085,11 @@ class OrderItemsController extends OrderAppController {
 			$this->OrderItem->id = $order_item_id;
 			if(!$this->OrderItem->save($order_item_data)) {
 				$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true );
+			}
+			
+			// Update Aliquot Use Counter
+			if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) {
+				$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 	
 			$hook_link = $this->hook('postsave_process');
