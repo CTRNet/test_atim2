@@ -144,6 +144,9 @@ foreach($excel_files as $excel_data) {
 	recordErrorAndMessage('Parsed Files and created TMA', '@@MESSAGE@@', "Files Names & TMA Name", "FILE : $excel_file_name");
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1)) {
 		if(array_key_exists('Tissue', $excel_line_data)) migrationDie('Tissue column name has to be change to Tissu');
+		if(!array_key_exists('Dx PathRev1'.$review_field_extension, $excel_line_data)) migrationDie("Field 'Dx PathRev1$review_field_extension' does not exist. Process failed. Please review arg 5th of config variable ".'$excel_files.');
+		if(!array_key_exists('NotesReview1'.$review_field_extension, $excel_line_data)) migrationDie("Field 'NotesReview1$review_field_extension' does not exist. Process failed. Please review arg 5th of config variable ".'$excel_files.');
+		if(!array_key_exists('TMA Grade X+Y'.$review_field_extension, $excel_line_data)) migrationDie("Field 'TMA Grade X+Y$review_field_extension' does not exist. Process failed. Please review arg 5th of config variable ".'$excel_files.');
 		if(($excel_line_data['ID Bank'] && $excel_line_data['ID Bank'] != '.') || ($excel_line_data['Dx Initial - Site'] && $excel_line_data['Dx Initial - Site'] != '.')) {		
 			//Core To Rccord
 			$storage_master_id = getStorageMasterId($excel_line_data['TMA name'], $excel_line_data['BANK'], $excel_line_data['TMA Label Site'], $excel_file_name, $worksheet_name, $line_number);
@@ -199,7 +202,7 @@ foreach($excel_files as $excel_data) {
 							}
 							//Create Core
 							$site_nature = ($excel_line_data['Dx Initial - Site'] == '.')? '' : validateAndGetStructureDomainValue($excel_line_data['Dx Initial - Site'], 'qc_tf_tissue_core_nature', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
-							$revised_nature = ($excel_line_data['Dx PathRev1 '.$review_field_extension] == '.')? '' : validateAndGetStructureDomainValue($excel_line_data['Dx PathRev1 '.$review_field_extension], 'qc_tf_tissue_core_nature', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
+							$revised_nature = ($excel_line_data['Dx PathRev1'.$review_field_extension] == '.')? '' : validateAndGetStructureDomainValue($excel_line_data['Dx PathRev1'.$review_field_extension], 'qc_tf_tissue_core_nature', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
 							$aliquot_counter++;
 							$aliquot_data = array(
 								'aliquot_masters' => array(
@@ -227,7 +230,7 @@ foreach($excel_files as $excel_data) {
 									'review_date_accuracy' => $review_date_accuracy),
 								$atim_controls['specimen_review_controls']['core review']['detail_tablename'] => array());
 							$specimen_review_master_id = customInsertRecord($specimen_review_data);
-							$grade = ($excel_line_data['TMA Grade X+Y 05-2015'] == '.')? '' : validateAndGetStructureDomainValue($excel_line_data['TMA Grade X+Y 05-2015'], 'qc_tf_core_review_grade', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
+							$grade = ($excel_line_data['TMA Grade X+Y'.$review_field_extension] == '.')? '' : validateAndGetStructureDomainValue($excel_line_data['TMA Grade X+Y'.$review_field_extension], 'qc_tf_core_review_grade', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
 							$aliquot_review_data = array(
 								'aliquot_review_masters' => array(
 									'aliquot_master_id' => $aliquot_master_id,
@@ -236,7 +239,7 @@ foreach($excel_files as $excel_data) {
 								$atim_controls['specimen_review_controls']['core review']['aliquot_review_detail_tablename'] => array(
 									'revised_nature' => $revised_nature,
 									'grade' => $grade,
-									'notes' => $excel_line_data['NotesReview1 '.$review_field_extension]));	
+									'notes' => $excel_line_data['NotesReview1'.$review_field_extension]));	
 							customInsertRecord($aliquot_review_data);
 						}
 					} else {
@@ -267,10 +270,10 @@ foreach($excel_files as $excel_data) {
 							$controls_collections['sample_master_ids'][$sample_key] = customInsertRecord($sample_data);
 						}
 						//Create Core
-						$revised_nature = ($excel_line_data['Dx PathRev1 '.$review_field_extension] == '.')? '' : validateAndGetStructureDomainValue($excel_line_data['Dx PathRev1 '.$review_field_extension], 'qc_tf_tissue_core_nature', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
+						$revised_nature = ($excel_line_data['Dx PathRev1'.$review_field_extension] == '.')? '' : validateAndGetStructureDomainValue($excel_line_data['Dx PathRev1'.$review_field_extension], 'qc_tf_tissue_core_nature', 'Core Creation', '', "REF: $excel_file_name, $worksheet_name, $line_number.");
 						$notes = array();
 						if(strlen($excel_line_data['Core #']) && $excel_line_data['Core #'] != '.') $notes[] = 'Core # '.$excel_line_data['Core #'].'.';
-						if(strlen($excel_line_data['NotesReview1 '.$review_field_extension]) && $excel_line_data['NotesReview1 '.$review_field_extension] != '.') $notes[] = 'Review ccl : '.$excel_line_data['NotesReview1 '.$review_field_extension].'.';
+						if(strlen($excel_line_data['NotesReview1'.$review_field_extension]) && $excel_line_data['NotesReview1'.$review_field_extension] != '.') $notes[] = 'Review ccl : '.$excel_line_data['NotesReview1'.$review_field_extension].'.';
 						$aliquot_counter++;
 						$aliquot_data = array(
 							'aliquot_masters' => array(

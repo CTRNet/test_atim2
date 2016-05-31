@@ -42,7 +42,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 	
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
 		if(isset($excel_line_data['Bank'])) {
-			if($file_bank_name && $file_bank_name != $excel_line_data['Bank']) die("ERR_MANY_BANKS : $excel_file_name - $file_bank_name != ".$excel_line_data['Bank']);
+			if($file_bank_name && $file_bank_name != $excel_line_data['Bank']) die("ERR_MANY_BANKS : $excel_file_name - [$file_bank_name] != [".$excel_line_data['Bank']."] at line $line_number");
 			$file_bank_name = $excel_line_data['Bank'];
 			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
 			$atim_patient_data = getSelectQueryResult("SELECT p.* FROM participants p INNER JOIN banks b ON b.id = p.qc_tf_bank_id WHERE b.name = '".$excel_line_data['Bank']."' AND p.qc_tf_bank_participant_identifier = '".$excel_line_data['Patient # in biobank']."' AND p.deleted <>1;");
@@ -217,6 +217,8 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 			} else {
 				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient un-parsed", "The patient was not defined into 'Patient' worksheet. Patient data won't be parsed. $summary_details_add_in");
 			}
+		} else {
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "'Patient # in biobank' column missing", "'Patient # in biobank' column is missing into worksheet '$worksheet_name'. No data will be parsed.");
 		}
 	}
 	unset($atim_bcrs);
@@ -474,6 +476,8 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 			} else {
 				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient un-parsed", "The patient was not defined into 'Patient' worksheet. Event data won't be parsed. $summary_details_add_in");
 			}
+		} else {
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "'Patient # in biobank' column missing", "'Patient # in biobank' column is missing into worksheet '$worksheet_name'. No data will be parsed.");
 		}
 	}
 	unset($atim_prostate_primary_diagnosis_data);
@@ -510,10 +514,10 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 	foreach(getSelectQueryResult($query) as $new_record) $atim_other_primary_diagnosis_data['unknown_diagnosis'][$new_record['participant_id']][$new_record['dx_date']][] = $new_record;
 	
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
-		if(isset($excel_line_data['Patient # in biobank'])) {
-			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
-			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']])) {
-				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']];
+		if(isset($excel_line_data['Patient # in Biobank Number (required)'])) {
+			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in Biobank Number (required)']."' / bank '$file_bank_name' / line '$line_number'";
+			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in Biobank Number (required)']])) {
+				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in Biobank Number (required)']];
 				$excel_diagnosis_data = array();
 				$excel_field = "Date of diagnostics Date";
 				list($excel_diagnosis_data['dx_date'], $excel_diagnosis_data['dx_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
@@ -536,7 +540,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy']),
 									$atim_controls['diagnosis_controls']['primary-primary diagnosis unknown']['detail_tablename'] => array());
 								customInsertRecord($unknown_dx);
-								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created unknown primary diagnosis', $excel_diagnosis_data);
+								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in Biobank Number (required)'], 'Created unknown primary diagnosis', $excel_diagnosis_data);
 							}
 						}
 					} else {
@@ -558,7 +562,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 									$atim_controls['diagnosis_controls']['primary-other']['detail_tablename'] => array(
 										'type' => $excel_diagnosis_data['type']));
 								customInsertRecord($other_primary_dx);
-								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created other primary diagnosis', $excel_diagnosis_data);
+								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in Biobank Number (required)'], 'Created other primary diagnosis', $excel_diagnosis_data);
 							}
 						} 
 					}
@@ -566,6 +570,8 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 			} else {
 				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient un-parsed", "The patient was not defined into 'Patient' worksheet. Event data won't be parsed. $summary_details_add_in");
 			}
+		} else {
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "'Patient # in Biobank Number (required)' column missing", "'Patient # in Biobank Number (required)' column is missing into worksheet '$worksheet_name'. No data will be parsed.");
 		}
 	}
 	
@@ -578,7 +584,7 @@ executeEndProcessSourceCode();
 insertIntoRevsBasedOnModifiedValues();
 
 //Review dates in case we created a new secondary, BCR, psa, etc at the same date (or close) to an existing one because dates were inaccurate
-$summary_section_title = 'Duplicated diagnosis, events and treatment detection for review (on all patients)';
+$summary_section_title = 'Duplicated diagnosis, events and treatment detection at the end of the process for review (on all patients)';
 //1-Secondary Diagnosis
 $query = "SELECT res.participant_id, p.qc_tf_bank_participant_identifier, b.name AS bank_name, 'secondary diagnosis', date_year, site
 	FROM (
@@ -690,11 +696,11 @@ if(isset($import_summary['Updated Data Summary'])) {
 	unset($import_summary['Updated Data Summary']);
 }
 
-dislayErrorAndMessage();
+dislayErrorAndMessage(false, 'Migration Errors/Warnings/Messages');
 
 $import_summary = $update_summary;
 
-dislayErrorAndMessage(true);
+dislayErrorAndMessage(true, 'Update Summary');
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
