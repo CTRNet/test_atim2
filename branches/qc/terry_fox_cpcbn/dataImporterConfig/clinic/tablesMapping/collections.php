@@ -17,6 +17,25 @@ $fields = array(
 
 $model = new Model(3, $pkey, $child, false, 'diagnosis_master_id', $pkey, 'collections', $fields);
 
+-------------------------------------------------------------------------------------------------------------------------------
+NOTE
+-------------------------------------------------------------------------------------------------------------------------------
+Avec le dataimporter le system enregistrera deux collections si on a deux lignes pour le même patient. 
+Or en théorie les deux tissues devraient venir du même block.... 
+À changer si on utilise cette procédure à nouveau
+
+SELECT * FROM (
+		SELECT count(*) as nbr, Bank.name, Collection.qc_tf_collection_type, Collection.collection_site, Collection.collection_datetime, Participant.qc_tf_bank_participant_identifier
+		FROM banks Bank
+		INNER JOIN participants Participant ON Participant.qc_tf_bank_id = Bank.id
+		INNER JOIN collections Collection ON Participant.id = Collection.participant_id
+		WHERE Collection.deleted <> 1
+		GROUP BY Bank.name, Collection.qc_tf_collection_type, Collection.collection_site, Collection.collection_datetime, Participant.qc_tf_bank_participant_identifier
+) res where res.nbr > 1;
+
+Voire le load du 2014.10.27 pour Bank 'Sunnybrook-Klotz #7' & participant '18'
+-------------------------------------------------------------------------------------------------------------------------------
+
 $model->custom_data = array(
 	'date_fields' => array(
 		$fields["collection_datetime"]		=> key($fields['collection_datetime_accuracy'])
