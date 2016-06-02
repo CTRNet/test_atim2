@@ -19,6 +19,11 @@ class TmaSlide extends StorageLayoutAppModel {
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 		
 	function validates($options = array()){
+		if(isset($this->data['TmaSlide']['in_stock']) && $this->data['TmaSlide']['in_stock'] == 'no'
+		&& (!empty($this->data['TmaSlide']['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
+			$this->validationErrors['in_stock'][] = 'a tma slide being not in stock can not be linked to a storage';
+		}
+		
 		$this->validateAndUpdateTmaSlideStorageData();
 			
 		if(isset($this->data['TmaSlide']['barcode'])){
@@ -173,6 +178,17 @@ class TmaSlide extends StorageLayoutAppModel {
 			}
 	
 		}
+	}
+	
+	function allowDeletion($tma_slide_id) {
+		// Check storage contains no aliquots
+		$tma_slide_use_model = AppModel::getInstance("StorageLayout", "TmaSlideUse", true);
+		$nbr_storage_aliquots = $tma_slide_use_model->find('count', array('conditions' => array('TmaSlideUse.tma_slide_id' => $tma_slide_id), 'recursive' => '-1'));
+		if($nbr_storage_aliquots > 0) {
+			return array('allow_deletion' => false, 'msg' => 'use exists for the deleted tma slide');
+		}
+			
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 ?>

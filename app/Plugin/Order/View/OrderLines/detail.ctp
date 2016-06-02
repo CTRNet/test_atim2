@@ -7,9 +7,7 @@
 			'delete'=>'/Order/OrderLines/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'],
 			'order items' => array(
 				'add items to line'=>array('link'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/','icon'=>'add_to_order'),
-				'edit unshipped order items' => array('link'=>'/Order/OrderItems/edit/0/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/', 'icon'=>'edit'),
-				'define order items returned' => array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/', 'icon'=>'order items returned'),
-				'edit order items returned' => array('link'=>'/Order/OrderItems/edit/1/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/', 'icon'=>'edit')),
+				'define order items returned' => array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/', 'icon'=>'order items returned')),
 			'shipments' => array(
 				'add'=>array('link'=>'/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment'))
 		)

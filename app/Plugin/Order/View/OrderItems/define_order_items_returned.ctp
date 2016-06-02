@@ -8,7 +8,7 @@
 		'type' => 'editgrid', 
 		'links'=>$structure_links, 
 		'settings'=> array('pagination' => false, 'header' => __('order items')),
-		'extras' => '<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/><input type="hidden" name="data[order_item_ids_for_sorting]" value="'.$order_item_ids_for_sorting.'"/>'
+		'extras' => '<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/><input type="hidden" name="data[order_item_ids]" value="'.$order_item_ids.'"/>'
 	);
 	
 	$final_atim_structure = $atim_structure;

@@ -3,6 +3,7 @@
 	$structure_links = array();
 	
 	$structure_links['index'] = array(
+		'edit' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/',
 		'aliquot details' => array(
 			'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
 			'icon' => 'aliquot')
@@ -12,6 +13,7 @@
 			$structure_links['index']['remove from order'] = '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/';
 			break;
 		case 'shipped':
+			unset($structure_links['index']['edit']);
 			$structure_links['index']['shipment'] = array(
 				'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
 				'icon' => 'shipments');

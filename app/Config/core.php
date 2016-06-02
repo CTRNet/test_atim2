@@ -389,7 +389,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 /**
@@ -448,9 +448,9 @@ Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// Quality
 Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.add() & OrderItems.addAliquotsInBatch()
 Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
 Configure::write('defineOrderItemsReturned_processed_items_limit', 50);		// OrderItems.defineOrderItemsReturned()
-Configure::write('edit_processed_items_limit', 50);							// OrderItems.edit()
+Configure::write('edit_processed_items_limit', 50);							// OrderItems.editInBatch()
 
-Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add()
+Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add(), TmaSlides.editInBatch(), TmaSlideUses.add(), TmaSlideUses.editInBatch(), 
 
 /**
  * Set the allowed links that exists between an OrderItem and different Order plugin objects:

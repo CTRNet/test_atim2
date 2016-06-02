@@ -510,8 +510,71 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function edit($is_items_returned, $order_id = 0, $order_line_id = 0, $shipment_id = 0) {
-		$initial_display = false;
+	function edit($order_id, $order_item_id) {
+		if (( !$order_id ) || ( !$order_item_id )) {
+			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
+		}
+		
+		// MANAGE DATA
+		
+		$order_item_data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id, 'OrderItem.order_id'=>$order_id)));
+		if(empty($order_item_data)) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+		
+		if($order_item_data['OrderItem']['status'] == 'shipped') $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		
+		$url_to_cancel = 'javascript:history.go(-1)';
+		$url_to_flash = 'javascript:history.go(-2)';
+		if(isset($this->request->data['url_to_cancel'])) {
+			$url_to_cancel = $this->request->data['url_to_cancel'];
+			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
+				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
+				$url_to_cancel = 'javascript:history.go('.$back.')';
+				$url_to_flash = 'javascript:history.go('.($back-1).')';
+			}
+		}
+		unset($this->request->data['url_to_cancel']);
+		$this->set('url_to_cancel', $url_to_cancel);
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		$this->set('atim_menu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
+		$this->set('atim_menu_variables', array('Order.id'=>$order_id, 'OrderItem.id'=>$order_item_id));
+		
+		$this->Structures->set(($order_item_data['OrderItem']['status'] == 'pending')? 'orderitems' : 'orderitems_returned');
+		
+		// SAVE PROCESS
+			
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
+		if ( empty($this->request->data) ) {
+			$this->request->data = $order_item_data;
+		
+		} else {
+			$submitted_data_validates = true;
+				
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+				
+			if ($submitted_data_validates) {
+				$this->OrderItem->id = $order_item_id;
+				if($this->OrderItem->save($this->request->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					$this->atimFlash(__('your data has been updated'),$url_to_cancel);
+				}
+			}
+		}
+	}
+	
+	function editInBatch() {
+		// MANAGE DATA
 		
 		$url_to_cancel = 'javascript:history.go(-1)';
 		if(isset($this->request->data['url_to_cancel'])) {
@@ -523,22 +586,11 @@ class OrderItemsController extends OrderAppController {
 		}
 		unset($this->request->data['url_to_cancel']);
 		
+		$initial_display = false;
 		$criteria = array('OrderItem.id' => '-1');
-		$order_item_ids_for_sorting = array();
-		if($order_id || $order_line_id || $shipment_id){
-			// User is workning on an order
-			if($order_line_id && $shipment_id) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-			if($order_line_id) {
-				$order_line_data = $this->OrderLine->getOrRedirect($order_line_id);
-			} else if($shipment_id) {
-				$order_line_data = $this->Shipment->getOrRedirect($shipment_id);
-			}
-			$this->Order->getOrRedirect($order_id);
-			$criteria = array('OrderItem.order_id' => $order_id);
-			if($order_line_id) $criteria['OrderItem.order_line_id'] = $order_line_id;
-			if($shipment_id) $criteria['OrderItem.shipment_id'] = $shipment_id;
-			if(empty($this->request->data)) $initial_display = true;
-		} else if(isset($this->request->data['OrderItem']['id'])){
+		$order_item_ids = array();
+		$intial_order_items_data = array();
+		if(isset($this->request->data['OrderItem']['id'])){
 			// User launched an action from the DataBrowser or a Report Form
 			if($this->request->data['OrderItem']['id'] == 'all' && isset($this->request->data['node'])) {
 				//The displayed elements number was higher than the databrowser_and_report_results_display_limit
@@ -546,71 +598,57 @@ class OrderItemsController extends OrderAppController {
 				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
 				$this->request->data['OrderItem']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 			}
-			$order_item_ids_for_sorting = array_filter($this->request->data['OrderItem']['id']);
-			$criteria = array('OrderItem.id' => $order_item_ids_for_sorting);
+			$order_item_ids = array_filter($this->request->data['OrderItem']['id']);
+			$criteria = array('OrderItem.id' => $order_item_ids);
 			$initial_display = true;
 		} else if(!empty($this->request->data)) {
-			// User submit data of the OrderItem.edit() form
-			$order_item_ids_for_sorting = explode(',',$this->request->data['order_item_ids_for_sorting']);
-			$criteria = array('OrderItem.id' => $order_item_ids_for_sorting);
+			// User submit data of the OrderItem.editInBatch() form
+			$order_item_ids = explode(',',$this->request->data['order_item_ids']);
+			$criteria = array('OrderItem.id' => $order_item_ids);
 		} else {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
 		}
-		unset($this->request->data['order_item_ids_for_sorting']);
+		unset($this->request->data['order_item_ids']);
 		
-		// Get data
-		$criteria['OrderItem.status'] = ($is_items_returned? 'shipped & returned' : 'pending');
-		$items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
-		
-		if(empty($items_data)) {
-			$this->flash(__($is_items_returned? 'no returned item exists' : 'no unshipped item exists'), $url_to_cancel);
+		if($initial_display) {
+			$intial_order_items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
+			if(empty($intial_order_items_data)) {
+				$this->flash(__('no item to update'), $url_to_cancel);
+				return;
+			}
+			if($order_item_ids) $this->OrderItem->sortForDisplay($intial_order_items_data, $order_item_ids);
+			$display_limit = Configure::read('edit_processed_items_limit');
+			if(sizeof($intial_order_items_data) > $display_limit) {
+				$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+				return;
+			}
 		}
-		
-		$display_limit = Configure::read('edit_processed_items_limit');
-		if(sizeof($items_data) > $display_limit) {
-			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit). ".__('use databrowser to submit a sub set of data'), $url_to_cancel, 5);
+
+		$statuses = $this->OrderItem->find('all', array('conditions' => $criteria, 'fields' => array('DISTINCT OrderItem.status'), 'recursive' => '-1'));
+		if(empty($statuses)) {
+			//All order items have probably been deleted by another user before we submitted updated data
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else if(sizeof($statuses) != 1) {
+			$this->flash(__('items should have the same status to be updated in batch'), $url_to_cancel);
+			return;
+		} else if($statuses[0]['OrderItem']['status'] == 'shipped') {
+			$this->flash(__('items should have a status different than shipped to be updated in batch'), $url_to_cancel);
+			return;
 		}
-		
-		$order_items_data_from_id = array();
-		foreach($items_data as $new_order_item_data)
-			$order_items_data_from_id[$new_order_item_data['OrderItem']['id']] = $new_order_item_data;
-		
-		foreach($order_item_ids_for_sorting as $key_value => $tested_id) if(!array_key_exists($tested_id, $order_items_data_from_id)) unset($order_item_ids_for_sorting[$key_value]);
-		if($order_item_ids_for_sorting && $items_data) $this->OrderItem->sortForDisplay($items_data, $order_item_ids_for_sorting);
+		$status = $statuses[0]['OrderItem']['status'];
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('url_to_cancel', $url_to_cancel);
-		$this->set('is_items_returned', $is_items_returned);
-		$this->set('order_id', $order_id);
-		$this->set('order_line_id', $order_line_id);
-		$this->set('shipment_id', $shipment_id);
-		$this->set('order_item_ids_for_sorting', implode(',',$order_item_ids_for_sorting));
+		$this->set('order_item_ids', implode(',',$order_item_ids));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->Structures->set($is_items_returned? 'orderitems_returned' : 'orderitems');
+		$this->Structures->set(($status != 'pending')? 'orderitems_returned' : 'orderitems');
 		
-		if($shipment_id) {
-			// Get the current menu object
-			$this->set('atim_menu', $this->Menus->get('/Order/Shipments/detail/%%Shipment.id%%/'));
-			// Variables
-			$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
-		} else if($order_line_id) {
-			// Get the current menu object
-			$this->set('atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%OrderLine.id%%/'));
-			// Variables
-			$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
-		} else if($order_id) {
-			// Get the current menu object
-			$this->set('atim_menu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
-			// Variables
-			$this->set('atim_menu_variables', array('Order.id' => $order_id));
-		} else {
-			$this->set('atim_menu', $this->Menus->get('/Order/Orders/search/'));
-			$this->set('atim_menu_variables', array());
-		}
+		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search/'));
+		$this->set('atim_menu_variables', array());
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -620,7 +658,7 @@ class OrderItemsController extends OrderAppController {
 		// SAVE DATA
 		
 		if($initial_display) {
-			$this->request->data = $items_data;
+			$this->request->data = $intial_order_items_data;
 			
 			$hook_link = $this->hook('initial_display');
 			if($hook_link){
@@ -634,29 +672,27 @@ class OrderItemsController extends OrderAppController {
 			
 			$errors = array();	
 			$record_counter = 0;
-			$ids_to_save = array();
-			foreach($this->request->data as $key => $new_studied_item){
+			$updated_item_ids = array();
+			foreach($this->request->data as $key => &$new_studied_item){
 				$record_counter++;
-				$order_item_id = $new_studied_item['OrderItem']['id'];
-				if(!isset($order_items_data_from_id[$order_item_id])) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				//Get id
+				if(!isset($new_studied_item['OrderItem']['id'])) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				$updated_item_ids[] = $new_studied_item['OrderItem']['id'];
 				// Launch Order Item validation
 				$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
 				$this->OrderItem->set($new_studied_item);
 				$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;
-				$new_studied_item = $this->OrderItem->data;
 				foreach($this->OrderItem->validationErrors as $field => $msgs) {
 					$msgs = is_array($msgs)? $msgs : array($msgs);
 					foreach($msgs as $msg) $errors['OrderItem'][$field][$msg][]= $record_counter;
 				}
 				// Reset data
-				$this->request->data[$key] = $new_studied_item;	
-				// Check data should be saved
-				$diff = array_diff($new_studied_item['OrderItem'], $order_items_data_from_id[$order_item_id]['OrderItem']);
-				if($diff) $ids_to_save[] = $order_item_id;	
-			}		
-			if(!$ids_to_save) {
-				$submitted_data_validates = false;
-				$errors['OrderItem']['id']['at least one data should be updated'] = array();
+				$new_studied_item = $this->OrderItem->data;
+			}
+			
+			if($this->OrderItem->find('count', array('conditions' => array('OrderItem.id'=> $updated_item_ids), 'recursive' => '-1')) != sizeof($updated_item_ids)) {
+				//In case an order item has just been deleted by another user before we submitted updated data
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			
 			$hook_link = $this->hook('presave_process');
@@ -666,20 +702,17 @@ class OrderItemsController extends OrderAppController {
 		
 			if ($submitted_data_validates) {
 				
+				// Launch save process
 				AppModel::acquireBatchViewsUpdateLock();
 				
-				if($is_items_returned) $this->OrderItem->writable_fields_mode = 'editgrid';
+				$this->OrderItem->writable_fields_mode = 'editgrid';
 				
-				// Launch save process
 				foreach($this->request->data as $order_item){
-					$order_item_id = $order_item['OrderItem']['id'];
-					if(in_array($order_item_id, $ids_to_save)) {
-						// Save data
-						$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
-						$this->OrderItem->id = $order_item['OrderItem']['id'];
-						if(!$this->OrderItem->save($order_item['OrderItem'], false)) {
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-						}
+					// Save data
+					$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
+					$this->OrderItem->id = $order_item['OrderItem']['id'];
+					if(!$this->OrderItem->save($order_item['OrderItem'], false)) {
+						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 				}
 
@@ -690,25 +723,19 @@ class OrderItemsController extends OrderAppController {
 				
 				AppModel::releaseBatchViewsUpdateLock();
 				
-				if($shipment_id) {
-					$this->atimFlash(__('your data has been saved'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);
-				} else if($order_line_id) {
-					$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id);
-				} else if($order_id){
-					$this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/'.$order_id);
-				}else{
-					//batch
-					$batch_ids = $order_item_ids_for_sorting;
-					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
-					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
-					$batch_set_data = array('BatchSet' => array(
-							'datamart_structure_id' => $datamart_structure->getIdByModelName('OrderItem'),
-							'flag_tmp' => true
-					));
-					$batch_set_model->check_writable_fields = false;
-					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
-					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
-				}
+				// Creat Batchset then redirect
+				
+				$batch_ids = $order_item_ids;
+				$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+				$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('OrderItem'),
+						'flag_tmp' => true
+				));
+				$batch_set_model->check_writable_fields = false;
+				$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
+				$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					
 			} else {
 				// Set error message
 				foreach($errors as $model => $field_messages) {
@@ -804,7 +831,7 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function defineOrderItemsReturned($order_id = 0, $order_line_id = 0, $shipment_id = 0) {
-		$initial_display = false;
+		// MANAGE DATA
 		
 		$url_to_cancel = 'javascript:history.go(-1)';
 		if(isset($this->request->data['url_to_cancel'])) {
@@ -816,18 +843,12 @@ class OrderItemsController extends OrderAppController {
 		}
 		unset($this->request->data['url_to_cancel']);
 		
-		// MANAGE DATA
+		$initial_display = false;
 		
 		$criteria = array('OrderItem.id' => '-1');
-		$order_item_ids_for_sorting = array();
-		if($order_id){
-			// User is workning on an order
-			$this->Order->getOrRedirect($order_id);
-			$criteria = array('OrderItem.order_id' => $order_id);
-			if($order_line_id) $criteria['OrderItem.order_line_id'] = $order_line_id;
-			if($shipment_id) $criteria['OrderItem.shipment_id'] = $shipment_id;
-			if(empty($this->request->data)) $initial_display = true;
-		} else if(isset($this->request->data['OrderItem']['id'])){
+		$order_item_ids = array();
+		$initial_order_items_data = array();
+		if(isset($this->request->data['OrderItem']['id'])){
 			// User launched an action from the DataBrowser or a Report Form
 			if($this->request->data['OrderItem']['id'] == 'all' && isset($this->request->data['node'])) {
 				//The displayed elements number was higher than the databrowser_and_report_results_display_limit
@@ -835,36 +856,49 @@ class OrderItemsController extends OrderAppController {
 				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
 				$this->request->data['OrderItem']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 			}
-			$order_item_ids_for_sorting = array_filter($this->request->data['OrderItem']['id']);
-			$criteria = array('OrderItem.id' => $order_item_ids_for_sorting);
+			$order_item_ids = array_filter($this->request->data['OrderItem']['id']);
+			$criteria = array('OrderItem.id' => $order_item_ids);
 			$initial_display = true;
 		} else if(!empty($this->request->data)) {
 			// User submit data of the OrderItem.defineOrderItemsReturned() form
-			$order_item_ids_for_sorting = explode(',',$this->request->data['order_item_ids_for_sorting']);
-			$criteria = array('OrderItem.id' => $order_item_ids_for_sorting);
+			$order_item_ids = explode(',',$this->request->data['order_item_ids']);
+			$criteria = array('OrderItem.id' => $order_item_ids);
+		} else if($order_id){
+			// User is working on an order
+			$this->Order->getOrRedirect($order_id);
+			$criteria = array('OrderItem.order_id' => $order_id);
+			$criteria[] = array('OrderItem.status' => 'shipped');
+			if($order_line_id) $criteria['OrderItem.order_line_id'] = $order_line_id;
+			if($shipment_id) $criteria['OrderItem.shipment_id'] = $shipment_id;
+			if(empty($this->request->data)) $initial_display = true;
 		} else {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
 		}
-		unset($this->request->data['order_item_ids_for_sorting']);
+		unset($this->request->data['order_item_ids']);
 		
-		$criteria[] = array('OrderItem.status' => 'shipped');
-		$order_items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order'=>'AliquotMaster.barcode'));
-		if(empty($order_items_data)) {
-			$this->flash(__('no order items can be defined as returned'), $url_to_cancel);
+		if($initial_display) {
+			$initial_order_items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order'=>'AliquotMaster.barcode'));
+			if(empty($initial_order_items_data)) {
+				$this->flash(__('no order items can be defined as returned'), $url_to_cancel);
+				return;
+			}
+			$display_limit = Configure::read('defineOrderItemsReturned_processed_items_limit');
+			if(sizeof($initial_order_items_data) > $display_limit) {
+				$this->flash(__("batch init - number of submitted records too big")." (>$display_limit). ".__('use databrowser to submit a sub set of data'), $url_to_cancel, 5);
+				return;
+			}
+			if($order_item_ids) {
+				$this->OrderItem->sortForDisplay($initial_order_items_data, $order_item_ids);
+			} else {
+				foreach($initial_order_items_data as $new_order_item) $order_item_ids[] = $new_order_item['OrderItem']['id'];
+			}
 		}
-		
-		$display_limit = Configure::read('defineOrderItemsReturned_processed_items_limit');
-		if(sizeof($order_items_data) > $display_limit) {
-			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit). ".__('use databrowser to submit a sub set of data'), $url_to_cancel, 5);
+
+		if($this->OrderItem->find('count', array('conditions' => array('OrderItem.id' => $order_item_ids, "OrderItem.status != 'shipped'")))) {
+			$this->flash(__('only shipped items can be defined as returned'), $url_to_cancel);
+			return;
 		}
-		
-		$order_items_data_from_id = array();
-		foreach($order_items_data as $new_order_item_data)
-			$order_items_data_from_id[$new_order_item_data['OrderItem']['id']] = $new_order_item_data;
-	
-		foreach($order_item_ids_for_sorting as $key_value => $tested_id) if(!array_key_exists($tested_id, $order_items_data_from_id)) unset($order_item_ids_for_sorting[$key_value]);
-		if($order_item_ids_for_sorting && $order_items_data) $this->OrderItem->sortForDisplay($order_items_data, $order_item_ids_for_sorting);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -872,7 +906,7 @@ class OrderItemsController extends OrderAppController {
 		$this->set('order_id', $order_id);
 		$this->set('order_line_id', $order_line_id);
 		$this->set('shipment_id', $shipment_id);
-		$this->set('order_item_ids_for_sorting', implode(',',$order_item_ids_for_sorting));
+		$this->set('order_item_ids', implode(',',$order_item_ids));
 		
 		// Set menu
 		
@@ -908,7 +942,7 @@ class OrderItemsController extends OrderAppController {
 		
 		if($initial_display) {
 			
-			$this->request->data = $order_items_data;
+			$this->request->data = $initial_order_items_data;
 				
 			$hook_link = $this->hook('initial_display');
 			if($hook_link){
@@ -923,24 +957,22 @@ class OrderItemsController extends OrderAppController {
 			$errors = array();	
 			$record_counter = 0;
 			$at_least_one_item_defined_as_returned = false;
-			foreach($this->request->data as $key => $new_studied_item){
+			foreach($this->request->data as &$new_studied_item){
 				$record_counter++;
 				$order_item_id = $new_studied_item['OrderItem']['id'];
-				if(!isset($order_items_data_from_id[$order_item_id])) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				if(!isset($new_studied_item['OrderItem']['id'])) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				if(!isset($new_studied_item['OrderItem']['aliquot_master_id'])) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 				if($new_studied_item['FunctionManagement']['defined_as_returned']) {
 					// Launch Item validation
 					$this->OrderItem->data = array();	// *** To guaranty no merge will be done with previous data ***
 					$this->OrderItem->set($new_studied_item);
 					$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;
-					$new_studied_item = $this->OrderItem->data;
 					foreach($this->OrderItem->validationErrors as $field => $msgs) {
 						$msgs = is_array($msgs)? $msgs : array($msgs);
 						foreach($msgs as $msg) $errors['OrderItem'][$field][$msg][]= $record_counter;
 					}
 					// Reset data
-					$this->request->data[$key] = $new_studied_item;		
-					//Check item is flagged as shipped
-					if($order_items_data_from_id[$order_item_id]['OrderItem']['status'] != 'shipped') $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+					$new_studied_item = $this->OrderItem->data;
 					//At least one item is defined as returned
 					$at_least_one_item_defined_as_returned = true;
 				}
@@ -951,6 +983,11 @@ class OrderItemsController extends OrderAppController {
 				$submitted_data_validates = false;
 			}
 			
+			if($this->OrderItem->find('count', array('conditions' => array('OrderItem.id'=> $order_item_ids), 'recursive' => '-1')) != sizeof($order_item_ids)) {
+				//In case an order item has just been deleted by another user before we submitted updated data
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -958,9 +995,9 @@ class OrderItemsController extends OrderAppController {
 
 			if ($submitted_data_validates) {
 				
-				AppModel::acquireBatchViewsUpdateLock();
-				
 				// Launch save process
+				
+				AppModel::acquireBatchViewsUpdateLock();
 				
 				$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
 				
@@ -972,7 +1009,7 @@ class OrderItemsController extends OrderAppController {
 						// Get ids
 						
 						$order_item_id = $new_studied_item['OrderItem']['id'];
-						$aliquot_master_id = $order_items_data_from_id[$order_item_id]['OrderItem']['aliquot_master_id'];
+						$aliquot_master_id = $new_studied_item['OrderItem']['aliquot_master_id'];
 							
 						// 1- Update Aliquot Master Data
 						$aliquot_master = array();
@@ -1007,9 +1044,9 @@ class OrderItemsController extends OrderAppController {
 					require($hook_link); 
 				}
 				
-				// Redirect
-				
 				AppModel::releaseBatchViewsUpdateLock();
+				
+				// Redirect
 				
 				if($shipment_id) {
 					$this->atimFlash(__('your data has been saved'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);
@@ -1019,7 +1056,7 @@ class OrderItemsController extends OrderAppController {
 					$this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/'.$order_id);
 				}else{
 					//batch
-					$batch_ids = $order_item_ids_for_sorting;
+					$batch_ids = $order_item_ids;
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 					$batch_set_data = array('BatchSet' => array(

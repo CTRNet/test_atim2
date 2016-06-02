@@ -198,6 +198,11 @@ class StudySummariesController extends StudyAppController {
   				'StorageLayout.TmaSlide.study_summary_id', 
   				'/StorageLayout/TmaSlides/detail/', 
   				'tma_slides,tma_blocks_for_slide_creation',
+  				'/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%'),
+  			'tma slide uses' => array(
+  				'StorageLayout.TmaSlideUse.study_summary_id', 
+  				'/StorageLayout/TmaSlideUses/listAll/', 
+  				'tma_slide_uses,tma_slides_for_use_creation',
   				'/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%'));
   		
   		$hook_link = $this->hook('format_properties');

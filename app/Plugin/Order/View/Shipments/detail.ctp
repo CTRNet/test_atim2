@@ -17,8 +17,7 @@
 			'edit' => '/Order/Shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
 			'delete' => '/Order/Shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
 			'order items' => array(
-				'define order items returned' => array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/0/'.$atim_menu_variables['Shipment.id'], 'icon'=>'order items returned'),
-				'edit order items returned' => array('link' => '/Order/OrderItems/edit/1/'.$atim_menu_variables['Order.id'].'/0/'.$atim_menu_variables['Shipment.id'].'/', 'icon'=>'edit')
+				'define order items returned' => array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/0/'.$atim_menu_variables['Shipment.id'], 'icon'=>'order items returned')
 			),
 			'shipments' => array(
 				'add items to shipment' => $add_items_to_shipment_link
