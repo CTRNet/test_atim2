@@ -25,7 +25,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	
 	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
-		  id varchar(20) NOT NULL,
+		  id int(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
 		  use_definition varchar(50) DEFAULT NULL,
 		  use_code varchar(250) DEFAULT NULL,
@@ -148,19 +148,19 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	
 		UNION ALL
 		
-		SELECT CONCAT(OrderItem.id,4) AS id,
+		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
-		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', 'shipped aliquot return', 'aliquot shipment'), 'order preparation') AS use_definition,
-		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned',  Shipment.shipment_code, Shipment.shipment_code), Order.order_number) AS use_code,
+		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
+		IF(OrderItem.shipment_id, Shipment.shipment_code, Order.order_number) AS use_code,
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
-		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', OrderItem.date_returned, Shipment.datetime_shipped), OrderItem.date_added) AS use_datetime,
-		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', IF(OrderItem.date_returned_accuracy = 'c', 'h', OrderItem.date_returned_accuracy), Shipment.datetime_shipped_accuracy), IF(OrderItem.date_added_accuracy = 'c', 'h', OrderItem.date_added_accuracy)) AS use_datetime_accuracy,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped, OrderItem.date_added) AS use_datetime,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped_accuracy, IF(OrderItem.date_added_accuracy = 'c', 'h', OrderItem.date_added_accuracy)) AS use_datetime_accuracy,
 		NULL AS duration,
 		'' AS duration_unit,
-		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', OrderItem.reception_by, Shipment.shipped_by), OrderItem.added_by) AS used_by,
-		IF(OrderItem.shipment_id, IF(OrderItem.status = 'shipped & returned', OrderItem.modified, Shipment.created), OrderItem.created) AS created,
+		IF(OrderItem.shipment_id, Shipment.shipped_by, OrderItem.added_by) AS used_by,
+		IF(OrderItem.shipment_id, Shipment.created, OrderItem.created) AS created,
 		IF(OrderItem.shipment_id,
 				CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id),
 				IF(OrderItem.order_line_id,
@@ -170,23 +170,40 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
 		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
-		FROM (
-				SELECT id, status, 
-				date_added, date_added_accuracy, added_by, created, modified, order_line_id, shipment_id, aliquot_master_id, deleted, order_id, date_returned, date_returned_accuracy, reason_returned, reception_by
-				FROM order_items
-				WHERE deleted <> 1 AND status = 'shipped & returned'
-				UNION
-				SELECT id, REPLACE(status, 'shipped & returned', 'shipped') status,
-				date_added, date_added_accuracy, added_by, created, modified, order_line_id, shipment_id, aliquot_master_id, deleted, order_id, date_returned, date_returned_accuracy, reason_returned, reception_by
-				FROM order_items
-				WHERE deleted <> 1
-		) OrderItem
+		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		LEFT JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
+		
+		UNION ALL
+		
+		SELECT CONCAT(OrderItem.id, 7) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'shipped aliquot return' AS use_definition,
+		Shipment.shipment_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		OrderItem.date_returned AS use_datetime,
+		IF(OrderItem.date_returned_accuracy = 'c', 'h', OrderItem.date_returned_accuracy) AS use_datetime_accuracy,
+		NULL AS duration,
+		'' AS duration_unit,
+		OrderItem.reception_by AS used_by,
+		OrderItem.modified AS created,
+		CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
+		FROM order_items OrderItem
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
+		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
 		
 		UNION ALL
 	
@@ -212,7 +229,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
-
+	
 	function getUseDefinitions() {
 		$result = array(
 			'aliquot shipment'	=> __('aliquot shipment'),
@@ -242,7 +259,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	}
 	
 	//must respect concat(id, #) order
-	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse');
+	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse', 'OrderItem');
 	
 	function getPkeyAndModelToCheck($data){
 		$pkey = null;
@@ -250,7 +267,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		if(preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches )){
 			$pkey = $matches[1];
 			$model_id = $matches[2];
-			if($model_id < 7 && $model_id > 0){
+			if($model_id < 8 && $model_id > 0){
 				$model = $this->models[$model_id - 1];
 			}else{
 				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);

@@ -1213,6 +1213,7 @@ span.help {
 .icon16.summary { background-position: -32px -64px; }
 .icon16.search { background-position: -64px -48px; }
 .icon16.search_results { background-position: -64px -48px; }
+.icon16.tma.slide.use, .icon16.tma.slide.uses { background-position: -0px -144px; }
 .icon16.slide { background-position: -32px -32px; }
 .icon16.storage, .icon16.storages, .icon16.form.plugin.storagelayout { background-position: -16px -32px; }
 .icon16.shipping, .icon16.shipments{ background-position: -16px -16px; }
