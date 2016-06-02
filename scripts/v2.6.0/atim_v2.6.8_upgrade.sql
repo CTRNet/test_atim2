@@ -608,88 +608,18 @@ VALUES
 ('items should have a status different than shipped to be updated in batch', "Items should have a status different than 'shipped' to be updated in batch", "Les articles devraient avoir un statut différent de 'envoyé' pour être modifiés"),
 ('no item to update', 'No item to update', 'Aucun article à modifier');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-
-
-
-
-
-
-
-
-
-
-
-
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- TMA Slide
---   Une TMA Slide pourrait être envoyé
---   Une TMA Slide pourrait être retourné
+-- List ATiM form fields displaying custom drop down list
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Generated', '', 'fields_linked_to_custom_list', 'textarea',  NULL , '0', '', '', '', 'fields', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='administrate_dropdowns'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='fields_linked_to_custom_list' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fields' AND `language_tag`=''), '1', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
--- -----------------------------------------------------------------------------------------------------------------------------------
--- 
--- -----------------------------------------------------------------------------------------------------------------------------------
 
-lister les champs dans lesquels une custom drop down list est utlisée
 
-SELECT 
-REPLACE(svd.source, 'StructurePermissibleValuesCustom::getCustomDropdown(', '') AS custom_list,
-str.alias AS structure_alias,
-sfi.plugin AS plugin,
-sfi.model AS model,
-sfi.tablename AS tablename,
-sfi.field AS field,
-sfi.structure_value_domain AS structure_value_domain,
-svd.domain_name AS structure_value_domain_name,
-IF((sfo.flag_override_label = '1'),sfo.language_label,sfi.language_label) AS language_label,
-IF((sfo.flag_override_tag = '1'),sfo.language_tag,sfi.language_tag) AS language_tag
-FROM structure_formats sfo 
-INNER JOIN structure_fields sfi ON sfo.structure_field_id = sfi.id
-INNER JOIN structures str ON str.id = sfo.structure_id
-INNER JOIN structure_value_domains svd ON svd.id = sfi.structure_value_domain
-WHERE (sfo.flag_add =1 OR sfo.flag_addgrid =1 OR sfo.flag_index =1 OR sfo.flag_detail)
-AND svd.source LIKE 'StructurePermissibleValuesCustom::getCustomDropdown(%)'
-ORDER BY svd.source;
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
