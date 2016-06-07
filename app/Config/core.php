@@ -445,8 +445,8 @@ Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotM
 	
 Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
 	
-Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.add() & OrderItems.addAliquotsInBatch()
-Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
+Configure::write('AddToOrder_processed_items_limit', 50);					// OrderItems.add() & OrderItems.addOrderItemsInBatch()
+Configure::write('AddToShipment_processed_items_limit', 50);				// Shipments.addToShipment()
 Configure::write('defineOrderItemsReturned_processed_items_limit', 50);		// OrderItems.defineOrderItemsReturned()
 Configure::write('edit_processed_items_limit', 50);							// OrderItems.editInBatch()
 
@@ -461,5 +461,13 @@ Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.
 Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
+
+/**
+ * Set the type(s) of item that could be added to order:
+ * 		1 => both tma slide and aliquot
+ * 		2 => aliquot only
+ * 		3 => tma slide only
+ */
+Configure::write('order_item_type_config', 1);
 
 unset($debug);

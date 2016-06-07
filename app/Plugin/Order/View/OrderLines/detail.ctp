@@ -5,13 +5,26 @@
 			'new search' => OrderAppController::$search_links,
 			'edit'=>'/Order/OrderLines/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'],
 			'delete'=>'/Order/OrderLines/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'],
-			'order items' => array(
-				'add items to line'=>array('link'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/','icon'=>'add_to_order'),
-				'define order items returned' => array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/', 'icon'=>'order items returned')),
+			'order items' => array(),
 			'shipments' => array(
 				'add'=>array('link'=>'/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment'))
 		)
 	);
+	//Add item links management
+	switch(Configure::read('order_item_type_config')) {
+		case '1':
+			$structure_links['bottom']['order items'][__('add items to order').' : '.__('tma slide')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/TmaSlide', 'icon'=>'add_to_order');
+			$structure_links['bottom']['order items'][__('add items to order').' : '.__('aliquot')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/AliquotMaster', 'icon'=>'add_to_order');
+			break;
+		case '2':
+			$structure_links['bottom']['order items'][__('add items to order').' : '.__('aliquot')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/AliquotMaster', 'icon'=>'add_to_order');
+			break;
+		case '3':
+			$structure_links['bottom']['order items'][__('add items to order').' : '.__('tma slide')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/TmaSlide', 'icon'=>'add_to_order');
+			break;
+	}
+	$structure_links['bottom']['order items']['define order items returned'] =  array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/', 'icon'=>'order items returned');	
+	//Add to shipment links management
 	$add_to_shipment_links = array();
 	foreach ($shipments_list as $shipment) {	
 		$add_to_shipment_links[$shipment['Shipment']['shipment_code']] = array(

@@ -4,9 +4,9 @@
 	
 	$structure_links['index'] = array(
 		'edit' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/',
-		'aliquot details' => array(
-			'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
-			'icon' => 'aliquot')
+		'details' => array(
+			'link' => '%%Generated.item_detail_link%%/',
+			'icon' => 'detail')
 	);
 	switch($status) {
 		case 'pending':
@@ -44,8 +44,7 @@
 	$final_options = array(
 		'type'=>'index',
 		'links'=>$structure_links,
-		'override'=>$structure_override,
-		'settings'	=> array('batchset'	=> array('link' => '/Order/OrderItems/listall/'.$atim_menu_variables['Order.id']."/$status/$order_line_id/$shipment_id", 'var' => 'aliquots_for_batchset'))
+		'override'=>$structure_override
 	);
 	 
 	// CUSTOM CODE

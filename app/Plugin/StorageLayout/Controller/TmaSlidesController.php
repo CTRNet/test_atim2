@@ -18,9 +18,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
-		
-	/* ----------------------------- TMA SLIDES --------------------------------- */
+	 * -------------------------------------------------------------------------- */
 	
 	function listAll($tma_block_storage_master_id) {
 		// MANAGE DATA
@@ -593,12 +591,66 @@ class TmaSlidesController extends StorageLayoutAppController {
 		}		
 	}
 	
+	function autocompleteBarcode() {
+	
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+	
+		$results = array();
+	
+		//query the database
+		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+		$terms = array();
+		$terms_uses = array();
+		foreach(explode(' ', $term) as $key_word) {
+			$terms[] = "TmaSlide.barcode LIKE '%".str_replace("'", "''", $key_word)."%'";
+		}
+	
+		$conditions = array('AND' => $terms);
+		$fields = 'TmaSlide.barcode';
+		$order = 'TmaSlide.barcode ASC';
+		$joins = array();
+	
+	
+		$hook_link = $this->hook('query_args');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		$results = $this->TmaSlide->find('all', array(
+				'conditions' => $conditions,
+				'fields' => $fields,
+				'order' => $order,
+				'joins' => $joins,
+				'limit' => 10,
+				'recursive' => '-1'
+		));
+		
+		//build javascript textual array
+		$result = "";
+		foreach($results as $data_unit){
+			$result .= '"'.$data_unit['TmaSlide']['barcode'].'", ';
+		}
+		if(sizeof($result) > 0){
+			$result = substr($result, 0, -2);
+		}
+	
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	
+		$this->set('result', "[".$result."]");
+	}
+	
 	function autocompleteTmaSlideImmunochemistry() {
 	
 		//layout = ajax to avoid printing layout
 		$this->layout = 'ajax';
 		//debug = 0 to avoid printing debug queries that would break the javascript array
-//		Configure::write('debug', 0);
+		Configure::write('debug', 0);
 		
 		$results = array();
 		

@@ -181,11 +181,18 @@ class TmaSlide extends StorageLayoutAppModel {
 	}
 	
 	function allowDeletion($tma_slide_id) {
-		// Check storage contains no aliquots
+		// Check no use exists
 		$tma_slide_use_model = AppModel::getInstance("StorageLayout", "TmaSlideUse", true);
 		$nbr_storage_aliquots = $tma_slide_use_model->find('count', array('conditions' => array('TmaSlideUse.tma_slide_id' => $tma_slide_id), 'recursive' => '-1'));
 		if($nbr_storage_aliquots > 0) {
 			return array('allow_deletion' => false, 'msg' => 'use exists for the deleted tma slide');
+		}
+		
+		// Check tma slide is not linked to an order
+		$order_item_model = AppModel::getInstance("Order", "OrderItem", true);
+		$nbr_order_items = $order_item_model->find('count', array('conditions' => array('OrderItem.tma_slide_id' => $tma_slide_id), 'recursive' => '-1'));
+		if($nbr_order_items > 0) {
+			return array('allow_deletion' => false, 'msg' => 'order exists for the deleted tma slide');
 		}
 			
 		return array('allow_deletion' => true, 'msg' => '');

@@ -125,7 +125,7 @@ class Order extends OrderAppModel {
 	function warnUnconsentedAliquots($order_id){
 		$order_item_model = AppModel::getInstance("Order", "OrderItem", true);
 		$order_item_data = $order_item_model->find('all', array(
-			'conditions' => array('OrderItem.order_id' => $order_id),
+			'conditions' => array('OrderItem.order_id' => $order_id, 'OrderItem.aliquot_master_id IS NOT NULL'),
 			'fields' => array('OrderItem.aliquot_master_id'),
 			'recursive' => '0'
 		));
