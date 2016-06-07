@@ -9,8 +9,9 @@ class ShipmentsController extends OrderAppController {
 		'Order.Order', 
 		'Order.OrderItem', 
 		'Order.OrderLine',
-		
-		'InventoryManagement.AliquotMaster');
+			
+		'InventoryManagement.AliquotMaster',
+		'StorageLayout.TmaSlide');
 		
 	var $paginate = array('Shipment'=>array('order'=>'Shipment.datetime_shipped DESC'));
 
@@ -156,7 +157,7 @@ class ShipmentsController extends OrderAppController {
 		// Manage the add to shipment option (in case we reach the AddAliquotToShipment_processed_items_limit)
 		$conditions = array('OrderItem.order_id' => $order_id, 'OrderItem.shipment_id IS NULL');
 		$available_order_items = $this->OrderItem->find('count', array('conditions' => $conditions));
-		$order_items_limit = Configure::read('AddAliquotToShipment_processed_items_limit');
+		$order_items_limit = Configure::read('AddToShipment_processed_items_limit');
 		$add_to_shipments_subset_limits = array();
 		if($available_order_items > $order_items_limit) {
 			$nbr_of_sub_sets = round(($available_order_items/$order_items_limit), 0, PHP_ROUND_HALF_EVEN);
@@ -225,7 +226,7 @@ class ShipmentsController extends OrderAppController {
 			$this->flash(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);  
 		}
 		
-		$order_items_limit = Configure::read('AddAliquotToShipment_processed_items_limit');
+		$order_items_limit = Configure::read('AddToShipment_processed_items_limit');
 		if(sizeof($available_order_items) > $order_items_limit) {
 			$this->flash(__("batch init - number of submitted records too big")." (>$order_items_limit). ".__('launch process on order items sub set').'.', '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id, 5);
 			return;
@@ -281,6 +282,9 @@ class ShipmentsController extends OrderAppController {
 
 				$available_order_items = AppController::defineArrayKey($available_order_items, 'OrderItem', 'id', true);
 				
+				$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail', 'storage_master_id','storage_coord_x','storage_coord_y'));
+				$this->TmaSlide->addWritableField(array('in_stock', 'in_stock_detail', 'storage_master_id','storage_coord_x','storage_coord_y'));
+				
 				foreach($data_to_save as $order_item_id){
 					$order_item = isset($available_order_items[$order_item_id]) ? $available_order_items[$order_item_id] : null;
 					if($order_item == null){
@@ -288,23 +292,41 @@ class ShipmentsController extends OrderAppController {
 						continue;
 					}
 					
-					// Get id
-					$aliquot_master_id = $order_item['AliquotMaster']['id'];
-					
-					// 1- Update Aliquot Master Data
-					$aliquot_master = array();
-					$aliquot_master['AliquotMaster']['in_stock'] = 'no';
-					$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
-					$aliquot_master['AliquotMaster']['storage_master_id'] = null;
-					$aliquot_master['AliquotMaster']['storage_coord_x'] = '';
-					$aliquot_master['AliquotMaster']['storage_coord_y'] = '';
-		
-					$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail', 'storage_master_id','storage_coord_x','storage_coord_y'));
-					
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($aliquot_master, false)) {
-						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					if($order_item['AliquotMaster']['id']) {
+						// Get id
+						$aliquot_master_id = $order_item['AliquotMaster']['id'];
+						
+						// 1- Update Aliquot Master Data
+						$aliquot_master = array();
+						$aliquot_master['AliquotMaster']['in_stock'] = 'no';
+						$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
+						$aliquot_master['AliquotMaster']['storage_master_id'] = null;
+						$aliquot_master['AliquotMaster']['storage_coord_x'] = '';
+						$aliquot_master['AliquotMaster']['storage_coord_y'] = '';
+			
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
+						$this->AliquotMaster->id = $aliquot_master_id;
+						if(!$this->AliquotMaster->save($aliquot_master, false)) {
+							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
+					} else {
+						// Get id
+						$tma_slide_id = $order_item['TmaSlide']['id'];
+						
+						// 1- Update slide Data
+						$tma_slide = array();
+						$tma_slide['TmaSlide']['in_stock'] = 'no';
+						$tma_slide['TmaSlide']['in_stock_detail'] = 'shipped';
+						$tma_slide['TmaSlide']['storage_master_id'] = null;
+						$tma_slide['TmaSlide']['storage_coord_x'] = '';
+						$tma_slide['TmaSlide']['storage_coord_y'] = '';
+							
+						$this->TmaSlide->data = array(); // *** To guaranty no merge will be done with previous data ***
+						$this->TmaSlide->id = $tma_slide_id;
+						if(!$this->TmaSlide->save($tma_slide, false)) {
+							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+						}
+						
 					}
 					
 					// 2- Record Order Item Update
@@ -314,15 +336,17 @@ class ShipmentsController extends OrderAppController {
 
 					$this->OrderItem->addWritableField(array('shipment_id', 'status'));
 					
-					$this->OrderItem->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->OrderItem->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$this->OrderItem->id = $order_item_id;
 					if(!$this->OrderItem->save($order_item_data, false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 						
-					// 3- Update Aliquot Use Counter					
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { 
-						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					if($order_item['AliquotMaster']['id']) {
+						// 3- Update Aliquot Use Counter					
+						if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { 
+							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 					}
 					
 					// 4- Set order line to update
@@ -337,7 +361,7 @@ class ShipmentsController extends OrderAppController {
 						$order_line = array();
 						$order_line['OrderLine']['status'] = "shipped";
 						$this->OrderLine->addWritableField(array('status'));
-						$this->OrderLine->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->OrderLine->data = array(); // *** To guaranty no merge will be done with previous data ***
 						$this->OrderLine->id = $order_line_id;
 						if(!$this->OrderLine->save($order_line, false)) { 
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -352,7 +376,7 @@ class ShipmentsController extends OrderAppController {
 				
 				AppModel::releaseBatchViewsUpdateLock();
 				
-				$this->atimFlash(__('your data has been saved').'<br>'.__('aliquot storage data were deleted (if required)'), 
+				$this->atimFlash(__('your data has been saved').'<br>'.__('item storage data were deleted (if required)'), 
 					'/Order/Shipments/detail/'.$order_id.'/'.$shipment_id.'/');
 			}		
 		}	
@@ -398,17 +422,24 @@ class ShipmentsController extends OrderAppController {
 		if(empty($order_item_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}	
+		if(!isset($order_item_data['OrderItem']['aliquot_master_id']) && !isset($order_item_data['OrderItem']['tma_slide_id'])) {
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+		}
 
-		// Set ids
-		$order_line_id = $order_item_data['OrderItem']['order_line_id'];
-		$aliquot_master_id = $order_item_data['OrderItem']['aliquot_master_id'];
-		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->Shipment->allowItemRemoveFromShipment($order_item_id, $shipment_id);
 
 		// Check the status of the order item can be changed to pending
-		if($arr_allow_deletion['allow_deletion'] && !$this->OrderItem->checkAliquotOrderItemStatusCanBeSetToPendingShipped($order_item_data['OrderItem']['aliquot_master_id'], $order_item_data['OrderItem']['id'])) {
-			$arr_allow_deletion = array('allow_deletion' => false, 'msg' => "the status of an aliquot flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses");
+		if($arr_allow_deletion['allow_deletion']) {
+			if($order_item_data['OrderItem']['aliquot_master_id']) {
+				if(!$this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('aliquot_master_id', $order_item_data['OrderItem']['aliquot_master_id'], $order_item_data['OrderItem']['id'])) {
+					$arr_allow_deletion = array('allow_deletion' => false, 'msg' => "the status of an aliquot flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses");
+				}
+			} else {
+				if(!$this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('tma_slide_id', $order_item_data['OrderItem']['tma_slide_id'], $order_item_data['OrderItem']['id'])) {
+					$arr_allow_deletion = array('allow_deletion' => false, 'msg' => "the status of a tma slide flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses");
+				}
+			}
 		}
 		
 		$hook_link = $this->hook('delete_from_shipment');
@@ -424,7 +455,6 @@ class ShipmentsController extends OrderAppController {
 			// -> Remove order item from shipment	
 			$order_item = array();
 			$order_item['OrderItem']['shipment_id'] = null;
-			$order_item['OrderItem']['aliquot_use_id'] = null;
 			$order_item['OrderItem']['status'] = 'pending';
 			if($order_item_data['OrderItem']['status'] == 'shipped & returned') AppController::addWarningMsg(__('the return information was deleted')); 
 			$order_item['OrderItem']['date_returned'] = null;
@@ -432,7 +462,7 @@ class ShipmentsController extends OrderAppController {
 			$order_item['OrderItem']['reason_returned'] = null;
 			$order_item['OrderItem']['reception_by'] = null;
 			$this->OrderItem->addWritableField(array(
-				'shipment_id', 'status','aliquot_use_id',
+				'shipment_id', 'status',
 				'date_returned','date_returned_accuracy','reason_returned', 'reception_by'));
 			$this->OrderItem->id = $order_item_id;
 			if(!$this->OrderItem->save($order_item, false)) { 
@@ -441,26 +471,38 @@ class ShipmentsController extends OrderAppController {
 
 			// -> Update aliquot master
 			if($remove_done) {
-				$new_aliquot_master_data = array();
-				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
-				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
-				$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
-				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-				$this->AliquotMaster->id = $aliquot_master_id;
-				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { 
-					$remove_done = false; 
-				}
-				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { 
-					$remove_done = false; 
+				if($order_item_data['OrderItem']['aliquot_master_id']) {
+					$new_aliquot_master_data = array();
+					$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
+					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
+					$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
+					$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
+					if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { 
+						$remove_done = false; 
+					}
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($order_item_data['OrderItem']['aliquot_master_id'], false, true)) { 
+						$remove_done = false; 
+					}
+				} else {
+					$new_slide_data = array();
+					$new_slide_data['TmaSlide']['in_stock'] = 'yes - not available';
+					$new_slide_data['TmaSlide']['in_stock_detail'] = 'reserved for order';
+					$this->TmaSlide->addWritableField(array('in_stock', 'in_stock_detail'));
+					$this->TmaSlide->data = array(); // *** To guaranty no merge will be done with previous data ***
+					$this->TmaSlide->id = $order_item_data['OrderItem']['tma_slide_id'];
+					if(!$this->TmaSlide->save($new_slide_data, false)) {
+						$remove_done = false;
+					}
 				}
 			}
 			
 			// -> Update order line
-			if($remove_done && $order_line_id) {			
+			if($remove_done && $order_item_data['OrderItem']['order_line_id']) {			
 				$order_line = array();
 				$order_line['OrderLine']['status'] = "pending";
 				$this->OrderLine->addWritableField(array('status'));
-				$this->OrderLine->id = $order_line_id;
+				$this->OrderLine->id = $order_item_data['OrderItem']['order_line_id'];
 				if(!$this->OrderLine->save($order_line, false)) { 
 					$remove_done = false; 
 				}	

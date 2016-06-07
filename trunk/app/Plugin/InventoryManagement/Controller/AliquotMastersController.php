@@ -324,7 +324,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					// Validate and update position data
 					$aliquot['AliquotMaster']['aliquot_control_id'] = $aliquot_control['AliquotControl']['id'];
 					
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$this->AliquotMaster->set($aliquot);				
 					if(!$this->AliquotMaster->validates()){
 						foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
@@ -367,7 +367,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				foreach($this->request->data as $created_aliquots){
 					foreach($created_aliquots['children'] as $new_aliquot) {	
 						$this->AliquotMaster->id = null;
-						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						unset($new_aliquot['AliquotMaster']['id']);
 						$new_aliquot['AliquotMaster']['collection_id'] = $created_aliquots['parent']['ViewSample']['collection_id'];
 						$new_aliquot['AliquotMaster']['sample_master_id'] = $created_aliquots['parent']['ViewSample']['sample_master_id'];
@@ -546,7 +546,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->request->data['AliquotMaster']['id'] = $aliquot_master_id;
 			$this->request->data['AliquotMaster']['aliquot_control_id'] = $aliquot_data['AliquotMaster']['aliquot_control_id'];
 			
-			$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 			$this->AliquotMaster->set($this->request->data);
 			$this->AliquotMaster->id = $aliquot_master_id;
 			$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates: false;
@@ -565,7 +565,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				AppModel::acquireBatchViewsUpdateLock();
 				
-				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
 				$this->AliquotMaster->addWritableField('storage_master_id', 'study_summary_id');
 				
@@ -601,7 +601,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}		
 		
 		// Delete storage data
-		$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+		$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 		$this->AliquotMaster->id = $aliquot_master_id;
 		$aliquot_data_to_save = array('AliquotMaster' => array(
 			'storage_master_id' => null,
@@ -1351,7 +1351,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// Launch Aliquot Master validation
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					
 					$tmp_StorageMaster = $studied_aliquot_pointer['StorageMaster'];
 					$tmp_storage_coord_x = $studied_aliquot_pointer['AliquotMaster']['storage_coord_x'];
@@ -1436,7 +1436,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Save data:
 					// - AliquotMaster
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
 
 					if(!$this->AliquotMaster->save($source_aliquot_pointer, false)) { 
@@ -1445,7 +1445,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// - SourceAliquot
 					$this->SourceAliquot->id = null;
-					$this->SourceAliquot->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->SourceAliquot->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$source_aliquot_pointer['SourceAliquot']['aliquot_master_id'] = $aliquot_master_id;
 					$source_aliquot_pointer['SourceAliquot']['sample_master_id'] = $sample_master_id;
 					//barcode,aliquot_label,storage_coord_x,storage_coord_y
@@ -1915,7 +1915,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($used_aliquot_data_to_apply_to_all) $parent_and_children = array_replace_recursive($parent_and_children, $used_aliquot_data_to_apply_to_all);
 				
 				$this->AliquotMaster->id = null;
-				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 				
 				$parent_aliquot_data = $parent_and_children['AliquotMaster'];
 				$parent_aliquot_data['id'] = $parent_id;
@@ -1964,7 +1964,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						
 						// Validate and update position data
 						$this->AliquotMaster->id = null;
-						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						
 						$child['AliquotMaster']['id'] = null;
 						$child['AliquotMaster']['aliquot_control_id'] = $child_aliquot_ctrl_id;
@@ -2040,7 +2040,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// A- Save parent aliquot data
 					
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$this->AliquotMaster->id = $parent_id;
 					
 					$parent_data = $parent_and_children['parent'];
@@ -2086,7 +2086,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						
 						// B- Save children aliquot data	
 						$this->AliquotMaster->id = null;
-						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						
 						unset($children['AliquotMaster']['id']);
 						if(!$this->AliquotMaster->save($children, false)){
@@ -2104,7 +2104,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		 				$realiquoting_data['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
 		 				
 						$this->Realiquoting->id = NULL;
-		  				$this->Realiquoting->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+		  				$this->Realiquoting->data = array(); // *** To guaranty no merge will be done with previous data ***
 						if(!$this->Realiquoting->save($realiquoting_data, false)){
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 						}
@@ -2376,7 +2376,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($used_aliquot_data_to_apply_to_all) $parent_and_children = array_replace_recursive($parent_and_children, $used_aliquot_data_to_apply_to_all);
 				
 				$this->AliquotMaster->id = null; 
-				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 				
 				$parent_aliquot_data = $parent_and_children['AliquotMaster'];
 				$parent_aliquot_data["id"] = $parent_id;
@@ -2470,7 +2470,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Save parent aliquot data
 					
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$this->AliquotMaster->id = $parent_id;
 					
 					$parent_data = $parent_and_children['parent'];
