@@ -93,7 +93,7 @@
 					'settings' => array(
 						'language_heading' => __($status, null),
 						'actions'	=> false,
-					), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id'].'/'.$status))
+					), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id'].'/'.$status.'/0/0/Order/'))
 			);
 			if($counter == 1) $final_options['settings']['header'] = __('order items', null);
 	

@@ -1,16 +1,16 @@
 <?php 
-
+	
 	$structure_links = array();
 	
 	$structure_links['index'] = array(
-		'edit' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/',
+		'edit' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/',
 		'details' => array(
 			'link' => '%%Generated.item_detail_link%%/',
 			'icon' => 'detail')
 	);
 	switch($status) {
 		case 'pending':
-			$structure_links['index']['remove from order'] = '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/';
+			$structure_links['index']['remove from order'] = '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/';
 			break;
 		case 'shipped':
 			unset($structure_links['index']['edit']);
@@ -18,7 +18,7 @@
 				'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
 				'icon' => 'shipments');
 			$structure_links['index']['remove from shipment'] = array(
-				'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/',
+				'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/'.$main_form_model.'/',
 				'icon' => 'remove_from_shipment');
 			break;
 		case 'shipped & returned':
@@ -26,10 +26,10 @@
 				'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
 				'icon' => 'shipments');
 			$structure_links['index']['remove from shipment'] = array(
-				'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/',
+				'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/'.$main_form_model.'/',
 				'icon' => 'remove_from_shipment');
 			$structure_links['index']['change status to shipped'] = array(
-				'link' => '/Order/OrderItems/removeFlagReturned/%%OrderItem.order_id%%/%%OrderItem.id%%/',
+				'link' => '/Order/OrderItems/removeFlagReturned/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/',
 				'icon' => 'remove flag returned');
 			break;
 	}
