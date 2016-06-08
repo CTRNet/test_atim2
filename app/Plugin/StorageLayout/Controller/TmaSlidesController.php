@@ -60,14 +60,8 @@ class TmaSlidesController extends StorageLayoutAppController {
 		$initial_display = false;
 		$tma_block_ids = array();
 		
-		$url_to_cancel = 'javascript:history.go(-1)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-			}
-		}
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
 		
 		if($tma_block_storage_master_id != null){
@@ -381,14 +375,8 @@ class TmaSlidesController extends StorageLayoutAppController {
 	function editInBatch() {
 		// MANAGE DATA
 				
-		$url_to_cancel = 'javascript:history.go(-1)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-			}
-		}
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
 		
 		$initial_display = false;

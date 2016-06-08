@@ -97,20 +97,26 @@ class OrderLine extends OrderAppModel {
 	function afterFind($results, $primary = false) {
 		$results = parent::afterFind($results, $primary);
 		
-		if(isset($results['0']['OrderItem'])) {
+		if(isset($results['0']['OrderLine'])) {
+			$OrderItem = null;
 			foreach($results as &$new_order_line) {
 				$shipped_counter = 0;
 				$items_counter = 0;
-				foreach($new_order_line['OrderItem'] as $new_item) {
-					++ $items_counter;	
-					if(in_array($new_item['status'], array('shipped', 'shipped & returned'))){
-						++ $shipped_counter; 
-					}
+				if(isset($new_order_line['OrderItem'])) {				
+					foreach($new_order_line['OrderItem'] as $new_item) {
+						++ $items_counter;
+						if(in_array($new_item['status'], array('shipped', 'shipped & returned'))){
+							++ $shipped_counter;
+						}
+					}					
+				} else if(isset($new_order_line['OrderLine']['id'])) {
+					if(!$OrderItem) $OrderItem = AppModel::getInstance('Order', 'OrderItem', true);
+					$items_counter = $OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $new_order_line['OrderLine']['id']), 'recursive' => '-1'));
+					if($items_counter) $shipped_counter = $OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $new_order_line['OrderLine']['id'], 'OrderItem.status' => array('shipped', 'shipped & returned')), 'recursive' => '-1'));				
 				}
-				$new_order_line['Generated']['order_line_completion'] = empty($items_counter)? 'n/a': $shipped_counter.'/'.$items_counter;
+				$new_order_line['Generated']['order_line_completion'] = empty($items_counter)? 'n/a': $shipped_counter.'/'.$items_counter;		
 			}
 		}		
-
 		return $results;
 	}
 	

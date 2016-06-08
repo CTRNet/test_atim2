@@ -37,7 +37,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}	
 	
-	function listall( $order_id, $status = 'all', $order_line_id = null, $shipment_id = null) {
+	function listall( $order_id, $status = 'all', $order_line_id = null, $shipment_id = null, $main_form_model = null) {
 		// MANAGE DATA
 		
 		if($order_line_id && $shipment_id) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
@@ -83,6 +83,7 @@ class OrderItemsController extends OrderAppController {
 		$this->set('status', $status);
 		$this->set('order_line_id', $order_line_id);
 		$this->set('shipment_id', $shipment_id);
+		$this->set('main_form_model', $main_form_model);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -335,18 +336,9 @@ class OrderItemsController extends OrderAppController {
   			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
   		}
 		
-  		$url_to_cancel = 'javascript:history.go(-1)';
-  		$url_to_flash = 'javascript:history.go(-2)';
-  		if(isset($this->request->data['url_to_cancel'])) {
-  			$url_to_cancel = $this->request->data['url_to_cancel'];
-  			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-  				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-  				$url_to_cancel = 'javascript:history.go('.$back.')';
-  				$url_to_flash = 'javascript:history.go('.($back-1).')';
-  			}
-  		}
-  		unset($this->request->data['url_to_cancel']);
-  		$this->set('url_to_cancel', $url_to_cancel);
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
+		unset($this->request->data['url_to_cancel']);
   		
 		$object_ids_to_add = null;
 		$initial_display = false;
@@ -412,6 +404,7 @@ class OrderItemsController extends OrderAppController {
 		$this->set('new_items_data' , $new_items_data);	
 		$this->set('object_model_name', $object_model_name);
 		$this->set('object_ids_to_add', implode(',',$object_ids_to_add));
+  		$this->set('url_to_cancel', $url_to_cancel);
 		
 		//warn unconsented aliquots
 		if($object_model_name == 'AliquotMaster') {
@@ -589,11 +582,15 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function edit($order_id, $order_item_id) {
+	function edit($order_id, $order_item_id, $main_form_model = null) {
 		if (( !$order_id ) || ( !$order_item_id )) {
 			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
 		}
 		
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
+		unset($this->request->data['url_to_cancel']);
+				
 		// MANAGE DATA
 		
 		$order_item_data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id, 'OrderItem.order_id'=>$order_id)));
@@ -601,17 +598,17 @@ class OrderItemsController extends OrderAppController {
 		
 		if($order_item_data['OrderItem']['status'] == 'shipped') $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		$url_to_cancel = 'javascript:history.go(-1)';
-		$url_to_flash = 'javascript:history.go(-2)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-				$url_to_flash = 'javascript:history.go('.($back-1).')';
-			}
-		}
-		unset($this->request->data['url_to_cancel']);
+		switch($main_form_model) {
+			case 'Order':
+				$url_to_cancel = '/Order/Orders/detail/'.$order_item_data['OrderItem']['order_id'].'/';
+				break;
+			case 'OrderLine':
+				$url_to_cancel = '/Order/OrderLines/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['order_line_id'].'/';
+				break;
+			case 'Shipment':
+				$url_to_cancel = '/Order/Shipments/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['shipment_id'].'/';
+				break;
+		}		
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -655,14 +652,8 @@ class OrderItemsController extends OrderAppController {
 	function editInBatch() {
 		// MANAGE DATA
 		
-		$url_to_cancel = 'javascript:history.go(-1)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-			}
-		}
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
 		
 		$initial_display = false;
@@ -834,7 +825,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function delete($order_id, $order_item_id) {
+	function delete($order_id, $order_item_id, $main_form_model = null) {
 		
 		// MANAGE DATA
 		
@@ -843,6 +834,20 @@ class OrderItemsController extends OrderAppController {
 		if(empty($order_item_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}			
+		
+		//Build URL
+		$redirect_url = 'javascript:history.go(-1)';
+		switch($main_form_model) {
+			case 'Order':
+				$redirect_url = '/Order/Orders/detail/'.$order_item_data['OrderItem']['order_id'].'/';
+				break;
+			case 'OrderLine':
+				$redirect_url = '/Order/OrderLines/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['order_line_id'].'/';
+				break;
+			case 'Shipment':
+				$redirect_url = '/Order/Shipments/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['shipment_id'].'/';
+				break;
+		}	
 		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->OrderItem->allowDeletion($order_item_data);
@@ -915,26 +920,20 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), 'javascript:history.go(-1)');
+				$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), $redirect_url);
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), 'javascript:history.go(-1)');
+				$this->flash(__('error deleting data - contact administrator'), $redirect_url);
 			}
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
+			$this->flash(__($arr_allow_deletion['msg']), $redirect_url);
 		}
 	}
 	
 	function defineOrderItemsReturned($order_id = 0, $order_line_id = 0, $shipment_id = 0) {
 		// MANAGE DATA
 		
-		$url_to_cancel = 'javascript:history.go(-1)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-			}
-		}
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
 		
 		$initial_display = false;
@@ -1192,7 +1191,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function removeFlagReturned($order_id, $order_item_id) {
+	function removeFlagReturned($order_id, $order_item_id, $main_form_model = null) {
 	
 		// MANAGE DATA
 	
@@ -1215,7 +1214,21 @@ class OrderItemsController extends OrderAppController {
 			if(!$this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('tma_slide_id', $order_item_data['OrderItem']['tma_slide_id'], $order_item_data['OrderItem']['id'])) {
 				$error = "the status of a tma slide flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses";
 			}		
-		}		
+		}
+		
+		//Build URL
+		$redirect_url = 'javascript:history.go(-1)';
+		switch($main_form_model) {
+			case 'Order':
+				$redirect_url = '/Order/Orders/detail/'.$order_item_data['OrderItem']['order_id'].'/';
+				break;
+			case 'OrderLine':
+				$redirect_url = '/Order/OrderLines/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['order_line_id'].'/';
+				break;
+			case 'Shipment':
+				$redirect_url = '/Order/Shipments/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['shipment_id'].'/';
+				break;
+		}
 		
 		$hook_link = $this->hook();
 		if( $hook_link ) {
@@ -1270,9 +1283,9 @@ class OrderItemsController extends OrderAppController {
 			}
 	
 			// Redirect
-			$this->atimFlash(__('your data has been saved'), 'javascript:history.go(-1)');
+			$this->atimFlash(__('your data has been saved'), $redirect_url);
 		} else {
-			$this->flash(__($error), 'javascript:history.go(-1)');
+			$this->flash(__($error), $redirect_url);
 		}
 	}
 }

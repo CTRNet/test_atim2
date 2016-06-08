@@ -414,7 +414,7 @@ class ShipmentsController extends OrderAppController {
 		return $data;
 	}
 	
-	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
+	function deleteFromShipment($order_id, $order_item_id, $shipment_id, $main_form_model = null){
 		// MANAGE DATA
 		
 		// Check item
@@ -440,6 +440,20 @@ class ShipmentsController extends OrderAppController {
 					$arr_allow_deletion = array('allow_deletion' => false, 'msg' => "the status of a tma slide flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses");
 				}
 			}
+		}
+		
+		//Build URL
+		$redirect_url = 'javascript:history.go(-1)';
+		switch($main_form_model) {
+			case 'Order':
+				$redirect_url = '/Order/Orders/detail/'.$order_item_data['OrderItem']['order_id'].'/';
+				break;
+			case 'OrderLine':
+				$redirect_url = '/Order/OrderLines/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['order_line_id'].'/';
+				break;
+			case 'Shipment':
+				$redirect_url = '/Order/Shipments/detail/'.$order_item_data['OrderItem']['order_id'].'/'.$order_item_data['OrderItem']['shipment_id'].'/';
+				break;
 		}
 		
 		$hook_link = $this->hook('delete_from_shipment');
@@ -516,13 +530,13 @@ class ShipmentsController extends OrderAppController {
 
 			// Redirect
 			if($remove_done) {
-				$this->atimFlash(__('your data has been removed - update the aliquot in stock data'), 'javascript:history.go(-1)');
+				$this->atimFlash(__('your data has been removed - update the aliquot in stock data'), $redirect_url);
 			} else {
-				$this->flash(__('error deleting data - contact administrator'), 'javascript:history.go(-1)');
+				$this->flash(__('error deleting data - contact administrator'), $redirect_url);
 			}
 		
 		} else {
-			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
+			$this->flash(__($arr_allow_deletion['msg']), $redirect_url);
 		}
 	}
 	

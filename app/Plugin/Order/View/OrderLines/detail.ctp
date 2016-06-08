@@ -58,7 +58,7 @@
 			'settings' => array(
 				'language_heading' => __($status, null),
 				'actions'	=> false,
-			), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id'].'/'.$status.'/'.$atim_menu_variables['OrderLine.id'].'/'))
+			), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id'].'/'.$status.'/'.$atim_menu_variables['OrderLine.id'].'/0/OrderLine/'))
 		);
 		if($counter == 1) $final_options['settings']['header'] = __('order items', null);
 		if($counter == sizeof($all_status)) $final_options['settings']['actions'] = true;
