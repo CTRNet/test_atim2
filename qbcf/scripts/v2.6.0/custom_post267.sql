@@ -1,6 +1,6 @@
 UPDATE users SET flag_active = '1', `password` = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979', username = 'NicoEn' WHERE id = '1';
 UPDATE groups SET flag_show_confidential = 1 WHERE id = 1;
-INSERT INTO i18n (id,en,fr) VALUES ('core_installname','QBCF-TFRI','QBCF-TFRI');
+INSERT INTO i18n (id,en,fr) VALUES ('core_installname','QBCF','QBCF');
 
 DELETE FROM banks;
 INSERT INTO banks (id,name) VALUES (1,'CHUM-? #1'), (2,'CHUQ-? #2');
@@ -1670,11 +1670,6 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as
 VALUES
 ('TMA-blc 29X29', 'TMA-block 29X29',  'TMA-bloc 29X29', '1', @control_id, NOW(), NOW(), 1, 1);
 
-# TODO: 
-- ask to vero who build block
-- fields for slides
-- fields for study
-
 ALTER TABLE storage_masters  
   MODIFY short_label varchar(50) DEFAULT NULL,
   MODIFY selection_label varchar(110) DEFAULT NULL;
@@ -1682,15 +1677,13 @@ ALTER TABLE storage_masters_revs
   MODIFY short_label varchar(50) DEFAULT NULL,
   MODIFY selection_label varchar(110) DEFAULT NULL;
 ALTER TABLE storage_masters 
-  ADD COLUMN qc_tf_tma_name VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN qc_tf_tma_label_site VARCHAR(100),
-  ADD COLUMN `qc_tf_bank_id` int(11) DEFAULT NULL;
+  ADD COLUMN qbcf_tma_name VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN qbcf_tma_label_site VARCHAR(100),
+  ADD COLUMN `qbcf_bank_id` int(11) DEFAULT NULL;
 ALTER TABLE storage_masters_revs 
-  ADD COLUMN qc_tf_tma_name VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN qc_tf_tma_label_site VARCHAR(100),
-  ADD COLUMN `qc_tf_bank_id` int(11) DEFAULT NULL;
-
-ALTER TABLE storage_masters_revs ADD COLUMN qc_tf_tma_label_site VARCHAR(100);
+  ADD COLUMN qbcf_tma_name VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN qbcf_tma_label_site VARCHAR(100),
+  ADD COLUMN `qbcf_bank_id` int(11) DEFAULT NULL;
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('StorageLayout', 'StorageMaster', 'storage_masters', 'qbcf_tma_name', 'input',  NULL , '0', 'size=20', '', '', 'tma name central', ''), 
@@ -1701,27 +1694,3 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='std_tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='qbcf_tma_label_site' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='TMA label site' AND `language_tag`=''), '0', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='std_tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='qbcf_bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bank' AND `language_tag`=''), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_tma_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageDetail' AND `tablename`='std_tma_blocks' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tma_sop_list') AND `flag_confidential`='0');
-
-
-
-
-
-
-exit
-
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.1_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.2_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.3_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < custom_post267.sql
-
-
--- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-UPDATE versions SET branch_build_number = '63..' WHERE version_number = '2.6.6';

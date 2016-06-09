@@ -52,7 +52,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				$line_counter++;
 				$new_row['TreatmentExtendMaster']['treatment_extend_control_id'] = $tx_master_data['TreatmentControl']['treatment_extend_control_id'];
 				$new_row['TreatmentExtendMaster']['treatment_master_id'] = $tx_master_id;
-				$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 				$this->TreatmentExtendMaster->set($new_row);
 				if(!$this->TreatmentExtendMaster->validates()){
 					foreach($this->TreatmentExtendMaster->validationErrors as $field => $msgs) {	
@@ -77,7 +77,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				
 				foreach($this->request->data as $new_data) {
 					$this->TreatmentExtendMaster->id = null;
-					$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					if(!$this->TreatmentExtendMaster->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				

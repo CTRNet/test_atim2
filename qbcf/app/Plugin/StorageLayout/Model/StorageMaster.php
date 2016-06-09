@@ -16,6 +16,9 @@ class StorageMaster extends StorageLayoutAppModel {
 	);
 	
 	var $used_storage_pos = array();
+	var $storage_selection_labels_already_checked = array();
+	var $storage_label_and_code_for_display_already_set = array();
+	
 	const POSITION_FREE = 1;//the position is free
 	const POSITION_OCCUPIED = 2;//the position is already occupied (in the db)
 	const POSITION_DOUBLE_SET = 3;//the position is being defined more than once
@@ -396,23 +399,26 @@ class StorageMaster extends StorageLayoutAppModel {
 		//  
 		//------------------------------------------------------------------------
 		
-		$matches = array();
-		$selected_storages = array();
-		if(preg_match_all("/([^\b]+)\[([^\[]+)\]/", $storage_label_and_code, $matches, PREG_SET_ORDER) > 0){
-			// Auto complete tool has been used
-			$selected_storages = $this->find('all', array('conditions' => array('StorageMaster.selection_label' => $matches[0][1], 'StorageMaster.code' => $matches[0][2])));
-		} else {
-			// consider $storage_label_and_code contains just seleciton label
-			$selected_storages = $this->find('all', array('conditions' => array('StorageMaster.selection_label' => $storage_label_and_code)));
+		if(!isset($this->storage_selection_labels_already_checked[$storage_label_and_code])) {
+		 	$results = array();
+			$selected_storages = array();
+			if(preg_match_all("/([^\b]+)\[([^\[]+)\]/", $storage_label_and_code, $matches, PREG_SET_ORDER) > 0){
+				// Auto complete tool has been used
+				$selected_storages = $this->find('all', array('conditions' => array('StorageMaster.selection_label' => $matches[0][1], 'StorageMaster.code' => $matches[0][2])));
+			} else {
+				// consider $storage_label_and_code contains just seleciton label
+				$selected_storages = $this->find('all', array('conditions' => array('StorageMaster.selection_label' => $storage_label_and_code)));
+			}
+			if(sizeof($selected_storages) == 1) {
+				$this->storage_selection_labels_already_checked[$storage_label_and_code] =  array('StorageMaster' => $selected_storages[0]['StorageMaster'], 'StorageControl' => $selected_storages[0]['StorageControl']);
+			} else if(sizeof($selected_storages) > 1) {
+				$this->storage_selection_labels_already_checked[$storage_label_and_code] =  array('error' => str_replace('%s', $storage_label_and_code, __('more than one storages matche the selection label [%s]')));
+			} else {
+				$this->storage_selection_labels_already_checked[$storage_label_and_code] = array('error' => str_replace('%s', $storage_label_and_code, __('no storage matches the selection label [%s]')));
+			}
 		}
 		
-		if(sizeof($selected_storages) == 1) {
-			return array('StorageMaster' => $selected_storages[0]['StorageMaster'], 'StorageControl' => $selected_storages[0]['StorageControl']);
-		} else if(sizeof($selected_storages) > 1) {
-			return array('error' => str_replace('%s', $storage_label_and_code, __('more than one storages matche the selection label [%s]')));
-		}
-		
-		return  array('error' => str_replace('%s', $storage_label_and_code, __('no storage matches the selection label [%s]')));
+		return $this->storage_selection_labels_already_checked[$storage_label_and_code];
 	}
 	
 	function getStorageLabelAndCodeForDisplay($storage_data) {
@@ -432,12 +438,15 @@ class StorageMaster extends StorageLayoutAppModel {
 		$formatted_data = '';
 		
 		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
-			$storage_control_model = AppModel::getInstance('StorageLayout', 'StorageControl', true);
-			if(!array_key_exists('StorageControl', $storage_data)){
-				$storage_data += $storage_control_model->findById($storage_data['StorageMaster']['storage_control_id']);
+			if(!isset($this->storage_label_and_code_for_display_already_set[$storage_data['StorageMaster']['id']])) {
+				$storage_control_model = AppModel::getInstance('StorageLayout', 'StorageControl', true);
+				if(!array_key_exists('StorageControl', $storage_data)){
+					$storage_data += $storage_control_model->findById($storage_data['StorageMaster']['storage_control_id']);
+				}
+				$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
+				$this->storage_label_and_code_for_display_already_set[$storage_data['StorageMaster']['id']] = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . '] / '.(isset($storage_types_from_id[$storage_data['StorageControl']['id']])? $storage_types_from_id[$storage_data['StorageControl']['id']] : $storage_data['StorageControl']['storage_type']);
 			}
-			$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
-			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . '] / '.(isset($storage_types_from_id[$storage_data['StorageControl']['id']])? $storage_types_from_id[$storage_data['StorageControl']['id']] : $storage_data['StorageControl']['storage_type']);
+			$formatted_data = $this->storage_label_and_code_for_display_already_set[$storage_data['StorageMaster']['id']];
 		}
 		
 		return $formatted_data;
@@ -483,7 +492,10 @@ class StorageMaster extends StorageLayoutAppModel {
 		$result = array_filter($this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids), 'group' => array('StorageMaster.parent_id'))));
 		$storage_master_ids = array_diff($storage_master_ids, $result);
 		$aliquot_master = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))));
+		$tma_slide = AppModel::getInstance("StorageLayout", "TmaSlide", true);
+		return array_merge($result, 
+			array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))),
+			array_filter($tma_slide->find('list', array('fields' => array('TmaSlide.storage_master_id'), 'conditions' => array('TmaSlide.storage_master_id' => $storage_master_ids), 'group' => array('TmaSlide.storage_master_id')))));
 	}
 	
 	/**

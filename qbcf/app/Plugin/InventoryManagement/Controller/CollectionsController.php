@@ -150,6 +150,7 @@ class CollectionsController extends InventoryManagementAppController {
 			// Set collection property to 'participant collection' if field collection property is hidden in add form (default value)
 			$this->request->data['Collection']['collection_property'] = 'participant collection';
 			$this->Collection->addWritableField('collection_property');
+pr("addWritableField('collection_property')");			
 		}
 		if(empty($this->request->data) || isset($this->request->data['FunctionManagement']['col_copy_binding_opt'])){
 			if(!empty($copy_source)){
