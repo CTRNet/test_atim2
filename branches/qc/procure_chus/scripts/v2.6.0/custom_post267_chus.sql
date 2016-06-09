@@ -8,5 +8,5 @@ OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ParticipantContac
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.7';
+UPDATE versions SET site_branch_build_number = '6500' WHERE version_number = '2.6.7';
 UPDATE versions SET permissions_regenerated = 0;
