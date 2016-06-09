@@ -1180,7 +1180,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					foreach($children as &$child_to_save){
 						// save sample master
 						$this->SampleMaster->id = null;
-						$this->SampleMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->SampleMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						if(!$this->SampleMaster->save($child_to_save, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 							
@@ -1192,7 +1192,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						$this->SampleMaster->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
 
 						// Save derivative detail
-						$this->DerivativeDetail->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->DerivativeDetail->data = array(); // *** To guaranty no merge will be done with previous data ***
 						$this->DerivativeDetail->id = $child_id;
 						$child_to_save['DerivativeDetail']['sample_master_id'] = $child_id;
 						if(!$this->DerivativeDetail->save($child_to_save, false)){ 

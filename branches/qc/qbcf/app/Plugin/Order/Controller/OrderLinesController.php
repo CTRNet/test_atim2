@@ -6,7 +6,9 @@ class OrderLinesController extends OrderAppController {
 		'Order.Order', 
 		'Order.OrderLine', 
 		'Order.OrderItem', 
-		'Order.Shipment' 
+		'Order.Shipment',
+			
+		'Study.StudySummary'
 	);
 	
 	var $paginate = array('OrderLine'=>array('order'=>'OrderLine.date_required DESC'));
@@ -42,7 +44,7 @@ class OrderLinesController extends OrderAppController {
 		// Check order
 		$order_data = $this->Order->getOrRedirect($order_id);
 		$this->set('override_data', array(
-			'OrderLine.study_summary_id' => $order_data['Order']['default_study_summary_id'],
+			'FunctionManagement.autocomplete_order_line_study_summary_id' => $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $order_data['Order']['default_study_summary_id']))),
 			'OrderLine.date_required' => $order_data['Order']['default_required_date']? substr($order_data['Order']['default_required_date'], 0, (str_replace(array('', 'y','m','d','c'), array('c',4,4,7,10),$order_data['Order']['default_required_date_accuracy']))) : ''));
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -161,6 +163,7 @@ class OrderLinesController extends OrderAppController {
 		}
 
 		if ( empty($this->request->data) ) {
+			$order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $order_line_data['OrderLine']['study_summary_id'])));
 			$this->request->data = $order_line_data;
 
 		} else {

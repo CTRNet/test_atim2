@@ -27,6 +27,33 @@ class DropdownsController extends AdministrateAppController {
 		if($filter == 'empty') $conditions['StructurePermissibleValuesCustomControl.values_counter'] = '0';
 		else if($filter == 'not_empty') $conditions[] = 'StructurePermissibleValuesCustomControl.values_counter != 0';
 		$this->request->data = $this->paginate($this->StructurePermissibleValuesCustomControl, $conditions);	
+		//Add fields list
+		foreach($this->request->data as &$new_list) {
+			$query = "SELECT DISTINCT
+				str.alias AS structure_alias,
+				sfi.plugin AS plugin,
+				sfi.model AS model,
+				sfi.tablename AS tablename,
+				sfi.field AS field,
+				sfi.structure_value_domain AS structure_value_domain,
+				svd.domain_name AS structure_value_domain_name,
+				IF((sfo.flag_override_label = '1'),sfo.language_label,sfi.language_label) AS language_label,
+				IF((sfo.flag_override_tag = '1'),sfo.language_tag,sfi.language_tag) AS language_tag
+				FROM structure_formats sfo
+				INNER JOIN structure_fields sfi ON sfo.structure_field_id = sfi.id
+				INNER JOIN structures str ON str.id = sfo.structure_id
+				INNER JOIN structure_value_domains svd ON svd.id = sfi.structure_value_domain
+				WHERE (sfo.flag_add =1 OR sfo.flag_addgrid =1 OR sfo.flag_index =1 OR sfo.flag_detail)
+				AND svd.source LIKE 'StructurePermissibleValuesCustom::getCustomDropdown(''".str_replace("'","''", $new_list['StructurePermissibleValuesCustomControl']['name'])."'')'";
+			$all_fields_data = $this->StructurePermissibleValuesCustomControl->query($query);
+			$fields_list = array();
+			foreach($all_fields_data as $new_field) {
+				$value =  $new_field['sfi']['model'].' :: '.__($new_field['0']['language_label']).(strlen($new_field['0']['language_tag'])? ' '.__($new_field['0']['language_label']) : '');
+				$fields_list[$value] = '-';
+			}
+			ksort($fields_list);
+			$new_list['Generated']['fields_linked_to_custom_list'] = implode("\n", array_keys($fields_list));
+		}
 		$this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
 	}
 	
