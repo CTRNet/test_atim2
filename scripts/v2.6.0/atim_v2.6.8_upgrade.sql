@@ -487,7 +487,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 SET @flag_aliquot_label_detail = (SELECT `flag_detail` FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label'));
 
-SELECT 'Review Order tool custom code. Source code has been changed.' AS '### TODO ### New Source Code';
+SELECT 'Review Order tool custom code. Source code has been changed.' AS '### TODO ### New Source Code'
+UNION ALL
+SELECT 'Then review ViewAliquotUse that has been modified too.' AS '### TODO ### New Source Code';
 
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
@@ -769,51 +771,6 @@ SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_activ
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- -----------------------------------------------------------------------------------------------------------------------------------
--- TMA Slide
---   Une TMA Slide pourrait être envoyé
---   Une TMA Slide pourrait être retourné
--- -----------------------------------------------------------------------------------------------------------------------------------
 
 
 
