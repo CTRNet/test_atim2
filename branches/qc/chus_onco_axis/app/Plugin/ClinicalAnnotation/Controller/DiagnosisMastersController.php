@@ -340,6 +340,11 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		if(empty($this->request->data)) {
 			$this->request->data = $dx_master_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 		} else {
 			$this->DiagnosisMaster->patchIcd10NullValues($this->request->data);
 			$submitted_data_validates = true;
