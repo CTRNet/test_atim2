@@ -2341,3 +2341,307 @@ INSERT INTO `lab_type_laterality_match` (`selected_type_code`, `selected_labo_la
 INSERT INTO i18n (id,en,fr) VALUES ('heart', 'Heart', 'Coeur'), ('tonsil', 'Tonsil', 'Amygdale');
 
 UPDATE versions SET branch_build_number = '6478' WHERE version_number = '2.6.3';
+
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- Data for ghadirian data migration
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+
+-- Genetic test
+
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('lab','genetic test', 1, 'qc_nd_ed_genetic_tests', 'qc_nd_ed_genetic_tests', 'lab|genetic test', 1, 1);
+
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_genetic_tests` (
+	test varchar(100) DEFAULT NULL,
+	result varchar(100) DEFAULT NULL,
+	detail varchar(250) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_genetic_tests_revs` (
+	test varchar(100) DEFAULT NULL,
+	result varchar(100) DEFAULT NULL,
+	detail varchar(250) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_genetic_tests`
+ADD CONSTRAINT `qc_nd_ed_genetic_tests_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+		
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_genetic_tests');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_genetic_tests', "StructurePermissibleValuesCustom::getCustomDropdown(\'Genetic Tests\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Genetic Tests', 1, 100, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Genetic Tests');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('BRCA 1-2', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Genetic Tests');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('PALB2', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_genetic_tests', 'test', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests') , '0', '', '', '', 'test', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_genetic_tests', 'result', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests') , '0', 'size=50', '', '', 'result', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_genetic_tests', 'detail', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests') , '0', 'size=50', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '2', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='test' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='test' AND `language_tag`=''), '2', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='result' AND `type`='input' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests')  AND `flag_confidential`='0' AND `setting`='size=50' AND `default`='' AND `language_help`='' AND `language_label`='result' AND `language_tag`=''), '2', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='detail' AND `type`='input' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests')  AND `flag_confidential`='0' AND `setting`='size=50' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '2', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('genetic test', 'Genetic Test', 'Test génétique'),('test', 'Test', 'Test');		
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_genetic_tests' AND `field`='test'), 'notEmpty');
+
+ALTER TABLE qc_nd_ed_genetic_tests 
+  ADD COLUMN site varchar(150) DEFAULT NULL;
+ALTER TABLE qc_nd_ed_genetic_tests_revs
+  ADD COLUMN site varchar(150) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'FamilyHistory', 'qc_nd_ed_genetic_tests', 'site', 'input',  NULL , '0', 'size=20', '', '', 'laboratory', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='site' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='laboratory' AND `language_tag`=''), '1', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `model`='EventDetail' WHERE model='FamilyHistory' AND tablename='qc_nd_ed_genetic_tests' AND field='site' AND `type`='input' AND structure_value_domain  IS NULL ;
+		
+-- Family History
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/FamilyHistories/listall/%';
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='relation' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='relation') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='family_domain' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='domain') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy') AND `flag_confidential`='0');
+
+ALTER TABLE family_histories 
+  ADD COLUMN qc_nd_cancer VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN qc_nd_cancer_detail VARCHAR(250) DEFAULT NULL;
+ ALTER TABLE family_histories_revs 
+  ADD COLUMN qc_nd_cancer VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN qc_nd_cancer_detail VARCHAR(250) DEFAULT NULL; 
+  
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_family_histories', "StructurePermissibleValuesCustom::getCustomDropdown(\'Family History Diagnosis List\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Family History Diagnosis List', 1, 100, 'clinical');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Family History Diagnosis List');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('breast', 'Breast', 'Sein', '1', @control_id, NOW(), NOW(), 1, 1),
+('ovary', 'Ovary', 'Ovaire', '1', @control_id, NOW(), NOW(), 1, 1),
+('prostate', 'Prostate', 'Prostate', '1', @control_id, NOW(), NOW(), 1, 1),
+('family cancer', 'Family Cancer Reported', 'Cancer Familiaux Déclarés', '1', @control_id, NOW(), NOW(), 1, 1),
+('lung', 'Lung', 'poumon', '1', @control_id, NOW(), NOW(), 1, 1),
+('colon', 'Colon', 'Colon', '1', @control_id, NOW(), NOW(), 1, 1),
+('uterus', 'Uterus', 'Uterus', '1', @control_id, NOW(), NOW(), 1, 1),
+('leukemia', 'Leukemia', 'Leucémie', '1', @control_id, NOW(), NOW(), 1, 1),
+('skin', 'Skin', 'Peau', '1', @control_id, NOW(), NOW(), 1, 1),
+('liver', 'Liver', 'Foie', '1', @control_id, NOW(), NOW(), 1, 1),
+('stomach', 'Stomach', 'Estomac', '1', @control_id, NOW(), NOW(), 1, 1),
+('brain', 'Brain', 'Cerveau', '1', @control_id, NOW(), NOW(), 1, 1),
+('pancreas', 'Pancreas', 'Pancréas', '1', @control_id, NOW(), NOW(), 1, 1),
+('other cancer', 'Other Cancer', 'Autre cancer', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'FamilyHistory', 'family_histories', 'qc_nd_cancer', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_family_histories') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'FamilyHistory', 'family_histories', 'qc_nd_cancer_detail', 'input',  NULL , '0', 'size=20', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_cancer' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_family_histories')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '2', 'diagnosis', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_cancer_detail' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_cancer' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_family_histories') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_cancer_detail' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='cancer' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='qc_nd_cancer' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_family_histories');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('cancer','Cancer','Cancer');
+
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='relation' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='relation') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='family_domain' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='domain') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_cancer' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_family_histories') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_cancer_detail' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('FamilyHistory')) OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('FamilyHistory'));
+
+ALTER TABLE family_histories 
+  ADD COLUMN qc_nd_relation_detail VARCHAR(250) DEFAULT NULL;
+ALTER TABLE family_histories_revs 
+  ADD COLUMN qc_nd_relation_detail VARCHAR(250) DEFAULT NULL;  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'FamilyHistory', 'family_histories', 'qc_nd_relation_detail', 'input',  NULL , '0', 'size=20', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_relation_detail' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='relation' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='relation') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='family_domain' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='domain') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Ghadirian form
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/EventMasters/listall/Clinical/%';
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('clinical','ghadirian form', 1, 'qc_nd_ed_ghadirian_forms', 'qc_nd_ed_ghadirian_forms', 'clinical|ghadirian form', 0, 0);
+
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_ghadirian_forms` (
+	food_questionnaire_received date DEFAULT NULL,
+	food_questionnaire_received_detail varchar(100) DEFAULT NULL,
+	family_ind_nbr varchar(100) DEFAULT NULL,
+	age_at_dx  varchar(100) DEFAULT NULL,
+	cancer varchar(100) DEFAULT NULL,
+	follow_up_1 date DEFAULT NULL,
+	follow_up_1_detail varchar(100) DEFAULT NULL,
+	follow_up_2 date DEFAULT NULL,
+	follow_up_2_detail varchar(100) DEFAULT NULL,
+	follow_up_3 date DEFAULT NULL,
+	follow_up_3_detail varchar(100) DEFAULT NULL,
+	genetic_consultation char(1) DEFAULT '',
+	genetic_consultation_site varchar(150) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_ghadirian_forms_revs` (
+	food_questionnaire_received date DEFAULT NULL,
+	food_questionnaire_received_detail varchar(100) DEFAULT NULL,
+	family_ind_nbr varchar(100) DEFAULT NULL,
+	age_at_dx  varchar(100) DEFAULT NULL,
+	cancer varchar(100) DEFAULT NULL,
+	follow_up_1 date DEFAULT NULL,
+	follow_up_1_detail varchar(100) DEFAULT NULL,
+	follow_up_2 date DEFAULT NULL,
+	follow_up_2_detail varchar(100) DEFAULT NULL,
+	follow_up_3 date DEFAULT NULL,
+	follow_up_3_detail varchar(100) DEFAULT NULL,
+	genetic_consultation char(1) DEFAULT '',
+	genetic_consultation_site varchar(150) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_ghadirian_forms`
+ADD CONSTRAINT `qc_nd_ed_ghadirian_forms_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_ghadirian_forms');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'food_questionnaire_received', 'date',  NULL , '0', '', '', '', 'food questionnaire received', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'food_questionnaire_received_detail', 'input',  NULL , '0', '', '', '', '', 'detail'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'family_ind_nbr', 'input',  NULL , '0', '', '', '', 'family ind nbr', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'age_at_dx', 'input',  NULL , '0', 'size=7', '', '', 'age at dx', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'cancer', 'input',  NULL , '0', '', '', '', 'cancer', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'follow_up_1', 'date',  NULL , '0', '', '', '', 'follow-up 1', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'follow_up_1_detail', 'input',  NULL , '0', '', '', '', '', 'detail'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'follow_up_2', 'date',  NULL , '0', '', '', '', 'follow-up 2', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'follow_up_2_detail', 'input',  NULL , '0', '', '', '', '', 'detail'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'follow_up_3', 'date',  NULL , '0', '', '', '', 'follow-up 3', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'follow_up_3_detail', 'input',  NULL , '0', '', '', '', '', 'detail'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'genetic_consultation', 'yes_no',  NULL , '0', '', '', '', 'genetic consultation', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'genetic_consultation_site', 'input',  NULL , '0', '', '', '', '', 'site');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '2', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='food_questionnaire_received' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='food questionnaire received' AND `language_tag`=''), '2', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='food_questionnaire_received_detail' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='detail'), '2', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='family_ind_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='family ind nbr' AND `language_tag`=''), '2', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='age_at_dx' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=7' AND `default`='' AND `language_help`='' AND `language_label`='age at dx' AND `language_tag`=''), '2', '15', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='cancer' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cancer' AND `language_tag`=''), '2', '16', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='follow_up_1' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='follow-up 1' AND `language_tag`=''), '2', '30', 'follow-up', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='follow_up_1_detail' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='detail'), '2', '31', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='follow_up_2' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='follow-up 2' AND `language_tag`=''), '2', '32', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='follow_up_2_detail' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='detail'), '2', '33', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='follow_up_3' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='follow-up 3' AND `language_tag`=''), '2', '34', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='follow_up_3_detail' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='detail'), '2', '35', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='genetic_consultation' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='genetic consultation' AND `language_tag`=''), '2', '40', 'genetic', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='genetic_consultation_site' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='site'), '2', '37', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('food questionnaire received', 'Food Questionnaire Received', "Questionnaire alimentaire reçu"),
+('family ind nbr','Family/Ind #','Famille/Ind #'),
+('follow-up 1', 'Follow-Up #1', ' Suivi #1'),
+('follow-up 2', 'Follow-Up #2', ' Suivi #2'),
+('follow-up 3', 'Follow-Up #3', ' Suivi #3'),
+('ghadirian form','Dr Ghadirian Form', 'Dr Ghadirian Form'),
+('genetic_consultation', 'Genetic_consultation', "Consultation génique");
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE qc_nd_ed_ghadirian_forms
+	ADD COLUMN questionnaire date DEFAULT NULL,
+	ADD COLUMN questionnaire_detail varchar(100) DEFAULT NULL,
+	ADD COLUMN link_to_family_nbr varchar(100) DEFAULT NULL;
+ALTER TABLE qc_nd_ed_ghadirian_forms_revs
+	ADD COLUMN questionnaire date DEFAULT NULL,
+	ADD COLUMN questionnaire_detail varchar(100) DEFAULT NULL,
+	ADD COLUMN link_to_family_nbr varchar(100) DEFAULT NULL;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'questionnaire', 'date',  NULL , '0', '', '', '', 'questionnaire', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'questionnaire_detail', 'input',  NULL , '0', '', '', '', '', 'detail'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ghadirian_forms', 'link_to_family_nbr', 'input',  NULL , '0', '', '', '', 'linked', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='questionnaire' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='questionnaire' AND `language_tag`=''), '2', '8', 'questionnaire', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='questionnaire_detail' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='detail'), '2', '9', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='link_to_family_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='linked' AND `language_tag`=''), '2', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='individual' WHERE model='EventDetail' AND tablename='qc_nd_ed_ghadirian_forms' AND field='family_ind_nbr' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='family nbr' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='family_ind_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('questionnaire', 'Questionnaire', "Questionnaire"),
+('family nbr','Family #','Famille #'),
+('linked', 'Linked', ' Lié'),
+('follow-up 2', 'Follow-Up #2', ' Suivi #2'),
+('follow-up 3', 'Follow-Up #3', ' Suivi #3'),
+('genetic_consultation', 'Genetic_consultation', "Consultation génique");
+UPDATE structure_formats SET `language_heading`='diagnosis' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='41' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='genetic_consultation_site' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE qc_nd_ed_ghadirian_forms
+	ADD COLUMN food_questionnaire_received_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN follow_up_1_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN follow_up_2_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN follow_up_3_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN questionnaire_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE qc_nd_ed_ghadirian_forms_revs
+	ADD COLUMN food_questionnaire_received_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN follow_up_1_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN follow_up_2_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN follow_up_3_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN questionnaire_accuracy char(1) NOT NULL DEFAULT '';
+
+-- Nail
+
+INSERT INTO sample_controls ( sample_type, sample_category, qc_nd_sample_type_code, detail_form_alias, detail_tablename, databrowser_label) 
+VALUES
+('nail', 'specimen','N', 'qc_nd_sd_spe_nails,specimens', 'qc_nd_sd_spe_nails', 'nail');
+INSERT INTO aliquot_controls (sample_control_id,aliquot_type,detail_form_alias,detail_tablename,flag_active,databrowser_label)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'nail'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'nail|tube');
+INSERT INTO parent_to_derivative_sample_controls (derivative_sample_control_id, flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'nail'), '1');
+INSERT INTO i18n (id,en,fr) VALUES ('nail', 'Nail', 'Ongle');
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sd_spe_nails');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sd_spe_nails'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='type_code' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_labo_type_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='labo type code' AND `language_tag`=''), '1', '436', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sd_spe_nails'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='sequence_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='sequence number' AND `language_tag`=''), '1', '437', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+CREATE TABLE IF NOT EXISTS `qc_nd_sd_spe_nails` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_qc_nd_sd_spe_nails_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_sd_spe_nails_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_sd_spe_nails`
+  ADD CONSTRAINT `FK_qc_nd_sd_spe_nails_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+INSERT INTO lab_type_laterality_match (selected_type_code, sample_type_matching) VALUES ('N', 'nail');
+
+UPDATE versions SET branch_build_number = '6505' WHERE version_number = '2.6.3';
