@@ -779,3 +779,12 @@ ALTER TABLE sd_spe_tissues_revs DROP COLUMN qc_hb_patho_report_no;
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6480' WHERE version_number = '2.6.2';
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("alive, recurrence status unknown", "alive, recurrence status unknown");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="vital_status_code"), (SELECT id FROM structure_permissible_values WHERE value="alive, recurrence status unknown" AND language_alias="alive, recurrence status unknown"), "11", "1");
+ INSERT INTO i18n (id,en) VALUES("alive, recurrence status unknown", "Alive, recurrence status unknown");
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6506' WHERE version_number = '2.6.2';
