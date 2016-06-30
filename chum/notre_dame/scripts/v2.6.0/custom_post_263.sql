@@ -2645,3 +2645,70 @@ ALTER TABLE `qc_nd_sd_spe_nails`
 INSERT INTO lab_type_laterality_match (selected_type_code, sample_type_matching) VALUES ('N', 'nail');
 
 UPDATE versions SET branch_build_number = '6505' WHERE version_number = '2.6.3';
+
+-- Last change
+
+UPDATE structure_formats SET `language_heading`='family nbr' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='link_to_family_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_ghadirian_forms') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='family_ind_nbr' AND `language_label`='individual' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='family_ind_nbr' AND `language_label`='individual' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='qc_nd_ed_ghadirian_forms' AND `field`='family_ind_nbr' AND `language_label`='individual' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE qc_nd_ed_ghadirian_forms DROP COLUMN family_ind_nbr;
+ALTER TABLE qc_nd_ed_ghadirian_forms_revs DROP COLUMN family_ind_nbr;
+INSERT INTO misc_identifier_controls (misc_identifier_name, flag_active, flag_once_per_participant, flag_unique) 
+VALUE
+('family number', 1, 1, 1);
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('genetic', 'Genetic, 'Génétique'),
+('genetic consultation', 'Genetic Consultation', 'Consultation génétique'),
+('follow-up','Follow-up','Suivi'),
+('family number', 'Family#-Patient#', 'Famille#-Patient#');
+
+INSERT INTO consent_controls (controls_type, flag_active, detail_form_alias, detail_tablename, databrowser_label)
+VALUES
+('ghadirian consent', '1', '', 'cd_nationals', 'ghadirian consent');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('ghadirian consent', 'Lab Dr Ghadirian', 'Lab Dr Ghadirian');
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(192, 191);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(58);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(43);
+UPDATE sample_controls SET qc_nd_sample_type_code = 'SA' WHERE sample_type = 'saliva';
+INSERT INTO lab_type_laterality_match (selected_type_code, sample_type_matching) VALUES ('SA', 'saliva');
+
+UPDATE sample_controls SET qc_nd_sample_type_code = 'NAIL' WHERE sample_type = 'nail';
+UPDATE lab_type_laterality_match SET selected_type_code = 'NAIL' WHERE sample_type_matching = 'nail';
+INSERT INTO aliquot_controls (sample_control_id,aliquot_type,detail_form_alias,detail_tablename,flag_active,databrowser_label)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'nail'), 'envelope', '', 'qc_nd_ad_envelopes', '1', 'nail|envelope');
+CREATE TABLE IF NOT EXISTS `qc_nd_ad_envelopes` (
+  `aliquot_master_id` int(11) NOT NULL,
+  KEY `FK_qc_nd_ad_envelopes_aliquot_masters` (`aliquot_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ad_envelopes_revs` (
+  `aliquot_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ad_envelopes`
+  ADD CONSTRAINT `FK_qc_nd_ad_envelopes_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper', 'envelope') NOT NULL COMMENT 'Generic name.';quit
+
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('envelope', 'Envelope', 'Enveloppe');
+
+UPDATE structure_fields SET `flag_confidential`='1' WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests';
+
+UPDATE structure_fields SET `language_label`='family nbr linked' WHERE field='link_to_family_nbr';
+
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('link to family number', 'Linked to Family#-Patient#', 'Attaché au Famille#-Patient#');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shippeditems'), (SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='shipping_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='shipping name' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '0', '0');
+
+UPDATE versions SET branch_build_number = '6507' WHERE version_number = '2.6.3';
