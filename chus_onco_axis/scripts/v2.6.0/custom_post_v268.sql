@@ -520,10 +520,11 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'FunctionManagement', '', 'chus_autocomplete_digestive_topography', 'autocomplete',  NULL , '0', 'url=/ClinicalAnnotation/DiagnosisMasters/autocompleteChusTopography', '', '', 'topography', ''), 
 ('ClinicalAnnotation', 'FunctionManagement', '', 'chus_autocomplete_digestive_morphology', 'autocomplete',  NULL , '0', 'url=/ClinicalAnnotation/DiagnosisMasters/autocompleteChusMorphology', '', '', 'morphology', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/CodingIcd/CodingIcd10s/autocomplete/who,tool=/CodingIcd/CodingIcd10s/tool/who' AND `default`='' AND `language_help`='help_primary code' AND `language_label`='disease code' AND `language_tag`=''), '2', '1', 'coding', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '2', '', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '6', '', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx method' AND `language_label`='dx_method' AND `language_tag`=''), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND type = 'autocomplete'), '2', '1', 'coding', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND type = 'autocomplete'), '2', '2', '', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology'), '2', '6', '', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method'), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_category' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_topography_category')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='category'), '2', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='description'), '2', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='morphology_tumour_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_morphology_tumour_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='type'), '2', '7', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
@@ -889,7 +890,11 @@ UPDATE structure_value_domains SET domain_name = 'chus_secondary_icd10_codes' WH
 -- View diagnosis
 
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_diagnosis') 
-AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography');
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND type = 'autocomplete');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_diagnosis') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND type = 'autocomplete');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_diagnosis') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code');
 
 -- event
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -927,7 +932,7 @@ VALUES
 ('chus_ed_medical_history_diagnosis', "StructurePermissibleValuesCustom::getCustomDropdown('Medical History Diagnosis')");
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES 
-('Medical History Diagnosis', 1, 100, '	clinical - annotation');
+('Medical History Diagnosis', 1, 100, 'clinical - annotation');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Medical History Diagnosis');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
@@ -1250,10 +1255,786 @@ VALUES
 
 UPDATE treatment_controls SET flag_use_for_ccl = 0 WHERE tx_method NOT IN ('surgery','biopsy') AND flag_active = 1;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- Clinical Collection (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 
+-- Profile (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 
-SELECT * FROM treatment_controls WHERE flag_active = 1;
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_chart_checked_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cod_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cod_confirmation_source' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='secondary_cod_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='chus_contact_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_contact_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='vital status' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='contact status' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='chus_contact_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_contact_status') AND `flag_confidential`='0');
+ALTER TABLE participants CHANGE chus_status_date chus_vital_status_date date  DEFAULT NULL;
+ALTER TABLE participants_revs CHANGE chus_status_date chus_vital_status_date date  DEFAULT NULL;
+UPDATE structure_fields SET field = 'chus_vital_status_date' WHERE field = 'chus_status_date';
+ALTER TABLE participants
+  ADD COLUMN chus_contact_status_date date  DEFAULT NULL;
+ALTER TABLE participants_revs
+  ADD COLUMN chus_contact_status_date date  DEFAULT NULL;  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'chus_contact_status_date', 'date',  NULL , '0', '', '', '', 'contact status date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='chus_contact_status_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='contact status date' AND `language_tag`=''), '3', '21', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('contact status date', 'Status Date', 'Date du statut');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("english or french", "english or french");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="language_preferred"), (SELECT id FROM structure_permissible_values WHERE value="english or french" AND language_alias="english or french"), "2", "1");
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('english or french', 'English or French', 'Anglais ou Français');
+INSERT INTO structures(`alias`) VALUES ('chus_participants_and_identifiers');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', '0', '', 'chus_hospital_card_number', 'input',  NULL , '1', '', '', '', 'hospital card number', ''), 
+('ClinicalAnnotation', '0', '', 'chus_health_insurance_number', 'input',  NULL , '1', '', '', '', 'health insurance number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_participants_and_identifiers'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='chus_hospital_card_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hospital card number' AND `language_tag`=''), '3', '30', 'identifiers', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_participants_and_identifiers'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='chus_health_insurance_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='health insurance number' AND `language_tag`=''), '3', '31', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='race' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='race') AND `flag_confidential`='0');
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Participant Race')" WHERE domain_name = 'race';
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="race");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Participant Race', 1, 50, 'clinical - profile');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Participant Race');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('french canadian', 'French Canadian',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('english canadian', 'English Canadian',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('european canadian', 'European Canadian',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('american indian or alaska native', 'American Indian or Alaska Native',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('asian', 'Asian',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('black', 'Black',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier');
+UPDATE structure_formats SET `display_column`='1', `display_order`='100' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_participants_and_identifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='chus_hospital_card_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `display_column`='1', `display_order`='101' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_participants_and_identifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='chus_health_insurance_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
 
+-- consent (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE consent_controls SET controls_type = 'consent crchus', databrowser_label = 'consent crchus' WHERE controls_type = 'chus onco axis';
+INSERT INTO i18n (id,en,fr) VALUES ('consent crchus', 'CRCHUS Biobank', 'Biobanque');
+UPDATE structure_fields SET  `language_label`='consent status date' WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='status_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr) VALUES ('consent status date', 'Consent Status Date', 'Date du statut du consentement');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_cd_onco_axis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='ConsentDetail' AND `tablename`='chus_cd_onco_axis' AND `field`='preferred_contact_method' AND `language_label`='contact method' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_contact_method') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='ConsentDetail' AND `tablename`='chus_cd_onco_axis' AND `field`='preferred_contact_method' AND `language_label`='contact method' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_contact_method') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='ConsentDetail' AND `tablename`='chus_cd_onco_axis' AND `field`='preferred_contact_method' AND `language_label`='contact method' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_contact_method') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE chus_cd_onco_axis DROP COLUMN preferred_contact_method;
+ALTER TABLE chus_cd_onco_axis_revs DROP COLUMN preferred_contact_method;
+UPDATE consent_controls SET databrowser_label = controls_type;
+
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'consent crchus study', 1, 'consent_masters_study', 'cd_nationals', 0, 'consent crchus study');
+INSERT INTO i18n (id,en,fr) VALUES ('consent crchus study', 'Sudy Consent', 'Consentement d''étude');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='study_summary_id'), 'notEmpty', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0'), '1', '2', '', '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `flag_override_tag`='1', `language_tag`='-' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'consent form versions');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('study - n/a', 'Study - N/A',  'Étude - N/A', '1', @control_id, NOW(), NOW(), 1, 1);
+
+-- contact (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `language_label`='contact of the' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='relationship' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='participant_contact_relationship');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='contact_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='contact_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='other_contact_type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='relationship' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='participant_contact_relationship') AND `flag_confidential`='0');
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Participant Contact Type')" WHERE domain_name = 'participant_contact_relationship';
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="participant_contact_relationship");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Participant Contact Type', 1, 50, 'clinical - contact');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Participant Contact Type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT val.value, i18n.en, i18n.fr,'1', @control_id, NOW(), NOW(), 1, 1
+FROM structure_value_domains_permissible_values lk
+INNER JOIN structure_permissible_values val ON val.id = lk.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = val.language_alias
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="participant_contact_relationship")
+AND val.value NOT IN ('the participant', 'other'));
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("family doctor", "Family Doctor", "Médecin de famille",'1', @control_id, NOW(), NOW(), 1, 1),
+("participant", "Participant", "Participant",'1', @control_id, NOW(), NOW(), 1, 1),
+("surgeon", "Surgeon", "Chirurgien",'1', @control_id, NOW(), NOW(), 1, 1),
+("treating physician", "Treating Physician", "Médecin traitant",'1', @control_id, NOW(), NOW(), 1, 1),
+("oncologist", "Oncologist", "Oncologue",'1', @control_id, NOW(), NOW(), 1, 1),
+("treatment center", "Treatment Center", "Centre de traietment",'1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='relationship'), 'notEmpty', '');
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='contact_name');
+
+-- event (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Follow-up
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'clinical', 'follow-up', 1, 'chus_ed_follow_up', 'chus_ed_follow_up', 0, 'clinical|follow-up', 0, 1, 1);
+CREATE TABLE IF NOT EXISTS `chus_ed_follow_up` (
+  weight_kg int(4) DEFAULT NULL,
+  height_cm int(4) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `chus_ed_follow_up` (
+  weight_kg int(4) DEFAULT NULL,
+  height_cm int(4) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `chus_ed_follow_up`
+  ADD CONSTRAINT `chus_ed_follow_up_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('chus_ed_follow_up');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'weight kg', 'weight_kg', 'integer_positive',  NULL , '0', 'size=3', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'height cm', 'height_cm', 'integer_positive',  NULL , '0', 'size=3', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_follow_up'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '31', '', '0', '1', 'precision', '0', '', '0', '', '0', '', '1', 'rows=1,cols=30', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_follow_up'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='weight kg' AND `field`='weight_kg' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '7', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_follow_up'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='height cm' AND `field`='height_cm' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '8', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `tablename`='chus_ed_follow_up',  `language_label`='weight kg' WHERE model='EventDetail' AND tablename='weight kg' AND field='weight_kg' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `tablename`='chus_ed_follow_up',  `language_label`='height cm' WHERE model='EventDetail' AND tablename='height cm' AND field='height_cm' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('follow-up', 'Follow-up', 'Suivi'),
+('weight kg', 'Weight (Kg)', 'Poids (kg)'),
+('height cm', 'Height (cm)', 'Taille (cm)');  
+
+-- Medical History
+
+DROP TABLE chus_ed_medical_history;
+DROP TABLE chus_ed_medical_history_revs;
+CREATE TABLE IF NOT EXISTS `chus_ed_medical_history` (
+  body_system varchar(100) DEFAULT NULL,
+  disease_code varchar(10) DEFAULT NULL,
+  ongoing_currently_yes_no char(1) DEFAULT NULL,
+  finish_date date DEFAULT NULL,
+  finish_date_accuracy char(1) NOT NULL DEFAULT '',
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `chus_ed_medical_history_revs` (
+  body_system varchar(100) DEFAULT NULL,
+  disease_code varchar(10) DEFAULT NULL,
+  ongoing_currently_yes_no char(1) DEFAULT NULL,
+  finish_date date DEFAULT NULL,
+  finish_date_accuracy char(1) NOT NULL DEFAULT '',
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `chus_ed_medical_history`
+  ADD CONSTRAINT `chus_ed_medical_history_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+UPDATE structure_value_domains SET domain_name = 'chus_ed_medical_history_body_system', source = "StructurePermissibleValuesCustom::getCustomDropdown('Medical History Body System')" WHERE domain_name = 'chus_ed_medical_history_diagnosis';
+UPDATE structure_permissible_values_custom_controls SET name = 'Medical History Body System' WHERE name = 'Medical History Diagnosis';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Medical History Body System');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('blood', 'Blood',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('cardiovascular', 'Cardiovascular',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('eye - ear - nose - throat', 'Eye - Ear - Nose - Throat',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('gastrointestinal', 'Gastrointestinal',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('genitourinary', 'Genitourinary',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('metabolic', 'Metabolic',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('musculoskeletal', 'Musculoskeletal',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('neurologic and psychiatric', 'Neurologic and Psychiatric',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('other body system', 'Other Body System',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('pulmonary', 'Pulmonary',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('whole body', 'Whole Body',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='chus_ed_medical_history');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history');
+DELETE FROM structure_fields WHERE tablename='chus_ed_medical_history';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'chus_ed_medical_history', 'body_system', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_ed_medical_history_body_system') , '0', '', '', '', 'body system', ''), 
+('ClinicalAnnotation', 'EventDetail', 'chus_ed_medical_history', 'finish_date', 'date',  NULL , '0', '', '', '', 'end date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'chus_ed_medical_history', 'disease_code', 'autocomplete',  NULL , '0', 'size=10,url=/CodingIcd/CodingIcd10s/autocomplete/who,tool=/CodingIcd/CodingIcd10s/tool/who', '', 'help_icd_10_code_who', 'disease', ''), 
+('ClinicalAnnotation', 'EventDetail', 'chus_ed_medical_history', 'ongoing_currently_yes_no', 'yes_no',  NULL , '0', '', '', '', 'ongoing/currently', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '31', '', '0', '1', 'precision', '0', '', '0', '', '0', '', '1', 'rows=1,cols=30', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='body_system' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_ed_medical_history_body_system')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='body system' AND `language_tag`=''), '1', '20', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='end date' AND `language_tag`=''), '1', '-1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='disease_code' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/CodingIcd/CodingIcd10s/autocomplete/who,tool=/CodingIcd/CodingIcd10s/tool/who' AND `default`='' AND `language_help`='help_icd_10_code_who' AND `language_label`='disease' AND `language_tag`=''), '1', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='ongoing_currently_yes_no' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ongoing/currently' AND `language_tag`=''), '1', '7', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='body_system'), 'notEmpty', '');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medical_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='disease_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medical_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='body_system' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_ed_medical_history_body_system') AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('end date','End Date','Date de fin'),
+('ongoing/currently','Ongoing/Currently','En cours/Actuellement'),
+('body system','Body System','');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='disease_code'), 'validateIcd10WhoCode', 'invalid disease code');
+
+ALTER TABLE participants
+  ADD COLUMN chus_hiv_ongoing_currently_yes_no char(1) DEFAULT NULL,
+  ADD COLUMN chus_hiv_ongoing_currently_date date DEFAULT NULL,
+  ADD COLUMN chus_hiv_ongoing_currently_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_hiv_ongoing_currently_precision varchar(250) DEFAULT NULL;
+ALTER TABLE participants_revs
+  ADD COLUMN chus_hiv_ongoing_currently_yes_no char(1) DEFAULT NULL,
+  ADD COLUMN chus_hiv_ongoing_currently_date date DEFAULT NULL,
+  ADD COLUMN chus_hiv_ongoing_currently_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_hiv_ongoing_currently_precision varchar(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_hiv_ongoing_currently_yes_no', 'yes_no',  NULL , '1', '', '', '', 'HIV', 'condition status'), 
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_hiv_ongoing_currently_date', 'date',  NULL , '1', '', '', '', '', 'as of date'), 
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_hiv_ongoing_currently_precision', 'input',  NULL , '1', 'size=20', '', '', '', 'precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_hiv_ongoing_currently_yes_no' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='HIV' AND `language_tag`='condition status'), '3', '30', 'main medical history', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_hiv_ongoing_currently_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='as of date'), '3', '31', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_hiv_ongoing_currently_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '3', '32', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE participants
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_yes_no char(1) DEFAULT NULL,
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_date date DEFAULT NULL,
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_precision varchar(250) DEFAULT NULL;
+ALTER TABLE participants_revs
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_yes_no char(1) DEFAULT NULL,
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_date date DEFAULT NULL,
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_inf_hepatitis_ongoing_currently_precision varchar(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_inf_hepatitis_ongoing_currently_yes_no', 'yes_no',  NULL , '1', '', '', '', 'infectious hepatitis', 'condition status'), 
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_inf_hepatitis_ongoing_currently_date', 'date',  NULL , '1', '', '', '', '', 'as of date'), 
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_inf_hepatitis_ongoing_currently_precision', 'input',  NULL , '1', 'size=20', '', '', '', 'precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_inf_hepatitis_ongoing_currently_yes_no' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='infectious hepatitis' AND `language_tag`='condition status'), '3', '35', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_inf_hepatitis_ongoing_currently_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='as of date'), '3', '36', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_inf_hepatitis_ongoing_currently_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '3', '37', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE participants
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_yes_no char(1) DEFAULT NULL,
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_date date DEFAULT NULL,
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_precision varchar(250) DEFAULT NULL;
+ALTER TABLE participants_revs
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_yes_no char(1) DEFAULT NULL,
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_date date DEFAULT NULL,
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_stem_cell_transpl_ongoing_currently_precision varchar(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_stem_cell_transpl_ongoing_currently_yes_no', 'yes_no',  NULL , '1', '', '', '', 'stem cell transplant', 'condition status'), 
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_stem_cell_transpl_ongoing_currently_date', 'date',  NULL , '1', '', '', '', '', 'as of date'), 
+('ClinicalAnnotation', 'EventDetail', 'participants', 'chus_stem_cell_transpl_ongoing_currently_precision', 'input',  NULL , '1', 'size=20', '', '', '', 'precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_stem_cell_transpl_ongoing_currently_yes_no' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stem cell transplant' AND `language_tag`='condition status'), '3', '38', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_stem_cell_transpl_ongoing_currently_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='as of date'), '3', '39', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='participants' AND `field`='chus_stem_cell_transpl_ongoing_currently_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '3', '40', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en) 
+VALUES 
+('main medical history', 'Main Medical History'),
+('HIV', 'HIV'),
+('infectious hepatitis', 'Infectious Hepatitis'),
+('condition status', 'Condition Status'),
+('as of date', 'As of Date'),
+('stem cell transplant', 'Stem Cell Transplant');
+UPDATE structure_fields SET model = 'Participant' WHERE `tablename`='participants' AND `field` LIKE '%_ongoing_currently_%';
+
+ALTER TABLE participants 
+  DROP COLUMN chus_inf_hepatitis_ongoing_currently_date,
+  DROP COLUMN chus_inf_hepatitis_ongoing_currently_date_accuracy,
+  DROP COLUMN chus_inf_hepatitis_ongoing_currently_precision,
+  DROP COLUMN chus_stem_cell_transpl_ongoing_currently_date,
+  DROP COLUMN chus_stem_cell_transpl_ongoing_currently_date_accuracy,
+  DROP COLUMN chus_stem_cell_transpl_ongoing_currently_precision;
+ALTER TABLE participants_revs 
+  DROP COLUMN chus_inf_hepatitis_ongoing_currently_date,
+  DROP COLUMN chus_inf_hepatitis_ongoing_currently_date_accuracy,
+  DROP COLUMN chus_inf_hepatitis_ongoing_currently_precision,
+  DROP COLUMN chus_stem_cell_transpl_ongoing_currently_date,
+  DROP COLUMN chus_stem_cell_transpl_ongoing_currently_date_accuracy,
+  DROP COLUMN chus_stem_cell_transpl_ongoing_currently_precision;
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('chus_inf_hepatitis_ongoing_currently_date', 'chus_inf_hepatitis_ongoing_currently_precision', 'chus_stem_cell_transpl_ongoing_currently_date', 'chus_stem_cell_transpl_ongoing_currently_precision'));
+DELETE FROM structure_fields WHERE field IN ('chus_inf_hepatitis_ongoing_currently_date', 'chus_inf_hepatitis_ongoing_currently_precision', 'chus_stem_cell_transpl_ongoing_currently_date', 'chus_stem_cell_transpl_ongoing_currently_precision');
+
+ALTER TABLE participants
+  CHANGE chus_hiv_ongoing_currently_date chus_medical_history_status_date date DEFAULT NULL,
+  CHANGE chus_hiv_ongoing_currently_date_accuracy chus_medical_history_status_date_accuracy char(1) NOT NULL DEFAULT '',
+  CHANGE chus_hiv_ongoing_currently_precision chus_medical_history_precision TEXT DEFAULT NULL;
+ALTER TABLE participants_revs
+  CHANGE chus_hiv_ongoing_currently_date chus_medical_history_status_date date DEFAULT NULL,
+  CHANGE chus_hiv_ongoing_currently_date_accuracy chus_medical_history_status_date_accuracy char(1) NOT NULL DEFAULT '',
+  CHANGE chus_hiv_ongoing_currently_precision chus_medical_history_precision TEXT DEFAULT NULL;
+UPDATE structure_fields SET field = 'chus_medical_history_status_date' WHERE field = 'chus_hiv_ongoing_currently_date';
+UPDATE structure_fields SET field = 'chus_medical_history_precision' WHERE field = 'chus_hiv_ongoing_currently_precision';
+UPDATE structure_fields SET  `language_label`='as of date',  `language_tag`='' WHERE model='Participant' AND tablename='participants' AND field='chus_medical_history_status_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='precision',  `language_tag`='' WHERE model='Participant' AND tablename='participants' AND field='chus_medical_history_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='chus_medical_history_status_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `display_order`='41' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='chus_medical_history_precision' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_fields SET  `type`='textarea',  `setting`='rows=3,cols=30' WHERE model='Participant' AND tablename='participants' AND field='chus_medical_history_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- diagnosis (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '6', '', '0', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("uncertain within 2 years", "uncertain within 2 years"),('uncertain','uncertain');
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="age_accuracy"), (SELECT id FROM structure_permissible_values WHERE value="uncertain" AND language_alias="uncertain"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="age_accuracy"), (SELECT id FROM structure_permissible_values WHERE value="uncertain within 2 years" AND language_alias="uncertain within 2 years"), "", "1");
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('unable to calculate age at diagnosis', 'Unable to calculate age at diagnosis', 'Impossible de calculer l''âge au diagnostic'),
+('uncertain within 2 years', 'Uncertain within 2 years', 'Incertain à moins de 2 ans près');
+
+-- Digestive System (revision)
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("low grade", "Low grade (G1 and/or G2)"),
+("high grade", "High Grade (G3 and/or G4)"),
+("low mitotic rate", "Low mitotic rate (5 or fewer per 50 hpf) (for GIST)"),
+("high mitotic rate", "High mitotic rate (more than 5 per 50 hpf) (for GIST)");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_tumor_grade"), (SELECT id FROM structure_permissible_values WHERE value="low grade" AND language_alias="Low grade (G1 and/or G2)"), "6", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_tumor_grade"), (SELECT id FROM structure_permissible_values WHERE value="high grade" AND language_alias="High Grade (G3 and/or G4)"), "7", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_tumor_grade"), (SELECT id FROM structure_permissible_values WHERE value="low mitotic rate" AND language_alias="Low mitotic rate (5 or fewer per 50 hpf) (for GIST)"), "8", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_tumor_grade"), (SELECT id FROM structure_permissible_values WHERE value="high mitotic rate" AND language_alias="High mitotic rate (more than 5 per 50 hpf) (for GIST)"), "9", "1");
+INSERT IGNORE INTO i18n (id, en) 
+VALUES
+("Low grade (G1 and/or G2)", "Low grade (G1 and/or G2)"),
+("High Grade (G3 and/or G4)", "High Grade (G3 and/or G4)"),
+("Low mitotic rate (5 or fewer per 50 hpf) (for GIST)", "Low mitotic rate (5 or fewer per 50 hpf) (for GIST)"),
+("High mitotic rate (more than 5 per 50 hpf) (for GIST)", "High mitotic rate (more than 5 per 50 hpf) (for GIST)");
+UPDATE structure_value_domains SET domain_name = 'chus_digestive_system_tumor_grade', source = "StructurePermissibleValuesCustom::getCustomDropdown('Digestive System Primary Grade')" WHERE domain_name = 'chus_tumor_grade';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Digestive System Primary Grade', 1, 150, 'clinical - diagnosis');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Digestive System Primary Grade');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT val.value, i18n.en, i18n.fr,'1', @control_id, NOW(), NOW(), 1, 1
+FROM structure_value_domains_permissible_values lk
+INNER JOIN structure_permissible_values val ON val.id = lk.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = val.language_alias
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="chus_digestive_system_tumor_grade"));
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="chus_digestive_system_tumor_grade");
+UPDATE diagnosis_controls SET detail_form_alias = 'dx_primary,chus_dx_digestive_system_tumors' WHERE detail_form_alias = 'chus_dx_digestive_system_tumors';
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnDiagnosisMasternotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='chus_multiple_primary_tumors' AND `language_label`='multiple primary tumors' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `language_label`='disease code' AND `language_tag`='' AND `type`='autocomplete' AND `setting`='size=10,url=/CodingIcd/CodingIcd10s/autocomplete/who,tool=/CodingIcd/CodingIcd10s/tool/who' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_dx_icd10_code_who' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `language_label`='topography' AND `language_tag`='' AND `type`='autocomplete' AND `setting`='size=10,url=/CodingIcd/CodingIcdo3s/autocomplete/topo,tool=/CodingIcd/CodingIcdo3s/tool/topo' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_dx_icd_o_3_topo' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_category' AND `language_label`='category' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_topography_category') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='chus_autocomplete_digestive_topography' AND `language_label`='topography' AND `language_tag`='' AND `type`='autocomplete' AND `setting`='url=/ClinicalAnnotation/DiagnosisMasters/autocompleteChusTopography' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_category' AND `language_label`='category' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_topography_category') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='chus_autocomplete_digestive_topography' AND `language_label`='topography' AND `language_tag`='' AND `type`='autocomplete' AND `setting`='url=/ClinicalAnnotation/DiagnosisMasters/autocompleteChusTopography' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_category' AND `language_label`='category' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_topography_category') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='topography_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='chus_autocomplete_digestive_topography' AND `language_label`='topography' AND `language_tag`='' AND `type`='autocomplete' AND `setting`='url=/ClinicalAnnotation/DiagnosisMasters/autocompleteChusTopography' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE chus_dx_digestive_system_tumors
+  DROP COLUMN topography_category,
+  DROP COLUMN topography_description;
+ALTER TABLE chus_dx_digestive_system_tumors_revs
+  DROP COLUMN topography_category,
+  DROP COLUMN topography_description;
+UPDATE structure_formats SET `language_heading`='staging' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-89' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `language_label`='dx_method' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='dx_method') AND `language_help`='help_dx method' AND `validation_control`='open' AND `value_domain_control`='extend' AND `field_control`='locked' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-91' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ajcc_edition' AND `language_label`='ajcc edition' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ajcc edition') AND `language_help`='help_ajcc edition' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
+DROP TABLE IF EXISTS chus_topography_coding;
+UPDATE structure_fields SET  `language_label`='morphology (crchus)' WHERE model='FunctionManagement' AND tablename='' AND field='chus_autocomplete_digestive_morphology' AND `type`='autocomplete' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='morphology_tumour_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_morphology_tumour_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='morphology_tumour_cell_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_morphology_tumour_cell_origin') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='morphology_tumour_category' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_morphology_tumour_category') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='morphology_behaviour_code' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_morphology_behaviour_code') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='chus_autocomplete_digestive_morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='code' WHERE model='FunctionManagement' AND tablename='' AND field='chus_autocomplete_digestive_morphology' AND `type`='autocomplete' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='morphology crchus' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='chus_autocomplete_digestive_morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('morphology crchus', 'Morphology (CRCHUS - WHO 2010 PDF)', 'Morphologie (CRCHUS - WHO 2010 PDF)');
+ALTER TABLE chus_dx_digestive_system_tumors ADD COLUMN chus_morphology varchar(50) default NULL;
+ALTER TABLE chus_dx_digestive_system_tumors_revs ADD COLUMN chus_morphology varchar(50) default NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'chus_dx_digestive_system_tumors', 'chus_morphology', 'input',  NULL , '0', 'size=6', '', '', 'code', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dx_digestive_system_tumors' AND `field`='chus_morphology' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='code' AND `language_tag`=''), '2', '8', 'morphology crchus', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+DELETE FROM structure_value_domains WHERE domain_name = 'chus_topography_category';
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_digestive_system_tumors') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `language_label`='morphology' AND `language_tag`='' AND `type`='autocomplete' AND `setting`='size=10,url=/CodingIcd/CodingIcdo3s/autocomplete/morpho,tool=/CodingIcd/CodingIcdo3s/tool/morpho' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_dx_icd_o_3_morpho' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+-- other primary
+
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('chus_other_primary_tumor_grade', "StructurePermissibleValuesCustom::getCustomDropdown('Other Primary Grade')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Other Primary Grade', 1, 150, 'clinical - diagnosis');
+SET @source_control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Digestive System Primary Grade');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Other Primary Grade');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT `value`, `en`, `fr`,'1', @control_id, NOW(), NOW(), 1, 1
+FROM structure_permissible_values_customs WHERE control_id = @source_control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_other_primary_tumor_grade') , '0', '', '', 'help_tumour grade', 'tumour grade', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_other_primary_tumor_grade') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tumour grade') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='', `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ajcc_edition' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ajcc edition') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='staging' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_other_primary_tumor_grade') AND `flag_confidential`='0');
+
+-- Secondary
+-- Progression / Recurrence / Remission
+
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('chus_secondary_tumor_grade', "StructurePermissibleValuesCustom::getCustomDropdown('Secondary Grade')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Secondary Grade', 1, 150, 'clinical - diagnosis');
+SET @source_control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Digestive System Primary Grade');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Secondary Grade');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT `value`, `en`, `fr`,'1', @control_id, NOW(), NOW(), 1, 1
+FROM structure_permissible_values_customs WHERE control_id = @source_control_id);
+UPDATE diagnosis_controls SET controls_type = 'general' WHERE controls_type = 'undetailed';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_secondary_tumor_grade') , '0', '', '', 'help_tumour grade', 'tumour grade', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_secondary_tumor_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tumour grade' AND `language_label`='tumour grade' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_secondary_icd10_codes') AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='icd10_code' AND `type`='select' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='chus_secondary_icd10_codes')));
+DELETE FROM structure_fields WHERE (model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='icd10_code' AND `type`='select' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='chus_secondary_icd10_codes'));
+DELETE FROM structure_value_domains WHERE domain_name = 'chus_secondary_icd10_codes';
+
+-- treatment (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Treatment Response')" WHERE domain_name = 'response';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Treatment Response', 1, 50, 'clinical - treatment');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Response');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT val.value, i18n.en, i18n.fr,'1', @control_id, NOW(), NOW(), 1, 1
+FROM structure_value_domains_permissible_values lk
+INNER JOIN structure_permissible_values val ON val.id = lk.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = val.language_alias
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="response"));
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="response");
+
+UPDATE treatment_controls SET disease_site = 'general' WHERE disease_site = 'digestive system';
+
+ALTER TABLE chus_txd_digestive_system_surgeries_biopsies
+   ADD COLUMN   patho_report_date date DEFAULT NULL,
+   ADD COLUMN   patho_report_date_accuracy char(1) NOT NULL DEFAULT '',
+   ADD COLUMN   patho_report_report_number varchar(20) DEFAULT NULL,
+   ADD COLUMN   patho_report_tumor_size varchar(20) DEFAULT NULL,
+   ADD COLUMN   patho_report_data text DEFAULT NULL,
+   ADD COLUMN   patho_report_nedo_adj_tx_response varchar(50) DEFAULT NULL;
+ALTER TABLE chus_txd_digestive_system_surgeries_biopsies_revs
+   ADD COLUMN   patho_report_date date DEFAULT NULL,
+   ADD COLUMN   patho_report_date_accuracy char(1) NOT NULL DEFAULT '',
+   ADD COLUMN   patho_report_report_number varchar(20) DEFAULT NULL,
+   ADD COLUMN   patho_report_tumor_size varchar(20) DEFAULT NULL,
+   ADD COLUMN   patho_report_data text DEFAULT NULL,
+   ADD COLUMN   patho_report_nedo_adj_tx_response varchar(50) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('chus_txd_digestive_patho_reports');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_surgeries_biopsies', 'patho_report_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_surgeries_biopsies', 'patho_report_report_number', 'input',  NULL , '0', '', '', '', 'pathology report number', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_surgeries_biopsies', 'patho_report_tumor_size', 'input',  NULL , '0', '', '', '', 'tumor size', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_surgeries_biopsies', 'patho_report_data', 'textarea',  NULL , '0', 'rows=20,cols=60', '', '', 'data', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_surgeries_biopsies', 'patho_report_nedo_adj_tx_response', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='response') , '0', 'rows=20,cols=60', '', '', 'response to neoadjuvant treatment', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_patho_reports'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='patho_report_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '2', '200', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_patho_reports'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='patho_report_report_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pathology report number' AND `language_tag`=''), '2', '201', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_patho_reports'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='patho_report_tumor_size' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size' AND `language_tag`=''), '2', '202', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_patho_reports'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='patho_report_data' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=20,cols=60' AND `default`='' AND `language_help`='' AND `language_label`='data' AND `language_tag`=''), '2', '210', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_patho_reports'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='patho_report_nedo_adj_tx_response' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='response')  AND `flag_confidential`='0' AND `setting`='rows=20,cols=60' AND `default`='' AND `language_help`='' AND `language_label`='response to neoadjuvant treatment' AND `language_tag`=''), '2', '204', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE treatment_controls SET detail_form_alias = CONCAT(detail_form_alias, ',chus_txd_digestive_patho_reports') WHERE detail_tablename = 'chus_txd_digestive_system_surgeries_biopsies';
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_digestive_patho_reports');
+UPDATE structure_formats SET `language_heading`='pathology report' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_digestive_patho_reports') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='patho_report_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='response') ,  `setting`='' WHERE model='TreatmentDetail' AND tablename='chus_txd_digestive_system_surgeries_biopsies' AND field='patho_report_nedo_adj_tx_response' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='response');
+INSERT IGNORE INTO i18n (id,en) VALUES ('response to neoadjuvant treatment','Response to Neoadjuvant Treatment');
+UPDATE structure_fields SET  `setting`='rows=10,cols=60' WHERE model='TreatmentDetail' AND tablename='chus_txd_digestive_system_surgeries_biopsies' AND field='patho_report_data' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `flag_confidential`='1' WHERE model='TreatmentDetail' AND tablename='chus_txd_digestive_system_surgeries_biopsies' AND field='patho_report_data' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+
+DELETE FROM event_controls WHERE detail_tablename = 'chus_ed_pathology_report';
+DROP TABLE chus_ed_pathology_report;
+DROP TABLE chus_ed_pathology_report_revs;
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `tablename`='chus_ed_pathology_report' AND `field`='report_number');
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='chus_ed_pathology_report');
+DELETE FROM structures WHERE alias='chus_ed_pathology_report';
+DELETE FROM structure_fields WHERE tablename='chus_ed_pathology_report';
+
+ALTER TABLE chus_txd_digestive_system_surgeries_biopsies
+   ADD COLUMN type varchar(50) DEFAULT NULL;
+ALTER TABLE chus_txd_digestive_system_surgeries_biopsies_revs
+   ADD COLUMN type varchar(50) DEFAULT NULL;   
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('chus_surgery_type', "StructurePermissibleValuesCustom::getCustomDropdown('Surgery Type')"),
+('chus_biopsy_type', "StructurePermissibleValuesCustom::getCustomDropdown('Biopsy Type')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Surgery Type', 1, 150, 'clinical - treatment'),
+('Biopsy Type', 1, 150, 'clinical - treatment');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_surgeries_biopsies', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_surgery_type') , '0', '', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_system_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_surgery_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '39', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_surgeries_biopsies', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_biopsy_type') , '0', '', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_system_biopsies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_surgeries_biopsies' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_biopsy_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '39', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'chus_txe_digestive_system_surgeries_biopsies', 'surgical_site', 'autocomplete',  NULL , '0', 'size=10,url=/CodingIcd/CodingIcdo3s/autocomplete/topo,tool=/CodingIcd/CodingIcdo3s/tool/topo', '', 'chus_tx_site', 'site', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txe_digestive_system_surgeries_biopsies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='chus_txe_digestive_system_surgeries_biopsies' AND `field`='surgical_site' AND `type`='autocomplete'), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topo_sites')  WHERE model='TreatmentExtendDetail' AND tablename='chus_txe_digestive_system_surgeries_biopsies' AND field='surgical_site' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='chus_digestive_surgery_biopsy_site');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topo_sites') ,  `language_label`='' WHERE model='TreatmentExtendDetail' AND tablename='chus_txe_digestive_system_surgeries_biopsies' AND field='surgical_site' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topo_sites');
+UPDATE structure_formats SET `display_order`='2', `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txe_digestive_system_surgeries_biopsies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='chus_txe_digestive_system_surgeries_biopsies' AND `field`='surgical_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topo_sites') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txe_digestive_system_surgeries_biopsies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='chus_txe_digestive_system_surgeries_biopsies' AND `field`='surgical_site' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'chus_txe_digestive_system_radiotherapies', 'surgical_site', 'autocomplete',  NULL , '0', 'size=10,url=/CodingIcd/CodingIcdo3s/autocomplete/topo,tool=/CodingIcd/CodingIcdo3s/tool/topo', '', 'chus_tx_site', 'site', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txe_digestive_system_radiotherapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='chus_txe_digestive_system_radiotherapies' AND `field`='surgical_site' AND `type`='autocomplete'), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txe_digestive_system_radiotherapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='chus_txe_digestive_system_radiotherapies' AND `field`='surgical_site' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_digestive_surgery_biopsy_site') ,  `language_label`='' WHERE model='TreatmentExtendDetail' AND tablename='chus_txe_digestive_system_radiotherapies' AND field='site' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='chus_digestive_surgery_biopsy_site');
+UPDATE structure_formats SET `display_order`='2', `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txe_digestive_system_radiotherapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='chus_txe_digestive_system_radiotherapies' AND `field`='site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_digestive_surgery_biopsy_site') AND `flag_confidential`='0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topo_sites')  WHERE model='TreatmentExtendDetail' AND tablename='chus_txe_digestive_system_radiotherapies' AND field='site' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='chus_digestive_surgery_biopsy_site');
+DELETE FROM structure_value_domains WHERE domain_name = 'chus_digestive_surgery_biopsy_site';
+DELETE FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Digestive System Treatment Sites');
+DELETE FROM structure_permissible_values_custom_controls WHERE name = 'Digestive System Treatment Sites';
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='chus_txe_digestive_system_radiotherapies' AND `field`='surgical_site' AND type = 'autocomplete'), 'notEmpty', ''),
+((SELECT id FROM structure_fields WHERE `tablename`='chus_txe_digestive_system_surgeries_biopsies' AND `field`='surgical_site' AND type = 'autocomplete'), 'notEmpty', '');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='chus_txe_digestive_system_radiotherapies' AND `field`='surgical_site' AND type = 'autocomplete'), 'validateIcdo3TopoCode', 'invalid site code'),
+((SELECT id FROM structure_fields WHERE `tablename`='chus_txe_digestive_system_surgeries_biopsies' AND `field`='surgical_site' AND type = 'autocomplete'), 'validateIcdo3TopoCode', 'invalid site code');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('invalid site code', 'Invalid site code', 'Code du site non valide'),
+('chus_help_tx_site',"The topography code indicates the site of the treatment (ICD-O-3 topological codes from 2009 version of Stats Canada).", "Le code de topographie indique le site du traitment (codes morphologiques ICD-O-3 de la version 2009 de 'Stats Canada').");
+UPDATE structure_fields SET field = 'site' WHERE tablename = 'chus_txe_digestive_system_radiotherapies' AND field = 'surgical_site';
+INSERT INTO i18n (id,en,fr) VALUES ('radiotherapy site','Radiotherapy Site','Site radio-thérapie');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='protocol/regimen' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('protocol/regimen', 'Protocol/Regimen');
+
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='chus_txe_systemic_therapies' AND `field`='drug_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND `flag_confidential`='0'), 'notEmpty', '');
+
+ALTER TABLE chus_txd_systemic_therapies
+   ADD COLUMN   reponse_date date DEFAULT NULL,
+   ADD COLUMN   reponse_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE chus_txd_systemic_therapies_revs
+   ADD COLUMN   reponse_date date DEFAULT NULL,
+   ADD COLUMN   reponse_date_accuracy char(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_systemic_therapies', 'reponse_date', 'date',  NULL , '0', '', '', '', '', 'date');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='reponse_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='date'), '2', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE chus_txd_digestive_system_radiotherapies
+   ADD COLUMN   reponse_date date DEFAULT NULL,
+   ADD COLUMN   reponse_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE chus_txd_digestive_system_radiotherapies_revs
+   ADD COLUMN   reponse_date date DEFAULT NULL,
+   ADD COLUMN   reponse_date_accuracy char(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_digestive_system_radiotherapies', 'reponse_date', 'date',  NULL , '0', '', '', '', '', 'date');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_digestive_system_radiotherapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_digestive_system_radiotherapies' AND `field`='reponse_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='date'), '2', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO treatment_controls (tx_method, disease_site, flag_active, detail_tablename, detail_form_alias, 
+display_order, applied_protocol_control_id, extended_data_import_process, databrowser_label, flag_use_for_ccl, treatment_extend_control_id, use_addgrid, use_detail_form_for_index) 
+VALUES
+('medication history', 'general', 1, 'chus_txd_medication_history', 'chus_txd_medication_history', 
+0, NULL, NULL, 'general|medication history', 1, NULL, 1, 1);
+CREATE TABLE IF NOT EXISTS `chus_txd_medication_history` (
+    medication varchar(250) DEFAULT NULL,
+    dose_unit varchar(100) DEFAULT NULL,
+    frequence varchar(100) DEFAULT NULL,
+    route varchar(100) DEFAULT NULL,
+    status varchar(100) DEFAULT NULL,
+	status_date date DEFAULT NULL,
+	status_date_accuracy char(1) NOT NULL DEFAULT '',
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `chus_txd_medication_history_revs` (
+    medication varchar(250) DEFAULT NULL,
+    dose_unit varchar(100) DEFAULT NULL,
+    frequence varchar(100) DEFAULT NULL,
+    route varchar(100) DEFAULT NULL,
+    status varchar(100) DEFAULT NULL,
+	status_date date DEFAULT NULL,
+	status_date_accuracy char(1) NOT NULL DEFAULT '',
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `chus_txd_medication_history`
+  ADD CONSTRAINT `chus_txd_medication_history_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('chus_txd_medication_history');
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("chus_medication_status", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("prior", "prior"),("actual/concomitant", "actual/concomitant");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_medication_status"), 
+(SELECT id FROM structure_permissible_values WHERE value="prior" AND language_alias="prior"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_medication_status"), 
+(SELECT id FROM structure_permissible_values WHERE value="actual/concomitant" AND language_alias="actual/concomitant"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_medication_history', 'medication', 'input',  NULL , '0', '', '', '', 'medication', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_medication_history', 'dose_unit', 'input',  NULL , '0', '', '', '', 'dose_unit', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_medication_history', 'frequence', 'input',  NULL , '0', '', '', '', 'frequence', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_medication_history', 'route', 'input',  NULL , '0', '', '', '', 'route', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_medication_history', 'status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status') , '0', '', '', '', 'status', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_medication_history', 'status_date', 'date',  NULL , '0', '', '', '', '', 'as of date');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_medication_history' AND `field`='medication' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='medication' AND `language_tag`=''), '1', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_medication_history' AND `field`='dose_unit' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dose_unit' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_medication_history' AND `field`='frequence' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='frequence' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_medication_history' AND `field`='route' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='route' AND `language_tag`=''), '1', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_medication_history' AND `field`='status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status' AND `language_tag`=''), '1', '14', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_medication_history' AND `field`='status_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='as of date'), '1', '15', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('medication history','Medication History'), ('medication','Medication'), ('dose_unit','Dose/Unit'), ('frequence','Frequence'), ('route','Route'),("prior", "Prior"),("actual/concomitant", "Actual/Concomitant"); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_medication_history'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_medication_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_medication_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_medication_history' AND `field`='medication'), 'notEmpty', '');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='rows=1,cols=30' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_medication_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Family History (revision)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Family History Diagnosis');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('unknown', 'Unknown',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('IBD', 'IBD (Crohn, Ulcerative colitis, other)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('other', 'Other',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+ALTER TABLE family_histories
+   ADD COLUMN chus_precision VARCHAR(250) DEFAULT NULL;
+ALTER TABLE family_histories_revs
+   ADD COLUMN chus_precision VARCHAR(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'FamilyHistory', 'family_histories', 'chus_precision', 'input',  NULL , '0', 'size=10', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='chus_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy') AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='detail' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='chus_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='coding',  `language_tag`='' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='autocomplete' AND structure_value_domain  IS NULL ;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- STUDY
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE study_summaries 
+  ADD COLUMN chus_institution VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN chus_ethical_approved char(1) DEFAULT '', 
+  ADD COLUMN chus_ethical_approval_file_name varchar(500) DEFAULT null,
+  ADD COLUMN chus_mta_data_sharing_approved char(1) DEFAULT '', 
+  ADD COLUMN chus_mta_data_sharing_approved_file_name varchar(500) DEFAULT null;
+ALTER TABLE study_summaries_revs 
+  ADD COLUMN chus_institution VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN chus_ethical_approved char(1) DEFAULT '', 
+  ADD COLUMN chus_ethical_approval_file_name varchar(500) DEFAULT null,
+  ADD COLUMN chus_mta_data_sharing_approved char(1) DEFAULT '', 
+  ADD COLUMN chus_mta_data_sharing_approved_file_name varchar(500) DEFAULT null;  
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('chus_institutions', "StructurePermissibleValuesCustom::getCustomDropdown('Institutions')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Institutions', 1, 50, 'study / project');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Institutions');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'chus_ethical_approved', 'yes_no',  NULL , '0', '', '', '', 'ethic', ''), 
+('Study', 'StudySummary', 'study_summaries', 'chus_ethical_approval_file_name', 'input',  NULL , '0', 'size=50', '', '', '', 'file name'), 
+('Study', 'StudySummary', 'study_summaries', 'chus_mta_data_sharing_approved', 'yes_no',  NULL , '0', '', '', '', 'mta data sharing', ''), 
+('Study', 'StudySummary', 'study_summaries', 'chus_mta_data_sharing_approved_file_name', 'input',  NULL , '0', 'size=50', '', '', '', 'file name'),
+('Study', 'StudySummary', 'study_summaries', 'chus_institution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_institutions') , '0', '', '', '', 'laboratory / institution', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chus_ethical_approved' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ethic' AND `language_tag`=''), '2', '1', 'approval', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chus_ethical_approval_file_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=50' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='file name'), '2', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chus_mta_data_sharing_approved' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mta data sharing' AND `language_tag`=''), '2', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chus_mta_data_sharing_approved_file_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=50' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='file name'), '2', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chus_institution'), '1', '8', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='30', `language_heading`='details' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('laboratory / institution', 'Laboratory/Institution','Laboratoire/Institution'),
+('approval', 'Approval', 'Approbation'),
+('ethic', 'Ethic', 'éthique'),
+('file name', 'File Name', 'Nom du fichier'),
+('mta data sharing', 'MTA Data Sharing', 'Partage de matériels et de données');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='studyinvestigators') 
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' 
+AND `field` IN ('first_name', 'last_name', 'organization'));
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='studyfundings') 
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE `model`='StudyFunding' AND `tablename`='study_fundings' AND `field`='study_sponsor' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE study_summaries ADD COLUMN chus_pubmed_ids TEXT DEFAULT NULL;
+ALTER TABLE study_summaries_revs ADD COLUMN chus_pubmed_ids TEXT DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'chus_pubmed_ids', 'textarea',  NULL , '0', 'cols=40,rows=1', '', '', 'pubmed ids', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='chus_pubmed_ids' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=1' AND `default`='' AND `language_help`='' AND `language_label`='pubmed ids' AND `language_tag`=''), '2', '20', 'literature', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('literature','Literature','Literature'),
+('pubmed ids','PubMed IDs','PubMed IDs');
+
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('chus_study_fundings', "StructurePermissibleValuesCustom::getCustomDropdown('Study Fundings')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Study Fundings', 1, 50, 'study / project');
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_study_fundings') ,  `setting`='' WHERE model='StudyFunding' AND tablename='study_fundings' AND field='study_sponsor' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_study_fundings') ,  `language_label`='name' WHERE model='StudyFunding' AND tablename='study_fundings' AND field='study_sponsor' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='chus_study_fundings');
+
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `field`='last_name'), 'notEmpty', ''),
+((SELECT id FROM structure_fields WHERE  `tablename`='study_fundings' AND `field`='study_sponsor'), 'notEmpty', '');
+
+INSERT INTO i18n (id,en,fr) VALUES ('selected value already exists for the study', 'Selected value already exists for the study', "La valeur sélectionnée existe déjà pour l'étude");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- Order
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='contact' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='orders_contact') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='study / project' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='default_study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------
 -- Collection
@@ -1263,6 +2044,7 @@ SELECT * FROM treatment_controls WHERE flag_active = 1;
 
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- collections
 
 
 
@@ -1270,18 +2052,47 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure
 
 
 
-aide code topo et morpho
-history
+
+
+
+
+
+
+
+
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.1_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.2_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.3_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < custom_post_v268.sql
+ mysql -u root chusoncoaxis --default-character-set=utf8 < custom_post_v268_data.sql
+
+
+
+
+
+
+TODO:
+aide code topo et morpho pour la saisie
+ajouter info dans history
 redirect apres add chir biopsie systemic treatment pour avoir le add precision
 dans detail annotation ne pas afficher le links to collection si pas de uss_ccl
-
-
-
-
-
-
+verifier les champs use ccl
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("chus_contact_status", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("contact allowed", "contact allowed"),('lost to follow-up','lost to follow-up'),('no further recontact','no further recontact');
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_contact_status"), (SELECT id FROM structure_permissible_values WHERE value="contact allowed" AND language_alias="contact allowed"), "", "1")
 
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
@@ -1294,14 +2105,5 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as
 VALUES
 ('liver', 'Liver',  'Foie', '1', @control_id, NOW(), NOW(), 1, 1),
 
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.1_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.2_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.3_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 <  custom_post_v268.sql
-mysql -u root chusoncoaxis --default-character-set=utf8 <  custom_post_v268_data.sql
+
+

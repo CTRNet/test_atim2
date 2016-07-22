@@ -385,7 +385,7 @@ INSERT IGNORE INTO i18n
 ('tma slide uses', 'TMA Slide Analysis/Scoring', 'Analyse/Score de lame de TMA'),
 ('you must create at least one use for each tma slide','You must create at least one use per slide','Vous devez créer au moins une utilisation par lame'),
 ('add use', 'Add Use', 'Créer utilisation'),
-('more than one study matche the following data [%s]','More than one study matche the value [%s]','Plus d''une étude correspond à la valeur [%s]'),
+('more than one study matches the following data [%s]','More than one study matches the value [%s]','Plus d''une étude correspond à la valeur [%s]'),
 ('no study matches the following data [%s]','No study matches the value [%s]','Aucune étude ne correspond à la valeur [%s]');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -628,7 +628,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='administrate_dropdowns'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='fields_linked_to_custom_list' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fields' AND `language_tag`=''), '1', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Removed worong Order menu
+-- Removed wrong Order menu
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 DELETE FROM menus WHERE use_link LIKE '/Order/OrderItems/detail/%';
@@ -764,6 +764,152 @@ SELECT 'Added TMA SLide to Order link into databrowser. Run following queries to
 UNION ALL
 SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');" AS '### MESSAGE ### New DataBrowser realtionships';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Added source of the icd codes in help message
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET language_help = 'help_dx_icd10_code_who' WHERE language_help = 'help_primary code';
+UPDATE structure_fields SET language_help = 'help_family_history_dx_icd10_code_who' WHERE language_help = 'help_primary_icd10_code';
+UPDATE structure_fields SET language_help = 'help_cause_of_death_icd10_code_who' WHERE language_help = 'help_cod_icd10_code';
+UPDATE structure_fields SET language_help = 'help_2nd_cause_of_death_icd10_code_who' WHERE language_help = 'help_secondary_cod_icd10_code';
+UPDATE structure_fields SET language_help = 'help_dx_icd_o_3_morpho' WHERE language_help = 'help_morphology';
+UPDATE structure_fields SET language_help = 'help_dx_icd_o_3_topo' WHERE language_help = 'help_topography';
+UPDATE structure_fields SET language_help = 'help_icd_10_code_who' WHERE language_help = '' AND setting = 'size=10,url=/CodingIcd/CodingIcd10s/autocomplete/who,tool=/CodingIcd/CodingIcd10s/tool/who';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("help_dx_icd10_code_who", "The disease or condition as represented by a code (ICD-10 codes from the 2009 Version of Stats Canada).", "La maladie ou la condition représentée par un code (ICD-10 codes de la version 2009 de 'Stats Canada')."),
+("help_icd_10_code_who", "ICD-10 codes from the 2009 Version of Stats Canada", "ICD-10 codes de la version 2009 de 'Stats Canada'."),
+("help_family_history_dx_icd10_code_who", "The disease or condition as represented by a code (ICD-10 codes from the 2009 Version of Stats Canada).", "La maladie ou la condition représentée par un code (ICD-10 codes de la version 2009 de 'Stats Canada')."),
+("help_cause_of_death_icd10_code_who", "The disease or injury which initiated the train of morbid events leading directly to a person's death or the circumstances of the accident or violence which produced the fatal injury, as represented by a code (ICD-10 codes from the 2009 Version of Stats Canada).", "La maladie ou la blessure qui a initié la série d'événements de morbidité, menant directement au décès de la personne ou les circonstances de l'accident ou violence ayant produit une blessure fatale, telle que représentée par un code (ICD-10 codes de la version 2009 de 'Stats Canada')."),
+("help_2nd_cause_of_death_icd10_code_who", "Any secondary disease, injury, circumstance of accident or violence which may have contributed to the person's death as represented by a code (ICD-10 codes from the 2009 Version of Stats Canada).", "N'importe quelle maladie secondaire, blessure, circonstance d'accident ou violence qui peut avoir contribué à  la mort de la personne, représenté par un code (ICD-10 codes de la version 2009 de 'Stats Canada')."),
+("help_dx_icd_o_3_morpho", "Records the type of cell that has become neoplastic and its biologic activity (ICD-O-3 morphological codes from december 2010 version of the CIHI publications department ).", "Enregistre le type de cellules qui est devenue néoplasique ainsi que son activité biologique (codes morphologiques ICD-O-3 de la version de décembre 2010 du 'CIHI publications department')."),
+("help_dx_icd_o_3_topo", "The topography code indicates the site of origin of a neoplasm (ICD-O-3 topological codes from 2009 version of Stats Canada).", "Le code de topographie indique le site de l'origine d'un néoplasme (codes morphologiques ICD-O-3 de la version 2009 de 'Stats Canada').");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Added category/site to coding_icd_o_3_topography
+-- 	Based on a internet reasearch:
+--     - http://codes.iarc.fr/topography		
+--     - http://docplayer.fr/14520236-Classification-internationale-des-maladies-pour-l-oncologie.html	
+-- Added a drop down list to search on 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT 'Replaced (en/fr)_title field values by (en/fr)_sub_title values.' AS '### MESSAGE ### ICD-O-3 Topographical Codes Clean-up'
+UNION ALL
+SELECT "Recorded 'tissue site/category' (based on a ATiM developpers reasearch) in %_sub_title columns." AS '### MESSAGE ### ICD-O-3 Topographical Codes Clean-up'
+UNION ALL
+SELECT "Added a search field on site/category for each form displaying a field linked to the ICD-0-3-Topo tool." AS '### MESSAGE ### ICD-O-3 Topographical Codes Clean-up';
+UPDATE coding_icd_o_3_topography SET en_title = en_sub_title, fr_title = fr_sub_title;
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Lip", fr_sub_title = "Lèvre" WHERE id LIKE 'C00%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Base of tongue", fr_sub_title = "Base de la langue" WHERE id LIKE 'C01%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and unspecified parts of tongue", fr_sub_title = "Autres localisations et localisations non specifiees de la langue" WHERE id LIKE 'C02%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Gum", fr_sub_title = "Gencive" WHERE id LIKE 'C03%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Floor of mouth", fr_sub_title = "Plancher de la bouche" WHERE id LIKE 'C04%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Palate", fr_sub_title = "Palais" WHERE id LIKE 'C05%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and unspecified parts of mouth", fr_sub_title = "Autres localisations et localisations non spécifiées de la bouche" WHERE id LIKE 'C06%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Parotid glanid", fr_sub_title = "Glande parotide" WHERE id LIKE 'C07%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and unspecified major salivary glands", fr_sub_title = "Autres glandes salivaires principales et glandes salivaires principales non spécifiées" WHERE id LIKE 'C08%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Tonsil", fr_sub_title = "Amygdale" WHERE id LIKE 'C09%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Oropharynx", fr_sub_title = "Oropharynx" WHERE id LIKE 'C10%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Nasopharynx", fr_sub_title = "Nasopharynx (arrière-cavité des fosses nasales, cavum, épipharynx rhino-pharynx)" WHERE id LIKE 'C11%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Pyriform sinus", fr_sub_title = "Sinus piriforme" WHERE id LIKE 'C12%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Hypopharynx", fr_sub_title = "Hypopharynx" WHERE id LIKE 'C13%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and ill-defined sites in lip, oral cavity and pharynx", fr_sub_title = "Autres localisations et localisations maldéfinies de la lèvre, de la cavité buccale et du pharynx" WHERE id LIKE 'C14%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Esophagus", fr_sub_title = "Oesophage" WHERE id LIKE 'C15%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Stomach", fr_sub_title = "Estomac" WHERE id LIKE 'C16%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Small intestine", fr_sub_title = "Intestin grêle" WHERE id LIKE 'C17%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Colon", fr_sub_title = "Côlon" WHERE id LIKE 'C18%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Rectosigmoid junction", fr_sub_title = "Jonction recto-sigmoidienne" WHERE id LIKE 'C19%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Rectum", fr_sub_title = "Rectum" WHERE id LIKE 'C20%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Anus and anal canal", fr_sub_title = "Anus et canal anal" WHERE id LIKE 'C21%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Liver and intrahepatic bile ducts", fr_sub_title = "Foie et voiesbiliaires intrahépatiques" WHERE id LIKE 'C22%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Gallbladder", fr_sub_title = "Vésicule biliaire" WHERE id LIKE 'C23%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and unspecified parts of biliary tract", fr_sub_title = "Autres localisations et localisations non specifiées des voies biliaires" WHERE id LIKE 'C24%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Pancreas", fr_sub_title = "Pancréas" WHERE id LIKE 'C25%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and ill-defined digestive organs", fr_sub_title = "Autres localisations et localisations mal définies des organes digestifs" WHERE id LIKE 'C26%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Nasal cavity and middle ear", fr_sub_title = "Fosse nasale et oreille moyenne" WHERE id LIKE 'C30%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Accessory sinuses", fr_sub_title = "Sinus annexes de la face" WHERE id LIKE 'C31%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Larynx", fr_sub_title = "Larynx" WHERE id LIKE 'C32%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Trachea", fr_sub_title = "Trachée" WHERE id LIKE 'C33%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Bronchus and lung", fr_sub_title = "Bronche et poumon" WHERE id LIKE 'C34%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Thymus", fr_sub_title = "Thymus" WHERE id LIKE 'C37%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Heart, mediastinum, and pleura", fr_sub_title = "Coeur, médiastin et plèvre" WHERE id LIKE 'C38%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and ill-defined sites within respiratory system amd intrathoracic organs", fr_sub_title = "Autres localisations et localisations mal définies de l’appareil respiratoire et des organes intrathoraciques" WHERE id LIKE 'C39%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Bones, joints and articular cartilage of limbs", fr_sub_title = "Os, articulations et cartilage articulaire des membres" WHERE id LIKE 'C40%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Bones, joints and articular cartilage of other and unspecified sites", fr_sub_title = "Os, articulations et cartilage articulaire de localisations autres et non spécifiées" WHERE id LIKE 'C41%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Hematopoietic and reticuloendothelial systems", fr_sub_title = "Systèmes hématopoiétiqueet réticulo-endothélial" WHERE id LIKE 'C42%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Skin", fr_sub_title = "Peau" WHERE id LIKE 'C44%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Peripheral nerves and autonomic nervous system", fr_sub_title = "Nerfs périphériques et système nerveux autonome" WHERE id LIKE 'C47%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Retroperitoneum and peritoneum", fr_sub_title = "Rétropéritoine et péritoine" WHERE id LIKE 'C48%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Connective, subcutaneous and other soft tissues", fr_sub_title = "Tissu conjonctif, tissusous-cutané et autres tissus mous" WHERE id LIKE 'C49%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Breast", fr_sub_title = "Sein" WHERE id LIKE 'C50%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Vulva", fr_sub_title = "Vulve" WHERE id LIKE 'C51%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Vagina", fr_sub_title = "Vagin" WHERE id LIKE 'C52%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Cervix uteri", fr_sub_title = "Col utérin" WHERE id LIKE 'C53%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Corpus uteri", fr_sub_title = "Corps utérin" WHERE id LIKE 'C54%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Uterus, nos", fr_sub_title = "Utérus sai" WHERE id LIKE 'C55%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Ovary", fr_sub_title = "Ovaire" WHERE id LIKE 'C56%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other an unspecified female genital organs", fr_sub_title = "Organes génitaux féminins, autres et non spécifiés" WHERE id LIKE 'C57%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Placenta", fr_sub_title = "Placenta" WHERE id LIKE 'C58%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Penis", fr_sub_title = "Verge" WHERE id LIKE 'C60%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Prostate gland", fr_sub_title = "Prostate" WHERE id LIKE 'C61%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Testis", fr_sub_title = "Testicule" WHERE id LIKE 'C62%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and unspecified male genital organs", fr_sub_title = "Organesgénitaux masculins, autres et non spécifiés" WHERE id LIKE 'C63%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Kidney", fr_sub_title = "Rein" WHERE id LIKE 'C64%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Renal pelvis", fr_sub_title = "Bassinet (du rein)" WHERE id LIKE 'C65%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Ureter", fr_sub_title = "Uretère" WHERE id LIKE 'C66%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Bladder", fr_sub_title = "Vessie" WHERE id LIKE 'C67%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and unspecified urinary organs", fr_sub_title = "Organesurinaires, autres et non spécifiés" WHERE id LIKE 'C68%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Eye and adnexa", fr_sub_title = "Œil et annexes" WHERE id LIKE 'C69%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Meninges", fr_sub_title = "Méninges" WHERE id LIKE 'C70%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Brain", fr_sub_title = "Encéphale" WHERE id LIKE 'C71%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Spinal cord, cranial nerves, and other parts of central nervous system", fr_sub_title = "Moelle épinière, nerfs crâniens et autres régions du système nerveux central" WHERE id LIKE 'C72%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Thyroid gland", fr_sub_title = "Glande thyroide" WHERE id LIKE 'C73%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Adrenal gland", fr_sub_title = "Glande surrénale" WHERE id LIKE 'C74%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other endocrine glands and related structures", fr_sub_title = "Autres glandes endocrines et structures apparentées" WHERE id LIKE 'C75%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and ill-defined sites", fr_sub_title = "Autres localisations et localisations maldéfinies" WHERE id LIKE 'C76%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Lymph nodes", fr_sub_title = "Ganglions lymphatiques" WHERE id LIKE 'C77%';
+UPDATE coding_icd_o_3_topography SET en_sub_title = "Unknown primary site", fr_sub_title = "Site primaireinconnu" WHERE id LIKE 'C80%';
+
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('icd_0_3_topo_sites', 'ClinicalAnnotation.DiagnosisControl::getIcdO3TopoSitesList') ;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'topography', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topo_sites') , '0', '', '', 'help_dx_icd_o_3_topo', '', '');
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topo_sites'));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `flag_override_help`, `language_help`, `flag_search`) 
+(SELECT `structure_id`, @structure_field_id, `display_column`, `display_order`, `flag_override_help`, `language_help`, `flag_search` FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND setting = 'size=10,url=/CodingIcd/CodingIcdo3s/autocomplete/topo,tool=/CodingIcd/CodingIcdo3s/tool/topo'));
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Added locoregional and distant information to the add diagnosis button
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('locoregional', 'Locoregional', 'Locorégionale'),
+('distant', 'Distant', 'Distant');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Worked on ICD-10-WHO code validation message + changed ICD-10-WHO code tool to a limited drop down list for disease code 
+-- selection of a secondary diagnosis
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SET @id = (SELECT id FROM structure_validations WHERE structure_field_id = 1024 AND rule = 'validateIcd10WhoCode' AND language_message = 'invalid primary disease code' LIMIT 0 ,1);
+DELETE FROM structure_validations WHERE structure_field_id = 1024 AND rule = 'validateIcd10WhoCode' AND language_message = 'invalid primary disease code' AND id != @id;
+UPDATE structure_validations SET language_message = 'invalid primary/secondary disease code' WHERE language_message = 'invalid primary disease code' AND structure_field_id = 1024;
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('invalid primary/secondary disease code', 'Invalid primary/secondary diagnosis disease code', 'Code de maladie du diagnostic primaire/secondaire invalide');
+
+SET @flag_detail = (SELECT flag_detail FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'));
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('secondary_diagnosis_icd10_code_who', 'ClinicalAnnotation.DiagnosisControl::getSecondaryIcd10WhoCodesList') ;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'icd10_code', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='secondary_diagnosis_icd10_code_who') , '0', '', '', 'help_dx_icd10_code_who', 'disease code', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='secondary_diagnosis_icd10_code_who')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx_icd10_code_who' AND `language_label`='disease code' AND `language_tag`=''), '2', '1', 'coding', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', @flag_detail, '0', @flag_detail, '0', @flag_detail, '0', '0', '0', '0', '0', '0', '0', @flag_detail, @flag_detail, @flag_detail, '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+SELECT "Changed field 'Disease Code (ICD-10_WHO  code)' of 'dx_secondary' form from ICD-10_WHO tool to a limited drop down list." AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List'
+UNION ALL
+SELECT "Run following queries to return to previous configration" AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List'
+UNION ALL
+SELECT "UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');" AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List'
+UNION ALL
+SELECT "UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='secondary_diagnosis_icd10_code_who') AND `flag_confidential`='0');" AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List';
 
 
 
@@ -774,6 +920,47 @@ SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_activ
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
+
+
+
+
+
+
+
+
+
+
+
+refaire le set de données pour la demo...
+séparer storage/TMA block
+évenement congélo à appliquer à tous....
+faire un autocomplete pour drugs....
+
+Verifier que sur le secondaire de dx on a bien topo morpho disease code
+peut être refaire des dx speciaux pour la démo avec de bon champs...
+ameliorer la rechercher des icd... pour mettre les plus pertinents en premier.
+Vérifier les messages d'aides.
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table

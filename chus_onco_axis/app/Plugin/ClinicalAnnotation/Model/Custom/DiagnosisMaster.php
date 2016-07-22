@@ -14,6 +14,52 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		return empty($this->validationErrors);
 	}
 	
+	function updateAgeAtDx($model, $primary_key_id) {
+		$criteria = array(
+			'DiagnosisMaster.deleted <> 1',
+			$model.'.id' => $primary_key_id);
+		$joins = array(array(
+			'table' => 'participants',
+			'alias' => 'Participant',
+			'type' => 'INNER',
+			'conditions'=> array('Participant.id = DiagnosisMaster.participant_id')));
+		$dx_to_check = $this->find('all', array('conditions' => $criteria, 'joins' => $joins, 'recursive' => '0', 'fields' => array('Participant.*, DiagnosisMaster.*')));
+	
+		$dx_to_update = array();
+		$warnings = array();
+		foreach($dx_to_check as $new_dx) {
+			$dx_id = $new_dx['DiagnosisMaster']['id'];
+			$previous_age_at_dx = $new_dx['DiagnosisMaster']['age_at_dx'];
+			$previous_age_at_dx_precision = $new_dx['DiagnosisMaster']['age_at_dx_precision'];
+			$new_age_at_dx = '';
+			$new_age_at_dx_precision = '';
+			if($new_dx['DiagnosisMaster']['dx_date'] && $new_dx['Participant']['date_of_birth']) {
+				$arr_spent_time = $this->getSpentTime($new_dx['Participant']['date_of_birth'].' 00:00:00', $new_dx['DiagnosisMaster']['dx_date'].' 00:00:00');
+				if($arr_spent_time['message']) {
+					$warnings[$arr_spent_time['message']] = __('unable to calculate age at diagnosis').': '.__($arr_spent_time['message']);
+				} else if($arr_spent_time['years'] != $previous_age_at_dx) {
+					$new_age_at_dx = $arr_spent_time['years'];
+					$new_age_at_dx_precision = 'known';
+					if($new_dx['DiagnosisMaster']['dx_date_accuracy'] == 'y' || $new_dx['Participant']['date_of_birth_accuracy']== 'y') {
+						$new_age_at_dx_precision = 'uncertain';
+					} else if($new_dx['DiagnosisMaster']['dx_date_accuracy'] == 'm' || $new_dx['Participant']['date_of_birth_accuracy']== 'm') {
+						$new_age_at_dx_precision = 'uncertain within 2 years';
+					}
+				}
+			}
+			if($previous_age_at_dx != $new_age_at_dx || $previous_age_at_dx_precision != $new_age_at_dx_precision)
+				$dx_to_update[] = array('DiagnosisMaster' => array('id' => $dx_id, 'age_at_dx' => $new_age_at_dx, 'age_at_dx_precision' => $new_age_at_dx_precision));
+		}
+		foreach($warnings as $new_warning) AppController::getInstance()->addWarningMsg($new_warning);
+	
+		$this->addWritableField(array('age_at_dx', 'age_at_dx_precision'));
+		foreach($dx_to_update as $dx_data) {
+			if(isset($thid->data)) $thid->data = array();
+			$this->id = $dx_data['DiagnosisMaster']['id'];
+			if(!$this->save($dx_data, false)) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+		}
+	}
+	
 	function validateAndUpdateTopoMorphoData() {
 		$diagnosis_data =& $this->data;
 	
@@ -25,27 +71,6 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	
 		// Launch validation
 		if(array_key_exists('FunctionManagement', $diagnosis_data)) {
-			//Topography
-			if(array_key_exists('chus_autocomplete_digestive_topography', $diagnosis_data['FunctionManagement'])) {
-				$diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_topography'] = trim($diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_topography']);
-				if(strlen($diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_topography'])) {
-					$selected_topos = array();				
-					if(preg_match("/^(C[0-9]+)/i", $diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_topography'], $matches) > 0){				
-						$topography = $matches[1];
-						$selected_topos = $this->query("SELECT * FROM chus_topography_coding WHERE code = '$topography'");
-					}
-					if(sizeof($selected_topos) == 1) {
-						$diagnosis_data['DiagnosisMaster']['topography'] = $selected_topos['0']['chus_topography_coding']['code'];
-						$diagnosis_data['DiagnosisDetail']['topography_category'] = $selected_topos['0']['chus_topography_coding']['category'];
-						$diagnosis_data['DiagnosisDetail']['topography_description'] = $selected_topos['0']['chus_topography_coding']['description'];
-						$this->addWritableField(array('topography', 'topography_category', 'topography_description'));
-					} else if(sizeof($selected_topos) > 1) {
-						$this->validationErrors['chus_autocomplete_digestive_topography'] = array('error' => str_replace('%s', $diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_topography'], __('more than one topography value matches the following data [%s]')));
-					} else {
-						$this->validationErrors['chus_autocomplete_digestive_topography'] = array('error' => str_replace('%s', $diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_topography'], __('no topography value matches the following data [%s]')));
-					}
-				}
-			}
 			//Morphology
 			if(array_key_exists('chus_autocomplete_digestive_morphology', $diagnosis_data['FunctionManagement'])) {
 				$diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_morphology'] = trim($diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_morphology']);
@@ -59,14 +84,14 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 						$selected_morphos = $this->query("SELECT * FROM chus_morphology_coding WHERE morphology_code = '$morphology_code'");
 					}
 					if(sizeof($selected_morphos) == 1) {
-						$diagnosis_data['DiagnosisMaster']['morphology'] = $selected_morphos['0']['chus_morphology_coding']['morphology_code'];
+						$diagnosis_data['DiagnosisDetail']['chus_morphology'] = $selected_morphos['0']['chus_morphology_coding']['morphology_code'];
 						$diagnosis_data['DiagnosisDetail']['morphology_id'] = $selected_morphos['0']['chus_morphology_coding']['id'];
 						$diagnosis_data['DiagnosisDetail']['morphology_tumour_type'] = $selected_morphos['0']['chus_morphology_coding']['tumour_type'];
 						$diagnosis_data['DiagnosisDetail']['morphology_tumour_cell_origin'] = $selected_morphos['0']['chus_morphology_coding']['tumour_cell_origin'];
 						$diagnosis_data['DiagnosisDetail']['morphology_tumour_category'] = $selected_morphos['0']['chus_morphology_coding']['tumour_category'];
 						$diagnosis_data['DiagnosisDetail']['morphology_behaviour_code'] = $selected_morphos['0']['chus_morphology_coding']['behaviour_code'];
 						$diagnosis_data['DiagnosisDetail']['morphology_description'] = $selected_morphos['0']['chus_morphology_coding']['morphology_description'];
-						$this->addWritableField(array('morphology', 'morphology_tumour_type', 'morphology_tumour_cell_origin', 'morphology_tumour_category', 'morphology_behaviour_code', 'morphology_description'));
+						$this->addWritableField(array('chus_morphology', 'morphology_tumour_type', 'morphology_tumour_cell_origin', 'morphology_tumour_category', 'morphology_behaviour_code', 'morphology_description'));
 					} else if(sizeof($selected_morphos) > 1) {
 						$this->validationErrors['chus_autocomplete_digestive_morphology'] = array('error' => str_replace('%s', $diagnosis_data['FunctionManagement']['chus_autocomplete_digestive_morphology'], __('more than one morphology value matches the following data [%s]')));
 					} else {
@@ -75,29 +100,6 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				}
 			}		
 		}
-	}
-	
-	function getChusTopographyDataForDisplay($topo_data) {
-	
-		//-- NOTE ----------------------------------------------------------------
-		//
-		// This function is linked to a function of the DiagnosisMaster controller
-		// called autocompleteChusTopography().
-		//
-		// When you override the getStudyDataAndCodeForDisplay() function,
-		// check if you need to override these functions.
-		//
-		//------------------------------------------------------------------------
-		
-		if(!empty($topo_data)) {
-			if(isset($topo_data['chus_topography_coding'])) $topo_data = $topo_data['chus_topography_coding'];
-			if(isset($topo_data['code']) && !empty($topo_data['code'])) {
-				return $topo_data['code'].
-					(isset($topo_data['category'])? ' - '.$topo_data['category']: '').
-					(isset($topo_data['description'])? ' - '.$topo_data['description']: '');
-			}	
-		}
-		return '';
 	}
 	
 	function getChusMorphologyDataForDisplay($morpho_data) {
@@ -126,27 +128,10 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		return '';
 	}
 	
-	function getChusTopographyValues($field) {
-		$field = $field[0];
-		$res = array();
-		foreach($this->query("SELECT DISTINCT $field FROM chus_topography_coding ORDER BY $field ASC") as $new_unit) $res[$new_unit['chus_topography_coding'][$field]] = $new_unit['chus_topography_coding'][$field];
-		return $res;
-	}
-	
 	function getChusMorphologyValues($field) {
 		$field = $field[0];
 		$res = array();
 		foreach($this->query("SELECT DISTINCT $field FROM chus_morphology_coding ORDER BY $field ASC") as $new_unit) $res[$new_unit['chus_morphology_coding'][$field]] = $new_unit['chus_morphology_coding'][$field];
-		return $res;
-	}
-	
-	function getSecondaryIcd10Codes() {
-		$res = array();
-		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-		$CodingIcd_model = AppModel::getInstance("CodingIcd", "CodingIcd10Who", true);
-		foreach($CodingIcd_model->find('all', array('conditions' => array('CodingIcd10Who.en_title' => 'neoplasms', "CodingIcd10Who.en_description LIKE  '%secondary%'"), 'order' => 'id ASC')) as $new_unit) {
-			$res[$new_unit['CodingIcd10Who']['id']] = $new_unit['CodingIcd10Who']['id'].' '.$new_unit['CodingIcd10Who'][$lang.'_description'];
-		}
 		return $res;
 	}
 }
