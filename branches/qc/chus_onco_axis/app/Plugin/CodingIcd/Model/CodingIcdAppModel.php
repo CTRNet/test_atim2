@@ -11,13 +11,16 @@ class CodingIcdAppModel extends AppModel {
 		if(isset(AppController::getInstance()->csv_config) && isset(AppController::getInstance()->csv_config['config_language'])){
 			$lang = AppController::getInstance()->csv_config['config_language'] == "eng" ? "en" : "fr";
 		}
-		$data = $this->find('first', array('conditions' => array('id' => $id), 'fields' => array($lang."_description")));
+		$fields = array($lang."_description");
+		if(isset($this->description_suffix_fields[$lang])) {
+			$fields = $this->description_suffix_fields[$lang];
+		}
+		$data = $this->find('first', array('conditions' => array('id' => $id), 'fields' => $fields));
 		$description = '';
 		if(is_array($data) && !empty($data)) {
 			//useless if, but php generates a bogus warning without it
 			$data = array_values($data);
-			$data = array_values($data[0]);
-			$description = $data[0];
+			$description = implode(' - ',$data[0]);
 		}
 		return $description;
 	}

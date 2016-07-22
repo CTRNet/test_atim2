@@ -2,11 +2,7 @@
 	
 	switch($annotation['EventControl']['event_type']) {
 		case 'medical history':
-			if($annotation['EventDetail']['yes_no'] == 'y') {
-				$chronolgy_data_annotation['chronology_details'] = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Medical History Diagnosis', $annotation['EventDetail']['type']);
-			} else {
-				$chronolgy_data_annotation = false;
-			}
+			$chronolgy_data_annotation['chronology_details'] = $annotation['EventDetail']['body_system'];
 			break;
 		default:
 	}

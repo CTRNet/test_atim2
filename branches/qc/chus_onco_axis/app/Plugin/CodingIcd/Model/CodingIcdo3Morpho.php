@@ -2,6 +2,11 @@
 
 class CodingIcdo3Morpho extends CodingIcdAppModel{
 
+	//---------------------------------------------------------------------------------------------------------------
+	// Coding System: ICD-O-3 (Morphology)
+	// From: CIHI publications department (ICD10CA_Code_Eng_Desc2010_V2_0 & ICD10CA_Code_Fra_Desc2010_V2_0)
+	//---------------------------------------------------------------------------------------------------------------
+	
 	protected static $singleton = null;
 	
     var $name = 'CodingIcdo3Morpho';

@@ -99,7 +99,7 @@ class StudySummary extends StudyAppModel
 			if(sizeof($selected_studies) == 1) {
 				$this->study_titles_already_checked[$study_data_and_code] = array('StudySummary' => $selected_studies[0]['StudySummary']);
 			} else if(sizeof($selected_studies) > 1) {
-				$this->study_titles_already_checked[$study_data_and_code] = array('error' => str_replace('%s', $study_data_and_code, __('more than one study matche the following data [%s]')));
+				$this->study_titles_already_checked[$study_data_and_code] = array('error' => str_replace('%s', $study_data_and_code, __('more than one study matches the following data [%s]')));
 			} else {
 				$this->study_titles_already_checked[$study_data_and_code] = array('error' => str_replace('%s', $study_data_and_code, __('no study matches the following data [%s]')));
 			}
