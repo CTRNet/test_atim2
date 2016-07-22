@@ -965,7 +965,7 @@ UPDATE structure_fields SET  `language_label`='coding' WHERE model='EventDetail'
 -- pathology report
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
-(null, '', 'clinical', 'pathology report', 1, 'chus_ed_pathology_report', 'chus_ed_pathology_report', 0, 'clinical|pathology report', 1, 1, 1);
+(null, '', 'clinical', 'pathology report', 1, 'chus_ed_pathology_report', 'chus_ed_pathology_report', 0, 'clinical|pathology report', 0, 1, 1);
 CREATE TABLE IF NOT EXISTS `chus_ed_pathology_report` (
   report_number varchar(20) DEFAULT NULL,
   tumor_size varchar(20) DEFAULT NULL,
@@ -1393,7 +1393,7 @@ CREATE TABLE IF NOT EXISTS `chus_ed_follow_up` (
   `event_master_id` int(11) NOT NULL,
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-CREATE TABLE IF NOT EXISTS `chus_ed_follow_up` (
+CREATE TABLE IF NOT EXISTS `chus_ed_follow_up_revs` (
   weight_kg int(4) DEFAULT NULL,
   height_cm int(4) DEFAULT NULL,
   `event_master_id` int(11) NOT NULL,
@@ -2043,8 +2043,71 @@ UPDATE structure_formats SET `flag_override_label`='1', `language_label`='study 
 -- Clinical Collection Link 
 
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE treatment_controls SET flag_use_for_ccl = '0' WHERE tx_method NOT IN ('surgery', 'biopsy');
+UPDATE event_controls SET flag_use_for_ccl = '0';
 
--- collections
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Collections 
+
+REPLACE INTO i18n (id,en,fr) VALUES ('acquisition_label', 'Collection Event #', '# Évenement Collection');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label'), 'custom,/^[0-9]{4}$/', 'wrong_collection_event_nbr_format');
+INSERT INTO i18n (id,en,fr) VALUES ('wrong_collection_event_nbr_format', "Wrong 'Collection Event #' format (4 digits)", "Mauvais foramt du '# Évenement Collection' (4 chiffres)");
+
+UPDATE structure_formats SET flag_add = '0', flag_add_readonly = '0', flag_edit = '0', flag_edit_readonly = '0', flag_search = '0', flag_search_readonly = '0', flag_addgrid = '0', flag_addgrid_readonly = '0', 
+flag_editgrid = '0', flag_editgrid_readonly = '0', flag_batchedit = '0', flag_batchedit_readonly = '0', flag_index = '0', flag_detail = '0', flag_summary = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model` IN ('Collection', 'ViewCollection', 'ViewSample', 'ViewAliquot')
+AND `field` IN ('bank_id', 'collection_site'));
+
+ALTER TABLE collections 
+  ADD COLUMN chus_chemo_naive char(1) DEFAULT '',
+  ADD COLUMN chus_radio_naive char(1) DEFAULT '',
+  ADD COLUMN chus_study_summary_id INT(11) DEFAULT NULL;
+ALTER TABLE collections_revs
+  ADD COLUMN chus_chemo_naive char(1) DEFAULT '',
+  ADD COLUMN chus_radio_naive char(1) DEFAULT '',
+  ADD COLUMN chus_study_summary_id INT(11) DEFAULT NULL;
+ALTER TABLE `collections`
+  ADD CONSTRAINT `chus_collections_to_study_ibfk_1` FOREIGN KEY (`chus_study_summary_id`) REFERENCES `study_summaries` (`id`);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'chus_chemo_naive', 'yes_no',  NULL , '0', '', '', '', 'chemo naive', ''), 
+('InventoryManagement', 'Collection', 'collections', 'chus_radio_naive', 'yes_no',  NULL , '0', '', '', '', 'radio naive', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_chemo_naive' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chemo naive' AND `language_tag`=''), '2', '100', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_radio_naive' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='radio naive' AND `language_tag`=''), '2', '101', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_column`='2', `display_order`='113' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('chemo naive','Chemo Naive'), ('radio naive','Radio Naive');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'chus_chemo_naive', 'yes_no',  NULL , '0', '', '', '', 'chemo naive', ''), 
+('InventoryManagement', 'ViewCollection', '', 'chus_radio_naive', 'yes_no',  NULL , '0', '', '', '', 'radio naive', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='chus_chemo_naive' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chemo naive' AND `language_tag`=''), '1', '100', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='chus_radio_naive' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='radio naive' AND `language_tag`=''), '1', '101', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='113' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_chemo_naive' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chemo naive' AND `language_tag`=''), '1', '101', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_radio_naive' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='radio naive' AND `language_tag`=''), '1', '102', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='113' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Sample
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 203, 188, 142, 143, 141, 144, 192);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(1, 131, 23, 193, 200, 2, 25, 3, 132, 190, 189, 105, 106, 120, 121, 103, 104, 122, 123, 130, 101, 102, 194, 140, 11, 10);
+  
+-- Aliquot
+
+UPDATE aliquot_controls SET flag_active=false WHERE id IN(11, 10);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(11, 10);
+
+UPDATE structure_formats SET flag_add = '0', flag_add_readonly = '0', flag_edit = '0', flag_edit_readonly = '0', flag_search = '0', flag_search_readonly = '0', flag_addgrid = '0', flag_addgrid_readonly = '0', 
+flag_editgrid = '0', flag_editgrid_readonly = '0', flag_batchedit = '0', flag_batchedit_readonly = '0', flag_index = '0', flag_detail = '0', flag_summary = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('aliquot_label'));
 
 
 
@@ -2052,12 +2115,27 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure
 
 
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- Databrowser / Functions
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag = '0',active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory');
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine');
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'OrderLine');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster');
 
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 1
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
 
-
-
-
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE label = 'print barcodes';
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE label LIKE '%create participant message (applied to all)%';
+	
 
 
  mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
@@ -2083,6 +2161,7 @@ ajouter info dans history
 redirect apres add chir biopsie systemic treatment pour avoir le add precision
 dans detail annotation ne pas afficher le links to collection si pas de uss_ccl
 verifier les champs use ccl
+nettoyer les liens a etude ex collection to etude et ajouter au databrowser au besoin
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
