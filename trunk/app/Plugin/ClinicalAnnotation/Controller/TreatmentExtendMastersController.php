@@ -25,6 +25,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		
 		$tx_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($tx_master_data['TreatmentControl']['treatment_extend_control_id']);
 	
+		$this->set('tx_extend_type',$tx_extend_control_data['TreatmentExtendControl']['type']);
+		
 		// Set form alias and menu
 		$this->Structures->set($tx_extend_control_data['TreatmentExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
@@ -111,6 +113,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		// Get treatment extend data
 		$tx_extend_data = $this->TreatmentExtendMaster->getOrRedirect($tx_extend_id);
 		if($tx_extend_data['TreatmentMaster']['id'] != $tx_master_id) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		
+		$this->set('tx_extend_type',$tx_extend_data['TreatmentExtendControl']['type']);
 		
 		// Set form alias and menu data
 		$this->Structures->set($tx_extend_data['TreatmentExtendControl']['form_alias'] );
