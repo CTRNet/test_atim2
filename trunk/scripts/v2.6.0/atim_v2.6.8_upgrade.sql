@@ -958,7 +958,6 @@ INSERT INTO i18n (id,en,fr)
 VALES
 ('from associated protocol', 'from associated protocol', 'à partir du protocole associé');
 
-
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- ICD Codes:
 --     - Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields 
@@ -972,6 +971,18 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='CodingIcd'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='code' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='CodingIcd'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='generated_detail'), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Added code to create study funding and investigator
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('study investigator is assigned to the study/project', 'Your data cannot be deleted! This study/project is linked to an investigator.', "Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un investigateur."),
+('study funding is assigned to the study/project', 'Your data cannot be deleted! This study/project is linked to a funding.', "Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un financement."),
+'study funding is assigned to the study/project'
+('study investigator', 'Investigator', 'Investigateur'),
+'study funding', 'Funding', 'Financement'),
+SELECT "Set values of the variables $display_study_investigators and $display_study_fundings to 'false' in View/StudySummaries/detail.ctp' to hide options." AS '### MESSAGE ### Added investigators and fundings to study';
 
 
 
@@ -985,40 +996,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 
-
-
-
-
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
-
-
-
-
-
-
-
-
-
-
-
-refaire le set de données pour la demo...
-séparer storage/TMA block
-évenement congélo à appliquer à tous....
-faire un autocomplete pour drugs....
-faire le meme study que qbcf
-Vérifier les nouveaux sample type...
-
-Passe...
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
