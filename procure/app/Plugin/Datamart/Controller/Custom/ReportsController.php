@@ -1202,7 +1202,7 @@ class ReportsControllerCustom extends ReportsController {
 				foreach($all_atim_data as $atim_data) {
 					if($atim_data['TreatmentDetail']['drug_id']) {
 						$new_data = $record_template;
-						$new_data['0']['procure_next_followup_data'] = __('last recorded drug');
+						$new_data['0']['procure_next_followup_data'] = __('last completed drug treatment');
 						$new_data['0']['procure_next_followup_value'] = $all_drugs[$atim_data['TreatmentDetail']['drug_id']].(strlen($atim_data['TreatmentDetail']['dose'])? ' ('.$atim_data['TreatmentDetail']['dose'].')' : '');
 						$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
 						$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['TreatmentMaster']['start_date_accuracy'];
