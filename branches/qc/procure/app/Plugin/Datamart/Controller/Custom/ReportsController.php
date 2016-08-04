@@ -1182,7 +1182,7 @@ class ReportsControllerCustom extends ReportsController {
 					$new_data['0']['procure_next_followup_data'] = __('last completed treatment');
 					$new_data['0']['procure_next_followup_value'] = __($atim_data['TreatmentDetail']['treatment_type']);
 					if($atim_data['TreatmentDetail']['drug_id']) $new_data['0']['procure_next_followup_value'] .= ' ('. $all_drugs[$atim_data['TreatmentDetail']['drug_id']].')';
-					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
+					$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['start_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
 					$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['TreatmentMaster']['start_date_accuracy'];
 					$new_data['0']['procure_next_followup_finish_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['finish_date_accuracy']);
 					$new_data['0']['procure_next_followup_finish_date_accuracy'] = $atim_data['TreatmentMaster']['finish_date_accuracy'];
@@ -1204,7 +1204,7 @@ class ReportsControllerCustom extends ReportsController {
 						$new_data = $record_template;
 						$new_data['0']['procure_next_followup_data'] = __('last completed drug treatment');
 						$new_data['0']['procure_next_followup_value'] = $all_drugs[$atim_data['TreatmentDetail']['drug_id']].(strlen($atim_data['TreatmentDetail']['dose'])? ' ('.$atim_data['TreatmentDetail']['dose'].')' : '');
-						$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
+						$new_data['0']['procure_next_followup_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['start_date'], $atim_data['TreatmentMaster']['start_date_accuracy']);
 						$new_data['0']['procure_next_followup_date_accuracy'] = $atim_data['TreatmentMaster']['start_date_accuracy'];
 						$new_data['0']['procure_next_followup_finish_date'] = $this->procureFormatDate($atim_data['TreatmentMaster']['finish_date'], $atim_data['TreatmentMaster']['finish_date_accuracy']);
 						$new_data['0']['procure_next_followup_finish_date_accuracy'] = $atim_data['TreatmentMaster']['finish_date_accuracy'];
@@ -1215,7 +1215,6 @@ class ReportsControllerCustom extends ReportsController {
 			
 			//*** Ongoing treatment : tx ***
 			
-			$ongoing_tx_display = false;
 			$all_atim_data = $treatment_model->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $new_participant_id, 'TreatmentControl.tx_method' => 'procure follow-up worksheet - treatment', 'TreatmentMaster.finish_date IS NULL'), 'order' => 'TreatmentMaster.start_date DESC'));
 			if($all_atim_data) {
 				foreach($all_atim_data as $atim_data) {
@@ -1228,6 +1227,11 @@ class ReportsControllerCustom extends ReportsController {
 					$data[] = $new_data;
 					$ongoing_tx_display = true;
 				}
+			} else {
+				$new_data = $record_template;
+				$new_data['0']['procure_next_followup_data'] = __('ongoing treatment');
+				$new_data['0']['procure_next_followup_value'] = __('none');
+				$data[] = $new_data;
 			}
 				
 			//*** Ongoing treatment : drug ***
@@ -1245,13 +1249,11 @@ class ReportsControllerCustom extends ReportsController {
 						$ongoing_tx_display = true;
 					}
 				}
-			}
-			
-			if(!$ongoing_tx_display) {
+			} else {
 				$new_data = $record_template;
-				$new_data['0']['procure_next_followup_data'] = __('ongoing treatment');
+				$new_data['0']['procure_next_followup_data'] = __('ongoing drug treatment');
 				$new_data['0']['procure_next_followup_value'] = __('none');
-				$data[] = $new_data;				
+				$data[] = $new_data;
 			}
 		}
 		
