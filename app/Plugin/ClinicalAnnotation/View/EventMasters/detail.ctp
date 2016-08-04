@@ -31,12 +31,14 @@
 	
 	if(!$is_ajax){
 
+		$flag_use_for_ccl = $this->data['EventControl']['flag_use_for_ccl'];
+
 		// 2- DIAGNOSTICS
 		
 		$structure_settings = array(
 			'form_inputs'	=> false,
 			'pagination'	=> false,
-			'actions'		=> false,
+			'actions'		=> $flag_use_for_ccl? false : true,
 			'form_bottom'	=> true,
 			'header' 		=> __('related diagnosis'), 
 			'form_top' 		=> false
@@ -66,7 +68,7 @@
 		$final_options['settings']['actions'] = true;
 		$final_options['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:EventMaster/filterId:'.$atim_menu_variables['EventMaster.id']);
 		
-		$display_next_sub_form = true;
+		$display_next_sub_form = $flag_use_for_ccl? true : false;
 		
 		$hook_link = $this->Structures->hook('ccl');
 		if( $hook_link ) {

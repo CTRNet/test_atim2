@@ -7,6 +7,11 @@ class ClinicalAnnotationAppModel extends AppModel {
 		return $icd10_model::validateId($id);
 	}
 	
+	function getSecondaryIcd10WhoCodesList() {
+		$icd10_model = AppModel::getInstance('CodingIcd', 'CodingIcd10Who', true);
+		return $icd10_model::getSecondaryDiagnosisList();
+	}
+	
 	function validateIcd10CaCode($id){
 		$icd10_model = AppModel::getInstance('CodingIcd', 'CodingIcd10Ca', true);
 		return $icd10_model::validateId($id);
@@ -14,6 +19,10 @@ class ClinicalAnnotationAppModel extends AppModel {
 	
 	function validateIcdo3TopoCode($id){
 		return CodingIcdo3Topo::validateId($id);
+	}
+	
+	function getIcdO3TopoCategoriesCodes() {
+		return CodingIcdo3Topo::getTopoCategoriesCodes();
 	}
 	
 	function validateIcdo3MorphoCode($id){
