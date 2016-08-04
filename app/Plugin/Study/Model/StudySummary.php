@@ -118,6 +118,18 @@ class StudySummary extends StudyAppModel
 	}
 	
 	function allowDeletion($study_summary_id) {
+		$ctrl_model = AppModel::getInstance("Study", "StudyFunding", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('StudyFunding.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'study funding is assigned to the study/project'); 
+		}	
+		
+		$ctrl_model = AppModel::getInstance("Study", "StudyInvestigator", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('StudyInvestigator.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'study investigator is assigned to the study/project'); 
+		}	
+		
 		$ctrl_model = AppModel::getInstance("StorageLayout", "TmaSlide", true);
 		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('TmaSlide.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
 		if($ctrl_value > 0) {
@@ -158,8 +170,8 @@ class StudySummary extends StudyAppModel
 		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('AliquotInternalUse.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
 		if($ctrl_value > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to an aliquot'); 
-		}	
-		
+		}		
+
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
