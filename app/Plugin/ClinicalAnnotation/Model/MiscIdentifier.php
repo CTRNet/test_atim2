@@ -8,9 +8,10 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 			'foreignKey' => 'participant_id'),
 		'MiscIdentifierControl' => array(
 			'className' => 'ClinicalAnnotation.MiscIdentifierControl',
-			'foreignKey' => 'misc_identifier_control_id'
-		)
-	);
+			'foreignKey' => 'misc_identifier_control_id'),        
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 
 	private $confid_warning_absent = true;
 	

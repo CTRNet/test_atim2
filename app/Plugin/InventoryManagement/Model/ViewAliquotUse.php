@@ -41,7 +41,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		  detail_url varchar(250) DEFAULT NULL,
 		  sample_master_id int(11) NOT NULL,
 		  collection_id int(11) NOT NULL,
-		  study_summary_id int(11) DEFAULT NULL
+		  study_title varchar(45) DEFAULT NULL
 		)";
 
 	static $table_query =
@@ -61,11 +61,12 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		AliquotInternalUse.study_summary_id AS study_summary_id
+		StudySummary.title AS study_title
 		FROM aliquot_internal_uses AS AliquotInternalUse
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotInternalUse.study_summary_id AND StudySummary.deleted != 1
 		WHERE AliquotInternalUse.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -86,7 +87,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
 		SampleMaster2.id AS sample_master_id,
 		SampleMaster2.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		'-1' AS study_title
 		FROM source_aliquots AS SourceAliquot
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
 		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
@@ -113,7 +114,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		'-1' AS study_title
 		FROM realiquotings AS Realiquoting
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -139,7 +140,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		'-1' AS study_title
 		FROM quality_ctrls AS QualityCtrl
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -169,13 +170,15 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		LEFT JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
 		
 		UNION ALL
@@ -196,13 +199,15 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
 		
 		UNION ALL
@@ -223,7 +228,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		'-1' AS study_title
 		FROM aliquot_review_masters AS AliquotReviewMaster
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id

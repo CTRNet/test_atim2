@@ -567,7 +567,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
-				$this->AliquotMaster->addWritableField('storage_master_id', 'study_summary_id');
+				$this->AliquotMaster->addWritableField(array('storage_master_id', 'study_summary_id'));
 				
 				if(!$this->AliquotMaster->save($this->request->data, false)) { 
 					$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 

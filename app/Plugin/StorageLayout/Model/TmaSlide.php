@@ -7,9 +7,10 @@ class TmaSlide extends StorageLayoutAppModel {
 			'foreignKey'    => 'storage_master_id'),
 		'Block' => array(           
 			'className'    => 'StorageLayout.StorageMaster',            
-			'foreignKey'    => 'tma_block_storage_master_id'
-		)	    
-	);
+			'foreignKey'    => 'tma_block_storage_master_id'),
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	var $actsAs = array('StoredItem');
 	

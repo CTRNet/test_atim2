@@ -10,6 +10,11 @@ class Order extends OrderAppModel {
 			'className'   => 'Order.Shipment',
 			 'foreignKey'  => 'order_id')); 
 	
+	var $belongsTo = array(
+		'StudySummary' => array(
+			'className'    => 'Study.StudySummary',
+			'foreignKey'    => 'default_study_summary_id'));
+	
 	var $registered_view = array(
 		'InventoryManagement.ViewAliquotUse' => array('Order.id')
 	);

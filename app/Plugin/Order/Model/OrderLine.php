@@ -10,7 +10,10 @@ class OrderLine extends OrderAppModel {
 	var $belongsTo = array(       
 		'Order' => array(           
 			'className'    => 'Order.Order',            
-			'foreignKey'    => 'order_id'));
+			'foreignKey'    => 'order_id'),        
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	var $registered_view = array(
 			'InventoryManagement.ViewAliquotUse' => array('OrderLine.id')
