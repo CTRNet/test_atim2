@@ -8,7 +8,6 @@ class StudySummary extends StudyAppModel
 	var $study_titles_already_checked = array();
 	var $study_data_and_code_for_display_already_set = array();
 	
-
 	function summary( $variables=array() ) {
 		$return = false;
 		

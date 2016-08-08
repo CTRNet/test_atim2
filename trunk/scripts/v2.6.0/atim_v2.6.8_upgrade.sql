@@ -984,6 +984,134 @@ VALUES
 'study funding', 'Funding', 'Financement'),
 SELECT "Set values of the variables $display_study_investigators and $display_study_fundings to 'false' in View/StudySummaries/detail.ctp' to hide options." AS '### MESSAGE ### Added investigators and fundings to study';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Changed all field study_summary_id with type = 'select' and structure_value_domain = 'study_list' to input field.
+--    A left join to Drug model has been created for following models: TmaSlide, TmaSlideUse, Order, OrderLine, AliquotMaster,
+--    ConsentMaster and MiscIdentifier
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT 'The $table_query variables of both ViewAliquot and ViewAliquotUse have been updated to add Study.title to any record. Please check and update custom views.' AS '### MESSAGE ### View Update';
+UPDATE structure_fields SET language_label = 'study / project' WHERE language_label = 'study' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list');
+SET @study_title_field_id = (SELECT id FROM structure_fields WHERE model = 'StudySummary' AND field = 'title');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`)
+(SELECT structure_formats.structure_id, @study_title_field_id, structure_formats.display_column, structure_formats.display_order, structure_formats.language_heading, structure_formats.margin, '1', structure_fields.language_label, structure_formats.flag_override_tag, structure_formats.language_tag, structure_formats.flag_override_help, structure_formats.language_help, structure_formats.flag_override_type, structure_formats.type, structure_formats.flag_override_setting, structure_formats.setting, structure_formats.flag_override_default, structure_formats.default, structure_formats.flag_add, structure_formats.flag_add_readonly, structure_formats.flag_edit, structure_formats.flag_edit_readonly, structure_formats.flag_search, structure_formats.flag_search_readonly, structure_formats.flag_addgrid, structure_formats.flag_addgrid_readonly, structure_formats.flag_editgrid, structure_formats.flag_editgrid_readonly, structure_formats.flag_batchedit, structure_formats.flag_batchedit_readonly, structure_formats.flag_index, structure_formats.flag_detail, structure_formats.flag_summary, structure_formats.flag_float
+FROM structure_formats 
+INNER JOIN structure_fields ON structure_fields.id = structure_formats.structure_field_id
+WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND structure_fields.model NOT LIKE 'View%');
+UPDATE structure_fields SET setting = REPLACE(setting, 'size=50', 'size=40') WHERE model = 'StudySummary' AND field = 'title';
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND structure_fields.model NOT LIKE 'View%');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND structure_fields.model NOT LIKE 'View%');
+DELETE FROM structure_fields WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND structure_fields.model NOT LIKE 'View%';
+UPDATE structure_fields SET field = 'study_title', type = 'input', setting = 'size=40', structure_value_domain = null WHERE model in ('ViewAliquotUse', 'ViewAliquot') AND field = 'study_summary_id';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- ProtocolExtend Model: Added drug autocomplete field 
+--     plus changed all field drug_id with model = 'ProtocolExtendDetail', type = 'select' and structure_value_domain = 'drug_list' 
+--     to field with model = 'ProtocolExtendMaster', type = 'input'.
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE protocol_extend_masters ADD COLUMN drug_id INT(11) DEFAULT NULL;
+ALTER TABLE protocol_extend_masters_revs ADD COLUMN drug_id INT(11) DEFAULT NULL;
+ALTER TABLE `protocol_extend_masters`
+  ADD CONSTRAINT `FK_protocol_extend_masters_drugs` FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`);
+UPDATE protocol_extend_masters Master, pe_chemos Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id;
+UPDATE protocol_extend_masters_revs Master, pe_chemos_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+ALTER TABLE `pe_chemos` DROP FOREIGN KEY `FK_pe_chemos_drugs`;
+ALTER TABLE pe_chemos DROP COLUMN drug_id;
+ALTER TABLE pe_chemos_revs DROP COLUMN drug_id;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Protocol', 'FunctionManagement', '', 'autocomplete_protocol_drug_id', 'autocomplete',  NULL , '0', 'url=/Drug/Drugs/autocompleteDrug', '', '', 'drug', '');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `field`='autocomplete_protocol_drug_id'), 'notEmpty', '');
+SET @autocomplete_drug_field_id = (SELECT id FROM structure_fields WHERE model = 'FunctionManagement' AND field = 'autocomplete_protocol_drug_id');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`)
+(SELECT structure_formats.structure_id, @autocomplete_drug_field_id, structure_formats.display_column, structure_formats.display_order, structure_formats.language_heading, structure_formats.margin, '1', structure_fields.language_label, structure_formats.flag_override_tag, structure_formats.language_tag, structure_formats.flag_override_help, structure_formats.language_help, structure_formats.flag_override_type, structure_formats.type, structure_formats.flag_override_setting, structure_formats.setting, structure_formats.flag_override_default, structure_formats.default, structure_formats.flag_add, structure_formats.flag_add_readonly, structure_formats.flag_edit, structure_formats.flag_edit_readonly, '0', structure_formats.flag_search_readonly, structure_formats.flag_addgrid, structure_formats.flag_addgrid_readonly, structure_formats.flag_editgrid, structure_formats.flag_editgrid_readonly, structure_formats.flag_batchedit, structure_formats.flag_batchedit_readonly, '0', '0', '0', structure_formats.flag_float
+FROM structure_formats 
+INNER JOIN structure_fields ON structure_fields.id = structure_formats.structure_field_id
+WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
+SET @drug_generic_name_field_id = (SELECT id FROM structure_fields WHERE model = 'Drug' AND field = 'generic_name');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`)
+(SELECT structure_formats.structure_id, @drug_generic_name_field_id, structure_formats.display_column, structure_formats.display_order, structure_formats.language_heading, structure_formats.margin, '1', structure_fields.language_label, structure_formats.flag_override_tag, structure_formats.language_tag, structure_formats.flag_override_help, structure_formats.language_help, structure_formats.flag_override_type, structure_formats.type, structure_formats.flag_override_setting, structure_formats.setting, structure_formats.flag_override_default, structure_formats.default, '0', '0', '0','0', structure_formats.flag_search, structure_formats.flag_search_readonly, '0', '0', '0', '0', '0', '0', structure_formats.flag_index, structure_formats.flag_detail, structure_formats.flag_summary, structure_formats.flag_float
+FROM structure_formats 
+INNER JOIN structure_fields ON structure_fields.id = structure_formats.structure_field_id
+WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('drug is defined as a component of at least one participant treatment','The drug is defined as a component of at least one participant treatment!',"Le médicament est défini comme étant le composant d'au moins un traitement de participant!"),
+('more than one drug matches the following data [%s]', 'More than one drug matches the value [%s]', "Plus d'un médicament correspond à la valeur [%s]"),
+('no drug matches the following data [%s]', 'No drug matches the value [%s]', "Aucune médicament ne correspond à la valeur [%s]");
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
+DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
+DELETE FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail';
+
+SELECT "Run following queries if the section of tablename above is not empty and update Drug.allowDeletion() custom code." AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
+UNION ALL 
+SELECT "Queries:" AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
+UNION ALL 
+SELECT "UPDATE protocol_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id;
+UPDATE protocol_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
+ALTER TABLE {tablename} DROP COLUMN drug_id;
+ALTER TABLE {tablename}_revs DROP COLUMN drug_id;" AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
+UNION ALL 
+SELECT "Tablebname(s) (nothing to do if empty):" AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
+UNION ALL 
+SELECT tablename AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model' FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail' AND tablename != 'pe_chemos';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- TreatmentExtend Model: Added drug autocomplete field 
+--     plus changed all field drug_id with model = 'TreatmentExtendDetail', type = 'select' and structure_value_domain = 'drug_list' 
+--     to field with model = 'TreatmentExtendMaster', type = 'input'.
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE treatment_extend_masters ADD COLUMN drug_id INT(11) DEFAULT NULL;
+ALTER TABLE treatment_extend_masters_revs ADD COLUMN drug_id INT(11) DEFAULT NULL;
+ALTER TABLE `treatment_extend_masters`
+  ADD CONSTRAINT `FK_treatment_extend_masters_drugs` FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`);
+UPDATE treatment_extend_masters Master, txe_chemos Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
+UPDATE treatment_extend_masters_revs Master, txe_chemos_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+ALTER TABLE `txe_chemos` DROP FOREIGN KEY `FK_txe_chemos_drugs`;
+ALTER TABLE txe_chemos DROP COLUMN drug_id;
+ALTER TABLE txe_chemos_revs DROP COLUMN drug_id;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'FunctionManagement', '', 'autocomplete_treatment_drug_id', 'autocomplete',  NULL , '0', 'url=/Drug/Drugs/autocompleteDrug', '', '', 'drug', '');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `field`='autocomplete_treatment_drug_id'), 'notEmpty', '');
+SET @autocomplete_drug_field_id = (SELECT id FROM structure_fields WHERE model = 'FunctionManagement' AND field = 'autocomplete_treatment_drug_id');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`)
+(SELECT structure_formats.structure_id, @autocomplete_drug_field_id, structure_formats.display_column, structure_formats.display_order, structure_formats.language_heading, structure_formats.margin, '1', structure_fields.language_label, structure_formats.flag_override_tag, structure_formats.language_tag, structure_formats.flag_override_help, structure_formats.language_help, structure_formats.flag_override_type, structure_formats.type, structure_formats.flag_override_setting, structure_formats.setting, structure_formats.flag_override_default, structure_formats.default, structure_formats.flag_add, structure_formats.flag_add_readonly, structure_formats.flag_edit, structure_formats.flag_edit_readonly, '0', structure_formats.flag_search_readonly, structure_formats.flag_addgrid, structure_formats.flag_addgrid_readonly, structure_formats.flag_editgrid, structure_formats.flag_editgrid_readonly, structure_formats.flag_batchedit, structure_formats.flag_batchedit_readonly, '0', '0', '0', structure_formats.flag_float
+FROM structure_formats 
+INNER JOIN structure_fields ON structure_fields.id = structure_formats.structure_field_id
+WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
+SET @drug_generic_name_field_id = (SELECT id FROM structure_fields WHERE model = 'Drug' AND field = 'generic_name');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`)
+(SELECT structure_formats.structure_id, @drug_generic_name_field_id, structure_formats.display_column, structure_formats.display_order, structure_formats.language_heading, structure_formats.margin, '1', structure_fields.language_label, structure_formats.flag_override_tag, structure_formats.language_tag, structure_formats.flag_override_help, structure_formats.language_help, structure_formats.flag_override_type, structure_formats.type, structure_formats.flag_override_setting, structure_formats.setting, structure_formats.flag_override_default, structure_formats.default, '0', '0', '0','0', structure_formats.flag_search, structure_formats.flag_search_readonly, '0', '0', '0', '0', '0', '0', structure_formats.flag_index, structure_formats.flag_detail, structure_formats.flag_summary, structure_formats.flag_float
+FROM structure_formats 
+INNER JOIN structure_fields ON structure_fields.id = structure_formats.structure_field_id
+WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
+DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
+DELETE FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail';
+
+SELECT "Run following queries if the section of tablename above is not empty and update Drug.allowDeletion() custom code." AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
+UNION ALL 
+SELECT "Queries:" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
+UNION ALL 
+SELECT "UPDATE treatment_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
+UPDATE treatment_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
+ALTER TABLE {tablename} DROP COLUMN drug_id;
+ALTER TABLE {tablename}_revs DROP COLUMN drug_id;" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
+UNION ALL 
+SELECT "Tablebname(s) (nothing to do if empty):" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
+UNION ALL 
+SELECT tablename AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model' FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail' AND tablename != 'txe_chemos'
+UNION ALL 
+SELECT "Plus update extended_data_import_process functions if following function section is not empty" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
+UNION ALL 
+SELECT "Functions:" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
+UNION ALL 
+SELECT extended_data_import_process AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model' FROM treatment_controls WHERE extended_data_import_process != 'importDrugFromChemoProtocol' AND extended_data_import_process IS NOT NULL;
 
 
 
@@ -996,6 +1124,26 @@ SELECT "Set values of the variables $display_study_investigators and $display_st
 
 
 
+
+
+
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
+
+refaire le set de données pour la demo...
+séparer storage/TMA block
+évenement congélo à appliquer à tous....
+Vérifier les nouveaux sample type...
+Dans les liste de traitement, annotation etc... avoir le bouton edit pour ne pas à avoir acliquer sur detail.
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table

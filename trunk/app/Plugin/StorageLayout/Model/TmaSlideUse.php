@@ -4,9 +4,10 @@ class TmaSlideUse extends StorageLayoutAppModel {
 	var $belongsTo = array(       
 		'TmaSlide' => array(           
 			'className'    => 'StorageLayout.TmaSlide',            
-			'foreignKey'    => 'tma_slide_id'
-		)	    
-	);
+			'foreignKey'    => 'tma_slide_id'),
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	public static $study_model = null;
 		

@@ -10,7 +10,9 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		
 		'Protocol.ProtocolMaster',
 		'Protocol.ProtocolControl',
-		'Protocol.ProtocolExtendMaster');
+		'Protocol.ProtocolExtendMaster',
+			
+		'Drug.Drug');
 		
 	var $paginate = array();
 
@@ -126,7 +128,14 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if(empty($this->request->data)) {
+			$tx_extend_data['FunctionManagement']['autocomplete_treatment_drug_id'] = $this->Drug->getDrugDataAndCodeForDisplay(array('Drug' => array('id' => $tx_extend_data['TreatmentExtendMaster']['drug_id'])));
 			$this->request->data = $tx_extend_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		} else {
 			$submitted_data_validates = true;
 			
