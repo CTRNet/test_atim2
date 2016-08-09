@@ -955,7 +955,7 @@ VALUES
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO i18n (id,en,fr)
-VALES
+VALUES
 ('from associated protocol', 'from associated protocol', 'à partir du protocole associé');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -979,9 +979,8 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('study investigator is assigned to the study/project', 'Your data cannot be deleted! This study/project is linked to an investigator.', "Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un investigateur."),
 ('study funding is assigned to the study/project', 'Your data cannot be deleted! This study/project is linked to a funding.', "Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un financement."),
-'study funding is assigned to the study/project'
 ('study investigator', 'Investigator', 'Investigateur'),
-'study funding', 'Funding', 'Financement'),
+('study funding', 'Funding', 'Financement');
 SELECT "Set values of the variables $display_study_investigators and $display_study_fundings to 'false' in View/StudySummaries/detail.ctp' to hide options." AS '### MESSAGE ### Added investigators and fundings to study';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1113,6 +1112,51 @@ SELECT "Functions:" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail
 UNION ALL 
 SELECT extended_data_import_process AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model' FROM treatment_controls WHERE extended_data_import_process != 'importDrugFromChemoProtocol' AND extended_data_import_process IS NOT NULL;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3209: Added buffy coat
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'buffy coat', 'derivative', 'sd_undetailed_derivatives,derivatives', 'sd_der_buffy_coats', 0, 'buffy coat');
+CREATE TABLE IF NOT EXISTS `sd_der_buffy_coats` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_sd_der_buffy_coats_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `sd_der_buffy_coats_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `sd_der_buffy_coats`
+  ADD CONSTRAINT `FK_sd_der_buffy_coats_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('buffy coat', 'Buffy Coat', 'Buffy Coat');
+INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`, `lab_book_control_id`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'blood'), (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat'), 0, NULL);
+INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`, `lab_book_control_id`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat'), (SELECT id FROM sample_controls WHERE sample_type = 'dna'), 0, NULL),
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat'), (SELECT id FROM sample_controls WHERE sample_type = 'rna'), 0, NULL),
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat'), (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate'), 0, NULL);
+INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat'), 'tube', '', 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Derivative tube requiring volume in ml specific for cells', 0, 'buffy coat|tube');
+INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`, `lab_book_control_id`) VALUES
+(null, (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat'), 
+(SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat'), 0, NULL);
+
+
+
+
+
+
+SELECT "Please run following queries to activate Buffy Coat" AS '### MESSAGE ### Created Buffy Coat Sample Type'
+UNION ALL 
+
+
+
+UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.parent_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
+UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
+UPDATE aliquot_controls SET flag_Active = 1 WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
+UPDATE realiquoting_controls SET flag_Active = 1 WHERE parent_aliquot_control_id = (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat');
 
 
 
@@ -1127,23 +1171,13 @@ SELECT extended_data_import_process AS '### MESSAGE ### Moved drug_id from Treat
 
 
 
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
 
-refaire le set de données pour la demo...
-séparer storage/TMA block
-évenement congélo à appliquer à tous....
-Vérifier les nouveaux sample type...
-Dans les liste de traitement, annotation etc... avoir le bouton edit pour ne pas à avoir acliquer sur detail.
+
+
+
+
+
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
