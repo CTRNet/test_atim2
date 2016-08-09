@@ -1143,25 +1143,21 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_a
 (null, (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat'), 
 (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat'), 0, NULL);
 
-
-
-
-
-
 SELECT "Please run following queries to activate Buffy Coat" AS '### MESSAGE ### Created Buffy Coat Sample Type'
 UNION ALL 
+SELECT "UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.parent_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type'
+UNION ALL 
+SELECT "UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type'
+UNION ALL 
+SELECT "UPDATE aliquot_controls SET flag_Active = 1 WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type'
+UNION ALL 
+SELECT "UPDATE realiquoting_controls SET flag_Active = 1 WHERE parent_aliquot_control_id = (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3313: AppModel->getSpentTime() seams to fail with date >= 2038
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.parent_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
-UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
-UPDATE aliquot_controls SET flag_Active = 1 WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
-UPDATE realiquoting_controls SET flag_Active = 1 WHERE parent_aliquot_control_id = (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat');
-
-
-
-
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('months', 'Months', 'Mois');
 
 
 
