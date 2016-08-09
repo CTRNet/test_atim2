@@ -8,15 +8,14 @@
 	$structure_links = array(
 		'bottom' => array(
 			'edit' => '/StorageLayout/TmaSlides/edit/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'].'/1',
-			'add tma slide use' => '/StorageLayout/TmaSlideUses/add/' . $atim_menu_variables['TmaSlide.id'],
-			'delete' => '/StorageLayout/TmaSlides/delete/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id']
+			'delete' => '/StorageLayout/TmaSlides/delete/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
+			'add tma slide use' => '/StorageLayout/TmaSlideUses/add/' . $atim_menu_variables['TmaSlide.id']
 		)
 	);		
 	
 	//Clean up based on form type 
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
-		unset($structure_links['bottom']['list']);
 	
 	} else if($is_from_tree_view_or_layout == 2) {
 		// Storage Layout

@@ -1,9 +1,9 @@
 <?php
 	$structure_links = array(
 		'index' => array( 
-			'detail' => array(
-				'link' => '/ClinicalAnnotation/EventMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%',
-				'icon' => 'detail')
+			'detail' => '/ClinicalAnnotation/EventMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%',
+			'edit' => '/ClinicalAnnotation/EventMasters/edit/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%',
+			'delete' => '/ClinicalAnnotation/EventMasters/delete/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%'
 		)
 	); 
 	if(isset($add_links)) $structure_links['bottom']['add'] = $add_links;

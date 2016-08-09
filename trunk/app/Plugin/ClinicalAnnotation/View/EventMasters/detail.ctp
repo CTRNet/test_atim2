@@ -6,8 +6,7 @@
 		),
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/EventMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id'], 
-			'delete'=>'/ClinicalAnnotation/EventMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id'], 
-			'list'=>array('link' => '/ClinicalAnnotation/EventMasters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'], 'icon' => 'list')
+			'delete'=>'/ClinicalAnnotation/EventMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id']
 		)
 	);
 

@@ -18,15 +18,18 @@ class ClinicalAnnotationAppModel extends AppModel {
 	}
 	
 	function validateIcdo3TopoCode($id){
-		return CodingIcdo3Topo::validateId($id);
+		$icd_o_3_topo_model = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
+		return $icd_o_3_topo_model::validateId($id);
 	}
 	
 	function getIcdO3TopoCategoriesCodes() {
-		return CodingIcdo3Topo::getTopoCategoriesCodes();
+		$icd_o_3_topo_model = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
+		return $icd_o_3_topo_model::getTopoCategoriesCodes();
 	}
 	
 	function validateIcdo3MorphoCode($id){
-		return CodingIcdo3Morpho::validateId($id);
+		$icd_o_3_morpho_model = AppModel::getInstance('CodingIcd', 'CodingIcdo3Morpho', true);
+		return $icd_o_3_morpho_model::validateId($id);
 	}
 	
 	function afterSave($created, $options = Array()){
