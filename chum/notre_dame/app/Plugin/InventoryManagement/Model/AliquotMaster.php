@@ -19,8 +19,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 			'type'			=> 'INNER'),        
 		'StorageMaster' => array(           
 			'className'    => 'StorageLayout.StorageMaster',            
-			'foreignKey'    => 'storage_master_id')
-	);
+			'foreignKey'    => 'storage_master_id'),        
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	var $hasOne = array(
 		'ViewAliquot' => array(
@@ -37,7 +39,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 	private static $warning_field = "barcode";//can be overriden into a custom model
 	
 	public static $aliquot_type_dropdown = array();
-	public static $storage = null;
+	public static $storage_model = null;
+	public static $study_model = null;
 	
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 
@@ -256,6 +259,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		$this->validateAndUpdateAliquotStorageData();
 		
+		$this->validateAndUpdateAliquotStudyData();
+		
 		if(isset($this->data['AliquotMaster']['barcode'])){
 			$this->checkDuplicatedAliquotBarcode($this->data);
 		}		
@@ -278,8 +283,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 		
 		// Load model
-		if(self::$storage == null){
-			self::$storage = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+		if(self::$storage_model == null){
+			self::$storage_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 		}
 				
 		// Launch validation		
@@ -290,7 +295,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			$is_sample_core = ($aliquot_data['AliquotControl']['aliquot_type'] == 'core');
 			
 			// Check the aliquot storage definition
-			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
+			$arr_storage_selection_results = self::$storage_model->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
 			
 			$set_storage = false;
 			foreach(array('storage_data', 'storage_definition_error', 'position_x_error', 'position_y_error', 'change_position_x_to_uppercase', 'change_position_y_to_uppercase') as $key){
@@ -362,6 +367,44 @@ class AliquotMaster extends InventoryManagementAppModel {
 			|| (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_y'])) 
 		){
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	}
+	
+	/**
+	 * Check aliquot study definition and set error if required.
+	 */
+	 
+	function validateAndUpdateAliquotStudyData() {
+		$aliquot_data =& $this->data;
+		
+		// check data structure
+		$tmp_arr_to_check = array_values($aliquot_data);
+		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		// Launch validation
+		if(array_key_exists('FunctionManagement', $aliquot_data) && array_key_exists('autocomplete_aliquot_master_study_summary_id', $aliquot_data['FunctionManagement'])) {
+			$aliquot_data['AliquotMaster']['study_summary_id'] = null;
+			$aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = trim($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
+			if(strlen($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'])) {
+				// Load model
+				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
+					
+				// Check the aliquot study definition
+				$arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
+				
+				// Set study summary id
+				if(isset($arr_study_selection_results['StudySummary'])){
+					$aliquot_data['AliquotMaster']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+				}
+				
+				// Set error
+				if(isset($arr_study_selection_results['error'])){
+					$this->validationErrors['autocomplete_aliquot_master_study_summary_id'][] = $arr_study_selection_results['error'];
+				}
+			}
+		
 		}
 	}
 	
@@ -649,6 +692,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 			$this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: you can not remove aliquot and set a storage');
 			if($submitted_aliquot_master_data['in_stock'] == 'no') $this->validationErrors['in_stock'][] = __('data conflict: you can not remove aliquot and set a storage');
 		}
+		if(isset($function_management_data['autocomplete_aliquot_master_study_summary_id']) && strlen($function_management_data['autocomplete_aliquot_master_study_summary_id']) && $function_management_data['remove_study_summary_id'] == '1') {
+			$validates = false;
+			$this->validationErrors['autocomplete_aliquot_master_study_summary_id'][] = __('data conflict: you can not delete data and set a new one');
+		}		
 		foreach($submitted_aliquot_master_data as $key => $value) {
 			if(strlen($submitted_aliquot_master_data[$key]) && array_key_exists('remove_'.$key, $function_management_data) && $function_management_data['remove_'.$key] == '1') {
 				$validates = false;
@@ -688,6 +735,14 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
 				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
 				$this->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+			}
+			// Work on study
+			if(isset($function_management_data['autocomplete_aliquot_master_study_summary_id']) && $function_management_data['autocomplete_aliquot_master_study_summary_id']) {
+				$aliquot_master_data_to_update['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = $function_management_data['autocomplete_aliquot_master_study_summary_id'];
+				$this->addWritableField(array('study_summary_id'));					
+			} else if(isset($function_management_data['remove_study_summary_id']) && ($function_management_data['remove_study_summary_id'] == '1')) {
+				$aliquot_master_data_to_update['AliquotMaster']['study_summary_id'] = null;
+				$this->addWritableField(array('study_summary_id'));
 			}
 			// Work on other data
 			foreach($submitted_aliquot_master_data as $key => $value) {

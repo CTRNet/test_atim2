@@ -191,7 +191,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					foreach($aliquot_review_data as $new_aliquot_review_to_save) {
 						// Save aliquot review
 						$this->AliquotReviewMaster->id = null;
-						$this->AliquotReviewMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->AliquotReviewMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						unset($new_aliquot_review_to_save['AliquotReviewMaster']['id']);
 						$new_aliquot_review_to_save['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
 						if(!$this->AliquotReviewMaster->save($new_aliquot_review_to_save, false)) { 

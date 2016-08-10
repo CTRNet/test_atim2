@@ -11,17 +11,42 @@ class OrderItem extends OrderAppModel {
 			'foreignKey'    => 'shipment_id'),       
 		'AliquotMaster' => array(           
 			'className'    => 'InventoryManagement.AliquotMaster',            
-			'foreignKey'    => 'aliquot_master_id',
-			'type'			=> 'INNER'),
+			'foreignKey'    => 'aliquot_master_id'),       
+		'TmaSlide' => array(           
+			'className'    => 'StorageLayout.TmaSlide',            
+			'foreignKey'    => 'tma_slide_id'),
 		'ViewAliquot' => array(           
 			'className'    => 'InventoryManagement.ViewAliquot',            
-			'foreignKey'    => 'aliquot_master_id',
-			'type'			=> 'INNER')
+			'foreignKey'    => 'aliquot_master_id')
 	);
 	
 	var $registered_view = array(
 			'InventoryManagement.ViewAliquotUse' => array('OrderItem.id')
 	);
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		foreach($results as &$new_item) {
+			if(array_key_exists('OrderItem', $new_item) &&array_key_exists('aliquot_master_id', $new_item['OrderItem']) && array_key_exists('tma_slide_id', $new_item['OrderItem'])) {
+				if(($new_item['OrderItem']['aliquot_master_id'] && $new_item['OrderItem']['tma_slide_id']) ||
+				(!$new_item['OrderItem']['aliquot_master_id'] && !$new_item['OrderItem']['tma_slide_id'])) {
+					AppController::addWarningMsg(__('error on order item type - contact your administartor'));
+				}
+			}
+			//Set generated data
+			$new_item['Generated']['type'] = '';
+			$new_item['Generated']['barcode'] = '';
+			if(array_key_exists('AliquotMaster', $new_item) && $new_item['AliquotMaster']['id']) {
+				$new_item['Generated']['type'] = 'aliquot';
+				if(isset($new_item['AliquotMaster']['barcode'])) $new_item['Generated']['barcode'] = $new_item['AliquotMaster']['barcode'];
+			}
+			if(array_key_exists('TmaSlide', $new_item) && $new_item['TmaSlide']['id']) {
+				$new_item['Generated']['type'] = 'tma slide';
+				if(isset($new_item['TmaSlide']['barcode'])) $new_item['Generated']['barcode'] = $new_item['TmaSlide']['barcode'];
+			}
+		}
+		return $results;
+	}
 
 	/**
 	 * Check if an item can be deleted.
@@ -42,6 +67,28 @@ class OrderItem extends OrderAppModel {
 		}	
 		
 		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Check if the order item status can be set/changed to 'pending' or 'shipped': 
+	 *   - An order item linked to an aliquot (or tma slide) can have a status equal to 'pending' or 'shipped'
+	 *   - when no other order item linked to the same aliquot (or tma slide) has a status equal to 'pending' or 'shipped'
+	 *
+	 * @param $foreign_key_field (aliquot_master_id or tma_slide_id) OrderItem foreign key field to check
+	 * @param $id (aliquot_master_id or tma_slide_id value) Id of the object (AliquotMaster or TmaSlide) linked to the order item (that will be created or that will be updated)
+	 * @param $order_item_id Id of the order item
+	 *
+	 * @return Boolean
+	 *
+	 * @author N. Luc
+	 * @since 2016-05-16
+	 */
+	function checkOrderItemStatusCanBeSetToPendingOrShipped($foreign_key_field, $object_id, $order_item_id = '-1'){
+		$res = $this->find('count', array('conditions' => array("OrderItem.id != '$order_item_id'", "OrderItem.$foreign_key_field" => $object_id, 'OrderItem.status' => array('pending', 'shipped')), 'recursive' => '-1'));
+		if($res) {
+			return false;
+		}
+		return true;
 	}
 }
 

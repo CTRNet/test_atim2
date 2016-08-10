@@ -1,7 +1,6 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/Sop/SopMasters/listall/',
 			'edit'=>'/Sop/SopMasters/edit/%%SopMaster.id%%/',
 			'delete'=>'/Sop/SopMasters/delete/%%SopMaster.id%%/'
 		)

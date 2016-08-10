@@ -390,7 +390,7 @@ Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 
 Cache::config('default', array('engine' => 'File'));
 
 Configure::write('use_compression', false);
-Configure::write('Session.timeout', $debug ? 3600 : 600);
+Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 /**
  * Define the complexity of a password format:
@@ -445,10 +445,12 @@ Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotM
 	
 Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
 	
-Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
-Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
+Configure::write('AddToOrder_processed_items_limit', 50);					// OrderItems.add() & OrderItems.addOrderItemsInBatch()
+Configure::write('AddToShipment_processed_items_limit', 50);				// Shipments.addToShipment()
+Configure::write('defineOrderItemsReturned_processed_items_limit', 50);		// OrderItems.defineOrderItemsReturned()
+Configure::write('edit_processed_items_limit', 50);							// OrderItems.editInBatch()
 
-Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add()
+Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add(), TmaSlides.editInBatch(), TmaSlideUses.add(), TmaSlideUses.editInBatch(), 
 
 /**
  * Set the allowed links that exists between an OrderItem and different Order plugin objects:
@@ -459,5 +461,13 @@ Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.
 Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
+
+/**
+ * Set the type(s) of item that could be added to order:
+ * 		1 => both tma slide and aliquot
+ * 		2 => aliquot only
+ * 		3 => tma slide only
+ */
+Configure::write('order_item_type_config', 1);
 
 unset($debug);
