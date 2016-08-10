@@ -1,13 +1,12 @@
--- -----------------------------------------------------------------------------------------------------------------------------------------------------------
--- Aliquots / Samples Controls
--- -----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(193, 200, 203, 194);
-DELETE FROM realiquoting_controls WHERE id IN(41);
-UPDATE realiquoting_controls SET flag_active=true WHERE id IN(44);
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
--- Consent
+-- Removed link to 'xenograft' (See Samples/Aliquots Controls)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'xenograft');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Changed way consent is linked to study : Use trunk method
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE consent_masters SET study_summary_id = qc_nd_study_summary_id;
@@ -22,32 +21,31 @@ ALTER TABLE `consent_masters`
 
 UPDATE consent_controls SET detail_form_alias = REPLACE(detail_form_alias, 'qc_nd_cd_study', 'consent_masters_study');
 
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0'), '1', '1', '', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
-
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_nd_study_summary_id' AND `language_label`='study' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_cd_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_nd_study_summary_id' AND `language_label`='study' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_cd_study');
 DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_nd_study_summary_id' AND `language_label`='study' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_nd_study_summary_id';
 DELETE FROM  structures WHERE alias='qc_nd_cd_study';
 
-INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
-((SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id'), 'notEmpty', '');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='-' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_consent_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters_study') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
--- Annotation > Study > Study to MiscIdentifier
+-- Removed Annotation>Study forms
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+-- Moved Annotation>Study values to to MiscIdentifier when idenitifer value is set
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO misc_identifier_controls (misc_identifier_name, flag_active, flag_link_to_study) VALUES ('study number', 1, 1);
 SET @misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'study number');
 UPDATE misc_identifier_controls SET flag_unique = 0, flag_confidential = 0 WHERE id = @misc_identifier_control_id;
 INSERT INTO i18n (id,en,fr) VALUES ('study number', 'Study #', 'Étude #');
 
+UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, created, created_by, modified, modified_by, flag_unique, study_summary_id)
 (SELECT identifier, @misc_identifier_control_id, participant_id, created, created_by, modified, modified_by, null, study_summary_id
 FROM event_masters INNER JOIN qc_nd_ed_studies ON id = event_master_id 
@@ -63,7 +61,8 @@ SELECT event_master_id FROM (
 	SELECT event_master_id FROM event_masters INNER JOIN qc_nd_ed_studies ON id = event_master_id  WHERE identifier IS NOT NULL AND identifier NOT LIKE '' AND deleted <> 1
 ) res);
 
--- APS project
+-- Moved Annotation>Study values flagged as 'CE:15.247%' to Aliquot (APS project)
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 SELECT DISTINCT event_master_id 'ERR #6674889484: Study Event To Manage (Not an APS project)'
 FROM event_masters INNER JOIN qc_nd_ed_studies ON id = event_master_id 
@@ -98,6 +97,7 @@ AND id IN (SELECT aliquot_master_id
 FROM aliquot_internal_uses WHERE aliquot_internal_uses.deleted <> 1 AND aliquot_internal_uses.study_summary_id = (SELECT id FROM study_summaries WHERE title = 'Projet APS'));
 
 -- End of the update
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE event_masters SET deleted = 1, modified = @date, modified_by = 2 WHERE id IN (
 SELECT event_master_id FROM (
@@ -114,8 +114,16 @@ INSERT INTO qc_nd_ed_studies_revs (study_summary_id, identifier, event_master_id
 UPDATE event_controls SET flag_active = 0 WHERE event_type = 'study';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/EventMasters/listall/Study%';
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_studies');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_study_participants');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='qc_nd_ed_studies' AND `field`='study_summary_id' AND `language_label`='study' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='qc_nd_ed_studies' AND `field`='identifier' AND `language_label`='patient identifier' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='qc_nd_ed_studies' AND `field`='study_summary_id' AND `language_label`='study' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='qc_nd_ed_studies' AND `field`='identifier' AND `language_label`='patient identifier' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structures WHERE alias='qc_nd_ed_studies';
+
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
--- Annotation > Lifestyle
+-- Hided Annotation > Lifestyle
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 select id 'ERR#43434343: Lifestyle data exists' from event_masters WHERE event_control_id = (SELECT id FROM event_controls WHERE event_type = 'questionnaire' AND flag_active = 1);
@@ -124,13 +132,19 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/EventM
 UPDATE event_controls SET flag_Active = 0 WHERE event_type = 'questionnaire' AND flag_active = 1;
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
--- Message creation in batch
+-- Added option to create Message in batch
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE datamart_structure_functions SET flag_active = 1 WHERE label = 'create participant message (applied to all)';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
--- Order
+-- Order:
+--   - Display barcode for shipped items
+--   - Display all fields of order from in search and index mode
+--   - Removed microarray field and add information to the title
+--   - Order contact is now a text field
+--   - Created 'Institutions & Laboratories' custom list
+--   - Added order reasearcher field
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shippeditems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -261,14 +275,6 @@ UPDATE orders_revs SET institution = '' WHERE qc_nd_researcher IS NOT NULL;
 SET @control_id_institution_and_lab = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Institutions & Laboratories');
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id_institution_and_lab AND value NOT IN (SELECT DISTINCT institution from orders);
 DELETE FROM structure_permissible_values_customs_revs WHERE control_id = @control_id_institution_and_lab AND value NOT IN (SELECT DISTINCT institution from orders);
-
-SELECT CONCAT(short_title, ' (order_id = ',orders.id, ')') AS 'TODO: order with study issue to remove order line study', orders.short_title, orders.default_study_summary_id, order_lines.study_summary_id
-FROM orders INNER JOIN order_lines ON orders.id = order_lines.order_id
-WHERE orders.deleted <> 1 AND order_lines.deleted <> 1
-AND (order_lines.study_summary_id IS NOT NULL AND orders.default_study_summary_id != order_lines.study_summary_id)
-OR (order_lines.study_summary_id IS NOT NULL AND orders.default_study_summary_id IS NULL);
-
--- TODO Validate with manon if the order line study should be hidden
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Study (I)
@@ -1269,6 +1275,19 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_nd_study_investigators' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Investigator' AND `language_tag`=''), '1', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='last_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers') AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_override_tag`='1', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='last_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_nd_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='name', `flag_override_tag`='1', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='studyinvestigators') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='last_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers') AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='name' WHERE model='Generated' AND tablename='' AND field='qc_nd_study_investigators' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='Investigator', `flag_override_label`='1', `language_label`='name' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='last_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='Investigator' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_nd_study_investigators' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('selected value already exists for the study', 'Selected value already exists for the study', "La valeur sélectionnée existe déjà pour l'étude");
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_study_participants');
+DELETE FROM structures WHERE alias='qc_nd_study_participants';
 
 
 
@@ -1277,47 +1296,45 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 
 
 
+---------------------------------------------------------------
 
 
 
 
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql > atim_v2.6.4_upgrade.txt
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql > atim_v2.6.5_upgrade.txt
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql > atim_v2.6.6_upgrade.txt
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql > atim_v2.6.7_upgrade.txt
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql > atim_v2.6.8_upgrade.txt
+mysql -u root chumoncoaxis --default-character-set=utf8 < custom_post_268.sql > custom_post_268.txt
+
+
+
+verifier si on utilise encore cela...
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('study_list_for_view', 'Study.StudySummary::getStudyPermissibleValuesForView');
 
 
 
 
+-- Order 2
 
+SELECT CONCAT(short_title, ' (order_id = ',orders.id, ')') AS 'TODO: order with study issue to remove order line study', orders.short_title, orders.default_study_summary_id, order_lines.study_summary_id
+FROM orders INNER JOIN order_lines ON orders.id = order_lines.order_id
+WHERE orders.deleted <> 1 AND order_lines.deleted <> 1
+AND (order_lines.study_summary_id IS NOT NULL AND orders.default_study_summary_id != order_lines.study_summary_id)
+OR (order_lines.study_summary_id IS NOT NULL AND orders.default_study_summary_id IS NULL);
+
+-- TODO Validate with manon if the order line study should be hidden
+
+Remplacer redirect('/pages par redirect('/Pages car case sensitive
 
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
- 
 C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0>mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
 
 ### MESSAGE ###
 Added option to link a TMA slide to a study. (See structures 'tma_slides').
-
-
-Lister les champs attachés a chacque custom list
-SELECT 
-REPLACE(svd.source, 'StructurePermissibleValuesCustom::getCustomDropdown(', '') AS custom_list,
-str.alias AS structure_alias,
-sfi.plugin AS plugin,
-sfi.model AS model,
-sfi.tablename AS tablename,
-sfi.field AS field,
-sfi.structure_value_domain AS structure_value_domain,
-svd.domain_name AS structure_value_domain_name,
-IF((sfo.flag_override_label = '1'),sfo.language_label,sfi.language_label) AS language_label,
-IF((sfo.flag_override_tag = '1'),sfo.language_tag,sfi.language_tag) AS language_tag
-FROM structure_formats sfo 
-INNER JOIN structure_fields sfi ON sfo.structure_field_id = sfi.id
-INNER JOIN structures str ON str.id = sfo.structure_id
-INNER JOIN structure_value_domains svd ON svd.id = sfi.structure_value_domain
-WHERE (sfo.flag_add =1 OR sfo.flag_addgrid =1 OR sfo.flag_index =1 OR sfo.flag_detail)
-AND svd.source LIKE 'StructurePermissibleValuesCustom::getCustomDropdown(%)'
-AND svd.domain_name IN ('qc_nd_researchers', 'qc_nd_institutions_and_laboratories')
-ORDER BY svd.source;
 
 

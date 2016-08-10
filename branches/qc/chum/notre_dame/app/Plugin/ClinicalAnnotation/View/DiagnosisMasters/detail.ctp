@@ -3,11 +3,10 @@
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/DiagnosisMasters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'delete'=>'/ClinicalAnnotation/DiagnosisMasters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
-			'list'=>'/ClinicalAnnotation/DiagnosisMasters/listall/%%DiagnosisMaster.participant_id%%/',
 			'redefine unknown primary' => '/underdevelopment/'
 		)
 	);
-	if(in_array($this->data['DiagnosisControl']['category'], array('primary', 'secondary'))){
+	if(in_array($this->data['DiagnosisControl']['category'], array('primary', 'secondary - distant'))){
 		$structure_links['bottom']['add'] = 'javascript:addPopup('.$this->data['DiagnosisMaster']['id'].', '.$this->data['DiagnosisControl']['id'].');';
 	}
 	
