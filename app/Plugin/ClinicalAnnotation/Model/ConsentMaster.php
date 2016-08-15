@@ -44,6 +44,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel {
 		if(array_key_exists('FunctionManagement', $consent_data) && array_key_exists('autocomplete_consent_study_summary_id', $consent_data['FunctionManagement'])) {
 			$consent_data['ConsentMaster']['study_summary_id'] = null;
 			$consent_data['FunctionManagement']['autocomplete_consent_study_summary_id'] = trim($consent_data['FunctionManagement']['autocomplete_consent_study_summary_id']);
+			$this->addWritableField(array('study_summary_id'));
 			if(strlen($consent_data['FunctionManagement']['autocomplete_consent_study_summary_id'])) {
 				// Load model
 				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
@@ -54,7 +55,6 @@ class ConsentMaster extends ClinicalAnnotationAppModel {
 				// Set study summary id
 				if(isset($arr_study_selection_results['StudySummary'])){
 					$consent_data['ConsentMaster']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
-					$this->addWritableField(array('study_summary_id'));
 				}
 	
 				// Set error

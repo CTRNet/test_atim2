@@ -1,4 +1,172 @@
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- ATiM v2.6.8 Upgrade Script
+--
+-- See ATiM wiki fpr more information: 
+--    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
+-- -----------------------------------------------------------------------------------------------------------------------------------
+--
+-- MIGRATION DETAIL:
+-- 
+--   ### 1 # Added Investigator and Funding sub-models to study tool
+--
+--      To be able to create one to many investigators or fundings of a study.
+--
+--      TODO:
+--
+--      In /app/Plugin/StudyView/StudySummaries/detail.ctp, set the variables $display_study_fundings and/or $display_study_investigators
+--      to 'false' to hide the section.
+--
+--
+--   ### 2 # Replaced the study drop down list to both an autocomplete field and a text field
+--
+--      Replaced all 'study_summary_id' field with 'select' type and 'domain_name' equals to 'study_list' by the 2 following fields
+--			- Study.FunctionManagement.autocomplete_{.*}_study_summary_id for any data creation and update
+--			- Study.StudySummary.title for any data display in detail or index form.
+--		A field study_summary_title has been created for both ViewAliquot and ViewAliquotUse.
+--      The defintion of study linked to a created/updated data is now done through an 'autocomplete' field.
+--      The search of a study linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
+--
+--      TODO:
+--
+--      Review any of these forms:
+--         - aliquotinternaluses
+--         - aliquot_masters
+--         - aliquot_master_edit_in_batchs
+--         - consent_masters_study
+--         - miscidentifiers_study
+--         - orderlines
+--         - orders
+--         - tma_slides
+--         - tma_slide_uses
+--         - view_aliquot_joined_to_sample_and_collection
+--         - viewaliquotuses
+--
+--      Update $table_querie variables of the ViewAliquotCustom and ViewAliquotUseCustom models (if exists).
+--
+--
+--   ### 2 # Added Study Model to the databrowser
+--
+--      TODO:
+--
+--		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
+--
+--		Activate databrowser links (if required) using following query:
+--			UPDATE datamart_browsing_controls 
+--          SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+--          WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Model1') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'Model2');
+--
+--
+--   ### 3 # Added ICD-0-3-Topo Categories (tissue site/category)
+--
+--		The ICD-0-3-Topo categories have been defined based on an internet reasearch (no source file).
+--		Created field 'diagnosis_masters.icd_0_3_topography_category' to record a ICD-0-3-Topo 3 digits codes (C07, etc) 
+--		and let user searches on tissue site/category (more generic than tissue descritpion - ex: colon, etc).
+--		A search field on ICD-0-3-Topo categories has been created for each form displaying a field linked to the ICD-0-3-Topo tool.
+--      Note the StructureValueDomain 'icd_0_3_topography_categories' can also be used to set the site of any record of surgery, radiation, tissue source, etc .
+--
+--      TODO:
+--
+--		Check field add has been correctly done in each search form displaying the ICD-0-3-Topo tool.
+--		Check field diagnosis_masters.icd_0_3_topography_category has been correctly populated based on diagnosis_masters.topography field (when
+--		the diagnosis_masters.topography field contains ICD-0-3-Topo codes).
+--
+--
+--   ### 4 # Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
+--
+-- 		New field is linked to the StructureValueDomain 'secondary_diagnosis_icd10_code_who' that gathers only ICD-10 codes of secondaries.
+--
+--      TODO:
+--
+--		Check any of your secondary diagnosis forms.
+--
+--
+--   ### 5 # Changed DiagnosisControl.category values
+-- 	
+--		Changed:	
+--         - 'secondary' to 'secondary - distant'
+--         - 'progression' to 'progression - locoregional'
+--         - 'recurrence' to 'recurrence - locoregional'
+--
+--      TODO:
+--
+--		Update custom code if required.
+--
+--
+--   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field
+--
+--		Replaced all 'drug_id' field with 'select' type and 'domain_name' equals to 'drug_list' by the 3 following field
+--			- ClinicalAnnotation.FunctionManagement.autocomplete_treatment_drug_id for any data creation and update
+--			- Protocol.FunctionManagement.autocomplete_protocol_drug_id for any data creation and update
+--			- Drug.Drug.generic_name for any data display in detail or index form
+--
+--      The definition of drug linked to a created/updated data is now done through an 'autocomplete' field.
+--      The search of a drug linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
+--      The drug_id table fields of the models 'TreatmentExtendDetail' and 'ProtocolExtendDetail' should be moved to the Master level (already done
+--		for txe_chemos and pe_chemos).
+--
+--      TODO:
+--
+--      Review any forms listed in treatment_extend_controls.detail_form_alias and protocol_extend_controls.detail_form_alias 
+--      to update any of them containing a drug_id field.
+--      Migrate drug_id values of any tablename listed in treatment_extend_controls.detail_tablename and protocol_extend_controls.detail_tablename
+-- 		and having a drug_id field to the treatment_extend_masters.drug_id or protocol_extend_masters.drug_id field.
+--      
+--      UPDATE protocol_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id;
+--      UPDATE protocol_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+--      ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
+--      ALTER TABLE {tablename} DROP COLUMN drug_id;
+--      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
+--      
+--      UPDATE treatment_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
+--      UPDATE treatment_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
+--      ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
+--      ALTER TABLE {tablename} DROP COLUMN drug_id;
+--      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
+--
+--   ### 7 # TMA slide new features
+--
+--      Created an immunochemistry autocomplete field.
+-- 		Created a new object TmaSlideUse linked to a TmaSlide to track any slide scoring or analysis and added this one to the databrowser.
+--
+--		TODO:
+--
+--		Customize the TmaSlideUse controller and forms if required.
+--		Activate the TmaSlide to TmaSlideUse databrowser link if required.
+--		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
+--
+--   ### 8 # Order tool upgrade
+--
+--      The all Order tool has been redesigned to be able to:
+--			- Add tma slide to an order (both aliquot and tma slide will be considered as OrderItem).
+--			- Define a shipped item as returned to the bank.
+--			- Browse on OrderLine model with the databrowser.
+--
+--		TODO:
+--
+--		Note the OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(): Check if custom code has to be update or not.
+--		Set core variable 'order_item_type_config' plus run following queries to let user to link a TMA slide to an order:
+--			UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'input');
+--			UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
+--		Activate databrowser links if required plus review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
+--      Update $table_querie variables of theViewAliquotUseCustom model (if exists).
+--
+--   ### 9 # New Sample and aliquot controls
+--
+--      Created Buffy Coat and Nail sample types.
+--
+--		TODO:
+--
+--		Activate these sample types if required.
+--
+--   ### 10 # Removed AliquotMaster.use_counter field
+--
+--		TODO:
+--
+--		Validate no custom code or migration script populate/update/use this field.
+--
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3307: Study - Autocomplete fields
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -124,7 +292,7 @@ WHERE sfo.structure_field_id = sfi.id
 AND sfi.field LIKE '%study_summary_id%' AND sfi.type='select'
 AND (sfo.flag_add= '1' OR sfo.flag_edit= '1' OR sfo.flag_addgrid= '1' OR sfo.flag_editgrid= '1' OR sfo.flag_batchedit = '1');
 
-UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'ViewAliquot', '', 'study_summary_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='study_list') , '0', '', '', '', 'study / project', '');
@@ -138,8 +306,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3308: Study - Add study to databarowser
 -- -----------------------------------------------------------------------------------------------------------------------------------
-
-SELECT 'Added Study to databrowser. Please check all realationships have been correctly set.' AS '### MESSAGE ### New DataBrowser realtionships';
 
 INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv_search_structure_alias`, `display_name`, `control_master_model`, `index_link`, `batch_edit_link`) 
 VALUES
@@ -260,10 +426,6 @@ VALUES
 ((SELECT id FROM datamart_structures WHERE model = 'OrderItem'), (SELECT id FROM datamart_structures WHERE model = 'OrderLine'), '0', '0', 'order_line_id'),
 ((SELECT id FROM datamart_structures WHERE model = 'OrderLine'), (SELECT id FROM datamart_structures WHERE model = 'StudySummary'), '0', '0', 'study_summary_id');
 
-SELECT 'Added Order Line to databrowser. Run following query to activate the link.' AS '### MESSAGE ### New DataBrowser realtionships'
-UNION ALL
-SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine');" AS '### MESSAGE ### New DataBrowser realtionships';
-
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='sample_aliquot_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_aliquot_type_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='aliquot_control_id');
@@ -348,6 +510,7 @@ CREATE TABLE `tma_slide_uses_revs` (
   `picture_path` varchar(200) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `tma_slide_uses`
@@ -401,11 +564,6 @@ VALUES
 INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
 ((SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse'), (SELECT id FROM datamart_structures WHERE model = 'TmaSlide'), 0, 0, 'tma_slide_id'),
 ((SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse'), (SELECT id FROM datamart_structures WHERE model = 'StudySummary'), 0, 0, 'study_summary_id');
-SELECT 'Added TMA SLide Use to databrowser. Run following queries to activate the link.' AS '### MESSAGE ### New DataBrowser realtionships'
-UNION ALL
-SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');" AS '### MESSAGE ### New DataBrowser realtionships'
-UNION ALL
-SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');" AS '### MESSAGE ### New DataBrowser realtionships';
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("TmaSlideUse", "tma slide uses");
 INSERT IGNORE INTO structure_value_domains_permissible_values 
@@ -487,10 +645,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 SET @flag_aliquot_label_detail = (SELECT `flag_detail` FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label'));
 
-SELECT 'Review Order tool custom code. Source code has been changed.' AS '### TODO ### New Source Code'
-UNION ALL
-SELECT 'Then review ViewAliquotUse that has been modified too.' AS '### TODO ### New Source Code';
-
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
 ('order_order management', 'Order/Shipment Management', 'Gestion des commandes/envois'),
@@ -499,12 +653,13 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
 ('at least one data should be updated', 'At least one data should be updated', 'Au moins une donnée doit être mise à jour'),
 ('use databrowser to submit a sub set of data','Use the databrowser to submit a sub set of data',"Utilisez le 'Navigateur de données' pour travailler sur un plus petit ensemble de données."),
-('edit order items returned','Edit Order Items Returned','Modifier les articles de commande retournés'),
-('edit unshipped order items', 'Edit Order Items Unshipped', 'Modifier articles de commande non-envoyés'),
-('define order items returned','Define Order Items Returned', 'Définir articles de commande retournés'),
+('edit order items returned','Edit Items Returned','Modifier les articles retournés'),
+('edit unshipped order items', 'Edit Items Unshipped', 'Modifier articles non-envoyés'),
+('define order items returned','Define Items Returned', 'Définir articles retournés'),
+('define order item as returned','Define Item as Returned', "Définir comme article 'retourné'"),
 ('item returned', 'Item Returned', 'Article retourné'),
 ('reason','Reason','Raison'),
-('launch process on order items sub set', 'Launch process on order items sub set', 'Lancer le processus sur un sous-ensemble d''articles de commande'),
+('launch process on order items sub set', 'Launch process on order items sub set', 'Lancer le processus sur un sous-ensemble d''articles'),
 ("shipped & returned","Shipped & Returned","Enovyé & Retourné"),
 ('returned', 'Returned', 'Retourné'),
 ('change status to shipped',"Change Status to 'Shipped'","Modifier le statu à 'Envoyé'"),
@@ -741,18 +896,6 @@ VALUES
 "The status of a TMA slide flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses.",
 "Le statu d'une lame de TMA définie comme 'Retournée' ne peut pas être changée à 'En attente' ou 'Envoyée' lorsque celle-ci est déjà liée à une autre commande avec ces 2 status.");
 
-SELECT "Added option to link a TMA Slide to an order." AS '### MESSAGE ### Added TMA Slide to order'
-UNION ALL
-SELECT "Set core variable 'order_item_type_config'." AS '### MESSAGE ### Added TMA Slide to order'
-UNION ALL
-SELECT 'Then Run following queries to activate the option.' AS '### MESSAGE ### Added TMA Slide to order'
-UNION ALL
-SELECT "UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'input');" AS '### MESSAGE ### Added TMA Slide to order'
-UNION ALL 
-SELECT "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');" AS '### MESSAGE ### Added TMA Slide to order'
-UNION ALL
-SELECT "Changed OrderItem.addAliquotsInBatch function to OrderItem.addOrderItemsInBatch function. Check all custom hooks and codes." AS '### MESSAGE ### Added TMA Slide to order';
-
 UPDATE structure_formats SET structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label') WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='aliquot_label');
 DELETE FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='aliquot_label';
 
@@ -760,9 +903,6 @@ DELETE FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `f
 
 INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
 ((SELECT id FROM datamart_structures WHERE model = 'OrderItem'), (SELECT id FROM datamart_structures WHERE model = 'TmaSlide'), 0, 0, 'tma_slide_id');
-SELECT 'Added TMA SLide to Order link into databrowser. Run following queries to activate the link.' AS '### MESSAGE ### New DataBrowser realtionships'
-UNION ALL
-SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');" AS '### MESSAGE ### New DataBrowser realtionships';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Added source of the icd codes in help message
@@ -793,11 +933,6 @@ VALUES
 -- Added a drop down list to search on 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-SELECT 'Replaced (en/fr)_title field values by (en/fr)_sub_title values.' AS '### MESSAGE ### ICD-O-3 Topographical Codes Clean-up'
-UNION ALL
-SELECT "Recorded 'tissue site/category' (based on a ATiM developpers reasearch) in %_sub_title columns." AS '### MESSAGE ### ICD-O-3 Topographical Codes Clean-up'
-UNION ALL
-SELECT "Added a search field on site/category for each form displaying a field linked to the ICD-0-3-Topo tool." AS '### MESSAGE ### ICD-O-3 Topographical Codes Clean-up';
 UPDATE coding_icd_o_3_topography SET en_title = en_sub_title, fr_title = fr_sub_title;
 UPDATE coding_icd_o_3_topography SET en_sub_title = "Lip", fr_sub_title = "Lèvre" WHERE id LIKE 'C00%';
 UPDATE coding_icd_o_3_topography SET en_sub_title = "Base of tongue", fr_sub_title = "Base de la langue" WHERE id LIKE 'C01%';
@@ -869,6 +1004,7 @@ UPDATE coding_icd_o_3_topography SET en_sub_title = "Other endocrine glands and 
 UPDATE coding_icd_o_3_topography SET en_sub_title = "Other and ill-defined sites", fr_sub_title = "Autres localisations et localisations maldéfinies" WHERE id LIKE 'C76%';
 UPDATE coding_icd_o_3_topography SET en_sub_title = "Lymph nodes", fr_sub_title = "Ganglions lymphatiques" WHERE id LIKE 'C77%';
 UPDATE coding_icd_o_3_topography SET en_sub_title = "Unknown primary site", fr_sub_title = "Site primaireinconnu" WHERE id LIKE 'C80%';
+UPDATE coding_icd_o_3_topography SET fr_title = 'Tumeurs malignes';
 
 ALTER TABLE diagnosis_masters
    ADD COLUMN icd_0_3_topography_category VARCHAR(3) DEFAULT NULL AFTER topography;
@@ -921,13 +1057,6 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='secondary_diagnosis_icd10_code_who')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx_icd10_code_who' AND `language_label`='disease code' AND `language_tag`=''), '2', '1', 'coding', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', @flag_detail, '0', @flag_detail, '0', @flag_detail, '0', '0', '0', '0', '0', '0', '0', @flag_detail, @flag_detail, @flag_detail, '0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-SELECT "Changed field 'Disease Code (ICD-10_WHO code)' of 'dx_secondary' form from ICD-10_WHO tool to a limited drop down list." AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List'
-UNION ALL
-SELECT "Run following queries to return to previous configuration" AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List'
-UNION ALL
-SELECT "UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');" AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List'
-UNION ALL
-SELECT "UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='secondary_diagnosis_icd10_code_who') AND `flag_confidential`='0');" AS '### MESSAGE ### Secondary Diagnosis ICD-10-WHO code Dropdown List';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Added distant and locoregional to diagnosis control category to clarify data
@@ -981,7 +1110,6 @@ VALUES
 ('study funding is assigned to the study/project', 'Your data cannot be deleted! This study/project is linked to a funding.', "Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un financement."),
 ('study investigator', 'Investigator', 'Investigateur'),
 ('study funding', 'Funding', 'Financement');
-SELECT "Set values of the variables $display_study_investigators and $display_study_fundings to 'false' in View/StudySummaries/detail.ctp' to hide options." AS '### MESSAGE ### Added investigators and fundings to study';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Changed all field study_summary_id with type = 'select' and structure_value_domain = 'study_list' to input field.
@@ -989,7 +1117,6 @@ SELECT "Set values of the variables $display_study_investigators and $display_st
 --    ConsentMaster and MiscIdentifier
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-SELECT 'The $table_query variables of both ViewAliquot and ViewAliquotUse have been updated to add Study.title to any record. Please check and update custom views.' AS '### MESSAGE ### View Update';
 UPDATE structure_fields SET language_label = 'study / project' WHERE language_label = 'study' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list');
 SET @study_title_field_id = (SELECT id FROM structure_fields WHERE model = 'StudySummary' AND field = 'title');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`)
@@ -1002,6 +1129,10 @@ DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM st
 DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND structure_fields.model NOT LIKE 'View%');
 DELETE FROM structure_fields WHERE structure_fields.structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND structure_fields.model NOT LIKE 'View%';
 UPDATE structure_fields SET field = 'study_title', type = 'input', setting = 'size=40', structure_value_domain = null WHERE model in ('ViewAliquotUse', 'ViewAliquot') AND field = 'study_summary_id';
+UPDATE structure_fields SET field = 'study_summary_title' WHERE model in ('ViewAliquotUse', 'ViewAliquot') AND field = 'study_title';
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`=`flag_index` WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`= `flag_index` WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='study_summary_title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- ProtocolExtend Model: Added drug autocomplete field 
@@ -1043,20 +1174,6 @@ DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM str
 DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail');
 DELETE FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail';
 
-SELECT "Run following queries if the section of tablename above is not empty and update Drug.allowDeletion() custom code." AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
-UNION ALL 
-SELECT "Queries:" AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
-UNION ALL 
-SELECT "UPDATE protocol_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id;
-UPDATE protocol_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
-ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
-ALTER TABLE {tablename} DROP COLUMN drug_id;
-ALTER TABLE {tablename}_revs DROP COLUMN drug_id;" AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
-UNION ALL 
-SELECT "Tablebname(s) (nothing to do if empty):" AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model'
-UNION ALL 
-SELECT tablename AS '### MESSAGE ### Moved drug_id from ProtocolExtendDetail model to ProtocolExtendMaster model' FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'ProtocolExtendDetail' AND tablename != 'pe_chemos';
-
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- TreatmentExtend Model: Added drug autocomplete field 
 --     plus changed all field drug_id with model = 'TreatmentExtendDetail', type = 'select' and structure_value_domain = 'drug_list' 
@@ -1092,26 +1209,6 @@ DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM str
 DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
 DELETE FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail';
 
-SELECT "Run following queries if the section of tablename above is not empty and update Drug.allowDeletion() custom code." AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
-UNION ALL 
-SELECT "Queries:" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
-UNION ALL 
-SELECT "UPDATE treatment_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
-UPDATE treatment_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
-ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
-ALTER TABLE {tablename} DROP COLUMN drug_id;
-ALTER TABLE {tablename}_revs DROP COLUMN drug_id;" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
-UNION ALL 
-SELECT "Tablebname(s) (nothing to do if empty):" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
-UNION ALL 
-SELECT tablename AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model' FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail' AND tablename != 'txe_chemos'
-UNION ALL 
-SELECT "Plus update extended_data_import_process functions if following function section is not empty" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
-UNION ALL 
-SELECT "Functions:" AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model'
-UNION ALL 
-SELECT extended_data_import_process AS '### MESSAGE ### Moved drug_id from TreatmentExtendDetail model to TreatmentExtendMaster model' FROM treatment_controls WHERE extended_data_import_process != 'importDrugFromChemoProtocol' AND extended_data_import_process IS NOT NULL;
-
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3209: Added buffy coat
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1143,22 +1240,100 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_aliquot_control_id`, `child_a
 (null, (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat'), 
 (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat'), 0, NULL);
 
-SELECT "Please run following queries to activate Buffy Coat" AS '### MESSAGE ### Created Buffy Coat Sample Type'
-UNION ALL 
-SELECT "UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.parent_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type'
-UNION ALL 
-SELECT "UPDATE parent_to_derivative_sample_controls SET flag_active = '1' WHERE parent_to_derivative_sample_controls.derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type'
-UNION ALL 
-SELECT "UPDATE aliquot_controls SET flag_Active = 1 WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type'
-UNION ALL 
-SELECT "UPDATE realiquoting_controls SET flag_Active = 1 WHERE parent_aliquot_control_id = (SELECT aliquot_controls.id FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = sample_control_id AND sample_type = 'buffy coat');" AS '### MESSAGE ### Created Buffy Coat Sample Type';
-
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3313: AppModel->getSpentTime() seams to fail with date >= 2038
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('months', 'Months', 'Mois');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Removed AliquotMaster.use_counter field
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_batchedit`='0', `flag_batchedit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0', `flag_float`='0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='use_counter');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Added nail
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `sd_spe_nails` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_sd_spe_nails_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `sd_spe_nails_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `sd_spe_nails`
+  ADD CONSTRAINT `FK_sd_spe_nails_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+CREATE TABLE IF NOT EXISTS `ad_envelopes` (
+  `aliquot_master_id` int(11) NOT NULL,
+  KEY `FK_ad_envelopes_aliquot_masters` (`aliquot_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `ad_envelopes_revs` (
+  `aliquot_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_envelopes`
+  ADD CONSTRAINT `FK_ad_envelopes_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+INSERT INTO sample_controls ( sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label) 
+VALUES
+('nail', 'specimen','specimens', 'sd_spe_nails', 'nail');
+ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper', 'envelope') NOT NULL COMMENT 'Generic name.';
+INSERT INTO aliquot_controls (sample_control_id,aliquot_type,detail_form_alias,detail_tablename,flag_active,databrowser_label)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'nail'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'nail|tube'),
+((SELECT id FROM sample_controls WHERE sample_type = 'nail'), 'envelope', '', 'ad_envelopes', '1', 'nail|envelope');
+INSERT INTO parent_to_derivative_sample_controls (derivative_sample_control_id, flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'nail'), '1');
+INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`, `lab_book_control_id`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'nail'), (SELECT id FROM sample_controls WHERE sample_type = 'dna'), 0, NULL);
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('nail', 'Nail', 'Ongle'),('envelope', 'Envelope', 'Enveloppe');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Changed labels of order buttons and fields
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('edit addition to order data', 'Edit Addition To Order Data', "Modifier données d'ajout à la commande"),
+'add items to order line','Add Items to Order Line', "Ajouter des articles à la ligne de commande"),
+('edit return data', 'Edit Return Data', "Modifier données de retour"),
+('shipment details', 'Shipment Details', "Détails de l'envoie"),
+('items details', 'Items Details', "Détails de l'article");
+UPDATE i18n SET en = 'No new item can be added to the shipment.' WHERE id = 'no new item could be actually added to the shipment';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change type to order item type (aliquot or tma slide)
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET `language_label`='item type' WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('item type', 'Item Type', 'Type de l''article');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add TMA slide to order line product type plus change code to generate order line product type
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE order_lines ADD is_tma_slide tinyint(3) unsigned NOT NULL DEFAULT '0';
+ALTER TABLE order_lines_revs ADD is_tma_slide tinyint(3) unsigned NOT NULL DEFAULT '0';
+
+ALTER TABLE order_lines CHANGE sample_aliquot_precision product_type_precision varchar(30);
+ALTER TABLE order_lines_revs CHANGE sample_aliquot_precision product_type_precision varchar(30);
+UPDATE structure_fields SET field = 'product_type_precision', language_tag = 'precision' WHERE field = 'sample_aliquot_precision' AND model = 'OrderLine';
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='sample_aliquot_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_aliquot_type_list') AND `flag_confidential`='0');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES ('order_line_product_types', 'Order.OrderLine::getProductTypes');
+UPDATE structure_fields SET `field`='product_type', `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_line_product_types') 
+WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='sample_aliquot_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_aliquot_type_list') AND `flag_confidential`='0';
 
 
 
@@ -1174,6 +1349,98 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('months', 'Months', 'Mois');
 
 
 
+
+
+
+
+| id  | domain_name              | override | category | source                                                                     |
++-----+--------------------------+----------+----------+----------------------------------------------------------------------------+
+| 200 | sample_aliquot_type_list | open     |          | InventoryManagement.AliquotControl::getSampleAliquotTypesPermissibleValues |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+order_lines_to_addAliquotsInBatch
+orderitems_and_lines
+
+
+
+
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `language_label`='product type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `language_label`='' AND `language_tag`='-' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type_from_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
+
+
+
+
+
+
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
+
+
+
+
+
+
+
+
+
+
+
+
+
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
+
+refaire le set de données pour la demo...
+séparer storage/TMA block
+évenement congélo à appliquer à tous....
+Search on float field with comma
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
