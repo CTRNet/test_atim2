@@ -1,8 +1,5 @@
 <?php 
 	// 1- SHIPMENT DETAILS
-
-
-
 	$add_items_to_shipment_link = array('link' => '/Order/Shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/', 'icon' => 'add_to_shipment');
 	if($add_to_shipments_subset_limits) {
 		$add_items_to_shipment_link = array();

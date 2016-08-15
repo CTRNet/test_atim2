@@ -1113,7 +1113,7 @@ class AppController extends Controller {
 		
 		AppController::addWarningMsg(__('views have been rebuilt'));
 
-		// *** 6 *** Use Counter and Current Volume clean up
+		// *** 6 *** Current Volume clean up
 		
 		$ViewAliquot_model = AppModel::getInstance("InventoryManagement", "ViewAliquot", false);	//To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
 		$tmp_aliquot_model_cacheSources = $ViewAliquot_model->cacheSources;
@@ -1122,40 +1122,7 @@ class AppController extends Controller {
 		$AliquotMaster_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
 		$AliquotMaster_model->check_writable_fields = false;
 		AppModel::acquireBatchViewsUpdateLock();
-		//-A-Use counter
-		$use_counters_updated = array();
-		//Search all aliquots linked to at least one use and having use_counter = 0
-		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, us.use_counter 
-				FROM aliquot_masters am 
-				INNER JOIN (SELECT count(*) AS use_counter, aliquot_master_id FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON am.id = us.aliquot_master_id
-				WHERE am.deleted <> 1 AND (am.use_counter IS NULL OR am.use_counter = 0)";
-		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'use_counter' => $new_aliquot['us']['use_counter'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$use_counters_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
-		}	
-		//Search all unused aliquots having use_counter != 0
-		$tmp_sql = "SELECT id AS aliquot_master_id, barcode, aliquot_label FROM aliquot_masters WHERE deleted <> 1 AND use_counter != 0 AND id NOT IN (SELECT DISTINCT aliquot_master_id FROM view_aliquot_uses);";
-		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$AliquotMaster_model->id = $new_aliquot['aliquot_masters']['aliquot_master_id'];
-			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['aliquot_masters']['aliquot_master_id'], 'use_counter' => '0')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$use_counters_updated[$new_aliquot['aliquot_masters']['aliquot_master_id']] = $new_aliquot['aliquot_masters']['barcode'];
-		}
-		//Search all aliquots having use_counter != real use counter (from view_aliquot_uses)
-		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label,us.use_counter FROM aliquot_masters am INNER JOIN (SELECT aliquot_master_id, count(*) AS use_counter FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON us.aliquot_master_id = am.id WHERE am.deleted <> 1 AND us.use_counter != am.use_counter;";
-		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'use_counter' => $new_aliquot['us']['use_counter'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$use_counters_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
-		}
-		if($use_counters_updated) AppController::addWarningMsg(__('aliquot use counter has been corrected for following aliquots : ').(implode(', ', $use_counters_updated)));
-		//-B-Current Volume
+		//Current Volume
 		$current_volumes_updated = array();
 		//Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
 		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";

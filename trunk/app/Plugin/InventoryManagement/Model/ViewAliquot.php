@@ -56,7 +56,8 @@ class ViewAliquot extends InventoryManagementAppModel {
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
-			StudySummary.title AS study_title,
+			StudySummary.title AS study_summary_title,
+			StudySummary.id AS study_summary_id,
 			
 			StorageMaster.code,
 			StorageMaster.selection_label,

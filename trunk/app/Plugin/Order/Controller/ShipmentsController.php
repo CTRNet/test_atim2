@@ -341,15 +341,8 @@ class ShipmentsController extends OrderAppController {
 					if(!$this->OrderItem->save($order_item_data, false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
-						
-					if($order_item['AliquotMaster']['id']) {
-						// 3- Update Aliquot Use Counter					
-						if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { 
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
-					}
-					}
 					
-					// 4- Set order line to update
+					// 3- Set order line to update
 					$order_line_id = $order_item['OrderLine']['id'];
 					if($order_line_id) $order_line_to_update[$order_line_id] = $order_line_id;
 				}
@@ -493,9 +486,6 @@ class ShipmentsController extends OrderAppController {
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
 					if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { 
-						$remove_done = false; 
-					}
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($order_item_data['OrderItem']['aliquot_master_id'], false, true)) { 
 						$remove_done = false; 
 					}
 				} else {

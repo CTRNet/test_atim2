@@ -3,26 +3,34 @@
 	$structure_links = array();
 	
 	$structure_links['index'] = array(
-		'edit' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/',
-		'details' => array(
+		'items details' => array(
 			'link' => '%%Generated.item_detail_link%%/',
-			'icon' => 'detail')
-	);
+			'icon' => 'detail'));
 	switch($status) {
 		case 'pending':
-			$structure_links['index']['remove from order'] = '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/';
+			$structure_links['index']['edit addition to order data'] = array(
+				'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/',	
+				'icon' => 'edit');
+			$structure_links['index']['remove from order'] = array(
+				'link' => '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/',
+				'icon' => 'remove_from_order');
 			break;
 		case 'shipped':
-			unset($structure_links['index']['edit']);
-			$structure_links['index']['shipment'] = array(
+			$structure_links['index']['shipment details'] = array(
 				'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
 				'icon' => 'shipments');
 			$structure_links['index']['remove from shipment'] = array(
 				'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/'.$main_form_model.'/',
 				'icon' => 'remove_from_shipment');
-			break;
+			$structure_links['index']['define order item as returned'] = array(
+					'link' => '/Order/OrderItems/defineOrderItemsReturned/%%OrderItem.order_id%%/0/0/%%OrderItem.id%%/',
+					'icon' => 'order items returned');
+			break;					
 		case 'shipped & returned':
-			$structure_links['index']['shipment'] = array(
+			$structure_links['index']['edit return data'] = array(
+				'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/'.$main_form_model.'/',	
+				'icon' => 'edit');
+			$structure_links['index']['shipment details'] = array(
 				'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
 				'icon' => 'shipments');
 			$structure_links['index']['remove from shipment'] = array(

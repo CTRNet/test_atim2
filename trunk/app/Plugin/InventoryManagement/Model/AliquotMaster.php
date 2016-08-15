@@ -125,6 +125,13 @@ class AliquotMaster extends InventoryManagementAppModel {
 		return $storage_data;
 	}
 	
+	/****
+	 * @deprecated
+	 */
+	function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false){
+		return $this->updateAliquotVolume($aliquot_master_id, $remove_from_stock_if_empty_volume);
+	}
+	
 	/**
 	 * Update the current volume of an aliquot.
 	 * 
@@ -141,7 +148,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @date 2007-08-15
 	 */
 	 
-	function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false){
+	function updateAliquotVolume($aliquot_master_id, $remove_from_stock_if_empty_volume = false){
 		if(empty($aliquot_master_id)){
 			AppController::getInstance()->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
@@ -201,20 +208,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$aliquot_data_to_save['in_stock'] = 'no';
 				$aliquot_data_to_save['in_stock_detail'] = 'empty';
 			}
-		}
-		
-		if($update_uses_counter) {
-			
-			// UPDATE ALIQUOT USE COUNTER
-				
-			if(is_null($aliquot_uses)) {
-				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
-			}
-			
-			$aliquot_data_to_save['use_counter'] = sizeof($aliquot_uses);
-		}
-		
+		}		
 		
 		// SAVE DATA
 		
@@ -666,7 +660,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}
 			$parents = array_unique($parents);
 			foreach($parents as $parent){
-				$this->updateAliquotUseAndVolume($parent, true, true, false);
+				$this->updateAliquotVolume($parent);
 			}
 			return true;
 		}
