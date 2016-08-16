@@ -11,7 +11,7 @@
 		
 		$view_collection = $view_collection_model->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
 		if(empty($view_collection)){
-			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		$bank_participant_identifier = $view_collection['ViewCollection']['identifier_value'];			

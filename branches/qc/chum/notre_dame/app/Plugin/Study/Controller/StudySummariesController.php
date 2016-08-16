@@ -295,7 +295,7 @@ class StudySummariesController extends StudyAppController {
   		if(sizeof($result) > 0){
   			$result = substr($result, 0, -2);
   		}
-  		
+		
   		$hook_link = $this->hook('format');
   		if( $hook_link ) {
   			require($hook_link);

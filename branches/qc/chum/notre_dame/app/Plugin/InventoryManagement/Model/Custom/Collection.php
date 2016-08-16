@@ -34,7 +34,7 @@ class CollectionCustom extends Collection{
 				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier);
 				$specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['id']] = $new_sample_label;
 			} else {
-				if(!isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) { pr($new_collection_sample);pr($specimens_sample_labels_from_id);exit;AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(!isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) { pr($new_collection_sample);pr($specimens_sample_labels_from_id);exit;AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier, $specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']]);
 			}
 						
@@ -42,7 +42,7 @@ class CollectionCustom extends Collection{
 			$this->SampleMaster->id = $new_collection_sample['SampleMaster']['id'];
 			$this->SampleMaster->addWritableField(array('qc_nd_sample_label'));
 			if(!$this->SampleMaster->save(array('SampleMaster' => array('qc_nd_sample_label' => $new_sample_label)), false)) {
-				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}
 	}
