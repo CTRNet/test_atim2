@@ -53,7 +53,7 @@ class SampleMasterCustom extends SampleMaster {
 		// Check parameters
 	 	if(empty($collection_id) || empty($sample_data) 
 	 	|| (!isset($sample_data['SampleMaster'])) || (!isset($sample_data['SampleControl']))) { 
-	 		AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+	 		AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 	 	}
 	 	
 	 	$prev_id = $this->id;
@@ -72,7 +72,7 @@ class SampleMasterCustom extends SampleMaster {
 		if(is_null($sample_category)
 		|| !array_key_exists('sample_type', $sample_data['SampleControl'])
 		|| !array_key_exists('qc_nd_sample_type_code', $sample_data['SampleControl'])) {
-			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		$sample_type = $sample_data['SampleControl']['sample_type'];
 		$qc_nd_sample_type_code = $sample_data['SampleControl']['qc_nd_sample_type_code'];
@@ -85,7 +85,7 @@ class SampleMasterCustom extends SampleMaster {
 				|| !array_key_exists('type_code', $sample_data['SpecimenDetail'])
 				|| !array_key_exists('sequence_number', $sample_data['SpecimenDetail'])
 			){ 
-				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 		
 			$specimen_type_code =  (empty($sample_data['SpecimenDetail']['type_code']))? 'n/a' : $sample_data['SpecimenDetail']['type_code']; 
@@ -96,7 +96,7 @@ class SampleMasterCustom extends SampleMaster {
 		if(is_null($initial_specimen_label) && (strcmp($sample_category, 'derivative') == 0)) {					
 			// Search initial specimen label
 			if(!array_key_exists('initial_specimen_sample_id', $sample_data['SampleMaster'])) { 
-				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 			
 			$this->contain();
@@ -132,14 +132,14 @@ class SampleMasterCustom extends SampleMaster {
     			break;
     			
 			case 'blood':
-				if(!array_key_exists('blood_type', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(!array_key_exists('blood_type', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_sample_label = $specimen_type_code . ' - ' . $bank_participant_identifier . 
 					(empty($specimen_sequence_number)? '' : ' ' . $specimen_sequence_number) .
 					(empty($sample_data['SampleDetail']['blood_type'])? ' n/a': ' ' . $sample_data['SampleDetail']['blood_type']);	
     			break;
     			
 			case 'tissue':
-				if(!array_key_exists('labo_laterality', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(!array_key_exists('labo_laterality', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_sample_label = $specimen_type_code . ' - ' . $bank_participant_identifier .
 					(empty($sample_data['SampleDetail']['labo_laterality'])? ' n/a': ' ' . $sample_data['SampleDetail']['labo_laterality']) .
 					(empty($specimen_sequence_number)? '' : ' ' . $specimen_sequence_number);
@@ -175,14 +175,14 @@ class SampleMasterCustom extends SampleMaster {
     							
     		case 'cell culture':
     			if(!array_key_exists('qc_culture_population', $sample_data['SampleDetail'])) { 
-    				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+    				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
     			}
     			
 				if(!empty($sample_data['SampleDetail']['qc_culture_population'])) {	
 					$initial_specimen_label = str_replace((' - ' . $bank_participant_identifier),(' - ' . $bank_participant_identifier.'.'.$sample_data['SampleDetail']['qc_culture_population']),$initial_specimen_label);
 				}
     			if(!array_key_exists('cell_passage_number', $sample_data['SampleDetail'])) { 
-    				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+    				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
     			}
     			
 				$new_sample_label = $qc_nd_sample_type_code. ' ' . $initial_specimen_label.
@@ -192,7 +192,7 @@ class SampleMasterCustom extends SampleMaster {
     		case 'dna': 			
     		case 'rna':		 
     			if(!array_key_exists('source_cell_passage_number', $sample_data['SampleDetail'])) { 
-    				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+    				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
     			}
     			
 				$new_sample_label = $qc_nd_sample_type_code . ' ' . $initial_specimen_label;
@@ -212,7 +212,7 @@ class SampleMasterCustom extends SampleMaster {
     		
     		default :
     			// Type is unknown
-				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__.'type='.$sample_type, null, true);
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__.'type='.$sample_type, null, true);
 		}
 		
 		$this->id = $prev_id;
@@ -234,7 +234,7 @@ class SampleMasterCustom extends SampleMaster {
 				|| !array_key_exists('SpecimenDetail', $data_to_validate)
 				|| !array_key_exists('type_code', $data_to_validate['SpecimenDetail'])
 			){ 
-				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 			$tmp_specimen_type = $data_to_validate['SampleControl']['sample_type'];
 			$tmp_selected_type_code = $data_to_validate['SpecimenDetail']['type_code'];
@@ -243,7 +243,7 @@ class SampleMasterCustom extends SampleMaster {
 				// ** Validate Tissue Specimen + Set tissue additional data **
 								
 				if(!array_key_exists('labo_laterality', $data_to_validate['SampleDetail'])) { 
-					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				$tmp_labo_laterality = $data_to_validate['SampleDetail']['labo_laterality'];
 					
@@ -269,7 +269,7 @@ class SampleMasterCustom extends SampleMaster {
 					}else if(count($matching_records) > 1){
 						// Only one row should be defined in model 'LabTypeLateralityMatch' 
 						// for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
-						AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);	
+						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);	
 						
 					}else{
 						// Set automatically tissue source, nature and laterality
@@ -306,7 +306,7 @@ class SampleMasterCustom extends SampleMaster {
 					}else if(count($matching_records) > 1){
 						// Only one row should be defined in model 'LabTypeLateralityMatch' 
 						// for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
-						AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);	
+						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);	
 					}
 				}
 			}

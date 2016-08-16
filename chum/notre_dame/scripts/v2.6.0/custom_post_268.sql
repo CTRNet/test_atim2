@@ -4,6 +4,12 @@
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'xenograft');
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'cord blood');
+SET @control_id = (SELECT id 
+FROM realiquoting_controls 
+WHERE parent_aliquot_control_id = (select id from aliquot_controls WHERE databrowser_label LIKE 'tissue|block')
+AND child_aliquot_control_id IN (select id from aliquot_controls WHERE databrowser_label LIKE 'tissue|tube') LIMIT 0 ,1);
+DELETE FROM realiquoting_controls WHERE id = @control_id;
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Changed way consent is linked to study : Use trunk method
@@ -199,12 +205,14 @@ DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
 DELETE FROM structure_permissible_values_customs_revs WHERE control_id = @control_id;
 UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE id = @control_id;
 
+ALTER TABLE orders MODIFY institution VARCHAR(100) DEFAULT NULL;
+ALTER TABLE orders_revs MODIFY institution VARCHAR(100) DEFAULT NULL;
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
 ('qc_nd_institutions_and_laboratories', "StructurePermissibleValuesCustom::getCustomDropdown('Institutions & Laboratories')");
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES 
-('Institutions & Laboratories', 1, 50, 'order');
+('Institutions & Laboratories', 1, 100, 'order');
 SET @control_id_new_institution_and_lab = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Institutions & Laboratories');
 SET @control_id_order_institution = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'orders institutions');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
@@ -347,8 +355,8 @@ WHERE value NOT IN (
 	) res WHERE staff IS NOT NULL)
 AND control_id = @control_id_lab_staff;
 
-ALTER TABLE study_summaries ADD COLUMN qc_nd_institution VARCHAR(50) DEFAULT NULL;
-ALTER TABLE study_summaries_revs ADD COLUMN qc_nd_institution VARCHAR(50) DEFAULT NULL;
+ALTER TABLE study_summaries ADD COLUMN qc_nd_institution VARCHAR(100) DEFAULT NULL;
+ALTER TABLE study_summaries_revs ADD COLUMN qc_nd_institution VARCHAR(100) DEFAULT NULL;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Study', 'StudySummary', 'study_summaries', 'qc_nd_institution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_institutions_and_laboratories') , '0', '', '', '', 'laboratory / institution', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -1224,7 +1232,7 @@ ALTER TABLE study_summaries_revs ADD COLUMN qc_nd_pubmed_ids TEXT DEFAULT NULL;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Study', 'StudySummary', 'study_summaries', 'qc_nd_pubmed_ids', 'textarea',  NULL , '0', 'cols=40,rows=1', '', '', 'pubmed ids', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_nd_pubmed_ids' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=1' AND `default`='' AND `language_help`='' AND `language_label`='pubmed ids' AND `language_tag`=''), '2', '20', 'literature ', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_nd_pubmed_ids' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=1' AND `default`='' AND `language_help`='' AND `language_label`='pubmed ids' AND `language_tag`=''), '2', '20', 'literature', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr)
 VALUES
 ('literature','Literature','Literature'),
@@ -1289,6 +1297,111 @@ INSERT INTO i18n (id,en,fr) VALUES ('selected value already exists for the study
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_study_participants');
 DELETE FROM structures WHERE alias='qc_nd_study_participants';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Work on sample type nail
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO sd_spe_nails (sample_master_id) (SELECT sample_master_id FROM qc_nd_sd_spe_nails);
+INSERT INTO sd_spe_nails_revs (sample_master_id, version_id, version_created) (SELECT sample_master_id, version_id, version_created FROM qc_nd_sd_spe_nails_revs);
+UPDATE sample_controls SET detail_tablename = 'sd_spe_nails' WHERE detail_tablename = 'qc_nd_sd_spe_nails';
+
+INSERT INTO ad_envelopes (aliquot_master_id) (SELECT aliquot_master_id FROM qc_nd_ad_envelopes);
+INSERT INTO ad_envelopes_revs (aliquot_master_id, version_id, version_created) (SELECT aliquot_master_id, version_id, version_created FROM qc_nd_ad_envelopes_revs);
+UPDATE aliquot_controls SET detail_tablename = 'ad_envelopes' WHERE detail_tablename = 'qc_nd_ad_envelopes';
+
+DROP TABLE qc_nd_sd_spe_nails;
+DROP TABLE qc_nd_sd_spe_nails_revs;
+DROP TABLE qc_nd_ad_envelopes_revs;
+DROP TABLE qc_nd_ad_envelopes;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Study Summary
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('qc_nd_study_investigators', "Study.StudySummary::getStudyComplementaryInformationFromId");
+UPDATE structure_fields 
+SET model='StudySummary',
+tablename='study_summaries',
+field='id',
+language_label = 'study investigator',
+`type`='select',  
+`structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_study_investigators') 
+WHERE model='Generated' AND tablename='' AND field='qc_nd_study_investigators';
+UPDATE structure_formats SET `display_order`='9', `language_heading`='', `flag_override_label`='1', `language_label`='study investigator' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='last_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='9', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_study_investigators') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='path_to_file' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='17' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='path_to_file' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='end_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Diagnosis
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE diagnosis_controls SET category = 'progression' WHERE category = 'progression - locoregional' AND controls_type = 'sardo';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Databrowser
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Order');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderLine') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- TMA slide and order
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'input');
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1301,40 +1414,16 @@ DELETE FROM structures WHERE alias='qc_nd_study_participants';
 
 
 
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql > atim_v2.6.4_upgrade.txt
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql > atim_v2.6.5_upgrade.txt
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql > atim_v2.6.6_upgrade.txt
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql > atim_v2.6.7_upgrade.txt
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql > atim_v2.6.8_upgrade.txt
-mysql -u root chumoncoaxis --default-character-set=utf8 < custom_post_268.sql > custom_post_268.txt
-
-
-
-verifier si on utilise encore cela...
-INSERT INTO structure_value_domains (domain_name, source) VALUES ('study_list_for_view', 'Study.StudySummary::getStudyPermissibleValuesForView');
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < custom_post_268.sql
 
 
 
 
--- Order 2
-
-SELECT CONCAT(short_title, ' (order_id = ',orders.id, ')') AS 'TODO: order with study issue to remove order line study', orders.short_title, orders.default_study_summary_id, order_lines.study_summary_id
-FROM orders INNER JOIN order_lines ON orders.id = order_lines.order_id
-WHERE orders.deleted <> 1 AND order_lines.deleted <> 1
-AND (order_lines.study_summary_id IS NOT NULL AND orders.default_study_summary_id != order_lines.study_summary_id)
-OR (order_lines.study_summary_id IS NOT NULL AND orders.default_study_summary_id IS NULL);
-
--- TODO Validate with manon if the order line study should be hidden
-
-Remplacer redirect('/pages par redirect('/Pages car case sensitive
 
 
--- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0>mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
-
-### MESSAGE ###
-Added option to link a TMA slide to a study. (See structures 'tma_slides').
-
-
+Update 'Databrowser Relationship Diagram'.

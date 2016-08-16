@@ -26,7 +26,7 @@ class AliquotMasterCustom extends AliquotMaster {
 	
 	function generateDefaultAliquotLabel($view_sample, $aliquot_control_data) {
 		// Parameters check: Verify parameters have been set
-		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			
 		$default_aliquot_label = '';
 		if($view_sample['ViewSample']['bank_id'] == 4) {

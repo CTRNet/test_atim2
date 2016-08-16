@@ -76,16 +76,6 @@ class OrderLinesController extends OrderAppController {
 			$row_counter = 0;
 			foreach($this->request->data as &$data_unit){
 				$row_counter++;
-				//Set control id
-				if(empty($data_unit['FunctionManagement']['sample_aliquot_control_id'])) {
-					$errors_tracking['sample_aliquot_control_id'][__('this field is required')." (".__('product type').")"][] = $row_counter;
-				} else {
-					//Set sample/aliquot control id
-					$product_controls = explode("|", $data_unit['FunctionManagement']['sample_aliquot_control_id']);
-					if(sizeof($product_controls) != 2) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-					$data_unit['OrderLine']['sample_control_id'] = $product_controls[0];
-					$data_unit['OrderLine']['aliquot_control_id'] = $product_controls[1];
-				}
 				$this->OrderLine->id = null;
 				$this->OrderLine->data = array(); // *** To guaranty no merge will be done with previous data ***
 				$this->OrderLine->set($data_unit);
@@ -107,7 +97,7 @@ class OrderLinesController extends OrderAppController {
 			// Launch Save Process
 			
 			if(empty($errors_tracking)){
-				$this->OrderLine->addWritableField(array('sample_control_id', 'aliquot_control_id', 'order_id', 'status'));
+				$this->OrderLine->addWritableField(array('order_id', 'status'));
 				AppModel::acquireBatchViewsUpdateLock();
 				//save all
 				foreach($this->request->data as $new_data_to_save) {
@@ -148,9 +138,6 @@ class OrderLinesController extends OrderAppController {
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 
-		// Set value for 'FunctionManagement.sample_aliquot_control_id' field
-		$order_line_data['FunctionManagement']['sample_aliquot_control_id'] = $order_line_data['OrderLine']['sample_control_id'] . '|' . (empty($order_line_data['OrderLine']['aliquot_control_id'])? '': $order_line_data['OrderLine']['aliquot_control_id']);
-
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
@@ -167,14 +154,6 @@ class OrderLinesController extends OrderAppController {
 			$this->request->data = $order_line_data;
 
 		} else {
-			// Set sample and aliquot control id
-			$product_controls = explode("|", $this->request->data['FunctionManagement']['sample_aliquot_control_id']);
-			if(sizeof($product_controls) != 2)  { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-			$this->request->data['OrderLine']['sample_control_id'] = $product_controls[0];
-			$this->request->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
-				
-			$this->OrderLine->addWritableField(array('sample_control_id', 'aliquot_control_id'));
-			
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');

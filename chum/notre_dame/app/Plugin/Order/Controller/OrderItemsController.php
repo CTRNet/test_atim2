@@ -274,11 +274,7 @@ class OrderItemsController extends OrderAppController {
 						$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						$this->AliquotMaster->id = $new_data_to_save['OrderItem']['aliquot_master_id'];
-						if(!$this->AliquotMaster->save($new_aliquot_master_data)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true );	
-						// Update Aliquot Use Counter
-						if(!$this->AliquotMaster->updateAliquotUseAndVolume($new_data_to_save['OrderItem']['aliquot_master_id'], false, true)) {
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-						}
+						if(!$this->AliquotMaster->save($new_aliquot_master_data)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true );
 					} else {
 						// Update tma slide status
 						$new_tma_slide_data = array();
@@ -541,11 +537,6 @@ class OrderItemsController extends OrderAppController {
 						$this->AliquotMaster->id = $added_id;
 						if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
 							$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
-						}
-						
-						// Update Aliquot Use Counter
-						if(!$this->AliquotMaster->updateAliquotUseAndVolume($added_id, false, true)) {
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 						}
 					} else {
 						// Update tma slide status
@@ -875,10 +866,6 @@ class OrderItemsController extends OrderAppController {
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
 					}
-					
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($order_item_data['OrderItem']['aliquot_master_id'], false, true)) {
-						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
-					}
 				} else {
 					// Update Tma Slide data
 					$new_tma_slide_data = array();
@@ -929,7 +916,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function defineOrderItemsReturned($order_id = 0, $order_line_id = 0, $shipment_id = 0) {
+	function defineOrderItemsReturned($order_id = 0, $order_line_id = 0, $shipment_id = 0, $order_item_id = 0) {
 		// MANAGE DATA
 		
 		$this->setUrlToCancel();
@@ -963,6 +950,7 @@ class OrderItemsController extends OrderAppController {
 			$criteria[] = array('OrderItem.status' => 'shipped');
 			if($order_line_id) $criteria['OrderItem.order_line_id'] = $order_line_id;
 			if($shipment_id) $criteria['OrderItem.shipment_id'] = $shipment_id;
+			if($order_item_id) $criteria['OrderItem.id'] = $order_item_id;
 			if(empty($this->request->data)) $initial_display = true;
 		} else {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
@@ -1102,8 +1090,18 @@ class OrderItemsController extends OrderAppController {
 					if($new_studied_item_to_update['FunctionManagement']['defined_as_returned']) {
 						$order_item_id = $new_studied_item_to_update['OrderItem']['id'];
 						
+						// 1- Record Order Item Update
+						$order_item_data = $new_studied_item_to_update;
+						$order_item_data['OrderItem']['status'] = 'shipped & returned';
+							
+						$this->OrderItem->data = array(); // *** To guaranty no merge will be done with previous data ***
+						$this->OrderItem->id = $order_item_id;
+						if(!$this->OrderItem->save($order_item_data, false)) {
+							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+						}
+						
 						if($new_studied_item_to_update['OrderItem']['aliquot_master_id']) {
-							// 1- Update Aliquot Master Data
+							// 2- Update Aliquot Master Data
 							$aliquot_master = array();
 							$aliquot_master['AliquotMaster']['in_stock'] = 'yes - available';
 							$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped & returned';
@@ -1113,30 +1111,13 @@ class OrderItemsController extends OrderAppController {
 								$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 							}
 						} else {
-							// 1- Update Tma Slide Data
+							// 2- Update Tma Slide Data
 							$tma_slide_master = array();
 							$tma_slide_master['TmaSlide']['in_stock'] = 'yes - available';
 							$tma_slide_master['TmaSlide']['in_stock_detail'] = 'shipped & returned';
 							$this->TmaSlide->data = array(); // *** To guaranty no merge will be done with previous data ***
 							$this->TmaSlide->id = $new_studied_item_to_update['OrderItem']['tma_slide_id'];
 							if(!$this->TmaSlide->save($tma_slide_master, false)) {
-								$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-							}
-						}
-							
-						// 2- Record Order Item Update
-						$order_item_data = $new_studied_item_to_update;
-						$order_item_data['OrderItem']['status'] = 'shipped & returned';
-							
-						$this->OrderItem->data = array(); // *** To guaranty no merge will be done with previous data ***
-						$this->OrderItem->id = $order_item_id;
-						if(!$this->OrderItem->save($order_item_data, false)) {
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-						}
-					
-						if($new_studied_item_to_update['OrderItem']['aliquot_master_id']) {
-							// 3- Update Aliquot Use Counter
-							if(!$this->AliquotMaster->updateAliquotUseAndVolume($new_studied_item_to_update['OrderItem']['aliquot_master_id'], false, true)) {
 								$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 							}
 						}
@@ -1257,10 +1238,6 @@ class OrderItemsController extends OrderAppController {
 				$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
 				$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
 				if(!$this->AliquotMaster->save($aliquot_master, false)) {
-					$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-				}
-				// Update Aliquot Use Counter
-				if(!$this->AliquotMaster->updateAliquotUseAndVolume($order_item_data['OrderItem']['aliquot_master_id'], false, true)) {
 					$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
 			} else {
