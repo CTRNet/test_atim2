@@ -159,56 +159,53 @@ class AliquotMaster extends InventoryManagementAppModel {
 		// Set variables
 		$aliquot_data_to_save = array();
 		$aliquot_uses = null;
+			
+		// MANAGE CURRENT VOLUME
 		
-		if($update_current_volume) {
-			
-			// MANAGE CURRENT VOLUME
-			
-			$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
-					
-			// Manage new current volume
-			if(empty($initial_volume)){	
-				// Initial_volume is null or equal to 0
-				// To be sure value and type of both variables are identical
-				$current_volume = $initial_volume;
-						
-			}else {
-				// A value has been set for the intial volume		
-				if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
-					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				}
-						
-				$total_used_volume = 0;
-				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
-				foreach($aliquot_uses as $aliquot_use){
-					$used_volume = $aliquot_use['0']['used_volume'];
-					if(!empty($used_volume)){
-						// Take used volume in consideration only when this one is not empty
-						if((!is_numeric($used_volume)) || ($used_volume < 0)){
-							AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
-						$total_used_volume += $used_volume;
-					}
-				}
+		$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
 				
-				$current_volume = round(($initial_volume - $total_used_volume), 5);
-				if($current_volume < 0){
-					$current_volume = 0;
-					$tmp_msg = __("the aliquot with barcode [%s] has reached a volume below 0");
-					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+		// Manage new current volume
+		if(empty($initial_volume)){	
+			// Initial_volume is null or equal to 0
+			// To be sure value and type of both variables are identical
+			$current_volume = $initial_volume;
+					
+		}else {
+			// A value has been set for the intial volume		
+			if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			}
+					
+			$total_used_volume = 0;
+			$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
+			$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
+			foreach($aliquot_uses as $aliquot_use){
+				$used_volume = $aliquot_use['0']['used_volume'];
+				if(!empty($used_volume)){
+					// Take used volume in consideration only when this one is not empty
+					if((!is_numeric($used_volume)) || ($used_volume < 0)){
+						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
+					$total_used_volume += $used_volume;
 				}
 			}
 			
-			$aliquot_data_to_save["current_volume"] = $current_volume;
-			if($current_volume <= 0 && $remove_from_stock_if_empty_volume){
-				$aliquot_data_to_save['storage_master_id'] = NULL;
-				$aliquot_data_to_save['storage_coord_x'] = NULL;
-				$aliquot_data_to_save['storage_coord_y'] = NULL;
-				$aliquot_data_to_save['in_stock'] = 'no';
-				$aliquot_data_to_save['in_stock_detail'] = 'empty';
+			$current_volume = round(($initial_volume - $total_used_volume), 5);
+			if($current_volume < 0){
+				$current_volume = 0;
+				$tmp_msg = __("the aliquot with barcode [%s] has reached a volume below 0");
+				AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
 			}
-		}		
+		}
+		
+		$aliquot_data_to_save["current_volume"] = $current_volume;
+		if($current_volume <= 0 && $remove_from_stock_if_empty_volume){
+			$aliquot_data_to_save['storage_master_id'] = NULL;
+			$aliquot_data_to_save['storage_coord_x'] = NULL;
+			$aliquot_data_to_save['storage_coord_y'] = NULL;
+			$aliquot_data_to_save['in_stock'] = 'no';
+			$aliquot_data_to_save['in_stock_detail'] = 'empty';
+		}	
 		
 		// SAVE DATA
 		
