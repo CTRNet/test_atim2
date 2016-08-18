@@ -1090,8 +1090,6 @@ class OrderItemsController extends OrderAppController {
 					if($new_studied_item_to_update['FunctionManagement']['defined_as_returned']) {
 						$order_item_id = $new_studied_item_to_update['OrderItem']['id'];
 						
-
-
 						// 1- Record Order Item Update
 						$order_item_data = $new_studied_item_to_update;
 						$order_item_data['OrderItem']['status'] = 'shipped & returned';
@@ -1111,7 +1109,6 @@ class OrderItemsController extends OrderAppController {
 							$this->AliquotMaster->id = $new_studied_item_to_update['OrderItem']['aliquot_master_id'];
 							if(!$this->AliquotMaster->save($aliquot_master, false)) {
 								$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-							}$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 							}
 						} else {
 							// 2- Update Tma Slide Data
