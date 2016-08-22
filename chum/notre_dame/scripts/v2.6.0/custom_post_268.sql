@@ -878,11 +878,11 @@ UPDATE misc_identifier_controls SET flag_active = 0 WHERE misc_identifier_name =
 
 -- Notes creation
 
-UPDATE collections SET collection_notes = CONCAT(collection_notes, ' ATiM patho # [', qc_nd_pathology_nbr,'] has been created by v2.6.7 script from Participant Patho Identifier (identifier type deleted).') 
+UPDATE collections SET collection_notes = CONCAT(collection_notes, ' ATiM patho # has been created by v2.6.8 script from Participant Patho Identifier (this identifier type deleted).') 
 WHERE qc_nd_pathology_nbr IS NOT NULL AND qc_nd_pathology_nbr NOT LIKE ''
 AND collection_notes IS NOT NULL;
 
-UPDATE collections SET collection_notes = CONCAT('ATiM patho # [', qc_nd_pathology_nbr,'] has been created by v2.6.7 script from Participant Patho Identifier (identifier type delete).')
+UPDATE collections SET collection_notes = CONCAT('ATiM patho # has been created by v2.6.7 script from Participant Patho Identifier (this identifier type delete).')
 WHERE qc_nd_pathology_nbr IS NOT NULL AND qc_nd_pathology_nbr NOT LIKE ''
 AND collection_notes IS NULL;
 
@@ -967,7 +967,7 @@ UPDATE (
 	AND AD.patho_dpt_block_code NOT LIKE '' 
 	AND AD.patho_dpt_block_code IS NOT NULL
 ) RES3, collections COL
-SET COL.collection_notes = CONCAT(COL.collection_notes, ' ATiM patho # [', RES3.patho_dpt_block_code,'] has been created by v2.6.7 script from Tissue Block Patho Number (field hidden) of the collection.'),
+SET COL.collection_notes = CONCAT(COL.collection_notes, ' ATiM patho # has been created by v2.6.8 script from Tissue Block Patho Number (field hidden in the new version) of the collection.'),
 COL.modified_by = @modified_by,
 COL.modified = @modified 
 WHERE COL.id = RES3.collection_id
@@ -1008,7 +1008,7 @@ UPDATE (
 	AND AD.patho_dpt_block_code NOT LIKE '' 
 	AND AD.patho_dpt_block_code IS NOT NULL
 ) RES3, collections COL
-SET COL.collection_notes = CONCAT('ATiM patho # [', RES3.patho_dpt_block_code,'] has been created by v2.6.7 script from Tissue Block Patho Number (field hidden) of the collection.'),
+SET COL.collection_notes = CONCAT('ATiM patho # has been created by v2.6.8 script from Tissue Block Patho Number (field hidden in the new version) of the collection.'),
 COL.modified_by = @modified_by,
 COL.modified = @modified 
 WHERE COL.id = RES3.collection_id
@@ -1370,48 +1370,38 @@ SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'input');
 UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Sample and Aliquot View
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `language_heading`='collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='aliquot' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type_from_id') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='initial_specimen_sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='initial_specimen_sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type_from_id') AND `flag_confidential`='0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Tissue Core size
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_fields SET  `language_label`='size (mm)' WHERE model='AliquotDetail' AND tablename='' AND field='qc_nd_size_mm' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('size (mm)', 'Size (mm)', 'Taille (mm)');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- SARDO DAta import script
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+SELECT "ImportSardoDataFromXmlFile.php has been Updated" AS '### TODO ### SARDO Data Import Script'
+UNION ALL
+SELECT "1- Replace script on server" AS '### TODO ### SARDO Data Import Script'
+UNION ALL
+SELECT "2 - Check treatments (SURG/BIOP) are linked to collection " AS '### TODO ### SARDO Data Import Script'
+UNION ALL
+SELECT "2 - Check new PSA or CA125 are imported from SARDO or can be created manually into ATiM" AS '### TODO ### SARDO Data Import Script';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
----------------------------------------------------------------
-
-
+SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migration';
 
 
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
@@ -1421,9 +1411,3 @@ mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sq
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
 mysql -u root chumoncoaxis --default-character-set=utf8 < custom_post_268.sql
 
-
-
-
-
-
-Update 'Databrowser Relationship Diagram'.
