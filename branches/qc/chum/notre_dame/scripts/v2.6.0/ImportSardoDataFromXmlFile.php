@@ -1185,10 +1185,10 @@ function linkCollectionToSardoTreatment($db_schema) {
 	customQuery("UPDATE collections SET treatment_master_id = null;", __LINE__);
 	customQuery("UPDATE collections_revs SET treatment_master_id = null;", __LINE__);	//Value can be set if user updated a collection already linked to a treatment
 	$update_conditions = array(
-			array('sardo treatment - chir', 'TreatmentDetail.patho_nbr IS NOT NULL'),
+			array('sardo treatment - chir', 'TreatmentDetail.patho_nbr IS NOT NULL'),	//Best Match so first try
 			array('sardo treatment - chir', 'TRUE'),
 			array('sardo treatment - biop', 'TreatmentDetail.patho_nbr IS NOT NULL'),
-			array('sardo treatment - biop', 'TRUE'));
+			array('sardo treatment - biop', 'TRUE'));									//Worse match so last try
 	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, qc_nd_txd_sardos TreatmentDetail, sample_masters SampleMaster, sample_controls SampleControl
 		SET Collection.treatment_master_id = TreatmentMaster.id
 		WHERE Collection.deleted <> 1
