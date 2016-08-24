@@ -14,12 +14,7 @@
 		// Add button to create slide
 		$structure_links['bottom']['add tma slide'] = '/StorageLayout/TmaSlides/add/' . $atim_menu_variables['StorageMaster.id'];
 	} else{
-		$add_links = array();
-		foreach ($storage_types_from_id as $storage_control_id => $translated_storage_type) {
-			$add_links[$translated_storage_type] = '/StorageLayout/StorageMasters/add/' . $storage_control_id . '/' . $atim_menu_variables['StorageMaster.id'];
-		}
-		ksort($add_links);
-		$structure_links['bottom']['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);
+		$structure_links['bottom']['add to storage'] = $add_links;
 		$settings = array('actions' => false);
 	}
 	$layout_url = str_replace('/detail/', '/storageLayout/', $this->here);

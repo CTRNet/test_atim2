@@ -165,6 +165,14 @@
 --
 --		Validate no custom code or migration script populate/update/use this field.
 --
+--   ### 11 # datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
+--
+--		TODO:
+--		
+--		Run following queries to check if some functions and reports have to be reviwed:
+--			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
+--			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage' AND name != 'list all children storages');
+--
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1346,29 +1354,98 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='orderlines'), (SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='orderlines'), (SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='is tma slide'), '2', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO i18n (id,en,fr)
+VALUES
+('storage contains too many tma blocks for display','Storage contains too many TMA blocks for display','L\'entreposage contient trop de blocs de TMA pour l\'affichage');
+INSERT INTO structures(`alias`) VALUES ('tma_blocks_for_storage_tree_view');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'TmaBlock', 'storage_masters', 'storage_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='storage_types_from_control_id') , '0', '', '', '', 'storage type', ''), 
+('StorageLayout', 'TmaBlock', 'storage_masters', 'selection_label', 'input',  NULL , '0', 'size=20', '', 'stor_selection_label_defintion', 'storage', ''), 
+('StorageLayout', 'TmaBlock', 'storage_masters', 'parent_storage_coord_x', 'input',  NULL , '0', 'size=4', '', '', 'position', 'position'), 
+('StorageLayout', 'TmaBlock', 'storage_masters', 'parent_storage_coord_y', 'input',  NULL , '0', 'size=4', '', '', '', '-');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_storage_tree_view'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='storage_masters' AND `field`='storage_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='storage_types_from_control_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_storage_tree_view'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_storage_tree_view'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='storage_masters' AND `field`='parent_storage_coord_x' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='position' AND `language_tag`='position'), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tma_blocks_for_storage_tree_view'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='storage_masters' AND `field`='parent_storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+UPDATE structure_fields SET  `language_label`='block' WHERE model='TmaBlock' AND tablename='storage_masters' AND field='selection_label' AND `type`='input' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('storage layout & tma blocks management', 'Storage & TMA Blocks', 'Entreposage & blocs de TMA'),
+('storage layout & tma blocks management description', 'Tool for the management of TMA blocks and all bank storage entities (boxes, freezers, etc).', "Outil pour la gestion des blocs de TMA et de toutes les entitées d'entreposage de la banque (boites, congélateurs, etc).");
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('storage layout management' ,'Storage', "Entreposage"),
+('storage layout management description' ,'Management of all bank storage entities (boxes, freezers, etc).', "Gestion de toutes les entitées d'entreposage de la banque (boites, congélateurs, etc).");                                                                                                           |
+INSERT IGNORE INTO i18n (id)
+VALUES
+("storage layout management value generated by newVersionSetup function"),
+("storage layout management description value generated by newVersionSetup function");
+UPDATE menus SET language_title = "storage layout management value generated by newVersionSetup function" WHERE language_title = 'storage layout management'; 
+UPDATE menus SET language_description = "storage layout management description value generated by newVersionSetup function" WHERE language_description = 'storage layout management description'; 
+REPLACE INTO i18n (id,en,fr) (SELECT "storage layout management value generated by newVersionSetup function", en, fr FROM i18n WHERE id = 'storage layout management');
+REPLACE INTO i18n (id,en,fr) (SELECT "storage layout management description value generated by newVersionSetup function", en, fr FROM i18n WHERE id = 'storage layout & tma blocks management description');
+INSERT INTO structures(`alias`) VALUES ('non_tma_block_storages');
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('non_tma_block_storage_types_from_control_id', "StorageLayout.StorageControl::getNonTmaBlockStorageTypePermissibleValues");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'NonTmaBlockStorage', 'view_storage_masters', 'code', 'input',  NULL , '0', 'size=30', '', 'storage_code_help', 'storage code', ''), 
+('StorageLayout', 'NonTmaBlockStorage', 'view_storage_masters', 'storage_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='non_tma_block_storage_types_from_control_id') , '0', '', '', '', 'storage type', ''), 
+('StorageLayout', 'NonTmaBlockStorage', 'view_storage_masters', 'short_label', 'input',  NULL , '0', 'size=6', '', 'stor_short_label_defintion', 'storage short label', ''), 
+('StorageLayout', 'NonTmaBlockStorage', 'view_storage_masters', 'selection_label', 'input',  NULL , '0', 'size=20,url=/storagelayout/storage_masters/autoComplete/', '', 'stor_selection_label_defintion', 'storage selection label', ''), 
+('StorageLayout', 'NonTmaBlockStorage', 'view_storage_masters', 'temperature', 'float',  NULL , '0', 'size=5', '', '', 'storage temperature', ''), 
+('StorageLayout', 'NonTmaBlockStorage', 'view_storage_masters', 'temp_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code') , '0', '', '', '', '', ''), 
+('StorageLayout', 'NonTmaBlockStorage', 'view_storage_masters', 'empty_spaces', 'integer_positive',  NULL , '0', '', '', '', 'empty spaces', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='non_tma_block_storages'), (SELECT id FROM structure_fields WHERE `model`='NonTmaBlockStorage' AND `tablename`='view_storage_masters' AND `field`='code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='storage_code_help' AND `language_label`='storage code' AND `language_tag`=''), '1', '100', 'system data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='non_tma_block_storages'), (SELECT id FROM structure_fields WHERE `model`='NonTmaBlockStorage' AND `tablename`='view_storage_masters' AND `field`='storage_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='non_tma_block_storage_types_from_control_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='non_tma_block_storages'), (SELECT id FROM structure_fields WHERE `model`='NonTmaBlockStorage' AND `tablename`='view_storage_masters' AND `field`='short_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='stor_short_label_defintion' AND `language_label`='storage short label' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='non_tma_block_storages'), (SELECT id FROM structure_fields WHERE `model`='NonTmaBlockStorage' AND `tablename`='view_storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='non_tma_block_storages'), (SELECT id FROM structure_fields WHERE `model`='NonTmaBlockStorage' AND `tablename`='view_storage_masters' AND `field`='temperature' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='storage temperature' AND `language_tag`=''), '0', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='non_tma_block_storages'), (SELECT id FROM structure_fields WHERE `model`='NonTmaBlockStorage' AND `tablename`='view_storage_masters' AND `field`='temp_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='non_tma_block_storages'), (SELECT id FROM structure_fields WHERE `model`='NonTmaBlockStorage' AND `tablename`='view_storage_masters' AND `field`='empty_spaces' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='empty spaces' AND `language_tag`=''), '0', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
+SET @datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster');
+UPDATE datamart_structures
+SET plugin = 'StorageLayout',
+model = 'NonTmaBlockStorage',
+structure_id = (SELECT id FROM structures WHERE alias = 'non_tma_block_storages'),
+adv_search_structure_alias = NULL,
+display_name = 'storage (non tma block)',
+control_master_model = NULL, 
+index_link = '/StorageLayout/StorageMasters/detail/%%NonTmaBlockStorage.id%%/',
+batch_edit_link = NULL
+WHERE id = @datamart_structure_id;
 
+UPDATE datamart_browsing_results
+SET browsing_structures_sub_id = 0,
+serialized_search_params = NULL
+WHERE browsing_structures_id = @datamart_structure_id;
 
+UPDATE datamart_saved_browsing_steps
+browsing_structures_sub_id = 0,
+SET serialized_search_params = NULL
+WHERE datamart_sub_structure_id = @datamart_structure_id;
+INSERT IGNORE INTO i18n (id)
+VALUES
+("'storage (non tma block)' value generated by newVersionSetup function");
+ALTER TABLE datamart_structures MODIFY `display_name` varchar(100) NOT NULL;
+UPDATE datamart_structures SET display_name = 'storage (non tma block) value generated by newVersionSetup function" WHERE id = @datamart_structure_id;
+REPLACE INTO i18n (id,en,fr) (SELECT "storage (non tma block) value generated by newVersionSetup function", en, fr FROM i18n WHERE id = 'storage');
+INSERT INTO i18n (id,en,fr) VALUES ('storage (non tma block)', 'Entreposage (Non TMA Block)', 'Entreposage (Bloc de TMA exclu)'); 
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change structure_value_domains 'models' to get data directly from datamart_structures table
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name='models');
+UPDATE structure_value_domains SET source = "Datamart.DatamartStructure::getDisplayNameFromModel" WHERE domain_name='models';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change Menu title and description
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -1384,9 +1461,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 
-| id  | domain_name              | override | category | source                                                                     |
-+-----+--------------------------+----------+----------+----------------------------------------------------------------------------+
-| 200 | sample_aliquot_type_list | open     |          | InventoryManagement.AliquotControl::getSampleAliquotTypesPermissibleValues |
 
 
 
@@ -1402,20 +1476,24 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 
-order_lines_to_addAliquotsInBatch
-orderitems_and_lines
-
-
-
-
-
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `language_label`='product type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `language_label`='' AND `language_tag`='-' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type_from_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-
-
-
-
-
+                                                                                                                                                                   |
+('administration description', 
+'Use to management of application permissions, setting preferences, custom drop down list, storage types and checking your installed version number.',
+"Gestion des autorisations d'accès à l'application, la configuration des préférences et la vérification des numéros de versions installées. |
+('back to main menu', 'Back to main menu',
+"Retour au menu principal                                                                                                                                                                |
+('collection template', 'Collection Template',
+"Modèle de collection                                                                                                                                                                    |
+('collection_template_description', ' Collections templates allow to quickly create collection content without the need to browse the menus after the creation of each element.| Les modèles de collections permettent de créer rapidement le contenu d'une collection sans devoir naviguer les menus après la création de chaque élément.                               |                                                                                                                                                                      |
+('drug administration', ' Drug Administration| Administration de médicament                                                                                                                                                            |
+('drug module description', ' This module allows the bank to specify which agents are used during treatment. Drugs can then be assigned to common treatment protocols.| Ce module permet à la banque de spécifier quels agents sont utilisés durant le traitement. Les médicaments peuvent alors être assignés à des protocoles de traitement.                  |
+('order management description', ' Handles tracking orders for research materials. Each order can be completed across many shipments with multiple product types per order.| Manipulation pour suivre les commandes de matériel de recherche. Chaque commande peut être complétée par plusieurs livraisons avec de multiples types de produits par commande.         |
+('order_order management', ' Order/Shipment Management| Gestion des commandes/envois                                                                                                                                                            |
+('protocol description', ' Setup and define standard treatment protocols used for patient treatment.| Protocole pour définir le traitement standard utilisé pour le traitement du patient.                                                                                                    |
+('protocols', ' Protocols        | Protocoles                                                                                                                                                                              |
+('research study description', ' Track research studies submitted to the bank.| Suivi des études soumises à la banque                                                                                                                                                   |
+('sop_standard operating procedures', ' Standard Operating Procedures| Procédures normalisées de fonctionnement                                                                                                                                                |
+('standard operating procedure description', ' Define all of the bank standard operating procedures and materials used in those procedures.| Définir toutes les procédures normalisées de la banque et le matériel utilisé dans ces procédures.                                                                                      |
 
 
 
@@ -1435,26 +1513,8 @@ mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
 mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
 mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
 mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-
-
-
-
-
-
 mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
 mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-
-
-
-
-
-
-
-
-
-
-
-
 
 mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
 mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_demo_data.sql
