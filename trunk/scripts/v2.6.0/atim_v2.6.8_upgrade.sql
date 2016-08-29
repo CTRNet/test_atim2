@@ -1476,6 +1476,25 @@ VALUES
 'SOP (Standard Operating Procedure)',
 'PNF (Procédure normalisée de fonctionnement)');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#3315: No control on type of a stored item when moving element to a TMA block with the content layout tool
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+("the storage data of %s element(s) have been updated", "The storage data of %s element(s) have been updated.", "Les données d'entreposage de %s éléments ont été mises à jour."),
+("no storage data has been updated", "No storage data has been updated.", "Aucune donnée d'entreposage n'a été mise à jour."),
+("storage data (including position) don't have been updated", "Storage data (including position) don't have been updated!", 'Les données d''entreposage (incluant les postions) n''ont pas été mises à jour!');
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1531,6 +1550,8 @@ mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
 
 évenement congélo à appliquer à tous....
 Search on float field with comma
+On ne peut pas jouer avec la paginate au niveau des storage type created
+On peut mettre un tube dans un block de TMA au niveau de storage layout manage,ment
 
 
 
@@ -1543,7 +1564,10 @@ Search on float field with comma
 
 
 
-SELECT CONCAT('', NonTmaBlockStorage.id) AS ids FROM `trunk`.`view_storage_masters` AS `NonTmaBlockStorage` INNER JOIN `trunk`.`aliquot_masters` AS `AliquotMaster_2` ON (`AliquotMaster_2`.`storage_master_id` = `NonTmaBlockStorage`.`id` AND `AliquotMaster_2`.`id` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100', '101', '102', '103', '104', '105', '106', '107', '108'))  WHERE (`StorageDetail`.`laboratory` LIKE '%bono%') AND `StorageMaster`.`storage_control_id` = 1 AND `NonTmaBlockStorage`.`deleted` != 1 AND `NonTmaBlockStorage`.`is_tma_block` = '0'  GROUP BY `NonTmaBlockStorage`.`id`  ORDER BY `NonTmaBlockStorage`.`id` ASC
+
+
+
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table

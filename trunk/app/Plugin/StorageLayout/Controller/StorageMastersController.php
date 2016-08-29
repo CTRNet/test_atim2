@@ -667,33 +667,34 @@ class StorageMastersController extends StorageLayoutAppController {
 				
 				//manual validate/alteration of positions based on position conflict checks
 				$storage_config = array();
-				$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'StorageMaster', 'selection_label', $storage_config);
-				$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'AliquotMaster', 'barcode', $storage_config) || $conflicts_found;
-				$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'TmaSlide', 'barcode', $storage_config) || $conflicts_found;
-				$err = $this->StorageMaster->validationErrors;
+				$errors_or_warnings_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'StorageMaster', 'selection_label', $storage_config);
+				$errors_or_warnings_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'AliquotMaster', 'barcode', $storage_config) || $errors_or_warnings_found;
+				$errors_or_warnings_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'TmaSlide', 'barcode', $storage_config) || $errors_or_warnings_found;
 				
 				AppModel::acquireBatchViewsUpdateLock();
 				
+				$updated_record_counter = 0;
+				
 				//update StorageMaster
 				$this->StorageMaster->check_writable_fields = false;
-				$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data);
+				$errors_or_warnings_found = $this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data, $updated_record_counter) || $errors_or_warnings_found;
 				
 				//Update AliquotMaster
 				$this->AliquotMaster->check_writable_fields = false;
-				$this->StorageMaster->updateAndSaveDataArray($aliquots_initial_data, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data);
+				$errors_or_warnings_found = $this->StorageMaster->updateAndSaveDataArray($aliquots_initial_data, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data, $updated_record_counter) || $errors_or_warnings_found;
 				
 				//Update TmaSlide
 				$this->TmaSlide->check_writable_fields = false;
-				$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data);
+				$errors_or_warnings_found = $this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data, $updated_record_counter) || $errors_or_warnings_found;
 	
 				AppModel::releaseBatchViewsUpdateLock();
-				
-				if($conflicts_found){
-					AppController::addWarningMsg(__('your data has been saved'));
-					$this->StorageMaster->validationErrors = $err;
+
+				$summary_message = $updated_record_counter? __("the storage data of %s element(s) have been updated", $updated_record_counter): __("no storage data has been updated");
+				if($errors_or_warnings_found){
+					AppController::addWarningMsg(__($summary_message));
 					$storage_data = $storage_data[$storage_master_id];
 				}else{
-					$this->atimFlash(__('your data has been saved'), '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
+					$this->atimFlash(__($summary_message), '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
 					return;
 				}
 			}
