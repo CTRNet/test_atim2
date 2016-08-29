@@ -16,7 +16,12 @@
 	);
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'links'=>$structure_links);
+	$final_options = array(
+		'type' => 'index', 
+		'links'=>$structure_links,
+		'settings'	=> array('pagination' => true),
+		'override'=> array()
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
