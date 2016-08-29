@@ -14,16 +14,7 @@ class StorageControlsController extends AdministrateAppController {
 	var $paginate = array('StorageCtrl' => array('order' => 'StorageCtrl.storage_type ASC'));
 
 	function listAll(){	
-		$list_args = $this->StorageCtrl->getListArgs($this->passedArgs);	
-		if(empty($list_args)) {
-			if(!isset($_SESSION['StorageCtrl']['ListAllArgs'])) $_SESSION['StorageCtrl']['ListAllArgs'] = array();
-		} else {
-			$_SESSION['StorageCtrl']['ListAllArgs'] = $list_args;			
-		}
-				
 		$this->Structures->set('storage_controls');
-		
-		$this->Paginator->settings = $_SESSION['StorageCtrl']['ListAllArgs'];
 		$this->request->data = $this->paginate($this->StorageCtrl, array());
 		
 		$hook_link = $this->hook('format');
