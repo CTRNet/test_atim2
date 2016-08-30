@@ -1538,6 +1538,13 @@ VALUES
 'Storage properties of the storage type [%s] are not correctly defined. Please contact your ATiM administrator.',
 "Les propriétés du type d'entreposage [% s] ne sont pas correctement définies. Veuillez contactervotre administrateur d'ATiM.");
 
+SET @control_id = (SELECT ID FROM structure_permissible_values_custom_controls WHERE name = 'storage types');
+DELETE FROM `structure_permissible_values_customs` 
+WHERE control_id = @control_id
+AND `value` IN (SELECT storage_type from storage_controls WHERE storage_type regexp('^demo[0-9]+$') AND flag_active <> 1);
+DELETE FROM storage_controls WHERE storage_type regexp('^demo[0-9]+$') AND flag_active <> 1;
+
+
 
 
 
@@ -1609,8 +1616,6 @@ mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
 
 évenement congélo à appliquer à tous....
 Search on float field with comma
-On ne peut pas jouer avec la paginate au niveau des storage type created
-On peut mettre un tube dans un block de TMA au niveau de storage layout manage,ment
 
 
 
