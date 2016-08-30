@@ -11,7 +11,7 @@
 			'no coordinate' => '/Administrate/StorageControls/add/no_d/0/', 
 			'1 coordinate' => '/Administrate/StorageControls/add/1d/0/', 
 			'2 coordinates' => '/Administrate/StorageControls/add/2d/0/', 
-			'TMA block' => '/Administrate/StorageControls/add/tma/0/')
+			'tma block' => '/Administrate/StorageControls/add/tma/0/')
 		)
 	);
 	

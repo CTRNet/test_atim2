@@ -1312,6 +1312,12 @@ class AppController extends Controller {
 		// *** 11 *** Disable unused treatment_extend_controls
 
 		$this->Version->query("UPDATE treatment_extend_controls SET flag_active = 0 WHERE id NOT IN (select distinct treatment_extend_control_id from treatment_controls WHERE flag_active = 1 AND treatment_extend_control_id IS NOT NULL)");
+
+
+		// *** 12 *** Check storage controls data
+		
+		$storage_ctrl_model = AppModel::getInstance('Administrate', 'StorageCtrl', true);
+		$storage_ctrl_model->validatesAllStorageControls();
 		
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
