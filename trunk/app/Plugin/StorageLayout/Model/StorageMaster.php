@@ -870,7 +870,6 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @return const POSITION_*
 	 */
 	function positionStatusQuick($storage_master_id, array $position, array $exception = array()){
-		
 		//check if an aliquot occupies the position
 		$conditions = array(
 			'AliquotMaster.storage_master_id' => $storage_master_id,
@@ -922,7 +921,6 @@ class StorageMaster extends StorageLayoutAppModel {
 			return StorageMaster::POSITION_OCCUPIED;
 		}
 		
-		
 		//check if a current check occupies the position
 		if(array_key_exists('y', $position) && !empty($position['y'])){
 			if(isset($this->used_storage_pos[$storage_master_id][$position['x']][$position['y']])){
@@ -931,7 +929,7 @@ class StorageMaster extends StorageLayoutAppModel {
 		}else if(isset($this->used_storage_pos[$storage_master_id][$position['x']])){
 			return StorageMaster::POSITION_DOUBLE_SET;
 		} 
-		$this->used_storage_pos[$storage_master_id][$position['x']] = array_key_exists('y', $position) ? array($position['y']) : null;
+		$this->used_storage_pos[$storage_master_id][$position['x']][$position['y']] = 'used';
 		
 		return StorageMaster::POSITION_FREE;
 	}
