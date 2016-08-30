@@ -173,6 +173,13 @@
 --			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
 --			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage' AND name != 'list all children storages');
 --
+--   ### 12 # Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
+--
+--		TODO:
+--		
+--		Run following query to detect errors
+--			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
+--
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1486,6 +1493,50 @@ VALUES
 ("no storage data has been updated", "No storage data has been updated.", "Aucune donnée d'entreposage n'a été mise à jour."),
 ("storage data (including position) don't have been updated", "Storage data (including position) don't have been updated!", 'Les données d''entreposage (incluant les postions) n''ont pas été mises à jour!');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#3316: Administration > Manage storage types : Unable to display 20 or 50 records per page
+-- Issue#3317: Wrong storage layout for a storage control with Xoordinate 'X' type equal to 'Alphabetical
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_value_domains (domain_name) VALUES ('storage_check_conflicts');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("0", "none"),("1", "warning"),("2", "error");
+INSERT IGNORE INTO structure_value_domains_permissible_values 
+(structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="none"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="warning"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="error"), "3", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'StorageCtrl', 'storage_controls', 'check_conflicts', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='storage_check_conflicts') , '0', '', '1', '', 'check conflicts', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='storage_check_conflicts') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT `id` FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='storage_check_conflicts')), 'notEmpty', '');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('error', 'Error', 'Erreur');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='storage_check_conflicts') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_1d') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='storage_check_conflicts') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_2d') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='storage_check_conflicts')) WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_control_tma') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='check_conflicts' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (model='StorageCtrl' AND tablename='storage_controls' AND field='check_conflicts' AND `type`='checkbox' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')));
+DELETE FROM structure_fields WHERE (model='StorageCtrl' AND tablename='storage_controls' AND field='check_conflicts' AND `type`='checkbox' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'));
+
+UPDATE structure_formats SET `flag_detail`=flag_index WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls') AND `display_order` >= 10;
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls') AND `display_order` >= 30;
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls') AND `display_order` >= 50;
+UPDATE structure_formats SET language_heading='' WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_controls') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='set_temperature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_x_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), "range,1,1000000", 'value must be bigger than 1');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('value must be bigger than 1', 'Value must be bigger than 1', 'La valeur doit être supérieure à 1');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='StorageCtrl' AND `tablename`='storage_controls' AND `field`='coord_y_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), "range,1,1000000", 'value must be bigger than 1');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('value must be bigger than 1', 'Value must be bigger than 1', 'La valeur doit être supérieure à 1');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('storage control data of the storage type [%s] are not correctly set - please contact your administartor',
+'Storage properties of the storage type [%s] are not correctly defined. Please contact your ATiM administrator.',
+"Les propriétés du type d'entreposage [% s] ne sont pas correctement définies. Veuillez contactervotre administrateur d'ATiM.");
 
 
 
@@ -1497,6 +1548,14 @@ VALUES
 
 
 
+
+
+
+
+
+
+       
+  
 
 
 
