@@ -4,9 +4,10 @@ class TmaSlideUse extends StorageLayoutAppModel {
 	var $belongsTo = array(       
 		'TmaSlide' => array(           
 			'className'    => 'StorageLayout.TmaSlide',            
-			'foreignKey'    => 'tma_slide_id'
-		)	    
-	);
+			'foreignKey'    => 'tma_slide_id'),
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	public static $study_model = null;
 		
@@ -31,6 +32,7 @@ class TmaSlideUse extends StorageLayoutAppModel {
 		if(array_key_exists('FunctionManagement', $tma_slide_use_data) && array_key_exists('autocomplete_tma_slide_use_study_summary_id', $tma_slide_use_data['FunctionManagement'])) {
 			$tma_slide_use_data['TmaSlideUse']['study_summary_id'] = null;
 			$tma_slide_use_data['FunctionManagement']['autocomplete_tma_slide_use_study_summary_id'] = trim($tma_slide_use_data['FunctionManagement']['autocomplete_tma_slide_use_study_summary_id']);
+			$this->addWritableField(array('study_summary_id'));
 			if(strlen($tma_slide_use_data['FunctionManagement']['autocomplete_tma_slide_use_study_summary_id'])) {
 				// Load model
 				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
@@ -41,7 +43,6 @@ class TmaSlideUse extends StorageLayoutAppModel {
 				// Set study summary id
 				if(isset($arr_study_selection_results['StudySummary'])){
 					$tma_slide_use_data['TmaSlideUse']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
-					$this->addWritableField(array('study_summary_id'));
 				}
 	
 				// Set error

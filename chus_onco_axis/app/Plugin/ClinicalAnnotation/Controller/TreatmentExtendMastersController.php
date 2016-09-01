@@ -10,7 +10,9 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		
 		'Protocol.ProtocolMaster',
 		'Protocol.ProtocolControl',
-		'Protocol.ProtocolExtendMaster');
+		'Protocol.ProtocolExtendMaster',
+			
+		'Drug.Drug');
 		
 	var $paginate = array();
 
@@ -25,6 +27,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		
 		$tx_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($tx_master_data['TreatmentControl']['treatment_extend_control_id']);
 	
+		$this->set('tx_extend_type',$tx_extend_control_data['TreatmentExtendControl']['type']);
+		
 		// Set form alias and menu
 		$this->Structures->set($tx_extend_control_data['TreatmentExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
@@ -112,6 +116,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		$tx_extend_data = $this->TreatmentExtendMaster->getOrRedirect($tx_extend_id);
 		if($tx_extend_data['TreatmentMaster']['id'] != $tx_master_id) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		
+		$this->set('tx_extend_type',$tx_extend_data['TreatmentExtendControl']['type']);
+		
 		// Set form alias and menu data
 		$this->Structures->set($tx_extend_data['TreatmentExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id, 'TreatmentExtendMaster.id'=>$tx_extend_id));
@@ -122,7 +128,14 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if(empty($this->request->data)) {
+			$tx_extend_data['FunctionManagement']['autocomplete_treatment_drug_id'] = $this->Drug->getDrugDataAndCodeForDisplay(array('Drug' => array('id' => $tx_extend_data['TreatmentExtendMaster']['drug_id'])));
 			$this->request->data = $tx_extend_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		} else {
 			$submitted_data_validates = true;
 			
@@ -191,9 +204,10 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 					$data[] = array(
 						'TreatmentExtendMaster' => array(
 							'treatment_master_id' => $tx_master_id,
-							'treatment_extend_control_id' => $tx_master_data['TreatmentControl']['treatment_extend_control_id']),
+							'treatment_extend_control_id' => $tx_master_data['TreatmentControl']['treatment_extend_control_id'],
+							'drug_id' => $prot_extend['ProtocolExtendMaster']['drug_id'],
+						),
 						'TreatmentExtendDetail' => array(
-							'drug_id' => $prot_extend['ProtocolExtendDetail']['drug_id'],
 							'method' => $prot_extend['ProtocolExtendDetail']['method'],
 							'dose' => $prot_extend['ProtocolExtendDetail']['dose'])
 					);

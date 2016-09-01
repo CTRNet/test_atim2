@@ -49,6 +49,8 @@ class StudySummariesController extends StudyAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
 		
+		$this->Structures->set('empty', 'empty_structure');
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
@@ -101,8 +103,7 @@ class StudySummariesController extends StudyAppController {
 		if( $hook_link ) { 
 			require($hook_link); 
 		}	
-		
-		
+				
 		if(empty($this->request->data)) {
 			$this->request->data = $study_summary_data;
 		} else {

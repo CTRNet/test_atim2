@@ -12,6 +12,9 @@ class CodingIcd10Ca extends CodingIcdAppModel{
 
     var $name = 'CodingIcd10Ca';
 	var $useTable = 'coding_icd10_ca';
+	var $icd_description_table_fields = array(
+		'search_format' => array('title', 'sub_title', 'description'),
+		'detail_format' =>  array('description'));
 
 	var $validate = array();
 	

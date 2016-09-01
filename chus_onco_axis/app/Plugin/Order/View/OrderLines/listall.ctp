@@ -4,6 +4,7 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%/',
+			'edit'=>'/Order/OrderLines/edit/%%Order.id%%/%%OrderLine.id%%/',
 			$key_add_aliquot =>array('link'=>'/Order/OrderItems/add/%%Order.id%%/%%OrderLine.id%%/AliquotMaster','icon'=>'add_to_order'),
 			$key_add_slide =>array('link'=>'/Order/OrderItems/add/%%Order.id%%/%%OrderLine.id%%/TmaSlide','icon'=>'add_to_order'),
 			'delete'=>'/Order/OrderLines/delete/%%Order.id%%/%%OrderLine.id%%/'

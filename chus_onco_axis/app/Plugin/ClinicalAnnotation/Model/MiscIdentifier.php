@@ -8,9 +8,10 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 			'foreignKey' => 'participant_id'),
 		'MiscIdentifierControl' => array(
 			'className' => 'ClinicalAnnotation.MiscIdentifierControl',
-			'foreignKey' => 'misc_identifier_control_id'
-		)
-	);
+			'foreignKey' => 'misc_identifier_control_id'),        
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 
 	private $confid_warning_absent = true;
 	
@@ -166,6 +167,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 		if(array_key_exists('FunctionManagement', $misc_identifier_data) && array_key_exists('autocomplete_misc_identifier_study_summary_id', $misc_identifier_data['FunctionManagement'])) {
 			$misc_identifier_data['MiscIdentifier']['study_summary_id'] = null;
 			$misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'] = trim($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
+			$this->addWritableField(array('study_summary_id'));
 			if(strlen($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'])) {
 				// Load model
 				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
@@ -176,7 +178,6 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 				// Set study summary id
 				if(isset($arr_study_selection_results['StudySummary'])){
 					$misc_identifier_data['MiscIdentifier']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
-					$this->addWritableField(array('study_summary_id'));
 				}
 	
 				// Set error

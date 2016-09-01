@@ -10,6 +10,11 @@ class Order extends OrderAppModel {
 			'className'   => 'Order.Shipment',
 			 'foreignKey'  => 'order_id')); 
 	
+	var $belongsTo = array(
+		'StudySummary' => array(
+			'className'    => 'Study.StudySummary',
+			'foreignKey'    => 'default_study_summary_id'));
+	
 	var $registered_view = array(
 		'InventoryManagement.ViewAliquotUse' => array('Order.id')
 	);
@@ -62,6 +67,7 @@ class Order extends OrderAppModel {
 		if(array_key_exists('FunctionManagement', $order_data) && array_key_exists('autocomplete_order_study_summary_id', $order_data['FunctionManagement'])) {
 			$order_data['Order']['study_summary_id'] = null;
 			$order_data['FunctionManagement']['autocomplete_order_default_study_summary_id'] = trim($order_data['FunctionManagement']['autocomplete_order_study_summary_id']);
+			$this->addWritableField(array('default_study_summary_id'));
 			if(strlen($order_data['FunctionManagement']['autocomplete_order_study_summary_id'])) {
 				// Load model
 				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
@@ -72,7 +78,6 @@ class Order extends OrderAppModel {
 				// Set study summary id
 				if(isset($arr_study_selection_results['StudySummary'])){
 					$order_data['Order']['default_study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
-					$this->addWritableField(array('default_study_summary_id'));
 				}
 	
 				// Set error
