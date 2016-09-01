@@ -12,12 +12,11 @@ class CodingIcdo3Topo extends CodingIcdAppModel{
 	
     var $name = 'CodingIcdo3Topo';
 	var $useTable = 'coding_icd_o_3_topography';
-
-	var $validate = array();
+	var $icd_description_table_fields = array(
+		'search_format' => array(/*'title': All values are equal to 'Malignant neoplasms' */ 'sub_title', 'description'),
+		'detail_format' =>  array('description'));
 	
-	var $description_suffix_fields = array(
-		'en' => array('en_sub_title', 'en_description'),
-		'fr' => array('fr_sub_title', 'fr_sub_title'));
+	var $validate = array();
 	
 	function __construct(){
 		parent::__construct();
@@ -32,7 +31,7 @@ class CodingIcdo3Topo extends CodingIcdAppModel{
 		return self::$singleton;
 	}
 	
-	static function getTopoSitesList(){
+	static function getTopoCategoriesCodes(){
 		$data = array();
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 		foreach(self::$singleton->find('all', array('fields' => array('DISTINCT SUBSTRING(id, 1, 3) AS id, '.$lang.'_sub_title'))) as $new_id) {

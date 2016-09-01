@@ -2,9 +2,6 @@
 
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/InventoryManagement/SpecimenReviews/listAll/'
-				.$atim_menu_variables['Collection.id'].'/'
-				.$atim_menu_variables['SampleMaster.id'].'/',
 			'edit'=>'/InventoryManagement/SpecimenReviews/edit/'
 				.$atim_menu_variables['Collection.id'].'/'
 				.$atim_menu_variables['SampleMaster.id'].'/'
@@ -27,8 +24,6 @@
 	
 	if($aliquot_master_id_from_tree_view) {
 		$final_options['settings']['header'] =  __('specimen review');
-		unset($final_options['links']['bottom']['list']);
-		unset($structure_links['bottom']['list']);
 	}
 	
 	$hook_link = $this->Structures->hook('specimen_review');

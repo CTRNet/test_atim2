@@ -8,7 +8,7 @@
 	
 	$structure_override = array();
 	
-	$structure_settings = array('header' => __('precision'));	
+	$structure_settings = array('header' => ($tx_extend_type? __($tx_extend_type, null) : __('precision', null)));	
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links,'override'=>$structure_override, 'settings' => $structure_settings);

@@ -11,13 +11,12 @@ class CodingIcd10Who extends CodingIcdAppModel{
 	
     var $name = 'CodingIcd10Who';
 	var $useTable = 'coding_icd10_who';
+	var $icd_description_table_fields = array(
+		'search_format' => array('title', 'sub_title', 'description'),
+		'detail_format' =>  array('description'));
 
 	var $validate = array();
 	
-	var $description_suffix_fields = array(
-		'en' => array('en_sub_title', 'en_description'),
-		'fr' => array('fr_sub_title', 'fr_sub_title'));
-			
 	function __construct(){
 		parent::__construct();
 		self::$singleton = $this;
@@ -33,7 +32,7 @@ class CodingIcd10Who extends CodingIcdAppModel{
 	
 	static function getSecondaryDiagnosisList() {
 		$data = array();
-		foreach(self::$singleton->find('all', array('conditions' => array("id LIKE 'C78%'"), 'fields' => array('id'))) as $new_id) {
+		foreach(self::$singleton->find('all', array('conditions' => array("en_description LIKE 'Secondary malignant neoplasm%'"), 'fields' => array('id'))) as $new_id) {
 			$data[$new_id['CodingIcd10Who']['id']] = $new_id['CodingIcd10Who']['id'].' - '.self::$singleton->getDescription($new_id['CodingIcd10Who']['id']);
 		}
 		return $data;

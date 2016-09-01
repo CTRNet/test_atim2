@@ -753,79 +753,93 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @param updater_model The model to use to update the data
 	 * @param storage_control
 	 */
-	function updateAndSaveDataArray($data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $updater_model, array $storage_controls){
+	function updateAndSaveDataArray($data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $updater_model, array $storage_controls, &$updated_record_counter){
+
+		$error_found = false;
 		foreach($data_array as &$init_data_unit){
 			$init_data_id = $init_data_unit[$type]['id'];
-			if(($init_data_unit[$type][$x_key] != $rcv_data[$type][$init_data_id]['x'] && !(in_array($rcv_data[$type][$init_data_id]['x'], array('u', 't')) && $init_data_unit[$type][$x_key] == ''))  
-				|| ($init_data_unit[$type][$y_key] != $rcv_data[$type][$init_data_id]['y']  && !(in_array($rcv_data[$type][$init_data_id]['y'], array('u', 't')) && $init_data_unit[$type][$y_key] == ''))
-				|| $init_data_unit[$type][$storage_parent_key] != $rcv_data[$type][$init_data_id]['s'] 
-			){
+			$storage_control = in_array($rcv_data[$type][$init_data_id]['s'], array('u', 't'))? null : $storage_controls[$rcv_data[$type][$init_data_id]['s']]['StorageControl'];
+			if(($init_data_unit[$type][$x_key] != $rcv_data[$type][$init_data_id]['x'] 
+				&& !(in_array($rcv_data[$type][$init_data_id]['x'], array('u', 't')) && $init_data_unit[$type][$x_key] == '')
+				&& !($storage_control && $storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' && $rcv_data[$type][$init_data_id]['x'] == '1'))  
+			|| ($init_data_unit[$type][$y_key] != $rcv_data[$type][$init_data_id]['y']
+				&& !(in_array($rcv_data[$type][$init_data_id]['y'], array('u', 't')) && $init_data_unit[$type][$y_key] == '')
+				&& !($storage_control && $storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' && $rcv_data[$type][$init_data_id]['y'] == '1'))
+			|| $init_data_unit[$type][$storage_parent_key] != $rcv_data[$type][$init_data_id]['s']){
+
 				//only save what changed
 				$update_temp_and_label = $init_data_unit[$type][$storage_parent_key] != $rcv_data[$type][$init_data_id]['s'] && $type == 'StorageMaster';
+				
 				//this is is a cell
 				if($rcv_data[$type][$init_data_id]['x'] == 't'){
 					//trash
 					$init_data_unit[$type][$x_key] = '';
 					$init_data_unit[$type][$y_key] = '';
 					$init_data_unit[$type][$storage_parent_key] = null;
-					
-					if($type == "StorageMaster"){
-						// Set new selection label 
-						$init_data_unit[$type]['selection_label'] = $this->getSelectionLabel($init_data_unit);	
-						
-						// Set new temperature
-						if(!$init_data_unit['StorageControl']['set_temperature']) {
-							$init_data_unit[$type]['temperature'] = null;
-							$init_data_unit[$type]['temp_unit'] = null;
-						}
-					}
-					
 				}else if($rcv_data[$type][$init_data_id]['x'] == 'u'){
 					//unclassified
 					$init_data_unit[$type][$x_key] = '';
 					$init_data_unit[$type][$y_key] = '';
 					$init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
-					
 				}else{
 					//positioned
-					$storage_control = $storage_controls[$rcv_data[$type][$init_data_id]['s']]['StorageControl'];
+					if(!$storage_control) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 					$init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['x']); 
 					$init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['y']);
 					$init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
 				}
 				
+				$save_new_postion = true;
 				if($type == "StorageMaster"){
 					//check if within itself
 					$this->data = $init_data_unit;
 					if($this->insideItself()){
-						$init_data_unit[$type][$x_key] = '';
-						$init_data_unit[$type][$y_key] = '';
-						$init_data_unit[$type][$storage_parent_key] = '';
 						$data = $this->findById($init_data_id);
-						AppController::addWarningMsg(__('trying to put storage [%s] within itself failed', $this->getLabel($data, 'StorageMaster', 'selection_label')).' '.__('storage parent defined to none'));
+						$this->validationErrors[][] = __('trying to put storage [%s] within itself failed', $this->getLabel($data, 'StorageMaster', 'selection_label')).' '.__("storage data (including position) don't have been updated");
+						$error_found = true;
+						$save_new_postion = false;
+					}
+				}
+				
+				if($storage_control && $storage_control['is_tma_block']) {
+					if($type != 'AliquotMaster' || $init_data_unit['SampleControl']['sample_type'] != 'tissue' || $init_data_unit['AliquotControl']['aliquot_type'] != 'core') {
+						$data = $updater_model->findById($init_data_id);
+						if($type == 'StorageMaster') {
+							$this->validationErrors[][] = __('you can not define a tma block as a parent storage').' '.str_replace('%s', $this->getLabel($data, 'StorageMaster', 'selection_label'), __('see # %s')).' '.__("storage data (including position) don't have been updated");
+						} else {
+							$this->validationErrors[][] = __('only sample core can be stored into tma block').' '.str_replace('%s', $this->getLabel($data, $type, 'barcode'), __('see # %s')).' '.__("storage data (including position) don't have been updated");	
+						}
+						$error_found = true;
+						$save_new_postion = false;
 					}
 				}
 				
 				//clean the array asap to gain efficiency
 				unset($rcv_data[$type][$init_data_id]);
 	
-				if($update_temp_and_label){
-					$this->manageTemperature($init_data_unit, $init_data_unit);
-					$init_data_unit['StorageMaster']['selection_label'] = $this->getSelectionLabel($init_data_unit);
-				}
-				
-				$updater_model->pkey_safeguard = false;
-				$updater_model->save($init_data_unit[$type], false);
-				
-				if($update_temp_and_label){
-					$this->updateChildrenStorageSelectionLabel($init_data_id, $init_data_unit);
+				if($save_new_postion) {
+					//Save new item postions
+					if($update_temp_and_label){
+						$this->manageTemperature($init_data_unit, $init_data_unit);
+						$init_data_unit['StorageMaster']['selection_label'] = $this->getSelectionLabel($init_data_unit);
+					}
 					
-					if(!$init_data_unit['StorageControl']['set_temperature']) {
-						$this->updateChildrenSurroundingTemperature($init_data_id, $init_data_unit['StorageMaster']['temperature'], $init_data_unit['StorageMaster']['temp_unit']);
+					$updater_model->pkey_safeguard = false;
+					$updater_model->save($init_data_unit[$type], false);
+					$updated_record_counter++;
+									
+					if($update_temp_and_label){
+						$this->updateChildrenStorageSelectionLabel($init_data_id, $init_data_unit);
+						
+						if(!$init_data_unit['StorageControl']['set_temperature']) {
+							$this->updateChildrenSurroundingTemperature($init_data_id, $init_data_unit['StorageMaster']['temperature'], $init_data_unit['StorageMaster']['temp_unit']);
+						}
 					}
 				}
 			}
 		}
+		
+		return $error_found;
 	}
 	
 	function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list, $link, $icon_name = "detail"){
@@ -856,7 +870,6 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @return const POSITION_*
 	 */
 	function positionStatusQuick($storage_master_id, array $position, array $exception = array()){
-		
 		//check if an aliquot occupies the position
 		$conditions = array(
 			'AliquotMaster.storage_master_id' => $storage_master_id,
@@ -908,7 +921,6 @@ class StorageMaster extends StorageLayoutAppModel {
 			return StorageMaster::POSITION_OCCUPIED;
 		}
 		
-		
 		//check if a current check occupies the position
 		if(array_key_exists('y', $position) && !empty($position['y'])){
 			if(isset($this->used_storage_pos[$storage_master_id][$position['x']][$position['y']])){
@@ -917,9 +929,7 @@ class StorageMaster extends StorageLayoutAppModel {
 		}else if(isset($this->used_storage_pos[$storage_master_id][$position['x']])){
 			return StorageMaster::POSITION_DOUBLE_SET;
 		} 
-		$this->used_storage_pos[$storage_master_id][$position['x']] = array_key_exists('y', $position) ? array($position['y']) : null;
-
-		
+		$this->used_storage_pos[$storage_master_id][$position['x']][$position['y']] = 'used';
 		
 		return StorageMaster::POSITION_FREE;
 	}

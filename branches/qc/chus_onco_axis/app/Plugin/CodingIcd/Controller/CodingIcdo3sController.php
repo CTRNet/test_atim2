@@ -4,6 +4,8 @@ class CodingIcdo3sController extends CodingIcdAppController{
 
 	var $uses = array("CodingIcd.CodingIcdo3Topo", "CodingIcd.CodingIcdo3Morpho"); 
 	
+	var $icd_description_table_fields = array('description');
+	
 	/* 
 		Forms Helper appends a "tool" link to the "add" and "edit" form types
 		Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.

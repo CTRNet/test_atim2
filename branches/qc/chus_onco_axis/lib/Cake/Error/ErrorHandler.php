@@ -200,7 +200,7 @@ class ErrorHandler {
 		$errorConfig = Configure::read('Error');
 		list($error, $log) = self::mapErrorCode($code);
 		if ($log === LOG_ERR) {
-			return self::handleFatalError($code, $description, $file, $line);
+//			return self::handleFatalError($code, $description, $file, $line);
 		}
 
 		$debug = Configure::read('debug');
@@ -216,13 +216,15 @@ class ErrorHandler {
 				'start' => 2,
 				'path' => Debugger::trimPath($file)
 			);
-			return Debugger::getInstance()->outputError($data);
+//			return Debugger::getInstance()->outputError($data);
 		}
 		$message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
 		if (!empty($errorConfig['trace'])) {
 			$trace = Debugger::trace(array('start' => 1, 'format' => 'log'));
 			$message .= "\nTrace:\n" . $trace . "\n";
 		}
+		pr("ErrorHandler.handleError() function call :: $error ($code): $description in [$file, line $line]");
+		pr(AppController::getStackTrace());
 		return CakeLog::write($log, $message);
 	}
 

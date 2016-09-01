@@ -6,13 +6,9 @@ if(AppController::checkLinkPermission('ClinicalAnnotation/DiagnosisMasters/add/'
 	$current = array();
 	foreach($diagnosis_controls_list as $dx_ctrl){
 		if($dx_ctrl['DiagnosisControl']['category'] != 'primary'){
-			if($dx_ctrl['DiagnosisControl']['category'] == 'secondary'){
-				$current[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category']) . ' ('.__('distant').') - ' .__($dx_ctrl['DiagnosisControl']['controls_type']);
+			$current[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category']) . ' - ' .__($dx_ctrl['DiagnosisControl']['controls_type']);
+			if($dx_ctrl['DiagnosisControl']['category'] == 'secondary - distant'){
 				$secondary_ctrl_id[] = $dx_ctrl['DiagnosisControl']['id'];
-			} else if(in_array($dx_ctrl['DiagnosisControl']['category'], array('recurrence', 'progression'))) {
-				$current[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category']) . ' ('.__('locoregional').') - ' .__($dx_ctrl['DiagnosisControl']['controls_type']);	
-			} else {
-				$current[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category']) . ' - ' .__($dx_ctrl['DiagnosisControl']['controls_type']);	
 			}
 		}
 	}

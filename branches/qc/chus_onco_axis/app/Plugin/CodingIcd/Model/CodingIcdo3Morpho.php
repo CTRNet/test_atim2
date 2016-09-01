@@ -11,6 +11,9 @@ class CodingIcdo3Morpho extends CodingIcdAppModel{
 	
     var $name = 'CodingIcdo3Morpho';
 	var $useTable = 'coding_icd_o_3_morphology';
+	var $icd_description_table_fields = array(
+		'search_format' => array('description'),
+		'detail_format' =>  array('description'));
 
 	var $validate = array();
 	

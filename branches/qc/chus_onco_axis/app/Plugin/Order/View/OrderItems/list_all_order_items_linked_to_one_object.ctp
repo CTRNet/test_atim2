@@ -3,7 +3,7 @@
 	$structure_links = array();
 	
 	$structure_links['index'] = array(
-		'details' => '/Order/Orders/detail/%%OrderItem.order_id%%/%%OrderItem.id%%/'
+		'details' => array('link' => '/Order/Orders/detail/%%OrderItem.order_id%%/', 'icon' => 'detail')
 	);
 	
 	$structure_override = array();
