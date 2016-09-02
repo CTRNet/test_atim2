@@ -17,7 +17,7 @@ class ViewSampleCustom extends ViewSample{
 		Collection.acquisition_label,
 Collection.chus_chemo_naive,
 Collection.chus_radio_naive,
-Collection.chus_study_summary_id as default_collection_study_summary_id,
+Collection.chus_default_collection_study_summary_id,
 	
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,

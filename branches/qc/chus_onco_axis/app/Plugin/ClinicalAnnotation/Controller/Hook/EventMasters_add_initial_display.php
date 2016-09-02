@@ -11,7 +11,6 @@ if($event_control_data['EventControl']['event_type'] == 'medical history') {
 	$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 	foreach($default_types as $new_type) {
 		$translated_type = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
-		pr($translated_type);
 		$this->request->data[$translated_type] = array('EventDetail' => array('body_system' => $new_type['StructurePermissibleValuesCustom']['value']));
 	}
 	ksort($this->request->data);

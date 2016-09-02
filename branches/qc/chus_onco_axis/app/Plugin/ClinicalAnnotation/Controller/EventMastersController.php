@@ -24,7 +24,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		$search_criteria = array();
 		if(!$event_control_id) {
 			// 1 - MANAGE DISPLAY
-			$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
+			$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' ), 'order' => array('EventControl.display_order ASC')));
 			$controls_for_subform_display = array();
 			foreach($event_controls as $new_ctrl) {
 				if($new_ctrl['EventControl']['use_detail_form_for_index']) {
@@ -35,7 +35,6 @@ class EventMastersController extends ClinicalAnnotationAppController {
 					$controls_for_subform_display['-1']['EventControl'] = array('id' => '-1', 'ev_header' => null);
 				}
 			}
-			ksort($controls_for_subform_display);
 			$this->set('controls_for_subform_display', $controls_for_subform_display);
 			// find all EVENTCONTROLS, for ADD form
 			$add_links = $this->EventControl->buildAddLinks($event_controls, $participant_id, $event_group);
