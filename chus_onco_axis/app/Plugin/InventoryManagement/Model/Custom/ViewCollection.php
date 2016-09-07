@@ -21,6 +21,8 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.collection_notes AS collection_notes,
 Collection.chus_chemo_naive,
 Collection.chus_radio_naive,
+Collection.chus_ischemia_time,
+Collection.chus_warm_ischemia_time_mn,
 Collection.chus_default_collection_study_summary_id,
 StudySummary.title,
 TreatmentDetail.patho_report_report_number,
@@ -30,7 +32,6 @@ TreatmentDetail.patho_report_report_number,
 LEFT JOIN study_summaries AS StudySummary ON Collection.chus_default_collection_study_summary_id = StudySummary.id AND StudySummary.deleted <> 1
 LEFT JOIN chus_txd_digestive_system_surgeries_biopsies AS TreatmentDetail ON Collection.treatment_master_id = TreatmentDetail.treatment_master_id
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-	
 	
 	function summary($variables=array()) {
 		$return = false;
