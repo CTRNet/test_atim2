@@ -1228,7 +1228,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					}								
 					$this->AliquotMaster->id = $aliquot['AliquotMaster']['id'];
 					$this->AliquotMaster->save($aliquot, false);
-					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot['AliquotMaster']['id'], true, true, false);
+					$this->AliquotMaster->updateAliquotVolume($aliquot['AliquotMaster']['id']);
 				}
 
 				$hook_link = $this->hook('postsave_process');

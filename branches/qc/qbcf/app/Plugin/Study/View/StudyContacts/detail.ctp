@@ -1,7 +1,6 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/Study/StudyContacts/listall/'.$atim_menu_variables['StudySummary.id'].'/',
 			'edit'=>'/Study/StudyContacts/edit/'.$atim_menu_variables['StudySummary.id'].'/%%StudyContact.id%%/',
 			'delete'=>'/Study/StudyContacts/delete/'.$atim_menu_variables['StudySummary.id'].'/%%StudyContact.id%%/'
 		)

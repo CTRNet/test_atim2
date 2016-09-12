@@ -3,8 +3,7 @@
 		'top'=>NULL,
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/ParticipantContacts/edit/'.$atim_menu_variables['Participant.id'].'/%%ParticipantContact.id%%/',
-			'delete'=>'/ClinicalAnnotation/ParticipantContacts/delete/'.$atim_menu_variables['Participant.id'].'/%%ParticipantContact.id%%/',
-			'list'=>'/ClinicalAnnotation/ParticipantContacts/listall/'.$atim_menu_variables['Participant.id'].'/'
+			'delete'=>'/ClinicalAnnotation/ParticipantContacts/delete/'.$atim_menu_variables['Participant.id'].'/%%ParticipantContact.id%%/'
 		)
 	);
 	

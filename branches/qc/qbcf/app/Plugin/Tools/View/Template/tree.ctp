@@ -24,7 +24,6 @@ if($controls){
 		'links' => array(
 			'top' => '/Tools/Template/edit/'.$template_id,
 			'bottom' => array(
-				'list' => '/Tools/Template/index',
 				'reset' => array('link' => 'javascript:confirmReset();', 'icon' => 'redo')
 			)
 		), 'settings' => array('return' => true, 'form_bottom' => true),
