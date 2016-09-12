@@ -33,21 +33,46 @@ class CollectionCustom extends Collection {
 			}
 		}
 		
+		//Check aquisition label
+		if($this->id && array_key_exists('Collection', $collection_data)) {
+			$conditions = array();
+			if(array_key_exists('participant_id', $collection_data['Collection'])) {
+				$submitted_participant_id = $collection_data['Collection']['participant_id'];
+				$db_collection_data = $this->find('first', array('conditions' => array('Collection.id' => $this->id), 'fields' => array('Collection.acquisition_label'), 'recursive' => '-1'));
+				$conditions =array(
+					'Collection.acquisition_label' => $db_collection_data['Collection']['acquisition_label'], 
+					"Collection.participant_id IS NOT NULL", 
+					"Collection.participant_id != $submitted_participant_id");
+			}
+			if(array_key_exists('acquisition_label', $collection_data['Collection']) && $collection_data['Collection']['acquisition_label']) {
+				$submitted_acquisition_label = $collection_data['Collection']['acquisition_label'];
+				$db_collection_data = $this->find('first', array('conditions' => array('Collection.id' => $this->id, 'Collection.deleted' => array('0','1')), 'fields' => array('Collection.participant_id'), 'recursive' => '-1'));
+				$conditions =  array(
+					'Collection.acquisition_label' => $submitted_acquisition_label, 
+					"Collection.participant_id IS NOT NULL", 
+					"Collection.participant_id != ".$db_collection_data['Collection']['participant_id']);
+			}
+			if($conditions && $this->find('count', array('conditions' => $conditions, 'recursive' => '-1'))) {
+				$this->validationErrors['acquisition_label'][] = 'an acquisition_label value can only be assigned to one participant';
+				$res = false;		
+			}
+		}
+		
 		//Ischemia time validation and warm ischemia calculation
 		if($res) {
-			if(array_key_exists('Collection', $collection_data) && array_key_exists('chus_ischemia_time', $collection_data['Collection'])) {
+			if(array_key_exists('Collection', $collection_data) && array_key_exists('chus_blood_vessels_clamped_time', $collection_data['Collection'])) {
 				if(!array_key_exists('collection_datetime', $collection_data['Collection'])) {
 					AppController::addWarningMsg(__("data is missing to calculate the warm ischemia time - warm ischemia time won't be recorded"));
 					$collection_data['Collection']['chus_warm_ischemia_time_mn'] = '';
 					$this->addWritableField(array('chus_warm_ischemia_time_mn'));
-				} else if(empty($collection_data['Collection']['chus_ischemia_time']) && empty($collection_data['Collection']['collection_datetime'])) {
+				} else if(empty($collection_data['Collection']['chus_blood_vessels_clamped_time']) && empty($collection_data['Collection']['collection_datetime'])) {
 					AppController::addWarningMsg(__("data is missing to calculate the warm ischemia time - warm ischemia time won't be recorded"));
 					$collection_data['Collection']['chus_warm_ischemia_time_mn'] = '';
 					$this->addWritableField(array('chus_warm_ischemia_time_mn'));
-				}else if($collection_data['Collection']['chus_ischemia_time'] && empty($collection_data['Collection']['collection_datetime'])) {
+				}else if($collection_data['Collection']['chus_blood_vessels_clamped_time'] && empty($collection_data['Collection']['collection_datetime'])) {
 					$this->validationErrors['collection_datetime'][] = 'the system is unable to calculate the warm ischemia time - please check times definitions';
 					$res = false;
-				} else if(empty($collection_data['Collection']['chus_ischemia_time']) && $collection_data['Collection']['collection_datetime']) {
+				} else if(empty($collection_data['Collection']['chus_blood_vessels_clamped_time']) && $collection_data['Collection']['collection_datetime']) {
 					AppController::addWarningMsg(__("data is missing to calculate the warm ischemia time - warm ischemia time won't be recorded"));
 					$collection_data['Collection']['chus_warm_ischemia_time_mn'] = '';
 					$this->addWritableField(array('chus_warm_ischemia_time_mn'));
@@ -59,13 +84,13 @@ class CollectionCustom extends Collection {
 						$this->validationErrors['collection_datetime'][] = 'the system is unable to calculate the warm ischemia time - please check times definitions';
 						$res = false;
 					} else {
-						$chus_ischemia_datetime = preg_replace('/([0-9]{2}:[0-9]{2}:[0-9]{2})$/', $collection_data['Collection']['chus_ischemia_time'], $collection_datetime);
+						$chus_ischemia_datetime = preg_replace('/([0-9]{2}:[0-9]{2}:[0-9]{2})$/', $collection_data['Collection']['chus_blood_vessels_clamped_time'], $collection_datetime);
 						$spent_time = $this->getSpentTime($chus_ischemia_datetime, $collection_datetime);
 						if(!$spent_time['message']) {
 							$collection_data['Collection']['chus_warm_ischemia_time_mn'] = $spent_time['minutes'] + $spent_time['hours']*60;
 							$this->addWritableField(array('chus_warm_ischemia_time_mn'));
 						} else {
-							$this->validationErrors['chus_ischemia_time'][] = 'the system is unable to calculate the warm ischemia time - please check times definitions';
+							$this->validationErrors['chus_blood_vessels_clamped_time'][] = 'the system is unable to calculate the warm ischemia time - please check times definitions';
 							$res = false;
 						}
 					}
