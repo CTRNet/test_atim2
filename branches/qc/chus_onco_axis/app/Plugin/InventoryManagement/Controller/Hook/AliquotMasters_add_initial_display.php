@@ -84,7 +84,9 @@
 			$next_suffix = empty($last_suffix)? '1' : ((int)$last_suffix[0]['last_id'] + 1);
 		}
 		
-		$tmp_new_sample_set['children'] = array();
+		if(isset(AppController::getInstance()->passedArgs['templateInitId'])) {
+			$tubes_to_create = $quantity;
+		}$tmp_new_sample_set['children'] = array();
 		for($tmp_id = 0; $tmp_id < $tubes_to_create; $tmp_id++) {
 			$tmp_new_sample_set['children'][]['AliquotMaster']['aliquot_label'] = $default_aliquot_label.'-'.sprintf("%02d", $next_suffix);
 			$next_suffix++;

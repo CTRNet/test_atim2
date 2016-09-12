@@ -21,7 +21,7 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.collection_notes AS collection_notes,
 Collection.chus_chemo_naive,
 Collection.chus_radio_naive,
-Collection.chus_ischemia_time,
+Collection.chus_blood_vessels_clamped_time,
 Collection.chus_warm_ischemia_time_mn,
 Collection.chus_default_collection_study_summary_id,
 StudySummary.title,

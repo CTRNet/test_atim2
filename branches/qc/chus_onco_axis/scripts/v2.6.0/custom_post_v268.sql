@@ -2329,27 +2329,27 @@ UPDATE structure_formats SET `display_column`='1', `display_order`='103' WHERE s
 -- Warm ischemia
 
 ALTER TABLE collections 
-    ADD COLUMN chus_ischemia_time TIME DEFAULT NULL,
+    ADD COLUMN chus_blood_vessels_clamped_time TIME DEFAULT NULL,
 	ADD COLUMN chus_warm_ischemia_time_mn int(6) DEFAULT NULL;
 ALTER TABLE collections_revs
-    ADD COLUMN chus_ischemia_time TIME DEFAULT NULL,
+    ADD COLUMN chus_blood_vessels_clamped_time TIME DEFAULT NULL,
 	ADD COLUMN chus_warm_ischemia_time_mn int(6) DEFAULT NULL;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'Collection', 'collections', 'chus_ischemia_time', 'time',  NULL , '0', '', '', '', 'ischemia time (if applicable)', '');
+('InventoryManagement', 'Collection', 'collections', 'chus_blood_vessels_clamped_time', 'time',  NULL , '0', '', '', '', 'blood vessels clamped time', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_ischemia_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ischemia time (if applicable)' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-UPDATE structure_fields SET  `language_help`='chus_help_ischemia_time' WHERE model='Collection' AND tablename='collections' AND field='chus_ischemia_time' AND `type`='time' AND structure_value_domain  IS NULL ;
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_blood_vessels_clamped_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='blood vessels clamped time' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_fields SET  `language_help`='chus_help_ischemia_time' WHERE model='Collection' AND tablename='collections' AND field='chus_blood_vessels_clamped_time' AND `type`='time' AND structure_value_domain  IS NULL ;
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_ischemia_time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '5', '', '0', '0', '', '0', '', '1', 'chus_help_ischemia_time', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chus_blood_vessels_clamped_time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '5', '', '0', '0', '', '0', '', '1', 'chus_help_ischemia_time', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'ViewCollection', '', 'chus_ischemia_time', 'time',  NULL , '0', '', '', 'chus_help_ischemia_time', 'ischemia time (if applicable)', ''), 
+('InventoryManagement', 'ViewCollection', '', 'chus_blood_vessels_clamped_time', 'time',  NULL , '0', '', '', 'chus_help_ischemia_time', 'blood vessels clamped time', ''), 
 ('InventoryManagement', 'ViewCollection', '', 'chus_warm_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=4', '', '', 'warm ischemia (mn)', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='chus_ischemia_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='chus_help_ischemia_time' AND `language_label`='ischemia time (if applicable)' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='chus_blood_vessels_clamped_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='chus_help_ischemia_time' AND `language_label`='blood vessels clamped time' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='chus_warm_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='warm ischemia (mn)' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en, fr)
 VALUES
-('ischemia time (if applicable)', 'Ischemia Time (If applicable)', 'Heure d''ischémie (si applicable)'), 
+('blood vessels clamped time', 'Blood Vessels Clamped Time (If applicable)',''), 
 ('ischemia time', 'Ischemia Time', 'Heure d''ischémie'),
 ('chus_help_ischemia_time', 'Blood vessels clamped', 'Vaisseaux sanguins bloqués'),
 ('warm ischemia (mn)', 'Warm Ischemia (mn)', ''),
@@ -2801,8 +2801,128 @@ VALUES
 ('inventory', 'sample', 'sopd_inventory_alls', 'sopd_inventory_all', '1'),
 ('inventory', 'quality control', 'sopd_inventory_alls', 'sopd_inventory_all', '1');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- ...
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
 
+-- metasynchronous
 
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("chus_synchronous_metasynchronous", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("synchronous", "synchronous"),
+("metasynchronous", "metasynchronous");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_synchronous_metasynchronous"), (SELECT id FROM structure_permissible_values WHERE value="synchronous" AND language_alias="synchronous"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_synchronous_metasynchronous"), (SELECT id FROM structure_permissible_values WHERE value="metasynchronous" AND language_alias="metasynchronous"), "2", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'dxd_secondaries', 'chus_synchronous_metasynchronous', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_synchronous_metasynchronous') , '0', '', '', '', 'synchronous/metasynchronous', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_secondaries' AND `field`='chus_synchronous_metasynchronous' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_synchronous_metasynchronous')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='synchronous/metasynchronous' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('synchronous/metasynchronous', 'Synchronous/Metasynchronous'),
+("synchronous", "Synchronous"),
+("metasynchronous", "Metasynchronous");
+ALTER TABLE dxd_secondaries ADD COLUMN chus_synchronous_metasynchronous varchar(50) DEFAULT NULL;
+ALTER TABLE dxd_secondaries_revs ADD COLUMN chus_synchronous_metasynchronous varchar(50) DEFAULT NULL;
+
+-- Protocol to Protocol/regimens
+
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('protocols/regimens', 'Protocols/Regimens');
+update menus SET language_title = 'protocols/regimens' WHERE language_title = 'protocols';
+
+-- Chemo detail
+
+ALTER TABLE chus_txd_systemic_therapies
+  ADD COLUMN num_cycles int(11) default null,
+  ADD COLUMN completed_cycles int(11) default null,
+  ADD COLUMN `frequence` int(11) default null,
+  ADD COLUMN frequence_unit varchar(30) default null;
+ALTER TABLE chus_txd_systemic_therapies_revs
+  ADD COLUMN num_cycles int(11) default null,
+  ADD COLUMN completed_cycles int(11) default null,
+  ADD COLUMN `frequence` int(11) default null,
+  ADD COLUMN frequence_unit varchar(30) default null;
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("chus_frequence_unit", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("week", "week"),
+("month", "month"),
+("year", "year");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_frequence_unit"), (SELECT id FROM structure_permissible_values WHERE value="week" AND language_alias="week"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_frequence_unit"), (SELECT id FROM structure_permissible_values WHERE value="month" AND language_alias="month"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_frequence_unit"), (SELECT id FROM structure_permissible_values WHERE value="year" AND language_alias="year"), "3", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_systemic_therapies', 'num_cycles', 'integer_positive',  NULL , '0', 'size=5', '', 'help_num_cycles', 'number cycles', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_systemic_therapies', 'completed_cycles', 'integer_positive',  NULL , '0', 'size=5', '', 'help_completed_cycles', 'completed cycles', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_systemic_therapies', 'frequence', 'integer_positive',  NULL , '0', 'size=5', '', '', 'frequence', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chus_txd_systemic_therapies', 'frequence_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_frequence_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='num_cycles' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_num_cycles' AND `language_label`='number cycles' AND `language_tag`=''), '2', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='completed_cycles' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_completed_cycles' AND `language_label`='completed cycles' AND `language_tag`=''), '2', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='frequence' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='frequence' AND `language_tag`=''), '2', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='frequence_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_frequence_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '12', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET `language_tag`='per' WHERE model='TreatmentDetail' AND tablename='chus_txd_systemic_therapies' AND field='frequence_unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='chus_frequence_unit');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='frequence_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_frequence_unit') AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id, en) 
+VALUES
+("week", "Week"),('per','Per');
+
+-- protocol
+
+update protocol_controls SET detail_form_alias = detail_tablename WHERE detail_tablename = 'chus_pd_systemic_therapies';
+ALTER TABLE chus_pd_systemic_therapies
+  ADD COLUMN num_cycles int(11) default null,
+  ADD COLUMN completed_cycles int(11) default null,
+  ADD COLUMN `frequence` int(11) default null,
+  ADD COLUMN frequence_unit varchar(30) default null;
+ALTER TABLE chus_pd_systemic_therapies_revs
+  ADD COLUMN num_cycles int(11) default null,
+  ADD COLUMN completed_cycles int(11) default null,
+  ADD COLUMN `frequence` int(11) default null,
+  ADD COLUMN frequence_unit varchar(30) default null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Protocol', 'ProtocolDetail', 'chus_txd_systemic_therapies', 'num_cycles', 'integer_positive',  NULL , '0', 'size=5', '', 'help_num_cycles', 'number cycles', ''), 
+('Protocol', 'ProtocolDetail', 'chus_txd_systemic_therapies', 'completed_cycles', 'integer_positive',  NULL , '0', 'size=5', '', 'help_completed_cycles', 'completed cycles', ''), 
+('Protocol', 'ProtocolDetail', 'chus_txd_systemic_therapies', 'frequence', 'integer_positive',  NULL , '0', 'size=5', '', '', 'frequence', ''), 
+('Protocol', 'ProtocolDetail', 'chus_txd_systemic_therapies', 'frequence_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_frequence_unit') , '0', '', '', '', '', 'per');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_pd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='ProtocolDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='num_cycles' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_num_cycles' AND `language_label`='number cycles' AND `language_tag`=''), '2', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_pd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='ProtocolDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='completed_cycles' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_completed_cycles' AND `language_label`='completed cycles' AND `language_tag`=''), '2', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_pd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='ProtocolDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='frequence' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='frequence' AND `language_tag`=''), '2', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_pd_systemic_therapies'), (SELECT id FROM structure_fields WHERE `model`='ProtocolDetail' AND `tablename`='chus_txd_systemic_therapies' AND `field`='frequence_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_frequence_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='per'), '2', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='protocolmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en)
+VALUES
+('updated cycle and frequence information based on selected regimen', 'The system updated cycle and frequence information empty information based on selected regimen');
+
+-- SOP
+
+ALTER TABLE sop_masters ADD COLUMN chus_path varchar(250) DEFAULT NULL;
+ALTER TABLE sop_masters_revs ADD COLUMN chus_path varchar(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Sop', 'SopMaster', 'sop_masters', 'chus_path', 'input',  NULL , '0', '', '', '', 'path', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sopmasters'), (SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='chus_path' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='path' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('path', 'Path');
+
+-- 'Collection Event #' check
+
+INSERT INTO i18n (id,en, fr) VALUES ('an acquisition_label value can only be assigned to one participant', 
+"A 'Collection Event #' can only be assigned to one participant!",
+"La valeur du '# Évenement Collection' ne peut être attribué qu'à un seul participant!");
+
+    
 
 
 
@@ -2826,7 +2946,6 @@ VALUES
 TODO:
 aide code topo et morpho pour la saisie
 ajouter info dans history
-redirect apres add chir biopsie systemic treatment pour avoir le add precision
 dans detail annotation ne pas afficher le links to collection si pas de uss_ccl
 nettoyer les liens a etude ex collection to etude et ajouter au databrowser au besoin
 
@@ -2851,3 +2970,6 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as
 VALUES
 ('liver', 'Liver',  'Foie', '1', @control_id, NOW(), NOW(), 1, 1),
 
+
+
+SELECT structure_value_domain_id FROM structure_value_domains_permissible_values WHERE structure_permissible_value_id = 865
