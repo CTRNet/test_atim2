@@ -10,7 +10,10 @@ class OrderLine extends OrderAppModel {
 	var $belongsTo = array(       
 		'Order' => array(           
 			'className'    => 'Order.Order',            
-			'foreignKey'    => 'order_id'));
+			'foreignKey'    => 'order_id'),        
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	var $registered_view = array(
 			'InventoryManagement.ViewAliquotUse' => array('OrderLine.id')
@@ -51,6 +54,8 @@ class OrderLine extends OrderAppModel {
 		$this->validateAndUpdateOrderLineStudyData();
 	
 		parent::validates($options);
+		
+		$this->addWritableField(array('sample_control_id', 'aliquot_control_id', 'is_tma_slide'));
 	
 		return empty($this->validationErrors);
 	}
@@ -72,6 +77,7 @@ class OrderLine extends OrderAppModel {
 		if(array_key_exists('FunctionManagement', $order_line_data) && array_key_exists('autocomplete_order_line_study_summary_id', $order_line_data['FunctionManagement'])) {
 			$order_line_data['OrderLine']['study_summary_id'] = null;
 			$order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id'] = trim($order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id']);
+			$this->addWritableField(array('study_summary_id'));
 			if(strlen($order_line_data['FunctionManagement']['autocomplete_order_line_study_summary_id'])) {
 				// Load model
 				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
@@ -82,7 +88,6 @@ class OrderLine extends OrderAppModel {
 				// Set study summary id
 				if(isset($arr_study_selection_results['StudySummary'])){
 					$order_line_data['OrderLine']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
-					$this->addWritableField(array('study_summary_id'));
 				}
 	
 				// Set error
@@ -94,12 +99,30 @@ class OrderLine extends OrderAppModel {
 		}
 	}
 	
+	function beforeSave($options = array()){
+		$ret_val = parent::beforeSave($options);
+		if(isset($this->data['FunctionManagement']['product_type'])) {
+			if(preg_match('/^(.*)\|(.*)\|(.*)$/', $this->data['FunctionManagement']['product_type'], $matches)) {
+				$this->data['OrderLine']['sample_control_id'] = $matches[1];
+				$this->data['OrderLine']['aliquot_control_id'] = $matches[2];
+				$this->data['OrderLine']['is_tma_slide'] = $matches[3];
+			} else {
+				$this->data['OrderLine']['sample_control_id'] = '';
+				$this->data['OrderLine']['aliquot_control_id'] = '';
+				$this->data['OrderLine']['is_tma_slide'] = '';
+			}			
+			$this->addWritableField(array('sample_control_id', 'aliquot_control_id', 'is_tma_slide'));
+		}
+		return $ret_val;
+	}
+	
 	function afterFind($results, $primary = false) {
 		$results = parent::afterFind($results, $primary);
 		
 		if(isset($results['0']['OrderLine'])) {
 			$OrderItem = null;
 			foreach($results as &$new_order_line) {
+				//Set order_line_completion
 				$shipped_counter = 0;
 				$items_counter = 0;
 				if(isset($new_order_line['OrderItem'])) {				
@@ -114,9 +137,13 @@ class OrderLine extends OrderAppModel {
 					$items_counter = $OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $new_order_line['OrderLine']['id']), 'recursive' => '-1'));
 					if($items_counter) $shipped_counter = $OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $new_order_line['OrderLine']['id'], 'OrderItem.status' => array('shipped', 'shipped & returned')), 'recursive' => '-1'));				
 				}
-				$new_order_line['Generated']['order_line_completion'] = empty($items_counter)? 'n/a': $shipped_counter.'/'.$items_counter;		
+				$new_order_line['Generated']['order_line_completion'] = empty($items_counter)? 'n/a': $shipped_counter.'/'.$items_counter;
+				//Set the order line product type value
+				if(isset($new_order_line['OrderLine']) &&  array_key_exists('sample_control_id', $new_order_line['OrderLine']) && array_key_exists('aliquot_control_id', $new_order_line['OrderLine']) &&  array_key_exists('is_tma_slide', $new_order_line['OrderLine'])) {
+					$new_order_line['FunctionManagement']['product_type'] = $new_order_line['OrderLine']['sample_control_id'].'|'.$new_order_line['OrderLine']['aliquot_control_id'].'|'.$new_order_line['OrderLine']['is_tma_slide'];
+				}
 			}
-		}		
+		}
 		return $results;
 	}
 	
@@ -143,6 +170,16 @@ class OrderLine extends OrderAppModel {
 		return array('allow_deletion' => true, 'msg' => '');
 	}	
 	
+	function getProductTypes() {
+		$producte_types = array();
+		if(Configure::read('order_item_type_config') != 2) $producte_types = array('||1' => __('tma slide'));
+		if(Configure::read('order_item_type_config') != 3) {
+			$aliquot_control_model = AppModel::getInstance("InventoryManagement", "AliquotControl", true);
+			$sample_aliquot_and_control_ids = $aliquot_control_model->getSampleAliquotTypesPermissibleValues();
+			foreach($sample_aliquot_and_control_ids as $key => $values) $producte_types[$key.'|0'] = $values;
+		}
+		return $producte_types;
+	}
 	
 }
 

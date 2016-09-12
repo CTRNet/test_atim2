@@ -40,7 +40,7 @@
 			//continuous numbering with 2 dimensions
 			$use_width = $y_size = max(1, $data['parent']['StorageControl']['display_x_size']);
 			$use_height = $x_size = max(1, $data['parent']['StorageControl']['display_y_size']);
-			$twoAxis = true;
+			$one_coord_to_display_as_two_axis = true;
 			//Validate that the number of displayed cells is the same as the number of actual cells
 			if(max(1, $data['parent']['StorageControl']['coord_x_size']) * max(1, $data['parent']['StorageControl']['coord_y_size']) != $x_size * $y_size){
 				$errors[] = array("The current box properties are invalid. The storage cells count and the cells count to display doesn't match. Contact ATiM support.");
@@ -48,7 +48,7 @@
 				$errors[] = array("Display cells: ".$x_size * $y_size);
 			}				
 		}else{
-			$twoAxis = false;
+			$one_coord_to_display_as_two_axis = false;
 			if(strlen($x_size) == 0 || $x_size < 1){
 				$x_size = 1;
 			}
@@ -66,7 +66,7 @@
 			$j = null;
 			while(axisLoopCondition($j, $data['parent']['StorageControl']['reverse_y_numbering'], $use_height)){
 				$csv_layout_line_data = array();
-				if(!$twoAxis){
+				if(!$one_coord_to_display_as_two_axis){
 					$y_val = $y_alpha ? chr($j + 64) : $j;
 				}
 				$i = null;
@@ -74,12 +74,13 @@
 					$display_value = null;
 					$display_value_x = null;
 					$display_value_y = null;
-					if($twoAxis){
+					if($one_coord_to_display_as_two_axis){
 						if($horizontal_increment){
 							$display_value = ($j - 1) * $y_size + $i;
 						}else{
 							$display_value = ($i - 1) * $x_size + $j;
 						}
+						$display_value = $x_alpha ? chr($display_value + 64) : $display_value;
 						$use_value = $display_value."_1"; //static y = 1
 					}else{
 						$x_val = $x_alpha ? chr($i + 64) : $i;

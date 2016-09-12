@@ -13,14 +13,14 @@
 	//Add item links management
 	switch(Configure::read('order_item_type_config')) {
 		case '1':
-			$structure_links['bottom']['order items'][__('add items to order').' : '.__('tma slide')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/TmaSlide', 'icon'=>'add_to_order');
-			$structure_links['bottom']['order items'][__('add items to order').' : '.__('aliquot')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/AliquotMaster', 'icon'=>'add_to_order');
+			$structure_links['bottom']['order items'][__('add items to order line').' : '.__('tma slide')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/TmaSlide', 'icon'=>'add_to_order');
+			$structure_links['bottom']['order items'][__('add items to order line').' : '.__('aliquot')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/AliquotMaster', 'icon'=>'add_to_order');
 			break;
 		case '2':
-			$structure_links['bottom']['order items'][__('add items to order').' : '.__('aliquot')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/AliquotMaster', 'icon'=>'add_to_order');
+			$structure_links['bottom']['order items'][__('add items to order line').' : '.__('aliquot')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/AliquotMaster', 'icon'=>'add_to_order');
 			break;
 		case '3':
-			$structure_links['bottom']['order items'][__('add items to order').' : '.__('tma slide')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/TmaSlide', 'icon'=>'add_to_order');
+			$structure_links['bottom']['order items'][__('add items to order line').' : '.__('tma slide')] =  array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/'.$atim_menu_variables['OrderLine.id'].'/TmaSlide', 'icon'=>'add_to_order');
 			break;
 	}
 	$structure_links['bottom']['order items']['define order items returned'] =  array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/', 'icon'=>'order items returned');	
