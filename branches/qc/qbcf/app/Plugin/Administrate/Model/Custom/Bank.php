@@ -33,13 +33,13 @@ class BankCustom extends Bank {
 		if(!$res['allow_deletion']) return $res;
 
 		$SampleMasterModel = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
-		$data = $SampleMasterModel->find('first', array('conditions' => array('SampleMaster.qc_tf_tma_sample_control_bank_id' => $bank_id)));
+		$data = $SampleMasterModel->find('first', array('conditions' => array('SampleMaster.qbcf_tma_sample_control_bank_id' => $bank_id)));
 		if($data) {
 			return array('allow_deletion' => false, 'msg' => 'this bank is linked to at least one tissue and flagged as provider');
 		}
 		
 		$ParticipantModel = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
-		$data = $ParticipantModel->find('first', array('conditions' => array('Participant.qc_tf_bank_id' => $bank_id)));
+		$data = $ParticipantModel->find('first', array('conditions' => array('Participant.qbcf_bank_id' => $bank_id)));
 		if($data) {
 			return array('allow_deletion' => false, 'msg' => 'at least one participant is linked to that bank');
 		}

@@ -71,8 +71,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		return $ret_val; 
 	}
 	
-	function calculateTimesTo($participant_id) {
-pr("calculateTimesTo()");		
+	function calculateTimesTo($participant_id) {		
 		$conditions = array(
 			'DiagnosisMaster.deleted != 1',
 			'DiagnosisControl.category' => 'primary',
