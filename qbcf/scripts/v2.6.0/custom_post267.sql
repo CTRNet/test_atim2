@@ -96,11 +96,10 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('yes, invasive', 'Yes, invasive',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('yes, non invasive', 'Yes, non invasive',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('yes, non invasive/DCIS', 'Yes, non invasive/DCIS',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('yes, LCIS / lobular neoplasia', 'Yes, LCIS / lobular neoplasia',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('no', 'No',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_breast_cancer_previous_hist')  WHERE model='Participant' AND tablename='participants' AND field='qbcf_breast_cancer_previous_hist' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk');
-
 ALTER TABLE `participants` 
   ADD COLUMN `qbcf_gravida` int(3) DEFAULT NULL,
   ADD COLUMN `qbcf_para` int(3) DEFAULT NULL,
