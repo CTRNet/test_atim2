@@ -3,7 +3,7 @@ UPDATE groups SET flag_show_confidential = 1 WHERE id = 1;
 INSERT INTO i18n (id,en,fr) VALUES ('core_installname','QBCF','QBCF');
 
 DELETE FROM banks;
-INSERT INTO banks (id,name) VALUES (1,'CHUM-? #1'), (2,'CHUQ-? #2');
+INSERT INTO banks (id,name) VALUES (1,'CHUM #1'), (2,'CHUQ #2'), (3,'QBCF #3');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Clinical Annotation
@@ -1297,20 +1297,6 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Sop/%';
 
--- Orders
--- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Order/%';
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
-WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem');
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'OrderItem');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
-WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Shipment') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'Shipment');
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'Shipment');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
-WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Order') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'Order');
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'Order');
-
 -- Protocols
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1517,8 +1503,8 @@ UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_se
 -- Aliquot
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-REPLACE INTO i18n(id,en) VALUES ('aliquot barcode', 'Aliquot TFRI#');
-REPLACE INTO i18n (id,en) VALUES ('aliquot label','Aliquot TFRI Label');
+REPLACE INTO i18n(id,en) VALUES ('aliquot barcode', 'Aliquot QBCF#');
+REPLACE INTO i18n (id,en) VALUES ('aliquot label','Aliquot QBCF Label');
 UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE field = 'barcode' and model like '%aliqu%' AND language_label = 'barcode';
 UPDATE structure_fields SET language_tag = 'aliquot barcode' WHERE field = 'barcode' and model like '%aliqu%' AND language_tag = 'barcode';
 
@@ -1526,10 +1512,6 @@ UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0', `flag_editgrid`
 
 -- aliquot_masters
 
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('StorageLayout', 'StorageMaster', '', 'qbcf_generated_selection_label_precision_for_displa', 'input',  NULL , '0', '', '', '', '', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='aliquot_masters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='' AND `field`='qbcf_generated_selection_label_precision_for_displa' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '701', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 UPDATE structure_formats SET `display_order`='98', `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -1539,7 +1521,6 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='aliquot_label'), 'notEmpty', '');
-UPDATE structure_fields SET field = 'qbcf_generated_selection_label_precision_for_display' WHERE field = 'qbcf_generated_selection_label_precision_for_displa';
 
 -- block
 
@@ -1593,14 +1574,12 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('InventoryManagement', 'ViewAliquot', '', 'qbcf_bank_participant_identifier', 'input',  NULL , '0', 'size=20', '', '', 'bank patient #', ''), 
 ('InventoryManagement', 'ViewAliquot', '', 'qbcf_is_tma_sample_control', 'yes_no',  NULL , '0', '', '', '', 'control', ''), 
 ('InventoryManagement', 'ViewAliquot', '', 'qbcf_tma_sample_control_code', 'input',  NULL , '0', 'size=20', '', '', 'control name', ''), 
-('InventoryManagement', 'ViewAliquot', '', 'qbcf_tma_sample_control_bank_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_banks_for_controls') , '0', 'size=20', '', '', 'bank of the control', ''), 
-('InventoryManagement', 'ViewAliquot', '', 'qbcf_generated_selection_label_precision_for_display', 'input',  NULL , '0', '', '', '', '', '');
+('InventoryManagement', 'ViewAliquot', '', 'qbcf_tma_sample_control_bank_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_banks_for_controls') , '0', 'size=20', '', '', 'bank of the control', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_bank_participant_identifier' ), '0', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_is_tma_sample_control'), '0', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_tma_sample_control_code'), '1', '1001', 'control details', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_tma_sample_control_bank_id'), '1', '1002', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_generated_selection_label_precision_for_display'), '0', '20', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_tma_sample_control_bank_id'), '1', '1002', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 INSERT INTO structure_value_domains (domain_name, source) VALUES ('qbcf_banks_for_controls', 'Administrate.Bank::getBankPermissibleValuesForControls');
 UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_banks_for_controls') WHERE field = 'qbcf_tma_sample_control_bank_id';
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_banks_for_controls') ,  `setting`='' WHERE model='ViewAliquot' AND tablename='' AND field='qbcf_tma_sample_control_bank_id' AND `type`='select';
@@ -1675,21 +1654,4 @@ ALTER TABLE storage_masters
 ALTER TABLE storage_masters_revs
   MODIFY short_label varchar(50) DEFAULT NULL,
   MODIFY selection_label varchar(110) DEFAULT NULL;
-ALTER TABLE storage_masters 
-  ADD COLUMN qbcf_tma_name VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN qbcf_tma_label_site VARCHAR(100),
-  ADD COLUMN `qbcf_bank_id` int(11) DEFAULT NULL;
-ALTER TABLE storage_masters_revs 
-  ADD COLUMN qbcf_tma_name VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN qbcf_tma_label_site VARCHAR(100),
-  ADD COLUMN `qbcf_bank_id` int(11) DEFAULT NULL;
-
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('StorageLayout', 'StorageMaster', 'storage_masters', 'qbcf_tma_name', 'input',  NULL , '0', 'size=20', '', '', 'tma name central', ''), 
-('StorageLayout', 'StorageMaster', 'storage_masters', 'qbcf_tma_label_site', 'input',  NULL , '0', 'size=20', '', '', 'TMA label site', ''), 
-('StorageLayout', 'StorageMaster', 'storage_masters', 'qbcf_bank_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='banks') , '0', '', '', '', 'bank', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='std_tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='qbcf_tma_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='tma name central' AND `language_tag`=''), '0', '6', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='std_tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='qbcf_tma_label_site' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='TMA label site' AND `language_tag`=''), '0', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='std_tma_blocks'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='qbcf_bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bank' AND `language_tag`=''), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_tma_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageDetail' AND `tablename`='std_tma_blocks' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tma_sop_list') AND `flag_confidential`='0');

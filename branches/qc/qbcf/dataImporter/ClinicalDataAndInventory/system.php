@@ -885,7 +885,7 @@ function validateAndGetDecimal($decimal_value, $summary_section_title, $summary_
 	global $import_summary;
 	global $empty_number_values;
 	$decimal_value = str_replace(array(' ', ','), array('', '.'), $decimal_value);
-	if(strlen($decimal_value)) {
+	if(strlen($decimal_value) && !preg_match('/^((na)|(u)|(unknown))$/i', $decimal_value)) {
 		if(preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $decimal_value)) {
 			return $decimal_value;
 		} else {
@@ -911,7 +911,7 @@ function validateAndGetInteger($integer_value, $summary_section_title, $summary_
 	global $import_summary;
 	global $empty_number_values;
 	$integer_value = str_replace(array(' '), array(''), $integer_value);
-	if(strlen($integer_value)) {
+	if(strlen($integer_value) && !preg_match('/^((na)|(u)|(unknown))$/i', $integer_value)) {
 		if(preg_match('/^[0-9]+$/', $integer_value)) {
 			return $integer_value;
 		} else {

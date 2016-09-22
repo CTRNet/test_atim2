@@ -152,7 +152,6 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 						}
 					}
 				}
-				$result['ViewAliquot']['qbcf_generated_selection_label_precision_for_display'] = (isset($result['StorageMaster']) && isset($result['StorageMaster']['qbcf_generated_selection_label_precision_for_display']))? $result['StorageMaster']['qbcf_generated_selection_label_precision_for_display']: '';
 			}			
 		} else if(isset($results['ViewAliquot'])){
 			pr('TODO #2 afterFind ViewAliquot');
