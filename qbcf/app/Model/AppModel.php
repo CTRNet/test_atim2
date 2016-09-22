@@ -380,7 +380,8 @@ class AppModel extends Model {
 	                if($base_model == $curr['base_model']){
 	                    array_push($ids, $curr['pkey']);
 	                    $base_model = $curr['base_model'];
-	                    unset($registered_model['pkeys_to_check'][$i]);
+						//To support new design on OrderItem & ViewAliquotUse: See Issue #3310
+						//unset($registered_model['pkeys_to_check'][$i]);
 	                }
 	            }
 	            if($ids){

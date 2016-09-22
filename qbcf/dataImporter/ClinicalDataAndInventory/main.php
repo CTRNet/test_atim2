@@ -34,7 +34,7 @@ $atim_drugs = array();
  *   When a date and a site are set, the system will try to find an existing partient breast progression diagnosis already created into ATiM
  *     based on these 2 field values. If one breast progression diagnosis matches, the system will go through the data update process.
  *     
- *     
+ *     To compete...
  *     
  *     
  *     
@@ -59,12 +59,15 @@ if(!testExcelFile($tmp_files_names_list)) {
 
 // *** PARSE EXCEL FILES ***
 
+$created_sample_counter = 0;
+$created_aliquot_counter = 0;
 foreach($excel_files_names as $file_data) {
 	
 	// New Excel File
 	
 	list($bank, $excel_file_name, $excel_xls_offset) = $file_data;
 	$excel_file_name_for_ref = ((strlen($excel_file_name) > 24)? substr($excel_file_name, '1', '20')."...xls" : $excel_file_name);
+	$test_new_file_for_excel_xls_offset = true;
 	
 	$banks_data = getSelectQueryResult("SELECT id, name FROM banks WHERE name like '$bank%'");
 	if(!$banks_data) {
@@ -128,18 +131,29 @@ foreach($excel_files_names as $file_data) {
 						$excel_participant_data['vital_status'] = validateAndGetStructureDomainValue(str_replace(array('Died', 'died'), array('deceased', 'deceased'), $excel_line_data[$excel_field]), 'health_status', $summary_section_title, $excel_field, "See $excel_data_references");
 						
 						$excel_field = 'Registered Date of Death';
+						$excel_field_accuracy = "$excel_field Accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 						list($excel_participant_data['date_of_death'], $excel_participant_data['date_of_death_accuracy']) = updateDateWithExcelAccuracy(
-							validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
-							$excel_line_data["$excel_field Accuracy"]);
+							validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
+							$excel_line_data[$excel_field_accuracy]);
+						
+						if($test_new_file_for_excel_xls_offset && strlen($excel_participant_data['date_of_death'])) {
+							pr("<font color = 'red'>Test of xls_offset for file '$excel_file_name' : $excel_field = '".$excel_participant_data['date_of_death']."'. See $excel_data_references.</font>");
+							$test_new_file_for_excel_xls_offset = false;
+						}
 						
 						$excel_field = 'Suspected Date of Death';
+						$excel_field_accuracy = "$excel_field Accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 						list($excel_participant_data['qbcf_suspected_date_of_death'], $excel_participant_data['qbcf_suspected_date_of_death_accuracy']) = updateDateWithExcelAccuracy(
-							validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
+							validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
 							$excel_line_data["$excel_field Accuracy"]);
 							
 						$excel_field = 'Date of last contact';
+						$excel_field_accuracy = "$excel_field Accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 						list($excel_participant_data['qbcf_last_contact'], $excel_participant_data['qbcf_last_contact_accuracy']) = updateDateWithExcelAccuracy(
-							validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
+							validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
 							$excel_line_data["$excel_field Accuracy"]);
 							
 						// Reproductive History
@@ -179,8 +193,7 @@ foreach($excel_files_names as $file_data) {
 							$participant_id = customInsertRecord(array('participants' => $excel_participant_data));
 							addCreatedDataToSummary('New Participant', "Participant '$qbcf_bank_participant_identifier' of bank '$bank'", $excel_data_references);	
 							$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier] = array(
-								'participant_id' => $participant_id, 
-								'is_new_patient' => true,
+								'participant_id' => $participant_id,
 								'collection_diagnosis_id' => null);
 							
 						} else {
@@ -194,9 +207,9 @@ foreach($excel_files_names as $file_data) {
 								addUpdatedDataToSummary('Participant Profile Update', $data_to_update, $excel_data_references);
 							}
 							$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier] = array(
-								'participant_id' => $query_data[0]['id'], 
-								'is_new_patient' => false,
+								'participant_id' => $query_data[0]['id'],
 								'collection_diagnosis_id' => null);
+							
 						}
 					}
 				}
@@ -204,7 +217,7 @@ foreach($excel_files_names as $file_data) {
 		} // End 'patient' worksheet
 		
 		//----------------------------------------------------------------------------------------------
-		// Profile : 'Dx-event-Breast' worksheet
+		// Diagnosis & Treatment : 'Dx-event-Breast' worksheet
 		//----------------------------------------------------------------------------------------------
 		
 		$worksheet_name = 'Dx-event-Breast';
@@ -233,18 +246,24 @@ foreach($excel_files_names as $file_data) {
 					//Manage dates of event
 					
 					$excel_field = 'Dates of event - START';
+					$excel_field_accuracy = "$excel_field Accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 					list($excel_start_date, $excel_start_date_accuracy) = updateDateWithExcelAccuracy(
-						validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
+						validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
 						$excel_line_data["$excel_field Accuracy"]);
 					
 					$excel_field = 'Dates of event - END';
+					$excel_field_accuracy = "$excel_field Accuracy";
+					reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 					list($excel_finish_date, $excel_finish_date_accuracy) = updateDateWithExcelAccuracy(
-						validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
+						validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
 						$excel_line_data["$excel_field Accuracy"]);					
 					
 					$excel_field = 'Suspected Dates of event - END';
+					$excel_field_accuracy = "$excel_field Accuracy";
+					reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 					list($suspected_finsih_date, $suspected_finsih_date_accuracy) = updateDateWithExcelAccuracy(
-						validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
+						validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
 						$excel_line_data["$excel_field Accuracy"]);
 					
 					$is_suspected_finish_date = false;
@@ -262,6 +281,7 @@ foreach($excel_files_names as $file_data) {
 					$specific_summary_section_title = "$summary_section_title : Breast Diagnosis";
 					
 					$dx_detail_tablename = $atim_controls['diagnosis_controls']['primary-breast']['detail_tablename'];
+					$diagnosis_control_id = $atim_controls['diagnosis_controls']['primary-breast']['id'];
 					$excel_breast_diagnosis_data = array('diagnosis_masters' => array(), $dx_detail_tablename => array());
 					
 					// Manage data
@@ -410,7 +430,7 @@ foreach($excel_files_names as $file_data) {
 							
 							$excel_breast_diagnosis_data['diagnosis_masters'] = array_merge(
 								array('participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id'] ,
-									'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-breast']['id'],
+									'diagnosis_control_id' => $diagnosis_control_id,
 									'dx_date' => $excel_start_date,
 									'dx_date_accuracy' => $excel_start_date_accuracy),
 								$excel_breast_diagnosis_data['diagnosis_masters']);
@@ -418,55 +438,52 @@ foreach($excel_files_names as $file_data) {
 							//Check diagnosis should be updated or created
 							
 							$atim_breast_diagnosis_data = array();
-							if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-								if($excel_start_date && $excel_start_date_accuracy == 'c') {
-									$query = "SELECT *
-										FROM diagnosis_masters AS DiagnosisMaster
-										INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
-										WHERE DiagnosisMaster.deleted <> 1
-										AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
-										AND DiagnosisMaster.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-breast']['id']."
-										AND DiagnosisMaster.dx_date = '$excel_start_date'
-										AND DiagnosisDetail.type_of_intervention = '".$excel_breast_diagnosis_data[$dx_detail_tablename]['type_of_intervention']."';";
-									$query_data = getSelectQueryResult($query);
-									if($query_data) {
-										if(sizeof($query_data) > 2) {
-											// Two diagnoses matched the file diagnosis based on date and type of intervention
-											recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast diagnosis matches the excel participant diagnosis based on date and the type of intervention - System will only compare excel data to the first ATiM record and update data of this one if required.", "See breast diagnosis for following participant : $excel_data_references.");
-										}
-										$atim_breast_diagnosis_data = $query_data[0];
-									}
-								} else {
-									//No diagnosis date : Create a new diagnosis
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Diagnosis date is not set or is approximate - A new breast diagnosis will be created (no update).", "See diagnosis for following participant : $excel_data_references.");
+							$query = "SELECT *
+								FROM diagnosis_masters AS DiagnosisMaster
+								INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
+								WHERE DiagnosisMaster.deleted <> 1
+								AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+								AND DiagnosisMaster.diagnosis_control_id = $diagnosis_control_id
+								AND DiagnosisMaster.dx_date = '$excel_start_date'
+								AND DiagnosisMaster.dx_date_accuracy = '$excel_start_date_accuracy'
+								AND DiagnosisDetail.type_of_intervention = '".$excel_breast_diagnosis_data[$dx_detail_tablename]['type_of_intervention']."';";
+							$query_data = getSelectQueryResult($query);
+							if($query_data) {
+								if(sizeof($query_data) > 2) {
+									// Two diagnoses matched the file diagnosis based on date and type of intervention
+									recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast diagnosis matches the excel participant diagnosis based on date and the type of intervention - System will only compare excel data to the first ATiM record and update data of this one if required.", "See breast diagnosis for following participant : $excel_data_references.");
+								}
+								$atim_breast_diagnosis_data = $query_data[0];
+								if($excel_start_date_accuracy != 'c') {
+									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast diagnosis matches the excel participant diagnosis based on date and the type of intervention - But date is unlcear. Please confrim.", "See breast diagnosis for following participant : $excel_data_references.");
 								}
 							}
 							
+							$diagnosis_master_id = null;
 							if(!$atim_breast_diagnosis_data) {
 							
 								// 3.a - BREAST DIAGNOSIS CREATION
 								
 								$diagnosis_master_id = customInsertRecord($excel_breast_diagnosis_data);
-								addCreatedDataToSummary('New Breast Diagnosis', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Intervention '".$excel_breast_diagnosis_data[$dx_detail_tablename]['type_of_intervention']."' on '$excel_start_date'.", $excel_data_references);
+								addCreatedDataToSummary('New Breast Diagnosis', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Intervention '".$excel_breast_diagnosis_data[$dx_detail_tablename]['type_of_intervention']."' on '$excel_start_date'", $excel_data_references);
 								
 							} else {
 							
 								// 3.b - BREAST DIAGNOSIS UPDATE
 							
+								$diagnosis_master_id = $atim_breast_diagnosis_data['id'];
 								$data_to_update = array(
 									'diagnosis_masters' => getDataToUpdate($atim_breast_diagnosis_data, $excel_breast_diagnosis_data['diagnosis_masters']),
 									$dx_detail_tablename => getDataToUpdate($atim_breast_diagnosis_data, $excel_breast_diagnosis_data[$dx_detail_tablename]));
 								if(sizeof($data_to_update['diagnosis_masters']) || sizeof($data_to_update[$dx_detail_tablename])) {
-									updateTableData($atim_breast_diagnosis_data['id'], $data_to_update);
+									updateTableData($diagnosis_master_id, $data_to_update);
 									addUpdatedDataToSummary('Breast Diagnosis Update', array_merge($data_to_update['diagnosis_masters'], $data_to_update[$dx_detail_tablename]), $excel_data_references);
 								}
 								
 							}
 							
 							if(strtolower($excel_line_data['Specimen sent to CHUM']) == 'yes') {
-								if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Breast diagnosis defined as linked to specimen but patient is not a new one into ATiM - This information won't be used by the migration process and has to be recorded manually after migration if required", "See diagnosis for following participant : $excel_data_references.");
-								} else if($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_diagnosis_id']) {
+								if($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_diagnosis_id']) {
 									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Two patient breast diagnoses are defined as linked to specimen - Only the first one will be linked to the inventory, please validate and add correction if required into ATiM after the migration.", "See diagnosis for following participant : $excel_data_references.");
 								} else {
 									$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_diagnosis_id'] = $diagnosis_master_id;
@@ -481,6 +498,7 @@ foreach($excel_files_names as $file_data) {
 					$specific_summary_section_title = "$summary_section_title : Breast Progression Diagnosis";
 						
 					$dx_detail_tablename = $atim_controls['diagnosis_controls']['primary-breast progression']['detail_tablename'];
+					$diagnosis_control_id = $atim_controls['diagnosis_controls']['primary-breast progression']['id'];
 					$excel_breast_progression_diagnosis_data = array('diagnosis_masters' => array(), $dx_detail_tablename => array());
 						
 					// Manage data
@@ -523,7 +541,7 @@ foreach($excel_files_names as $file_data) {
 								
 							$excel_breast_progression_diagnosis_data['diagnosis_masters'] = array_merge(
 								array('participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id'] ,
-									'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-breast progression']['id'],
+									'diagnosis_control_id' => $diagnosis_control_id,
 									'dx_date' => $excel_start_date,
 									'dx_date_accuracy' => $excel_start_date_accuracy),
 								$excel_breast_progression_diagnosis_data['diagnosis_masters']);
@@ -531,27 +549,24 @@ foreach($excel_files_names as $file_data) {
 							//Check diagnosis should be updated or created
 								
 							$atim_diagnosis_data = array();
-							if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-								if($excel_start_date && $excel_start_date_accuracy == 'c') {
-									$query = "SELECT *
-									FROM diagnosis_masters AS DiagnosisMaster
-									INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
-									WHERE DiagnosisMaster.deleted <> 1
-									AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
-									AND DiagnosisMaster.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-breast progression']['id']."
-									AND DiagnosisMaster.dx_date = '$excel_start_date'
-									AND DiagnosisDetail.site = '".$excel_breast_progression_diagnosis_data[$dx_detail_tablename]['site']."';";
-									$query_data = getSelectQueryResult($query);
-									if($query_data) {
-										if(sizeof($query_data) > 2) {
-											// Two diagnoses matched the file diagnosis based on date and site
-											recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast progression diagnosis matches the excel participant diagnosis progression based on date and the site of the progression - System will only compare excel data to the first ATiM record and update data of this one if required.", "See breast diagnosis progression for following participant : $excel_data_references.");
-										}
-										$atim_diagnosis_data = $query_data[0];
-									}
-								} else {
-									//No diagnosis date : Create a new diagnosis
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Diagnosis progression date is not set or is approximate - A new breast diagnosis progression will be created (no update).", "See diagnosis progression for following participant : $excel_data_references.");
+							$query = "SELECT *
+								FROM diagnosis_masters AS DiagnosisMaster
+								INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
+								WHERE DiagnosisMaster.deleted <> 1
+								AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+								AND DiagnosisMaster.diagnosis_control_id = $diagnosis_control_id
+								AND DiagnosisMaster.dx_date = '$excel_start_date'
+								AND DiagnosisMaster.dx_date_accuracy = '$excel_start_date_accuracy'
+								AND DiagnosisDetail.site = '".$excel_breast_progression_diagnosis_data[$dx_detail_tablename]['site']."';";
+							$query_data = getSelectQueryResult($query);
+							if($query_data) {
+								if(sizeof($query_data) > 2) {
+									// Two diagnoses matched the file diagnosis based on date and site
+									recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast progression diagnosis matches the excel participant diagnosis progression based on date and the site of the progression - System will only compare excel data to the first ATiM record and update data of this one if required.", "See breast diagnosis progression for following participant : $excel_data_references.");
+								}
+								$atim_diagnosis_data = $query_data[0];
+								if($excel_start_date_accuracy != 'c') {
+									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast progression diagnosis matches the excel participant diagnosis progression based on date and the site of the progression - But date is unlcear. Please confrim.", "See breast diagnosis progression for following participant : $excel_data_references.");
 								}
 							}
 								
@@ -560,7 +575,7 @@ foreach($excel_files_names as $file_data) {
 								// 3.a - BREAST PROGRESSION DIAGNOSIS CREATION
 									
 								$diagnosis_master_id = customInsertRecord($excel_breast_progression_diagnosis_data);
-								addCreatedDataToSummary('New Breast Progression Diagnosis', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Site '".$excel_breast_progression_diagnosis_data[$dx_detail_tablename]['site']."' on '$excel_start_date'.", $excel_data_references);
+								addCreatedDataToSummary('New Breast Progression Diagnosis', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Site '".$excel_breast_progression_diagnosis_data[$dx_detail_tablename]['site']."' on '$excel_start_date'", $excel_data_references);
 					
 							} else {
 									
@@ -683,26 +698,23 @@ foreach($excel_files_names as $file_data) {
 								//Check treatment should be updated or created
 									
 								$atim_treatment_data = array();
-								if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-									if($excel_start_date && $excel_start_date_accuracy == 'c') {
-										$query = "SELECT TreatmentMaster.*, TreatmentDetail.*
-											FROM treatment_masters AS TreatmentMaster
-											INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
-											WHERE TreatmentMaster.deleted <> 1
-											AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
-											AND TreatmentMaster.treatment_control_id = ".$atim_treatment_control_data['id']."
-											AND TreatmentMaster.start_date = '$excel_start_date';";
-										$query_data = getSelectQueryResult($query);
-										if($query_data) {
-											if(sizeof($query_data) > 2) {
-												// Two treatments matched the file treatment based on date and type
-												recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - System will only compare excel data to the first ATiM record and update data of this one if required.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
-											}
-											$atim_treatment_data = $query_data[0];
-										}
-									} else {
-										//No start date : Create a new treatment
-										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Treatment date is not set or is approximate - A new treatment will be created (no update).", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+								$query = "SELECT TreatmentMaster.*, TreatmentDetail.*
+									FROM treatment_masters AS TreatmentMaster
+									INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+									WHERE TreatmentMaster.deleted <> 1
+									AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+									AND TreatmentMaster.treatment_control_id = ".$atim_treatment_control_data['id']."
+									AND TreatmentMaster.start_date = '$excel_start_date'
+									AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy';";
+								$query_data = getSelectQueryResult($query);
+								if($query_data) {
+									if(sizeof($query_data) > 2) {
+										// Two treatments matched the file treatment based on date and type
+										recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - System will only compare excel data to the first ATiM record and update data of this one if required.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+									}
+									$atim_treatment_data = $query_data[0];
+									if($excel_start_date_accuracy != 'c') {
+										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - But date is unlcear. Please confrim.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									}
 								}
 									
@@ -711,7 +723,7 @@ foreach($excel_files_names as $file_data) {
 									// 5.a.1 - SYSTEMIC TREATMENT CREATION
 									
 									$treatment_master_id = customInsertRecord($excel_treatment_data);
-									addCreatedDataToSummary('New Breast Treatment', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : '".$excel_line_data['Treatment Type']."' treatment on '$excel_start_date'.", $excel_data_references);
+									addCreatedDataToSummary('New Breast Treatment', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : '".$excel_line_data['Treatment Type']."' treatment on '$excel_start_date'", $excel_data_references);
 										
 								} else {
 										
@@ -768,29 +780,26 @@ foreach($excel_files_names as $file_data) {
 								//Check treatment should be updated or created
 									
 								$atim_treatment_data = array();
-								if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-									if($excel_start_date && $excel_start_date_accuracy == 'c') {
-										$query = "SELECT TreatmentMaster.*, TreatmentDetail.*, GROUP_CONCAT(TreatmentExtendMaster.drug_id SEPARATOR ',') as drug_ids
-											FROM treatment_masters AS TreatmentMaster
-											INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
-											LEFT JOIN  treatment_extend_masters AS TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id
-											WHERE TreatmentMaster.deleted <> 1
-											AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
-											AND TreatmentMaster.treatment_control_id = ".$atim_treatment_control_data['id']."
-											AND TreatmentMaster.start_date = '$excel_start_date'
-											AND TreatmentExtendMaster.deleted <> 1
-											GROUP BY TreatmentMaster.id;";
-										$query_data = getSelectQueryResult($query);
-										if($query_data) {
-											if(sizeof($query_data) > 2) {
-												// Two treatments matched the file treatment based on date and type
-												recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - System will only compare excel data to the first ATiM record and update data of this one if required.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
-											}
-											$atim_treatment_data = $query_data[0];
-										}
-									} else {
-										//No start date : Create a new treatment
-										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Treatment date is not set or is approximate - A new treatment will be created (no update).", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+								$query = "SELECT TreatmentMaster.*, TreatmentDetail.*, GROUP_CONCAT(TreatmentExtendMaster.drug_id SEPARATOR ',') as drug_ids
+									FROM treatment_masters AS TreatmentMaster
+									INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+									LEFT JOIN  treatment_extend_masters AS TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id
+									WHERE TreatmentMaster.deleted <> 1
+									AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+									AND TreatmentMaster.treatment_control_id = ".$atim_treatment_control_data['id']."
+									AND TreatmentMaster.start_date = '$excel_start_date'
+									AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy'
+									AND TreatmentExtendMaster.deleted <> 1
+									GROUP BY TreatmentMaster.id;";
+								$query_data = getSelectQueryResult($query);
+								if($query_data) {
+									if(sizeof($query_data) > 2) {
+										// Two treatments matched the file treatment based on date and type
+										recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - System will only compare excel data to the first ATiM record and update data of this one if required.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+									}
+									$atim_treatment_data = $query_data[0];
+									if($excel_start_date_accuracy != 'c') {
+										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - But date is unlcear. Please confrim.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									}
 								}
 									
@@ -808,7 +817,7 @@ foreach($excel_files_names as $file_data) {
 											$atim_treatment_control_data['treatment_extend_detail_tablename'] => array());
 										customInsertRecord($drug_data);
 									}
-									addCreatedDataToSummary('New Breast Treatment', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : '".$excel_line_data['Treatment Type']."' treatment on '$excel_start_date' including ".sizeof($atim_drug_ids_to_link_to_treatment)." drugs.", $excel_data_references);
+									addCreatedDataToSummary('New Breast Treatment', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : '".$excel_line_data['Treatment Type']."' treatment on '$excel_start_date' including ".sizeof($atim_drug_ids_to_link_to_treatment)." drugs", $excel_data_references);
 									
 								} else {
 									
@@ -963,7 +972,7 @@ foreach($excel_files_names as $file_data) {
 		} // End of breast diagnosis times calculation		
 		
 		//----------------------------------------------------------------------------------------------
-		// Profile : 'other cancer- not Breast' worksheet
+		// Diagnosis & Treatment : 'other cancer- not Breast' worksheet
 		//----------------------------------------------------------------------------------------------
 		
 		$worksheet_name = 'other cancer- not Breast';
@@ -985,7 +994,7 @@ foreach($excel_files_names as $file_data) {
 					
 					$excel_field = 'Cancer Type';
 					$domain_name = 'ctrnet_submission_disease_site';
-					$excel_line_data[$excel_field] = preg_replace('/^(.*)\-(.*)$/', '$1 - $2', $excel_line_data[$excel_field]);
+					$excel_line_data[$excel_field] = preg_replace('/^([^-.]*)\-(.*)$/', '$1 - $2', $excel_line_data[$excel_field]);
 					$excel_other_diagnosis_site = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
 					
 					if(!strlen($excel_other_diagnosis_site)) {
@@ -1000,18 +1009,21 @@ foreach($excel_files_names as $file_data) {
 						//..............................................................................................
 						
 						$dx_detail_tablename = $atim_controls['diagnosis_controls']['primary-other cancer']['detail_tablename'];
+						$diagnosis_control_id = $atim_controls['diagnosis_controls']['primary-other cancer']['id'];
 						$excel_other_diagnosis_data = array('diagnosis_masters' => array(), $dx_detail_tablename => array());
 						
 						$excel_field = 'Date of diagnosis';
+						$excel_field_accuracy = "Dx date Accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 						list($excel_other_diagnosis_data['diagnosis_masters']['dx_date'], $excel_other_diagnosis_data['diagnosis_masters']['dx_date_accuracy']) 
 							= updateDateWithExcelAccuracy(
-								validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
-								$excel_line_data["Dx date Accuracy"]);
+								validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
+								$excel_line_data[$excel_field_accuracy]);	
 						
 						$excel_other_diagnosis_data[$dx_detail_tablename]['disease_site'] = $excel_other_diagnosis_site;
 						
 						$excel_field = 'Development of Metastasis';
-						$excel_other_diagnosis_data[$dx_detail_tablename]['metastasis_development'] = validateAndGetExcelValueFromList($excel_line_data[$excel_field], array('Yes' => 'y', 'No' => 'n', 'Unknown' => ''), true, $summary_section_title, $excel_field, "See $excel_data_references");
+						$excel_other_diagnosis_data[$dx_detail_tablename]['metastasis_development'] = validateAndGetExcelValueFromList($excel_line_data[$excel_field], array('yes' => 'y', 'no' => 'n', 'unknown' => ''), true, $summary_section_title, $excel_field, "See $excel_data_references");
 						
 						$excel_other_diagnosis_data['diagnosis_masters'] = array_filter($excel_other_diagnosis_data['diagnosis_masters']);
 						$excel_other_diagnosis_data[$dx_detail_tablename] = array_filter($excel_other_diagnosis_data[$dx_detail_tablename]);
@@ -1021,39 +1033,36 @@ foreach($excel_files_names as $file_data) {
 							if(!array_key_exists('disease_site', $excel_other_diagnosis_data[$dx_detail_tablename])) {
 								recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Other diagnosis site not defined (or erased by migration script after value check) - No excel diagnosis data will be migrated", "See following participant : $excel_data_references.");
 						
-							} else {
-						
+							} else {					
 								//Add missing information
 						
 								$excel_other_diagnosis_data['diagnosis_masters'] = array_merge(
 									array('participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id'] ,
-										'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-other cancer']['id']),
+										'diagnosis_control_id' => $diagnosis_control_id),
 									$excel_other_diagnosis_data['diagnosis_masters']);
 						
 								//Check diagnosis should be updated or created
 						
 								$atim_other_diagnosis_data = array();
-								if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-									if($excel_other_diagnosis_data['diagnosis_masters']['dx_date'] && $excel_other_diagnosis_data['diagnosis_masters']['dx_date_accuracy'] == 'c') {
-										$query = "SELECT *
-											FROM diagnosis_masters AS DiagnosisMaster
-											INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
-											WHERE DiagnosisMaster.deleted <> 1
-											AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
-											AND DiagnosisMaster.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-breast']['id']."
-											AND DiagnosisMaster.dx_date = '".$excel_other_diagnosis_data['diagnosis_masters']['dx_date']."'
-											AND DiagnosisDetail.disease_site = '".$excel_other_diagnosis_data[$dx_detail_tablename]['disease_site']."';";
-										$query_data = getSelectQueryResult($query);
-										if($query_data) {
-											if(sizeof($query_data) > 2) {
-												// Two diagnoses matched the file diagnosis based on date and type of intervention
-												recordErrorAndMessage($summary_section_title, '@@ERROR@@', "More than one ATiM other diagnosis matches the excel participant diagnosis based on date and the site - System will only compare excel data to the first ATiM record and update data of this one if required.", "See other diagnosis for following participant : $excel_data_references.");
-											}
-											$atim_other_diagnosis_data = $query_data[0];
-										}
-									} else {
-										//No diagnosis date : Create a new diagnosis
-										recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Diagnosis date is not set or is approximate - A new other diagnosis will be created (no update).", "See diagnosis for following participant : $excel_data_references.");
+								$query = "SELECT *
+									FROM diagnosis_masters AS DiagnosisMaster
+									INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
+									WHERE DiagnosisMaster.deleted <> 1
+									AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+									AND DiagnosisMaster.diagnosis_control_id = $diagnosis_control_id
+									AND (".(isset($excel_other_diagnosis_data['diagnosis_masters']['dx_date'])?
+										"DiagnosisMaster.dx_date = '".$excel_other_diagnosis_data['diagnosis_masters']['dx_date']."' AND DiagnosisMaster.dx_date_accuracy = '".$excel_other_diagnosis_data['diagnosis_masters']['dx_date_accuracy']."'"
+										: 'TRUE').")
+									AND DiagnosisDetail.disease_site = '".str_replace("'", "''", $excel_other_diagnosis_data[$dx_detail_tablename]['disease_site'])."';";
+								$query_data = getSelectQueryResult($query);
+								if($query_data) {
+									if(sizeof($query_data) > 2) {
+										// Two diagnoses matched the file diagnosis based on date and type of intervention
+										recordErrorAndMessage($summary_section_title, '@@ERROR@@', "More than one ATiM other diagnosis matches the excel participant diagnosis based on date and the site - System will only compare excel data to the first ATiM record and update data of this one if required.", "See other diagnosis for following participant : $excel_data_references.");
+									}
+									$atim_other_diagnosis_data = $query_data[0];
+									if(!isset($excel_other_diagnosis_data['diagnosis_masters']['dx_date_accuracy']) || $excel_other_diagnosis_data['diagnosis_masters']['dx_date_accuracy'] != 'c') {
+										recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An ATiM other diagnosis matches the excel participant diagnosis based on date and the site - But date is unknown or unlcear. Please confrim.", "See other diagnosis for following participant : $excel_data_references.");
 									}
 								}
 						
@@ -1062,7 +1071,7 @@ foreach($excel_files_names as $file_data) {
 									// 3.a - OTHER DIAGNOSIS CREATION
 								
 									$diagnosis_master_id = customInsertRecord($excel_other_diagnosis_data);
-									addCreatedDataToSummary('New Other Diagnosis', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Site '".$excel_other_diagnosis_data[$dx_detail_tablename]['disease_site']."' on '".$excel_other_diagnosis_data['diagnosis_masters']['dx_date']."'.", $excel_data_references);
+									addCreatedDataToSummary('New Other Diagnosis', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Site '".$excel_other_diagnosis_data[$dx_detail_tablename]['disease_site']."' on '".(isset($excel_other_diagnosis_data['diagnosis_masters']['dx_date'])? $excel_other_diagnosis_data['diagnosis_masters']['dx_date'] : '?')."'", $excel_data_references);
 								
 								} else {
 										
@@ -1084,33 +1093,33 @@ foreach($excel_files_names as $file_data) {
 						//..............................................................................................
 						
 						$dx_detail_tablename = $atim_controls['diagnosis_controls']['primary-other cancer progression']['detail_tablename'];
-						
-						$value_matches = array('LN' => 'ln',
-							'Soft Tissue (lung, liver, brain)' => 'soft tissue',
-							'Soft Tissue' => 'soft tissue',
-							'Bone' => 'bone',
-							'Multiple sites' => 'multiple sites');
+						$diagnosis_control_id = $atim_controls['diagnosis_controls']['primary-other cancer progression']['id'];
+								
+						$value_matches = array('ln' => 'ln',
+							'soft tissue (lung, liver, brain)' => 'soft tissue',
+							'soft tissue' => 'soft tissue',
+							'bone' => 'bone',
+							'multiple sites' => 'multiple sites',
+							'na' => '');
 						$excel_field = 'Metastastasis site(s)';
 						$excel_other_diagnosis_progression_site = validateAndGetExcelValueFromList($excel_line_data[$excel_field], $value_matches, true, $summary_section_title, $excel_field, "See $excel_data_references");
 						
-						if($excel_other_diagnosis_progression_site) {
-							
+						if($excel_other_diagnosis_progression_site) {					
+						
 							//Check diagnosis should be created
 							
 							$create_new_other_diagnosis_progression = true;
-							if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-								$query = "SELECT *
-									FROM diagnosis_masters AS DiagnosisMaster
-									INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
-									WHERE DiagnosisMaster.deleted <> 1
-									AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
-									AND DiagnosisMaster.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-other cancer progression']['id']."
-									AND DiagnosisDetail.primary_disease_site = '$excel_other_diagnosis_site'
-									AND DiagnosisDetail.secondary_disease_site = '$excel_other_diagnosis_progression_site';";
-								$query_data = getSelectQueryResult($query);
-								if($query_data) {
-									$create_new_other_diagnosis_progression = false;
-								}
+							$query = "SELECT *
+								FROM diagnosis_masters AS DiagnosisMaster
+								INNER JOIN $dx_detail_tablename AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
+								WHERE DiagnosisMaster.deleted <> 1
+								AND DiagnosisMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+								AND DiagnosisMaster.diagnosis_control_id = $diagnosis_control_id
+								AND DiagnosisDetail.primary_disease_site = '".str_replace("'", "''", $excel_other_diagnosis_site)."'
+								AND DiagnosisDetail.secondary_disease_site = '$excel_other_diagnosis_progression_site';";
+							$query_data = getSelectQueryResult($query);
+							if($query_data) {
+								$create_new_other_diagnosis_progression = false;
 							}
 							
 							if($create_new_other_diagnosis_progression) {
@@ -1120,12 +1129,12 @@ foreach($excel_files_names as $file_data) {
 								$excel_other_diagnosis_data = array(
 									'diagnosis_masters' => array(
 										'participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id'] ,
-										'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-other cancer progression']['id']),
+										'diagnosis_control_id' => $diagnosis_control_id),
 									 $dx_detail_tablename => array(
 									 	'primary_disease_site' => $excel_other_diagnosis_site,
 									 	'secondary_disease_site' => $excel_other_diagnosis_progression_site));
 								$diagnosis_master_id = customInsertRecord($excel_other_diagnosis_data);
-								addCreatedDataToSummary('New Other Diagnosis Progression', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Site '$excel_other_diagnosis_progression_site' of '$excel_other_diagnosis_site' other diagnosis.", $excel_data_references);
+								addCreatedDataToSummary('New Other Diagnosis Progression', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Site '$excel_other_diagnosis_progression_site' of '$excel_other_diagnosis_site' other diagnosis", $excel_data_references);
 							
 							}
 						}
@@ -1134,20 +1143,25 @@ foreach($excel_files_names as $file_data) {
 						//..............................................................................................
 						
 						$tx_detail_tablename= $atim_controls['treatment_controls']['other cancer']['detail_tablename'];
+						$treatment_control_id = $atim_controls['treatment_controls']['other cancer']['id'];
 						
 						$excel_field = 'Cancer treated by';
 						$domain_name = 'qbcf_txd_other_cancer_treatments';
 						$excel_other_diagnosis_treatment_type = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
 						
 						$excel_field = 'Treatment Date Start';
+						$excel_field_accuracy = "Start Date Accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 						list($excel_start_date, $excel_start_date_accuracy) = updateDateWithExcelAccuracy(
-							validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
-							$excel_line_data["Start Date Accuracy"]);
+							validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
+							$excel_line_data[$excel_field_accuracy]);
 							
 						$excel_field = 'Treatment End Date';
+						$excel_field_accuracy = "End Date Accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
 						list($excel_finish_date, $excel_finish_date_accuracy) = updateDateWithExcelAccuracy(
-							validateAndGetDateAndAccuracy(reformateDate($excel_line_data[$excel_field]), $summary_section_title, $excel_field, "See $excel_data_references"),
-							$excel_line_data["End Date Accuracy"]);
+							validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
+							$excel_line_data[$excel_field_accuracy]);
 						
 						if(!strlen($excel_other_diagnosis_treatment_type) && $excel_start_date) {
 							recordErrorAndMessage($summary_section_title, '@@ERROR@@', "No other diagnosis treatment type set but a treatment date is set - No treatment will be created.", "See other diagnosis treatment for following participant : $excel_data_references.");
@@ -1157,7 +1171,7 @@ foreach($excel_files_names as $file_data) {
 							$excel_treatment_data = array(
 								'treatment_masters' => array(
 									'participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id'] ,
-									'treatment_control_id' => $atim_controls['treatment_controls']['other cancer']['id'],
+									'treatment_control_id' => $treatment_control_id,
 									'start_date' => $excel_start_date,
 									'start_date_accuracy' => $excel_start_date_accuracy,
 									'finish_date' => $excel_finish_date,
@@ -1169,28 +1183,25 @@ foreach($excel_files_names as $file_data) {
 							//Check treatment should be updated or created
 							
 							$atim_treatment_data = array();
-							if(!$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['is_new_patient']) {
-								if($excel_start_date && $excel_start_date_accuracy == 'c') {
-									$query = "SELECT TreatmentMaster.*, TreatmentDetail.*
-										FROM treatment_masters AS TreatmentMaster
-										INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
-										WHERE TreatmentMaster.deleted <> 1
-										AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
-										AND TreatmentMaster.treatment_control_id = ".$atim_controls['treatment_controls']['other cancer']['id']."
-										AND TreatmentMaster.start_date = '$excel_start_date'
-										AND TreatmentDetail.cancer_site = '$excel_other_diagnosis_site'
-										AND TreatmentDetail.type = '$excel_other_diagnosis_treatment_type';";
-									$query_data = getSelectQueryResult($query);
-									if($query_data) {
-										if(sizeof($query_data) > 2) {
-											// Two treatments matched the file treatment based on date and type
-											recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM other diagnosis treatment matches the excel treatment based on the start date, the type of the other cancer and the type of the treatment - System will only compare excel data to the first ATiM record and update data of this one if required.", "See '$excel_other_diagnosis_treatment_type' treatment for following participant : $excel_data_references.");
-										}
-										$atim_treatment_data = $query_data[0];
-									}
-								} else {
-									//No start date : Create a new treatment
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Treatment date is not set or is approximate - A new treatment will be created (no update).", "See '$excel_other_diagnosis_treatment_type' treatment for following participant : $excel_data_references.");
+							$query = "SELECT TreatmentMaster.*, TreatmentDetail.*
+								FROM treatment_masters AS TreatmentMaster
+								INNER JOIN ".$tx_detail_tablename." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+								WHERE TreatmentMaster.deleted <> 1
+								AND TreatmentMaster.participant_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id']."
+								AND TreatmentMaster.treatment_control_id = $treatment_control_id
+								AND TreatmentMaster.start_date = '$excel_start_date'
+								AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy'
+								AND TreatmentDetail.cancer_site = '".str_replace("'", "''", $excel_other_diagnosis_site)."'
+								AND TreatmentDetail.type = '$excel_other_diagnosis_treatment_type';";
+							$query_data = getSelectQueryResult($query);
+							if($query_data) {
+								if(sizeof($query_data) > 2) {
+									// Two treatments matched the file treatment based on date and type
+									recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "More than one ATiM other diagnosis treatment matches the excel treatment based on the start date, the type of the other cancer and the type of the treatment - System will only compare excel data to the first ATiM record and update data of this one if required.", "See '$excel_other_diagnosis_treatment_type' treatment for following participant : $excel_data_references.");
+								}
+								$atim_treatment_data = $query_data[0];
+								if($excel_start_date_accuracy != 'c') {
+									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM other diagnosis treatment matches the excel treatment based on the start date, the type of the other cancer and the type of the treatment - But date is unlcear. Please confrim.", "See '$excel_other_diagnosis_treatment_type' treatment for following participant : $excel_data_references.");
 								}
 							}
 							
@@ -1199,7 +1210,7 @@ foreach($excel_files_names as $file_data) {
 								// 5.a - OTHER DIAGNOSIS TREATMENT CREATION
 									
 								$treatment_master_id = customInsertRecord($excel_treatment_data);
-								addCreatedDataToSummary('New Breast Treatment', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : '$excel_other_diagnosis_treatment_type' treatment on '$excel_start_date'.", $excel_data_references);
+								addCreatedDataToSummary('New Breast Treatment', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : '$excel_other_diagnosis_treatment_type' treatment on '$excel_start_date'", $excel_data_references);
 							
 							} else {
 							
@@ -1218,28 +1229,153 @@ foreach($excel_files_names as $file_data) {
 				}
 			}
 		} // End 'other cancer- not Breast' worksheet
+		
+		//----------------------------------------------------------------------------------------------
+		// Inventory : 'Inventory - FFPE block sent' worksheet
+		//----------------------------------------------------------------------------------------------
+		
+		$worksheet_name = 'Inventory - FFPE block sent';
+		$summary_section_title = 'Block Creation';
+		while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1, $excel_xls_offset)) {
+			if($line_number > 3 && strlen($excel_line_data['Patient # in biobank'])) {
+				$qbcf_bank_participant_identifier = $excel_line_data['Patient # in biobank'];
+				$excel_data_references = "Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>' & Excel '<b>$excel_file_name_for_ref</b>' & Line '<b>$line_number</b>' & Worksheet '<b>$worksheet_name</b>'";
+		
+				if(!isset($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier])) {
+		
+					// 1- PARTICIPANT DETECTION ERROR
+		
+					recordErrorAndMessage('Participant Detection', '@@ERROR@@', "Patient of '".$worksheet_name."' worksheet not defined into the 'patient' worksheet - No excel inventory data will be migrated", "See following participant : $excel_data_references.");
+		
+				} else {
+						
+					//Check cancer type
+						
+					$excel_pathology_nbr = $excel_line_data['Pathology ID number'];
+					$excel_block_id = $excel_line_data['Block ID'];
+					
+					if(!strlen($excel_pathology_nbr) || !strlen($excel_block_id)) {
+							
+						// 2- BLOCK LABEL ERROR
+		
+						recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The Pathology ID or the Block ID is missing - No excel inventory data will be migrated", "See data for following participant : $excel_data_references.");
+							
+					} else {
+		
+						// 3- OTHER DIAGNOSIS
+						
+						$excel_aliquot_label = $excel_pathology_nbr.' '.$excel_block_id;						
+						
+						$query = "SELECT DISTINCT AliquotMaster.barcode
+							FROM participants Participant
+							INNER JOIN collections Collection ON Collection.participant_id = Participant.id
+							INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id
+							WHERE Participant.deleted <> 1
+							AND AliquotMaster.deleted <> 1
+							AND Participant.qbcf_bank_id = '$qbcf_bank_id' 
+							AND AliquotMaster.aliquot_label = '$excel_aliquot_label';";
+						$query_data = getSelectQueryResult($query);
+						
+						if($query_data) {
+							// Block already created
+							recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Banq block already exist into ATiM (based on 'Pathology ID number' + 'Block ID' and the bank) - No update will be done. Please confirm and create block if required.", "See block '$excel_aliquot_label' for following participant : $excel_data_references.");
+						
+						} else {
+							
+							// Create new collection or use an old one
+							
+							$excel_field = 'Date of FFPE block sent';
+							$excel_field_accuracy = "Date of FFPE block sent - accuracy";
+							reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
+							list($reception_datetime, $reception_datetime_accuracy)
+								= updateDateWithExcelAccuracy(
+									validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
+									$excel_line_data["Date of FFPE block sent - accuracy"]);
+							$reception_datetime_accuracy = str_replace('c', 'h', $reception_datetime_accuracy);
+								
+							$query = "SELECT DISTINCT Collection.id
+								FROM participants Participant
+								INNER JOIN collections Collection ON Collection.participant_id = Participant.id
+								WHERE Participant.deleted <> 1
+								AND Participant.qbcf_bank_id = '$qbcf_bank_id'
+								AND Participant. qbcf_bank_participant_identifier = '$qbcf_bank_participant_identifier'
+								AND collection_datetime = '$reception_datetime'
+								AND collection_datetime_accuracy = '$reception_datetime_accuracy'
+								AND (".($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_diagnosis_id']? 'Collection.diagnosis_master_id = '.$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_diagnosis_id']: 'TRUE').");";
+							$query_data = getSelectQueryResult($query);
+							
+							$collection_id = null;
+							if(strlen($reception_datetime) && $query_data) {
+								$collection_id = $query_data[0]['id'];
+							} else {
+								$collection_data = array(
+									'collection_property' => 'participant collection',
+									'participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id'],
+									'diagnosis_master_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_diagnosis_id'],
+									'collection_datetime' => $reception_datetime,
+									'collection_datetime_accuracy' => $reception_datetime_accuracy);
+								$collection_id = customInsertRecord(array('collections' => $collection_data));
+							}
+							
+							// Create one tissue sample per block
+							
+							$excel_field = 'Laterality of specimen';
+							$domain_name = 'tissue_laterality';
+							$tissue_laterality = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
+							
+							$excel_field = 'Type of specimen';
+							$domain_name = 'qbcf_tissue_natures';
+							$tissue_nature = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
+								
+							$created_sample_counter++;
+							$sample_data = array(
+								'sample_masters' => array(
+									"sample_code" => 'tmp_tissue_'.$created_sample_counter,
+									"sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
+									"initial_specimen_sample_type" => 'tissue',
+									"collection_id" => $collection_id),
+								'specimen_details' => array(
+									'reception_datetime' => $reception_datetime,
+									'reception_datetime_accuracy' => $reception_datetime_accuracy),
+								$atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
+									'tissue_source' => 'breast',
+									'tissue_nature' => $tissue_nature,
+									'tissue_laterality' => $tissue_laterality));
+							$sample_master_id = customInsertRecord($sample_data);
+							
+							// Create block
+							
+							$created_aliquot_counter++;
+							$aliquot_data = array(
+								'aliquot_masters' => array(
+									"barcode" => 'tmp_core_'.$created_aliquot_counter,
+									"aliquot_label" => $excel_aliquot_label,
+									"aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-block']['id'],
+									"collection_id" => $collection_id,
+									"sample_master_id" => $sample_master_id,
+									'in_stock' => 'yes - available',
+									'in_stock_detail' => ''),
+								$atim_controls['aliquot_controls']['tissue-block']['detail_tablename'] => array());
+							customInsertRecord($aliquot_data);
+							
+							addCreatedDataToSummary('New Block', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_aliquot_label'", $excel_data_references);
+						}
+					}
+				}
+			}
+		} // End 'Inventory - FFPE block sent' worksheet
 	}
 } // End new excel file
 	
-	
-	
 
-
-
-
-
-	
-	
-	
 $last_queries_to_execute = array(
 	"UPDATE participants SET participant_identifier = id WHERE participant_identifier = '' OR participant_identifier IS NULL;",
-	"UPDATE diagnosis_masters SET primary_id = id WHERE primary_id IS NULL AND parent_id IS NULL;");
+	"UPDATE diagnosis_masters SET primary_id = id WHERE primary_id IS NULL AND parent_id IS NULL;",
+	"UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE sample_control_id=". $atim_controls['sample_controls']['tissue']['id']." AND sample_code LIKE 'tmp_tissue_%';",
+	"UPDATE aliquot_masters SET barcode=id WHERE aliquot_control_id=".$atim_controls['aliquot_controls']['tissue-block']['id']." AND barcode LIKE 'tmp_core_%';",
+	"UPDATE versions SET permissions_regenerated = 0;"
+);
 foreach($last_queries_to_execute as $query)	customQuery($query);
-
-
-
-
-
 
 //*** SUMMARY DISPLAY ***
 
@@ -1263,8 +1399,14 @@ dislayErrorAndMessage(true, 'Creation/Update Summary');
 // CUSTOM FUNCTIONS
 //==================================================================================================================================================================================
 
-function reformateDate($date) {
-	return str_replace(array('-mm', '-dd', '-jj'), array('', '', ''), $date);
+function reformatExcelDate(&$excel_line_data, $excel_field, $excel_field_accuracy) {
+	if(!array_key_exists($excel_field, $excel_line_data) || !array_key_exists($excel_field_accuracy, $excel_line_data)) { die('ERR8839393930'); }
+	if(preg_match('/^[0-9]{4}\-mm\-dd$/', $excel_line_data[$excel_field]) || preg_match('/^[0-9]{4}\-mm\-jj$/', $excel_line_data[$excel_field])) {
+		$excel_line_data[$excel_field_accuracy] = 'y';
+	} else if(preg_match('/^[0-9]{4}\-[0-9]{2}\-dd$/', $excel_line_data[$excel_field]) || preg_match('/^[0-9]{4}\-[0-9]{2}\-jj$/', $excel_line_data[$excel_field])) {
+		$excel_line_data[$excel_field_accuracy] = 'm';
+	}
+	$excel_line_data[$excel_field] = str_replace(array('mm', 'dd', 'jj'), array('01', '01', '01'), $excel_line_data[$excel_field]);
 }
 
 function updateDateWithExcelAccuracy($validated_excel_date, $excel_accuracy_field_value){

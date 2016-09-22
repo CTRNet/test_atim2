@@ -161,17 +161,17 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 						$all_warnings["'time to first progression' cannot be calculated on inaccurate dates"][$dx_date] = $dx_date;
 					}
 				}
-				//Update data
-				$diagnosis_detail_to_update = array();
-				if($new_time_to_last_contact_months != $new_breast_dx['DiagnosisDetail']['time_to_last_contact_months']) $diagnosis_detail_to_update['time_to_last_contact_months'] = $new_time_to_last_contact_months;
-				if($new_time_to_first_progression_months != $new_breast_dx['DiagnosisDetail']['time_to_first_progression_months']) $diagnosis_detail_to_update['time_to_first_progression_months'] = $new_time_to_first_progression_months;
-				if($diagnosis_detail_to_update) {
-					$this->data = array();
-					$this->id = $new_breast_dx['DiagnosisMaster']['id'];
-					if(!$this->save(array('DiagnosisMaster' => array(), 'DiagnosisDetail' => $diagnosis_detail_to_update))) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );					
-				}
 			} else {
 				$all_warnings["at least one breast diagnosis date is unknown - the 'time to' values cannot be calculated for 'un-dated' diagnosis"] = array();
+			}
+			//Update data
+			$diagnosis_detail_to_update = array();
+			if($new_time_to_last_contact_months != $new_breast_dx['DiagnosisDetail']['time_to_last_contact_months']) $diagnosis_detail_to_update['time_to_last_contact_months'] = $new_time_to_last_contact_months;
+			if($new_time_to_first_progression_months != $new_breast_dx['DiagnosisDetail']['time_to_first_progression_months']) $diagnosis_detail_to_update['time_to_first_progression_months'] = $new_time_to_first_progression_months;
+			if($diagnosis_detail_to_update) {
+				$this->data = array();
+				$this->id = $new_breast_dx['DiagnosisMaster']['id'];
+				if(!$this->save(array('DiagnosisMaster' => array(), 'DiagnosisDetail' => $diagnosis_detail_to_update))) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );					
 			}
 		}
 		foreach($all_warnings as $new_warning => $all_dx_dates) AppController::getInstance()->addWarningMsg(__($new_warning).($all_dx_dates? ' - '.str_replace('%s', implode(', ', $all_dx_dates), __('see diagnosis done on %s')) : ''));
