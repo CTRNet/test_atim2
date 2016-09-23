@@ -225,7 +225,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		
 		// 1-Participant
 		
-		if(AppController::checkLinkPermission('/ClinicalAnnotation/Participants/detail/')){
+		if(AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile/')){
 			$participant = $this->Participant->find('first', array('conditions' => array('Participant.id' => $participant_id)));
 			$chronolgy_data_participant_birth = array(
 				'date'			=> $participant['Participant']['date_of_birth'],

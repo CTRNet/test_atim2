@@ -470,13 +470,12 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @updated N. Luc
 	 */
 	function getDefaultStorageDate($sample_master_data) {
-		$collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+		
 		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
 		$derivative_detail_model = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
 		switch($sample_master_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				// Default creation date will be the specimen reception date
-				$collection_data = $collection_model->getOrRedirect($sample_master_data['SampleMaster']['collection_id']);
 				$sample_master = $sample_master_model->getOrRedirect($sample_master_data['SampleMaster']['id']);
 				return $sample_master['SpecimenDetail']['reception_datetime'];
 				
