@@ -444,11 +444,6 @@ UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_
 -- TMA Slide
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
--- Specific update to add slide to order
-
-UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'input');
-UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
-
 -- Activate OrderItem to TmaSlide databrowser link
 
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
@@ -479,7 +474,7 @@ VALUES
 (@control_id, 'Jason Miro', '', '', 0, 1),
 (@control_id, 'Dr Champlain', '', '', 0, 1),
 (@control_id, 'Dr Vanorm', '', '', 0, 1);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = ' Orders Institutions');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Orders Institutions');
 REPLACE INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `fr`, `display_order`, `use_as_input`) 
 VALUES
 (@control_id, 'R.O.R.', '', '', 0, 1),
