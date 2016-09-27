@@ -144,12 +144,10 @@
 --		TODO:
 --
 --		Note the OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(): Check if custom code has to be update or not.
---		Set core variable 'order_item_type_config' plus run following queries to let user to link a TMA slide to an order:
---			UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'input');
---			UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
---			UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+--		Set core variable 'order_item_type_config' to define the type(s) of item that could be added to order (both tma slide and aliquot, aliquot only, tma slide only). The field display properties (flag_index, etc)
+--      of the following forms 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' will be updated by the AppController.newVersionSetup() function based on the 'order_item_type_config' value.
 --		Activate databrowser links if required plus review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
---      Update $table_querie variables of theViewAliquotUseCustom model (if exists).
+--      Update $table_querie variable of the ViewAliquotUseCustom model (if exists).
 --
 --   ### 9 # New Sample and aliquot controls
 --
@@ -1543,6 +1541,104 @@ DELETE FROM `structure_permissible_values_customs`
 WHERE control_id = @control_id
 AND `value` IN (SELECT storage_type from storage_controls WHERE storage_type regexp('^demo[0-9]+$') AND flag_active <> 1);
 DELETE FROM storage_controls WHERE storage_type regexp('^demo[0-9]+$') AND flag_active <> 1;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Fix bug on specimen_review_controls to aliquot_review_controls foreign key
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE `specimen_review_controls` DROP FOREIGN KEY FK_specimen_review_controls_specimen_review_controls;
+ALTER TABLE `specimen_review_controls`
+  ADD CONSTRAINT `FK_specimen_review_controls_aliquot_review_controls` FOREIGN KEY (`aliquot_review_control_id`) REFERENCES `aliquot_review_controls` (`id`);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change aliquot_review_controls.aliquot_type_restriction from enum to varchar to let developper to add many aliquot types 
+-- separated by coma(s)
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE aliquot_review_controls MODIFY aliquot_type_restriction varchar(50) NOT NULL  DEFAULT 'all';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Remove dupliacted field aliquot label in item added to shipmentitems and orderitems form
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SET @structure_format_id = (SELECT id FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='shippeditems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `language_label`='aliquot label' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') LIMIT 0 ,1);
+DELETE FROM structure_formats WHERE id = @structure_format_id;
+
+SET @structure_format_id = (SELECT id FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `language_label`='aliquot label' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') LIMIT 0 ,1);
+DELETE FROM structure_formats WHERE id = @structure_format_id;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Simplify way we display fields in order tool based on the core variable 'order_item_type_config' value
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr)
+VALUES
+("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'.",
+"Structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'.",
+"Les structures 'shippeditems', 'orderitems', 'orderitems_returned' et 'orderlines' ont été mises à jour en fonction de la valeur de la variable'order_item_type_config'.");
+
+-- order line clean up
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `language_label`='product type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `language_label`='product type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `language_label`='product type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type_from_id') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `language_label`='' AND `language_tag`='-' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type_from_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `language_label`='' AND `language_tag`='is tma slide' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `language_label`='' AND `language_tag`='is tma slide' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `language_label`='' AND `language_tag`='is tma slide' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Évenement congélo à appliquer à tous....
+Search on float field with comma
+Gérer les default date avec des accuracy ex creation date
+la traduction de sop_controls.sop_group, type ne semble pas être adequate
+chager administarte group par group (users & permission)
+
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
