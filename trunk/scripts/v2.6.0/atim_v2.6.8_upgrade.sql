@@ -1592,11 +1592,25 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `language_label`='' AND `language_tag`='is tma slide' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `language_label`='' AND `language_tag`='is tma slide' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change title of menu '/Administrate/Groups/index'
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE menus SET language_title = 'groups - users - permissions' WHERE  use_link = '/Administrate/Groups/index' AND language_title = 'groups';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('groups - users - permissions', 'Groups (Users & Permissions)', 'Groupes (Utilisateurs & Permissions)');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Move 'Search Type: Users' form under '/Administrate/Groups/index' menu.
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+DELETE FROM menus WHERE use_link LIKE '/Administrate/AdminUsers/search/';
 
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Missing i18n data
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('error','Error', 'Erreur');
 
 
 
@@ -1634,11 +1648,7 @@ mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
 
 
 Évenement congélo à appliquer à tous....
-Search on float field with comma
 Gérer les default date avec des accuracy ex creation date
-la traduction de sop_controls.sop_group, type ne semble pas être adequate
-chager administarte group par group (users & permission)
-
 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
