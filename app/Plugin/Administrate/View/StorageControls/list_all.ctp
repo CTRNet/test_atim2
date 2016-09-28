@@ -4,7 +4,7 @@
 		'index'=>array(
 			'edit' => '/Administrate/StorageControls/edit/%%StorageCtrl.id%%/',
 			'copy' => '/Administrate/StorageControls/add/0/%%StorageCtrl.id%%/',
-			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/%%StorageCtrl.id%%/', 'icon' => 'confirm'),
+			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/%%StorageCtrl.id%%/listAll/', 'icon' => 'confirm'),
 			'see layout' => array('link' => '/Administrate/StorageControls/seeStorageLayout/%%StorageCtrl.id%%/', 'icon' => 'grid')
 		),
 		'bottom'=>array('add' => array(
