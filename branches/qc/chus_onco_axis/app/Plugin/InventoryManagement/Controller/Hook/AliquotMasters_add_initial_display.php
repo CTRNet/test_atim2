@@ -11,7 +11,8 @@
 	$default_data = array();
 	$tmp_study_data_for_display_from_id = array();
 	foreach($this->request->data as &$tmp_new_sample_set) {
-		$tmp_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $tmp_new_sample_set['parent']['ViewSample']['sample_master_id']), 'recursive' => '0'));
+		$tmp_parent_sample_master_id = $tmp_new_sample_set['parent']['ViewSample']['sample_master_id'];
+		$tmp_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $tmp_parent_sample_master_id), 'recursive' => '0'));
 		
 		// 1- aliquot_label + volume
 		
@@ -22,15 +23,15 @@
 			case 'tissue-tube':
 				$tubes_to_create = 6;
 				$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'F';
-				$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotDetail.chus_storage_solution'] = 'none (fresh frozen)';
-				$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotDetail.chus_storage_method'] = 'snap frozen';
-				$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotDetail.chus_tissue_size_mm'] = '3X3X3';
-				$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotDetail.chus_tissue_weight_mg'] = '75';
+				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_solution'] = 'none (fresh frozen)';
+				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_method'] = 'snap frozen';
+				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_size_mm'] = '3X3X3';
+				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_weight_mg'] = '75';
 				break;
 			case 'tissue-block':
 				$tubes_to_create = 1;
 				$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'O';
-				$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotDetail.block_type'] = 'OCT';
+				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.block_type'] = 'OCT';
 				break;
 			case 'tissue-slide':
 				$tubes_to_create = 1;
@@ -43,7 +44,7 @@
 						($tmp_sample_data['SampleDetail']['blood_type'] == 'EDTA'?
 								'E' :
 								(preg_match('/heparin/', $tmp_sample_data['SampleDetail']['blood_type'])? 'H' : ''));
-				$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotMaster.initial_volume'] = '500';
+				$default_data[$tmp_parent_sample_master_id]['AliquotMaster.initial_volume'] = '500';
 				break;
 			
 			case 'plasma-tube':
@@ -58,7 +59,7 @@
 					($tmp_sample_data['SampleControl']['sample_type'] == 'plasma'? 
 							'-P' : 
 							($tmp_sample_data['SampleControl']['sample_type'] == 'buffy coat'? '-B' : '-?'));
-				$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotMaster.initial_volume'] = '500';
+				$default_data[$tmp_parent_sample_master_id]['AliquotMaster.initial_volume'] = '500';
 				break;
 			
 			case 'dna-tube':
@@ -91,14 +92,16 @@
 			$tmp_new_sample_set['children'][]['AliquotMaster']['aliquot_label'] = $default_aliquot_label.'-'.sprintf("%02d", $next_suffix);
 			$next_suffix++;
 		}
-		$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['AliquotMaster.aliquot_label'] = $default_aliquot_label;		
+		$default_data[$tmp_parent_sample_master_id]['AliquotMaster.aliquot_label'] = $default_aliquot_label;		
 		
 		// 2- study_summary_id
 		
 		if($tmp_new_sample_set['parent']['ViewSample']['chus_default_collection_study_summary_id']) {
 			$chus_default_collection_study_summary_id = $tmp_new_sample_set['parent']['ViewSample']['chus_default_collection_study_summary_id'];
 			if(!isset($tmp_study_data_for_display_from_id[$chus_default_collection_study_summary_id])) $tmp_study_data_for_display_from_id[$chus_default_collection_study_summary_id] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $chus_default_collection_study_summary_id)));
-			$default_data[$tmp_new_sample_set['parent']['ViewSample']['sample_master_id']]['FunctionManagement.autocomplete_aliquot_master_study_summary_id'] = $tmp_study_data_for_display_from_id[$chus_default_collection_study_summary_id];
+			$default_data[$tmp_parent_sample_master_id]['FunctionManagement.autocomplete_aliquot_master_study_summary_id'] = $tmp_study_data_for_display_from_id[$chus_default_collection_study_summary_id];
+			$default_data[$tmp_parent_sample_master_id]['AliquotMaster.in_stock'] = 'yes - not available';
+			$default_data[$tmp_parent_sample_master_id]['AliquotMaster.in_stock_detail'] = 'reserved for study';
 		}
 	}
 	$this->set('default_data', $default_data);
