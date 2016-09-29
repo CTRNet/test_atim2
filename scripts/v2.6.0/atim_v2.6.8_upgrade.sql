@@ -178,6 +178,10 @@
 --		Run following query to detect errors
 --			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
 --
+--   ### 13 # Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
+--
+--      And used new feature developped according to issue #3320 (Be able to override date/datetime field with approximate date adding field_accuracy value to options) to display default approximate date
+--
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1605,51 +1609,11 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('groups - users - permissions', 'Grou
 
 DELETE FROM menus WHERE use_link LIKE '/Administrate/AdminUsers/search/';
 
-
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Missing i18n data
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('error','Error', 'Erreur');
-
-
-
-
-
-
-
-
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Évenement congélo à appliquer à tous....
-Gérer les default date avec des accuracy ex creation date
-
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
@@ -1658,4 +1622,4 @@ Gérer les default date avec des accuracy ex creation date
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'????','n/a');
+('2.6.8', NOW(),'6548','n/a');
