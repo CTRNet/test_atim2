@@ -6,6 +6,13 @@
 	$all_banks = array();
 	foreach($banks = $bank_model->find('all') as $new_bank) $all_banks[$new_bank['Bank']['id']] = $new_bank;
 	
+	//Get the name of the template if tempalte is used
+	$system_template = '';
+	if(isset($this->passedArgs['templateInitId'])) {
+		$tmp_template_session_data = $this->Session->read('Template.init_data.'.$this->passedArgs['templateInitId']);
+		if(isset($tmp_template_session_data['FunctionManagement']['chus_tempalte_name'])) $system_template = $tmp_template_session_data['FunctionManagement']['chus_tempalte_name'];
+	}
+	
 	//Set default data
 	
 	$default_data = array();
@@ -13,6 +20,7 @@
 	foreach($this->request->data as &$tmp_new_sample_set) {
 		$tmp_parent_sample_master_id = $tmp_new_sample_set['parent']['ViewSample']['sample_master_id'];
 		$tmp_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $tmp_parent_sample_master_id), 'recursive' => '0'));
+		$add_aliquot_label_suffix = true;
 		
 		// 1- aliquot_label + volume
 		
@@ -21,21 +29,45 @@
 		$next_suffix = null;
 		switch($tmp_sample_data['SampleControl']['sample_type'].'-'.$aliquot_control['AliquotControl']['aliquot_type']) {
 			case 'tissue-tube':
-				$tubes_to_create = 6;
-				$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'F';
-				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_solution'] = 'none (fresh frozen)';
-				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_method'] = 'snap frozen';
-				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_size_mm'] = '3X3X3';
-				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_weight_mg'] = '75';
+				if($system_template == 'Tissue Post-Chirurgie') {
+					$fresh_frozen_default_aliquot_label = $default_aliquot_label.'-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'F';
+					$organoid_default_aliquot_label = $default_aliquot_label.'-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'OR';
+					$tmp_fresh_frozen_tube_nbr = $this->AliquotMaster->find('count', array('conditions' => array("AliquotMaster.collection_id" => $tmp_new_sample_set['parent']['ViewSample']['collection_id'], "AliquotMaster.aliquot_label LIKE '$fresh_frozen_default_aliquot_label%'")));
+					$tmp_organoid_tube_nbr = $this->AliquotMaster->find('count', array('conditions' => array("AliquotMaster.collection_id" => $tmp_new_sample_set['parent']['ViewSample']['collection_id'], "AliquotMaster.aliquot_label LIKE '$organoid_default_aliquot_label%'")));
+					if(!$tmp_fresh_frozen_tube_nbr && !$tmp_organoid_tube_nbr) {
+						$tubes_to_create = 6;
+						$default_aliquot_label = $fresh_frozen_default_aliquot_label;
+						$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_solution'] = 'none (fresh frozen)';
+						$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_method'] = 'snap frozen';
+						$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_size_mm'] = '3X3X3';
+						$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_weight_mg'] = '75';
+					} else if($tmp_fresh_frozen_tube_nbr && !$tmp_organoid_tube_nbr) {
+						$tubes_to_create = 1;
+						$default_aliquot_label = $organoid_default_aliquot_label;
+						$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_solution'] = 'organoid solution';
+					} else {
+						$tubes_to_create = 1;
+						$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'?';
+					}
+				} else {
+					$tubes_to_create = 6;
+					$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'F';
+					$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_solution'] = 'none (fresh frozen)';
+					$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_storage_method'] = 'snap frozen';
+					$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_size_mm'] = '3X3X3';
+					$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_tissue_weight_mg'] = '75';
+				}
 				break;
 			case 'tissue-block':
 				$tubes_to_create = 1;
 				$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'O';
 				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.block_type'] = 'OCT';
+				$add_aliquot_label_suffix = false;
 				break;
 			case 'tissue-slide':
 				$tubes_to_create = 1;
 				$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'O-HE';
+				$add_aliquot_label_suffix = false;
 				break;
 			
 			case 'blood-tube':
@@ -44,7 +76,7 @@
 						($tmp_sample_data['SampleDetail']['blood_type'] == 'EDTA'?
 								'E' :
 								(preg_match('/heparin/', $tmp_sample_data['SampleDetail']['blood_type'])? 'H' : ''));
-				$default_data[$tmp_parent_sample_master_id]['AliquotMaster.initial_volume'] = '500';
+				$default_data[$tmp_parent_sample_master_id]['AliquotMaster.initial_volume'] = $tmp_sample_data['SampleDetail']['blood_type'] == 'EDTA'? '500' : (preg_match('/heparin/', $tmp_sample_data['SampleDetail']['blood_type'])? '1000': '');
 				break;
 			
 			case 'plasma-tube':
@@ -87,9 +119,10 @@
 		
 		if(isset(AppController::getInstance()->passedArgs['templateInitId'])) {
 			$tubes_to_create = $quantity;
-		}$tmp_new_sample_set['children'] = array();
+		}
+		$tmp_new_sample_set['children'] = array();
 		for($tmp_id = 0; $tmp_id < $tubes_to_create; $tmp_id++) {
-			$tmp_new_sample_set['children'][]['AliquotMaster']['aliquot_label'] = $default_aliquot_label.'-'.sprintf("%02d", $next_suffix);
+			$tmp_new_sample_set['children'][]['AliquotMaster']['aliquot_label'] = $default_aliquot_label.($add_aliquot_label_suffix? '-'.sprintf("%02d", $next_suffix) : '');
 			$next_suffix++;
 		}
 		$default_data[$tmp_parent_sample_master_id]['AliquotMaster.aliquot_label'] = $default_aliquot_label;		
