@@ -1336,7 +1336,7 @@ UPDATE consent_controls SET databrowser_label = controls_type;
 
 INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
 (null, 'consent crchus study', 1, 'consent_masters_study', 'cd_nationals', 0, 'consent crchus study');
-INSERT INTO i18n (id,en,fr) VALUES ('consent crchus study', 'Sudy Consent', 'Consentement d''étude');
+INSERT INTO i18n (id,en,fr) VALUES ('consent crchus study', 'Study Consent', 'Consentement d''étude');
 INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `field`='autocomplete_consent_study_summary_id'), 'notEmpty', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -2068,14 +2068,10 @@ AND `field` IN ('bank_id', 'collection_site'));
 
 ALTER TABLE collections 
   ADD COLUMN chus_chemo_naive char(1) DEFAULT '',
-  ADD COLUMN chus_radio_naive char(1) DEFAULT '',
-  ADD COLUMN chus_study_summary_id INT(11) DEFAULT NULL;
+  ADD COLUMN chus_radio_naive char(1) DEFAULT '';
 ALTER TABLE collections_revs
   ADD COLUMN chus_chemo_naive char(1) DEFAULT '',
-  ADD COLUMN chus_radio_naive char(1) DEFAULT '',
-  ADD COLUMN chus_study_summary_id INT(11) DEFAULT NULL;
-ALTER TABLE `collections`
-  ADD CONSTRAINT `chus_collections_to_study_ibfk_1` FOREIGN KEY (`chus_study_summary_id`) REFERENCES `study_summaries` (`id`);
+  ADD COLUMN chus_radio_naive char(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'Collection', 'collections', 'chus_chemo_naive', 'yes_no',  NULL , '0', '', '', '', 'chemo naive', ''), 
 ('InventoryManagement', 'Collection', 'collections', 'chus_radio_naive', 'yes_no',  NULL , '0', '', '', '', 'radio naive', '');
@@ -2922,7 +2918,114 @@ INSERT INTO i18n (id,en, fr) VALUES ('an acquisition_label value can only be ass
 "A 'Collection Event #' can only be assigned to one participant!",
 "La valeur du '# Évenement Collection' ne peut être attribué qu'à un seul participant!");
 
-    
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+-- Final changes
+-- -----------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `type`='y_n_u' WHERE model='Participant' AND tablename='participants' AND field='chus_hiv_ongoing_currently_yes_no' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='y_n_u' WHERE model='Participant' AND tablename='participants' AND field='chus_inf_hepatitis_ongoing_currently_yes_no' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='y_n_u' WHERE model='Participant' AND tablename='participants' AND field='chus_stem_cell_transpl_ongoing_currently_yes_no' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO i18n (id,en) 
+VALUES 
+('main medical history - conditions status', 'Main Medical History (Conditions status)');
+UPDATE structure_fields SET  `language_tag`='' WHERE model='Participant' AND tablename='participants' AND field='chus_hiv_ongoing_currently_yes_no' AND `type`='y_n_u' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_tag`='' WHERE model='Participant' AND tablename='participants' AND field='chus_inf_hepatitis_ongoing_currently_yes_no' AND `type`='y_n_u' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_tag`='' WHERE model='Participant' AND tablename='participants' AND field='chus_stem_cell_transpl_ongoing_currently_yes_no' AND `type`='y_n_u' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='main medical history - conditions status' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='chus_hiv_ongoing_currently_yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
+INSERT INTO structures(`alias`) VALUES ('chus_ccl_tx');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Generated', '', 'chus_generated_ccl_tx_sites', 'input',  NULL , '0', '', '', '', 'sites', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ccl_tx'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='chus_generated_ccl_tx_sites' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sites' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topography_categories')  WHERE model='TreatmentExtendDetail' AND tablename='chus_txe_digestive_system_surgeries_biopsies' AND field='surgical_site' AND `type`='select' ;
+
+UPDATE structure_fields SET `type`='y_n_u' WHERE  `field`='chus_chemo_naive' AND model LIKE '%collection%' AND `structure_value_domain`  IS NULL;
+UPDATE structure_fields SET `type`='y_n_u' WHERE  `field`='chus_radio_naive' AND model LIKE '%collection%' AND `structure_value_domain`  IS NULL;
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('karine tremblay', 'Karine Tremblay',  'Karine Tremblay', '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO i18n (id,en)
+VALUES
+('you can not record aliquot label [%s] twice', 'You can not record aliquot label (2D barcode) [%s] twice'),
+('the aliquot label [%s] has already been recorded', 'The aliquot label (2D barcode) [%s] has already been recorded');
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('aliquot label', 'Label (2D barcode)', 'Étiquette (barcode 2D)'),
+('used aliquot label', 'Label (2D barcode)', 'Étiquette (barcode 2D)');
+
+UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE model LIKE '%aliquot%' AND field = 'barcode' AND language_label = 'barcode';
+INSERT INTO i18n (id,en,fr)
+VALUES
+('aliquot barcode' ,'Aliquot System Code', 'Aliquot - Code système');
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('used aliquot barcode' ,'Used Aliquot System Code', 'Aliquot utilisé - Code système');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='date_order_placed' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='date_order_completed' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='comments' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='default_required_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='addaliquotorderitems'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '0', '0', '', '0', '', '0', '', '1', 'autocomplete', '1', 'url=/InventoryManagement/AliquotMasters/autocompleteBarcode', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='addaliquotorderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='url=/InventoryManagement/AliquotMasters/autocompleteAliquotLabel' WHERE structure_id=(SELECT id FROM structures WHERE alias='addaliquotorderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en)
+VALUES
+('aliquot label is required and should exist', 'An aliquot label is required and should exist');
+
+UPDATE storage_controls SET check_conflicts = 2 WHERE storage_type IN ('box81 1A-9I', 'box81', 'rack16', 'rack10', 'rack24', 'shelf',
+'rack11', 'rack9', 'box25', 'box100 1A-20E', 'TMA-blc 23X15', 'TMA-blc 29X21');
+
+UPDATE structure_fields SET  `language_label`='sop_title' WHERE model='SopMaster' AND tablename='sop_masters' AND field='code' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='version' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_sop_verisons') AND `flag_confidential`='0');
+
+ALTER TABLE sop_masters MODIFY code varchar(100) DEFAULT NULL;
+ALTER TABLE sop_masters_revs MODIFY code varchar(100) DEFAULT NULL;
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value = 'internal use';
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('fresh aliquot delivery - intra reas. cent.', 'Fresh Aliquot Delivery (Intra Reasearch Center)',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2937,16 +3040,21 @@ INSERT INTO i18n (id,en, fr) VALUES ('an acquisition_label value can only be ass
  mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
  mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
  mysql -u root chusoncoaxis --default-character-set=utf8 < custom_post_v268.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < custom_post_v268_data.sql
+
 
 
 
 
 
 TODO:
-aide code topo et morpho pour la saisie
+
+
+
+
+
+
+
 ajouter info dans history
-dans detail annotation ne pas afficher le links to collection si pas de uss_ccl
 nettoyer les liens a etude ex collection to etude et ajouter au databrowser au besoin
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

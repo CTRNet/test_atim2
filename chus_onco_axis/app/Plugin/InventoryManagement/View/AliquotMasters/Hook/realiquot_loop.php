@@ -1,7 +1,10 @@
 <?php 
 	
-	if(isset($default_aliquot_labels[$parent['AliquotMaster']['id']])) {
-		$final_options_children['override']['AliquotMaster.aliquot_label'] = $default_aliquot_labels[$parent['AliquotMaster']['id']];
-	}	
+	$tmp_parent_aliquot_master_id = $parent['AliquotMaster']['id'];
+	if(isset($default_data[$tmp_parent_aliquot_master_id])) {
+		foreach($default_data[$tmp_parent_aliquot_master_id] as $field => $default_value) {
+			$final_options_children['override'][$field] = $default_value;
+		}
+	}
 	
 ?>
