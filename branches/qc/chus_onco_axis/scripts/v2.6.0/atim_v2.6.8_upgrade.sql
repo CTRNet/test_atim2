@@ -178,6 +178,10 @@
 --		Run following query to detect errors
 --			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
 --
+--   ### 13 # Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
+--
+--      And used new feature developped according to issue #3320 (Be able to override date/datetime field with approximate date adding field_accuracy value to options) to display default approximate date
+--
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1592,54 +1596,24 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `language_label`='' AND `language_tag`='is tma slide' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Order' AND `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `language_label`='' AND `language_tag`='is tma slide' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change title of menu '/Administrate/Groups/index'
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE menus SET language_title = 'groups - users - permissions' WHERE  use_link = '/Administrate/Groups/index' AND language_title = 'groups';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('groups - users - permissions', 'Groups (Users & Permissions)', 'Groupes (Utilisateurs & Permissions)');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Move 'Search Type: Users' form under '/Administrate/Groups/index' menu.
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+DELETE FROM menus WHERE use_link LIKE '/Administrate/AdminUsers/search/';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Missing i18n data
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Évenement congélo à appliquer à tous....
-Search on float field with comma
-Gérer les default date avec des accuracy ex creation date
-la traduction de sop_controls.sop_group, type ne semble pas être adequate
-chager administarte group par group (users & permission)
-
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('error','Error', 'Erreur');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
@@ -1648,4 +1622,4 @@ chager administarte group par group (users & permission)
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'????','n/a');
+('2.6.8', NOW(),'6548','n/a');

@@ -141,7 +141,7 @@ class StorageControlsController extends AdministrateAppController {
 		}
 	}
 	
-	function changeActiveStatus($storage_control_id) {		
+	function changeActiveStatus($storage_control_id, $redirect_to = 'listAll') {		
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		
 		$new_data = array();
@@ -161,7 +161,7 @@ class StorageControlsController extends AdministrateAppController {
 		$this->StorageCtrl->data = array();
 		$this->StorageCtrl->id = $storage_control_id;
 		if($this->StorageCtrl->save($new_data)) {
-			$this->atimFlash(__('your data has been updated'), 'javascript:history.go(-1)');
+			$this->atimFlash(__('your data has been updated'), "/Administrate/StorageControls/$redirect_to/$storage_control_id");
 		}
 	}
 	

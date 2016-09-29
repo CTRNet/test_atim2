@@ -64,7 +64,7 @@
 		
 		if(Configure::read('order_item_type_config') != '2') {
 			
-			$structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addOrderItemsInBatch/TmaSlide/'.$atim_menu_variables['TmaSlide.id'].'/', "icon" => "order");
+			$structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addOrderItemsInBatch/TmaSlide/'.$atim_menu_variables['TmaSlide.id'].'/', "icon" => "add_to_order");
 			
 			$final_atim_structure = array();
 			$final_options = array(
