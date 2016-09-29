@@ -256,9 +256,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// set data for initial data to allow bank to override data
 		$override_data = array(
 			'AliquotControl.aliquot_type' => $aliquot_control['AliquotControl']['aliquot_type'],
-			'AliquotMaster.storage_datetime' => ($is_batch_process? date('Y-m-d G:i'): $this->AliquotMaster->getDefaultStorageDate($this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id))))),
 			'AliquotMaster.in_stock' => 'yes - available'
 		);
+		list($override_data['AliquotMaster.storage_datetime'], $override_data['AliquotMaster.storage_datetime_accuracy']) = $is_batch_process? array(date('Y-m-d G:i'), 'c') : $this->AliquotMaster->getDefaultStorageDateAndAccuracy($this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id))));
 		if(!empty($aliquot_control['AliquotControl']['volume_unit'])){
 			$override_data['AliquotControl.volume_unit'] = $aliquot_control['AliquotControl']['volume_unit'];
 		}
