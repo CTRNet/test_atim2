@@ -1,3 +1,3 @@
 <?php 
 	
-	$this->request->data['FunctionManagement']['chus_tempalte_name'] = $template['Template']['name'];
+	$this->request->data['FunctionManagement']['chus_template_name'] = $template['Template']['name'];

@@ -30,11 +30,10 @@
 					'parent_aliquot_master_id' => $chus_block_aliquot_master_id,
 					'child_aliquot_master_id' => $chus_slide_aliquot_master_id,
 					'realiquoting_datetime' => $realiquoting_datetime,
-					'realiquoting_datetime_accuracy' => str_replace(array('0', '4', '7', '10', '13', '16'), array('', 'm', 'd', 'h', 'i', 'c'), strlen($realiquoting_datetime)),
 					'realiquoted_by' => $chus_realiquoted_by);
 				$this->Realiquoting->id = NULL;
 				$this->Realiquoting->data = array(); // *** To guaranty no merge will be done with previous data ***
-				if(!$this->Realiquoting->save(array('Realiquoting' => $chus_realiquoting_data), false)){
+				if(!$this->Realiquoting->save(array('Realiquoting' => $chus_realiquoting_data), true)){
 					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
 			}

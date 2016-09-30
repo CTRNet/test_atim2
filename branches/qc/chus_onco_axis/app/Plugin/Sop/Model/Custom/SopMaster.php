@@ -7,7 +7,7 @@ class SopMasterCustom extends SopMaster {
     function getQualityCtrlSopPermissibleValues() {
     	$result = array();
     	foreach($this->find('all', array('conditions' => array('SopControl.type' => 'quality control'), 'order' => 'SopMaster.title')) as $sop) {
-    		$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ['.$sop['SopMaster']['version'].']';
+    		$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'];
     	}
     	return $result;
     }
@@ -15,7 +15,7 @@ class SopMasterCustom extends SopMaster {
     function getSampleSopPermissibleValues() {
     	$result = array();
     	foreach($this->find('all', array('conditions' => array('SopControl.type' => 'sample'), 'order' => 'SopMaster.title')) as $sop) {
-    		$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ['.$sop['SopMaster']['version'].']';
+    		$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'];
     	}
     	return $result;
     }
@@ -23,7 +23,7 @@ class SopMasterCustom extends SopMaster {
     function getCollectionSopPermissibleValues() {
     	$result = array();
     	foreach($this->find('all', array('conditions' => array('SopControl.type' => 'collection'), 'order' => 'SopMaster.title')) as $sop) {
-    		$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ['.$sop['SopMaster']['version'].']';
+    		$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'];
     	}
     	return $result;
     }   

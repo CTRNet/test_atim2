@@ -4,7 +4,7 @@
 	$system_template = '';
 	if(isset($this->passedArgs['templateInitId'])) {
 		$tmp_template_session_data = $this->Session->read('Template.init_data.'.$this->passedArgs['templateInitId']);
-		if(isset($tmp_template_session_data['FunctionManagement']['chus_tempalte_name'])) $system_template = $tmp_template_session_data['FunctionManagement']['chus_tempalte_name'];
+		if(isset($tmp_template_session_data['FunctionManagement']['chus_template_name'])) $system_template = $tmp_template_session_data['FunctionManagement']['chus_template_name'];
 	}
 	
 	//Get the last sample created data
@@ -45,10 +45,11 @@
 			$last_sample_modified = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id'], 'SampleMaster.collection_id' => $collection_id), 'orders' => array('SampleMaster.modified DESC')));
 			if($last_sample_modified) {
 				$this->request->data = $last_sample_modified;
+				$last_blood_type = $this->request->data['SampleDetail']['blood_type'];
 				unset($this->request->data['SampleDetail']);
 				if($system_template == 'Sang Pré-Chirurgie' && sizeof($all_collection_samples) == 1) {
-					$last_blood_type = $this->request->data['SampleDetail']['blood_type'];
 					$this->request->data['SampleDetail']['blood_type'] = ($last_blood_type == 'EDTA')? 'heparin' : 'EDTA';
+					$this->request->data['SampleDetail']['collected_tube_nbr'] = '1';
 				}
 			} else {
 				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
