@@ -67,6 +67,7 @@
 			case 'tissue-slide':
 				$tubes_to_create = 1;
 				$default_aliquot_label .= '-'.str_replace(array('unkown', 'normal', 'tumour'), array('U', 'N', 'T'), $tmp_sample_data['SampleDetail']['tissue_nature']).'O-HE';
+				$default_data[$tmp_parent_sample_master_id]['AliquotDetail.chus_coloration'] = 'h&e';
 				$add_aliquot_label_suffix = false;
 				break;
 			
