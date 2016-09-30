@@ -1,5 +1,5 @@
 
-UPDATE users SET flag_active = '1', `password` = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979', username = 'NicoEn' WHERE id = '1';
+UPDATE users SET flag_active = '1', `password` = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979', username = 'NicoEn', first_name = 'Nicolas Luc' WHERE id = '1';
 UPDATE groups SET flag_show_confidential = 1 WHERE id = 1;
 INSERT INTO i18n (id,en,fr) VALUES ('core_installname','ONCO Axis','Axe Cancer');
 
@@ -2534,31 +2534,6 @@ INSERT INTO structure_validations(structure_field_id, rule, language_message)
 VALUES
 ((SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='block_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='block_type')) , 'notEmpty', '');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- Used aliquot
 
 UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -2958,7 +2933,7 @@ VALUES
 ('used aliquot label', 'Label (2D barcode)', 'Étiquette (barcode 2D)');
 
 UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE model LIKE '%aliquot%' AND field = 'barcode' AND language_label = 'barcode';
-INSERT INTO i18n (id,en,fr)
+REPLACE INTO i18n (id,en,fr)
 VALUES
 ('aliquot barcode' ,'Aliquot System Code', 'Aliquot - Code système');
 REPLACE INTO i18n (id,en,fr)
@@ -2998,86 +2973,113 @@ VALUES
 UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code');
 
+-- Template
 
 
+SET @aliquot_da_st_id = (select id from datamart_structures where model = 'ViewAliquot');
+SET @sample_da_st_id = (select id from datamart_structures where model = 'ViewSample');
 
+SET @blood_sample_control_id = (select id FROM sample_controls WHERE sample_type = 'blood');
+SET @tissue_sample_control_id = (select id FROM sample_controls WHERE sample_type = 'tissue');
+SET @plasma_sample_control_id = (select id FROM sample_controls WHERE sample_type = 'plasma');
+SET @buffy_coat_sample_control_id = (select id FROM sample_controls WHERE sample_type = 'buffy coat');
 
+SET @blood_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'tube' AND sample_control_id = @blood_sample_control_id);
+SET @plasma_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'tube' AND sample_control_id = @plasma_sample_control_id);
+SET @buffy_coat_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'tube' AND sample_control_id = @buffy_coat_sample_control_id);
 
+SET @tissue_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'tube' AND sample_control_id = @tissue_sample_control_id);
+SET @tissue_block_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'block' AND sample_control_id = @tissue_sample_control_id);
+SET @tissue_slide_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'slide' AND sample_control_id = @tissue_sample_control_id);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.1_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.2_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.3_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
- mysql -u root chusoncoaxis --default-character-set=utf8 < custom_post_v268.sql
-
-
-
-
-
-
-TODO:
-
-
-
-
-
-
-
-ajouter info dans history
-nettoyer les liens a etude ex collection to etude et ajouter au databrowser au besoin
-
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-INSERT INTO structure_value_domains (domain_name, override, category, source) 
+INSERT INTO templates (`name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `created_by`) 
 VALUES 
-("chus_contact_status", "", "", NULL);
-INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("contact allowed", "contact allowed"),('lost to follow-up','lost to follow-up'),('no further recontact','no further recontact');
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
-VALUES 
-((SELECT id FROM structure_value_domains WHERE domain_name="chus_contact_status"), (SELECT id FROM structure_permissible_values WHERE value="contact allowed" AND language_alias="contact allowed"), "", "1")
+('Sang Pré-Chirurgie', 'user', 'all', '1', 1, 0, (SELECT id FROM users WHERE username = 'NicoEn'));
+SET @template_id = (SELECT id FROM templates WHERE name = 'Sang Pré-Chirurgie');
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, NULL, @sample_da_st_id, @blood_sample_control_id, 1);
+SET @last_blood_id = LAST_INSERT_ID();
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_blood_id, @aliquot_da_st_id, @blood_tube_aliquot_control_id, 9);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_blood_id, @sample_da_st_id, @plasma_sample_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, LAST_INSERT_ID(), @aliquot_da_st_id, @plasma_tube_aliquot_control_id, 9);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_blood_id, @sample_da_st_id, @buffy_coat_sample_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, LAST_INSERT_ID(), @aliquot_da_st_id, @buffy_coat_tube_aliquot_control_id, 2);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, NULL, @sample_da_st_id, @blood_sample_control_id, 1);
+SET @last_blood_id = LAST_INSERT_ID();
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_blood_id, @sample_da_st_id, @plasma_sample_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, LAST_INSERT_ID(), @aliquot_da_st_id, @plasma_tube_aliquot_control_id, 9);
 
-INSERT INTO structure_value_domains (domain_name, source) 
+INSERT INTO `templates` (`name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `created_by`) 
 VALUES 
-('xeno_tissue_source_list', "StructurePermissibleValuesCustom::getCustomDropdown('Xenograft Tissues Sources')");
-INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
-VALUES 
-('Xenograft Tissues Sources', 1, 50, 'inventory');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Xenograft Tissues Sources');
+('Tissue Post-Chirurgie', 'user', 'all', '1', 1, 0, (SELECT id FROM users WHERE username = 'NicoEn'));
+SET @template_id = (SELECT id FROM templates WHERE name = 'Tissue Post-Chirurgie');
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, NULL, @sample_da_st_id, @tissue_sample_control_id, 1);
+SET @last_tissue_id = LAST_INSERT_ID();
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_tube_aliquot_control_id, 6);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_block_aliquot_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_slide_aliquot_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_tube_aliquot_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, NULL, @sample_da_st_id, @tissue_sample_control_id, 1);
+SET @last_tissue_id = LAST_INSERT_ID();
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_tube_aliquot_control_id, 6);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_block_aliquot_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_slide_aliquot_control_id, 1);
+INSERT INTO `template_nodes` (`template_id`, `parent_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES (@template_id, @last_tissue_id, @aliquot_da_st_id, @tissue_tube_aliquot_control_id, 1);
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('sites','Sites','Sites');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Specimen Supplier Departments');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('liver', 'Liver',  'Foie', '1', @control_id, NOW(), NOW(), 1, 1),
+('surgery', 'Surgery',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('pathology', 'Pathology',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('clinic', 'Clinic',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='sample transported/received by' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='time_at_room_temp_mn' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='time_at_room_temp_mn_help' AND `language_label`='time at room temp (mn)' AND `language_tag`=''), '1', '405', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+INSERT INTO i18n (id,en,fr)
+VALUES
+('created %s tissue block to slide realiquoting data on a set of %d slides created - please validate and create missing raliquoting data',
+'Created %s tissue block to slide realiquoting data on a set of %d slides created. Please validate information and create missing raliquoting data',
+'Creation de %s données de réaliquotage entre les blocs et les lames pour un ensemble de %d lames créés. Veuillez vlaider l''information et créer l''infomration manquante.');
 
-SELECT structure_value_domain_id FROM structure_value_domains_permissible_values WHERE structure_permissible_value_id = 865
+ALTER TABLE ad_tissue_slides ADD COLUMN chus_coloration VARCHAR(50) DEFAULT NULL;
+ALTER TABLE ad_tissue_slides_revs ADD COLUMN chus_coloration VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('chus_slide_colorations', "StructurePermissibleValuesCustom::getCustomDropdown('Slide Colorations')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Slide Colorations', 1, 100, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Slide Colorations');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('h&e', 'H&E',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'chus_coloration', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_slide_colorations') , '0', '', '', '', 'coloration', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='chus_coloration' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_slide_colorations')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='coloration' AND `language_tag`=''), '1', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('coloration', 'Coloration', 'Coloration');
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') 
+AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
+
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse');
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE label = 'add tma slide use';
+UPDATE datamart_structure_functions SET flag_active = 1 WHERE label = 'create participant message (applied to all)';
+
+UPDATE sample_controls SET detail_form_alias = 'sd_spe_tissues,chus_tissue_specimens' WHERE sample_type = 'tissue';
+INSERT INTO structures(`alias`) VALUES ('chus_tissue_specimens');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_tissue_specimens'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='supplier dept' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_tissue_specimens'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0'), '1', '200', '', '0', '1', 'sample transported/received by', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_tissue_specimens'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_reception_datetime_defintion' AND `language_label`='reception date' AND `language_tag`=''), '1', '300', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_tissue_specimens'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='view_samples' AND `field`='coll_to_rec_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '400', '', '0', '1', 'cold ischemia', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_tissue_specimens'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='time_at_room_temp_mn' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='time_at_room_temp_mn_help' AND `language_label`='time at room temp (mn)' AND `language_tag`=''), '1', '405', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_tissue_specimens'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='view_samples' AND `field`='coll_to_rec_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '400', '', '0', '1', 'cold ischemia (min)', '0', '', '0', '', '1', 'integer_positive', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('cold ischemia (min)', 'Cold Ischemia (min)'),('cold ischemia', 'Cold Ischemia');
+
+UPDATE `versions` SET branch_build_number = '6552' WHERE version_number = '2.6.8';
