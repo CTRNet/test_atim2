@@ -7,7 +7,7 @@ if($tx_control_data['TreatmentControl']['tx_method'] == 'systemic therapy') {
 		foreach(array('num_cycles', 'completed_cycles', 'frequence', 'frequence_unit') as $new_field) {
 			if(!strlen($this->request->data['TreatmentDetail'][$new_field])) $this->request->data['TreatmentDetail'][$new_field] = $selected_protocol['ProtocolDetail'][$new_field];
 		}
-		AppController::addWarningMsg('updated cycle and frequence information based on selected regimen');
+		AppController::addWarningMsg(__('updated cycle and frequence information based on selected regimen'));
 	}
 }
 

@@ -34,27 +34,35 @@ class CollectionCustom extends Collection {
 		}
 		
 		//Check aquisition label
-		if($this->id && array_key_exists('Collection', $collection_data)) {
-			$conditions = array();
+		if(array_key_exists('Collection', $collection_data)) {
+			$participant_id = null;
+			$db_collection_data = null;
 			if(array_key_exists('participant_id', $collection_data['Collection'])) {
-				$submitted_participant_id = $collection_data['Collection']['participant_id'];
-				$db_collection_data = $this->find('first', array('conditions' => array('Collection.id' => $this->id), 'fields' => array('Collection.acquisition_label'), 'recursive' => '-1'));
-				$conditions =array(
-					'Collection.acquisition_label' => $db_collection_data['Collection']['acquisition_label'], 
-					"Collection.participant_id IS NOT NULL", 
-					"Collection.participant_id != $submitted_participant_id");
+				$participant_id = $collection_data['Collection']['participant_id'];
+			} else if($this->id) {
+				$db_collection_data = $this->find('first', array('conditions' => array('Collection.id' => $this->id, 'Collection.deleted' => array('0','1')), 'fields' => array('Collection.acquisition_label', 'Collection.participant_id'), 'recursive' => '-1'));
+				$participant_id = $db_collection_data['Collection']['participant_id'];
 			}
-			if(array_key_exists('acquisition_label', $collection_data['Collection']) && $collection_data['Collection']['acquisition_label']) {
-				$submitted_acquisition_label = $collection_data['Collection']['acquisition_label'];
-				$db_collection_data = $this->find('first', array('conditions' => array('Collection.id' => $this->id, 'Collection.deleted' => array('0','1')), 'fields' => array('Collection.participant_id'), 'recursive' => '-1'));
-				$conditions =  array(
-					'Collection.acquisition_label' => $submitted_acquisition_label, 
-					"Collection.participant_id IS NOT NULL", 
-					"Collection.participant_id != ".$db_collection_data['Collection']['participant_id']);
-			}
-			if($conditions && $this->find('count', array('conditions' => $conditions, 'recursive' => '-1'))) {
-				$this->validationErrors['acquisition_label'][] = 'an acquisition_label value can only be assigned to one participant';
-				$res = false;		
+			if($participant_id) {
+				$acquisition_label = '';
+				if(array_key_exists('acquisition_label', $collection_data['Collection'])) {
+					$acquisition_label = $collection_data['Collection']['acquisition_label'];
+				} else if($db_collection_data) {
+					$acquisition_label = $db_collection_data['Collection']['acquisition_label'];
+				} else if($this->id) {
+					$db_collection_data = $this->find('first', array('conditions' => array('Collection.id' => $this->id, 'Collection.deleted' => array('0','1')), 'fields' => array('Collection.acquisition_label', 'Collection.participant_id'), 'recursive' => '-1'));
+					$acquisition_label = $db_collection_data['Collection']['acquisition_label'];
+				}
+				if(strlen($acquisition_label)) {
+					$conditions =  array(
+						'Collection.acquisition_label' => $acquisition_label,
+						"Collection.participant_id IS NOT NULL",
+						"Collection.participant_id != $participant_id");
+					if($this->find('count', array('conditions' => $conditions, 'recursive' => '-1'))) {
+						$this->validationErrors['acquisition_label'][] = 'an acquisition_label value can only be assigned to one participant';
+						$res = false;
+					}
+				}
 			}
 		}
 		
@@ -80,7 +88,6 @@ class CollectionCustom extends Collection {
 					$collection_datetime = $collection_data['Collection']['collection_datetime'];
 					$collection_datetime_accuracy = $collection_data['Collection']['collection_datetime_accuracy'];
 					if($collection_datetime_accuracy != 'c') {
-						pr('1');
 						$this->validationErrors['collection_datetime'][] = 'the system is unable to calculate the warm ischemia time - please check times definitions';
 						$res = false;
 					} else {
