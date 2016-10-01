@@ -20,7 +20,7 @@ $bottom = array('undo' => '/StorageLayout/StorageMasters/storageLayout/'.$atim_m
 if(isset($add_links)) {
 	$bottom['add to storage'] = $add_links;
 }
-$bottom['export as CSV file (comma-separated values)'] = sprintf("javascript:setCsvPopup('/StorageLayout/StorageMasters/storageLayout/".$atim_menu_variables['StorageMaster.id']."/0/1/');", 0);
+$bottom['export as CSV file (comma-separated values)'] = sprintf("javascript:setCsvPopup('StorageLayout/StorageMasters/storageLayout/".$atim_menu_variables['StorageMaster.id']."/0/1/');", 0);
 
 $this->Structures->build($empty_structure, array(
 	'type' => 'detail', 
