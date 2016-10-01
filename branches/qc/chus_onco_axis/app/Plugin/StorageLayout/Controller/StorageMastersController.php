@@ -766,13 +766,13 @@ class StorageMastersController extends StorageLayoutAppController {
 		
 		foreach($data['children'] as &$children_array){
 			if(isset($children_array['StorageMaster'])){
-				$link = $this->request->webroot."/StorageLayout/StorageMasters/detail/".$children_array["StorageMaster"]['id']."/2";
+				$link = $this->request->webroot."StorageLayout/StorageMasters/detail/".$children_array["StorageMaster"]['id']."/2";
 				$this->StorageMaster->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list, $link, $children_array['StorageControl']['is_tma_block']? 'tma block' : 'storage');
 			}else if(isset($children_array['AliquotMaster'])){
-				$link = $this->request->webroot."/InventoryManagement/AliquotMasters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/2";
+				$link = $this->request->webroot."InventoryManagement/AliquotMasters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/2";
 				$this->StorageMaster->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "aliquot");
 			}else if(isset($children_array['TmaSlide'])){
-				$link = $this->request->webroot."/StorageLayout/TmaSlides/detail/".$children_array["TmaSlide"]['tma_block_storage_master_id']."/".$children_array["TmaSlide"]['id']."/2";
+				$link = $this->request->webroot."StorageLayout/TmaSlides/detail/".$children_array["TmaSlide"]['tma_block_storage_master_id']."/".$children_array["TmaSlide"]['id']."/2";
 				$this->StorageMaster->buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "slide");
 			}
 		}
