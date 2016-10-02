@@ -1262,37 +1262,99 @@ foreach($excel_files_names as $file_data) {
 							
 					} else {
 		
-						// 3- OTHER DIAGNOSIS
+						// 3- BLOCK CREATION
 						
-						$excel_aliquot_label = $excel_pathology_nbr.' '.$excel_block_id;						
+						$excel_aliquot_label = $excel_pathology_nbr.' '.$excel_block_id;	
 						
-						$query = "SELECT DISTINCT AliquotMaster.barcode
+						$excel_field = 'Date of FFPE block sent';
+						$excel_field_accuracy = "Date of FFPE block sent - accuracy";
+						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
+						list($reception_datetime, $reception_datetime_accuracy)
+							= updateDateWithExcelAccuracy(
+								validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
+								$excel_line_data["Date of FFPE block sent - accuracy"]);
+						$reception_datetime_accuracy = str_replace('c', 'h', $reception_datetime_accuracy);
+						
+						$excel_field = 'Laterality of specimen';
+						$domain_name = 'tissue_laterality';
+						$tissue_laterality = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
+							
+						$excel_field = 'Type of specimen';
+						$domain_name = 'qbcf_tissue_natures';
+						$tissue_nature = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
+						
+						$query = "SELECT Participant.qbcf_bank_id,
+							Participant. qbcf_bank_participant_identifier,
+							Collection.collection_datetime,
+							Collection.collection_datetime_accuracy,
+							Collection.diagnosis_master_id,
+							SampleDetail.tissue_source,
+							SampleDetail.tissue_nature,
+							SampleDetail.tissue_laterality,
+							AliquotMaster.barcode,
+							AliquotMaster.aliquot_label 
 							FROM participants Participant
 							INNER JOIN collections Collection ON Collection.participant_id = Participant.id
-							INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id
+							INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
+							INNER JOIN ".$atim_controls['sample_controls']['tissue']['detail_tablename']." SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+							INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND SampleMaster.id = AliquotMaster.sample_master_id
 							WHERE Participant.deleted <> 1
+							AND Collection.deleted <> 1
+							AND SampleMaster.sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
+							AND SampleMaster.deleted <> 1
 							AND AliquotMaster.deleted <> 1
+							AND AliquotMaster.aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
 							AND Participant.qbcf_bank_id = '$qbcf_bank_id' 
 							AND AliquotMaster.aliquot_label = '$excel_aliquot_label';";
 						$query_data = getSelectQueryResult($query);
 						
 						if($query_data) {
-							// Block already created
-							recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Banq block already exist into ATiM (based on 'Pathology ID number' + 'Block ID' and the bank) - No update will be done. Please confirm and create block if required.", "See block '$excel_aliquot_label' for following participant : $excel_data_references.");
-						
+							// Bank Block already created : Check data
+							
+							if(sizeof($query_data) > 1) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More than one banq block already exists into ATiM (based on 'Pathology ID number' + 'Block ID' and the bank) - No update will be done and data control will only be done on first record. Please validate and update or create block if required.", "See block '$excel_aliquot_label' for following participant : $excel_data_references.");
+							}
+							$existing_bank_block = $query_data[0];
+							$atim_field_to_excel = array(
+								'qbcf_bank_participant_identifier' => array("Patient # in biobank", $qbcf_bank_participant_identifier),
+								'collection_datetime' => array("Date of FFPE block sent", $reception_datetime),
+								'collection_datetime_accuracy' => array("Date of FFPE block sent - accuracy", $reception_datetime_accuracy),
+								'diagnosis_master_id' => array("Diagnosis (atim_diagnosis_master_id)", $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_diagnosis_id']),
+								'tissue_source' => array("Tissue source (not excel value)", 'breast'),
+								'tissue_nature' => array("Type of specimen", $tissue_nature),
+								'tissue_laterality' => array("Laterality of specimen", $tissue_laterality));
+							$aliquot_data_diff = array();
+							foreach($atim_field_to_excel as $atim_field => $excel_field_value) {
+								list($excel_field, $excel_value) = $excel_field_value;
+								if($excel_value != $existing_bank_block[$atim_field]) 
+									$aliquot_data_diff[] = "$excel_field ([ATiM] ".$existing_bank_block[$atim_field]." != [Excel] $excel_value)";
+							}
+							if($aliquot_data_diff) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Banq block already exists into ATiM (based on 'Pathology ID number' + 'Block ID' and the bank) but differences exist between excel and ATiM data - No update will be done. Please confirm and update block if required.", "See block '$excel_aliquot_label' and data [".implode(' & ', $aliquot_data_diff)."] for following participant : $excel_data_references.");
+							}
+							
 						} else {
+							
+							// Check block does not exist into ATiM for an other bank
+							
+							$query = "SELECT AliquotMaster.barcode,
+								AliquotMaster.aliquot_label
+								FROM collections Collection
+								INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
+								INNER JOIN ".$atim_controls['sample_controls']['tissue']['detail_tablename']." SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+								INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND SampleMaster.id = AliquotMaster.sample_master_id
+								WHERE Collection.deleted <> 1
+								AND SampleMaster.sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
+								AND AliquotMaster.deleted <> 1
+								AND AliquotMaster.aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
+								AND AliquotMaster.aliquot_label = '$excel_aliquot_label';";
+							$query_data = getSelectQueryResult($query);
+							if($query_data) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Block already exists into ATiM (based on 'Pathology ID number' + 'Block ID') but the bank is different - New block will be created but please validate.", "See block '$excel_aliquot_label' for following participant : $excel_data_references.");
+							}
 							
 							// Create new collection or use an old one
 							
-							$excel_field = 'Date of FFPE block sent';
-							$excel_field_accuracy = "Date of FFPE block sent - accuracy";
-							reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
-							list($reception_datetime, $reception_datetime_accuracy)
-								= updateDateWithExcelAccuracy(
-									validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
-									$excel_line_data["Date of FFPE block sent - accuracy"]);
-							$reception_datetime_accuracy = str_replace('c', 'h', $reception_datetime_accuracy);
-								
 							$query = "SELECT DISTINCT Collection.id
 								FROM participants Participant
 								INNER JOIN collections Collection ON Collection.participant_id = Participant.id
@@ -1319,14 +1381,6 @@ foreach($excel_files_names as $file_data) {
 							
 							// Create one tissue sample per block
 							
-							$excel_field = 'Laterality of specimen';
-							$domain_name = 'tissue_laterality';
-							$tissue_laterality = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
-							
-							$excel_field = 'Type of specimen';
-							$domain_name = 'qbcf_tissue_natures';
-							$tissue_nature = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
-								
 							$created_sample_counter++;
 							$sample_data = array(
 								'sample_masters' => array(
@@ -1334,9 +1388,7 @@ foreach($excel_files_names as $file_data) {
 									"sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
 									"initial_specimen_sample_type" => 'tissue',
 									"collection_id" => $collection_id),
-								'specimen_details' => array(
-									'reception_datetime' => $reception_datetime,
-									'reception_datetime_accuracy' => $reception_datetime_accuracy),
+								'specimen_details' => array(),
 								$atim_controls['sample_controls']['tissue']['detail_tablename'] => array(
 									'tissue_source' => 'breast',
 									'tissue_nature' => $tissue_nature,

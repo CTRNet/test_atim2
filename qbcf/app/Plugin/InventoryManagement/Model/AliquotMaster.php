@@ -468,32 +468,48 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @author N. Luc
 	 * @since 2009-09-11
 	 * @updated N. Luc
+	 * @deprecated
 	 */
 	function getDefaultStorageDate($sample_master_data) {
-		$collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+		list($date, $date_accuaracy) = $this->getDefaultStorageDateAndAccuracy($sample_master_data);
+		return strlen($date)? $date : null;
+	}
+	
+	/**
+	 * Get default storage date and accuracy for a new created aliquot.
+	 *
+	 * @param $sample_master_data Master data of the studied sample.
+	 *
+	 * @return array(default storage date, accuracy).
+	 *
+	 * @author N. Luc
+	 * @since 2016-09-29
+	 * @updated N. Luc
+	 */
+	function getDefaultStorageDateAndAccuracy($sample_master_data) {
+	
 		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
 		$derivative_detail_model = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
 		switch($sample_master_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				// Default creation date will be the specimen reception date
-				$collection_data = $collection_model->getOrRedirect($sample_master_data['SampleMaster']['collection_id']);
 				$sample_master = $sample_master_model->getOrRedirect($sample_master_data['SampleMaster']['id']);
-				return $sample_master['SpecimenDetail']['reception_datetime'];
-				
+				return array($sample_master['SpecimenDetail']['reception_datetime'], $sample_master['SpecimenDetail']['reception_datetime_accuracy']);
+	
 			case 'derivative':
 				// Default creation date will be the derivative creation date or Specimen reception date
 				$derivative_detail_data = $derivative_detail_model->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
-				if(empty($derivative_detail_data)) { 
-					$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+				if(empty($derivative_detail_data)) {
+					$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
-				
-				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
-				
+	
+				return array($derivative_detail_data['DerivativeDetail']['creation_datetime'], $derivative_detail_data['DerivativeDetail']['creation_datetime_accuracy']);
+	
 			default:
-				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);			
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		
-		return null;
+	
+		return array('', '');
 	}
 	
 	/**

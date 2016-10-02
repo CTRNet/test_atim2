@@ -108,7 +108,7 @@ if(!headers_sent()){
 	echo $this->Html->script('jquery.ui-datepicker-fr.js')."\n";
 	echo $this->Html->script('jquery.highlight.js')."\n";
 	echo $this->Html->script('jquery.popup.js')."\n";
-	echo $this->Html->script('jquery.tablednd_0_5.js')."\n";
+	echo $this->Html->script('jquery.tablednd.js')."\n";
 	echo $this->Html->script('jquery.mousewheel.min.js')."\n";
 	echo $this->Html->script('jquery.cookie.js')."\n";
 	echo $this->Html->script('fg.menu.js')."\n";

@@ -552,18 +552,13 @@ VALUES
 ('this bank is linked to at least one tissue and flagged as provider', 'This bank is linked to at least one tissue and flagged as provider'),
 ('at least one participant is linked to that bank', 'At least one participant is linked to that bank');
 
-
 UPDATE datamart_browsing_controls
 SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
 
-
 UPDATE datamart_browsing_controls
 SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
-UPDATE datamart_browsing_controls
-SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
-WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquotUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
 UPDATE datamart_browsing_controls
 SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquotUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
@@ -579,7 +574,6 @@ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') 
 
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewTmaSlideUse') AND label = 'edit';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewTmaSlide') AND label = 'add tma slide use';
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquotUse') AND label = 'number of elements per participant';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewSample') AND label = 'initial specimens display';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewSample') AND label = 'all derivatives display';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewSample') AND label = 'create quality control';
@@ -604,97 +598,282 @@ UPDATE structure_formats SET `flag_editgrid`='1', `flag_editgrid_readonly`='1' W
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Reports
-
-Report	Status
-All Derivatives Display	active
-Bank Activity Report	active
-Bank Activity Report (Per Period)	active
-CTRNet catalogue	active
-Initial Specimens Display	active
-List all child storage entities	active
-List all related diagnosis	active
-Number of elements per participant	active
-Participant Identifiers	active
-Specimens Collection/Derivatives Creation	active
-Structure Functions Summary
-
-
-
-
-
-INSERT INTO `datamart_reports` (`name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `associated_datamart_structure_id`, limit_access_from_datamart_structrue_function, created_by, modified_by) VALUES
-('number of elements per participant', 'number_of_elements_per_participant_description', '', 'number_of_elements_per_participant', 'index', 'countNumberOfElementsPerParticipants', 1, (SELECT id FROM datamart_structures WHERE model = 'Participant'), 1, '1', '1');
-SET @control_id = (SELECT id FROM datamart_reports WHERE name = 'number of elements per participant');
-INSERT INTO `` (`datamart_structure_id`, `label`, `link`, `flag_active`) 
-(SELECT id, 'number of elements per participant', CONCAT('/Datamart/Reports/manageReport\/', @control_id), 1
-FROM datamart_structures WHERE model IN ('MiscIdentifier',
-
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = '') AND label = '';
-
-
-to inactive
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Faire un warning si deux blocs d'une meme bank ont le meme label
-
-
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='storage_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='scoring' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='qbcf_scoring_results_reception_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Shipment', 'shipments', 'qbcf_clinical_data_version', 'date',  NULL , '0', '', '', '', 'clinical data version', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='qbcf_clinical_data_version' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical data version' AND `language_tag`=''), '0', '40', 'data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE shipments 
+  ADD COLUMN qbcf_clinical_data_version date DEFAULT NULL,
+  ADD COLUMN qbcf_clinical_data_version_accuracy char(1) DEFAULT '';
+ALTER TABLE shipments_revs
+  ADD COLUMN qbcf_clinical_data_version date DEFAULT NULL,
+  ADD COLUMN qbcf_clinical_data_version_accuracy char(1) DEFAULT '';
+
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shippeditems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0');
+
+UPDATE structure_fields SET language_label = 'slide system code or aliquot barcode' WHERE `model`='Generated' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND plugin = 'Order';
+INSERT INTO i18n (id,en) VALUES ('slide system code or aliquot barcode', 'Slide System Code or Aliquot QBCF#');
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Path Review
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(10);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(11);
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE specimen_review_masters ADD COLUMN qbcf_reviewer VARCHAR(50) DEFAULT NULL;
+ALTER TABLE specimen_review_masters_revs ADD COLUMN qbcf_reviewer VARCHAR(50) DEFAULT NULL;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'qbcf_reviewer', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'reviewer', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='qbcf_reviewer' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reviewer' AND `language_tag`=''), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('Lucresse Fossouo', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Louis-André Julien', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Liliane Meunier', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Monique Bernard', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO i18n (id,en) VALUES ('reviewer','Reviewer'), ('tissue block review', 'Tissue Block Review');
+
+INSERT INTO `aliquot_review_controls` (`id`, `review_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `aliquot_type_restriction`, `databrowser_label`) 
+VALUES
+(null, 'tissue block review', 1, 'qbcf_ar_tissue_blocks', 'qbcf_ar_tissue_blocks', 'block,slide', 'tissue block review');
+INSERT INTO `specimen_review_controls` (`id`, `sample_control_id`, `aliquot_review_control_id`, `review_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`) 
+VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'tissue'), (SELECT id FROM aliquot_review_controls WHERE review_type = 'tissue block review'), 'tissue block review', 1, 'qbcf_spr_tissue_blocks', 'qbcf_spr_tissue_blocks', 'tissue block review');
+
+CREATE TABLE IF NOT EXISTS `qbcf_spr_tissue_blocks` (
+  `specimen_review_master_id` int(11) NOT NULL,
+  KEY `FK_qbcf_spr_tissue_blocks_specimen_review_masters` (`specimen_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qbcf_spr_tissue_blocks_revs` (
+  `specimen_review_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qbcf_spr_tissue_blocks`
+  ADD CONSTRAINT `FK_qbcf_spr_tissue_blocks_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `qbcf_ar_tissue_blocks` (
+  `aliquot_review_master_id` int(11) NOT NULL,
+	histology varchar(100) DEFAULT NULL,	
+	tubular_formation int(1) DEFAULT NULL,
+	nuclear_atypia int(1) DEFAULT NULL,
+	mitosis_count int(1) DEFAULT NULL,
+	final_grade int(1) DEFAULT NULL,
+	dcis_on_slide char(1) DEFAULT '',
+	lcis_on_slide char(1) DEFAULT '',
+	tils_pct int(3) DEFAULT NULL,
+	lymphoid_aggregate_outside_of_the_tumor char(1) DEFAULT '',
+	notes text,
+  KEY `FK_qbcf_ar_tissue_blocks_aliquot_review_masters` (`aliquot_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qbcf_ar_tissue_blocks_revs` (
+  `aliquot_review_master_id` int(11) NOT NULL,
+ 	histology varchar(100) DEFAULT NULL,	
+	tubular_formation int(1) DEFAULT NULL,
+	nuclear_atypia int(1) DEFAULT NULL,
+	mitosis_count int(1) DEFAULT NULL,
+	final_grade int(1) DEFAULT NULL,
+	dcis_on_slide char(1) DEFAULT '',
+	lcis_on_slide char(1) DEFAULT '',
+	tils_pct int(3) DEFAULT NULL,
+	lymphoid_aggregate_outside_of_the_tumor char(1) DEFAULT '',
+	`notes` text,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qbcf_ar_tissue_blocks`
+  ADD CONSTRAINT `FK_qbcf_ar_tissue_blocks_aliquot_review_masters` FOREIGN KEY (`aliquot_review_master_id`) REFERENCES `aliquot_review_masters` (`id`);
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='aliquot_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquots_list_for_review')), 'notEmpty');
+
+INSERT INTO structures(`alias`) VALUES ('qbcf_ar_tissue_blocks');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qbcf_1_2_3", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("1", "1"),
+("2", "2"),
+("3", "3");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qbcf_1_2_3"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qbcf_1_2_3"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qbcf_1_2_3"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1");
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qbcf_path_review_histology', "StructurePermissibleValuesCustom::getCustomDropdown('Path Review Histology')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Path Review Histology', 1, 100, 'Inventory - specimen review');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Path Review Histology');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('non invasive carcinoma', 'Non Invasive carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive ductal carcinoma (no special type or not otherwise specified)', 'Invasive ductal carcinoma (no special type or not otherwise specified)',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive lobular carcinoma', 'Invasive lobular carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive carcinoma with ductal and lobular features (mixed type carcinoma)', 'Invasive carcinoma with ductal and lobular features (mixed type carcinoma)',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive mucinous carcinoma', 'Invasive mucinous carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive medullary carcinoma', 'Invasive medullary carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive papillary carcinoma', 'Invasive papillary carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive micropapillary carcinoma', 'Invasive micropapillary carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive tubular carcinoma', 'Invasive tubular carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive cribriform carcinoma', 'Invasive cribriform carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive carcinoma, type cannot be determined', 'Invasive carcinoma, type cannot be determined',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive ductal carcinoma pleiomorphic', 'Invasive ductal carcinoma pleiomorphic',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('invasive ductal carcinoma apocrine', 'Invasive ductal carcinoma apocrine',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'histology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_histology') , '0', '', '', '', 'histology', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'tubular_formation', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3') , '0', '', '', '', 'tubular formation', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'nuclear_atypia', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3') , '0', '', '', '', 'nuclear atypia', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'mitosis_count', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3') , '0', '', '', '', 'mitosis count', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'final_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3') , '0', '', '', '', 'final grade', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'dcis_on_slide', 'yes_no',  NULL , '0', '', '', '', 'dcis on slide', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'lcis_on_slide', 'yes_no',  NULL , '0', '', '', '', 'lcis on slide', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'tils_pct', 'integer_positive',  NULL , '0', 'size=3', '', '', 'tils pct', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'lymphoid_aggregate_outside_of_the_tumor', 'yes_no',  NULL , '0', '', '', '', 'lymphoid aggregate outside of the tumor', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'notes', 'textarea',  NULL , '0', '', '', '', 'notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='histology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_histology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histology' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='tubular_formation' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tubular formation' AND `language_tag`=''), '0', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='nuclear_atypia' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nuclear atypia' AND `language_tag`=''), '0', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='mitosis_count' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3')), '0', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='final_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='final grade' AND `language_tag`=''), '0', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='dcis_on_slide' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dcis on slide' AND `language_tag`=''), '0', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='lcis_on_slide' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lcis on slide' AND `language_tag`=''), '0', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='tils_pct' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='tils pct' AND `language_tag`=''), '0', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='lymphoid_aggregate_outside_of_the_tumor' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymphoid aggregate outside of the tumor' AND `language_tag`=''), '0', '18', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0');
+ALTER TABLE `qbcf_ar_tissue_blocks` ADD COLUMN large_tumor_zone char(1) DEFAULT '';
+ALTER TABLE `qbcf_ar_tissue_blocks_revs` ADD COLUMN large_tumor_zone char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'large_tumor_zone', 'yes_no',  NULL , '0', '', '', '', 'large tumor zone', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='large_tumor_zone' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='large tumor zone' AND `language_tag`=''), '0', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_fields SET  `language_help`='qbcf_help_lymphoid_aggregate_outside_of_the_tumor' WHERE model='AliquotReviewDetail' AND tablename='qbcf_ar_tissue_blocks' AND field='lymphoid_aggregate_outside_of_the_tumor' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='rows=1,cols=30' WHERE model='AliquotReviewDetail' AND tablename='qbcf_ar_tissue_blocks' AND field='notes' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='20', `flag_editgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_help`='qbcf_help_large_tumor_zone' WHERE model='AliquotReviewDetail' AND tablename='qbcf_ar_tissue_blocks' AND field='large_tumor_zone';
+UPDATE structure_formats SET `flag_search`='0', `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en)
+VALUES
+('tubular formation', 'Tubular Formation'),
+('nuclear atypia', 'Nuclear Atypia'),
+('final grade', 'Final Grade (Nottingham)'),
+('dcis on slide', 'DCIS on Slide'),
+('lcis on slide', 'LCIS on Slide'),
+('tils pct', 'Tumour Lymphocytes (TILs) %'),
+('lymphoid aggregate outside of the tumor', 'Lymphoid Aggregate or Tertiary Lymhoid Structure'),
+('qbcf_help_large_tumor_zone', 'Greater than 6 punches'),
+('qbcf_help_lymphoid_aggregate_outside_of_the_tumor', 'Lymphoid Aggregate outside of the tumor (>1mm) or Tertiary Lymhoid Structure '),
+('mitosis count', 'Mitosis Count'),
+('large tumor zone', 'Large Tumor Zone');
+REPLACE INTO i18n (id,en)
+VALUES
+('mitosis count', 'Mitosis Count');
+
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields 
+SET flag_confidential = '1' 
+WHERE `plugin` = 'InventoryManagement' AND `tablename` = 'aliquot_masters' AND `field` = 'aliquot_label';
+
+INSERT INTO i18n (id,en)
+VALUES
+('more than one block have the same aliquot label [%s] - please validate', 'More than one block have the same Aliquot Bank Label [%s]. Please validate.');
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');
+
+UPDATE structure_fields SET field = 'qbcf_generated_label_for_display' WHERE field = 'qc_tf_generated_label_for_display';
+
+ALTER TABLE ad_tissue_slides ADD COLUMN qbcf_staining VARCHAR(50) DEFAULT NULL;
+ALTER TABLE ad_tissue_slides_revs ADD COLUMN qbcf_staining VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qbcf_slide_staining', "StructurePermissibleValuesCustom::getCustomDropdown('Slide Staining')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Slide Staining', 1, 50, 'study');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Slide Staining');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('H&I', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'qbcf_staining', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_slide_staining') , '0', '', '', '', 'staining', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qbcf_staining' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_slide_staining')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='staining' AND `language_tag`=''), '1', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('staining', 'Staining');
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'box100', 'position', 'integer', 100, NULL, NULL, NULL, 10, 10, 0, 0, 1, 0, 0, 0, '', 'std_boxs', 'custom#storage types#box100', 1);
+UPDATE storage_controls SET flag_active = 1 WHERE storage_type = 'box100';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('box100', 'Box100 1-100',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/MiscIdentifiers%';
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('returned to bank', 'Returned to bank',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE structure_formats SET `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='duration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='duration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='duration_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_internal_use_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET flag_confidential = '0' WHERE model like '%aliquot%' AND field = 'aliquot_label';
+
+update diagnosis_controls SET category = 'secondary - distant' WHERE controls_type IN ('breast progression', 'other cancer progression');
+
+revoir les calculate time to...
+
+
+
+
+
+
+
+
+
+
+
+
+créer des secondaire...
+Dans le data importer creer des secondary pour la progression...
+verifier affichage des aliquot labels des blocks car confidential...
+verifier databrowser et reports
 
 mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
 mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.1_upgrade.sql

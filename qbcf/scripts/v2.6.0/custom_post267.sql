@@ -3,7 +3,7 @@ UPDATE groups SET flag_show_confidential = 1 WHERE id = 1;
 INSERT INTO i18n (id,en,fr) VALUES ('core_installname','QBCF','QBCF');
 
 DELETE FROM banks;
-INSERT INTO banks (id,name) VALUES (1,'CHUM #1'), (2,'CHUQ #2'), (3,'QBCF #3');
+INSERT INTO banks (id,name) VALUES (1,'CHUM#1'), (2,'CHUQ#2'), (3,'QBCF#3');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Clinical Annotation
@@ -1504,7 +1504,7 @@ UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_se
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 REPLACE INTO i18n(id,en) VALUES ('aliquot barcode', 'Aliquot QBCF#');
-REPLACE INTO i18n (id,en) VALUES ('aliquot label','Aliquot QBCF Label');
+REPLACE INTO i18n (id,en) VALUES ('aliquot label','Aliquot Bank Label');
 UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE field = 'barcode' and model like '%aliqu%' AND language_label = 'barcode';
 UPDATE structure_fields SET language_tag = 'aliquot barcode' WHERE field = 'barcode' and model like '%aliqu%' AND language_tag = 'barcode';
 
@@ -1615,13 +1615,6 @@ UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure
 
 UPDATE specimen_review_controls SET flag_active = 0;
 UPDATE aliquot_review_controls SET flag_active = 0;
-UPDATE menus SET flag_Active = 0 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
-WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
-WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster');
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Study
