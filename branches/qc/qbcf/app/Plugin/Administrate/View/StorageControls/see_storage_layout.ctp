@@ -4,7 +4,7 @@
 		'bottom' => array(
 			'edit' => '/Administrate/StorageControls/edit/'.$atim_menu_variables['StorageCtrl.id'].'/',
 			'copy' => '/Administrate/StorageControls/add/0/'.$atim_menu_variables['StorageCtrl.id'].'/',
-			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/'.$atim_menu_variables['StorageCtrl.id'].'/', 'icon' => 'confirm')
+			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/'.$atim_menu_variables['StorageCtrl.id'].'/seeStorageLayout/', 'icon' => 'confirm')
 		)
 	);
 	
@@ -147,7 +147,7 @@
 		'bottom' => array(
 			'edit' => '/Administrate/StorageControls/edit/'.$atim_menu_variables['StorageCtrl.id'].'/',
 			'copy' => '/Administrate/StorageControls/add/0/'.$atim_menu_variables['StorageCtrl.id'].'/',
-			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/'.$atim_menu_variables['StorageCtrl.id'].'/', 'icon' => 'confirm')
+			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/'.$atim_menu_variables['StorageCtrl.id'].'/seeStorageLayout/', 'icon' => 'confirm')
 		)
 	);			
 	

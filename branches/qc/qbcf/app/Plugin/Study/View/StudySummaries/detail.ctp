@@ -41,7 +41,7 @@
 		'settings'	=> array(
 			'header' => __('study investigator'), 
 			'actions' => (!$display_study_fundings)),
-		'extras'	=> $this->Structures->ajaxIndex('/Study/StudyInvestigators/listall/'.$atim_menu_variables['StudySummary.id'])
+		'extras'	=> $this->Structures->ajaxIndex('Study/StudyInvestigators/listall/'.$atim_menu_variables['StudySummary.id'])
 	);
 	
 	$hook_link = $this->Structures->hook('study_investigator');
@@ -59,7 +59,7 @@
 	$final_options = array(
 		'links'		=> $structure_links,
 		'settings'	=> array('header' => __('study funding')),
-		'extras'	=> $this->Structures->ajaxIndex('/Study/StudyFundings/listall/'.$atim_menu_variables['StudySummary.id'])
+		'extras'	=> $this->Structures->ajaxIndex('Study/StudyFundings/listall/'.$atim_menu_variables['StudySummary.id'])
 	);
 	
 	$hook_link = $this->Structures->hook('study_funding');

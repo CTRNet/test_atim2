@@ -13,7 +13,7 @@
 			'plugin storagelayout access to storage' => array("link" => '/StorageLayout/StorageMasters/detail/' . $aliquot_storage_data['StorageMaster']['id'], "icon" => "storage"),
 			'remove from storage' => array("link" => '/InventoryManagement/AliquotMasters/removeAliquotFromStorage/' . $col_id_samp_id_al_id, "icon" => "storage"));
 	}
-	if (Configure::read('order_item_type_config') != '3') $structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addOrderItemsInBatch/AliquotMaster/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "order");
+	if (Configure::read('order_item_type_config') != '3') $structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addOrderItemsInBatch/AliquotMaster/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "add_to_order");
 	$structure_links['bottom']['add uses/events'] = array("link" => '/InventoryManagement/AliquotMasters/addAliquotInternalUse/'. $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
 	$structure_links['bottom']['realiquoting'] = array(
 		'realiquot' =>  array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/creation/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
