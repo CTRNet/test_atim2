@@ -27,13 +27,9 @@ class AliquotMasterCustom extends AliquotMaster {
 		$results = parent::afterFind($results);
 		
 		if(isset($results[0]['AliquotMaster'])) {
-			//Get user and bank information
-				// NOTE: Will Use data returned by ViewAliquot.afterFind() function
-			//Process data
 			$ViewAliquotModel = null;
 			foreach($results as &$result) {
-				//Manage confidential information and create the aliquot information label to display
-					// NOTE: Will Use data returned by ViewAliquot.afterFind() function
+				//Manage confidential information and create the aliquot information label to display: Will Use data returned by ViewAliquot.afterFind() function
 				if(array_key_exists('aliquot_label', $result['AliquotMaster'])) {
 					$aliquot_view_data = null;
 					if(!isset($result['ViewAliquot'])) {
@@ -42,8 +38,12 @@ class AliquotMasterCustom extends AliquotMaster {
 					} else {
 						$aliquot_view_data = array('ViewAliquot' => $result['ViewAliquot']);
 					}
-					if(isset($result['AliquotMaster']['aliquot_label'])) $result['AliquotMaster']['aliquot_label'] = $aliquot_view_data['ViewAliquot']['aliquot_label'];
-					if(isset($aliquot_view_data['ViewAliquot']['qbcf_generated_label_for_display'])) $result['AliquotMaster']['qbcf_generated_label_for_display'] = $aliquot_view_data['ViewAliquot']['qbcf_generated_label_for_display'];
+					if(isset($result['AliquotMaster']['aliquot_label'])) {
+						$result['AliquotMaster']['aliquot_label'] = isset($aliquot_view_data['ViewAliquot']['aliquot_label'])? $aliquot_view_data['ViewAliquot']['aliquot_label'] : CONFIDENTIAL_MARKER;
+					}
+					if(isset($aliquot_view_data['ViewAliquot']['qbcf_generated_label_for_display'])) {
+						$result['AliquotMaster']['qbcf_generated_label_for_display'] = isset($aliquot_view_data['ViewAliquot']['qbcf_generated_label_for_display'])? $aliquot_view_data['ViewAliquot']['qbcf_generated_label_for_display'] : CONFIDENTIAL_MARKER;
+					}
 				}
 			}
 		} else if(isset($results['AliquotMaster'])){
@@ -51,6 +51,7 @@ class AliquotMasterCustom extends AliquotMaster {
 			pr($results);
 			exit;
 		}
+		
 		return $results;
 	}
 }

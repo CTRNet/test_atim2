@@ -1,3 +1,3 @@
 <?php 
 
-	$this->DiagnosisMaster->calculateTimesTo($participant_id);
+	$this->TreatmentMaster->calculateTimesTo($participant_id);

@@ -15,13 +15,13 @@ $qbcf_diagnosis_progression_sites = $StructurePermissibleValuesCustomModel->getC
 $qbcf_diagnosis_progression_sites = array_merge($qbcf_diagnosis_progression_sites['defined'], $qbcf_diagnosis_progression_sites['previously_defined']);
 $qbcf_other_cancer_progression_sites = $StructurePermissibleValuesCustomModel->getCustomDropdown(array('Other Cancer Progression Sites'));
 $qbcf_other_cancer_progression_sites = array_merge($qbcf_other_cancer_progression_sites['defined'], $qbcf_other_cancer_progression_sites['previously_defined']);
-$qbcf_type_of_intervention = $StructurePermissibleValuesCustomModel->getCustomDropdown(array('DX : Type of intervention'));
-$qbcf_type_of_intervention = array_merge($qbcf_type_of_intervention['defined'], $qbcf_type_of_intervention['previously_defined']);
+$qbcf_dx_laterality = $StructurePermissibleValuesCustomModel->getCustomDropdown(array('DX : Laterality'));
+$qbcf_dx_laterality = array_merge($qbcf_dx_laterality['defined'], $qbcf_dx_laterality['previously_defined']);
 
 foreach($this->request->data as &$tmp_dx_data) {
 	switch($tmp_dx_data['DiagnosisControl']['controls_type']) {
 		case 'breast':
-			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = $qbcf_type_of_intervention[$tmp_dx_data['DiagnosisDetail']['type_of_intervention']];
+			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = $qbcf_dx_laterality[$tmp_dx_data['DiagnosisDetail']['laterality']];
 			break;
 		case 'breast progression':
 			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = $qbcf_diagnosis_progression_sites[$tmp_dx_data['DiagnosisDetail']['site']];
@@ -30,12 +30,12 @@ foreach($this->request->data as &$tmp_dx_data) {
 			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = $ctrnet_submission_disease_site_values[$tmp_dx_data['DiagnosisDetail']['disease_site']];
 			break;
 		case 'other cancer progression':
-			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = 
-				$ctrnet_submission_disease_site_values[$tmp_dx_data['DiagnosisDetail']['primary_disease_site']].
-				' '.__('to').' '.
-				$qbcf_other_cancer_progression_sites[$tmp_dx_data['DiagnosisDetail']['secondary_disease_site']];
+			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = $qbcf_other_cancer_progression_sites[$tmp_dx_data['DiagnosisDetail']['secondary_disease_site']];
 			break;
 		default:
 			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = '';
 	}	
 }
+
+$atim_structure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters,chus_tx_for_dx_tree_view');
+$this->set('atim_structure', $atim_structure);
