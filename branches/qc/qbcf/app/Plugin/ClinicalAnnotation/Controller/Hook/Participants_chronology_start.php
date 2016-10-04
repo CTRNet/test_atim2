@@ -18,7 +18,10 @@
 	}
 	
 	$other_cancer_tx = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Tx : Other Cancer Treatment'));
-	$other_cancer_tx = array_merge($other_cancer_tx['defined'], $other_cancer_tx['previously_defined']);	
+	$other_cancer_tx = array_merge($other_cancer_tx['defined'], $other_cancer_tx['previously_defined']);
+	
+	$qbcf_dx_laterality = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('DX : Laterality'));
+	$qbcf_dx_laterality = array_merge($qbcf_dx_laterality['defined'], $qbcf_dx_laterality['previously_defined']);
 	
 	$treatment_extend_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
 	

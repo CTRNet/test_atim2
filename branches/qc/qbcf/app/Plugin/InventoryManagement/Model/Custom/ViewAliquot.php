@@ -32,7 +32,7 @@ SampleMaster.qbcf_tma_sample_control_code,
 SampleMaster.qbcf_tma_sample_control_bank_id,
 		
 			AliquotMaster.barcode,
-			AliquotMaster.aliquot_label,
+IFNULL(ParentAliquotMaster.aliquot_label, AliquotMaster.aliquot_label) AS aliquot_label,
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
@@ -66,6 +66,8 @@ SampleMaster.qbcf_tma_sample_control_bank_id,
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
 		
 			FROM aliquot_masters AS AliquotMaster
+LEFT JOIN realiquotings Realiquoting ON Realiquoting.child_aliquot_master_id = AliquotMaster.id AND Realiquoting.deleted != 1
+LEFT JOIN aliquot_masters ParentAliquotMaster ON Realiquoting.parent_aliquot_master_id = ParentAliquotMaster.id AND ParentAliquotMaster.deleted != 1
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
 			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
@@ -79,6 +81,7 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
 	function beforeFind($queryData){
@@ -128,29 +131,34 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 					if(isset($result['ViewAliquot']['bank_id'])) $result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
 					if(isset($result['ViewAliquot']['qbcf_bank_participant_identifier'])) $result['ViewAliquot']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 					if(isset($result['ViewAliquot']['participant_bank_name'])) $result['ViewAliquot']['participant_bank_name'] = CONFIDENTIAL_MARKER;
-					if(isset($result['ViewAliquot']['aliquot_label']) && $result['ViewAliquot']['sample_type'].$result['ViewAliquot']['aliquot_type'] == 'tissueblock') {
-						$result['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER; //Block Pathology Code
-					}
+					if(isset($result['ViewAliquot']['aliquot_label'])) $result['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER; 
 				}
 				//Create the aliquot information label to display
 				if(array_key_exists('aliquot_label', $result['ViewAliquot'])) {
 					if($result['ViewAliquot']['qbcf_is_tma_sample_control'] == 'y') {
 						//Tissue Control
 						$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
-							$result['ViewAliquot']['qbcf_tma_sample_control_code']." ".
-							$result['ViewAliquot']['aliquot_label']." (".__('control').
+							$result['ViewAliquot']['qbcf_tma_sample_control_code']." - Al#".$result['ViewAliquot']['barcode'].
+							" (".__('control').
 							(empty($result['ViewAliquot']['qbcf_tma_sample_control_bank_id'])? '' : ' - '.$bank_list[$result['ViewAliquot']['qbcf_tma_sample_control_bank_id']]).')';
 					} else {
 						//Particiapnt Tissue
-						$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
-							$result['ViewAliquot']['aliquot_label'].
-							(empty($result['ViewAliquot']['participant_identifier'])? '' : ' - P# '.$result['ViewAliquot']['participant_identifier']);
+						$aliquot_participant_id_and_barcode = 'P#'.(empty($result['ViewAliquot']['participant_identifier'])? '?' : $result['ViewAliquot']['participant_identifier']).' - Al#'.$result['ViewAliquot']['barcode'];
 						if($user_bank_id == 'all') {
-							$result['ViewAliquot']['qbcf_generated_label_for_display'] .= " (".$result['ViewAliquot']['qbcf_bank_participant_identifier'].' ['.$result['ViewAliquot']['participant_bank_name'].'])';
+							$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
+								(strlen($result['ViewAliquot']['participant_bank_name'])? $result['ViewAliquot']['participant_bank_name'] : '?').' - '.
+								(strlen($result['ViewAliquot']['qbcf_bank_participant_identifier'])? $result['ViewAliquot']['qbcf_bank_participant_identifier'] : '?').' - '.
+								(strlen($result['ViewAliquot']['aliquot_label'])? $result['ViewAliquot']['aliquot_label'] : '?').
+								" ($aliquot_participant_id_and_barcode)";
 						} else if($result['ViewAliquot']['bank_id'] == $user_bank_id) {
-							$result['ViewAliquot']['qbcf_generated_label_for_display'] .= " (".$result['ViewAliquot']['qbcf_bank_participant_identifier'].')';
+							$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
+								(strlen($result['ViewAliquot']['qbcf_bank_participant_identifier'])? $result['ViewAliquot']['qbcf_bank_participant_identifier'] : '?').' - '.
+								(strlen($result['ViewAliquot']['aliquot_label'])? $result['ViewAliquot']['aliquot_label'] : '?').
+								" ($aliquot_participant_id_and_barcode)";
+						} else {
+							$result['ViewAliquot']['qbcf_generated_label_for_display'] = $aliquot_participant_id_and_barcode;
 						}
-					}
+					}				
 				}
 			}			
 		} else if(isset($results['ViewAliquot'])){

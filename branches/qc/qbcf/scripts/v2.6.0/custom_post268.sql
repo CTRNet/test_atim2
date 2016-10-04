@@ -855,6 +855,288 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`=
 
 UPDATE structure_fields SET flag_confidential = '0' WHERE model like '%aliquot%' AND field = 'aliquot_label';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE diagnosis_controls SET category = 'secondary - distant' WHERE detail_tablename = 'qbcf_dx_breast_progressions';
+UPDATE diagnosis_controls SET category = 'secondary - distant' WHERE detail_tablename = 'qbcf_dx_other_cancer_progressions';
+
+-- qbcf_dx_other_cancer_progressions
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_dx_other_cancer_progressions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qbcf_dx_other_cancer_progressions' AND `field`='primary_disease_site' AND `language_label`='primary site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qbcf_dx_other_cancer_progressions' AND `field`='primary_disease_site' AND `language_label`='primary site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qbcf_dx_other_cancer_progressions' AND `field`='primary_disease_site' AND `language_label`='primary site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE qbcf_dx_other_cancer_progressions DROP COLUMN primary_disease_site;
+ALTER TABLE qbcf_dx_other_cancer_progressions_revs DROP COLUMN primary_disease_site;
+
+-- qbcf_txd_other_cancers
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_txd_other_cancers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qbcf_txd_other_cancers' AND `field`='cancer_site' AND `language_label`='cancer' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qbcf_txd_other_cancers' AND `field`='cancer_site' AND `language_label`='cancer' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qbcf_txd_other_cancers' AND `field`='cancer_site' AND `language_label`='cancer' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE qbcf_txd_other_cancers DROP COLUMN cancer_site;
+ALTER TABLE qbcf_txd_other_cancers_revs DROP COLUMN cancer_site;
+
+-- qbcf_dx_breasts
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_dx_breasts') 
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field In ('age_at_dx', 'laterality'));
+DROP TABLE qbcf_dx_breasts;
+DROP TABLE qbcf_dx_breasts_revs;
+CREATE TABLE IF NOT EXISTS `qbcf_dx_breasts` (
+  `laterality` varchar(50) DEFAULT NULL,
+  `diagnosis_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qbcf_dx_breasts_revs` (
+  `laterality` varchar(50) DEFAULT NULL,
+  `diagnosis_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qbcf_dx_breasts`
+  ADD CONSTRAINT `qbcf_dx_breasts_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
+
+-- qbcf_tx_breast_diagnostic_events
+
+CREATE TABLE IF NOT EXISTS `qbcf_tx_breast_diagnostic_events` (
+  `age_at_dx` int(11) DEFAULT NULL,
+  `morphology` varchar(250) DEFAULT NULL,
+  `clinical_tstage` varchar(50) DEFAULT NULL,
+  `clinical_nstage` varchar(50) DEFAULT NULL,
+  `clinical_mstage` varchar(50) DEFAULT NULL,
+  `clinical_stage_summary` varchar(50) DEFAULT NULL,
+  `path_tstage` varchar(50) DEFAULT NULL,
+  `path_nstage` varchar(50) DEFAULT NULL,
+  `path_mstage` varchar(50) DEFAULT NULL,
+  `path_stage_summary` varchar(50) DEFAULT NULL,
+  `type_of_intervention` varchar(50) DEFAULT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  `grade_notthingham_sbr_ee` varchar(50) DEFAULT NULL,
+  `glandular_acinar_tubular_differentiation` varchar(50) DEFAULT NULL,
+  `nuclear_pleomorphism` varchar(50) DEFAULT NULL,
+  `mitotic_rate` varchar(50) DEFAULT NULL,
+  `tumor_size` decimal(8,1) DEFAULT NULL,
+  `margin_status` varchar(50) DEFAULT NULL,
+  `number_of_positive_regional_ln` int(4) DEFAULT NULL,
+  `number_of_positive_regional_ln_integer_unknown` char(1) DEFAULT '',
+  `total_number_of_regional_ln_analysed` int(4) DEFAULT NULL,
+  `total_number_of_regional_ln_analysed_integer_unknown` char(1) DEFAULT '',
+  `number_of_positive_regional_ln_category` varchar(50) DEFAULT NULL,
+  `number_of_positive_sentinel_ln` int(4) DEFAULT NULL,
+  `number_of_positive_sentinel_ln_integer_unknown` char(1) DEFAULT '',
+  `total_number_of_sentinel_ln_analysed` int(4) DEFAULT NULL,
+  `total_number_of_sentinel_ln_analysed_integer_unknown` char(1) DEFAULT '',
+  `number_of_positive_sentinel_ln_category` varchar(50) DEFAULT NULL,
+  `er_overall` varchar(50) DEFAULT NULL,
+  `er_intensity` varchar(50) DEFAULT NULL,
+  `er_percent` decimal(4,1) DEFAULT NULL,
+  `pr_overall` varchar(50) DEFAULT NULL,
+  `pr_intensity` varchar(50) DEFAULT NULL,
+  `pr_percent` decimal(4,1) DEFAULT NULL,
+  `her2_ihc` varchar(50) DEFAULT NULL,
+  `her2_fish` varchar(50) DEFAULT NULL,
+  `her_2_status` varchar(50) DEFAULT NULL,
+  `tnbc` varchar(50) DEFAULT NULL,
+  `time_to_last_contact_months` int(5) DEFAULT NULL,
+  `time_to_first_progression_months` int(5) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `qbcf_tx_breast_diagnostic_events_ibfk_1` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qbcf_tx_breast_diagnostic_events_revs` (
+  `age_at_dx` int(11) DEFAULT NULL,
+  `morphology` varchar(250) DEFAULT NULL,
+  `clinical_tstage` varchar(50) DEFAULT NULL,
+  `clinical_nstage` varchar(50) DEFAULT NULL,
+  `clinical_mstage` varchar(50) DEFAULT NULL,
+  `clinical_stage_summary` varchar(50) DEFAULT NULL,
+  `path_tstage` varchar(50) DEFAULT NULL,
+  `path_nstage` varchar(50) DEFAULT NULL,
+  `path_mstage` varchar(50) DEFAULT NULL,
+  `path_stage_summary` varchar(50) DEFAULT NULL,
+  `type_of_intervention` varchar(50) DEFAULT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  `grade_notthingham_sbr_ee` varchar(50) DEFAULT NULL,
+  `glandular_acinar_tubular_differentiation` varchar(50) DEFAULT NULL,
+  `nuclear_pleomorphism` varchar(50) DEFAULT NULL,
+  `mitotic_rate` varchar(50) DEFAULT NULL,
+  `tumor_size` decimal(8,1) DEFAULT NULL,
+  `margin_status` varchar(50) DEFAULT NULL,
+  `number_of_positive_regional_ln` int(4) DEFAULT NULL,
+  `number_of_positive_regional_ln_integer_unknown` char(1) DEFAULT '',
+  `total_number_of_regional_ln_analysed` int(4) DEFAULT NULL,
+  `total_number_of_regional_ln_analysed_integer_unknown` char(1) DEFAULT '',
+  `number_of_positive_regional_ln_category` varchar(50) DEFAULT NULL,
+  `number_of_positive_sentinel_ln` int(4) DEFAULT NULL,
+  `number_of_positive_sentinel_ln_integer_unknown` char(1) DEFAULT '',
+  `total_number_of_sentinel_ln_analysed` int(4) DEFAULT NULL,
+  `total_number_of_sentinel_ln_analysed_integer_unknown` char(1) DEFAULT '',
+  `number_of_positive_sentinel_ln_category` varchar(50) DEFAULT NULL,
+  `er_overall` varchar(50) DEFAULT NULL,
+  `er_intensity` varchar(50) DEFAULT NULL,
+  `er_percent` decimal(4,1) DEFAULT NULL,
+  `pr_overall` varchar(50) DEFAULT NULL,
+  `pr_intensity` varchar(50) DEFAULT NULL,
+  `pr_percent` decimal(4,1) DEFAULT NULL,
+  `her2_ihc` varchar(50) DEFAULT NULL,
+  `her2_fish` varchar(50) DEFAULT NULL,
+  `her_2_status` varchar(50) DEFAULT NULL,
+  `tnbc` varchar(50) DEFAULT NULL,
+  `time_to_last_contact_months` int(5) DEFAULT NULL,
+  `time_to_first_progression_months` int(5) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qbcf_tx_breast_diagnostic_events`
+  ADD CONSTRAINT `qbcf_tx_breast_diagnostic_events_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qbcf_tx_breast_diagnostic_events');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'age_at_dx', 'integer_positive',  NULL , '0', 'size=5', '', 'help_age at dx', 'age at time of intervention', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'type_of_intervention', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention') , '0', '', '', '', 'type of intervention', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_laterality') , '0', '', '', '', 'laterality', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'clinical_stage_summary', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_clinical_anatomic_stage') , '0', '', '', '', 'clinical stage', 'summary'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'clinical_tstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_ct') , '0', '', '', '', '', 't stage'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'clinical_nstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_cn') , '0', '', '', '', '', 'n stage'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'clinical_mstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_cm') , '0', '', '', '', '', 'm stage'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'path_stage_summary', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pathological_anatomic_stage') , '0', '', '', '', 'pathological stage', 'summary'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'path_tstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_pt') , '0', '', '', '', '', 't stage'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'path_nstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_pn') , '0', '', '', '', '', 'n stage'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'path_mstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_pm') , '0', '', '', '', '', 'm stage'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'morphology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_morphology') , '0', '', '', '', 'morphology', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'grade_notthingham_sbr_ee', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_grade_notthingham_sbr_ee') , '0', '', '', '', 'grade notthingham / sbr-ee', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'glandular_acinar_tubular_differentiation', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_glandular_acinar_tubular_differentiation') , '0', '', '', '', 'glandular (acinar)/ tubular differentiation', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'nuclear_pleomorphism', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_nuclear_pleomorphism') , '0', '', '', '', 'nuclear pleomorphism', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'mitotic_rate', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_mitotic_rate') , '0', '', '', '', 'mitotic rate', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'tumor_size', 'float_positive',  NULL , '0', '', '', '', 'tumor size (mm)', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'margin_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_margin_status') , '0', '', '', '', 'margin status', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'number_of_positive_regional_ln', 'integer_positive',  NULL , '0', '', '', '', 'number of positive regional ln', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'total_number_of_regional_ln_analysed', 'integer_positive',  NULL , '0', '', '', '', 'total number of regional ln analysed', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'number_of_positive_regional_ln_category', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_number_of_positive_regional_ln_category') , '0', '', '', '', 'number of positive regional ln (category)', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'number_of_positive_sentinel_ln', 'integer_positive',  NULL , '0', '', '', '', 'number of positive sentinel ln', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'total_number_of_sentinel_ln_analysed', 'integer_positive',  NULL , '0', '', '', '', 'total number of sentinel ln analysed', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'number_of_positive_sentinel_ln_category', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_number_of_positive_sentinel_ln_category') , '0', '', '', '', 'number of positive sentinel ln (category)', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'er_overall', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_er_overall') , '0', '', '', '', 'er overall  (from path report)', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'er_intensity', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_er_intensity') , '0', '', '', '', 'er intensity', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'er_percent', 'float_positive',  NULL , '0', '', '', '', 'er percent', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'pr_overall', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pr_overall') , '0', '', '', '', 'pr overall (in path report)', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'pr_intensity', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pr_intensity') , '0', '', '', '', 'pr intensity', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'pr_percent', 'float_positive',  NULL , '0', '', '', '', 'pr percent', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'her2_ihc', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her2_ihc') , '0', '', '', '', 'her2 ihc', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'her2_fish', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her2_fish') , '0', '', '', '', 'her2 fish', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'her_2_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her_2_status') , '0', '', '', '', 'her 2 status', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'tnbc', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnbc') , '0', '', '', '', 'tnbc', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'number_of_positive_regional_ln_integer_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'total_number_of_regional_ln_analysed_integer_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'number_of_positive_sentinel_ln_integer_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'total_number_of_sentinel_ln_analysed_integer_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'time_to_last_contact_months', 'integer_positive',  NULL , '0', 'size=3', '', '', 'time to last contact/death (months)', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'time_to_first_progression_months', 'integer_positive',  NULL , '0', 'size=3', '', '', 'time to first progression (months)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='age_at_dx' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_age at dx' AND `language_label`='age at time of intervention' AND `language_tag`=''), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='type_of_intervention' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type of intervention' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='clinical_stage_summary' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_clinical_anatomic_stage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical stage' AND `language_tag`='summary'), '1', '14', 'coding', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='clinical_tstage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_ct')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='t stage'), '1', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='clinical_nstage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_cn')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='n stage'), '1', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='clinical_mstage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_cm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '1', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='path_stage_summary' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pathological_anatomic_stage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pathological stage' AND `language_tag`='summary'), '1', '18', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='path_tstage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_pt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='t stage'), '1', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='path_nstage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_pn')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='n stage'), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='path_mstage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnm_pm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='morphology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_morphology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='morphology' AND `language_tag`=''), '3', '22', 'morphology', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='grade_notthingham_sbr_ee' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_grade_notthingham_sbr_ee')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='grade notthingham / sbr-ee' AND `language_tag`=''), '3', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='glandular_acinar_tubular_differentiation' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_glandular_acinar_tubular_differentiation')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='glandular (acinar)/ tubular differentiation' AND `language_tag`=''), '3', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='nuclear_pleomorphism' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_nuclear_pleomorphism')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nuclear pleomorphism' AND `language_tag`=''), '3', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='mitotic_rate' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_mitotic_rate')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mitotic rate' AND `language_tag`=''), '3', '26', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='tumor_size' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size (mm)' AND `language_tag`=''), '3', '27', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='margin_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_margin_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='margin status' AND `language_tag`=''), '3', '28', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_regional_ln' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of positive regional ln' AND `language_tag`=''), '3', '29', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='total_number_of_regional_ln_analysed' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total number of regional ln analysed' AND `language_tag`=''), '3', '30', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_regional_ln_category' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_number_of_positive_regional_ln_category')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of positive regional ln (category)' AND `language_tag`=''), '3', '31', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_sentinel_ln' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of positive sentinel ln' AND `language_tag`=''), '3', '32', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='total_number_of_sentinel_ln_analysed' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total number of sentinel ln analysed' AND `language_tag`=''), '3', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_sentinel_ln_category' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_number_of_positive_sentinel_ln_category')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of positive sentinel ln (category)' AND `language_tag`=''), '3', '34', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='er_overall' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_er_overall')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='er overall  (from path report)' AND `language_tag`=''), '4', '35', 'biomarkers', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='er_intensity' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_er_intensity')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='er intensity' AND `language_tag`=''), '4', '36', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='er_percent' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='er percent' AND `language_tag`=''), '4', '37', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='pr_overall' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pr_overall')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pr overall (in path report)' AND `language_tag`=''), '4', '38', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='pr_intensity' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_pr_intensity')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pr intensity' AND `language_tag`=''), '4', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='pr_percent' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pr percent' AND `language_tag`=''), '4', '40', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='her2_ihc' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her2_ihc')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='her2 ihc' AND `language_tag`=''), '4', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='her2_fish' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her2_fish')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='her2 fish' AND `language_tag`=''), '4', '42', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='her_2_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_her_2_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='her 2 status' AND `language_tag`=''), '4', '43', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='tnbc' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tnbc')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tnbc' AND `language_tag`=''), '4', '44', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_regional_ln_integer_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '3', '29', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='total_number_of_regional_ln_analysed_integer_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '3', '30', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_sentinel_ln_integer_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '3', '32', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='total_number_of_sentinel_ln_analysed_integer_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '3', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='time_to_last_contact_months' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='time to last contact/death (months)' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='time_to_first_progression_months' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='time to first progression (months)' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, 'breast diagnostic event', '', 1, 'qbcf_tx_breast_diagnostic_events', 'qbcf_tx_breast_diagnostic_events', 0, null, '', 'breast diagnostic event', 1, null, 0, 0);
+INSERT INTO i18n (id,en,fr) VALUES ('breast diagnostic event', 'Breast diagnostic Event', 'Événement de diagnostic du sein');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='type_of_intervention'), 'notEmpty');
+
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='type_of_intervention' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qbcf_dx_breasts' AND `field`='type_of_intervention' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention') AND `flag_confidential`='0');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='type_of_intervention' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention')) WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qbcf_dx_breasts' AND `field`='type_of_intervention' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention') AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (model='DiagnosisDetail' AND tablename='qbcf_dx_breasts'));
+DELETE FROM structure_fields WHERE model='DiagnosisDetail' AND tablename='qbcf_dx_breasts' AND field NOT IN ('laterality');
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_dx_breasts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-90' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `language_label`='age_at_dx' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_age at dx' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_dx_other_cancers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-90' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `language_label`='age_at_dx' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_age at dx' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+("at least one breast diagnostic event date is unknown - the 'time to' values cannot be calculated for 'un-dated' event","At least one breast diagnosis event date is unknown. The 'Time to' values cannot be calculated for 'un-dated' event.");
+
+INSERT INTO structures(`alias`) VALUES ('chus_tx_for_dx_tree_view');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_tx_for_dx_tree_view'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='type_of_intervention' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type of intervention' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='controls_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='303' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='type_of_intervention' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_type_of_intervention') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE datamart_browsing_controls
+SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
+
+
+
+
+
+
+revoir Databrowser Relations Links Summary
+ClinicalAnnotation/TreatmentMasters/detail/1/4/ no data for [Generated.qbcf_dx_detail_for_tree_view] lors affichage dx
+
+
+
+
+
+
+
+
+
+
+
+claculer Time to Last Contact/Death (months) - Time to First Progression (months)	- Her 2 Status - TNBC
+en gros un dx = diagnosis date + lateralité
+On mais ensuite les tx, biospie, etc... 
+Si deux cancer (dx) distant de + de un an warning mais deux cancers... on ajustera a siz mois au besoin
+
+
+
+
+
+exit ici
+
+
 update diagnosis_controls SET category = 'secondary - distant' WHERE controls_type IN ('breast progression', 'other cancer progression');
 
 revoir les calculate time to...

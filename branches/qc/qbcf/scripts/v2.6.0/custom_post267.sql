@@ -274,7 +274,7 @@ ALTER TABLE `qbcf_dx_breasts`
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
 ('qbcf_type_of_intervention', "StructurePermissibleValuesCustom::getCustomDropdown('DX : Type of intervention')"),
-('qbcf_laterality', "StructurePermissibleValuesCustom::getCustomDropdown('DX : Laterality  ')"),
+('qbcf_laterality', "StructurePermissibleValuesCustom::getCustomDropdown('DX : Laterality')"),
 ('qbcf_clinical_anatomic_stage', "StructurePermissibleValuesCustom::getCustomDropdown('DX : Clinical Anatomic Stage')"),
 ('qbcf_tnm_ct', "StructurePermissibleValuesCustom::getCustomDropdown('DX : TNM (cT)')"),
 ('qbcf_tnm_cn', "StructurePermissibleValuesCustom::getCustomDropdown('DX : TNM (cN)')"),
@@ -301,8 +301,8 @@ VALUES
 ('qbcf_tnbc', "StructurePermissibleValuesCustom::getCustomDropdown('DX : TNBC')");
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES 
-('DX : Type of intervention', 1, 50, 'clinical - diagnosis'),
-('DX : Laterality  ', 1, 50, 'clinical - diagnosis'),
+('DX : Type of intervention', 1, 50, 'clinical - treatment'),
+('DX : Laterality', 1, 50, 'clinical - diagnosis'),
 ('DX : Clinical Anatomic Stage', 1, 50, 'clinical - diagnosis'),
 ('DX : TNM (cT)', 1, 50, 'clinical - diagnosis'),
 ('DX : TNM (cN)', 1, 50, 'clinical - diagnosis'),
@@ -340,7 +340,7 @@ VALUES
 ('unilateral total mastectomy', 'Unilateral Total Mastectomy',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('bilateral total mastectomy', 'Bilateral Total Mastectomy',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('lumpectomy', 'Lumpectomy',  '', '1', @control_id, NOW(), NOW(), 1, 1);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Laterality  ');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Laterality');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('left', 'Left',  '', '1', @control_id, NOW(), NOW(), 1, 1),

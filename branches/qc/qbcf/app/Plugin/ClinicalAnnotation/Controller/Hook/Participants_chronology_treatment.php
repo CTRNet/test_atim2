@@ -17,8 +17,10 @@
 			if($drugs) $chronology_details = implode(' + ', $drugs);
 			break;
 		case 'other cancer':
-			$event .= ' : '.$ctrnet_submission_disease_site_values[$tx['TreatmentDetail']['cancer_site']];
 			$chronology_details = $other_cancer_tx[$tx['TreatmentDetail']['type']];
+			break;
+		case 'breast diagnostic event':
+			$chronology_details = $beast_dx_intervention[$tx['TreatmentDetail']['type_of_intervention']];
 			break;
 	}
 	
