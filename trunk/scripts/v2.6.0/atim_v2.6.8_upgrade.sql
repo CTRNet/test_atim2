@@ -60,15 +60,15 @@
 --
 --		The ICD-0-3-Topo categories have been defined based on an internet reasearch (no source file).
 --		Created field 'diagnosis_masters.icd_0_3_topography_category' to record a ICD-0-3-Topo 3 digits codes (C07, etc) 
---		and let user searches on tissue site/category (more generic than tissue descritpion - ex: colon, etc).
+--		and to let user searches on tissue site/category (more generic than tissue descritpion - ex: colon, etc).
 --		A search field on ICD-0-3-Topo categories has been created for each form displaying a field linked to the ICD-0-3-Topo tool.
 --      Note the StructureValueDomain 'icd_0_3_topography_categories' can also be used to set the site of any record of surgery, radiation, tissue source, etc .
 --
 --      TODO:
 --
---		Check field add has been correctly done in each search form displaying the ICD-0-3-Topo tool.
---		Check field diagnosis_masters.icd_0_3_topography_category has been correctly populated based on diagnosis_masters.topography field (when
---		the diagnosis_masters.topography field contains ICD-0-3-Topo codes).
+--		Check field has been correctly linked to any form displaying the ICD-0-3-Topo tool.
+--		Check field diagnosis_masters.icd_0_3_topography_category of existing records has been correctly populated based on diagnosis_masters.topography 
+--		field (when the diagnosis_masters.topography field contains ICD-0-3-Topo codes).
 --
 --
 --   ### 4 # Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
@@ -92,7 +92,7 @@
 --		Update custom code if required.
 --
 --
---   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field
+--   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field plus moved drug_id field to Master model
 --
 --		Replaced all 'drug_id' field with 'select' type and 'domain_name' equals to 'drug_list' by the 3 following field
 --			- ClinicalAnnotation.FunctionManagement.autocomplete_treatment_drug_id for any data creation and update
@@ -123,16 +123,22 @@
 --      ALTER TABLE {tablename} DROP COLUMN drug_id;
 --      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
 --
+--
 --   ### 7 # TMA slide new features
 --
 --      Created an immunochemistry autocomplete field.
 -- 		Created a new object TmaSlideUse linked to a TmaSlide to track any slide scoring or analysis and added this one to the databrowser.
+--		Changed code to be able to add a TMA Slide to an Order (see point 8 below).
 --
 --		TODO:
 --
 --		Customize the TmaSlideUse controller and forms if required.
 --		Activate the TmaSlide to TmaSlideUse databrowser link if required.
+--			UPDATE datamart_browsing_controls 
+--          SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+--          WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
 --		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
+--
 --
 --   ### 8 # Order tool upgrade
 --
@@ -143,11 +149,13 @@
 --
 --		TODO:
 --
---		Note the OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(): Check if custom code has to be update or not.
---		Set core variable 'order_item_type_config' to define the type(s) of item that could be added to order (both tma slide and aliquot, aliquot only, tma slide only). The field display properties (flag_index, etc)
---      of the following forms 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' will be updated by the AppController.newVersionSetup() function based on the 'order_item_type_config' value.
+--		Note the OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(). Check if custom code has to be update or not.
+--		Set core variable 'order_item_type_config' to define the type(s) of item that could be added to order (both tma slide and aliquot, aliquot only, tma slide only). 
+--      Besd on the 'order_item_type_config' variable, the field display properties (flag_index, etc) of the 'shippeditems', 'orderitems', 'orderitems_returned' 
+--      and 'orderlines' forms will be updated by the AppController.newVersionSetup() function based on the 'order_item_type_config' value.
 --		Activate databrowser links if required plus review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
 --      Update $table_querie variable of the ViewAliquotUseCustom model (if exists).
+--
 --
 --   ### 9 # New Sample and aliquot controls
 --
@@ -157,19 +165,22 @@
 --
 --		Activate these sample types if required.
 --
+--
 --   ### 10 # Removed AliquotMaster.use_counter field
 --
 --		TODO:
 --
 --		Validate no custom code or migration script populate/update/use this field.
 --
+--
 --   ### 11 # datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
 --
 --		TODO:
 --		
---		Run following queries to check if some functions and reports have to be reviwed:
+--		Run following queries to check if some custom functions and reports have to be reviewed:
 --			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
---			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage' AND name != 'list all children storages');
+--			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND name != 'list all children storages');
+--
 --
 --   ### 12 # Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
 --
@@ -178,9 +189,33 @@
 --		Run following query to detect errors
 --			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
 --
+--
 --   ### 13 # Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
 --
---      And used new feature developped according to issue #3320 (Be able to override date/datetime field with approximate date adding field_accuracy value to options) to display default approximate date
+--		TODO:
+--		
+--		Check any custom code using AliquotMaster.getDefaultStorageDate().
+--
+--
+--  ### 14 # Changed displayed pages workflow after treatment creation.
+--
+--		Based on the created treatment type and the selected protocol (when option exists), the next page displayed after a treatment creation could be:
+--			- The treatment detail form.
+--			- The treatment detail form with the list of all treatment precisions already attached to the treatment based on the selected protocol (when protocol is itself linked to precisions).
+--          - The treatment precision creation form when no protocol is attached to the treatment and treatment precision can be attached to the treatment.
+--
+--		TODO:
+--		
+--		Change workflow by hook if required.
+--
+--
+--  ### 15 # Change way we format the displayed results of a search on a Coding System List (WHO-10, etc).
+--
+--		Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields.
+--
+--		TODO:
+--		
+--		Override the CodingIcdAppModel.globalSearch and CodingIcdAppModel.getDescription functions.
 --
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -1098,7 +1133,9 @@ VALUES
 ('new secondary - distant', 'New Secondary (Distant)', 'Nouveau secondaire (distant)');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Redesigned the treatment detail form
+-- Redesigned the treatment detail form. Changed next page displayed after treatment creation based on the treatment type created, 
+-- if a protocol is selected and if drug are linked to the selected protocol. Protocol drugs are automatically linked to the treatment
+-- when they exist. 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO i18n (id,en,fr)
@@ -1106,9 +1143,9 @@ VALUES
 ('from associated protocol', 'from associated protocol', 'à partir du protocole associé');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- ICD Codes:
---     - Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields 
---       then repalced them by a CodingIcd.generated_detail field
+-- ICD Codes: Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields 
+-- then replaced them by a CodingIcd.generated_detail field populated by the CodingIcdAppModel.globalSearch 
+-- and CodingIcdAppModel.getDescription functions.
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO structures(`alias`) VALUES ('CodingIcd');
@@ -1330,7 +1367,7 @@ VALUES
 UPDATE i18n SET en = 'No new item can be added to the shipment.' WHERE id = 'no new item could be actually added to the shipment';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Change type to order item type (aliquot or tma slide)
+-- Change 'type' label (of an order item) to 'order item type' label (aliquot or tma slide)
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE structure_fields SET `language_label`='item type' WHERE `model`='Generated' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_types') AND `flag_confidential`='0';
@@ -1364,7 +1401,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='orderlines'), (SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='is tma slide'), '2', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- 
+-- Include TMA Blocks label to the StorageLayout tool menus and buttons
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO i18n (id,en,fr)
@@ -1455,7 +1492,7 @@ DELETE FROM structure_value_domains_permissible_values WHERE structure_value_dom
 UPDATE structure_value_domains SET source = "Datamart.DatamartStructure::getDisplayNameFromModel" WHERE domain_name='models';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Change MTool enu title and description
+-- Change Tool Menu title and description
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 REPLACE INTO i18n (id,en,fr)
@@ -1614,6 +1651,66 @@ DELETE FROM menus WHERE use_link LIKE '/Administrate/AdminUsers/search/';
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('error','Error', 'Erreur');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Changed DB field specimen_review_masters.review_code from NOT NULL to NULL in case no code field is displayed.
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE specimen_review_masters MODIFY review_code varchar(100) DEFAULT NULL;
+ALTER TABLE specimen_review_masters_revs MODIFY review_code varchar(100) DEFAULT NULL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
+mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
+
+
+
+
+
+
+
+nouveau type de sample
+bug sur1 d storage pas placé
+Bug sur le serveur de jgh
+Tester script sur seveur jgh
+
+
+ 
+UPDATE `atim_db`.`order_items` 
+SET `status` = 'shipped', 
+`date_returned` = NULL, 
+`date_returned_accuracy` = NULL,
+ `reason_returned` = NULL, 
+ `reception_by` = NULL, 
+ `modified` = '2016-10-03 15:33:40', 
+ `modified_by` = 1  
+ WHERE `atim_db`.`order_items`.`id` = '1''
+
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
