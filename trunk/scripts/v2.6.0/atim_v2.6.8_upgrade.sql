@@ -1461,9 +1461,9 @@ model = 'NonTmaBlockStorage',
 structure_id = (SELECT id FROM structures WHERE alias = 'non_tma_block_storages'),
 adv_search_structure_alias = NULL,
 display_name = 'storage (non tma block)',
-control_master_model = NULL, 
+control_master_model = '', 
 index_link = '/StorageLayout/StorageMasters/detail/%%NonTmaBlockStorage.id%%/',
-batch_edit_link = NULL
+batch_edit_link = ''
 WHERE id = @datamart_structure_id;
 
 UPDATE datamart_browsing_results
@@ -1658,59 +1658,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('error','Error', 'Erreur');
 
 ALTER TABLE specimen_review_masters MODIFY review_code varchar(100) DEFAULT NULL;
 ALTER TABLE specimen_review_masters_revs MODIFY review_code varchar(100) DEFAULT NULL;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.0_full_installation.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.1_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.2_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.3_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.4_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.5_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.6_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.7_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_upgrade.sql
-mysql -u root trunk --default-character-set=utf8 <  atim_v2.6.8_demo_data.sql
-
-
-
-
-
-
-
-nouveau type de sample
-bug sur1 d storage pas placé
-Bug sur le serveur de jgh
-Tester script sur seveur jgh
-
-
- 
-UPDATE `atim_db`.`order_items` 
-SET `status` = 'shipped', 
-`date_returned` = NULL, 
-`date_returned_accuracy` = NULL,
- `reason_returned` = NULL, 
- `reception_by` = NULL, 
- `modified` = '2016-10-03 15:33:40', 
- `modified_by` = 1  
- WHERE `atim_db`.`order_items`.`id` = '1''
-
-
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
