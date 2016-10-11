@@ -29,15 +29,15 @@
 					}
 				} else {
 					unset($this->request->data['SampleDetail']);
-					$this->request->data['SampleDetail']['pathology_reception_datetime'] = $last_sample_modified['SampleDetail']['pathology_reception_datetime'];
-					$this->request->data['SampleDetail']['pathology_reception_datetime_accuracy'] = $last_sample_modified['SampleDetail']['pathology_reception_datetime_accuracy'];
+//					$this->request->data['SampleDetail']['pathology_reception_datetime'] = $last_sample_modified['SampleDetail']['pathology_reception_datetime'];
+//					$this->request->data['SampleDetail']['pathology_reception_datetime_accuracy'] = $last_sample_modified['SampleDetail']['pathology_reception_datetime_accuracy'];
 				}
 			} else {
 				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
 				$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_data['Collection']['collection_datetime'];
 				$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = in_array($collection_data['Collection']['collection_datetime_accuracy'], array('i', 'c'))? 'h' : $collection_data['Collection']['collection_datetime_accuracy'];
-				$this->request->data['SampleDetail']['pathology_reception_datetime'] = $this->request->data['SpecimenDetail']['reception_datetime'];
-				$this->request->data['SampleDetail']['pathology_reception_datetime_accuracy'] = $this->request->data['SpecimenDetail']['reception_datetime_accuracy'];
+//				$this->request->data['SampleDetail']['pathology_reception_datetime'] = $this->request->data['SpecimenDetail']['reception_datetime'];
+//				$this->request->data['SampleDetail']['pathology_reception_datetime_accuracy'] = $this->request->data['SpecimenDetail']['reception_datetime_accuracy'];
 				if($system_template == 'Tissue Post-Chirurgie') $this->request->data['SampleDetail']['tissue_nature'] = 'tumour';
 			}
 			break;
