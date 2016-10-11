@@ -159,5 +159,8 @@
 		}
 	}
 	$this->set('default_data', $default_data);
+	$override_data['AliquotMaster.storage_datetime_accuracy'] = 'h';
+	$this->set('override_data', $override_data);
+	
 	
 ?>

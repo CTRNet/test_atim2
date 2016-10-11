@@ -25,12 +25,12 @@ Collection.chus_blood_vessels_clamped_time,
 Collection.chus_warm_ischemia_time_mn,
 Collection.chus_default_collection_study_summary_id,
 StudySummary.title,
-TreatmentDetail.patho_report_report_number,
+EventMaster.chus_patho_report_number as patho_report_report_number,
 		Collection.created AS created
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN study_summaries AS StudySummary ON Collection.chus_default_collection_study_summary_id = StudySummary.id AND StudySummary.deleted <> 1
-LEFT JOIN chus_txd_digestive_system_surgeries_biopsies AS TreatmentDetail ON Collection.treatment_master_id = TreatmentDetail.treatment_master_id
+LEFT JOIN event_masters AS EventMaster ON Collection.event_master_id = EventMaster.id
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
@@ -69,4 +69,34 @@ LEFT JOIN chus_txd_digestive_system_surgeries_biopsies AS TreatmentDetail ON Col
 	
 		return $return;
 	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		
+		$SampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+		$SampleMasterModel->unbindModel(array('hasMany' => array('AliquotMaster')));				
+		if(isset($results[0]['ViewCollection']['collection_id'])) {
+			foreach($results as &$result){
+				$res = $SampleMasterModel->find('first', array(
+					'conditions' => array('SampleMaster.collection_id' => $results[0]['ViewCollection']['collection_id'], 'SampleControl.sample_category' => 'specimen'), 
+					'fields' => array("GROUP_CONCAT(SampleControl.sample_type SEPARATOR '//') AS sample_types"), 
+					'group' => array('SampleMaster.collection_id'),
+					'recursive' => '0'));
+				$tmps_sample_types = '';
+				if($res) {
+					$tmps_sample_types = array();
+					foreach(explode('//', $res[0]['sample_types']) as $new_type) $tmps_sample_types[] = __($new_type);
+					$tmps_sample_types = implode(' & ', $tmps_sample_types);
+				}
+				$result['ViewCollection']['chus_generated_sample_types'] = $tmps_sample_types;
+			}
+		} else if(isset($results['ViewCollection'])){
+			pr('TODO afterFind ViewCollection');
+			pr($results);
+			exit;
+		}
+	
+		return $results;
+	}	
+	
 }
