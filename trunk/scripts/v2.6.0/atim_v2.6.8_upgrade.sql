@@ -213,13 +213,22 @@
 --		Change workflow by hook if required.
 --
 --
---  ### 15 # Change way we format the displayed results of a search on a Coding System List (WHO-10, etc).
+--  ### 15 # Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
 --
 --		Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields.
 --
 --		TODO:
 --		
 --		Override the CodingIcdAppModel.globalSearch and CodingIcdAppModel.getDescription functions.
+--
+--
+--  ### 16 # Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 
+--
+--		TODO:
+--		
+--		Run queries to activate the reports:
+--			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excisional biopsy';
+--			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excis. resect.';
 --
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -2890,10 +2899,36 @@ VALUES
 
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='tumor_deposits_specify' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '415', 'notes', '0', '1', 'notes', '0', '', '0', '', '0', '', '1', 'cols=40, rows=6', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE structure_fields SET  `language_label`='adenomas' WHERE model='EventDetail' AND tablename='ed_cap_report_16_colon_resections' AND field='additional_pathologic_adenoma' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en) VALUES ('adenomas', 'Adenomas');
+
+ALTER TABLE ed_cap_report_16_colon_biopsies_revs DROP COLUMN modified_by;
+ALTER TABLE ed_cap_report_16_colon_resections_revs DROP COLUMN modified_by;
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'6562','n/a');
+('2.6.8', NOW(),'6564','n/a');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
+
+- Added Investigator and Funding to study tool.
+- Replaced the study drop down list to an autocomplete field to help user data entry.
+- Added Study and OrderLine Models to the databrowser.
+- Added ICD-0-3-Topo Categories (tissue site/category).
+- Replaced the drug drop down list to an autocomplete field.
+- Added object to track any TMA slide acoring and analysis.
+- Change order tool to allow user to add a TMA slide to an order.
+- Added feature to be able to flag a shipped item as returned.
+- Created Buffy Coat and Nail sample types.
+- Changed feature to let user to link more than one aliquot type to a path-review.
+- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0)  
