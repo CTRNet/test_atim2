@@ -34,8 +34,8 @@ class PagesController extends AppController {
  * @var array
  */
 	public $uses = array('Page');
-	
-	function beforeFilter() {
+
+   public function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->allowedActions = array('display');
 	}

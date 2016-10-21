@@ -48,7 +48,7 @@ if(!headers_sent()){
 		echo $this->Html->css('jQuery/fg.menu.css'); 
 
 		//set the locale
-		if(__('clin_english', true) == "Anglais"){
+		if(__('clin_english', true) === "Anglais"){
 			$locale = "fr";
 		}else{
 			$locale = "";
@@ -94,7 +94,7 @@ if(!headers_sent()){
 	echo $this->Shell->footer();
 	
 
-	echo $this->element('sql_dump');
+	// echo $this->element('sql_dump');
 	
 	// JS added to end of DOM tree...
 	

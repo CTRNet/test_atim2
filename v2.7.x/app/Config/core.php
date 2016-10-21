@@ -400,7 +400,7 @@ Configure::write('Session.timeout', $debug ? 3600 : 600);
  *	- level 3: level 2 + contains at least one uppercase letter
  *	- level 4: level 3 + special at least one character [!$-_.]
  */
-Configure::write('password_security_level', 2);
+Configure::write('password_security_level', 0);
 
 /**
  * Maximum number of successive failed login attempts (max_login_attempts_from_IP) before an IP address is disabled.
@@ -408,7 +408,7 @@ Configure::write('password_security_level', 2);
  */
 Configure::write('max_login_attempts_from_IP', 5);
 /**
- * Time in minute (time_mn_IP_disabled) before an IP adress is reactivated.
+ * Time in minute (time_mn_IP_disabled) before an IP address is reactivated.
  */
 Configure::write('time_mn_IP_disabled', 20);
 
@@ -420,7 +420,7 @@ Configure::write('max_user_login_attempts', 5);
 /**
  * Period of password validity in month.
  * Keep empty if no control has to be done.
- * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
+ * When password is invalid, a warning message will be displayed and the user will be redirect to the change password form.
  */
 Configure::write('password_validity_period_month', null);
 

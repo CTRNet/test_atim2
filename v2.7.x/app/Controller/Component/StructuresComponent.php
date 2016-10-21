@@ -2,9 +2,9 @@
 App::uses('Component', 'Controller');
 
 class StructuresComponent extends Component {
-	
-	var $controller;
-	static $singleton;
+
+   public $controller;
+   public static $singleton;
 	
 	public static $range_types = array("date", "datetime", "time", "integer", "integer_positive", "float", "float_positive");
 	
@@ -20,7 +20,7 @@ class StructuresComponent extends Component {
 	 * @param $structure_name Structure name (by default name will be 'atim_structure')
 	 * @param array $parameters
 	 */
-	function set($alias = NULL, $structure_name = 'atim_structure', array $parameters = array()){
+	public function set($alias = NULL, $structure_name = 'atim_structure', array $parameters = array()){
 		if(!is_array($alias)){
 			$alias = array_filter(explode(",", $alias));
 			if(!$alias){
@@ -127,7 +127,7 @@ class StructuresComponent extends Component {
 		}
 	}
 	
-	function get($mode = null, $alias = NULL){
+	public function get($mode = null, $alias = NULL){
 		$result = array('structure' => array('Structure' => array(), 'Sfs' => array()), 'rules' => array());
 		if(!is_array($alias)){
 			$alias = explode(",", $alias);
@@ -156,7 +156,7 @@ class StructuresComponent extends Component {
 		return $result;
 	}
 	
-	function getSingleStructure($alias = NULL)
+	public function getSingleStructure($alias = NULL)
     {
         // if parameter ie empty then use current controller as alias (e.g. 'Users')
 		$alias	= ($alias ? trim(strtolower($alias)) : $this->controller->name);

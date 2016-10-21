@@ -40,16 +40,39 @@ class AppController extends Controller {
 	private static $acl = null;
 	public static $beginFlash = false;
     public $uses = array('Config', 'SystemVar');
-    public $components	= array('Acl', 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager', 'Paginator', 'Flash', 'DebugKit.Toolbar');
-	public $helpers	= array('Session', 'Csv', 'Html', 'Js', 'Shell', 'Structures', 'Time', 'Form');
+
+    public $components	= array(
+       'Acl',
+       'Session',
+       'SessionAcl',
+       'Auth',
+       'Menus',
+       'RequestHandler',
+       'Structures',
+       'PermissionManager',
+       'Paginator',
+       'Flash',
+       'DebugKit.Toolbar'
+    );
+
+	public $helpers	= array(
+	   'Session',
+      'Csv',
+      'Html',
+      'Js',
+      'Shell',
+      'Structures',
+      'Time',
+      'Form'
+   );
 	
 	//use AppController::getCalInfo to get those with translations
 	private static $cal_info_short = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
 	private static $cal_info_long = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 	private static $cal_info_short_translated = false;
 	private static $cal_info_long_translated = false;
-	
-	static $highlight_missing_translations = true;
+
+    public static $highlight_missing_translations = true;
 
     // Used as a set from the array keys
     public $allowed_file_prefixes = array();
@@ -58,7 +81,7 @@ class AppController extends Controller {
      * This function is executed before every action in the controller. It’s a
      * handy place to check for an active session or inspect user permissions.
      **/
-	function beforeFilter() {
+    public function beforeFilter() {
 		App::uses('Sanitize', 'Utility');
 		AppController::$me = $this;
 		if(Configure::read('debug') != 0){
@@ -117,8 +140,8 @@ class AppController extends Controller {
             pr($this->request->query['file']);
 		}
 	}
-	
-	function hook( $hook_extension='' ) {
+
+    public function hook( $hook_extension='' ) {
 		if ($hook_extension){
 			$hook_extension = '_'.$hook_extension;
 		}
@@ -173,7 +196,7 @@ class AppController extends Controller {
      * This callback is not used often, but may be needed if you are calling
      * render() manually before the end of a given action.
      **/
-	function beforeRender(){
+    public function beforeRender(){
         if (isset($this->request->query['file'])) {
             return $this->handleFileRequest();
         }
@@ -195,8 +218,8 @@ class AppController extends Controller {
 			$this->requestAction('/Datamart/BatchSets/add/0', array('_data' => $data));
 		}
 	}
-	
-	function afterFilter(){
+
+    public function afterFilter(){
 // 		global $start_time;
 // 		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
 	
@@ -213,12 +236,12 @@ class AppController extends Controller {
 	/**
 	 * Simple function to replicate PHP 5 behaviour
 	 */
-	static function microtime_float(){
+    public static function microtime_float(){
 		list($usec, $sec) = explode(" ", microtime());
 		return ((float)$usec + (float)$sec);
 	}
-	
-	static function missingTranslation(&$word){
+
+    public static function missingTranslation(&$word){
 		if(!is_numeric($word) && strpos($word, "<span class='untranslated'>") === false){
 			AppController::$missing_translations[] = $word;
 			if(Configure::read('debug') == 2 && self::$highlight_missing_translations){
@@ -226,8 +249,8 @@ class AppController extends Controller {
 			}
 		}
 	}
-	
-	function atimFlash($message, $url){
+
+    public function atimFlash($message, $url){
 		if(Configure::read('debug') > 0){
 			$this->Flash->set($message);
 		}else{
@@ -235,12 +258,12 @@ class AppController extends Controller {
 		}
         $this->redirect($url);
 	}
-	
-	static function getInstance(){
+
+    public static function getInstance(){
 		return AppController::$me;
 	}
-	
-	static function init(){
+
+    public static function init(){
 		Configure::write('Config.language', 'eng');
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
@@ -333,7 +356,7 @@ class AppController extends Controller {
 	 * @param boolean $short Wheter to return short or long month names
 	 * @return an associative array containing the translated months names so that key = month_number and value = month_name
 	 */
-	static function getCalInfo($short = true){
+    public static function getCalInfo($short = true){
 		if($short){
 			if(!AppController::$cal_info_short_translated){
 				AppController::$cal_info_short_translated = true;
@@ -357,7 +380,7 @@ class AppController extends Controller {
 	 * @param boolean $short_months True if months names should be short (used if $month is an int)
 	 * @return string The formatted datestring with user preferences
 	 */
-	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
+    public static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
 		$result = null;
 		if(empty($year) && empty($month) && empty($day)){
 			$result = "";
@@ -377,8 +400,8 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
-	
-	static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
+
+    public static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
 		if(time_format == 12){
 			$meridiem = $hour >= 12 ? "PM" : "AM";
 			$hour %= 12;
@@ -401,7 +424,7 @@ class AppController extends Controller {
 	 * @param boolean $short_months True if months names should be short (used if $month is an int)
 	 * @return string The formated datestring with user preferences
 	 */
-	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
+    public static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
 		$month = null;
 		$day = null;
 		$hour = null;
@@ -450,7 +473,7 @@ class AppController extends Controller {
 	 *
 	 * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
 	 */
-	static function getFormatedDatetimeSQL($datetime_array, $date_type = 'normal') {
+    public static function getFormatedDatetimeSQL($datetime_array, $date_type = 'normal') {
 	
 		$formatted_date = '';
 		switch($date_type) {
@@ -520,7 +543,7 @@ class AppController extends Controller {
 	 * @param array $arr The array to clone
      * @return array result
 	 */
-	static function cloneArray(array $arr){
+    public static function cloneArray(array $arr){
 		$result = array();
 		foreach($arr as $k => $v){
 			if(is_array($v)){
@@ -531,8 +554,8 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
-	
-	static function addWarningMsg($msg, $with_trace = false){
+
+    public static function addWarningMsg($msg, $with_trace = false){
 		if($with_trace){
 			$_SESSION['ctrapp_core']['warning_trace_msg'][] = array('msg' => $msg, 'trace' => self::getStackTrace());
 		}else{
@@ -543,16 +566,16 @@ class AppController extends Controller {
 			}
 		}
 	}
-	
-	static function addInfoMsg($msg){
+
+    public static function addInfoMsg($msg){
 		if(isset($_SESSION['ctrapp_core']['info_msg'][$msg])){
 			$_SESSION['ctrapp_core']['info_msg'][$msg] ++;
 		}else{
 			$_SESSION['ctrapp_core']['info_msg'][$msg] = 1;
 		}
 	}
-	
-	static function getStackTrace(){
+
+    public static function getStackTrace(){
 		$bt = debug_backtrace();
 		$result = array();
 		foreach($bt as $unit){
@@ -566,7 +589,7 @@ class AppController extends Controller {
 	 * @param array $data They data array to build the values with
      * @return array result
 	 */
-	static function getUpdateAllValues(array $data){
+    public static function getUpdateAllValues(array $data){
 		$result = array();
 		foreach($data as $model => $fields){
 			foreach($fields as $name => $value){
@@ -586,7 +609,7 @@ class AppController extends Controller {
 	 * @desc cookie manipulation to counter cake problems. see eventum #1032
      * @param bool $skip_expiration_cookie
 	 */
-	static function atimSetCookie($skip_expiration_cookie){
+    public static function atimSetCookie($skip_expiration_cookie){
 		$session_expiration = time() + Configure::read("Session.timeout");
 		
 		setcookie('last_request', time(), $session_expiration, '/');
@@ -609,7 +632,7 @@ class AppController extends Controller {
 	 * @param string $possibilities_parent_key The possibilities parent key to base the search on
 	 * @return An array with the ids and the possibilities
 	 */
-	function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
+    public function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
 		if(empty($this->request->data)){
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		} else if(!is_array($this->request->data[$data_model_name][$data_key]) && strpos($this->request->data[$data_model_name][$data_key], ',')){
@@ -646,7 +669,7 @@ class AppController extends Controller {
 	 * @param bool $unique If true, the array block will be directly under the model.field, not in an array.
 	 * @return array
 	 */
-	static function defineArrayKey($in_array, $model, $field, $unique = false){
+    public static function defineArrayKey($in_array, $model, $field, $unique = false){
 		$out_array = array();
 		if($unique){
 			foreach($in_array as $val){
@@ -670,7 +693,7 @@ class AppController extends Controller {
 	 * Recursively removes entries returning true on empty($value).
 	 * @param array &$data
 	 */
-	static function removeEmptyValues(array &$data){
+    public static function removeEmptyValues(array &$data){
 		foreach($data as $key => &$val){
 			if(is_array($val)){
 				self::removeEmptyValues($val);
@@ -680,8 +703,8 @@ class AppController extends Controller {
 			}
 		}
 	}
-	
-	static function getNewSearchId(){
+
+    public static function getNewSearchId(){
 		return AppController::getInstance()->Session->write('search_id', AppController::getInstance()->Session->read('search_id') + 1);
 	}
 	
@@ -689,7 +712,7 @@ class AppController extends Controller {
 	 * @param string $link The link to check
 	 * @return True if the user can access that page, false otherwise
 	 */
-	static function checkLinkPermission($link){
+    public static function checkLinkPermission($link){
 		if(strpos($link, 'javascript:') === 0 || strpos($link, '#') === 0){
 			return true;
 		}
@@ -708,8 +731,8 @@ class AppController extends Controller {
 		|| $aco_alias == "Controller/Menus/index"
 		|| $instance->SessionAcl->check('Group::'.$instance->Session->read('Auth.User.group_id'), $aco_alias);
 	}
-	
-	static function applyTranslation(&$in_array, $model, $field){
+
+    public static function applyTranslation(&$in_array, $model, $field){
 		foreach($in_array as &$part){
 			$part[$model][$field] = __($part[$model][$field]);
 		}
@@ -750,7 +773,7 @@ class AppController extends Controller {
 	 * @param bool $ignore_detail If true, even if the model is a master_detail ,the detail level won't be loaded
 	 * @param mixed $limit If false, will make a paginate call, if an int greater than 0, will make a find with the limit
 	 */
-	function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false, $limit = false){
+    public function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false, $limit = false){
 		//setting structure
 		$structure = $this->Structures->get('form', $structure_alias);
 		$this->set('atim_structure', $structure);
@@ -805,7 +828,7 @@ class AppController extends Controller {
 	 * @param array $conditions Search conditions
 	 * @param string &$structure_alias
 	 */
-	static function buildDetailBinding(&$model, array $conditions, &$structure_alias){
+    public static function buildDetailBinding(&$model, array $conditions, &$structure_alias){
 		$controller = AppController::getInstance();
 		$master_class_name = isset($model->base_model) ? $model->base_model : $model->name;
 		if(!isset($model->Behaviors->MasterDetail->__settings[$master_class_name])){
@@ -907,7 +930,7 @@ class AppController extends Controller {
 	 * @param array $menu_options An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
 	 * The label must be translated already.
 	 */
-	static function buildBottomMenuOptions(array &$menu_options){
+    public static function buildBottomMenuOptions(array &$menu_options){
 		$tmp = array();
 		foreach($menu_options as $menu_option){
 			$tmp[sprintf("%05d", $menu_option['order']).'-'.$menu_option['label']] = $menu_option['link'];
@@ -925,7 +948,7 @@ class AppController extends Controller {
 	 * If a similar entry exists, the value is decremented.
 	 * Otherwise, url_to_cancel is uses as such.
 	 */
-	function setUrlToCancel(){
+    public function setUrlToCancel(){
 		if(isset($this->request->data['url_to_cancel'])){
 			$pattern = '/^javascript:history.go\((-?[0-9]*)\)$/';
 			$matches = array();
@@ -940,8 +963,8 @@ class AppController extends Controller {
 	
 		$this->set('url_to_cancel', $this->request->data['url_to_cancel']);
 	}
-	
-	function resetPermissions(){
+
+    public function resetPermissions(){
 		if($this->Auth->user()){
 			$user_model = AppModel::getInstance('', 'User', true);
 			$user = $user_model->findById($this->Session->read('Auth.User.id'));
@@ -951,8 +974,8 @@ class AppController extends Controller {
 			$this->SessionAcl->flushCache();
 		}
 	}
-	
-	function setForRadiolist(array &$list, $l_model, $l_key, array $data, $d_model, $d_key){
+
+    public function setForRadiolist(array &$list, $l_model, $l_key, array $data, $d_model, $d_key){
 		foreach($list as &$unit){
 			if($data[$d_model][$d_key] == $unit[$l_model][$l_key]){
 				//we found the one that interests us
@@ -965,9 +988,10 @@ class AppController extends Controller {
 	
 	/**
 	 * Builds a cancel link based on the passed data. Works for data send by batch sets and browsing.
-	 * @param strint or null $data
+	 * @param string|null $data
+     * @return string|null
 	 */
-	static function getCancelLink($data){
+    public static function getCancelLink($data){
 		$result = null;
 		if(isset($data['node']['id'])){
 			$result = '/Datamart/Browser/browse/'.$data['node']['id'];
@@ -989,7 +1013,7 @@ class AppController extends Controller {
 	 * -Delete all browserIndex > Limit
 	 * -databrowser lft rght
 	 */
-	function newVersionSetup(){
+	public function newVersionSetup(){
 		//new version installed!
 		
 		// *** 1 *** regen permissions
@@ -1348,8 +1372,8 @@ class AppController extends Controller {
 			$this->redirect('/Users/login');
 		}
 	}
-	
-	function configureCsv($config){
+
+    public function configureCsv($config){
 		$this->csv_config = $config;
 		$this->Session->write('Config.language', $config['config_language']);
 	}
@@ -1388,7 +1412,7 @@ class AppController extends Controller {
 	}
 	
 /**
- * Returns the date in a classic format (usefull for SQL)
+ * Returns the date in a classic format (useful for SQL)
  * @throws Exception
  */
 function now(){

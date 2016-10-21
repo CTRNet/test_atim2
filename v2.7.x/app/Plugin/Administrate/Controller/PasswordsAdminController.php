@@ -1,11 +1,15 @@
 <?php
 
+/**
+ * Class PasswordsAdminController
+ * @property User $User
+ */
 class PasswordsAdminController extends AdministrateAppController {
 	
-	var $name = 'Passwords';
-	var $uses = array('User');
-	
-	function index( $group_id, $user_id ) {
+	public $name = 'Passwords';
+   public $uses = array('User');
+
+   public function index( $group_id, $user_id ) {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		$this->Structures->set('admin_user_password_for_change,password');
 		
@@ -15,9 +19,14 @@ class PasswordsAdminController extends AdministrateAppController {
 			$this->set( 'data', $this->User->read() );
 		} else {
 			//Check administrator entered his password
-			if($this->User->find('count', array('conditions' => array('User.id' => $this->Session->read('Auth.User.id'), 'User.password' => Security::hash($this->request->data['FunctionManagement']['admin_user_password_for_change'], null, true))))) {
+			if($this->User->find('count', array(
+			   'conditions' => array(
+			      'User.id' => $this->Session->read('Auth.User.id'),
+               'User.password' => Security::hash($this->request->data['FunctionManagement']['admin_user_password_for_change'], null, true)
+            )
+         ))) {
 				$flash_link = '/Administrate/PasswordsAdmin/index/'.$group_id.'/'.$user_id;
-				$this->User->savePassword($this->request->data, $flash_link, $flash_link);
+				$this->User->savePassword($this->request->data, $flash_link, $flash_link, false);
 			} else {
 				$this->User->validationErrors['admin_user_password_for_change'][] = __('your own password is invalid'); 
 				$this->request->data = array();

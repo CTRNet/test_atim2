@@ -3,9 +3,14 @@ App::uses('AppHelper', 'View/Helper');
 
 class ShellHelper extends AppHelper {
 	
-	var $helpers = array('Html', 'Session', 'Structures', 'Form');
-	
-	function header($options=array()){
+	public $helpers = array('Html', 'Session', 'Structures', 'Form');
+
+    /**
+     * @param array $options
+     *
+     * @return string
+     */
+	public function header(array $options){
 		$return = '';
 		// get/set menu for menu BAR
 		$menu_array					= $this->menu( $options['atim_menu'], array('variables'=>$options['atim_menu_variables']) );
@@ -16,7 +21,7 @@ class ShellHelper extends AppHelper {
 		$menu_array					= $this->menu( $options['atim_menu_for_header'], array('variables'=>$options['atim_menu_variables']) );
 		$user_for_header			= '';
 		$root_menu_for_header		= '';
-		if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
+		if(isset($_SESSION, $_SESSION['Auth'], $_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 			$logged_in = true;
 			// set HEADER root menu links
 				
@@ -150,15 +155,15 @@ class ShellHelper extends AppHelper {
 		
 	}
 	
-	function getValidationLine($class, $msg, $collapsable = null){
+	public function getValidationLine($class, $msg, $collapsable = null){
 		$result = '<li><span class="icon16 '.$class.' mr5px"></span>'.$msg;
 		if($collapsable){
 			$result .= ' <a href="#" class="warningMoreInfo">[+]</a><pre class="hidden warningMoreInfo">'.print_r($collapsable, true).'</pre>';
 		}
 		return $result.'</li>';
 	}
-	
-	function validationHtml(){
+
+    public function validationHtml(){
 		$display_errors_html = $this->validationErrors();
 		
 		$confirm_msg_html = "";
@@ -204,8 +209,8 @@ class ShellHelper extends AppHelper {
 		
 		return $return;
 	}
-	
-	function validationErrors(){
+
+    public function validationErrors(){
 		$result = "";
 		$display_errors = array();
 		$format_str = '<li><span class="icon16 delete mr5px"></span>%s</li>';
@@ -228,8 +233,12 @@ class ShellHelper extends AppHelper {
 		}
 		return $result;
 	}
-	
-	function footer( $options=array() ) {
+
+    /**
+     *
+     * @return string
+     */
+    public function footer() {
 		
 		$return = '';
 		
@@ -252,9 +261,15 @@ class ShellHelper extends AppHelper {
 		';
 		
 		return $return;
-	} 
-	
-	function menu($atim_menu = array(), $options = array()){
+	}
+
+    /**
+     * @param array $atim_menu
+     * @param array $options
+     *
+     * @return array
+     */
+	public function menu($atim_menu = array(), $options = array()){
 		$page_title = array();
 		if(!isset($this->pageTitle)){
 			$this->pageTitle = '';
@@ -271,7 +286,7 @@ class ShellHelper extends AppHelper {
 				$options['variables'] = array();
 			}
 			
-			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
+			if(isset($_SESSION, $_SESSION['Auth'], $_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 					
 				$count = 0;
 				$total_count = 0;
@@ -377,6 +392,7 @@ class ShellHelper extends AppHelper {
 								$sub_count++;
 							}
 						}
+						unset($menu_item);
 						
 						if(Configure::read('debug')){
 							foreach($menu as $menu_item){
@@ -472,107 +488,114 @@ class ShellHelper extends AppHelper {
 	
 	/**
 	 * Builds 2 summaries, one for the menu tabs (short) and one for the summary button (long)
-	 * @param unknown_type $summary
-	 * @param unknown_type $options
+	 * @param string $summary
+	 * @param array $options
 	 * @return array('short' => short summary, 'long' => long summary)
 	 */
-	function fetchSummary($summary, $options) {
+	public function fetchSummary($summary, $options) {
 		$result = array("short" => null, "long" => null);
-		if($summary){
-			// get StructureField model, to swap out permissible values if needed
-			App::uses('StructureField', 'Model');
-			$structure_fields_model = new StructureField;
-			
-			list($model,$function) = split('::',$summary);
-			
-			if(!$function){
-				$function = 'summary';
-			}
-			
-			if($model){
-				// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
-				$plugin = NULL;
-				if (strpos($model, '.') !== false){
-					$plugin_model_name = $model;
-					list($plugin,$model) = explode('.',$plugin_model_name);
-				}
-				
-				// load MODEL, and override with CUSTOM model if it exists...
-				$summary_model = AppModel::getInstance($plugin, $model, true);
-				$summary_result = $summary_model->{$function}($options['variables']);
 
-				if($summary_result){
-					//short--- 
-					if(isset($summary_result['menu']) && is_array($summary_result['menu'])){
-						$parts = array(trim($summary_result['menu'][0])." ", isset($summary_result['menu'][1]) ? trim($summary_result['menu'][1]) : '');
-						$total_length = 0;
-						$result_str = "";
-						$max_length = 22;
-						foreach($parts as $part){
-							$untranslated = strpos($part, "<span class='untranslated'>") === 0;
-							if($untranslated){
-								$part = substr(trim($part), 27, -7);			
-							}
-							$total_length += strlen($part);
-							if($total_length > $max_length){
-								$part = substr($part, 0, -1 * ($total_length - $max_length))."...";
-							}
-							$result_str .= $untranslated ? '<span class="untranslated">'.$part.'</span>' : $part;
-							if($total_length > $max_length){
-								$result['page_title'] = $result_str;
-								$result_str = '<span class="incompleteMenuTitle" title="'.htmlentities(implode("", $parts), ENT_QUOTES).'">'.$result_str.'</span>';
-								break;
-							}
-						}
-						$result['short'] = $result_str;
-						if(!isset($result['page_title'])){
-							$result['page_title'] = $result_str;
-						}
-					}else{
-						$result['short'] = false;
-					}
-					//--------
-					
-					//long---
-					$summary_long = "";
-					if(isset($summary_result['title']) && is_array($summary_result['title']) ) {
-						$summary_long = '
-							'.__($summary_result['title'][0], true).'
-							<span class="list_header">'.$summary_result['title'][1].'</span>
-						';
-					}
+		if(!$summary) {
+            return $result;
+        }
 
-					if(isset($summary_result['data']) && isset($summary_result['structure alias'])){
-						$structure = StructuresComponent::$singleton->get('form', $summary_result['structure alias']);
-						$summary_long .= $this->Structures->build($structure, array('type' => 'summary', 'data' => $summary_result['data'], 'settings' => array('return' => true, 'actions' => false)));
-					}else if(isset($summary_result['description']) && is_array($summary_result['description'])){
-						if(Configure::read('debug') > 0){
-							AppController::addWarningMsg(__("the sumarty for model [%s] function [%s] is using the depreacted description way instead of a structure", $model, $function));
-						}
-						$summary_long .= '
-							<dl>
-						';
-						foreach($summary_result['description'] as $k => $v){
-							
-							// if provided VALUE is an array, it should be a select-option that needs to be looked up and translated...
-							if(is_array($v)){
-								$v = $structure_fields_model->findPermissibleValue($plugin,$model,$v);
-							}
-							
-							$summary_long .= '
-									<dt>'.__($k,true).'</dt>
-									<dd>'.( $v ? $v : '-' ).'</dd>
-							';
-						}
-						$summary_long .= '
-							</dl>
-						';
-					}
-					$result['long'] = strlen($summary_long) > 0 ? $summary_long : false;
-					//-------
-				}
-			}
-		}
+        // get StructureField model, to swap out permissible values if needed
+        App::uses('StructureField', 'Model');
+        $structure_fields_model = new StructureField;
+
+        list($model,$function) = explode('::',$summary);
+
+        if(!$function){
+            $function = 'summary';
+        }
+
+        if(!$model) {
+            return $result;
+        }
+
+        // if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+        $plugin = NULL;
+        if (strpos($model, '.') !== false){
+            $plugin_model_name = $model;
+            list($plugin,$model) = explode('.',$plugin_model_name);
+        }
+
+        // load MODEL, and override with CUSTOM model if it exists...
+        $summary_model = AppModel::getInstance($plugin, $model, true);
+        $summary_result = $summary_model->{$function}($options['variables']);
+
+        if(!$summary_result) {
+            return $result;
+        }
+
+        //short---
+        if(isset($summary_result['menu']) && is_array($summary_result['menu'])){
+            $parts = array(trim($summary_result['menu'][0])." ", isset($summary_result['menu'][1]) ? trim($summary_result['menu'][1]) : '');
+            $total_length = 0;
+            $result_str = "";
+            $max_length = 22;
+            foreach($parts as $part){
+                $untranslated = strpos($part, "<span class='untranslated'>") === 0;
+                if($untranslated){
+                    $part = substr(trim($part), 27, -7);
+                }
+                $total_length += strlen($part);
+                if($total_length > $max_length){
+                    $part = substr($part, 0, -1 * ($total_length - $max_length))."...";
+                }
+                $result_str .= $untranslated ? '<span class="untranslated">'.$part.'</span>' : $part;
+                if($total_length > $max_length){
+                    $result['page_title'] = $result_str;
+                    $result_str = '<span class="incompleteMenuTitle" title="'.htmlentities(implode("", $parts), ENT_QUOTES).'">'.$result_str.'</span>';
+                    break;
+                }
+            }
+            $result['short'] = $result_str;
+            if(!isset($result['page_title'])){
+                $result['page_title'] = $result_str;
+            }
+        }else{
+            $result['short'] = false;
+        }
+        //--------
+
+        //long---
+        $summary_long = "";
+        if(isset($summary_result['title']) && is_array($summary_result['title']) ) {
+            $summary_long = '
+                '.__($summary_result['title'][0], true).'
+                <span class="list_header">'.$summary_result['title'][1].'</span>
+            ';
+        }
+
+        if(isset($summary_result['data'], $summary_result['structure alias'])){
+            $structure = StructuresComponent::$singleton->get('form', $summary_result['structure alias']);
+            $summary_long .= $this->Structures->build($structure, array('type' => 'summary', 'data' => $summary_result['data'], 'settings' => array('return' => true, 'actions' => false)));
+        }else if(isset($summary_result['description']) && is_array($summary_result['description'])){
+            if(Configure::read('debug') > 0){
+                AppController::addWarningMsg(__("the summary for model [%s] function [%s] is using the depreacted description way instead of a structure", $model, $function));
+            }
+            $summary_long .= '
+                <dl>
+            ';
+            foreach($summary_result['description'] as $k => $v){
+
+                // if provided VALUE is an array, it should be a select-option that needs to be looked up and translated...
+                if(is_array($v)){
+                    $v = $structure_fields_model->findPermissibleValue($plugin,$model,$v);
+                }
+
+                $summary_long .= '
+                        <dt>'.__($k,true).'</dt>
+                        <dd>'.( $v ? $v : '-' ).'</dd>
+                ';
+            }
+            $summary_long .= '
+                </dl>
+            ';
+        }
+        $result['long'] = strlen($summary_long) > 0 ? $summary_long : false;
+
 		return $result;
 	}
 	
