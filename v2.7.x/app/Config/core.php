@@ -216,7 +216,8 @@ $debug = 2;
  *
  */
 	Configure::write('Session', array(
-		'defaults' => 'cake'
+		'defaults' => 'cake',
+      'cookie' => 'pcsc',
 	));
 
 /**
