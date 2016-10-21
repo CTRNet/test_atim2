@@ -33,4 +33,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number)
 VALUES
-  ('2.7.1', NOW(),'6569','????');
+  ('2.7.1', NOW(),'6569','6570');
