@@ -20,25 +20,25 @@ class Structure extends AppModel {
 	);
 	
 	private $simple = true;
-	
-	function __construct(){
+
+   public function __construct(){
 		parent::__construct();
 		$this->setModeSimplified();
 	}
-	
-	function setModeComplete(){
+
+   public function setModeComplete(){
 		$this->contain(array('StructureFormat' => array('StructureField' => array('StructureValidation', 'StructureValueDomain'))));
 		$this->simple = false;
 	}
-	
-	function setModeSimplified(){
+
+   public function setModeSimplified(){
 		$this->contain(array('Sfs' => array('StructureValidation', 'StructureValueDomain')));
 		App::uses('StructureValidation', 'Model');
 		$this->StructureValidation = new StructureValidation();
 		$this->simple = true;
 	}
-	
-	function find($type = 'first', $params = array())
+
+   public function find($type = 'first', $params = array())
     {
 		$structure = parent::find('first', $params);
 		$rules = array();

@@ -1,6 +1,9 @@
 <?php
 	$structure_links = array(
-		'top'=>'/'
+		'top' => '/',
+       'bottom' => array(
+          'Reset Password'=>'/users/reset_password/'
+       )
 	);
 
 	echo "<div class='validation hidden' id='timeErr'><ul class='warning'><li>".__("server_client_time_discrepency")."</li></ul></div>";

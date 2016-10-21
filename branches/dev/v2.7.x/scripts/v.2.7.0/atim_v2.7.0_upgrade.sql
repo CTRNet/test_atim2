@@ -1,5 +1,13 @@
+-- ------------------------------------------------------
+-- ATiM Database Upgrade Script
+-- version: 2.7.0
+--
+-- For more information:
+--    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
+-- ------------------------------------------------------
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Added virtual id vield to view_structure_formats_simplified so it works with CakePHP 2.5+ 
+-- Added virtual id field to view_structure_formats_simplified so it works with CakePHP 2.5+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- Dumping structure for view atim.view_structure_formats_simplified
@@ -48,7 +56,7 @@ JOIN `structures` `str` ON((`str`.`id` = `sfo`.`structure_id`)))
 LEFT JOIN `structure_value_domains` `svd` ON((`svd`.`id` = `sfi`.`structure_value_domain`)));
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Versions table
+-- Update Version number
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;

@@ -54,7 +54,7 @@ class AppModel extends Model {
 	 * @desc Used to store the previous model when a model is recreated for detail search
 	 * @var SampleMaster
 	 */
-	var $previous_model = null;
+	public $previous_model = null;
 	private static $locked_views_update = false;
 	private static $cached_views_update = array();
 	private static $cached_views_delete = array();
@@ -66,7 +66,7 @@ class AppModel extends Model {
 	/**
 	 * @desc If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
 	 * This is convenient for search based on master/detail detail table.
-	 * @param unknown_type $id (see parent::__construct)
+	 * @param int $id (see parent::__construct)
 	 * @param unknown_type $table (see parent::__construct)
 	 * @param unknown_type $ds (see parent::__construct) 
 	 * @param string $base_model_name The base model name of a master/detail model
@@ -173,7 +173,7 @@ class AppModel extends Model {
 	 * Override to prevent saving id directly with the array to avoid hacks
 	 * @see Model::save()
 	 */
-	function save($data = null, $validate = true, $fieldList = array()){
+	public function save($data = null, $validate = true, $fieldList = array()){
 		if($this->pkey_safeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
 				|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))
 		){
@@ -213,7 +213,7 @@ class AppModel extends Model {
 	 * Checks Writable fields, sets trackability, manages floats ("," and ".") 
 	 * and date strings.
 	**/
-	function beforeSave($options = array()){
+	public function beforeSave($options = array()){
 		if($this->check_writable_fields){
 			$this->checkWritableFields();
 		}
@@ -411,7 +411,7 @@ class AppModel extends Model {
 		used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
 	*/
 	
-	function atimDelete($model_id, $cascade = true){
+	public function atimDelete($model_id, $cascade = true){
 		$this->id = $model_id;
 		$this->registerModelsToCheck();
 		
@@ -432,8 +432,8 @@ class AppModel extends Model {
 		ATiM 2.0 function
 		acts like find('all') but returns array with ID values as arrays key values
 	*/
-	
-	function atim_list( $options=array() ) {
+
+    public function atim_list( $options=array() ) {
 		
 		$return = false;
 		
@@ -463,8 +463,8 @@ class AppModel extends Model {
 		return $return;
 		
 	}
-	
-	function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra){
+
+    public function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra){
 		$params = array(
 			'fields'	=> $fields, 
 			'conditions'=> $conditions, 
@@ -491,7 +491,7 @@ class AppModel extends Model {
  * @param boolean $is_search If true, date/time will be patched as much as possible
  * @return mixed The resulting data that should be assigned to a field
  */
-	function deconstruct($field, $data, $is_end = false, $is_search = false) {
+    public function deconstruct($field, $data, $is_end = false, $is_search = false) {
 		if (!is_array($data)) {
 			return $data;
 		}
@@ -605,7 +605,7 @@ class AppModel extends Model {
 	 * @param int $pad_to_length - The min length of the key increment part. If the retrieved key is too short, 0 will be prepended. 
 	 * @return string The string with the replaced value or false when SQL error happens
 	 */
-	function getKeyIncrement($key, $str, $pad_to_length = 0){
+	public function getKeyIncrement($key, $str, $pad_to_length = 0){
 		$this->query('LOCK TABLE key_increments WRITE');
 		$result = $this->query('SELECT key_value FROM key_increments WHERE key_name="'.$key.'"');
 		if(empty($result)){
@@ -622,7 +622,7 @@ class AppModel extends Model {
 		return str_replace("%%key_increment%%", str_pad($result[0]['key_increments']['key_value'], $pad_to_length, '0', STR_PAD_LEFT), $str);
 	}
 	
-	static function getMagicCodingIcdTriggerArray(){
+	public static function getMagicCodingIcdTriggerArray(){
 		return self::$magic_coding_icd_trigger_array;
 	}
 	
@@ -687,7 +687,7 @@ class AppModel extends Model {
 					if(strlen($field) == 0){
 						$empty_found = true;
 					}else if($empty_found){
-						//example: Entered 2010--02 -> Invalid date is skiped here and get caught at validation level
+						//example: Entered 2010--02 -> Invalid date is skipped here and get caught at validation level
 						$go_to_next_field = true;
 						break;
 					}
@@ -733,7 +733,7 @@ class AppModel extends Model {
 		}
 	}
 	
-	function validates($options = array()){
+	public function validates($options = array()){
 		if(!$this->_schema){
 			$this->schema();
 		}
@@ -830,7 +830,7 @@ class AppModel extends Model {
 		return false;
 	}
 	
-	static function getInstance($plugin_name, $class_name, $error_view_on_null = true){
+	public static function getInstance($plugin_name, $class_name, $error_view_on_null = true){
 		$instance = ClassRegistry::getObject($class_name);
 		if($instance !== false && $instance instanceof $class_name){
 			return $instance;
@@ -865,7 +865,7 @@ class AppModel extends Model {
 	 * @param string $table_name The table to use
 	 * @return The instantiated class
 	 */
-	static function atimInstantiateExtend($class, $table_name){
+	public static function atimInstantiateExtend($class, $table_name){
 		ClassRegistry::removeObject($class->name);
 		$extend = new $class(false, $table_name);
 		$extend->Behaviors->Revision->setup($extend);//activate shadow model
@@ -877,7 +877,7 @@ class AppModel extends Model {
 	 * @param string $use_name The name under which to record the validations
 	 * @param Model $model The model to base the validations on
 	 */
-	static function buildAutoValidation($use_name, Model $model){
+	public static function buildAutoValidation($use_name, Model $model){
 		if(!is_array($model->_schema)){
 			$model->schema();
 		}
@@ -968,7 +968,7 @@ class AppModel extends Model {
 	 * @param array $conditions CakePHP SQL conditionnal array
 	 * @return true if the field was found
 	 */
-	static function isFieldUsedAsCondition($field, array $conditions){
+	public static function isFieldUsedAsCondition($field, array $conditions){
 		foreach($conditions as $key => $value){
 			$is_array = is_array($value);
 			$pos1 = strpos($key, $field);
@@ -1012,7 +1012,7 @@ class AppModel extends Model {
 	 * @since 2007-06-20
 	 */
 	 
-	static function getSpentTime($start_date, $end_date){
+	public static function getSpentTime($start_date, $end_date){
 		$arr_spent_time = array(
 			'message'			=> null,
 			'years'				=> '0',
@@ -1084,7 +1084,7 @@ class AppModel extends Model {
 	 * @since 2007-06-20
 	 */
 	 
-	static function getTimeStamp($date_string){
+	public static function getTimeStamp($date_string){
 		list($date, $time) = explode(' ', $date_string);
 		list($year, $month, $day) = explode('-', $date);
 		list($hour, $minute, $second) = explode(':',$time);
@@ -1092,7 +1092,7 @@ class AppModel extends Model {
 		return mktime($hour, $minute, $second, $month, $day, $year);
 	}	
 	
-	static function manageSpentTimeDataDisplay($spent_time_data, $with_time = true){
+	public static function manageSpentTimeDataDisplay($spent_time_data, $with_time = true){
 		$spent_time_msg = '';
 		if(!empty($spent_time_data)) {	
 			if(!is_null($spent_time_data['message'])) {
@@ -1118,8 +1118,8 @@ class AppModel extends Model {
 		
 		return $spent_time_msg;
 	}
-	
-	static function translateDateValueAndUnit($spent_time_data, $time_unit) {
+
+    public static function translateDateValueAndUnit($spent_time_data, $time_unit) {
 		if(array_key_exists($time_unit, $spent_time_data)) {
 			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . ($spent_time_data[$time_unit] == 1 ? __(substr($time_unit, 0, -1)) : __($time_unit)) . ' ') : '');
 		} 
@@ -1132,7 +1132,7 @@ class AppModel extends Model {
 	 * @param array $passed_args The controller passed arguments. (From the controller, $this->passedArgs)
 	 * @return The data sorted if the passed_args were compatible with it
 	 */
-	static function sortWithUrl(array $data, array $passed_args){
+    public static function sortWithUrl(array $data, array $passed_args){
 		$order = array();
 		if(isset($passed_args['sort'])){
 			$result = array();
@@ -1161,7 +1161,7 @@ class AppModel extends Model {
 	 * whether the element can be deleted or not and the second one being msg,
 	 * a string that telles why, if relevant, the element cannot be deleted.
 	 */
-	function allowDeletion($id){
+    public function allowDeletion($id){
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
@@ -1174,7 +1174,7 @@ class AppModel extends Model {
 	 * @return null if $return is true and the data exists, the data, null otherwise
 	 * @deprecated Use getOrRedirect instead. TODO: Remove in ATiM 2.6
 	 */
-	function redirectIfNonExistent($id, $method, $line, $return = false){
+    public function redirectIfNonExistent($id, $method, $line, $return = false){
 		$this->id = $id;
 		if($result = $this->read()){
 			if($return){
@@ -1191,7 +1191,7 @@ class AppModel extends Model {
 	 * @param string $id The model primary key to fetch
 	 * @return The model data if it succeeds
 	 */
-	function getOrRedirect($id){
+    public function getOrRedirect($id){
 		$this->id = $id;
 		if($result = $this->read()){
 			return $result;
@@ -1242,7 +1242,7 @@ class AppModel extends Model {
 	 * Called by structure builder to get the browsing filter dropdowns
 	 * @return array (array formated for dropdown)
 	 */
-	function getBrowsingFilter(){
+    public function getBrowsingFilter(){
 		$result = array();
 		if(isset($this->browsing_search_dropdown_info['browsing_filter'])){
 			foreach($this->browsing_search_dropdown_info['browsing_filter'] as $key => $details){
@@ -1258,7 +1258,7 @@ class AppModel extends Model {
 	 * @param string $field_name
 	 * @return array if the field config is found, null otherwise
 	 */
-	function getBrowsingAdvSearchArray($field_name){
+    public function getBrowsingAdvSearchArray($field_name){
 		if(isset($this->browsing_search_dropdown_info[$field_name])){
 			return $this->browsing_search_dropdown_info[$field_name];
 		}
@@ -1274,7 +1274,7 @@ class AppModel extends Model {
 	 * @param array $field_name
 	 * @return array An array formated for dropdown use
 	 */
-	function getBrowsingAdvSearch($field_name){
+    public function getBrowsingAdvSearch($field_name){
 		$field_name = $field_name[0];
 		$result = array();
 		if(isset($this->browsing_search_dropdown_info[$field_name]) && Browser::$cache['current_node_id'] != 0){
@@ -1308,16 +1308,16 @@ class AppModel extends Model {
 		
 		return $result;
 	}
-	
-	function getOwnershipConditions(){
+
+    public function getOwnershipConditions(){
 		return array('OR' => array(
 			array($this->name.'.sharing_status' => 'user', $this->name.'.user_id' => AppController::getInstance()->Session->read('Auth.User.id')),
 			array($this->name.'.sharing_status' => 'group', $this->name.'.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')),
 			array($this->name.'.sharing_status' => 'all')
 		));
 	}
-	
-	function afterFind($results, $primary = false) {
+
+    public function afterFind($results, $primary = false) {
 		if(isset($this->fields_replace) && isset($results[0][$this->name])){
 			$current_fields_replace = $this->fields_replace;
 			foreach($current_fields_replace as $field_name => $options){
@@ -1382,13 +1382,13 @@ class AppModel extends Model {
 	        }
 	    }
 	}
-	
-	function afterSave($created, $options = Array()){
+
+    public function afterSave($created, $options = Array()){
 	    $this->updateRegisteredViews();
 	    $this->updateRegisteredModels();
 	}
 
-	function makeTree(array &$in){
+    public function makeTree(array &$in){
 		if(!empty($in)){
 			$starting_pkey = $in[0][$this->name][$this->primaryKey];
 			$in = AppController::defineArrayKey($in, $this->name, $this->primaryKey, true);
@@ -1408,8 +1408,8 @@ class AppModel extends Model {
 			}
 		}
 	}
-	
-	function getPluginName(){
+
+    public function getPluginName(){
 		$class = new ReflectionClass($this);
 		$matches = array();
 		if(preg_match('#'.str_replace('/','[\\\/]','/app/Plugin/([\w\d]+)/').'#', $class->getFileName(), $matches)){
@@ -1425,7 +1425,7 @@ class AppModel extends Model {
 	 * -0 is appened to a direct float (eg.: ".52 => 0.52", "-.42 => -0.42")
 	 * -white spaces are trimmed
 	 */
-	function checkFloats(){
+    public function checkFloats(){
 		foreach($this->_schema as $field_name => $field_properties) {
 			$tmp_type = $field_properties['type'];
 			if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
@@ -1442,8 +1442,8 @@ class AppModel extends Model {
 			}
 		}
 	}
-	
-	function tryCatchQuery($sql, $cache = false){
+
+    public function tryCatchQuery($sql, $cache = false){
 		try{
 			return parent::query($sql, $cache);
 		}catch(Exception $e){
@@ -1463,7 +1463,7 @@ class AppModel extends Model {
 	 * @param array $data The data to sort.
 	 * @param array|string $order The ordered pkeys in either an array or a comma separated string.
 	 */
-	function sortForDisplay(array &$data, $order){
+    public function sortForDisplay(array &$data, $order){
 		$tmp_data = AppController::defineArrayKey($data, $this->name, $this->primaryKey, true);
 		if(is_string($order)){
 			$order = explode(',', $order);
@@ -1475,15 +1475,15 @@ class AppModel extends Model {
 		}
 		unset($tmp_data);
 	}
-	
-	static function acquireBatchViewsUpdateLock(){
+
+    public static function acquireBatchViewsUpdateLock(){
         if(self::$locked_views_update){
             throw new Exception('Deadlock in acquireBatchViewsUpdateLock');
         }
         self::$locked_views_update = true;
     }
-    
-    static function manageViewUpdate($model_table, $foreign_key, $ids, $query_part){
+
+    public static function manageViewUpdate($model_table, $foreign_key, $ids, $query_part){
     	if(self::$locked_views_update){
     		if(!isset(self::$cached_views_update[$model_table])){
     			self::$cached_views_update[$model_table] = array();
@@ -1502,8 +1502,8 @@ class AppModel extends Model {
     		$pages->tryCatchquery($query);
     	}
     }
-    
-    static function releaseBatchViewsUpdateLock(){
+
+    public static function releaseBatchViewsUpdateLock(){
     	//just "some" model to do the work
     	$pages = AppModel::getInstance("", "Page");
         foreach(self::$cached_views_update as $model_table => $models){
