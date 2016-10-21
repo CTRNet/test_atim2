@@ -358,7 +358,7 @@ if (Configure::read('debug') > 0) {
 }
 
 // Prefix each application on the same server with a different string, to avoid Memcache and APC conflicts.
-$prefix = '';
+$prefix = 'atim_';
 
 /**
  * Configure the cache used for general framework caching. Path information,
@@ -384,10 +384,10 @@ Cache::config('_cake_model_', array(
 	'duration' => $duration
 ));
 
-Cache::config('structures', array('engine' => 'File', 'path' => CACHE . "structures", 'duration' => $duration));
-Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'duration' => $duration));
-Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
-Cache::config('default', array('engine' => 'File'));
+Cache::config('structures', array('engine' => $engine, 'path' => CACHE . "structures", 'duration' => $duration));
+Cache::config('menus', array('engine' => $engine, 'path' => CACHE . "menus", 'duration' => $duration));
+Cache::config('browser', array('engine' => $engine, 'path' => CACHE . "browser", 'duration' => $duration));
+Cache::config('default', array('engine' => $engine));
 
 Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 600);
