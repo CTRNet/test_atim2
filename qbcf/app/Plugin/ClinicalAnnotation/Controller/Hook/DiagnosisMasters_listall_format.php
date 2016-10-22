@@ -1,5 +1,8 @@
 <?php 
 
+$atim_structure['DiagnosisMaster'] = $this->Structures->get('form', 'view_diagnosis,qbcf_view_diagnosis');
+$this->set('atim_structure', $atim_structure);
+
 App::uses('StructureValueDomain', 'Model');
 $this->StructureValueDomain = new StructureValueDomain();
 $ctrnet_submission_disease_site = $this->StructureValueDomain ->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'ctrnet_submission_disease_site'), 'recursive' => 2));
@@ -15,13 +18,10 @@ $qbcf_diagnosis_progression_sites = $StructurePermissibleValuesCustomModel->getC
 $qbcf_diagnosis_progression_sites = array_merge($qbcf_diagnosis_progression_sites['defined'], $qbcf_diagnosis_progression_sites['previously_defined']);
 $qbcf_other_cancer_progression_sites = $StructurePermissibleValuesCustomModel->getCustomDropdown(array('Other Cancer Progression Sites'));
 $qbcf_other_cancer_progression_sites = array_merge($qbcf_other_cancer_progression_sites['defined'], $qbcf_other_cancer_progression_sites['previously_defined']);
-$qbcf_dx_laterality = $StructurePermissibleValuesCustomModel->getCustomDropdown(array('DX : Laterality'));
-$qbcf_dx_laterality = array_merge($qbcf_dx_laterality['defined'], $qbcf_dx_laterality['previously_defined']);
 
 foreach($this->request->data as &$tmp_dx_data) {
 	switch($tmp_dx_data['DiagnosisControl']['controls_type']) {
 		case 'breast':
-			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = $qbcf_dx_laterality[$tmp_dx_data['DiagnosisDetail']['laterality']];
 			break;
 		case 'breast progression':
 			$tmp_dx_data['Generated']['qbcf_dx_detail_for_tree_view'] = $qbcf_diagnosis_progression_sites[$tmp_dx_data['DiagnosisDetail']['site']];

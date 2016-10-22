@@ -4,6 +4,41 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	var $useTable = 'treatment_masters';
 	var $name = 'TreatmentMaster';
 	
+	
+	function validatesTreatmentToDiagnosisLink($treatment_master_data, $treatment_control_data){
+		
+		$submitted_data_validates = true;
+		if(!isset($treatment_master_data['diagnosis_master_id']) || !$treatment_master_data['diagnosis_master_id']) {
+			$this->validationErrors['diagnosis_master_id'][] = __('a diagnosis should be selected');
+			$submitted_data_validates = false;
+		} else {
+			$DiagnosisMaster = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+			$selected_dx = $DiagnosisMaster->find('first', array('conditions'=> array('DiagnosisMaster.id' => $treatment_master_data['diagnosis_master_id']), 'recursive' => '0'));
+			switch($treatment_control_data['tx_method']) {
+				case 'chemotherapy':
+				case 'hormonotherapy':
+				case 'immunotherapy':
+				case 'bone specific therapy':
+				case 'radiotherapy':
+				case 'breast diagnostic event':
+					if($selected_dx['DiagnosisControl']['controls_type'] != 'breast') {
+						$this->validationErrors['diagnosis_master_id'][] = __('this treatment can not be linked to this type of diagnosis');
+						$submitted_data_validates = false;
+					}
+					break;
+				case 'other cancer':
+					if($selected_dx['DiagnosisControl']['controls_type'] != 'other cancer') {
+						$this->validationErrors['diagnosis_master_id'][] = __('this treatment can not be linked to this type of diagnosis');
+						$submitted_data_validates = false;
+					}
+					break;
+				default:
+					AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+			}
+		}
+		return $submitted_data_validates;
+	}
+	
 	function beforeSave($options = array()){
 		if(array_key_exists('TreatmentDetail', $this->data) && array_key_exists('her2_fish', $this->data['TreatmentDetail'])) {
 			
@@ -51,7 +86,22 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		return $ret_val; 
 	}
 	
-	function calculateTimesTo($participant_id) {		
+	/**
+	 * For each 'breast diagnostic event' treatment (breast biopsy or surgery), this function will calculate:
+	 *   - The time from the treatment to the last participant contact.
+	 *   - The time to the next 'breast progression' diagnosis based on date.
+	 *    
+	 * @param integer $participant_id Id fo the participant.
+	 */
+	function calculateTimesTo($participant_id) {	
+		//================================================================================================================================================================
+		// Diagnosis & treatment reminder :
+		//  - Only one breast primary diagnosis can be created per participant.
+		//  - A 'breast diagnostic event' treatment can only be created for a breast primary diagnosis.
+		//  - A 'breast progression' can only be created for a breast primary diagnosis.
+		//  - So all 'breast diagnostic event' and 'breast progression' of one participant will be linked to the same breast primary diagnosis.
+		//================================================================================================================================================================
+		
 		$conditions = array(
 			'TreatmentMaster.deleted != 1',
 			'TreatmentControl.tx_method' => 'breast diagnostic event',

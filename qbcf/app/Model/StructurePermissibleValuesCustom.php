@@ -27,6 +27,7 @@ class StructurePermissibleValuesCustom extends AppModel {
 		}
 
 		$lang = self::getLanguage();
+		if(!$lang) $lang = 'en';
 		
 		if(self::$instance == null){
 			self::$instance = new StructurePermissibleValuesCustom();

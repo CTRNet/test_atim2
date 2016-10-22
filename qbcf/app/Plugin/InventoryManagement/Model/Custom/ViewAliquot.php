@@ -138,12 +138,12 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 					if($result['ViewAliquot']['qbcf_is_tma_sample_control'] == 'y') {
 						//Tissue Control
 						$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
-							$result['ViewAliquot']['qbcf_tma_sample_control_code']." - Al#".$result['ViewAliquot']['barcode'].
+							$result['ViewAliquot']['qbcf_tma_sample_control_code']." - Aliq#".$result['ViewAliquot']['barcode'].
 							" (".__('control').
 							(empty($result['ViewAliquot']['qbcf_tma_sample_control_bank_id'])? '' : ' - '.$bank_list[$result['ViewAliquot']['qbcf_tma_sample_control_bank_id']]).')';
 					} else {
 						//Particiapnt Tissue
-						$aliquot_participant_id_and_barcode = 'P#'.(empty($result['ViewAliquot']['participant_identifier'])? '?' : $result['ViewAliquot']['participant_identifier']).' - Al#'.$result['ViewAliquot']['barcode'];
+						$aliquot_participant_id_and_barcode = 'P#'.(empty($result['ViewAliquot']['participant_identifier'])? '?' : $result['ViewAliquot']['participant_identifier']).' - Aliq#'.$result['ViewAliquot']['barcode'];
 						if($user_bank_id == 'all') {
 							$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
 								(strlen($result['ViewAliquot']['participant_bank_name'])? $result['ViewAliquot']['participant_bank_name'] : '?').' - '.
