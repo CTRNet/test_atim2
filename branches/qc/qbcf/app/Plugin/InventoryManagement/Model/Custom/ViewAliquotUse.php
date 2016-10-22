@@ -65,7 +65,7 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		AliquotMaster.id AS aliquot_master_id,
 		'realiquoted to' AS use_definition,
 --		AliquotMasterChild.barcode AS use_code,
-CONCAT('Al#',AliquotMasterChild.barcode) AS use_code,
+CONCAT('Aliq#',AliquotMasterChild.barcode) AS use_code,
 		'' AS use_details,
 		Realiquoting.parent_used_volume AS used_volume,
 		AliquotControl.volume_unit AS aliquot_volume_unit,

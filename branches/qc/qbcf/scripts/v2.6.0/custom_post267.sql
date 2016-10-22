@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS `qbcf_dx_breasts` (
   `glandular_acinar_tubular_differentiation` varchar(50) DEFAULT NULL,
   `nuclear_pleomorphism` varchar(50) DEFAULT NULL,
   `mitotic_rate` varchar(50) DEFAULT NULL,
-  `tumor_size` decimal(8,1) DEFAULT NULL,
+  `tumor_size` decimal(8,2) DEFAULT NULL,
   `margin_status` varchar(50) DEFAULT NULL,
   `number_of_positive_regional_ln` int(4) DEFAULT NULL,
   `total_number_of_regional_ln_analysed` int(4) DEFAULT NULL,
@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS `qbcf_dx_breasts_revs` (
   `glandular_acinar_tubular_differentiation` varchar(50) DEFAULT NULL,
   `nuclear_pleomorphism` varchar(50) DEFAULT NULL,
   `mitotic_rate` varchar(50) DEFAULT NULL,
-  `tumor_size` decimal(8,1) DEFAULT NULL,
+  `tumor_size` decimal(8,2) DEFAULT NULL,
   `margin_status` varchar(50) DEFAULT NULL,
   `number_of_positive_regional_ln` int(4) DEFAULT NULL,
   `total_number_of_regional_ln_analysed` int(4) DEFAULT NULL,
@@ -393,7 +393,7 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('m0', 'M0',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('cm0(i+)', 'cM0(I+)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('m0(i+)', 'M0(i+)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('m1', 'M1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('mx', 'MX',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Pathological Anatomic Stage');
@@ -432,7 +432,7 @@ VALUES
 ('pn', 'pN',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n0', 'N0',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n0(i-)', 'N0(i-)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('n0(1+)', 'N0(1+)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('n0(i+)', 'N0(i+)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n0(mol-)', 'N0(mol-)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n0(mol+)', 'N0(mol+)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n1', 'N1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
@@ -453,7 +453,7 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('m0', 'M0',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('cm0(i+)', 'cM0(I+)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('m0(i+)', 'M0(i+)',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('m1', 'M1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('mx', 'MX',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Morphology');
@@ -1148,15 +1148,15 @@ CREATE TABLE IF NOT EXISTS `qbcf_txd_radios` (
   `type` varchar(50) DEFAULT NULL,
   `num_cycles_conventional` int(5) DEFAULT NULL,
   `num_cycles_conventional_integer_unknown` char(1) DEFAULT '',
-  `dose_conventional` decimal(8,1) DEFAULT NULL,
+  `dose_conventional` decimal(8,2) DEFAULT NULL,
   `dose_conventional_decimal_unknown` char(1) DEFAULT '',
   `num_cycles_boost` int(5) DEFAULT NULL,
   `num_cycles_boost_integer_unknown` char(1) DEFAULT '',
-  `dose_boost` decimal(8,1) DEFAULT NULL,
+  `dose_boost` decimal(8,2) DEFAULT NULL,
   `dose_boost_decimal_unknown` char(1) DEFAULT '',
   `num_cycles_brachytherapy` int(5) DEFAULT NULL,
   `num_cycles_brachytherapy_integer_unknown` char(1) DEFAULT '',
-  `dose_brachytherapy` decimal(8,1) DEFAULT NULL,
+  `dose_brachytherapy` decimal(8,2) DEFAULT NULL,
   `dose_brachytherapy_decimal_unknown` char(1) DEFAULT '',
   `treatment_master_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1164,15 +1164,15 @@ CREATE TABLE IF NOT EXISTS `qbcf_txd_radios_revs` (
   `type` varchar(50) DEFAULT NULL,
   `num_cycles_conventional` int(5) DEFAULT NULL,
   `num_cycles_conventional_integer_unknown` char(1) DEFAULT '',
-  `dose_conventional` decimal(8,1) DEFAULT NULL,
+  `dose_conventional` decimal(8,2) DEFAULT NULL,
   `dose_conventional_decimal_unknown` char(1) DEFAULT '',
   `num_cycles_boost` int(5) DEFAULT NULL,
   `num_cycles_boost_integer_unknown` char(1) DEFAULT '',
-  `dose_boost` decimal(8,1) DEFAULT NULL,
+  `dose_boost` decimal(8,2) DEFAULT NULL,
   `dose_boost_decimal_unknown` char(1) DEFAULT '',
   `num_cycles_brachytherapy` int(5) DEFAULT NULL,
   `num_cycles_brachytherapy_integer_unknown` char(1) DEFAULT '',
-  `dose_brachytherapy` decimal(8,1) DEFAULT NULL,
+  `dose_brachytherapy` decimal(8,2) DEFAULT NULL,
   `dose_brachytherapy_decimal_unknown` char(1) DEFAULT '',
   `treatment_master_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,

@@ -465,7 +465,7 @@ class ShipmentsController extends OrderAppController {
 			$order_item['OrderItem']['status'] = 'pending';
 			if($order_item_data['OrderItem']['status'] == 'shipped & returned') AppController::addWarningMsg(__('the return information was deleted')); 
 			$order_item['OrderItem']['date_returned'] = null;
-			$order_item['OrderItem']['date_returned_accuracy'] = null;
+			$order_item['OrderItem']['date_returned_accuracy'] = '';
 			$order_item['OrderItem']['reason_returned'] = null;
 			$order_item['OrderItem']['reception_by'] = null;
 			$this->OrderItem->addWritableField(array(
