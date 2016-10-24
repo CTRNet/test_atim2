@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 2;
+
 /**
  * CakePHP Debug Level:
  *
@@ -31,7 +31,7 @@ $debug = 2;
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', $debug);
+	Configure::write('debug', 0);
 
 /**
  * Configure the Error handler used to handle errors for your application. By default
@@ -48,11 +48,12 @@ $debug = 2;
  *
  * @see ErrorHandler for more information on error handling and configuration.
  */
-	Configure::write('Error', array(
+	Configure::write('Error.handler', 'AppError::handleError');
+	/*Configure::write('Error', array(
 		'handler' => 'ErrorHandler::handleError',
 		'level' => E_ALL & ~E_DEPRECATED,
 		'trace' => true
-	));
+	));*/
 
 /**
  * Configure the Exception handler used for uncaught exceptions. By default,
@@ -215,9 +216,14 @@ $debug = 2;
  * the cake shell command: cake schema create Sessions
  *
  */
+	$sessionTimeout = 600;
+	if (Configure::read('debug') > 0) {
+		$sessionTimeout = 3600;
+	}
 	Configure::write('Session', array(
 		'defaults' => 'cake',
-      'cookie' => 'pcsc',
+		'cookie' => 'atim',
+		'timeout' => $sessionTimeout
 	));
 
 /**
@@ -261,8 +267,8 @@ $debug = 2;
  * The class name and database used in CakePHP's
  * access control lists.
  */
-	//Configure::write('Acl.classname', 'DbAcl');
-	//Configure::write('Acl.database', 'default');
+Configure::write('Acl.classname', 'AtimAcl');
+Configure::write('Acl.database', 'default');
 
 /**
  * Uncomment this line and correct your server timezone to fix
@@ -384,79 +390,3 @@ Cache::config('_cake_model_', array(
 	'serialize' => ($engine === 'File'),
 	'duration' => $duration
 ));
-
-Cache::config('structures', array('engine' => $engine, 'path' => CACHE . "structures", 'duration' => $duration));
-Cache::config('menus', array('engine' => $engine, 'path' => CACHE . "menus", 'duration' => $duration));
-Cache::config('browser', array('engine' => $engine, 'path' => CACHE . "browser", 'duration' => $duration));
-Cache::config('default', array('engine' => $engine));
-
-Configure::write('use_compression', false);
-Configure::write('Session.timeout', $debug ? 3600 : 600);
-
-/**
- * Define the complexity of a password format:
- *	- level 0: No constrain
- *	- level 1: Minimal length of 8 characters + contains at least one lowercase letter
- *	- level 2: level 1 + contains at least one number
- *	- level 3: level 2 + contains at least one uppercase letter
- *	- level 4: level 3 + special at least one character [!$-_.]
- */
-Configure::write('password_security_level', 0);
-
-/**
- * Maximum number of successive failed login attempts (max_login_attempts_from_IP) before an IP address is disabled.
- * Time in minute (time_mn_IP_disabled) before an IP adress can retest login.
- */
-Configure::write('max_login_attempts_from_IP', 5);
-/**
- * Time in minute (time_mn_IP_disabled) before an IP address is reactivated.
- */
-Configure::write('time_mn_IP_disabled', 20);
-
-/**
- * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.
- */
-Configure::write('max_user_login_attempts', 5);
-
-/**
- * Period of password validity in month.
- * Keep empty if no control has to be done.
- * When password is invalid, a warning message will be displayed and the user will be redirect to the change password form.
- */
-Configure::write('password_validity_period_month', null);
-
-/**
- * Set the limit of records that could either be displayed in the databrowser results 
- * form or into a report.
- */
-Configure::write('databrowser_and_report_results_display_limit', 1000);
-
-/**
- * Set the limit of items that could be processed in batch
- */
-Configure::write('SampleDerivativeCreation_processed_items_limit', 50);		// SampleMasters.batchDerivative()
-	
-Configure::write('AliquotCreation_processed_items_limit', 50);				// AliquotMasters.add()
-Configure::write('AliquotModification_processed_items_limit', 50);			// AliquotMasters.editInBatch()
-Configure::write('AliquotInternalUseCreation_processed_items_limit', 50);	// AliquotMasters.addAliquotInternalUse()
-Configure::write('RealiquotedAliquotCreation_processed_items_limit', 50);	// AliquotMasters.realiquot()
-Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotMasters.printBarcodes()
-	
-Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
-	
-Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
-Configure::write('AddAliquotToShipment_processed_items_limit', 50);			// Shipments.addToShipment()
-
-Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add()
-
-/**
- * Set the allowed links that exists between an OrderItem and different Order plugin objects:
- * 		1 => link OrderItem to both Order and OrderLine (order line submodule available) 
- * 		2 => link OrderItem to OrderLine only (order line submodule available) 
- * 		3 => link OrderItem to Order only (order line submodule not available) 
- */
-Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
-
-Configure::write('uploadDirectory', './atimUploadDirectory');
-
-unset($debug);

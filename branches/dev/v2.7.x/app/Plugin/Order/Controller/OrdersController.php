@@ -10,8 +10,8 @@ class OrdersController extends OrderAppController {
 		'Order.Shipment');
 	
 	var $paginate = array(
-		'Order'=>array('limit' => pagination_amount,'order'=>'Order.date_order_placed DESC'), 
-		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
+		'Order'=>array('limit' => PAGINATION_AMOUNT,'order'=>'Order.date_order_placed DESC'),
+		'OrderLine'=>array('limit'=>PAGINATION_AMOUNT,'order'=>'OrderLine.date_required DESC'));
 	
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));

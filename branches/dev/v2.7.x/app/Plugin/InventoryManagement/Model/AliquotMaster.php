@@ -233,10 +233,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}
 		}
 		
-		$prev_check_writable_fields = $this->check_writable_fields;
-		$this->check_writable_fields = false;
+		$prev_check_writable_fields = $this->checkWritableFields;
+		$this->checkWritableFields = false;
 		$result = $save_required && !$this->save(array("AliquotMaster" => $aliquot_data_to_save), false);
-		$this->check_writable_fields = $prev_check_writable_fields;
+		$this->checkWritableFields = $prev_check_writable_fields;
 		return !$result;
 	}
 	

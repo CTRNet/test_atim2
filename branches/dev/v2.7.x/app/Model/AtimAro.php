@@ -1,14 +1,15 @@
 <?php
+
 class AtimAro extends Aro {
-	
-	/**
-	 * Retrieves the Aro/Aco node for this model
-	 *
-	 * @param mixed $ref Array with 'model' and 'foreign_key', model object, or string value
-	 * @return array Node found in database
-	 * @access public
-	 */
-	function node($ref = null) {
+
+/**
+ * Retrieves the Aro/Aco node for this model
+ *
+ * @param mixed $ref Array with 'model' and 'foreign_key', model object, or string value
+ *
+ * @return array Node found in database
+ */
+	public function node($ref = null) {
 		$db = ConnectionManager::getDataSource($this->useDbConfig);
 		$type = $this->alias;
 		$result = null;
@@ -28,56 +29,51 @@ class AtimAro extends Aro {
 
 			$queryData = array(
 				'conditions' => array(
-			$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
-			$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")),
+					$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
+					$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")
+				),
 				'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
-				'joins' => array(array(
-					'table' => $db->fullTableName($this),
-					'alias' => "{$type}0",
-					'type' => 'LEFT',
-					'conditions' => array("{$type}0.alias" => $start)
-			)),
+				'joins' => array(
+					array(
+						'table' => $db->fullTableName($this),
+						'alias' => "{$type}0",
+						'type' => 'LEFT',
+						'conditions' => array("{$type}0.alias" => $start)
+					)
+				),
 				'order' => $db->name("{$type}.lft") . ' DESC'
 			);
-				
-			$join_conditions = array();
-				
+
+			$joinConditions = array();
+
 			foreach ($path as $i => $alias) {
 				$j = $i - 1;
 
 				$queryData['joins'][] = array(
 					'table' => $db->fullTableName($this),
 					'alias' => "{$type}{$i}",
-					'type'  => 'LEFT',
+					'type' => 'LEFT',
 					'conditions' => array(
-				//$db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft"),
-				//$db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght"),
-				$db->name("{$type}{$i}.alias") . ' = ' . $db->value($alias, 'string')
-				)
+						//$db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft"),
+						//$db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght"),
+						$db->name("{$type}{$i}.alias") . ' = ' . $db->value($alias, 'string')
+					)
 				);
 
-				$join_conditions[] = $db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft").' AND '.$db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght") . ' AND ' . $db->name("{$type}{$i}.parent_id") . ' = ' . $db->name("{$type}{$j}.id");
+				$joinConditions[] = $db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft") .
+					' AND ' . $db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght") .
+					' AND ' . $db->name("{$type}{$i}.parent_id") . ' = ' . $db->name("{$type}{$j}.id");
 
-				$queryData['conditions'] = join(' AND ', $join_conditions)
-				.' AND ('
-				.' ('
-				.$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft")
-				. ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")
-				.') OR ('
-				.$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft")
-				. ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght")
-				.')'
-				.' )'
-				;
+				$queryData['conditions'] = join(' AND ', $joinConditions) .
+					' AND (' . ' (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") .
+					' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght") .
+					') OR (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") .
+					' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght") . ')' . ' )';
 			}
 			$result = $db->read($this, $queryData, -1);
 			$path = array_values($path);
 
-			if (
-			!isset($result[0][$type]) ||
-			(!empty($path) && $result[0][$type]['alias'] != $path[count($path) - 1]) ||
-			(empty($path) && $result[0][$type]['alias'] != $start)
-			) {
+			if (!isset($result[0][$type]) || (!empty($path) && $result[0][$type]['alias'] != $path[count($path) - 1]) || (empty($path) && $result[0][$type]['alias'] != $start)) {
 				return false;
 			}
 		} elseif (is_object($ref) && is_a($ref, 'Model')) {
@@ -88,7 +84,8 @@ class AtimAro extends Aro {
 			$model = ClassRegistry::init(array('class' => $name, 'alias' => $name));
 
 			if (empty($model)) {
-				trigger_error("Model class '$name' not found in AclNode::node() when trying to bind {$this->alias} object", E_USER_WARNING);
+				trigger_error("Model class '$name' not found in AclNode::node() when trying to bind {$this->alias} object",
+					E_USER_WARNING);
 				return null;
 			}
 
@@ -119,21 +116,24 @@ class AtimAro extends Aro {
 			$queryData = array(
 				'conditions' => $ref,
 				'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
-				'joins' => array(array(
-					'table' => $db->fullTableName($this),
-					'alias' => "{$type}0",
-					'type' => 'LEFT',
-					'conditions' => array(
-			$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
-			$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")
-			)
-			)),
+				'joins' => array(
+					array(
+						'table' => $db->fullTableName($this),
+						'alias' => "{$type}0",
+						'type' => 'LEFT',
+						'conditions' => array(
+							$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
+							$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")
+						)
+					)
+				),
 				'order' => $db->name("{$type}.lft") . ' DESC'
 			);
 			$result = $db->read($this, $queryData, -1);
 
 			if (!$result) {
-				trigger_error("AclNode::node() - Couldn't find {$type} node identified by \"" . print_r($ref, true) . "\"", E_USER_WARNING);
+				trigger_error("AclNode::node() - Couldn't find {$type} node identified by \"" . print_r($ref,
+						true) . "\"", E_USER_WARNING);
 			}
 		}
 		return $result;

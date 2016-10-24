@@ -185,7 +185,7 @@
 	$this->Csv->addRow(array(__('storage'), $data['parent']['StorageControl']['translated_storage_type'].' : '.$data['parent']['StorageMaster']['short_label']));
 	$this->Csv->addRow(array(''));
 	foreach($csv_data as $new_data_line) $this->Csv->addRow($new_data_line);
-	echo $this->Csv->render(true, isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
+	echo $this->Csv->render(true, isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : CSV_ENCODING);
 	exit;
 	
 ?>

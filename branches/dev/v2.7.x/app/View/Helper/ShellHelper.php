@@ -436,7 +436,7 @@ class ShellHelper extends AppHelper {
 			$return_summary = '';
 			$summaries = array_filter($summaries);
 			
-			if(show_summary && count($summaries)){
+			if(SHOW_SUMMARY && count($summaries)){
 				$return_summary .= '
 					<ul id="summary">
 						<li>

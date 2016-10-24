@@ -638,7 +638,7 @@ class StructuresHelper extends AppHelper {
 								$display = array();
 								$end_of_line = "";
 							}
-							echo'<td class="heading no_border" colspan="'.( show_help ? '3' : '2' ).'">
+							echo'<td class="heading no_border" colspan="'.( SHOW_HELP ? '3' : '2' ).'">
 										<h4>'.$table_row_part['heading'].'</h4>
 									</td>
 								</tr><tr>
@@ -724,7 +724,7 @@ class StructuresHelper extends AppHelper {
 							}
 						}
 						
-						if(show_help){
+						if(SHOW_HELP){
 							
 							$end_of_line = '
 									<td class="help">
@@ -819,7 +819,7 @@ class StructuresHelper extends AppHelper {
 		}else if($options['links']['top'] && $options['settings']['form_inputs'] && !$table_row_part['readonly']){
 			if($table_row_part['type'] == "date"){
 				$display = "";
-				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
+				if($options['type'] != "search" && isset(AppModel::$accuracyConfig[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
                     $display .= self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
@@ -836,7 +836,7 @@ class StructuresHelper extends AppHelper {
 					}
 				}
 				
-				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
+				if($options['type'] != "search" && isset(AppModel::$accuracyConfig[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
 				
@@ -904,7 +904,7 @@ class StructuresHelper extends AppHelper {
 				if($table_row_part['type'] == "y_n_u"){
 					$display .= __('unknown', true). $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "u", 'hiddenField' => false, 'checked' => $current_value == "u" ? true : false))); 
 				}
-			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
+			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && DECIMAL_SEPARATOR == ','){
 				$current_value = str_replace('.', ',', $current_value);
 			} else if($table_row_part['type'] == "textarea") {
 				$current_value = str_replace('\n', "\n", $current_value);	
@@ -960,7 +960,7 @@ class StructuresHelper extends AppHelper {
 						AppController::addWarningMsg(__("missing reference key [%s] for field [%s]", $current_value, $table_row_part['field']));
 					}
 				}
-			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
+			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && DECIMAL_SEPARATOR == ','){
 				$display = str_replace('.', ',', $current_value);
 			}else if($table_row_part['type'] == 'textarea'){
 				$current_value = htmlspecialchars($current_value);
@@ -1254,7 +1254,7 @@ class StructuresHelper extends AppHelper {
 					$heading_sub_line = array();
 					$sub_line = array();
 					$csv::$structures[$node_id] = $structure = $this->buildStack($csv::$structures[$node_id], $options);
-					$csv::$structures[$node_id] = $this->titleHtmlSpecialCharsDecode($csv::$structures[$node_id], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
+					$csv::$structures[$node_id] = $this->titleHtmlSpecialCharsDecode($csv::$structures[$node_id], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : CSV_ENCODING);
 					foreach($csv::$structures[$node_id] as $table_column){
 						$last_heading = '';
 						foreach($table_column as $fm => $table_row){
@@ -1340,12 +1340,12 @@ class StructuresHelper extends AppHelper {
 			foreach($lines as &$line){
 				$this->Csv->addRow($line);
 			}
-			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
+			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : CSV_ENCODING);
 		}else{
 			//default mode, multi lines
 			$options['type'] = 'index';
 			$table_structure = $this->buildStack($atim_structure, $options);
-			$table_structure = $this->titleHtmlSpecialCharsDecode($table_structure, isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
+			$table_structure = $this->titleHtmlSpecialCharsDecode($table_structure, isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : CSV_ENCODING);
 			$options['type'] = 'csv';//go back to csv
 			
 			if(is_array($table_structure) && count($data)){
@@ -1432,7 +1432,7 @@ class StructuresHelper extends AppHelper {
 				}
 			}
 			
-			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
+			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : CSV_ENCODING);
 		}
 	}
 	
@@ -1904,7 +1904,7 @@ class StructuresHelper extends AppHelper {
 								$return_string .= $table_row_part['label'];
 							}
 							
-							if(show_help){
+							if(SHOW_HELP){
 								$return_string .= $current_col_number < $content_columns_count ? str_replace('<span class="icon16 help">', '<span class="icon16 help right">', $table_row_part['help']) : $table_row_part['help'];
 							}
 							
@@ -2044,7 +2044,7 @@ class StructuresHelper extends AppHelper {
 					);
 					$settings = $my_default_settings_arr;
 					
-					$date_format_arr = str_split(date_format);
+					$date_format_arr = str_split(DATE_FORMAT);
 					if($options['links']['top'] && $options['settings']['form_inputs']){
 						$settings['tabindex'] = self::$last_tabindex ++;
 						
@@ -2645,7 +2645,7 @@ class StructuresHelper extends AppHelper {
 	 * @param array $attributes
 	 */
 	private function getDateInputs($name, $date, array $attributes){
-		$pref_date = str_split(date_format);
+		$pref_date = str_split(DATE_FORMAT);
 		$year = $month = $day = null;
 		if(is_array($date)){
 			$year = $date['year'];
@@ -2676,7 +2676,7 @@ class StructuresHelper extends AppHelper {
 			$year_attributes['required'] = $attributes['required'];
 			unset($attributes['required']);
 		}
-		if(datetime_input_type == "dropdown"){
+		if(DATETIME_INPUT_TYPE == "dropdown"){
 			foreach($pref_date as $part){
 				if($part == "Y"){
                     if (isset($attributes['minYear'])) {
@@ -2741,7 +2741,7 @@ class StructuresHelper extends AppHelper {
 			}else{
 				list($hour, $minutes, ) = explode(":", $time);
 			}
-			if(time_format == 12){
+			if(TIME_FORMAT == 12){
 				if($hour >= 12){
 					$meridian = 'pm';
 					if($hour > 12){
@@ -2755,16 +2755,16 @@ class StructuresHelper extends AppHelper {
 				}
 			}
 		}
-		if(datetime_input_type == "dropdown"){
+		if(DATETIME_INPUT_TYPE == "dropdown"){
 			unset($attributes['options']);//Fixes an IE8 issue with $.serialize
-			$result .= $this->Form->hour($name, time_format == 24, array_merge($attributes, array('value' => $hour)));
+			$result .= $this->Form->hour($name, TIME_FORMAT == 24, array_merge($attributes, array('value' => $hour)));
 			$result .= $this->Form->minute($name, array_merge($attributes, array('value' => $minutes)));
 		}else{
 			unset($attributes['options']);
-			$result .= '<span class="tooltip">'.$this->Form->text($name.".hour", array_merge($attributes, array('type' => 'number', 'value' => $hour, 'size' => 3, 'min' => time_format == 12 ? 1 : 0, 'max' => time_format == 12 ? 12 : 23)))."<div>".__('hour', true)."</div></span>";
+			$result .= '<span class="tooltip">'.$this->Form->text($name.".hour", array_merge($attributes, array('type' => 'number', 'value' => $hour, 'size' => 3, 'min' => TIME_FORMAT == 12 ? 1 : 0, 'max' => TIME_FORMAT == 12 ? 12 : 23)))."<div>".__('hour', true)."</div></span>";
 			$result .= '<span class="tooltip">'.$this->Form->text($name.".min", array_merge($attributes, array('type' => 'number', 'value' => $minutes, 'size' => 3, 'min' => 0, 'max' => 59)))."<div>".__('minutes', true)."</div></span>";
 		}
-		if(time_format == 12){
+		if(TIME_FORMAT == 12){
 			$result .= $this->Form->meridian($name, array_merge($attributes, array('value' => $meridian)));
 		}
 		return $result;
@@ -2825,7 +2825,7 @@ class StructuresHelper extends AppHelper {
 		$default_settings_wo_class = self::$default_settings_arr;
 		unset($default_settings_wo_class['class']);
 		foreach($raw_radiolist as $radiobutton_name => $radiobutton_value){
-			list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
+			list($tmp_model, $tmp_field) = preg_split("\.", $radiobutton_name);
 			$radiobutton_value = $this->strReplaceLink($radiobutton_value, $data);
 			$tmp_attributes = array('legend' => false, 'value' => false, 'id' => $radiobutton_name);
 			if(isset($data[$tmp_model][$tmp_field]) && $data[$tmp_model][$tmp_field] == $radiobutton_value){

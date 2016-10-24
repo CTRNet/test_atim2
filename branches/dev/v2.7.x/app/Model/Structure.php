@@ -4,176 +4,210 @@ App::uses('AppModel', 'Model');
 class Structure extends AppModel {
 
 	public $name = 'Structure';
-    public $actsAs = array('Containable');
+
+	public $actsAs = array('Containable');
 
 	public $hasMany = array(
 		'StructureFormat' => array(
-            'order' => array(
-                'StructureFormat.flag_float DESC', 'StructureFormat.display_column ASC, StructureFormat.display_order ASC'
-            )
-        ),
+			'order' => array(
+				'StructureFormat.flag_float DESC',
+				'StructureFormat.display_column ASC, StructureFormat.display_order ASC'
+			)
+		),
 		'Sfs' => array(
-            'order' => array(
-                'Sfs.flag_float DESC', 'Sfs.display_column ASC, Sfs.display_order ASC'
-            )
-        )
+			'order' => array(
+				'Sfs.flag_float DESC',
+				'Sfs.display_column ASC, Sfs.display_order ASC'
+			)
+		)
 	);
-	
-	private $simple = true;
 
-   public function __construct(){
+	protected $_simple = true;
+
+	public function __construct() {
 		parent::__construct();
 		$this->setModeSimplified();
 	}
 
-   public function setModeComplete(){
-		$this->contain(array('StructureFormat' => array('StructureField' => array('StructureValidation', 'StructureValueDomain'))));
-		$this->simple = false;
-	}
-
-   public function setModeSimplified(){
+	public function setModeSimplified() {
 		$this->contain(array('Sfs' => array('StructureValidation', 'StructureValueDomain')));
 		App::uses('StructureValidation', 'Model');
 		$this->StructureValidation = new StructureValidation();
-		$this->simple = true;
+		$this->_simple = true;
 	}
 
-   public function find($type = 'first', $params = array())
-    {
+	public function setModeComplete() {
+		$this->contain(array(
+			'StructureFormat' => array(
+				'StructureField' => array(
+					'StructureValidation',
+					'StructureValueDomain'
+				)
+			)
+		));
+		$this->_simple = false;
+	}
+
+	public function find($type = 'first', $params = array()) {
 		$structure = parent::find('first', $params);
 		$rules = array();
-		if($structure){
-			$fields_ids = array(0);
-			if($this->simple && isset($structure['Sfs'])){
+		if ($structure) {
+			$fieldsIds = array(0);
+			if ($this->_simple && isset($structure['Sfs'])) {
 				//if recursive = -1, there is no Sfs
-				foreach($structure['Sfs'] as $sfs ){
-					$fields_ids[] = $sfs['structure_field_id'];
+				foreach ($structure['Sfs'] as $sfs) {
+					$fieldsIds[] = $sfs['structure_field_id'];
 				}
 				$validations = $this->StructureValidation->find('all', array(
-                    'conditions' => (
-                        'StructureValidation.structure_field_id IN('.implode(", ", $fields_ids).')'
-                    )
-                ));
-				foreach($validations as $validation){
-					foreach ($structure['Sfs'] as &$sfs ){
-						if($sfs['structure_field_id'] == $validation['StructureValidation']['structure_field_id']){
+					'conditions' => ('StructureValidation.structure_field_id IN(' . implode(", ", $fieldsIds) . ')')
+				));
+				foreach ($validations as $validation) {
+					foreach ($structure['Sfs'] as &$sfs) {
+						if ($sfs['structure_field_id'] == $validation['StructureValidation']['structure_field_id']) {
 							$sfs['StructureValidation'][] = $validation['StructureValidation'];
 						}
 					}
 					unset($sfs);
 				}
 			}
-			
+
 			$rules = array();
 
-			if(($this->simple && isset($structure['Sfs'])) || (!$this->simple && isset($structure['StructureFormat']))){
-				foreach ($structure[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf){
-					$auto_validation = isset(AppModel::$auto_validation[$sf['model']]) ? AppModel::$auto_validation[$sf['model']] : array(); 
-					if (!isset($rules[$sf['model']])){
+			if (($this->_simple && isset($structure['Sfs'])) || (!$this->_simple && isset($structure['StructureFormat']))) {
+				foreach ($structure[$this->_simple ? 'Sfs' : 'StructureFormat'] as $sf) {
+					$autoValidation = isset(AppModel::$autoValidation[$sf['model']]) ? AppModel::$autoValidation[$sf['model']] : array();
+					if (!isset($rules[$sf['model']])) {
 						$rules[$sf['model']] = array();
 					}
-					$tmp_type = $sf['type'];
-					$tmp_rule = NULL;
-					$tmp_msg = NULL;
-					if($tmp_type == "integer"){
-						$tmp_rule = VALID_INTEGER;
-						$tmp_msg = "error_must_be_integer";
-					}else if($tmp_type == "integer_positive"){
-						$tmp_rule = VALID_INTEGER_POSITIVE;
-						$tmp_msg = "error_must_be_positive_integer";
-					}else if($tmp_type == "float" || $tmp_type == "number"){
-						$tmp_rule = VALID_FLOAT;
-						$tmp_msg = "error_must_be_float";
-					}else if($tmp_type == "float_positive"){
-						$tmp_rule = VALID_FLOAT_POSITIVE;
-						$tmp_msg = "error_must_be_positive_float";
-					}else if($tmp_type == "datetime"){
-						$tmp_rule = VALID_DATETIME_YMD;
-						$tmp_msg = "invalid datetime";
-					}else if($tmp_type == "date"){
-						$tmp_rule = "date";
-						$tmp_msg = "invalid date";
-					}else if($tmp_type == "time"){
-						$tmp_rule = VALID_24TIME;
-						$tmp_msg = "this is not a time";
+					$tmpType = $sf['type'];
+					$tmpRule = null;
+					$tmpMsg = null;
+					if ($tmpType == "integer") {
+						$tmpRule = VALID_INTEGER;
+						$tmpMsg = "error_must_be_integer";
+					} else {
+						if ($tmpType == "integer_positive") {
+							$tmpRule = VALID_INTEGER_POSITIVE;
+							$tmpMsg = "error_must_be_positive_integer";
+						} else {
+							if ($tmpType == "float" || $tmpType == "number") {
+								$tmpRule = VALID_FLOAT;
+								$tmpMsg = "error_must_be_float";
+							} else {
+								if ($tmpType == "float_positive") {
+									$tmpRule = VALID_FLOAT_POSITIVE;
+									$tmpMsg = "error_must_be_positive_float";
+								} else {
+									if ($tmpType == "datetime") {
+										$tmpRule = VALID_DATETIME_YMD;
+										$tmpMsg = "invalid datetime";
+									} else {
+										if ($tmpType == "date") {
+											$tmpRule = "date";
+											$tmpMsg = "invalid date";
+										} else {
+											if ($tmpType == "time") {
+												$tmpRule = VALID_24TIME;
+												$tmpMsg = "this is not a time";
+											}
+										}
+									}
+								}
+							}
+						}
 					}
-					if($tmp_rule != NULL){
+					if ($tmpRule != null) {
 						$sf['StructureValidation'][] = array(
 							'structure_field_id' => $sf['structure_field_id'],
-							'rule' => $tmp_rule, 
-							'on_action' => NULL,
-							'language_message' => $tmp_msg);
+							'rule' => $tmpRule,
+							'on_action' => null,
+							'language_message' => $tmpMsg
+						);
 					}
-					if(!$this->simple){
-						$sf['StructureValidation'] = array_merge($sf['StructureValidation'], $sf['StructureField']['StructureValidation']);
+					if (!$this->_simple) {
+						$sf['StructureValidation'] = array_merge($sf['StructureValidation'],
+							$sf['StructureField']['StructureValidation']);
 					}
-	
-					foreach ( $sf['StructureValidation'] as $validation ) {
+
+					foreach ($sf['StructureValidation'] as $validation) {
 						$rule = array();
-						if(($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
+						if (($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
 							// To support coma as decimal separator
 							$rule[0] = $validation['rule'];
-						}else if(strlen($validation['rule']) > 0){
-							$rule = explode(',',$validation['rule']);
+						} else {
+							if (strlen($validation['rule']) > 0) {
+								$rule = explode(',', $validation['rule']);
+							}
 						}
-						
-						if(count($rule) == 1){
+
+						if (count($rule) == 1) {
 							$rule = $rule[0];
-						}else if(count($rule) == 0){
-							if(Configure::read('debug') > 0){
-								AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']), true);
+						} else {
+							if (count($rule) == 0) {
+								if (Configure::read('debug') > 0) {
+									AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined",
+										$validation['id']), true);
+								}
+								continue;
 							}
-							continue;
 						}
-						
-						$not_empty = $rule == 'notBlank';
-						$rule_array = array(
+
+						$notBlank = $rule == 'notBlank';
+						$ruleArray = array(
 							'rule' => $rule,
-							'allowEmpty' => !$not_empty
+							'allowEmpty' => !$notBlank
 						);
-						
-						if($validation['on_action']){
-							if(in_array($validation['on_action'], array('create', 'update'))){
-								$rule_array['on'] = $validation['on_action'];
-							}else if(Configure::read('debug') > 0){
-								AppController::addWarningMsg('Invalid on_action for validation rule with id ['.$validation['id'].']. Current value: ['.$validation['on_action'].']. Expected: [create], [update] or empty.', true);
+
+						if ($validation['on_action']) {
+							if (in_array($validation['on_action'], array('create', 'update'))) {
+								$ruleArray['on'] = $validation['on_action'];
+							} else {
+								if (Configure::read('debug') > 0) {
+									AppController::addWarningMsg(
+										'Invalid on_action for validation rule with id [' . $validation['id'] .
+										']. Current value: [' . $validation['on_action'] .
+										']. Expected: [create], [update] or empty.', true);
+								}
 							}
 						}
-						if($validation['language_message']){
-							$rule_array['message'] = __($validation['language_message']);
-						}else if($rule_array['rule'] == 'notBlank'){
-							$rule_array['message'] = __("this field is required");
-						}else if($rule_array['rule'] == 'isUnique'){
-							$rule_array['message'] = __("this field must be unique");
+						if ($validation['language_message']) {
+							$ruleArray['message'] = __($validation['language_message']);
+						} else {
+							if ($ruleArray['rule'] == 'notBlank') {
+								$ruleArray['message'] = __("this field is required");
+							} else {
+								if ($ruleArray['rule'] == 'isUnique') {
+									$ruleArray['message'] = __("this field must be unique");
+								}
+							}
 						}
-				
-						if(strlen($sf['language_label']) > 0 && isset($rule_array['message'])){
-							$rule_array['message'] .= " (".__($sf['language_label']).")";
+
+						if (strlen($sf['language_label']) > 0 && isset($ruleArray['message'])) {
+							$ruleArray['message'] .= " (" . __($sf['language_label']) . ")";
 						}
-						
-						if (!isset($rules[ $sf['model']][$sf['field']])){
+
+						if (!isset($rules[$sf['model']][$sf['field']])) {
 							$rules[$sf['model']][$sf['field']] = array();
 						}
-						
-						if($not_empty){
+
+						if ($notBlank) {
 							//the not empty rule must be the first one or cakes will ignore it
-							array_unshift($rules[$sf['model']][$sf['field']], $rule_array);
-						}else{
-							$rules[$sf['model']][$sf['field']][] = $rule_array;
+							array_unshift($rules[$sf['model']][$sf['field']], $ruleArray);
+						} else {
+							$rules[$sf['model']][$sf['field']][] = $ruleArray;
 						}
 					}
-					
-					if(isset($auto_validation[$sf['field']])){
-						foreach($auto_validation[$sf['field']] as $rule_array){
-							$rule_array['message'] .= " (".__($sf['language_label']).")";
-							$rules[$sf['model']][$sf['field']][] = $rule_array;
+
+					if (isset($autoValidation[$sf['field']])) {
+						foreach ($autoValidation[$sf['field']] as $ruleArray) {
+							$ruleArray['message'] .= " (" . __($sf['language_label']) . ")";
+							$rules[$sf['model']][$sf['field']][] = $ruleArray;
 						}
 					}
 				}
 			}
 		}
-		
+
 		return array('structure' => $structure, 'rules' => $rules);
 	}
-
 }

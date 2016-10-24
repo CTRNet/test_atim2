@@ -2,6 +2,6 @@
 App::uses('AppModel', 'Model');
 class Page extends AppModel {
 
-	var $name = 'Page';
+	public $name = 'Page';
 
 }

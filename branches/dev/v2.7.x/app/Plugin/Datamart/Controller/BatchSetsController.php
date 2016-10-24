@@ -14,7 +14,7 @@ class BatchSetsController extends DatamartAppController {
 	);
 	
 	var $paginate = array(
-		'BatchSet'=>array('limit'=>pagination_amount,'order'=>'BatchSet.created DESC')
+		'BatchSet'=>array('limit'=>PAGINATION_AMOUNT,'order'=>'BatchSet.created DESC')
 	);
 
 	function index($type_of_list='user'){

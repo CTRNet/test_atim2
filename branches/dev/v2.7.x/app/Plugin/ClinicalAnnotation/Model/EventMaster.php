@@ -84,7 +84,7 @@ class EventMaster extends ClinicalAnnotationAppModel {
 				$data['EventDetail']['smoked_for'] = __('cannot calculate on incomplete date');
 			}
 			if(!empty($data['EventDetail']['stopped_on']) && $data['EventDetail']['stopped_on_accuracy'] == 'c'){
-				$data['EventDetail']['stopped_since'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($data['EventDetail']['stopped_on'].' 00:00:00', now()), false);
+				$data['EventDetail']['stopped_since'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($data['EventDetail']['stopped_on'].' 00:00:00', date("Y-m-d H:i:s")), false);
 			}else{
 				$data['EventDetail']['stopped_since'] = __('cannot calculate on incomplete date');
 			}

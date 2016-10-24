@@ -16,7 +16,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		'InventoryManagement.AliquotMaster'
 	);
 	
-	var $paginate = array('StorageMaster' => array('limit' => pagination_amount, 'order' => 'StorageMaster.selection_label ASC'));
+	var $paginate = array('StorageMaster' => array('limit' => PAGINATION_AMOUNT, 'order' => 'StorageMaster.selection_label ASC'));
 
 	function search($search_id = 0, $from_layout_page = false){
 	    $model_to_use = $this->ViewStorageMaster;

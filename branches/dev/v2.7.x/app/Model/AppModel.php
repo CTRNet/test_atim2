@@ -30,30 +30,40 @@ App::uses('Model', 'Model');
  * @package       app.Model
  */
 class AppModel extends Model {
-	
-	public $actsAs = array('Revision','SoftDeletable','MasterDetail');//It's important that MasterDetail be after Revision
-	public static $auto_validation = null;//Validation for all models based on the table field length for char/varchar
-	static public $accuracy_config = array();//tablename -> accuracy fields
-	
-	static public $writable_fields = array();//tablename -> flag suffix -> fields
-	public $check_writable_fields = true;//whether to check writable fields or not (security check)
-	public $writable_fields_mode = null;//add, edit, addgrid, editgrid, batchedit
+
+	//It's important that MasterDetail be after Revision
+	public $actsAs = array('Revision', 'SoftDeletable', 'MasterDetail');
+
+	//whether to check writable fields or not (security check)
+	public $checkWritableFields = true;
+
+	//add, edit, addgrid, editgrid, batchedit
+	public $writableDieldsMode = null;
+
+	public $pkeySafeguard = true;//whether to prevent data to be saved if the data array contains a pkey different than model->id
+
+	//Validation for all models based on the table field length for char/varchar
+	public static $autoValidation = null;
+
+	//tablename -> accuracy fields
+	public static $accuracyConfig = array();
+
+	//tablename -> flag suffix -> fields
+	public static $writableFields = array();
 
 	//The values in this array can trigger magic actions when applied to a field settings
-	private static $magic_coding_icd_trigger_array = array(
-			"CodingIcd10Who" => "/CodingIcd/CodingIcd10s/tool/who", 
-			"CodingIcd10Ca" => "/CodingIcd/CodingIcd10s/tool/ca", 
-			"CodingIcdo3Morpho" => "/CodingIcd/CodingIcdo3s/tool/morpho", 
-			"CodingIcdo3Topo" => "/CodingIcd/CodingIcdo3s/tool/topo");
-	
-	public $pkey_safeguard = true;//whether to prevent data to be saved if the data array contains a pkey different than model->id
-	
-	private $registered_models;//use related to views
-	
-	/**
-	 * @desc Used to store the previous model when a model is recreated for detail search
-	 * @var SampleMaster
-	 */
+	protected static $_magic_coding_icd_trigger_array = array(
+		"CodingIcd10Who" => "/CodingIcd/CodingIcd10s/tool/who",
+		"CodingIcd10Ca" => "/CodingIcd/CodingIcd10s/tool/ca",
+		"CodingIcdo3Morpho" => "/CodingIcd/CodingIcdo3s/tool/morpho",
+		"CodingIcdo3Topo" => "/CodingIcd/CodingIcdo3s/tool/topo");
+
+	protected $_registeredModels;//use related to views
+
+/**
+ * @desc Used to store the previous model when a model is recreated for detail search
+ * @var SampleMaster
+ */
 	public $previous_model = null;
 	private static $locked_views_update = false;
 	private static $cached_views_update = array();
@@ -62,18 +72,18 @@ class AppModel extends Model {
 	private static $cached_views_model = null; //some model, only provides accc
 	
 	const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
-	
-	/**
-	 * @desc If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
-	 * This is convenient for search based on master/detail detail table.
-	 * @param int $id (see parent::__construct)
-	 * @param unknown_type $table (see parent::__construct)
-	 * @param unknown_type $ds (see parent::__construct) 
-	 * @param string $base_model_name The base model name of a master/detail model
-	 * @param string $detail_table The name of the table to use for detail
-	 * @param AppModel $previous_model The previous model prior to that new creation (purely for convenience)
-	 * @see parent::__construct
-	 */
+
+/**
+ * @desc If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
+ * This is convenient for search based on master/detail detail table.
+ * @param int $id (see parent::__construct)
+ * @param unknown_type $table (see parent::__construct)
+ * @param unknown_type $ds (see parent::__construct)
+ * @param string $base_model_name The base model name of a master/detail model
+ * @param string $detail_table The name of the table to use for detail
+ * @param AppModel $previous_model The previous model prior to that new creation (purely for convenience)
+ * @see parent::__construct
+ */
 	function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null) {
 		if($detail_table != null && $base_model_name != null){
 			$this->hasOne[$base_model_name.'Detail'] = array(
@@ -87,11 +97,11 @@ class AppModel extends Model {
 		parent::__construct($id, $table, $ds);
     }
 
-    /**
-     * Finds the uploaded files from the $data array. Update the $data array
-     * with the name the stored file will have and returns the $mode_files
-     * directive array to
-     **/
+/**
+ * Finds the uploaded files from the $data array. Update the $data array
+ * with the name the stored file will have and returns the $mode_files
+ * directive array to
+ **/
     private function filter_move_files(&$data) {
         $move_files = array();
         if(!is_array($data)) {
@@ -174,7 +184,7 @@ class AppModel extends Model {
 	 * @see Model::save()
 	 */
 	public function save($data = null, $validate = true, $fieldList = array()){
-		if($this->pkey_safeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
+		if($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
 				|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))
 		){
 			AppController::addWarningMsg('Pkey safeguard on model '.$this->name, true);
@@ -193,9 +203,9 @@ class AppModel extends Model {
 		}
 	
 		if((!isset($data[$this->name]) || empty($data[$this->name])) 
-		&& isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) 
-		&& $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']
-		&& isset($data[$this->Behaviors->MasterDetail->__settings[$this->name]['detail_class']])) {
+		&& isset($this->Behaviors->MasterDetail->settings[$this->name]['is_master_model'])
+		&& $this->Behaviors->MasterDetail->settings[$this->name]['is_master_model']
+		&& isset($data[$this->Behaviors->MasterDetail->settings[$this->name]['detail_class']])) {
 		    //Eventum 2619: When there is no master data, details aren't saved
 		    //properly because cake core flushes them out.
 		    //NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
@@ -214,7 +224,7 @@ class AppModel extends Model {
 	 * and date strings.
 	**/
 	public function beforeSave($options = array()){
-		if($this->check_writable_fields){
+		if($this->checkWritableFields){
 			$this->checkWritableFields();
 		}
 		
@@ -232,14 +242,14 @@ class AppModel extends Model {
 	 * $this->id. Use $this->writable_fields_mode to specify other modes.
 	 */
 	private function checkWritableFields(){
-		if(isset(AppModel::$writable_fields[$this->table])){
+		if(isset(AppModel::$writableFields[$this->table])){
 			$writable_fields = null;
-			if($this->writable_fields_mode){
-				$writable_fields = isset(AppModel::$writable_fields[$this->table][$this->writable_fields_mode]) ? AppModel::$writable_fields[$this->table][$this->writable_fields_mode] : array();
+			if($this->writableDieldsMode){
+				$writable_fields = isset(AppModel::$writableFields[$this->table][$this->writableDieldsMode]) ? AppModel::$writableFields[$this->table][$this->writableDieldsMode] : array();
 			}else if($this->id){
-				$writable_fields = isset(AppModel::$writable_fields[$this->table]['edit']) ? AppModel::$writable_fields[$this->table]['edit'] : array();
+				$writable_fields = isset(AppModel::$writableFields[$this->table]['edit']) ? AppModel::$writableFields[$this->table]['edit'] : array();
 			}else{
-				$writable_fields = isset(AppModel::$writable_fields[$this->table]['add']) ? AppModel::$writable_fields[$this->table]['add'] : array();
+				$writable_fields = isset(AppModel::$writableFields[$this->table]['add']) ? AppModel::$writableFields[$this->table]['add'] : array();
 			}
 			$writable_fields[] = 'modified';
 			if($this->id){
@@ -247,11 +257,11 @@ class AppModel extends Model {
 			}else{
 				$writable_fields[] = 'created';
 			}
-			if(isset(AppModel::$writable_fields[$this->table]['all'])){
-				$writable_fields = array_merge(AppModel::$writable_fields[$this->table]['all'], $writable_fields);
+			if(isset(AppModel::$writableFields[$this->table]['all'])){
+				$writable_fields = array_merge(AppModel::$writableFields[$this->table]['all'], $writable_fields);
 			}
-			if(isset(AppModel::$writable_fields[$this->table]['none'])){
-				$writable_fields = array_diff($writable_fields, AppModel::$writable_fields[$this->table]['none']);
+			if(isset(AppModel::$writableFields[$this->table]['none'])){
+				$writable_fields = array_diff($writable_fields, AppModel::$writableFields[$this->table]['none']);
 			}
 			$schema_keys = array_keys($this->schema());
 			$writable_fields = array_intersect($writable_fields, $schema_keys);
@@ -298,12 +308,12 @@ class AppModel extends Model {
 			$this->data[$this->name]['created_by'] = 0;
 			$this->data[$this->name]['modified_by'] = 0;
 		}
-		$this->data[$this->name]['modified'] = now();//CakePHP should do it... doens't work.
+		$this->data[$this->name]['modified'] = date("Y-m-d H:i:s");//CakePHP should do it... doens't work.
 	}
 	
 	
 	private function registerModelsToCheck(){
-	    $this->registered_models = array();
+	    $this->_registeredModels = array();
 	    if($this->registered_view && $this->id){
 	        foreach($this->registered_view as $registered_view => $foreign_keys){
 	            list($plugin_name, $model_name) = explode('.', $registered_view);
@@ -337,7 +347,7 @@ class AppModel extends Model {
 	                }
 	            }
 	            if($pkeys_to_check){
-	                $this->registered_models[] = array(
+	                $this->_registeredModels[] = array(
 	                        'model' => $model,
 	                        'pkeys_to_check' => $pkeys_to_check,
 	                        'pkeys_for_deletion' => $pkeys_for_deletion,
@@ -349,7 +359,7 @@ class AppModel extends Model {
 	
 	
 	private function updateRegisteredModels(){
-	    foreach($this->registered_models as $registered_model){
+	    foreach($this->_registeredModels as $registered_model){
 	        //try to find the row
 	        $model = $registered_model['model'];
 			if(self::$locked_views_update){
@@ -623,7 +633,7 @@ class AppModel extends Model {
 	}
 	
 	public static function getMagicCodingIcdTriggerArray(){
-		return self::$magic_coding_icd_trigger_array;
+		return self::$_magic_coding_icd_trigger_array;
 	}
 	
 	public function buildAccuracyConfig(){
@@ -641,16 +651,16 @@ class AppModel extends Model {
 			AppController::addWarningMsg('failed to build accuracy config for model ['.$this->name.'] because there is no schema. '
 				.'To avoid this warning message you can add an empty array as a schema to your model. Eg.: <code>$model->_schema = array();</code>');
 		}
-		self::$accuracy_config[$this->table] = $tmp_acc;
+		self::$accuracyConfig[$this->table] = $tmp_acc;
 	}
 	
 	private function setDataAccuracy(){
-		if(!array_key_exists($this->table, self::$accuracy_config)){
+		if(!array_key_exists($this->table, self::$accuracyConfig)){
 			//build accuracy settings for that table
 			$this->buildAccuracyConfig();
 		}
 		
-		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
+		foreach(self::$accuracyConfig[$this->table] as $date_field => $accuracy_field){
 			if(!isset($this->data[$this->name][$date_field])){
 				continue;
 			}
@@ -737,22 +747,22 @@ class AppModel extends Model {
 		if(!$this->_schema){
 			$this->schema();
 		}
-		if(!isset(self::$auto_validation[$this->name]) &&
+		if(!isset(self::$autoValidation[$this->name]) &&
 			isset($this->Behaviors->MasterDetail) &&
 			(strpos($this->name, 'Detail') === false ||
-			!array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->__settings))
+			!array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->settings))
 		){
 			//build master validation (detail validation are built within the validation function)
 			self::buildAutoValidation($this->name, $this);
-			if(array_key_exists($this->name, self::$auto_validation)){
-				$this->validate = array_merge_recursive($this->validate, self::$auto_validation[$this->name]);
+			if(array_key_exists($this->name, self::$autoValidation)){
+				$this->validate = array_merge_recursive($this->validate, self::$autoValidation[$this->name]);
 			}
 		}
 		$this->setDataAccuracy();
 		
-		if(isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
+		if(isset($this->Behaviors->MasterDetail->settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->settings[$this->name]['is_master_model']){
 			//master detail, validate the details part
-			$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
+			$settings = $this->Behaviors->MasterDetail->settings[$this->name];
 			$master_class		= $settings['master_class'];
 			$control_foreign 	= $settings['control_foreign'];
 			$control_class 		= $settings['control_class'];
@@ -795,13 +805,13 @@ class AppModel extends Model {
 					//attach auto validation
 					$auto_validation_name = $detail_class.$associated[$control_class]['id'];
 					
-					if(!isset(self::$auto_validation[$auto_validation_name])){
+					if(!isset(self::$autoValidation[$auto_validation_name])){
 						//build detail validation on the fly
 						$this->buildAutoValidation($auto_validation_name, $detail_class_instance);
 					}
 					
 					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
-					foreach(self::$auto_validation[$auto_validation_name] as $field_name => $rules){
+					foreach(self::$autoValidation[$auto_validation_name] as $field_name => $rules){
 						if(!isset($detail_class_instance->validate[$field_name])){
 							$detail_class_instance->validate[$field_name] = array();
 						}
@@ -958,7 +968,7 @@ class AppModel extends Model {
 						break;
 				}
 			}
-			self::$auto_validation[$use_name] = $auto_validation;
+			self::$autoValidation[$use_name] = $auto_validation;
 		}
 	}
 
@@ -1212,16 +1222,16 @@ class AppModel extends Model {
 			$remove_from = 'all';
 		}
 		$tablename = $tablename ?: $this->table;
-		if(!isset(AppModel::$writable_fields[$tablename][$add_into])){
-			AppModel::$writable_fields[$tablename][$add_into] = array();
+		if(!isset(AppModel::$writableFields[$tablename][$add_into])){
+			AppModel::$writableFields[$tablename][$add_into] = array();
 		}
 		if(!is_array($field)){
 			$field = array($field);
 		}
-		AppModel::$writable_fields[$tablename][$add_into] = array_unique(array_merge(AppModel::$writable_fields[$tablename][$add_into], $field));
+		AppModel::$writableFields[$tablename][$add_into] = array_unique(array_merge(AppModel::$writableFields[$tablename][$add_into], $field));
 		
-		if(isset(AppModel::$writable_fields[$this->table][$remove_from])){
-			AppModel::$writable_fields[$this->table][$remove_from] = array_diff(AppModel::$writable_fields[$this->table][$remove_from], $field);
+		if(isset(AppModel::$writableFields[$this->table][$remove_from])){
+			AppModel::$writableFields[$this->table][$remove_from] = array_diff(AppModel::$writableFields[$this->table][$remove_from], $field);
 		}
 	}
 	

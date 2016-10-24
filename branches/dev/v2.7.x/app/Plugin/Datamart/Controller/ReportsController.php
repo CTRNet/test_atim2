@@ -7,7 +7,7 @@ class ReportsController extends DatamartAppController {
 		"Datamart.BatchSet",
 		"Structure");
 
-	var $paginate = array('Report' => array('limit' => pagination_amount , 'order' => 'Report.name ASC'));
+	var $paginate = array('Report' => array('limit' => PAGINATION_AMOUNT , 'order' => 'Report.name ASC'));
 	
 	// -------------------------------------------------------------------------------------------------------------------
 	// SELECT ELEMENTS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
@@ -309,7 +309,7 @@ class ReportsController extends DatamartAppController {
 									} else {
 										$handle = fopen($parameters['tmp_name'], "r");
 										if($handle) {
-											while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+											while (($csv_data = fgetcsv($handle, 1000, CSV_SEPARATOR, '"')) !== FALSE) {
 												$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
 											}
 											fclose($handle);
@@ -447,8 +447,8 @@ class ReportsController extends DatamartAppController {
 			'description' => 'n/a');
 
 		// 2- Search data
-		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
-		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+		$start_date_for_sql = AppController::getFormattedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormattedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
 
 		$search_on_date_range = true;
 		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
@@ -523,8 +523,8 @@ class ReportsController extends DatamartAppController {
 		
 		$bank_conditions = empty($bank_ids)? 'TRUE' : 'col.bank_id IN ('. implode(',',$bank_ids).')';
 			
-		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_start'], 'start');
-		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_end'], 'end');
+		$start_date_for_sql = AppController::getFormattedDatetimeSQL($parameters[0]['report_datetime_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormattedDatetimeSQL($parameters[0]['report_datetime_range_end'], 'end');
 		
 		$search_on_date_range = true;
 		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
@@ -649,8 +649,8 @@ class ReportsController extends DatamartAppController {
 			'description' => 'n/a');
 
 		// 2- Search data
-		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
-		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+		$start_date_for_sql = AppController::getFormattedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormattedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
 
 		$search_on_date_range = true;
 		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;

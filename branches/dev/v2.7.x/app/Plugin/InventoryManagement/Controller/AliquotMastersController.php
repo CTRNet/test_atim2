@@ -34,8 +34,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'AliquotMaster' => array('limit' => pagination_amount , 'order' => 'AliquotMaster.barcode DESC'), 
-		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC')
+		'AliquotMaster' => array('limit' => PAGINATION_AMOUNT , 'order' => 'AliquotMaster.barcode DESC'),
+		'ViewAliquot' => array('limit' => PAGINATION_AMOUNT , 'order' => 'ViewAliquot.barcode DESC')
 	);
 
 	/* --------------------------------------------------------------------------
@@ -1790,14 +1790,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set('used_aliq_in_stock_details', 'in_stock_detail', array('model_table_assoc' => array('AliquotDetail' => 'tmp_detail_table')));
 		$this->set('display_batch_process_aliq_storage_and_in_stock_details', (sizeof(array_filter(explode(',',$parent_aliquots_ids))) > 1));
 		$this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
-		$parent_no_vol_writable_fields = AppModel::$writable_fields;
-		AppModel::$writable_fields = array();
+		$parent_no_vol_writable_fields = AppModel::$writableFields;
+		AppModel::$writableFields = array();
 		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail_volume', array('model_table_assoc' => array('AliquotDetail' => 'tmp_detail_table')));
-		$parent_vol_writable_fields = AppModel::$writable_fields;
-		AppModel::$writable_fields = array();
+		$parent_vol_writable_fields = AppModel::$writableFields;
+		AppModel::$writableFields = array();
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'), 'atim_structure', array('model_table_assoc' => array('AliquotDetail' => $child_aliquot_ctrl['AliquotControl']['detail_tablename'])));
-		$child_writable_fields = AppModel::$writable_fields;
-		AppModel::$writable_fields = array();
+		$child_writable_fields = AppModel::$writableFields;
+		AppModel::$writableFields = array();
 		$this->setUrlToCancel();
 		
 		$this->Structures->set('empty', 'empty_structure');
@@ -2034,12 +2034,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					$parent_data['AliquotMaster']['id'] = $parent_id;
 					$org_parent_data = $this->AliquotMaster->getOrRedirect($parent_id);
-					AppModel::$writable_fields = $org_parent_data['AliquotControl']['volume_unit'] ? $parent_vol_writable_fields : $parent_no_vol_writable_fields;
+					AppModel::$writableFields = $org_parent_data['AliquotControl']['volume_unit'] ? $parent_vol_writable_fields : $parent_no_vol_writable_fields;
 					
-					foreach($storage_writable_fields as $new_writable_field) AppModel::$writable_fields['aliquot_masters']['edit'][] = $new_writable_field;		
+					foreach($storage_writable_fields as $new_writable_field) AppModel::$writableFields['aliquot_masters']['edit'][] = $new_writable_field;
 					
-					if(isset(AppModel::$writable_fields['tmp_detail_table'])){
-						AppModel::$writable_fields[$org_parent_data['AliquotControl']['detail_tablename']] = AppModel::$writable_fields['tmp_detail_table'];
+					if(isset(AppModel::$writableFields['tmp_detail_table'])){
+						AppModel::$writableFields[$org_parent_data['AliquotControl']['detail_tablename']] = AppModel::$writableFields['tmp_detail_table'];
 					} 
 					$this->AliquotMaster->data = array();
 					
@@ -2047,7 +2047,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 					//clean data to prevent warnings
 					$to_save = array();
-					foreach(AppModel::$writable_fields['aliquot_masters']['edit'] as $field){
+					foreach(AppModel::$writableFields['aliquot_masters']['edit'] as $field){
 						$to_save[$field] = $parent_data['AliquotMaster'][$field];
 					}
 					if(!$this->AliquotMaster->save(array('AliquotMaster' => $to_save), false)){
@@ -2055,7 +2055,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 
 					$this->AliquotMaster->writable_fields_mode = 'addgrid';
-					AppModel::$writable_fields = $child_writable_fields;
+					AppModel::$writableFields = $child_writable_fields;
 					foreach($parent_and_children['children'] as $children) {
 						
 						$realiquoting_data = array('Realiquoting' => $children['Realiquoting']);
@@ -2540,7 +2540,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Get/Manage Parent Aliquots
 		$this->request->data = $this->Realiquoting->find('all', array(
-			'limit' => pagination_amount , 
+			'limit' => PAGINATION_AMOUNT ,
 			'order' => 'Realiquoting.realiquoting_datetime DESC',
 			'fields' => array('*'),
 			'joins' => array(AliquotMaster::joinOnAliquotDup('Realiquoting.parent_aliquot_master_id'), AliquotMaster::$join_aliquot_control_on_dup),
