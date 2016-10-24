@@ -52,7 +52,7 @@
 				</li></ul>
 				<form action="'.$this->request->webroot.'ClinicalAnnotation/ParticipantMessages/search/'.AppController::getNewSearchId().'" method="POST" id="doneDueMessages">
 					<input type="hidden" name="data[ParticipantMessage][done]" value="0">
-					<input type="hidden" name="data[ParticipantMessage][due_date_end]" value="'.now().'">
+					<input type="hidden" name="data[ParticipantMessage][due_date_end]" value="' . date("Y-m-d H:i:s") . '">
 				</form>
 			';
 		}

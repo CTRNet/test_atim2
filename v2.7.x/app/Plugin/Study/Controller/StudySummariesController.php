@@ -12,7 +12,7 @@ class StudySummariesController extends StudyAppController {
 		'Order.Order',
 		'Order.OrderLine');
 	
-	var $paginate = array('StudySummary'=>array('limit' => pagination_amount,'order'=>'StudySummary.title'));
+	var $paginate = array('StudySummary'=>array('limit' => PAGINATION_AMOUNT,'order'=>'StudySummary.title'));
 	
 	function search($search_id = ''){
 		// CUSTOM CODE: FORMAT DISPLAY DATA

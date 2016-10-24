@@ -55,9 +55,9 @@ class StructuresComponent extends Component {
 						if($tablename){
 							foreach(array('add', 'edit', 'addgrid', 'editgrid', 'batchedit') as $flag){
 								if($sfs['flag_'.$flag] && !$sfs['flag_'.$flag.'_readonly'] && $sfs['type'] != 'hidden'){
-									AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'];
+									AppModel::$writableFields[$tablename][$flag][] = $sfs['field'];
 									if($sfs['type'] == 'date' || $sfs['type'] == 'datetime'){
-										AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'].'_accuracy';
+										AppModel::$writableFields[$tablename][$flag][] = $sfs['field'].'_accuracy';
 									}
 								}
 							}
@@ -114,10 +114,10 @@ class StructuresComponent extends Component {
 				}
 				
 				if($tablename != null){
-					if(!array_key_exists($tablename, AppModel::$accuracy_config)){
+					if(!array_key_exists($tablename, AppModel::$accuracyConfig)){
 						$model->buildAccuracyConfig();
 					}
-					if(isset(AppModel::$accuracy_config[$tablename][$field['field']])){
+					if(isset(AppModel::$accuracyConfig[$tablename][$field['field']])){
 						$structure['Accuracy'][$field['model']][$field['field']] = $field['field'].'_accuracy';
 					}
 				}else if($field['model'] != 'custom' && Configure::read('debug') > 0){
@@ -364,7 +364,7 @@ class StructuresComponent extends Component {
 									if($handle) {
 										unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
 										// in each LINE, get FIRST csv value, and attach to DATA array
-										while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+										while (($csv_data = fgetcsv($handle, 1000, CSV_SEPARATOR, '"')) !== FALSE) {
 										    $data[] = $csv_data[0];
 										}
 										fclose($handle);

@@ -30,55 +30,63 @@ App::uses('AppController', 'Controller');
  */
 class PagesController extends AppController {
 
-/**
- * @var array
- */
+	/**
+	 * @var array
+	 */
 	public $uses = array('Page');
 
-   public function beforeFilter() {
+	public function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->allowedActions = array('display');
 	}
 
-/**
- * Displays a view
- *
- * @param mixed What page to display
- * @return void
- * @throws NotFoundException When the view file could not be found
- *     or MissingViewException in debug mode.
- */
+	/**
+	 * Displays a view
+	 *
+	 * @param mixed What page to display
+	 *
+	 * @return void
+	 * @throws NotFoundException When the view file could not be found
+	 *     or MissingViewException in debug mode.
+	 */
 	public function display() {
 		$path = func_get_args();
 		$results = $this->Page->getOrRedirect($path);
-		if(isset($this->request->query['err_msg'])){
+		if (isset($this->request->query['err_msg'])) {
 			//this message will be displayed in red
 			$results['err_trace'] = urldecode($this->request->query['err_msg']);
 		}
 		$results['Page']['language_body'] = __($results['Page']['language_body']);
-		if(isset($this->request->query['p'])){
+		if (isset($this->request->query['p'])) {
 			//these will be replaced in the body string
 			$p = $this->request->query['p'];
-			if(count($p) == 1){
+			if (count($p) == 1) {
 				$results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0]);
-			}else if(count($p) == 2){
-				$results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1]);
-			}else if(count($p) == 3){
-				$results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1], $p[2]);
-			}else if(count($p) > 3){
-				$results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1], $p[2], $p[3]);
+			} else {
+				if (count($p) == 2) {
+					$results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1]);
+				} else {
+					if (count($p) == 3) {
+						$results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1],
+							$p[2]);
+					} else {
+						if (count($p) > 3) {
+							$results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1],
+								$p[2], $p[3]);
+						}
+					}
+				}
 			}
 			//if it's more than 4 we'll get a warning
 		}
-		$this->set('data',$results);
-		
-		if ( isset($results) && isset($results['Page']) && isset($results['Page']['use_link']) && $results['Page']['use_link'] ) {
+		$this->set('data', $results);
+
+		if (isset($results) && isset($results['Page']) && isset($results['Page']['use_link']) && $results['Page']['use_link']) {
 			$use_link = $results['Page']['use_link'];
 		} else {
 			$use_link = '/menus';
 		}
-		
-		$this->set( 'atim_menu', $this->Menus->get($use_link) );
-		
+
+		$this->set('atim_menu', $this->Menus->get($use_link));
 	}
 }

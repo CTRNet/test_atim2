@@ -62,8 +62,8 @@ class Browser extends DatamartAppModel {
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
 	function getBrowserDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, array $sub_models_id_filter = null){
-		$prev_setting = AppController::$highlight_missing_translations;
-		AppController::$highlight_missing_translations = false;
+		$prev_setting = AppController::$highlightMissingTranslations;
+		AppController::$highlightMissingTranslations = false;
 		$app_controller = AppController::getInstance();
 		$DatamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
@@ -188,7 +188,7 @@ class Browser extends DatamartAppModel {
 				$result[] = $tmp_result;
 			}
 		}
-		AppController::$highlight_missing_translations = $prev_setting;
+		AppController::$highlightMissingTranslations = $prev_setting;
 		return $result;
 	}
 	

@@ -1,80 +1,98 @@
-<?php  
+<?php
 
 class MasterDetailBehavior extends ModelBehavior {
-	
-	var $__settings = array(); 
-	
+
+	public $settings = array();
+
+/**
+ * Setup function
+ *
+ * @param Model $model Model Object
+ * @param array $config Custom config
+ * @return void
+ */
 	public function setup(Model $model, $config = array()) {
-		if ( strpos($model->alias,'Master') || strpos($model->alias,'Control') || (isset($model->base_model) && strpos($model->base_model,'Master'))){
-			$model_to_use = null;
-			if(isset($model->base_model)){
-				$model_to_use = AppModel::getInstance($model->base_plugin, $model->base_model);
-			} else {
-				$model_to_use = $model;
+		$default = array(
+			'is_master_model'	=> false,
+			'is_control_model'	=> false,
+			'is_view'			=> strpos($model->alias, 'View') !== false
+		);
+
+		if (strpos($model->alias, 'Master')
+			|| strpos($model->alias, 'Control')
+			|| (isset($model->base_model) && strpos($model->base_model, 'Master'))
+		) {
+			$modelToUse = $model;
+			if (isset($model->base_model)) {
+				$modelToUse = AppModel::getInstance($model->base_plugin, $model->base_model);
 			}
-			
-			$default_class 	= $model_to_use->alias;
-			$default_class 	= str_replace('Master','',$default_class);
-			$default_class 	= str_replace('Control','',$default_class);
-			
-			$master_class		= $default_class.'Master';
-			$master_foreign	= Inflector::singularize($model_to_use->table).'_id';
-			
-			$control_class		= $default_class.'Control';
-			$control_foreign	= str_replace('master','control',Inflector::singularize($model_to_use->table).'_id');
-			
-			$detail_class		= $default_class.'Detail';
-			$detail_tablename	= 'detail_tablename';
-			$form_alias	= 'form_alias';
-			
-			$is_master_model	= $master_class == $model_to_use->alias ? true : false;
-			$is_control_model	= $control_class == $model_to_use->alias ? true : false;
-			$is_view			= strpos($model->alias, 'View') !== false;
-			
+
+			$defaultClass = $modelToUse->alias;
+			$defaultClass = str_replace('Master', '', $defaultClass);
+			$defaultClass = str_replace('Control', '', $defaultClass);
+
+			$masterClass = $defaultClass . 'Master';
+			$masterForeign	= Inflector::singularize($modelToUse->table) . '_id';
+
+			$controlClass = $defaultClass . 'Control';
+			$controlForeign = str_replace('master', 'control', Inflector::singularize($modelToUse->table) . '_id');
+
+			$detailClass = $defaultClass . 'Detail';
+			$detailTablename = 'detail_tablename';
+			$formAlias	= 'form_alias';
+
+			$isMasterModel = $masterClass == $modelToUse->alias ? true : false;
+			$isControlModel = $controlClass == $modelToUse->alias ? true : false;
+			$isView = strpos($model->alias, 'View') !== false;
+
 			$default = array(
-				'master_class' 		=>	$master_class, 
-				'master_foreign' 		=>	$master_foreign, 
-				
-				'control_class' 		=>	$control_class, 
-				'control_foreign' 	=>	$control_foreign, 
-				
-				'detail_class' 		=>	$detail_class, 
-				'detail_field' 		=>	$detail_tablename,
-				'form_alias'			=> $form_alias,
-				
-				'is_master_model'		=> $is_master_model,
-				'is_control_model'	=> $is_control_model,
-				'is_view'			=> $is_view,
-			    
-			    'default_class'     => $default_class
-			); 
-			if($is_control_model){
+				'master_class' => $masterClass,
+				'master_foreign' =>	$masterForeign,
+
+				'control_class' => $controlClass,
+				'control_foreign' => $controlForeign,
+
+				'detail_class' => $detailClass,
+				'detail_field' => $detailTablename,
+				'form_alias' => $formAlias,
+
+				'is_master_model' => $isMasterModel,
+				'is_control_model' => $isControlModel,
+				'is_view' => $isView,
+
+				'default_class' => $defaultClass
+			);
+			if ($isControlModel) {
 				//for control models, add a virtual field with the full form alias
 				$schema = $model->schema();
-				if(isset($schema['detail_form_alias'])){
-					$model->virtualFields['form_alias'] = isset($model->master_form_alias) ?  'CONCAT("'.$model->master_form_alias.',",'.$model->alias.'.detail_form_alias)' : $model->alias.'.detail_form_alias';
+				if (isset($schema['detail_form_alias'])) {
+					$aliasName = isset($model->master_form_alias)
+						? 'CONCAT("' . $model->master_form_alias . ',",' . $model->alias . '.detail_form_alias)'
+						: $model->alias . '.detail_form_alias';
+					$model->virtualFields['form_alias'] = $aliasName;
 				}
 			}
-		
-		} else {
-			
-			$default = array(
-				'is_master_model'	=> false,
-				'is_control_model'	=> false,
-				'is_view'			=> strpos($model->alias, 'View') !== false
-			);
-			
+
 		}
-			
-		if (!isset($this->__settings[$model->alias])){
-			$this->__settings[$model->alias] = $default;
+
+		if (!isset($this->settings[$model->alias])) {
+			$this->settings[$model->alias] = $default;
 		}
-		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
+		$this->settings[$model->alias] = am($this->settings[$model->alias], is_array($config) ? $config : array());
 	}
-	
+
+/**
+ * AfterFind Callback
+ *
+ * @param Model $model Model Object
+ * @param mixed $results Results
+ * @param bool $primary If primary
+ *
+ * @return mixed
+ */
 	public function afterFind(Model $model, $results, $primary = false) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
-		extract($this->__settings[$model->alias]);
+		extract($this->settings[$model->alias]);
 		if($is_master_model){
 			// set DETAIL if more than ONE result
 			if ($primary && isset($results[0][$control_class][$detail_field]) && $model->recursive > 0) {
@@ -90,7 +108,7 @@ class MasterDetailBehavior extends ModelBehavior {
 						$grouping[$detail_model_cache_key]['id_to_index'][$result[$model->alias][$model->primaryKey]] = $key;
 					}
 				}
-				
+
 				//data fetch and assoc
 				foreach($grouping as $group){
 					$id_to_index = $group['id_to_index'];
@@ -119,15 +137,15 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 	}
 	
-	/**
-	 * If there is a single control id condition, returns the id, otherwise 
-	 * false
-	 * @param Model $model
-	 * @param unknown $query
-	 * @return mixed
-	 */
+/**
+ * If there is a single control id condition, returns the id, otherwise
+ * false
+ * @param Model $model
+ * @param mixed $query
+ * @return mixed
+ */
 	public function getSingleControlIdCondition(Model $model, $query){
-	    extract($this->__settings[$model->alias]);
+	    extract($this->settings[$model->alias]);
 	    if(is_array($query['conditions']) 
 	    && array_key_exists($model->name.".".$control_foreign, $query['conditions']) 
 	    && count($query['conditions'][$model->name.".".$control_foreign]) == 1){
@@ -135,9 +153,16 @@ class MasterDetailBehavior extends ModelBehavior {
 	    }
 	    return false;
 	}
-	
+
+/**
+ * @param Model $model
+ * @param $control_id
+ * @param null $alternate_model_name
+ *
+ * @return array
+ */
 	public function getDetailJoin(Model $model, $control_id, $alternate_model_name=null){
-	    extract($this->__settings[$model->alias]);
+	    extract($this->settings[$model->alias]);
 	    assert($is_master_model) or die("getDetailJoin can only be called from master model");
 	    if($alternate_model_name === null){
 	        $model_name = $model->name;
@@ -172,9 +197,15 @@ class MasterDetailBehavior extends ModelBehavior {
 	    );
 	}
 
+/**
+ * @param Model $model
+ * @param array $query
+ *
+ * @return array|void
+ */
 	public function beforeFind(Model $model, $query) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
-		extract($this->__settings[$model->alias]);
+		extract($this->settings[$model->alias]);
 		if($is_master_model){
 		    if(isset($model->$detail_class) && isset($model->$detail_class->table)) {
 		        // binding already done via AppController::buildDetailBinding
@@ -188,18 +219,25 @@ class MasterDetailBehavior extends ModelBehavior {
 		}
 		return $query;
 	}
-	
+
+/**
+ * @param Model $model
+ * @param bool $created
+ * @param array $options
+ *
+ * @return bool|mixed
+ */
 	public function afterSave(Model $model, $created, $options = Array()) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
-		extract($this->__settings[$model->alias]);
+		extract($this->settings[$model->alias]);
 		if ( !$is_view && ($is_master_model || $is_control_model )) {
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id, $master_class.'.deleted' => array('0', '1')), 'recursive' => 0));
 			assert($associated) or die('MasterDetailBehavior afterSave failed to fetch control details');
 			$table = $associated[$control_class][$detail_field];
 			$detail_model = new AppModel( array('table' => $table, 'name' => $detail_class, 'alias' => $detail_class.'_'.$table, 'primaryKey' => $master_foreign) );
-			$detail_model->writable_fields_mode = $model->writable_fields_mode;
-			$detail_model->check_writable_fields = $model->check_writable_fields;
+			$detail_model->writableDieldsMode = $model->writable_fields_mode;
+			$detail_model->checkWritableFields = $model->check_writable_fields;
 			$detail_model->primaryKey = $master_foreign;
 			foreach($detail_model->actsAs as $key => $data){
 				if ( is_array($data) ) {
@@ -233,7 +271,7 @@ class MasterDetailBehavior extends ModelBehavior {
 	
 	public function beforeDelete(Model $model, $cascade = true) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
-		extract($this->__settings[$model->alias]);
+		extract($this->settings[$model->alias]);
 		
 		if ( $is_master_model && !isset($model->base_model)) {
 			// get DETAIL table name and create DETAIL model object
@@ -262,14 +300,14 @@ class MasterDetailBehavior extends ModelBehavior {
 		if(isset($model->base_model)){
 			$model = AppModel::getInstance($model->base_plugin, $model->base_model, true);
 		}
-		return isset($this->__settings[$model->alias]['control_class']) ? $this->__settings[$model->alias]['control_class'] : null;
+		return isset($this->settings[$model->alias]['control_class']) ? $this->settings[$model->alias]['control_class'] : null;
 	}
 	
 	function getControlForeign(Model $model){
 		if(isset($model->base_model)){
 			$model = AppModel::getInstance($model->base_plugin, $model->base_model, true);
 		}
-		return isset($this->__settings[$model->alias]['control_foreign']) ? $this->__settings[$model->alias]['control_foreign'] : null;
+		return isset($this->settings[$model->alias]['control_foreign']) ? $this->settings[$model->alias]['control_foreign'] : null;
 	}
 	
 	/**
@@ -290,7 +328,7 @@ class MasterDetailBehavior extends ModelBehavior {
 	}
 	
 	function getDetailModel($model, $control_id){
-        extract($this->__settings[$model->alias]);
+        extract($this->settings[$model->alias]);
         if(!$is_master_model){
            throw new Exception("Must be called from master model");
         }

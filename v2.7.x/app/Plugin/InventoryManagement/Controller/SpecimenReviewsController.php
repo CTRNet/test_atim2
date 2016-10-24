@@ -19,8 +19,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'SpecimenReviewMaster' => array('limit' => pagination_amount, 'order' => 'SpecimenReviewMaster.review_date ASC'),
-		'AliquotReviewMaster' => array('limit' => pagination_amount, 'order' => 'AliquotReviewMaster.review_code DESC')
+		'SpecimenReviewMaster' => array('limit' => PAGINATION_AMOUNT, 'order' => 'SpecimenReviewMaster.review_date ASC'),
+		'AliquotReviewMaster' => array('limit' => PAGINATION_AMOUNT, 'order' => 'AliquotReviewMaster.review_code DESC')
 	);
 	
 	function listAll($collection_id, $sample_master_id){

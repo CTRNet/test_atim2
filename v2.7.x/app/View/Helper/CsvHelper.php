@@ -7,7 +7,7 @@ class CsvHelper extends AppHelper {
     var $filename = 'export'; 
     var $line = array(); 
     var $buffer; 
-    var $csv_separator = csv_separator;
+    var $csv_separator = CSV_SEPARATOR;
     static $nodes_info = null;
     static $structures = null;
      

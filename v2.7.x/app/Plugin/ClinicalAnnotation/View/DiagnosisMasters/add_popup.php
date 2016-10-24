@@ -1,7 +1,7 @@
 <?php
 $options = array();
 $secondary_ctrl_id = array();
-AppController::$highlight_missing_translations = false;
+AppController::$highlightMissingTranslations = false;
 if(AppController::checkLinkPermission('ClinicalAnnotation/DiagnosisMasters/add/')){
 	$current = array();
 	foreach($diagnosis_controls_list as $dx_ctrl){
@@ -34,7 +34,7 @@ if(AppController::checkLinkPermission('ClinicalAnnotation/EventMasters/add/')){
 		$options[] = array('grpName' => __('event').' - '.__($group_name), 'data' => $grp_options, 'link' => 'ClinicalAnnotation/EventMasters/add/'.$atim_menu_variables['Participant.id'].'/');
 	}
 }
-AppController::$highlight_missing_translations = true;
+AppController::$highlightMissingTranslations = true;
 
 $hook_link = $this->Structures->hook('after_ids_groups');
 if( $hook_link ) {

@@ -286,10 +286,12 @@ class I18n {
 
 		if (!empty($plurals)) {
 			return $plural;
-         //ATIM start-----
-      }else if(empty($_this->_domains[$_this->category][$_this->_lang][$domain][$singular]) && class_exists("AppController")) {
-         AppController::missingTranslation($singular);
-         //ATIM end-------
+			//ATIM start-----
+		} elseif (empty($_this->_domains[$_this->category][$_this->_lang][$domain][$singular])
+			&& (!in_array($domain, array('debug_kit', 'debug_kit_eng')))
+			&& class_exists("AppController")) {
+			AppController::missingTranslation($singular);
+			//ATIM end-------
 		}
 		return $singular;
 	}
