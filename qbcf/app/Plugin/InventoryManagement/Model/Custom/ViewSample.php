@@ -11,14 +11,15 @@ class ViewSampleCustom extends ViewSample {
 		SampleMaster.collection_id AS collection_id,
 		
 --		Collection.bank_id,
-Participant.qbcf_bank_participant_identifier AS qbcf_bank_participant_identifier,
 Participant.qbcf_bank_id AS bank_id, 
 		Collection.sop_master_id,
 		Collection.participant_id,
 		
 		Participant.participant_identifier,
+Participant.qbcf_bank_participant_identifier AS qbcf_bank_participant_identifier,
 		
 		Collection.acquisition_label,
+Collection.qbcf_pathology_id,
 		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -58,13 +59,16 @@ SampleMaster.qbcf_tma_sample_control_bank_id,
 
 	function beforeFind($queryData){
 		if(($_SESSION['Auth']['User']['group_id'] != '1')
-				&& is_array($queryData['conditions'])
-				&& AppModel::isFieldUsedAsCondition("ViewSample.qbcf_bank_participant_identifier", $queryData['conditions'])) {
-			AppController::addWarningMsg(__('your search will be limited to your bank'));
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			$queryData['conditions'][] = array("ViewSample.bank_id" => $user_bank_id);
+		&& is_array($queryData['conditions'])) {
+			if(AppModel::isFieldUsedAsCondition("ViewSample.qbcf_bank_participant_identifier", $queryData['conditions'])
+			|| AppModel::isFieldUsedAsCondition("ViewSample.qbcf_pathology_id", $queryData['conditions'])
+			|| AppModel::isFieldUsedAsCondition("ViewSample.bank_id", $queryData['conditions'])) {
+				AppController::addWarningMsg(__('your search will be limited to your bank'));
+				$GroupModel = AppModel::getInstance("", "Group", true);
+				$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+				$user_bank_id = $group_data['Group']['bank_id'];
+				$queryData['conditions'][] = array("ViewSample.bank_id" => $user_bank_id);
+			}
 		}
 		return $queryData;
 	}
@@ -75,11 +79,14 @@ SampleMaster.qbcf_tma_sample_control_bank_id,
 			$GroupModel = AppModel::getInstance("", "Group", true);
 			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
 			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]['ViewSample']['bank_id']) || isset($results[0]['ViewSample']['qbcf_bank_participant_identifier'])) {
+			if(isset($results[0]['ViewSample']['bank_id']) 
+			|| isset($results[0]['ViewSample']['qbcf_bank_participant_identifier'])
+			|| isset($results[0]['ViewSample']['qbcf_pathology_id'])) {
 				foreach($results as &$result){
 					if((!isset($result['ViewSample']['bank_id'])) || $result['ViewSample']['bank_id'] != $user_bank_id) {		
 						$result['ViewSample']['bank_id'] = CONFIDENTIAL_MARKER;
 						$result['ViewSample']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+						$result['ViewSample']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
 					}
 				}
 			} else if(isset($results['ViewSample'])){
