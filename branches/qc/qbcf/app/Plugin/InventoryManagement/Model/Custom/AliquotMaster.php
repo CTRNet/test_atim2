@@ -10,18 +10,6 @@ class AliquotMasterCustom extends AliquotMaster {
 		$this->tryCatchQuery(str_replace('aliquot_masters', 'aliquot_masters_revs', $query));
 		//The Barcode values of AliquotView will be updated by AppModel::releaseBatchViewsUpdateLock(); call in AliquotMaster.add() and AliquotMaster.realiquot() function
 	}
-	
-	function beforeSave($options = array()){
-		$ret_val = parent::beforeSave($options);
-		
-		if(array_key_exists('AliquotDetail', $this->data) && array_key_exists('qbcf_core_nature_site', $this->data['AliquotDetail'])) {
-			// Set core aliquot label
-			$this->data['AliquotMaster']['aliquot_label'] = substr(strtoupper(strlen($this->data['AliquotDetail']['qbcf_core_nature_revised'])? $this->data['AliquotDetail']['qbcf_core_nature_revised'] : (strlen($this->data['AliquotDetail']['qbcf_core_nature_site'])? $this->data['AliquotDetail']['qbcf_core_nature_site'] : 'U')), 0, 1);
-			$this->addWritableField(array('aliquot_label'));
-		}
-		
-		return $ret_val;
-	}
 
 	function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
@@ -53,6 +41,76 @@ class AliquotMasterCustom extends AliquotMaster {
 		}
 		
 		return $results;
+	}
+	
+	function updateAliquotLabel($collection_ids, $acquireBatchViewsUpdateLock = false) {
+		if($collection_ids && is_array($collection_ids)) {
+			$collection_ids = implode(',', $collection_ids);
+			if($collection_ids) {
+				$query = "SELECT
+					AliquotMaster.id AS aliquot_master_id,
+					AliquotMaster.sample_master_id AS sample_master_id,
+					SampleControl.sample_type,
+					AliquotControl.aliquot_type,
+					Collection.qbcf_pathology_id,
+					AliquotMaster.aliquot_label,
+					BlockAliquotDetail.patho_dpt_block_code,
+					ParentBlockAliquotDetail.patho_dpt_block_code,
+					CoreAliquotDetail.qbcf_core_nature_site,
+					CoreAliquotDetail.qbcf_core_nature_revised
+					FROM aliquot_masters AS AliquotMaster
+					INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+					INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
+					INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+					INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
+					LEFT JOIN ad_blocks AS BlockAliquotDetail ON BlockAliquotDetail.aliquot_master_id = AliquotMaster.id
+					LEFT JOIN ad_tissue_cores AS CoreAliquotDetail ON CoreAliquotDetail.aliquot_master_id = AliquotMaster.id
+					LEFT JOIN realiquotings Realiquoting ON Realiquoting.child_aliquot_master_id = AliquotMaster.id AND Realiquoting.deleted != 1
+					LEFT JOIN aliquot_masters ParentAliquotMaster ON Realiquoting.parent_aliquot_master_id = ParentAliquotMaster.id AND ParentAliquotMaster.deleted != 1
+					LEFT JOIN ad_blocks AS ParentBlockAliquotDetail ON ParentBlockAliquotDetail.aliquot_master_id = ParentAliquotMaster.id
+					WHERE SampleControl.sample_type = 'tissue'
+					AND AliquotMaster.deleted != 1 
+					AND AliquotMaster.collection_id IN ($collection_ids) 
+					AND AliquotControl.aliquot_type IN ('slide','core','block');";
+				
+				if($acquireBatchViewsUpdateLock) AppModel::acquireBatchViewsUpdateLock();
+				
+				$this->addWritableField(array('aliquot_label'));
+				foreach($this->tryCatchQuery($query) as $new_aliquot) {			
+					$new_aliquot_label = '';
+					$suffix = '';
+					switch($new_aliquot['AliquotControl']['aliquot_type']) {
+						case 'block':
+							$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.$new_aliquot['BlockAliquotDetail']['patho_dpt_block_code'];
+							break;
+						case 'core':
+							$suffix = strlen($new_aliquot['CoreAliquotDetail']['qbcf_core_nature_revised'])? 
+								$new_aliquot['CoreAliquotDetail']['qbcf_core_nature_revised'] : 
+								(strlen($new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'])? $new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'] : 'U');
+			
+								if(strlen($suffix)) {
+									$suffix = ' -'.substr(strtoupper($suffix), 0, 1);
+								} else {
+									$suffix = ' -?';
+								}
+							case 'slide':
+								$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.(strlen($new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'])? $new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'] : '?');
+								break;
+									
+							default:
+								AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+					}
+					$new_aliquot_label = $new_aliquot_label.$suffix;
+					if($new_aliquot['AliquotMaster']['aliquot_label'] != $new_aliquot_label) {					
+						$this->data = array();
+						$this->id = $new_aliquot['AliquotMaster']['aliquot_master_id'];
+						if(!$this->save(array('AliquotMaster' => array('aliquot_label' => $new_aliquot_label)))) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+					}
+				}
+				
+				if($acquireBatchViewsUpdateLock) AppModel::releaseBatchViewsUpdateLock();
+			}
+		}
 	}
 }
 
