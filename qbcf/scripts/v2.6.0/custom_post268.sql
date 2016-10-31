@@ -643,13 +643,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
-VALUES
-('Lucresse Fossouo', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('Louis-André Julien', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('Liliane Meunier', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('Monique Bernard', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO i18n (id,en) VALUES ('reviewer','Reviewer'), ('tissue block review', 'Tissue Block Review');
 
 INSERT INTO `aliquot_review_controls` (`id`, `review_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `aliquot_type_restriction`, `databrowser_label`) 
@@ -730,7 +723,7 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Path Review Histology');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('non invasive carcinoma', 'Non Invasive carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('no invasive carcinoma', 'No Invasive carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
 ('invasive ductal carcinoma (no special type or not otherwise specified)', 'Invasive ductal carcinoma (no special type or not otherwise specified)',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
 ('invasive lobular carcinoma', 'Invasive lobular carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
 ('invasive carcinoma with ductal and lobular features (mixed type carcinoma)', 'Invasive carcinoma with ductal and lobular features (mixed type carcinoma)',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
@@ -1173,8 +1166,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
 
-ALTER TABLE `qbcf_ar_tissue_blocks` ADD COLUMN tils_pct_less_than_5 int(1) DEFAULT '0';
-ALTER TABLE `qbcf_ar_tissue_blocks_revs` ADD COLUMN tils_pct_less_than_5 int(1) DEFAULT '0';
+ALTER TABLE `qbcf_ar_tissue_blocks` ADD COLUMN tils_pct_less_than_5 tinyint(1) DEFAULT '0';
+ALTER TABLE `qbcf_ar_tissue_blocks_revs` ADD COLUMN tils_pct_less_than_5 tinyint(1) DEFAULT '0';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'tils_pct_less_than_5', 'checkbox',  NULL , '0', '', '', '', '', '<5 pct');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -1284,7 +1277,72 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `display_order`='1000', `language_heading`='control details' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_is_tma_sample_control' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_tma_sample_control_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+ALTER TABLE ad_tissue_slides 
+  ADD COLUMN qbcf_staining_date DATE DEFAULT NULL,
+  ADD COLUMN qbcf_staining_date_accuracy CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE ad_tissue_slides_revs 
+  ADD COLUMN qbcf_staining_date DATE DEFAULT NULL,
+  ADD COLUMN qbcf_staining_date_accuracy CHAR(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'qbcf_staining_date', 'date',  NULL , '0', '', '', '', '', 'date');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qbcf_staining_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='date'), '1', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 
+UPDATE structure_fields
+SET tablename = 'ad_tissue_slides'
+WHERE field = 'qbcf_staining_date';
+UPDATE structure_fields
+SET tablename = 'ad_blocks'
+WHERE field = 'qbcf_shipping_reception_date';
+
+ALTER TABLE `specimen_review_masters` ADD COLUMN qbcf_reviewed_by_dr_tran_thanh tinyint(1) DEFAULT '0';
+ALTER TABLE `specimen_review_masters_revs` ADD COLUMN qbcf_reviewed_by_dr_tran_thanh tinyint(1) DEFAULT '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'qbcf_reviewed_by_dr_tran_thanh', 'checkbox',  NULL , '0', '', '', '', 'reviewed by dr tran thanh', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='qbcf_reviewed_by_dr_tran_thanh' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reviewed by dr tran thanh' AND `language_tag`=''), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('reviewed by dr tran thanh', 'Reviewed by Dr Tran Thanh', 'Révisé par Dr Tran Thanh');
+
+ALTER TABLE `specimen_review_masters` ADD COLUMN qbcf_warnings varchar(100) DEFAULT NULL;
+ALTER TABLE `specimen_review_masters_revs`  ADD COLUMN qbcf_warnings varchar(100) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qbcf_path_review_warnings', "StructurePermissibleValuesCustom::getCustomDropdown('Tissue Review Warnings')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Tissue Review Warnings', 1, 100, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Review Warnings');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('no invasive cancer found on slide', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('necrotic tissue', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('cancer area too small (less than 3 cores of 0.6mm)', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('mostly in situ', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('poor tissue quality', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('poor staining/section quality', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('wrong block (other tissue type)', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('not part of the list - see comments', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'qbcf_warnings', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings') , '0', '', '', '', 'warnings', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='qbcf_warnings' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='warnings' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
+DELETE FROM structure_permissible_values_custom_controls WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('L Fossouo', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('LA Julien', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('L Meunier', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('M Bernard', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Yanxin Hu', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE structure_formats SET `display_order`='20', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('warnings', 'Warnings', 'Indications');
+
+UPDATE structure_fields SET  `language_label`='tils pct less than 5',  `language_tag`='' WHERE model='AliquotReviewDetail' AND tablename='qbcf_ar_tissue_blocks' AND field='tils_pct_less_than_5' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr) VALUES ('tils pct less than 5', 'TILs <5%', 'TILs <5%');
 
 
 

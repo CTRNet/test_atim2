@@ -88,17 +88,17 @@ class AliquotMasterCustom extends AliquotMaster {
 								$new_aliquot['CoreAliquotDetail']['qbcf_core_nature_revised'] : 
 								(strlen($new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'])? $new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'] : 'U');
 			
-								if(strlen($suffix)) {
-									$suffix = ' -'.substr(strtoupper($suffix), 0, 1);
-								} else {
-									$suffix = ' -?';
-								}
-							case 'slide':
-								$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.(strlen($new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'])? $new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'] : '?');
-								break;
-									
-							default:
-								AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+							if(strlen($suffix)) {
+								$suffix = ' -'.substr(strtoupper($suffix), 0, 1);
+							} else {
+								$suffix = ' -?';
+							}
+						case 'slide':
+							$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.(strlen($new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'])? $new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'] : '?');
+							break;
+								
+						default:
+							AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
 					}
 					$new_aliquot_label = $new_aliquot_label.$suffix;
 					if($new_aliquot['AliquotMaster']['aliquot_label'] != $new_aliquot_label) {					
