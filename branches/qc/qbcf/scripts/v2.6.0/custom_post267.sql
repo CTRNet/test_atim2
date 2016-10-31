@@ -4,6 +4,7 @@ INSERT INTO i18n (id,en,fr) VALUES ('core_installname','QBCF','QBCF');
 
 DELETE FROM banks;
 INSERT INTO banks (id,name) VALUES (1,'CHUM#1'), (2,'CHUQ#2'), (3,'QBCF#3');
+INSERT INTO banks (id,name) VALUES (4,'MHUC#4');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Clinical Annotation

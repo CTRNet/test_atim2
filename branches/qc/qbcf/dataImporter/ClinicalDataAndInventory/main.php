@@ -1458,14 +1458,14 @@ foreach($excel_files_names as $file_data) {
 							} else {
 								
 								$atim_field_to_excel = array(
-									'Collection.collections.qbcf_pathology_id'
-										=> array("Pathology ID number", $excel_pathology_nbr),
 									'Collection.collections.treatment_master_id' 
 										=> array("Breast diagnosis event linked to the block ('Specimen sent to CHUM ')", $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']),
 									"Sample.$tissue_sample_detail_tablename.tissue_source"
-										=> array("Tissue source of the block (not an excel value)", $excel_tissue_source, ),
+										=> array("Tissue source of the block (not an excel value)", $excel_tissue_source),
 									"Sample.$tissue_sample_detail_tablename.tissue_laterality" 
 										=> array("Laterality of the block", $excel_tissue_laterality),
+									"Aliquot.aliquot_masters.aliquot_label"
+										=> array('Pathology ID number' & 'Block ID', $excel_block_aliquot_label),
 									"Aliquot.$tissue_block_sample_detail_tablename.qbcf_shipping_reception_date" 
 										=> array("Date of FFPE block sent", $excel_block_reception_datetime),
 									"Aliquot.$tissue_block_sample_detail_tablename.qbcf_shipping_reception_date_accuracy"  
@@ -1517,8 +1517,7 @@ foreach($excel_files_names as $file_data) {
 							
 							// Check block code does not exist into ATiM for an other bank
 							
-							$query = "SELECT AliquotMaster.barcode,
-								AliquotMaster.aliquot_label
+							$query = "SELECT AliquotMaster.barcode
 								FROM collections Collection
 								INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
 								INNER JOIN $tissue_sample_detail_tablename SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
@@ -1556,7 +1555,7 @@ foreach($excel_files_names as $file_data) {
 								
 								if(sizeof($query_data) > 1) {
 									// Two collections matched the excel file block based on 'Pathology ID number' & 'Block ID' & the bank
-									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "More than one ATiM collection matches the excel tissue block defintion (based on Pathology ID number' & Patient # in biobank & the bank name) - System will only compare excel data to the first ATiM record and update data of this one if required.", "See block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "More than one ATiM collection matches the excel tissue block defintion (based on Pathology ID number' & Patient # in biobank & the bank name) - System will only compare excel data to the first ATiM record and update data of this one if required plus use this one too.", "See block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
 								}
 								$atim_collection_data = $query_data[0];
 								$collection_id = $atim_collection_data['collection_id'];
@@ -1579,7 +1578,7 @@ foreach($excel_files_names as $file_data) {
 									'treatment_master_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'],
 									'qbcf_pathology_id' => $excel_pathology_nbr);
 								$collection_id = customInsertRecord(array('collections' => $collection_data));
-								addCreatedDataToSummary('New Collection', "New collection on '$excel_block_reception_datetime' for participant '$qbcf_bank_participant_identifier' of bank '$bank' and block '$excel_block_aliquot_label'", $excel_data_references);
+								addCreatedDataToSummary('New Collection', "New collection for participant '$qbcf_bank_participant_identifier' of bank '$bank' and block '$excel_block_aliquot_label'", $excel_data_references);
 							}
 							
 							// Create one tissue sample per block
@@ -1603,6 +1602,7 @@ foreach($excel_files_names as $file_data) {
 							$aliquot_data = array(
 								'aliquot_masters' => array(
 									"barcode" => 'tmp_core_'.$created_aliquot_counter,
+									'aliquot_label' => $excel_block_aliquot_label,
 									"aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-block']['id'],
 									"collection_id" => $collection_id,
 									"sample_master_id" => $sample_master_id,
