@@ -2713,3 +2713,189 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='shippeditems'), (SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='shipping_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='shipping name' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '0', '0');
 
 UPDATE versions SET branch_build_number = '6507' WHERE version_number = '2.6.3';
+
+-- 20161025 ------------------------------------------------------------------------------------
+
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('clinical','fides clinic follow-up', 1, 'qc_nd_ed_fides_clinic_followups', 'qc_nd_ed_fides_clinic_followups', 'clinical|fides clinic follow-up', 0, 1);
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_fides_clinic_followups` (
+	menopause char(1) default '',
+	menopause_date date default NULL,
+	menopause_date_accuracy CHAR(1) DEFAULT '',
+	surgical_menopause char(1) default '',
+	ovariectomy char(1) default '',
+	hysterectomy char(1) default '',
+	cancer_diagnosed_in_the_past char(1) default '',
+	cancer_diagnosed_in_the_past_precision varchar(250) default null,
+	chronic_disease varchar(250) default null,
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_fides_clinic_followups_revs` (
+	menopause char(1) default '',
+	menopause_date date default NULL,
+	menopause_date_accuracy CHAR(1) DEFAULT '',
+	surgical_menopause char(1) default '',
+	ovariectomy char(1) default '',
+	hysterectomy char(1) default '',
+	cancer_diagnosed_in_the_past char(1) default '',
+	cancer_diagnosed_in_the_past_precision varchar(250) default null,
+	chronic_disease varchar(250) default null,	`event_master_id` int(11) NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_fides_clinic_followups`
+  ADD CONSTRAINT `qc_nd_ed_fides_clinic_followups_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('fides clinic follow-up', 'Fides Clinic Follow-up', 'Suivi clinique Fides'),
+('chronic disease', 'Chronic Disease', 'Maladie chronique'),
+('menopause', 'Menopause', 'Ménopause'),
+('ovariectomy', 'Ovariectomy', 'Ovariectomie'),
+('cancer diagnosed in the past', 'Cancer Diagnosed In The Past', 'Cancer diagnostiqué dans le passé');
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_fides_clinic_followups');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'menopause', 'yes_no',  NULL , '0', '', '', '', 'menopause', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'menopause_date', 'date',  NULL , '0', '', '', '', '', 'date'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'surgical_menopause', 'yes_no',  NULL , '0', '', '', '', '', 'surgical'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'ovariectomy', 'yes_no',  NULL , '0', '', '', '', 'ovariectomy', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'hysterectomy', 'yes_no',  NULL , '0', '', '', '', 'hysterectomy', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'cancer_diagnosed_in_the_past', 'yes_no',  NULL , '0', '', '', '', 'cancer diagnosed in the past', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'cancer_diagnosed_in_the_past_precision', 'input',  NULL , '0', 'size=60', '', '', '', 'precision'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'chronic_disease', 'input',  NULL , '0', 'size=60', '', '', 'chronic disease', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='menopause'), '2', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='menopause_date'), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='surgical_menopause'), '2', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='ovariectomy'), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='hysterectomy'), '2', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='cancer_diagnosed_in_the_past'), '2', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='cancer_diagnosed_in_the_past_precision'), '2', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='chronic_disease'), '2', '30', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('clinical','ccf follow-up', 1, 'qc_nd_ed_ccf_followups', 'qc_nd_ed_ccf_followups', 'clinical|ccf follow-up', 0, 1);
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_ccf_followups` (
+	no_cancer_diagnosed tinyint(1) default '0',
+	mutation varchar(50) DEFAULT NULL,
+	familial_diagnosis varchar(250) DEFAULT NULL,
+	familial_mutation varchar(250) DEFAULT NULL,
+	diagnosis_date date default NULL,
+	diagnosis_date_accuracy CHAR(1) DEFAULT '',
+	age_at_diagnosis int(3) defaulT NULL,
+	topography varchar(20) DEFAULT NULL,
+	morphology varchar(20) DEFAULT NULL,
+	laterality varchar(20) DEFAULT NULL,
+	grade varchar(20) DEFAULT NULL,
+	stage varchar(20) DEFAULT NULL,
+	other_cancer char(1) DEFAULT '',
+	other_cancer_precisions varchar(250) DEFAULT NULL,
+	treatment_before_blood_collection char(1) DEFAULT '',
+	 treatment_precision varchar(250) DEFAULT NULL,
+	last_treatment_date date default NULL,
+	last_treatment_date_accuracy CHAR(1) DEFAULT '',
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_ccf_followups_revs` (
+	no_cancer_diagnosed tinyint(1) default '0',
+	mutation varchar(50) DEFAULT NULL,
+	familial_diagnosis varchar(250) DEFAULT NULL,
+	familial_mutation varchar(250) DEFAULT NULL,
+	diagnosis_date date default NULL,
+	diagnosis_date_accuracy CHAR(1) DEFAULT '',
+	age_at_diagnosis int(3) defaulT NULL,
+	topography varchar(20) DEFAULT NULL,
+	morphology varchar(20) DEFAULT NULL,
+	laterality varchar(20) DEFAULT NULL,
+	grade varchar(20) DEFAULT NULL,
+	stage varchar(20) DEFAULT NULL,
+	other_cancer char(1) DEFAULT '',
+	other_cancer_precisions varchar(250) DEFAULT NULL,
+	treatment_before_blood_collection char(1) DEFAULT '',
+	 treatment_precision varchar(250) DEFAULT NULL,
+	last_treatment_date date default NULL,
+	last_treatment_date_accuracy CHAR(1) DEFAULT '',
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_ccf_followups`
+  ADD CONSTRAINT `qc_nd_ed_ccf_followups_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_ccf_followups');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ccl_mutations", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("yes", "yes");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ccl_mutations"), (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ccl_mutations"), (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("ongoing", "ongoing");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ccl_mutations"), (SELECT id FROM structure_permissible_values WHERE value="ongoing" AND language_alias="ongoing"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'no_cancer_diagnosed', 'checkbox',  NULL , '0', '', '', '', 'no cancer diagnosed', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'mutation', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ccl_mutations') , '0', '', '', '', 'mutation', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'familial_diagnosis', 'input',  NULL , '0', 'size=60', '', '', 'familial diagnosis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'familial_mutation', 'input',  NULL , '0', 'size=60', '', '', 'familial mutation', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'diagnosis_date', 'date',  NULL , '0', '', '', '', 'diagnosis date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'age_at_diagnosis', 'integer_positive',  NULL , '0', '', '', '', 'age at diagnosis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'topography', 'input',  NULL , '0', 'size=6', '', '', 'topography', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'morphology', 'integer_positive',  NULL , '0', 'size=6', '', '', 'morphology', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tissue_laterality') , '0', '', '', '', 'laterality', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'grade', 'input',  NULL , '0', 'size=6', '', '', 'grade', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'stage', 'input',  NULL , '0', 'size=6', '', '', 'stage', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'other_cancer', 'yes_no',  NULL , '0', '', '', '', 'other cancer', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'other_cancer_precisions', 'input',  NULL , '0', 'size=60', '', '', '', 'precisions'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'treatment_before_blood_collection', 'yes_no',  NULL , '0', '', '', '', 'treatment before blood collection', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'treatment_precision', 'input',  NULL , '0', 'size=60', '', '', '', 'precisions'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_ccf_followups', 'last_treatment_date', 'date',  NULL , '0', '', '', '', '', 'last treatment');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='no_cancer_diagnosed' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='no cancer diagnosed' AND `language_tag`=''), '2', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='mutation' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ccl_mutations')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mutation' AND `language_tag`=''), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='familial_diagnosis' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=60' AND `default`='' AND `language_help`='' AND `language_label`='familial diagnosis' AND `language_tag`=''), '2', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='familial_mutation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=60' AND `default`='' AND `language_help`='' AND `language_label`='familial mutation' AND `language_tag`=''), '2', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='diagnosis_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='diagnosis date' AND `language_tag`=''), '2', '30', 'if cancer diagnosed', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='age_at_diagnosis' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='age at diagnosis' AND `language_tag`=''), '2', '31', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='topography' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='topography' AND `language_tag`=''), '2', '32', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='morphology' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='morphology' AND `language_tag`=''), '2', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '2', '34', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='grade' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='grade' AND `language_tag`=''), '2', '35', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='stage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='stage' AND `language_tag`=''), '2', '36', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='other_cancer' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other cancer' AND `language_tag`=''), '2', '37', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='other_cancer_precisions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=60' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precisions'), '2', '38', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='treatment_before_blood_collection' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='treatment before blood collection' AND `language_tag`=''), '2', '50', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='treatment_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=60' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precisions'), '2', '51', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ccf_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ccf_followups' AND `field`='last_treatment_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='last treatment'), '2', '52', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('ongoing', 'Ongoind', 'En cours'),
+('ccf follow-up', 'CCF Followup', 'Suivi CCF'),
+('no cancer diagnosed','No Cancer Siagnosed','Aucun cancer diagnostiqué'),
+('familial diagnosis', 'Familial Diagnosis', 'Diagnostic familial'),
+('familial mutation', 'Familial Mutation', 'Mutation familiale'),
+('mutation', 'Mutation', 'Mutation'),
+('if cancer diagnosed','If Cancer Diagnosed','Si cancer diagnostiqué'),
+('diagnosis date','Diagnosis Date','Date diagnostic'),
+('age at diagnosis','Age at Diagnosis','Age au diagnostic'),
+('laterality' ,'Laterality', 'Latéralité'),
+('stage' ,'Stage', 'Stade'),
+('other cancer', 'other cancer', 'Ature cancer'),
+('precisions', 'Precisions', 'Précisions'),
+('treatment before blood collection', 'Treatment Before Blood Collection', 'Traitement avant collextion sang'),
+('last treatment' ,'Last Treatment', 'Dernier Traitement');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_fides_clinic_followups', 'chronic_disease_yes_no', 'yes_no',  NULL , '0', '', '', '', 'chronic disease', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='chronic_disease_yes_no' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chronic disease' AND `language_tag`=''), '2', '30', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='precision' WHERE model='EventDetail' AND tablename='qc_nd_ed_fides_clinic_followups' AND field='chronic_disease' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_fides_clinic_followups') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_fides_clinic_followups' AND `field`='chronic_disease' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE `qc_nd_ed_fides_clinic_followups` ADD COLUMN  chronic_disease_yes_no char(1) default '';
+ALTER TABLE `qc_nd_ed_fides_clinic_followups_revs` ADD COLUMN  chronic_disease_yes_no char(1) default '';
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('treatment before blood collection', 'Treatment Before Blood Collection', 'Traitement avant collection sang'),
+('ccf follow-up', 'CCF Followup', 'Suivi CCF');

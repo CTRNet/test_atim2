@@ -204,9 +204,10 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 					$data[] = array(
 						'TreatmentExtendMaster' => array(
 							'treatment_master_id' => $tx_master_id,
-							'treatment_extend_control_id' => $tx_master_data['TreatmentControl']['treatment_extend_control_id']),
+							'treatment_extend_control_id' => $tx_master_data['TreatmentControl']['treatment_extend_control_id'],
+							'drug_id' => $prot_extend['ProtocolExtendMaster']['drug_id'],
+						),
 						'TreatmentExtendDetail' => array(
-							'drug_id' => $prot_extend['ProtocolExtendDetail']['drug_id'],
 							'method' => $prot_extend['ProtocolExtendDetail']['method'],
 							'dose' => $prot_extend['ProtocolExtendDetail']['dose'])
 					);

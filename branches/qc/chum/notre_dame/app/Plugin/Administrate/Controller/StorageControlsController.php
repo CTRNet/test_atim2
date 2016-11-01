@@ -14,17 +14,10 @@ class StorageControlsController extends AdministrateAppController {
 	var $paginate = array('StorageCtrl' => array('order' => 'StorageCtrl.storage_type ASC'));
 
 	function listAll(){	
-		$list_args = $this->StorageCtrl->getListArgs($this->passedArgs);	
-		if(empty($list_args)) {
-			if(!isset($_SESSION['StorageCtrl']['ListAllArgs'])) $_SESSION['StorageCtrl']['ListAllArgs'] = array();
-		} else {
-			$_SESSION['StorageCtrl']['ListAllArgs'] = $list_args;			
-		}
-				
 		$this->Structures->set('storage_controls');
-		
-		$this->Paginator->settings = $_SESSION['StorageCtrl']['ListAllArgs'];
 		$this->request->data = $this->paginate($this->StorageCtrl, array());
+		
+		$this->StorageCtrl->validatesAllStorageControls();
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
@@ -70,6 +63,7 @@ class StorageControlsController extends AdministrateAppController {
 			if($submitted_data_validates) {
 				$this->StorageCtrl->id = null;
 				if($this->StorageCtrl->save($this->request->data)) {
+					$storage_control_id = $this->StorageCtrl->getLastInsertId();
 					$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'storage types')));
 					if(empty($control_data)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					$existing_value = $this->StructurePermissibleValuesCustom->find('count', array('conditions' => array(
@@ -89,7 +83,7 @@ class StorageControlsController extends AdministrateAppController {
 						require($hook_link);
 					}
 					
-					$this->atimFlash(__('your data has been saved').'<br>'.__('please use custom drop down list administration tool to add storage type translations'), '/Administrate/StorageControls/listAll/');					
+					$this->atimFlash(__('your data has been saved').'<br>'.__('please use custom drop down list administration tool to add storage type translations'), '/Administrate/StorageControls/seeStorageLayout/'.$storage_control_id);					
 				}
 			}
 		}
@@ -99,14 +93,15 @@ class StorageControlsController extends AdministrateAppController {
 		
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		if($storage_control_data['StorageCtrl']['flag_active']) {
-			$this->atimFlash(__('you are not allowed to work on active storage type'), '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('you are not allowed to work on active storage type'), 'javascript:history.go(-1)');
 			return;
 		} else if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storage_control_id, 'StorageMaster.deleted' => array('0','1'))))) {
-			$this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), 'javascript:history.go(-1)');
 			return;
 		}		
 		
 		$storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
+		$this->set('storage_category', $storage_category);
 		$this->set('atim_menu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
 		$this->Structures->set($this->StorageCtrl->getStructure($storage_category));
 		$this->set('atim_menu_variables', array('StorageCtrl.id' => $storage_control_id));
@@ -140,13 +135,13 @@ class StorageControlsController extends AdministrateAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}	
-					$this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/listAll/'); 
+					$this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/seeStorageLayout/'.$storage_control_id); 
 				}	
 			}
 		}
 	}
 	
-	function changeActiveStatus($storage_control_id) {		
+	function changeActiveStatus($storage_control_id, $redirect_to = 'listAll') {		
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		
 		$new_data = array();
@@ -154,7 +149,7 @@ class StorageControlsController extends AdministrateAppController {
 			// Check no Storage Master use it
 			$existing_storage_count = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storage_control_id)));
 			if($existing_storage_count) {
-				$this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), '/Administrate/StorageControls/listAll/');
+				$this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), 'javascript:history.go(-1)');
 				return;
 			}
 			$new_data['StorageCtrl']['flag_active'] = '0';
@@ -166,7 +161,7 @@ class StorageControlsController extends AdministrateAppController {
 		$this->StorageCtrl->data = array();
 		$this->StorageCtrl->id = $storage_control_id;
 		if($this->StorageCtrl->save($new_data)) {
-			$this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('your data has been updated'), "/Administrate/StorageControls/$redirect_to/$storage_control_id");
 		}
 	}
 	
@@ -185,13 +180,16 @@ class StorageControlsController extends AdministrateAppController {
 	function seeStorageLayout($storage_control_id){		
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		$storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
+		$this->Structures->set('storage_controls');
+		
+		$no_layout_msg = '';
 		if($storage_category == 'no_d') {
-			$this->atimFlash(__('no layout exists'), '/Administrate/StorageControls/listAll/');
-			return;
+			$no_layout_msg = 'no layout exists';
 		} else if($storage_control_data['StorageCtrl']['coord_x_type'] == 'list') {
-			$this->atimFlash(__('custom layout will be built adding coordinates to a created storage'), '/Administrate/StorageControls/listAll/');
-			return;
+			$no_layout_msg = 'custom layout will be built adding coordinates to a created storage';
 		}
+		$this->set('no_layout_msg', $no_layout_msg);
+		
 		$translated_storage_type = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storage_control_data['StorageCtrl']['storage_type']);
 		$storage_control_data['StorageCtrl']['translated_storage_type'] = ($translated_storage_type !== false)? $translated_storage_type : $storage_control_data['StorageCtrl']['storage_type'];
 		$this->set('storage_control_data', $storage_control_data);

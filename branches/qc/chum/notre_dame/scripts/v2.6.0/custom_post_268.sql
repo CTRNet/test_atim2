@@ -1403,6 +1403,7 @@ SELECT "2 - Check new PSA or CA125 are imported from SARDO or can be created man
 
 SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migration';
 
+merged with trunk 6527 to 6564
 
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
@@ -1411,3 +1412,37 @@ mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sq
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
 mysql -u root chumoncoaxis --default-character-set=utf8 < custom_post_268.sql
 
+
+
+
+
+dans le cas de cpcbn les block sont reservé pour cpcbn pendant deux ans et entrepose au 12eme dans ce cas la le champ Aliquotmaster.study_summary_id doit etre a la valeur de l'etude 
+et on doit mettre obligatroirement reserver pour etude
+
+Transit platforme moléeculaire ... = un evenement
+obliger une etude pour une commande
+
+
+
+Vérifier si le SCC (onglet labo) de SARDO est dans le fichier xml et si oui l'importer.
+Creer dans ATiM un labo VPH avec date et un champ type pour une valeur entière
+Vérifier que pas plusieurs RAMQ dupliqué..
+
+
+
+
+
+créer stool samples qui peuvent donner du RNA and DNA
+Céer vaginal swab qui peuvent donner des DNA
+Etre capable de créer des Lymphocyte apres une culture cellulaire
+Voire note dans cahier
+
+Il faut créer un type d'entreposage MDT TMA block
+Il vont créer un tissue pois un core avec un evt MDT
+Puise le core va etre entreposer dans le MDT
+Des tissus sont donnés a francis. Il va faire des culture sur un mileiu TILO qui va permettre de recuperer des lymphocyte.
+Il faut dire que la culture se fait dans le labo de francis
+Francis va aussi faire des PDX (xenographe)
+Ajouter le formulaire de megaprophiling (copie dans le cahier noir)###
+
+Il faut voire avec AM/ si la culture cellulaire et les lymphocite doivent etre dans ATiM. Pas sur que ce soit de l'activité de bank. Le tissue est donné pour un e éetude.
