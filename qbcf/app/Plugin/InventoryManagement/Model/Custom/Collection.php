@@ -5,20 +5,26 @@ class CollectionCustom extends Collection {
 	var $useTable = 'collections';
 	var $name = 'Collection';
 	
-	function validates($options = array()) {
-		$validate_res = parent::validates($options);
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
 		
-		if(array_key_exists('collection_property', $this->data['Collection'])) {
-			if($this->data['Collection']['collection_property'] == 'independent collection') {
-				if((array_key_exists('collection_datetime', $this->data['Collection']) && $this->data['Collection']['collection_datetime'])) {
-					$this->validationErrors[][] = __('independent collection').' : '.__('no field has to be completed');
-					$validate_res = false;
-				}
+		if(isset($results[0]['Collection']['bank_id'])
+		|| isset($results[0]['Collection']['qbcf_bank_participant_identifier'])
+		|| isset($results[0]['Collection']['qbcf_pathology_id'])) {
+			foreach($results as &$result){
+				//To force the use of ViewCollection for ant display of collection data
+				$result['Collection']['bank_id'] = CONFIDENTIAL_MARKER;
+				$result['Collection']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+				$result['Collection']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
 			}
+		} else if(isset($results['Collection'])){
+			pr('TODO afterFind Collection');
+			pr($results);
+			exit;
 		}
-		return $validate_res;
-	}
 	
+		return $results;
+	}
 }
 
 ?>

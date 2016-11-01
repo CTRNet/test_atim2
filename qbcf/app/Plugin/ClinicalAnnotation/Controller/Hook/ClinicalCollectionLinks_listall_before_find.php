@@ -5,3 +5,9 @@
 		'alias' => 'TreatmentDetail', 
 		'type' => 'LEFT', 
 		'conditions' => array('treatment_masters_dup.id = TreatmentDetail.treatment_master_id'));
+	
+	$joins[] = array(
+		'table' => 'view_collections',
+		'alias' => 'ViewCollection',
+		'type' => 'INNER',
+		'conditions' => array('ViewCollection.collection_id = Collection.id'));

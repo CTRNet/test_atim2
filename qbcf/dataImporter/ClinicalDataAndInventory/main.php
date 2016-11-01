@@ -535,6 +535,9 @@ foreach($excel_files_names as $file_data) {
 						$excel_breast_progression_diagnosis_data[$atim_table_name][$atim_field] =
 							validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $specific_summary_section_title, $excel_field, "See $excel_data_references");
 					}
+					if(preg_match('/breast/', $excel_breast_progression_diagnosis_data[$dx_detail_tablename]['site'])) {
+						recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Breast progression defined into the excel file - Please create a Breast Diagnosis Event manually into ATiM if this one does not exist.", "See following participant : $excel_data_references.");
+					}					
 					
 					// Diagnosis creation or update
 						

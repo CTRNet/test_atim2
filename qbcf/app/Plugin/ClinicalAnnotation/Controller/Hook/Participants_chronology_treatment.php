@@ -20,7 +20,7 @@
 			$chronology_details = $other_cancer_tx[$tx['TreatmentDetail']['type']];
 			break;
 		case 'breast diagnostic event':
-			$chronology_details = $beast_dx_intervention[$tx['TreatmentDetail']['type_of_intervention']].(strlen($qbcf_dx_laterality[$tx['TreatmentDetail']['laterality']])? ' - '.$qbcf_dx_laterality[$tx['TreatmentDetail']['laterality']] : '');
+			$chronology_details = $beast_dx_intervention[$tx['TreatmentDetail']['type_of_intervention']].(strlen($tx['TreatmentDetail']['laterality'])? ' - '.$qbcf_dx_laterality[$tx['TreatmentDetail']['laterality']] : '');
 			break;
 	}
 	

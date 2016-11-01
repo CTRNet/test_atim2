@@ -19,14 +19,17 @@ Participant.qbcf_bank_participant_identifier AS qbcf_bank_participant_identifier
 Participant.qbcf_bank_id AS bank_id,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
-		Collection.collection_datetime AS collection_datetime,
-		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
+--		Collection.collection_datetime AS collection_datetime,
+--		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
+TreatmentMaster.start_date AS collection_datetime,			
+TreatmentMaster.start_date_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 Collection.qbcf_pathology_id
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 		
 	function summary($variables=array()) {
@@ -98,7 +101,6 @@ Collection.qbcf_pathology_id
 	
 		return $results;
 	}	
-	
-	
+		
 }
 
