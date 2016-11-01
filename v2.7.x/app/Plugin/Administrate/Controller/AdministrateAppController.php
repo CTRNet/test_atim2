@@ -1,5 +1,5 @@
 <?php
 
-class AdministrateAppController extends AppController {	
+class AdministrateAppController extends AppController {
 
 }

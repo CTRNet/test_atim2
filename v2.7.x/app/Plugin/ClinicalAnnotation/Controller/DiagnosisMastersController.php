@@ -177,12 +177,12 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			case 'primary':
 				$condition_not_category[] = 'primary';
 				$dx_ctrls = $this->DiagnosisControl->find('all', array(
-						'conditions' => array(
-							'NOT' => array("DiagnosisControl.category" => $condition_not_category),
-							'DiagnosisControl.flag_active' => 1
-						),
-						'order' => 'DiagnosisControl.display_order'
-					));
+					'conditions' => array(
+						'NOT' => array("DiagnosisControl.category" => $condition_not_category),
+						'DiagnosisControl.flag_active' => 1
+					),
+					'order' => 'DiagnosisControl.display_order'
+				));
 				break;
 
 			default:
@@ -271,13 +271,13 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 
 		$this->set('atim_menu', $this->Menus->get($menu_link));
 		$this->set('atim_menu_variables', array_merge(array(
-				'Participant.id' => $dx_master_data['DiagnosisMaster']['participant_id'],
-				'DiagnosisMaster.id' => $dx_master_data['DiagnosisMaster']['id'],
+			'Participant.id' => $dx_master_data['DiagnosisMaster']['participant_id'],
+			'DiagnosisMaster.id' => $dx_master_data['DiagnosisMaster']['id'],
 
-				'DiagnosisMaster.primary_id' => $primary_id,
-				'DiagnosisMaster.progression_1_id' => $progression_1_id,
-				'DiagnosisMaster.progression_2_id' => $progression_2_id
-			), $additional_menu_variables));
+			'DiagnosisMaster.primary_id' => $primary_id,
+			'DiagnosisMaster.progression_1_id' => $progression_1_id,
+			'DiagnosisMaster.progression_2_id' => $progression_2_id
+		), $additional_menu_variables));
 	}
 
 	function add($participant_id, $dx_control_id, $parent_id) {

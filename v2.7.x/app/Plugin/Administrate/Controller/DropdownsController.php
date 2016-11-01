@@ -228,10 +228,7 @@ class DropdownsController extends AdministrateAppController {
 
 			// 1- Check 'en'
 
-			if (!(is_null($this->request->data['StructurePermissibleValuesCustom']['en'])
-				|| ($this->request->data['StructurePermissibleValuesCustom']['en'] == '')
-				|| ($this->request->data['StructurePermissibleValuesCustom']['en'] == $value_data['StructurePermissibleValuesCustom']['en'])
-			)) {
+			if (!(is_null($this->request->data['StructurePermissibleValuesCustom']['en']) || ($this->request->data['StructurePermissibleValuesCustom']['en'] == '') || ($this->request->data['StructurePermissibleValuesCustom']['en'] == $value_data['StructurePermissibleValuesCustom']['en']))) {
 				$tmp = $this->StructurePermissibleValuesCustom->find('first', array(
 					'conditions' => array(
 						'StructurePermissibleValuesCustom.en' => $this->request->data['StructurePermissibleValuesCustom']['en'],
@@ -253,10 +250,7 @@ class DropdownsController extends AdministrateAppController {
 
 			// 2- Check 'fr'
 
-			if (!(is_null($this->request->data['StructurePermissibleValuesCustom']['fr'])
-				|| ($this->request->data['StructurePermissibleValuesCustom']['fr'] == '')
-				|| ($this->request->data['StructurePermissibleValuesCustom']['fr'] == $value_data['StructurePermissibleValuesCustom']['fr'])
-			)) {
+			if (!(is_null($this->request->data['StructurePermissibleValuesCustom']['fr']) || ($this->request->data['StructurePermissibleValuesCustom']['fr'] == '') || ($this->request->data['StructurePermissibleValuesCustom']['fr'] == $value_data['StructurePermissibleValuesCustom']['fr']))) {
 				$tmp = $this->StructurePermissibleValuesCustom->find('first', array(
 					'conditions' => array(
 						'StructurePermissibleValuesCustom.fr' => $this->request->data['StructurePermissibleValuesCustom']['fr'],

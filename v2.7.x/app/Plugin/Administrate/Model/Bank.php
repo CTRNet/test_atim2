@@ -8,6 +8,11 @@ class Bank extends AdministrateAppModel {
 		'InventoryManagement.ViewAliquot' => array('Collection.bank_id')
 	);
 
+	/**
+	 * @param array $variables
+	 *
+	 * @return array|bool
+	 */
 	public function summary($variables = array()) {
 		$return = false;
 		if (isset($variables['Bank.id'])) {

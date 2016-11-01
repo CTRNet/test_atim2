@@ -23,15 +23,15 @@ class ReusableMiscIdentifiersController extends AdministrateAppController {
 		);
 
 		$data = $this->MiscIdentifierControl->find('all', array(
-				'fields' => array(
-					'MiscIdentifierControl.id',
-					'MiscIdentifierControl.misc_identifier_name',
-					'COUNT(MiscIdentifier.id) AS count'
-				),
-				'joins' => $joins,
-				'conditions' => array('NOT' => array('MiscIdentifierControl.autoincrement_name' => '')),
-				'group' => array('MiscIdentifierControl.id')
-			));
+			'fields' => array(
+				'MiscIdentifierControl.id',
+				'MiscIdentifierControl.misc_identifier_name',
+				'COUNT(MiscIdentifier.id) AS count'
+			),
+			'joins' => $joins,
+			'conditions' => array('NOT' => array('MiscIdentifierControl.autoincrement_name' => '')),
+			'group' => array('MiscIdentifierControl.id')
+		));
 
 		foreach ($data as $unit) {
 			$this->request->data[] = array(
@@ -60,14 +60,14 @@ class ReusableMiscIdentifiersController extends AdministrateAppController {
 		$this->set('atim_menu_variables', array('MiscIdentifierControl.id' => $mi_ctrl_id));
 
 		$reusable_identifiers = $this->MiscIdentifier->find('all', array(
-				'conditions' => array(
-					'MiscIdentifier.participant_id' => null,
-					'MiscIdentifier.misc_identifier_control_id' => $mi_ctrl_id,
-					'MiscIdentifier.deleted' => 1,
-					'MiscIdentifier.tmp_deleted' => 1
-				),
-				'recursive' => -1
-			));
+			'conditions' => array(
+				'MiscIdentifier.participant_id' => null,
+				'MiscIdentifier.misc_identifier_control_id' => $mi_ctrl_id,
+				'MiscIdentifier.deleted' => 1,
+				'MiscIdentifier.tmp_deleted' => 1
+			),
+			'recursive' => -1
+		));
 
 		$hook_link = $this->hook('format');
 		if ($hook_link) {

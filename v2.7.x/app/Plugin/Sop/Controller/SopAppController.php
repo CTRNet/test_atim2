@@ -1,8 +1,7 @@
 <?php
 
-class SopAppController extends AppController
-{	
-	
+class SopAppController extends AppController {
+
 }
 
 ?>

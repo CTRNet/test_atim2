@@ -22,30 +22,29 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 
 	var $base_model = "AliquotInternalUse";
 	var $base_plugin = 'InventoryManagement';
-	
+
 	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
-		  id varchar(20) NOT NULL,
-		  aliquot_master_id int NOT NULL,
-		  use_definition varchar(50) NOT NULL DEFAULT '',
-		  use_code varchar(250) NOT NULL DEFAULT '',
-		  use_details VARchar(250) NOT NULL DEFAULT '',
-		  used_volume decimal(10,5) DEFAULT NULL,
-		  aliquot_volume_unit varchar(20) DEFAULT NULL,
-		  use_datetime datetime DEFAULT NULL,
-		  use_datetime_accuracy char(1) NOT NULL DEFAULT '',
-		  duration int(6) DEFAULT NULL,
+		  id VARCHAR(20) NOT NULL,
+		  aliquot_master_id INT NOT NULL,
+		  use_definition VARCHAR(50) NOT NULL DEFAULT '',
+		  use_code VARCHAR(250) NOT NULL DEFAULT '',
+		  use_details VARCHAR(250) NOT NULL DEFAULT '',
+		  used_volume DECIMAL(10,5) DEFAULT NULL,
+		  aliquot_volume_unit VARCHAR(20) DEFAULT NULL,
+		  use_datetime DATETIME DEFAULT NULL,
+		  use_datetime_accuracy CHAR(1) NOT NULL DEFAULT '',
+		  duration INT(6) DEFAULT NULL,
 		  duration_unit VARCHAR(250) NOT NULL DEFAULT '',
 		  used_by VARCHAR(50) DEFAULT NULL,
-		  created datetime NOT NULL,
-		  detail_url varchar(250) NOT NULL DEFAULT '',
-		  sample_master_id int(11) NOT NULL,
-		  collection_id int(11) NOT NULL,
-		  study_summary_id int(11) DEFAULT NULL
+		  created DATETIME NOT NULL,
+		  detail_url VARCHAR(250) NOT NULL DEFAULT '',
+		  sample_master_id INT(11) NOT NULL,
+		  collection_id INT(11) NOT NULL,
+		  study_summary_id INT(11) DEFAULT NULL
 		)";
 
-	static $table_query =
-		"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+	static $table_query = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -201,46 +200,59 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 
 	function getUseDefinitions() {
 		$result = array(
-				'aliquot shipment'	=> __('aliquot shipment'),
-				'quality control'	=> __('quality control'),
-				'internal use'	=> __('internal use'),
-				'realiquoted to'	=> __('realiquoted to'),
-				'specimen review'	=> __('specimen review'));
+			'aliquot shipment' => __('aliquot shipment'),
+			'quality control' => __('quality control'),
+			'internal use' => __('internal use'),
+			'realiquoted to' => __('realiquoted to'),
+			'specimen review' => __('specimen review')
+		);
 
 		// Add custom uses
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-		$use_and_event_types = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
-		foreach($use_and_event_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
-		
+		$use_and_event_types = $StructurePermissibleValuesCustom->find('all',
+			array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
+		foreach ($use_and_event_types as $new_type) {
+			$result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang]) ? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
+		}
+
 		// Develop sample derivative creation
 		$this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
 		$sample_controls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
-		foreach($sample_controls as $sampl_control_id => $sample_type) {
-			$result['sample derivative creation#'.$sampl_control_id] = __('sample derivative creation#').$sample_type;
+		foreach ($sample_controls as $sampl_control_id => $sample_type) {
+			$result['sample derivative creation#' . $sampl_control_id] = __('sample derivative creation#') . $sample_type;
 		}
-		
+
 		natcasesort($result);
 
 		return $result;
 	}
-	
+
 	//must respect concat(id, #) order
-	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse');
-	
-	function getPkeyAndModelToCheck($data){
+	private $models = array(
+		'SourceAliquot',
+		'Realiquoting',
+		'QualityCtrl',
+		'OrderItem',
+		'AliquotReviewMaster',
+		'AliquotInternalUse'
+	);
+
+	function getPkeyAndModelToCheck($data) {
 		$pkey = null;
 		$model = null;
-		if(preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches )){
+		if (preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches)) {
 			$pkey = $matches[1];
 			$model_id = $matches[2];
-			if($model_id < 7 && $model_id > 0){
+			if ($model_id < 7 && $model_id > 0) {
 				$model = $this->models[$model_id - 1];
-			}else{
-				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			} else {
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__,
+					null, true);
 			}
-		}else{
-			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__,
+				null, true);
 		}
 		return array('pkey' => $pkey, 'base_model' => $model);
 	}

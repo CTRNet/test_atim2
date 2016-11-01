@@ -1,7 +1,6 @@
 <?php
 
-class RtbformAppController extends AppController
-{	
+class RtbformAppController extends AppController {
 }
 
 ?>

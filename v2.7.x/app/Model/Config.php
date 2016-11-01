@@ -3,14 +3,14 @@ App::uses('AppModel', 'Model');
 
 class Config extends AppModel {
 
-/**
- * Get Configuration
- *
- * @param int $groupId Group ID
- * @param int $userId USer ID
- *
- * @return array|null
- */
+	/**
+	 * Get Configuration
+	 *
+	 * @param int $groupId Group ID
+	 * @param int $userId USer ID
+	 *
+	 * @return array|null
+	 */
 	public function getConfig($groupId, $userId) {
 		$configResults = $this->find('first', array(
 			'conditions' => array(
@@ -53,14 +53,15 @@ class Config extends AppModel {
 		));
 	}
 
-/**
- * Set Configuration
- *
- * @param array $config Configuration
- * @return bool
- *
- * @throws Exception
- */
+	/**
+	 * Set Configuration
+	 *
+	 * @param array $config Configuration
+	 *
+	 * @return bool
+	 *
+	 * @throws Exception
+	 */
 	public function setConfig($config) {
 		if (!$config) {
 			throw new Exception('No valid configuration');
@@ -87,16 +88,16 @@ class Config extends AppModel {
 		return true;
 	}
 
-/**
- * Modifications before Save
- *
- * @param array $configResults Config
- * @param array &$requestData Request Data
- * @param int $groupId Group ID
- * @param int $userId User ID
- *
- * @return void
- */
+	/**
+	 * Modifications before Save
+	 *
+	 * @param array $configResults Config
+	 * @param array &$requestData Request Data
+	 * @param int $groupId Group ID
+	 * @param int $userId User ID
+	 *
+	 * @return void
+	 */
 	public function preSave($configResults, &$requestData, $groupId, $userId) {
 		if ($configResults['Config']['user_id'] != 0) {
 			//own config, edit, otherwise will create a new one

@@ -41,8 +41,7 @@ class StructurePermissibleValuesCustom extends AppModel {
 		$result = array("defined" => array(), "previously_defined" => array());
 		foreach ($data as $data_unit) {
 			$value = $data_unit['StructurePermissibleValuesCustom']['value'];
-			$translated_value = (isset($data_unit['StructurePermissibleValuesCustom'][$lang])
-				&& (!empty($data_unit['StructurePermissibleValuesCustom'][$lang]))) ? $data_unit['StructurePermissibleValuesCustom'][$lang] : $value;
+			$translated_value = (isset($data_unit['StructurePermissibleValuesCustom'][$lang]) && (!empty($data_unit['StructurePermissibleValuesCustom'][$lang]))) ? $data_unit['StructurePermissibleValuesCustom'][$lang] : $value;
 			if ($data_unit['StructurePermissibleValuesCustom']['use_as_input']) {
 				$result['defined'][$value] = $translated_value;
 			} else {
@@ -82,8 +81,7 @@ class StructurePermissibleValuesCustom extends AppModel {
 		if (empty($data)) {
 			return false;
 		}
-		return (isset($data['StructurePermissibleValuesCustom'][$lang])
-			&& (!empty($data['StructurePermissibleValuesCustom'][$lang]))) ? $data['StructurePermissibleValuesCustom'][$lang] : $value;
+		return (isset($data['StructurePermissibleValuesCustom'][$lang]) && (!empty($data['StructurePermissibleValuesCustom'][$lang]))) ? $data['StructurePermissibleValuesCustom'][$lang] : $value;
 	}
 
 	public function afterSave($created, $options = Array()) {

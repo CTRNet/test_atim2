@@ -163,10 +163,8 @@ class Structure extends AppModel {
 								$ruleArray['on'] = $validation['on_action'];
 							} else {
 								if (Configure::read('debug') > 0) {
-									AppController::addWarningMsg(
-										'Invalid on_action for validation rule with id [' . $validation['id'] .
-										']. Current value: [' . $validation['on_action'] .
-										']. Expected: [create], [update] or empty.', true);
+									AppController::addWarningMsg('Invalid on_action for validation rule with id [' . $validation['id'] . ']. Current value: [' . $validation['on_action'] . ']. Expected: [create], [update] or empty.',
+										true);
 								}
 							}
 						}

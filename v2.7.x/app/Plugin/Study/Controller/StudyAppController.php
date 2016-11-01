@@ -1,7 +1,6 @@
 <?php
 
-class StudyAppController extends AppController
-{	
+class StudyAppController extends AppController {
 }
 
 ?>

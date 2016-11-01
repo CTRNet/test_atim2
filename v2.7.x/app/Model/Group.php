@@ -41,6 +41,8 @@ class Group extends AppModel {
 
 /**
  * bindToPermissions
+ *
+ * @return void
  */
 	public function bindToPermissions() {
 		$this->bindModel(array(
@@ -56,19 +58,20 @@ class Group extends AppModel {
 		$this->Aro->unbindModel(array('hasAndBelongsToMany' => array('Aco')));
 
 		$this->Aro->bindModel(array(
-				'hasMany' => array(
-					'Permission' => array(
-						'className' => 'Permission',
-						'foreign_key' => 'aco_id'
-					)
+			'hasMany' => array(
+				'Permission' => array(
+					'className' => 'Permission',
+					'foreign_key' => 'aco_id'
 				)
-			));
+			)
+		));
 	}
 
 /**
  * Checks if at least one permission for that group is granted
  *
  * @param int $groupId Group Id
+ *
  * @return bool True if Group has permission
  */
 	public function hasPermissions($groupId) {

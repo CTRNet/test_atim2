@@ -22,22 +22,22 @@
  */
 class SoftDeletableBehavior extends ModelBehavior {
 
-/**
- * Contain settings indexed by model name.
- *
- * @var array
- * @access private
- */
+	/**
+	 * Contain settings indexed by model name.
+	 *
+	 * @var array
+	 * @access private
+	 */
 	public $__settings = array();
 
-/**
- * Initiate behaviour for the model using settings.
- *
- * @param Model $model Model using the behaviour
- * @param array $config Settings to override for model.
- *
- * @return void
- */
+	/**
+	 * Initiate behaviour for the model using settings.
+	 *
+	 * @param Model $model Model using the behaviour
+	 * @param array $config Settings to override for model.
+	 *
+	 * @return void
+	 */
 	public function setup(Model $model, $config = array()) {
 		$default = array(
 			'field' => 'deleted', /*'field_date' => 'deleted_date',*/
@@ -52,14 +52,14 @@ class SoftDeletableBehavior extends ModelBehavior {
 		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
 	}
 
-/**
- * Run before a model is deleted, used to do a soft delete when needed.
- *
- * @param Model $model Model about to be deleted
- * @param bool $cascade If true records that depend on this record will also be deleted
- *
- * @return bool Set to true to continue with delete, false otherwise
- */
+	/**
+	 * Run before a model is deleted, used to do a soft delete when needed.
+	 *
+	 * @param Model $model Model about to be deleted
+	 * @param bool $cascade If true records that depend on this record will also be deleted
+	 *
+	 * @return bool Set to true to continue with delete, false otherwise
+	 */
 	public function beforeDelete(Model $model, $cascade = true) {
 		if ($this->__settings[$model->alias]['delete'] && $model->hasField($this->__settings[$model->alias]['field'])) {
 			$attributes = $this->__settings[$model->alias];
@@ -97,16 +97,16 @@ class SoftDeletableBehavior extends ModelBehavior {
 		return true;
 	}
 
-/**
- * Cascades model deletes through associated hasMany and hasOne child records.
- * Altered model._atimDeleteDependent to ignore tables withoud the "delete" field.
- *
- * @param Model $model Model
- * @param int $id Id
- * @param bool $cascade Set to true to delete records that depend on this record
- *
- * @return void
- */
+	/**
+	 * Cascades model deletes through associated hasMany and hasOne child records.
+	 * Altered model._atimDeleteDependent to ignore tables withoud the "delete" field.
+	 *
+	 * @param Model $model Model
+	 * @param int $id Id
+	 * @param bool $cascade Set to true to delete records that depend on this record
+	 *
+	 * @return void
+	 */
 	protected function _atimDeleteDependent(Model $model, $id, $cascade) {
 		if (!empty($model->__backAssociation)) {
 			$savedAssociatons = $model->__backAssociation;
@@ -156,15 +156,15 @@ class SoftDeletableBehavior extends ModelBehavior {
 		}
 	}
 
-/**
- * Permanently deletes a record.
- *
- * @param Model &$model Model from where the method is being executed.
- * @param mixed $id ID of the soft-deleted record.
- * @param bool $cascade Also delete dependent records
- *
- * @return bool Result of the operation.
- */
+	/**
+	 * Permanently deletes a record.
+	 *
+	 * @param Model &$model Model from where the method is being executed.
+	 * @param mixed $id ID of the soft-deleted record.
+	 * @param bool $cascade Also delete dependent records
+	 *
+	 * @return bool Result of the operation.
+	 */
 	public function hardDelete(&$model, $id, $cascade = true) {
 		$onFind = $this->__settings[$model->alias]['find'];
 		$onDelete = $this->__settings[$model->alias]['delete'];
@@ -178,16 +178,17 @@ class SoftDeletableBehavior extends ModelBehavior {
 		return $deleted;
 	}
 
-/**
- * Set if the beforeFind() or beforeDelete() should be overriden for specific model.
- *
- * @param Model &$model Model about to be deleted.
- * @param mixed $methods If string, method (find / delete) to enable on, if array array of method names, if
- *     boolean, enable it for find method
- * @param bool $enable If specified method should be overridden.
- * @return void
- *
- */
+	/**
+	 * Set if the beforeFind() or beforeDelete() should be overriden for specific model.
+	 *
+	 * @param Model &$model Model about to be deleted.
+	 * @param mixed $methods If string, method (find / delete) to enable on, if array array of method names, if
+	 *     boolean, enable it for find method
+	 * @param bool $enable If specified method should be overridden.
+	 *
+	 * @return void
+	 *
+	 */
 	public function enableSoftDeletable(&$model, $methods, $enable = true) {
 		if (is_bool($methods)) {
 			$enable = $methods;
@@ -203,14 +204,14 @@ class SoftDeletableBehavior extends ModelBehavior {
 		}
 	}
 
-/**
- * Permanently deletes all records that were soft deleted.
- *
- * @param Model &$model Model from where the method is being executed.
- * @param bool $cascade Also delete dependent records
- *
- * @return bool Result of the operation.
- */
+	/**
+	 * Permanently deletes all records that were soft deleted.
+	 *
+	 * @param Model &$model Model from where the method is being executed.
+	 * @param bool $cascade Also delete dependent records
+	 *
+	 * @return bool Result of the operation.
+	 */
 	public function purge(&$model, $cascade = true) {
 		$purged = false;
 
@@ -228,15 +229,15 @@ class SoftDeletableBehavior extends ModelBehavior {
 		return $purged;
 	}
 
-/**
- * Restores a soft deleted record, and optionally change other fields.
- *
- * @param Model &$model Model from where the method is being executed.
- * @param mixed $id ID of the soft-deleted record.
- * @param array $attributes Other fields to change (in the form of field => value)
- *
- * @return bool Result of the operation.
- */
+	/**
+	 * Restores a soft deleted record, and optionally change other fields.
+	 *
+	 * @param Model &$model Model from where the method is being executed.
+	 * @param mixed $id ID of the soft-deleted record.
+	 * @param array $attributes Other fields to change (in the form of field => value)
+	 *
+	 * @return bool Result of the operation.
+	 */
 	public function undelete(&$model, $id = null, $attributes = array()) {
 		if ($model->hasField($this->__settings[$model->alias]['field'])) {
 			if (empty($id)) {
@@ -274,14 +275,14 @@ class SoftDeletableBehavior extends ModelBehavior {
 		return false;
 	}
 
-/**
- * Run before a model is about to be find, used only fetch for non-deleted records.
- *
- * @param Model $model Model about to be deleted.
- * @param array $query Data used to execute this query, i.e. conditions, order, etc.
- *
- * @return mixed Set to false to abort find operation, or return an array with data used to execute query
- */
+	/**
+	 * Run before a model is about to be find, used only fetch for non-deleted records.
+	 *
+	 * @param Model $model Model about to be deleted.
+	 * @param array $query Data used to execute this query, i.e. conditions, order, etc.
+	 *
+	 * @return mixed Set to false to abort find operation, or return an array with data used to execute query
+	 */
 	public function beforeFind(Model $model, $query) {
 		if ($this->__settings[$model->alias]['find'] && $model->hasField($this->__settings[$model->alias]['field'])) {
 			$Db = ConnectionManager::getDataSource($model->useDbConfig);
@@ -341,14 +342,14 @@ class SoftDeletableBehavior extends ModelBehavior {
 		return $query;
 	}
 
-/**
- * Run before a model is saved, used to disable beforeFind() override.
- *
- * @param Model $model Model about to be saved.
- * @param array $options Options
- *
- * @return bool True if the operation should continue, false if it should abort
- */
+	/**
+	 * Run before a model is saved, used to disable beforeFind() override.
+	 *
+	 * @param Model $model Model about to be saved.
+	 * @param array $options Options
+	 *
+	 * @return bool True if the operation should continue, false if it should abort
+	 */
 	public function beforeSave(Model $model, $options = Array()) {
 		if ($this->__settings[$model->alias]['find']) {
 			if (!isset($this->__backAttributes)) {
@@ -367,14 +368,15 @@ class SoftDeletableBehavior extends ModelBehavior {
 		return true;
 	}
 
-/**
- * Run after a model has been saved, used to enable beforeFind() override.
- *
- * @param Model $model Model just saved.
- * @param bool $created True if this save created a new record
- * @param array $options Options
- * @return void
- */
+	/**
+	 * Run after a model has been saved, used to enable beforeFind() override.
+	 *
+	 * @param Model $model Model just saved.
+	 * @param bool $created True if this save created a new record
+	 * @param array $options Options
+	 *
+	 * @return void
+	 */
 	public function afterSave(Model $model, $created, $options = array()) {
 		if (isset($this->__backAttributes[$model->alias]['find'])) {
 			$this->enableSoftDeletable($model, 'find', $this->__backAttributes[$model->alias]['find']);

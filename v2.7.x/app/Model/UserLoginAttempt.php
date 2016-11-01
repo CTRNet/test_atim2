@@ -8,7 +8,8 @@ class UserLoginAttempt extends AppModel {
 /**
  * Save successful Login
  *
- * @param $username
+ * @param string $username Username
+ * @return mixed On success Model::$data if its not empty or true, false on failure
  */
 	public function saveSuccessfulLogin($username) {
 		$loginData = array(
@@ -18,13 +19,14 @@ class UserLoginAttempt extends AppModel {
 			"http_user_agent" => $_SERVER['HTTP_USER_AGENT'],
 			"attempt_time" => date("Y-m-d H:i:s")
 		);
-		$this->save($loginData);
+		return $this->save($loginData);
 	}
 
 /**
  * Save failed Login
  *
- * @param $username
+ * @param string $username Username
+ * @return mixed On success Model::$data if its not empty or true, false on failure
  */
 	public function saveFailedLogin($username) {
 		$loginData = array(
@@ -34,6 +36,6 @@ class UserLoginAttempt extends AppModel {
 			"http_user_agent" => $_SERVER['HTTP_USER_AGENT'],
 			"attempt_time" => date("Y-m-d H:i:s")
 		);
-		$this->save($loginData);
+		return $this->save($loginData);
 	}
 }
