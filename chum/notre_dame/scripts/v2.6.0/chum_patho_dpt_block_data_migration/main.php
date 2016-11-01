@@ -18,12 +18,12 @@ truncate();
  *   Autopsy/Autopsie
  */
 $excel_file_names = array(
-	utf8_decode("2006 Sein  Hotel Dieu Vérifié-DJ ATIM.xls") => 'Breast/Sein',
-/*	utf8_decode("2011 Sein Hotel-Dieu Vérifié_AtiM.xls") => 'Breast/Sein',
-	utf8_decode("2012 Sein Hotel-Dieu Vérifié-_AtiM.xls") => 'Breast/Sein',
-	utf8_decode("2013 Sein  Hotel-Dieu Vérifié-AtiM.xls") => 'Breast/Sein',
+	utf8_decode("2006 Sein  Hotel Dieu Verifie-DJ ATIM.xls") => 'Breast/Sein',
+	utf8_decode("2011 Sein Hotel-Dieu Verifie_AtiM.xls") => 'Breast/Sein',
+	utf8_decode("2012 Sein Hotel-Dieu Verifie-_AtiM.xls") => 'Breast/Sein',
+	utf8_decode("2013 Sein  Hotel-Dieu Verifie-AtiM.xls") => 'Breast/Sein',
 	utf8_decode("2014 Sein Hotel-Dieu DIAMIC-DJ_ajout biopsies_ATIM.xls") => 'Breast/Sein',
-	utf8_decode("2015 Sein Hotel-Dieu Diamic DJ_1ere partie_AtiM.xls") => 'Breast/Sein'*/);
+	utf8_decode("2015 Sein Hotel-Dieu Diamic DJ_1ere partie_AtiM.xls") => 'Breast/Sein');
 
 displayMigrationTitle('CHUM Pathology Departement Blocks Migration To Banks', array_keys($excel_file_names), true);
 

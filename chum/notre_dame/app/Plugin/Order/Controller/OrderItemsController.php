@@ -1221,7 +1221,7 @@ class OrderItemsController extends OrderAppController {
 			$order_item = array();
 			$order_item['OrderItem']['status'] = 'shipped';
 			$order_item['OrderItem']['date_returned'] = null;
-			$order_item['OrderItem']['date_returned_accuracy'] = null;
+			$order_item['OrderItem']['date_returned_accuracy'] = '';
 			$order_item['OrderItem']['reason_returned'] = null;
 			$order_item['OrderItem']['reception_by'] = null;
 			$this->OrderItem->addWritableField(array('status','date_returned','date_returned_accuracy','reason_returned', 'reception_by'));

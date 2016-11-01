@@ -72,5 +72,59 @@ class StorageCtrl extends AdministrateAppModel {
 		return $list_args;
 	}
 	
+	function validatesAllStorageControls() {
+		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+		$translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array('storage types'));
+		$translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
+		$query = "SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type IS NULL
+			AND (coord_x_size IS NOT NULL
+				OR display_x_size != '0'
+				OR coord_y_type IS NOT NULL
+				OR coord_y_size IS NOT NULL
+				OR display_y_size != '0')
+			UNION ALL
+			SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type = 'list'
+			AND (coord_x_size IS NOT NULL
+				OR display_x_size != '0'
+				OR coord_y_type IS NOT NULL
+				OR coord_y_size IS NOT NULL
+				OR display_y_size != '0')
+			UNION ALL
+			SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type IS NOT NULL AND coord_x_type != 'list'
+			AND coord_y_type IS NOT NULL
+			AND (coord_x_type NOT IN ('integer', 'alphabetical')
+				OR coord_x_size IS NULL
+				OR coord_x_size < 1
+				OR display_x_size != '0'
+				OR coord_y_type NOT IN ('integer', 'alphabetical')
+				OR coord_y_size IS NULL
+				OR coord_y_size < 1
+				OR display_y_size != '0')
+			UNION ALL
+			SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type IS NOT NULL AND coord_x_type != 'list'
+			AND coord_y_type IS NULL
+			AND (coord_x_type NOT IN ('integer', 'alphabetical')
+				OR coord_x_size IS NULL
+				OR coord_x_size < 1
+				OR display_x_size = '0'
+				OR coord_y_size IS NOT NULL
+				OR display_y_size IS NULL
+				OR display_y_size = '0'
+				OR (coord_x_size != (display_x_size*display_y_size)));";
+		foreach($this->query($query) as $new_str_ctrl) {
+			$storage_type = $new_str_ctrl[0]['storage_type'];
+			$storage_type = isset($translated_storage_types[$storage_type])? $translated_storage_types[$storage_type] : $storage_type;
+			AppController::addWarningMsg(__('storage control data of the storage type [%s] are not correctly set - please contact your administartor', $storage_type));		
+		}
+	}
+	
 }	
 	
