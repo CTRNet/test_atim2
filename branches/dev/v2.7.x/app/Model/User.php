@@ -82,6 +82,7 @@ class User extends AppModel {
  * @param $error_flash_link
  * @param $success_flash_link
  * @param bool $modified_by_user
+ *
  * @return void
  */
 	public function savePassword(array $data, $error_flash_link, $success_flash_link, $modified_by_user = true) {
@@ -143,7 +144,8 @@ class User extends AppModel {
 			'conditions' => array(
 				'User.id' => $this->id,
 				'User.username' => $data['User']['new_password']
-			)))
+			)
+		))
 		) {
 			$this->validationErrors['password'][] = 'password should be different than username';
 		}
@@ -152,7 +154,8 @@ class User extends AppModel {
 			'conditions' => array(
 				'User.id' => $this->id,
 				'User.password' => Security::hash($data['User']['new_password'], null, true)
-			)))
+			)
+		))
 		) {
 			$this->validationErrors['password'][] = 'password should be different than the previous one';
 		}
@@ -253,6 +256,7 @@ class User extends AppModel {
  * Disable a User
  *
  * @param int $id UserId
+ *
  * @return void
  */
 	public function disableUser($id) {

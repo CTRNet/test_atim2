@@ -1,5 +1,6 @@
 <?php
 App::uses('AppModel', 'Model');
+
 /**
  * Sfs stands for Structure Format Simplified
  */
@@ -15,9 +16,9 @@ class Sfs extends AppModel {
 	);
 
 	public $belongsTo = array(
-		'StructureValueDomain'	=> array(
-			'className'		=> 'StructureValueDomain',
-			'foreignKey'	=>	'structure_value_domain'
+		'StructureValueDomain' => array(
+			'className' => 'StructureValueDomain',
+			'foreignKey' => 'structure_value_domain'
 		)
 	);
 }

@@ -1,10 +1,9 @@
 <?php
 
-class SopExtend extends SopAppModel
-{
+class SopExtend extends SopAppModel {
 	var $name = 'SopExtend';
-    var $useTable = false;
-	
+	var $useTable = false;
+
 }
 
 ?>

@@ -127,10 +127,10 @@ class PermissionsController extends AdministrateAppController {
 				//make sure admin permissions are always allowed on the administrate module
 				$permission_model = AppModel::getInstance('', 'Permission', false);
 				$permission = $permission_model->find('first', array(
-						'conditions' => array('Permission.aro_id' => 1, 'Permission.aco_id' => array(1, 2)),
-						'order' => 'Permission.aco_id DESC',
-						'recursive' => -1
-					));
+					'conditions' => array('Permission.aro_id' => 1, 'Permission.aco_id' => array(1, 2)),
+					'order' => 'Permission.aco_id DESC',
+					'recursive' => -1
+				));
 				$altered_permissions = false;
 				if ($permission['Permission']['_create'] == -1) {
 					//highest node is blocked, allow it.
@@ -209,20 +209,20 @@ class PermissionsController extends AdministrateAppController {
 
 
 		$this->Aco->unbindModel(array(
-				'hasAndBelongsToMany' => array('Aro')
-			));
+			'hasAndBelongsToMany' => array('Aro')
+		));
 
 		$this->Aco->bindModel(array(
-				'hasAndBelongsToMany' => array(
-					'Aro' => array(
-						'className' => 'Aro',
-						'joinTable' => 'aros_acos',
-						'foreignKey' => 'aco_id',
-						'associationForeignKey' => 'aro_id',
-						'conditions' => array('Aro.model' => 'Group', 'Aro.foreign_key' => $group_id)
-					)
+			'hasAndBelongsToMany' => array(
+				'Aro' => array(
+					'className' => 'Aro',
+					'joinTable' => 'aros_acos',
+					'foreignKey' => 'aco_id',
+					'associationForeignKey' => 'aro_id',
+					'conditions' => array('Aro.model' => 'Group', 'Aro.foreign_key' => $group_id)
 				)
-			));
+			)
+		));
 
 		$threaded_data = $this->Aco->find('threaded', array('order' => 'Aco.alias'));
 		$threaded_data = $this->addPermissionStateToThreadedData($threaded_data);

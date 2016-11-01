@@ -1,4 +1,4 @@
 <?php
 
-class DrugAppController extends AppController {	
+class DrugAppController extends AppController {
 }

@@ -4,10 +4,12 @@ class AnnouncementsController extends CustomizeAppController {
 
 	public $uses = array('Announcement');
 
-	public $paginate = array('Announcement' => array(
-		'limit' => PAGINATION_AMOUNT,
-		'order' => 'Announcement.date DESC'
-	));
+	public $paginate = array(
+		'Announcement' => array(
+			'limit' => PAGINATION_AMOUNT,
+			'order' => 'Announcement.date DESC'
+		)
+	);
 
 	function index() {
 		;

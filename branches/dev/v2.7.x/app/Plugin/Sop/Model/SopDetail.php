@@ -1,9 +1,8 @@
 <?php
 
-class SopDetail extends SopAppModel
-{
+class SopDetail extends SopAppModel {
 	var $useTable = false;
-	
+
 }
 
 ?>

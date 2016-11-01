@@ -36,7 +36,15 @@ class StructureField extends AppModel {
 	);
 
 
-	// when building SUMMARIES, function used to look up, translate, and return translated VALUE
+/**
+ *  When building SUMMARIES, function used to look up, translate, and return translated VALUE
+ *
+ * @param null|string $plugin Name of Plugin
+ * @param null|string $model Name of Model
+ * @param array $field_and_value array(0=> $value, 1=> $field)
+ *
+ * @return array|mixed|null
+ */
 	public function findPermissibleValue($plugin = null, $model = null, $field_and_value = array()) {
 
 		$return = null;

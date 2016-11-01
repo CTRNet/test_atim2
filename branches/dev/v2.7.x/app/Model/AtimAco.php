@@ -63,25 +63,15 @@ class AtimAco extends Aco {
 					)
 				);
 
-				$joinConditions[] = $db->name("{$type}{$i}.lft") . ' > ' .
-					$db->name("{$type}{$j}.lft") . ' AND ' .
-					$db->name("{$type}{$i}.rght") . ' < ' .
-					$db->name("{$type}{$j}.rght") . ' AND ' .
-					$db->name("{$type}{$i}.parent_id") . ' = ' .
-					$db->name("{$type}{$j}.id");
+				$joinConditions[] = $db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft") . ' AND ' . $db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght") . ' AND ' . $db->name("{$type}{$i}.parent_id") . ' = ' . $db->name("{$type}{$j}.id");
 
-				$queryData['conditions'] = join(' AND ', $joinConditions) .
-					' AND (' . ' (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") .
-					' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght") .
-					') OR (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") .
-					' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght") . ')' . ' )';
+				$queryData['conditions'] = join(' AND ',
+						$joinConditions) . ' AND (' . ' (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght") . ') OR (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght") . ')' . ' )';
 			}
 			$result = $db->read($this, $queryData, -1);
 			$path = array_values($path);
 
-			if (!isset($result[0][$type]) || (!empty($path) && $result[0][$type]['alias'] != $path[count($path) - 1])
-				|| (empty($path) && $result[0][$type]['alias'] != $start)
-			) {
+			if (!isset($result[0][$type]) || (!empty($path) && $result[0][$type]['alias'] != $path[count($path) - 1]) || (empty($path) && $result[0][$type]['alias'] != $start)) {
 				return false;
 			}
 		} elseif (is_object($ref) && is_a($ref, 'Model')) {

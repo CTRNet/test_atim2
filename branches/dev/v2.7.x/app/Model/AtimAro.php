@@ -2,13 +2,13 @@
 
 class AtimAro extends Aro {
 
-/**
- * Retrieves the Aro/Aco node for this model
- *
- * @param mixed $ref Array with 'model' and 'foreign_key', model object, or string value
- *
- * @return array Node found in database
- */
+	/**
+	 * Retrieves the Aro/Aco node for this model
+	 *
+	 * @param mixed $ref Array with 'model' and 'foreign_key', model object, or string value
+	 *
+	 * @return array Node found in database
+	 */
 	public function node($ref = null) {
 		$db = ConnectionManager::getDataSource($this->useDbConfig);
 		$type = $this->alias;
@@ -60,15 +60,10 @@ class AtimAro extends Aro {
 					)
 				);
 
-				$joinConditions[] = $db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft") .
-					' AND ' . $db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght") .
-					' AND ' . $db->name("{$type}{$i}.parent_id") . ' = ' . $db->name("{$type}{$j}.id");
+				$joinConditions[] = $db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft") . ' AND ' . $db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght") . ' AND ' . $db->name("{$type}{$i}.parent_id") . ' = ' . $db->name("{$type}{$j}.id");
 
-				$queryData['conditions'] = join(' AND ', $joinConditions) .
-					' AND (' . ' (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") .
-					' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght") .
-					') OR (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") .
-					' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght") . ')' . ' )';
+				$queryData['conditions'] = join(' AND ',
+						$joinConditions) . ' AND (' . ' (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght") . ') OR (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght") . ')' . ' )';
 			}
 			$result = $db->read($this, $queryData, -1);
 			$path = array_values($path);
