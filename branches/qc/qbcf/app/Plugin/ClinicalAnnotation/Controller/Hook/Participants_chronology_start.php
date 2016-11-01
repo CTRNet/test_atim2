@@ -24,4 +24,5 @@
 	$qbcf_dx_laterality = array_merge($qbcf_dx_laterality['defined'], $qbcf_dx_laterality['previously_defined']);
 	
 	$treatment_extend_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
+	$this->ViewCollection = AppModel::getInstance('InventoryManagement', 'ViewCollection', true);
 	

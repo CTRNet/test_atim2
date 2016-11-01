@@ -204,87 +204,101 @@ foreach($excel_files_names as $file_data) {
 								}
 							}
 							
-							// 3- PATH REVIEW CREATION
+							// 4- PATH REVIEW CREATION
 							//..............................................................................................
+									
+							$query = "SELECT id 
+								FROM specimen_review_masters 
+								WHERE deleted <> 1
+								AND sample_master_id = $block_sample_master_id";
+							$query_data = getSelectQueryResult($query);
+							if($query_data) {
+								// A path review already exists for the tissue of the block
+								recordErrorAndMessage('Slide Review', '@@WARNING@@', "A slide review already exists into ATiM for the tissue of the excel block (based on Pathology ID number' & 'Block Code' & the bank name) - System will not create a new one. Please validate.", "See tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+							
+							} else {
+							
+								//Specimen Review
 								
-							//Specimen Review
-							
-							$qbcf_reviewed_by_dr_tran_thanh = '';
-							$excel_field = 'Reviewed by Dr Tran';
-							if(in_array($excel_line_data[$excel_field], array('yes','y'))) {
-								$qbcf_reviewed_by_dr_tran_thanh = '1';
-							} else if(in_array($excel_line_data[$excel_field], array('no','n'))) {
-							} else if(strlen($excel_line_data[$excel_field])) {
-								recordErrorAndMessage('Slide Review', '@@ERROR@@', "Wrong Yes value - Value won't be migrated so add correction manually into ATiM.", "See value '".$excel_line_data[$excel_field]."' of field '$excel_field' for slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
-							}
-							
-							$domain_name = 'custom_laboratory_staff';
-							$excel_field = "Reviewed by";
-							$qbcf_reviewer = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
-							
-							$domain_name = 'qbcf_path_review_warnings';
-							$excel_field = "Warning";
-							$qbcf_warnings = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
-												
-							$specimen_review_data = array(
-								'specimen_review_masters' => array(
-									'specimen_review_control_id' => $atim_controls['specimen_review_controls']['tissue block review']['id'],
-									'collection_id' => $block_collection_id,
-									'sample_master_id' => $block_sample_master_id,
-									'qbcf_reviewer' => $qbcf_reviewer,
-									'qbcf_reviewed_by_dr_tran_thanh' => $qbcf_reviewed_by_dr_tran_thanh,
-									'qbcf_warnings' => $qbcf_warnings,
-									'notes' => $excel_line_data['comments']),
-								$atim_controls['specimen_review_controls']['tissue block review']['detail_tablename'] => array());
-							$specimen_review_master_id = customInsertRecord($specimen_review_data);
-						
-							//Aliquot Review	
-							
-							$aliquot_review_detail_tablename = $atim_controls['specimen_review_controls']['tissue block review']['aliquot_review_detail_tablename'];
-							$aliquot_review_data = array(
-								'aliquot_review_masters' => array(
-									'aliquot_review_control_id' => $atim_controls['specimen_review_controls']['tissue block review']['aliquot_review_control_id'],
-									'specimen_review_master_id' => $specimen_review_master_id,
-									'aliquot_master_id' => $slide_aliquot_master_id),
-								$aliquot_review_detail_tablename => array());
-							
-							$fields_data = array(
-								array("Histology", 'histology', 'qbcf_path_review_histology'),
-								array("Tubular formation", 'tubular_formation', 'qbcf_1_2_3'),
-								array("Nuclear Atypia", 'nuclear_atypia', 'qbcf_1_2_3'),
-								array("Mitosis count", 'mitosis_count', 'qbcf_1_2_3'),
-								array("Final Grade (Nottingham)", 'final_grade', 'qbcf_1_2_3'));
-							foreach($fields_data as $field_data) {
-								list($excel_field, $atim_field, $domain_name) = $field_data;
-								$aliquot_review_data[$aliquot_review_detail_tablename][$atim_field] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
-							}
-							
-							$fields_data = array(
-								array("Lymphoid Aggregate", 'lymphoid_aggregate_outside_of_the_tumor'),
-								array("Large Tumor Zone", 'large_tumor_zone'),
-								array("DCIS on slide", 'dcis_on_slide'),
-								array("LCIS on slide", 'lcis_on_slide'));
-							foreach($fields_data as $field_data) {
-								list($excel_field, $atim_field) = $field_data;
-								$excel_line_data[$excel_field] = strtolower($excel_line_data[$excel_field]);
+								$qbcf_reviewed_by_dr_tran_thanh = '';
+								$excel_field = 'Reviewed by Dr Tran';
 								if(in_array($excel_line_data[$excel_field], array('yes','y'))) {
-									$aliquot_review_data[$aliquot_review_detail_tablename][$atim_field] = 'y';
+									$qbcf_reviewed_by_dr_tran_thanh = '1';
 								} else if(in_array($excel_line_data[$excel_field], array('no','n'))) {
-									$aliquot_review_data[$aliquot_review_detail_tablename][$atim_field] = 'n';
 								} else if(strlen($excel_line_data[$excel_field])) {
-									recordErrorAndMessage('Slide Review', '@@ERROR@@', "Wrong Yes-No value - Value won't be migrated so add correction manually into ATiM.", "See value '".$excel_line_data[$excel_field]."' of field '$excel_field' for slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+									recordErrorAndMessage('Slide Review', '@@ERROR@@', "Wrong Yes value - Value won't be migrated so add correction manually into ATiM.", "See value '".$excel_line_data[$excel_field]."' of field '$excel_field' for slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
 								}
-							}
+								
+								$domain_name = 'custom_laboratory_staff';
+								$excel_field = "Reviewed by";
+								$qbcf_reviewer = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
+								
+								$domain_name = 'qbcf_path_review_warnings';
+								$excel_field = "Warning";
+								$qbcf_warnings = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
+													
+								$specimen_review_data = array(
+									'specimen_review_masters' => array(
+										'specimen_review_control_id' => $atim_controls['specimen_review_controls']['tissue block review']['id'],
+										'collection_id' => $block_collection_id,
+										'sample_master_id' => $block_sample_master_id,
+										'qbcf_reviewer' => $qbcf_reviewer,
+										'qbcf_reviewed_by_dr_tran_thanh' => $qbcf_reviewed_by_dr_tran_thanh,
+										'qbcf_warnings' => $qbcf_warnings,
+										'notes' => $excel_line_data['comments']),
+									$atim_controls['specimen_review_controls']['tissue block review']['detail_tablename'] => array());
+								$specimen_review_master_id = customInsertRecord($specimen_review_data);
 							
-							$excel_field = "Tumour lymphocytes (TILs)";
-							$tils_pct = validateAndGetDecimal($excel_line_data[$excel_field], 'Slide Review', "For field '$excel_field'", "See slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
-							if(strlen($tils_pct)) {
-								$tils_pct = $tils_pct*100;
-								$aliquot_review_data[$aliquot_review_detail_tablename]['tils_pct'] = $tils_pct;
-								if($tils_pct < 5) $aliquot_review_data[$aliquot_review_detail_tablename]['tils_pct_less_than_5'] = '1';
-							}
-							
-							customInsertRecord($aliquot_review_data);	
+								//Aliquot Review	
+								
+								$aliquot_review_detail_tablename = $atim_controls['specimen_review_controls']['tissue block review']['aliquot_review_detail_tablename'];
+								$aliquot_review_data = array(
+									'aliquot_review_masters' => array(
+										'aliquot_review_control_id' => $atim_controls['specimen_review_controls']['tissue block review']['aliquot_review_control_id'],
+										'specimen_review_master_id' => $specimen_review_master_id,
+										'aliquot_master_id' => $slide_aliquot_master_id),
+									$aliquot_review_detail_tablename => array());
+								
+								$fields_data = array(
+									array("Histology", 'histology', 'qbcf_path_review_histology'),
+									array("Tubular formation", 'tubular_formation', 'qbcf_1_2_3'),
+									array("Nuclear Atypia", 'nuclear_atypia', 'qbcf_1_2_3'),
+									array("Mitosis count", 'mitosis_count', 'qbcf_1_2_3'),
+									array("Final Grade (Nottingham)", 'final_grade', 'qbcf_1_2_3'));
+								foreach($fields_data as $field_data) {
+									list($excel_field, $atim_field, $domain_name) = $field_data;
+									$aliquot_review_data[$aliquot_review_detail_tablename][$atim_field] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
+								}
+								
+								$fields_data = array(
+									array("Lymphoid Aggregate", 'lymphoid_aggregate_outside_of_the_tumor'),
+									array("Large Tumor Zone", 'large_tumor_zone'),
+									array("DCIS on slide", 'dcis_on_slide'),
+									array("LCIS on slide", 'lcis_on_slide'));
+								foreach($fields_data as $field_data) {
+									list($excel_field, $atim_field) = $field_data;
+									$excel_line_data[$excel_field] = strtolower($excel_line_data[$excel_field]);
+									if(in_array($excel_line_data[$excel_field], array('yes','y'))) {
+										$aliquot_review_data[$aliquot_review_detail_tablename][$atim_field] = 'y';
+									} else if(in_array($excel_line_data[$excel_field], array('no','n'))) {
+										$aliquot_review_data[$aliquot_review_detail_tablename][$atim_field] = 'n';
+									} else if(strlen($excel_line_data[$excel_field])) {
+										recordErrorAndMessage('Slide Review', '@@ERROR@@', "Wrong Yes-No value - Value won't be migrated so add correction manually into ATiM.", "See value '".$excel_line_data[$excel_field]."' of field '$excel_field' for slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+									}
+								}
+								
+								$excel_field = "Tumour lymphocytes (TILs)";
+								$tils_pct = validateAndGetInteger($excel_line_data[$excel_field], 'Slide Review', "For field '$excel_field'", "See slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+								if(preg_match('/[a-zA-Z\-\<]/', $excel_line_data[$excel_field])) {
+									recordErrorAndMessage('Slide Review', '@@WARNING@@', "Check value of field 'Tumour lymphocytes (TILs)' does not mean value < 5 - Check box 'TILs <5' manually if required.", "See value '".$excel_line_data[$excel_field]."' of field '$excel_field' for slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+								}
+								if(strlen($tils_pct)) {
+									$aliquot_review_data[$aliquot_review_detail_tablename]['tils_pct'] = $tils_pct;
+									if($tils_pct < 5) $aliquot_review_data[$aliquot_review_detail_tablename]['tils_pct_less_than_5'] = '1';
+								}
+								
+								customInsertRecord($aliquot_review_data);
+							}							
 						} // End tissue block found						
 					}
 				} // Bank found in section above
