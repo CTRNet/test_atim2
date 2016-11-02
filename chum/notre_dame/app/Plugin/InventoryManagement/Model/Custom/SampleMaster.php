@@ -127,6 +127,8 @@ class SampleMasterCustom extends SampleMaster {
     		case 'pericardial fluid':
     		case 'nail':
     		case 'saliva':
+    		case 'stool':
+    		case 'vaginal swab':
 				$new_sample_label = $specimen_type_code. ' - ' . $bank_participant_identifier . 
 					(empty($specimen_sequence_number)? '' : ' ' . $specimen_sequence_number);
     			break;

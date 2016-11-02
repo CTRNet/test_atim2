@@ -1188,9 +1188,9 @@ INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `use_as_i
 VALUES 
 ('CA-125', '', '', '1', @control_id, @modified, @modified, @modified_by, @modified_by), 
 ('ELISA', '', '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
-('karyotype', '', '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
-('sequencing', '', '', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
-('microarray','', '', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+('karyotype', 'Karyotype', 'Caryotype', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('sequencing', 'Sequencing', 'Sequencage', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('microarray','Microarray', 'Puce à ADN', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
 INSERT INTO structure_permissible_values_customs_revs (`use_as_input`, `value`, `control_id`, `modified_by`, `id`, `version_created`)
 (SELECT `use_as_input`, `value`, `control_id`, `modified_by`, `id`, `modified` FROM structure_permissible_values_customs WHERE control_id = @control_id AND modified = @modified);
 
@@ -1390,7 +1390,535 @@ UPDATE structure_fields SET  `language_label`='size (mm)' WHERE model='AliquotDe
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('size (mm)', 'Size (mm)', 'Taille (mm)');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
--- SARDO DAta import script
+-- New sample type
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- stool
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(222, 224, 225);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(78);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(67);
+
+ALTER TABLE lab_type_laterality_match DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by;
+INSERT INTO lab_type_laterality_match (selected_type_code, sample_type_matching) VALUES ('ST', 'stool');
+
+UPDATE sample_controls SET detail_form_alias = CONCAT('specimens,qc_nd_spe_stools') WHERE sample_type = 'stool';
+INSERT INTO structures(`alias`) VALUES ('qc_nd_spe_stools');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_spe_stools'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='type_code' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_labo_type_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='labo type code' AND `language_tag`=''), '1', '436', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_spe_stools'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='sequence_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='sequence number' AND `language_tag`=''), '1', '437', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_nd_ad_stools')
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'stool') AND aliquot_type = 'tube';
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_stool_buffer', "StructurePermissibleValuesCustom::getCustomDropdown('Stool Buffers')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Stool Buffers', 1, 30, 'inventory');
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ad_stools');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'tmp_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_stool_buffer') , '0', '', '', '', 'buffer', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ad_stools'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='tmp_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_stool_buffer')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='buffer' AND `language_tag`=''), '1', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('buffer', 'Buffer', 'Tampon');
+
+ALTER TABLE sd_spe_stools
+  ADD COLUMN qc_nd_time_to_last_stool_h int(4) DEFAULT NULL,
+  ADD COLUMN qc_nd_bristol_stool_scale int(4) DEFAULT NULL;
+ALTER TABLE sd_spe_stools_revs
+  ADD COLUMN qc_nd_time_to_last_stool_h int(4) DEFAULT NULL,
+  ADD COLUMN qc_nd_bristol_stool_scale int(4) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'SampleDetail', 'sd_spe_stools', 'qc_nd_time_to_last_stool_h', 'integer_positive',  NULL , '0', 'size=2', '', '', 'time to last stool (h)', ''), 
+('ClinicalAnnotation', 'SampleDetail', 'sd_spe_stools', 'qc_nd_bristol_stool_scale', 'integer_positive',  NULL , '0', 'size=2', '', '', 'bristol stool scale', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_spe_stools'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_stools' AND `field`='qc_nd_time_to_last_stool_h' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='time to last stool (h)' AND `language_tag`=''), '1', '441', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_spe_stools'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_stools' AND `field`='qc_nd_bristol_stool_scale' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='bristol stool scale' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `field`='qc_nd_bristol_stool_scale'), 'range,0,8', 'value from 1 to 7');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('value from 1 to 7', 'Value from 1 to 7', 'Valeur de 1 à 7'),
+('time to last stool (h)', 'Time to Last Stool (h)', 'Temps depuis la dernière selle (h)'),
+('bristol stool scale', 'Bristol Stool Scale', 'Échelle de Bristol');
+
+-- vaginal swab
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(223, 226);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(79);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(68);
+
+INSERT INTO lab_type_laterality_match (selected_type_code, sample_type_matching) VALUES ('VS', 'vaginal swab');
+
+UPDATE sample_controls SET detail_form_alias = CONCAT('specimens,qc_nd_spe_vaginal_swabs') WHERE sample_type = 'vaginal swab';
+ALTER TABLE sd_spe_vaginal_swabs
+  ADD COLUMN qc_nd_collection_region varchar(100) DEFAULT NULL,
+  ADD COLUMN qc_nd_ph float(6,1) DEFAULT NULL;
+ALTER TABLE sd_spe_vaginal_swabs_revs
+  ADD COLUMN qc_nd_collection_region varchar(100) DEFAULT NULL,
+  ADD COLUMN qc_nd_ph float(6,1) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('qc_nd_spe_vaginal_swabs');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_vaginal_swab_collection_site', "StructurePermissibleValuesCustom::getCustomDropdown('Vaginal Swab Collection Site')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Vaginal Swab Collection Site', 1, 100, 'inventory');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_vaginal_swabs', 'qc_nd_collection_region', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_vaginal_swab_collection_site') , '0', '', '', '', 'collection site', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_vaginal_swabs', 'qc_nd_ph', 'select',  NULL , '0', '', '', '', 'ph value', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_spe_vaginal_swabs'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_vaginal_swabs' AND `field`='qc_nd_collection_region' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_vaginal_swab_collection_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='collection site' AND `language_tag`=''), '1', '441', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_spe_vaginal_swabs'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_vaginal_swabs' AND `field`='qc_nd_ph' AND `type`='select' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ph value' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_spe_vaginal_swabs'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='type_code' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_labo_type_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='labo type code' AND `language_tag`=''), '1', '436', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_spe_vaginal_swabs'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='sequence_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='sequence number' AND `language_tag`=''), '1', '437', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_fields SET `type`='float_positive', `setting`='size=3' WHERE `tablename`='sd_spe_vaginal_swabs' AND `field`='qc_nd_ph';
+UPDATE structure_fields SET `language_label`='vaginal swab collection site' WHERE model='SampleDetail' AND tablename='sd_spe_vaginal_swabs' AND field='qc_nd_collection_region' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_vaginal_swab_collection_site');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('ph value', 'pH', 'pH'), ('vaginal swab collection site', 'Site', 'Site');
+
+UPDATE aliquot_controls 
+SET detail_form_alias = CONCAT(detail_form_alias, ',qc_nd_ad_vaginal_swabs')
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'vaginal swab') AND aliquot_type = 'tube';
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_vaginal_swab_buffer', "StructurePermissibleValuesCustom::getCustomDropdown('Vaginal Swab Buffers')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Vaginal Swab Buffers', 1, 30, 'inventory');
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ad_vaginal_swabs');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'tmp_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_vaginal_swab_buffer') , '0', '', '', '', 'buffer', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ad_vaginal_swabs'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='tmp_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_vaginal_swab_buffer')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='buffer' AND `language_tag`=''), '1', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Aliquot Internal Use
+--
+-- Note: 
+--    When a block is sent to the 12th floor to create TMA blocks, use events molecular pathology platform - in/out
+--    When a block is reserved for the CPCBN project it has to be flagged as  reserverd for study and ths study should be set.
+--    
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET @modified_by = 2;
+SET @modified=(SELECT NOW() FROM users WHERE id = @modified_by);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+INSERT INTO structure_permissible_values_customs (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('MDT', '', '', '1', @control_id, @modified, @modified, @modified_by, @modified_by), 
+('molecular pathology platform - in', 'Molecular Pathology Platform - In', 'Plateforme de pathologie moléculaire - Entrée', '1', @control_id, @modified, @modified, @modified_by, @modified_by),
+('molecular pathology platform - out', 'Molecular Pathology Platform - Out', 'Plateforme de pathologie moléculaire - Sortie', '1', @control_id, @modified, @modified, @modified_by, @modified_by);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Order
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_order_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'notEmpty', '');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- LAB
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO INTO i18n (id,en,fr) 
+VALUES 
+('prostate nodule review','Prostate Nodule Review', 'Révision des nodules de prostate'),
+('prostate nodule review','Prostate Nodule Review', 'Révision des nodules de prostate');
+
+-- SCC
+
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('lab','scc', 1, 'qc_nd_ed_sccs', 'qc_nd_ed_sccs', 'lab|scc', 1, 1);
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_sccs` (
+	value float(6,2) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_sccs_revs` (
+	value float(6,2) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_sccs`
+  ADD CONSTRAINT `qc_nd_ed_sccs_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_sccs');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'EventDetail', 'qc_nd_ed_sccs', 'value', 'float_positive',  NULL , '0', 'size=3', '', '', 'value (ug/l)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_sccs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_sccs' AND `field`='value' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='value (ug/l)' AND `language_tag`=''), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('scc', 'SCC', 'SCC'),
+('value (ug/l)', 'Value (ug/l)', 'Valeur (ug/l)');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_sccs' AND `field`='value'), 'notEmpty', '');
+
+-- VPH
+
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('lab','vph', 1, 'qc_nd_ed_vphs', 'qc_nd_ed_vphs', 'lab|vph', 1, 1);
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_vphs` (
+	type int(4) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_vphs_revs` (
+	type int(4) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_vphs`
+  ADD CONSTRAINT `qc_nd_ed_vphs_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_vphs');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'EventDetail', 'qc_nd_ed_vphs', 'type', 'integer_positive',  NULL , '0', 'size=3', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_vphs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_vphs' AND `field`='type' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('vph', 'VPH', 'VPH');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_vphs' AND field = 'type'), 'notEmpty', '');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- CLINIC
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- ImmuneCarta 
+
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('clinical','immuncarta', 1, 'qc_nd_ed_immuncartas', 'qc_nd_ed_immuncartas', 'clinical|immuncarta', 0, 0);
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_immuncartas` (
+	other_cancer char(1) DEFAULT '',
+	organ_transplantation_immunosuppressant char(1) DEFAULT '',
+	crohns_disease char(1) DEFAULT '',
+	asthma_glucocorticoids char(1) DEFAULT '',
+	lupus_erythematosus char(1) DEFAULT '',
+	psoriasis_orally char(1) DEFAULT '',
+	rheumatoid_arthritis_orally char(1) DEFAULT '',
+	multiple_sclerosis char(1) DEFAULT '',
+	patient_excluded char(1) DEFAULT '',
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_immuncartas_revs` (
+	other_cancer char(1) DEFAULT '',
+	organ_transplantation_immunosuppressant char(1) DEFAULT '',
+	crohns_disease char(1) DEFAULT '',
+	asthma_glucocorticoids char(1) DEFAULT '',
+	lupus_erythematosus char(1) DEFAULT '',
+	psoriasis_orally char(1) DEFAULT '',
+	rheumatoid_arthritis_orally char(1) DEFAULT '',
+	multiple_sclerosis char(1) DEFAULT '',
+	patient_excluded char(1) DEFAULT '',
+	`event_master_id` int(11) NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_immuncartas`
+  ADD CONSTRAINT `qc_nd_ed_immuncartas_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_immuncartas');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'other_cancer', 'yes_no',  NULL , '0', '', '', '', 'other cancer', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'organ_transplantation_immunosuppressant', 'yes_no',  NULL , '0', '', '', '', 'organ transplantation (immunosuppressant)', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'crohns_disease', 'yes_no',  NULL , '0', '', '', '', 'crohn\'s disease', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'asthma_glucocorticoids', 'yes_no',  NULL , '0', '', '', '', 'asthma (glucocorticoids)', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'lupus_erythematosus', 'yes_no',  NULL , '0', '', '', '', 'lupus erythematosus', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'psoriasis_orally', 'yes_no',  NULL , '0', '', '', '', 'psoriasis (orally)', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'rheumatoid_arthritis_orally', 'yes_no',  NULL , '0', '', '', '', 'rheumatoid arthritis (orally)', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'multiple_sclerosis', 'yes_no',  NULL , '0', '', '', '', 'multiple sclerosis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_immuncartas', 'patient_excluded', 'yes_no',  NULL , '0', '', '', '', 'patient excluded', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='other_cancer' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other cancer' AND `language_tag`=''), '2', '10', 'treatment', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='organ_transplantation_immunosuppressant' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='organ transplantation (immunosuppressant)' AND `language_tag`=''), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='crohns_disease' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='crohn\'s disease' AND `language_tag`=''), '2', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='asthma_glucocorticoids' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='asthma (glucocorticoids)' AND `language_tag`=''), '2', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='lupus_erythematosus' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lupus erythematosus' AND `language_tag`=''), '2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='psoriasis_orally' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='psoriasis (orally)' AND `language_tag`=''), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='rheumatoid_arthritis_orally' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='rheumatoid arthritis (orally)' AND `language_tag`=''), '2', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='multiple_sclerosis' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='multiple sclerosis' AND `language_tag`=''), '2', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_immuncartas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_immuncartas' AND `field`='patient_excluded' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='patient excluded' AND `language_tag`=''), '2', '18', 'exclusion', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('other cancer', 'Other Cancer', 'Autre cancer'),
+('organ transplantation (immunosuppressant)', 'Organ Transplantation (Immunosuppressant)', 'Greffe d''organe (immunosuppressif)'),
+('immuncarta', 'ImmuneCarta', 'ImmuneCarta'),
+('crohn''s disease', 'Crohn''s Disease', 'Maladie de Crohn'),
+('asthma (glucocorticoids)', 'Asthma (Glucocorticoids)', 'Asthme (glucocorticoides)'),
+('lupus erythematosus', 'Lupus Erythematosus', 'Lupus érythémateux'),
+('psoriasis (orally)', 'Osoriasis (Orally)', 'Psoriasis (Oral)'),
+('rheumatoid arthritis (orally)', 'Rheumatoid Arthritis (Orally)', 'Arthrite rhumatoïde (Oral)'),
+('multiple sclerosis', 'Multiple Sclerosis', 'Sclérose en plaque'),
+('exclusion', 'Exclusion', 'Exclusion'),
+('patient excluded', 'Patient Excluded', 'Patient exclu');
+
+-- megaprofiling
+
+INSERT INTO event_controls (event_group, event_type, flag_active, detail_form_alias, detail_tablename, databrowser_label, use_addgrid, use_detail_form_for_index)
+VALUES
+('clinical','megaprofiling', 1, 'qc_nd_ed_megaprofilings', 'qc_nd_ed_megaprofilings', 'clinical|megaprofiling', 0, 0);
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_megaprofilings` (
+	food_habit_fruits int(4) DEFAULT NULL,
+	food_habit_meat int(4) DEFAULT NULL,
+	food_habit_carbohydrates int(4) DEFAULT NULL,
+	food_habit_vegetables int(4) DEFAULT NULL,
+	food_habit_cheese int(4) DEFAULT NULL,
+	food_habit_coffee int(4) DEFAULT NULL,
+	food_habit_soda int(4) DEFAULT NULL,
+	food_habit_juices int(4) DEFAULT NULL,
+	food_habit_milk int(4) DEFAULT NULL,
+	food_habit_beer int(4) DEFAULT NULL,
+	food_habit_wine int(4) DEFAULT NULL,
+	antibiotics char(1) DEFAULT '',
+	laxatives char(1) DEFAULT '',
+	omeprazole_or_other_drugs_for_heartburn char(1) DEFAULT '',
+	aspirin_or_other_pain_medications char(1) DEFAULT '',
+	drug_others char(1) DEFAULT '',
+	vitamins char(1) DEFAULT '',
+	probiotics char(1) DEFAULT '',
+	no_drug_others char(1) DEFAULT '',
+	smoking_average char(1) DEFAULT '',
+	sleeping_hours char(1) DEFAULT '',
+	antibiotics_details text DEFAULT NULL,
+	laxatives_details text DEFAULT NULL,
+	omeprazole_or_other_drugs_for_heartburn_details text DEFAULT NULL,
+	aspirin_or_other_pain_medications_details text DEFAULT NULL,
+	drug_others_details text DEFAULT NULL,
+	vitamins_details text DEFAULT NULL,
+	probiotics_details text DEFAULT NULL,
+	no_drug_others_details text DEFAULT NULL,
+	smoking_average_details text DEFAULT NULL,
+	sleeping_hours_details text DEFAULT NULL,
+	food_habits varchar(250) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_megaprofilings_revs` (
+	food_habit_fruits int(4) DEFAULT NULL,
+	food_habit_meat int(4) DEFAULT NULL,
+	food_habit_carbohydrates int(4) DEFAULT NULL,
+	food_habit_vegetables int(4) DEFAULT NULL,
+	food_habit_cheese int(4) DEFAULT NULL,
+	food_habit_coffee int(4) DEFAULT NULL,
+	food_habit_soda int(4) DEFAULT NULL,
+	food_habit_juices int(4) DEFAULT NULL,
+	food_habit_milk int(4) DEFAULT NULL,
+	food_habit_beer int(4) DEFAULT NULL,
+	food_habit_wine int(4) DEFAULT NULL,
+	antibiotics char(1) DEFAULT '',
+	laxatives char(1) DEFAULT '',
+	omeprazole_or_other_drugs_for_heartburn char(1) DEFAULT '',
+	aspirin_or_other_pain_medications char(1) DEFAULT '',
+	drug_others char(1) DEFAULT '',
+	vitamins char(1) DEFAULT '',
+	probiotics char(1) DEFAULT '',
+	no_drug_others char(1) DEFAULT '',
+	smoking_average char(1) DEFAULT '',
+	sleeping_hours char(1) DEFAULT '',
+	antibiotics_details text DEFAULT NULL,
+	laxatives_details text DEFAULT NULL,
+	omeprazole_or_other_drugs_for_heartburn_details text DEFAULT NULL,
+	aspirin_or_other_pain_medications_details text DEFAULT NULL,
+	drug_others_details text DEFAULT NULL,
+	vitamins_details text DEFAULT NULL,
+	probiotics_details text DEFAULT NULL,
+	no_drug_others_details text DEFAULT NULL,
+	smoking_average_details text DEFAULT NULL,
+	sleeping_hours_details text DEFAULT NULL,
+	food_habits varchar(250) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
+	PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_megaprofilings`
+  ADD CONSTRAINT `qc_nd_ed_megaprofilings_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_megaprofilings');
+INSERT INTO structure_value_domains (domain_name) VALUES ('qc_nd_megaprofiling_food_habits');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("vegan", "vegan"),("vegetarian", "vegetarian"),("omnivore", "omnivore");
+INSERT IGNORE INTO structure_value_domains_permissible_values 
+(structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_megaprofiling_food_habits"), 
+(SELECT id FROM structure_permissible_values WHERE value="vegan" AND language_alias="vegan"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_megaprofiling_food_habits"), 
+(SELECT id FROM structure_permissible_values WHERE value="vegetarian" AND language_alias="vegetarian"), "1", "2"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_megaprofiling_food_habits"), 
+(SELECT id FROM structure_permissible_values WHERE value="omnivore" AND language_alias="omnivore"), "1", "3");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habits', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_megaprofiling_food_habits') , '0', 'size=2', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habits' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_megaprofiling_food_habits')  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '2', '20', 'food habits', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_megaprofiling_food_habits') ,  `setting`='' WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field='food_habits' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_megaprofiling_food_habits');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_fruits', 'integer_positive',  NULL , '0', 'size=2', '', '', 'fruits', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_meat', 'integer_positive',  NULL , '0', 'size=2', '', '', 'meat', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_carbohydrates', 'integer_positive',  NULL , '0', 'size=2', '', '', 'carbohydrates', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_vegetables', 'integer_positive',  NULL , '0', 'size=2', '', '', 'vegetables', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_cheese', 'integer_positive',  NULL , '0', 'size=2', '', '', 'cheese', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_coffee', 'integer_positive',  NULL , '0', 'size=2', '', '', 'coffee', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_soda', 'integer_positive',  NULL , '0', 'size=2', '', '', 'soda', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_juices', 'integer_positive',  NULL , '0', 'size=2', '', '', 'juices', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_milk', 'integer_positive',  NULL , '0', 'size=2', '', '', 'milk', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_beer', 'integer_positive',  NULL , '0', 'size=2', '', '', 'beer', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_wine', 'integer_positive',  NULL , '0', 'size=2', '', '', 'wine', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_fruits'), '1', '31', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_meat'), '1', '32', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_carbohydrates'), '1', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_vegetables'), '1', '34', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_cheese'), '1', '35', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_coffee'), '1', '36', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_soda'), '1', '37', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_juices'), '1', '38', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_milk'), '1', '39', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_beer'), '1', '40', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_wine'), '1', '41', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_fruits'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_meat'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_carbohydrates'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_vegetables'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_cheese'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_coffee'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_soda'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_juices'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_milk'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_beer'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_wine'), 'range,0,6', 'value from 1 to 5');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'antibiotics', 'yes_no',  NULL , '0', '', '', '', 'antibiotics', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'laxatives', 'yes_no',  NULL , '0', '', '', '', 'laxatives', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'omeprazole_or_other_drugs_for_heartburn', 'yes_no',  NULL , '0', '', '', '', 'omeprazole or other drugs for heartburn', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'aspirin_or_other_pain_medications', 'yes_no',  NULL , '0', '', '', '', 'aspirin or other pain medications', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'drug_others', 'yes_no',  NULL , '0', '', '', '', 'other(s)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'vitamins', 'yes_no',  NULL , '0', '', '', '', 'vitamins', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'probiotics', 'yes_no',  NULL , '0', '', '', '', 'probiotics', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'no_drug_others', 'yes_no',  NULL , '0', '', '', '', 'other(s)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'smoking_average', 'yes_no',  NULL , '0', '', '', '', 'smoking (average/day - past 3 months)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'sleeping_hours', 'yes_no',  NULL , '0', '', '', '', 'sleeping hours (average per night)', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'antibiotics_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'laxatives_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'omeprazole_or_other_drugs_for_heartburn_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'aspirin_or_other_pain_medications_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'drug_others_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'vitamins_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'probiotics_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'no_drug_others_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'smoking_average_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details'),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'sleeping_hours_details', 'textarea',   NULL , '0', 'cols=40,rows=1', '', '', '', 'details');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='antibiotics'), '2', '60', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='laxatives'), '2', '62', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='omeprazole_or_other_drugs_for_heartburn'), '2', '64', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='aspirin_or_other_pain_medications'), '2', '66', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='drug_others'), '2', '68', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='vitamins'), '2', '78', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='probiotics'), '2', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='no_drug_others'), '2', '82', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='smoking_average'), '2', '92', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='sleeping_hours'), '2', '94', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='antibiotics_details'), '2', '61', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='laxatives_details'), '2', '63', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='omeprazole_or_other_drugs_for_heartburn_details'), '2', '65', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='aspirin_or_other_pain_medications_details'), '2', '67', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='drug_others_details'), '2', '69', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='vitamins_details'), '2', '79', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='probiotics_details'), '2', '81', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='no_drug_others_details'), '2', '83', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='smoking_average_details'), '2', '93', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='sleeping_hours_details'), '2', '95', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_megaprofiling_food_habits') ,  `setting`='' WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field='food_habits' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_megaprofiling_food_habits');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habits' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_megaprofiling_food_habits') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='current drug use' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='antibiotics' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='over-the-counter drugs usage' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='vitamins' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='life style' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='smoking_average' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='details', `language_tag`='' WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field LIKE '%_details' AND `type`='textarea';
+UPDATE structure_formats SET `margin`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings') AND structure_field_id IN (SELECT id FROM structure_fields WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field LIKE '%_details' AND `type`='textarea');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('megaprofiling', 'Megaprofiling', 'Megaprofiling'),
+('value from 1 to 5', 'Value from 1 to 5', 'Valeur de 1 à 5'),
+('vegan', 'Vegan', 'Végétalien'),
+('vegetarian', 'Vegetarian', 'Végétarien'),
+('omnivore', 'Omnivore', 'Omnivore'),
+('food habit', 'Food Habit', 'Habitude alimentaire'),
+('food habits', 'Food Habits', 'Habitudes alimentaire'),
+('habit', 'Habit', 'Habitude'),
+('fruits', "Fruits", "Fruits"),
+('meat', "Meat", "Viande"),
+('carbohydrates', "Carbohydrates", "Glucides "),
+('vegetables', "Vegetables", "Légumes "),
+('cheese', "Cheese", "Fromage "),
+('coffee', "Coffee", "Café"),
+('soda', "Soda", "Soda"),
+('juices', "Juices", "Jus"),
+('milk', "Milk", "Lait"),
+('beer', "Beer", "Bière "),
+('wine', "Wine", "Vin"),
+("current drug use", "Current drug use", "Utilisation de médicament"),
+("antibiotics", "Antibiotics", "Antibiotiques"),
+("laxatives", "Laxatives", "Laxatifs"),
+("omeprazole or other drugs for heartburn", "Omeprazole or other drugs for heartburn", "Oméprazole ou d'autres médicaments contre les brûlures d'estomac"),
+("aspirin or other pain medications", "Aspirin or other pain medications", "Aspirine ou d'autres médicaments contre la douleur"),
+("over-the-counter drugs usage", "Over-the-counter drugs usage", "Médicament en vente libre"),
+("vitamins", "Vitamins", "Vitamines"),
+("probiotics", "Probiotics", "Probiotiques"),
+("other(s)", "Other(s)", "Autre(s)"),
+("life style", "Life style", "Style de vie"),
+("smoking (average/day - past 3 months)", "Smoking (average/day - past 3 months)", "Fumeur (moyenne par jour - 3 derniers mois)"),
+("sleeping hours (average per night)", "Sleeping hours (average per night)", "Heures de sommeil (moyenne par nuit)");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Study Consent
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_consent_study_summary_id'), 'notEmpty', '');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- É clean up
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES
+('prostate pathology review','Prostate Pathology Review', 'Révision de la pathologie de la prostate'),
+('menopause', 'Menopause', 'Ménopause'),
+('family nbr linked', 'Linked to Family#-Patient#', 'Attaché au Famille#-Patient#'),
+('genetic', 'Genetic', 'Génétique'),
+('genetic consultation', 'Genetic Consultation', 'Consultation génétique'),
+('family number', 'Family# - Patient#', 'Famille# - Patient#'),
+('linked', 'Linked', ' Lié'),
+('genetic test', 'Genetic Test', 'Test génétique'),
+('study consent','Study Consent','Consentement d''étude');
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- MIGRATION TODO
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 SELECT "ImportSardoDataFromXmlFile.php has been Updated" AS '### TODO ### SARDO Data Import Script'
@@ -1399,11 +1927,43 @@ SELECT "1- Replace script on server" AS '### TODO ### SARDO Data Import Script'
 UNION ALL
 SELECT "2 - Check treatments (SURG/BIOP) are linked to collection " AS '### TODO ### SARDO Data Import Script'
 UNION ALL
-SELECT "2 - Check new PSA or CA125 are imported from SARDO or can be created manually into ATiM" AS '### TODO ### SARDO Data Import Script';
+SELECT "2 - Check new PSA, CA125 and SCC are imported from SARDO or can be created manually into ATiM" AS '### TODO ### SARDO Data Import Script';
+
+
+SELECT identifier_value as 'Duplicated RAMQ To fix'
+FROM (
+	SELECT count(*) as ct, MiId.identifier_value
+	FROM misc_identifiers MiId
+	INNER JOIN misc_identifier_controls MiIdCt ON MiIdCt.id = MiId.misc_identifier_control_id
+	WHERE MiId.deleted <> 1
+	AND MiIdCt.misc_identifier_name = 'ramq nbr'
+	GROUP BY MiId.identifier_value
+) res
+WHERE res.ct > 1;
+
+
+
+
 
 SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migration';
 
-merged with trunk 6527 to 6564
+
+
+
+
+
+--------------------
+
+--------------------
+
+
+
+
+
+
+
+
+
 
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
@@ -1411,38 +1971,3 @@ mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sq
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
 mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
 mysql -u root chumoncoaxis --default-character-set=utf8 < custom_post_268.sql
-
-
-
-
-
-dans le cas de cpcbn les block sont reservé pour cpcbn pendant deux ans et entrepose au 12eme dans ce cas la le champ Aliquotmaster.study_summary_id doit etre a la valeur de l'etude 
-et on doit mettre obligatroirement reserver pour etude
-
-Transit platforme moléeculaire ... = un evenement
-obliger une etude pour une commande
-
-
-
-Vérifier si le SCC (onglet labo) de SARDO est dans le fichier xml et si oui l'importer.
-Creer dans ATiM un labo VPH avec date et un champ type pour une valeur entière
-Vérifier que pas plusieurs RAMQ dupliqué..
-
-
-
-
-
-créer stool samples qui peuvent donner du RNA and DNA
-Céer vaginal swab qui peuvent donner des DNA
-Etre capable de créer des Lymphocyte apres une culture cellulaire
-Voire note dans cahier
-
-Il faut créer un type d'entreposage MDT TMA block
-Il vont créer un tissue pois un core avec un evt MDT
-Puise le core va etre entreposer dans le MDT
-Des tissus sont donnés a francis. Il va faire des culture sur un mileiu TILO qui va permettre de recuperer des lymphocyte.
-Il faut dire que la culture se fait dans le labo de francis
-Francis va aussi faire des PDX (xenographe)
-Ajouter le formulaire de megaprophiling (copie dans le cahier noir)###
-
-Il faut voire avec AM/ si la culture cellulaire et les lymphocite doivent etre dans ATiM. Pas sur que ce soit de l'activité de bank. Le tissue est donné pour un e éetude.
