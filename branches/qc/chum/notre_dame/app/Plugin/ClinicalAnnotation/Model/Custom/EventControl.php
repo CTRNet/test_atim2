@@ -4,7 +4,19 @@ class EventControlCustom extends EventControl {
 	var $useTable = 'event_controls';
 	var $name = "EventControl";
 	
-	var $modifiable_event_types = array('ca125', 'psa', 'prostate pathology review', 'prostate nodule review', 'genetic test', 'ghadirian form', 'fides clinic follow-up', 'ccf follow-up');
+	var $modifiable_event_types = array(
+		'ca125', 
+		'ccf follow-up', 
+		'fides clinic follow-up', 
+		'genetic test', 
+		'ghadirian form', 
+		'immuncarta',
+		'megaprofiling',
+		'prostate nodule review', 
+		'prostate pathology review', 
+		'psa', 
+		'scc',
+		'vph');
 	
 	function buildAddLinks($event_ctrl_data, $participant_id, $event_group){
 		$links = array();

@@ -265,14 +265,14 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 	//No SARDO data recorded in _revs table
 }
 
-// Event (PSA/CA125)
+// Event (PSA/CA125/SCC)
 
-global $ca125_psa_event_controls;
-$ca125_psa_event_controls = array();
-$query_res = customQuery("SELECT id, detail_tablename, event_type FROM event_controls WHERE event_type IN ('ca125', 'psa') AND flag_active = 1;", __LINE__);
-if($query_res->num_rows != 2) importDie('CA125 and PSA controls unknown! ERR#_LAB00001');
+global $ca125_psa_scc_event_controls;
+$ca125_psa_scc_event_controls = array();
+$query_res = customQuery("SELECT id, detail_tablename, event_type FROM event_controls WHERE event_type IN ('ca125', 'psa', 'scc') AND flag_active = 1;", __LINE__);
+if($query_res->num_rows != 3) importDie('CA125 and/or PSA and/or SCC controls unknown! ERR#_LAB00001');
 while($res =  mysqli_fetch_assoc($query_res)) {
-	$ca125_psa_event_controls[$res['event_type']] = $res;
+	$ca125_psa_scc_event_controls[$res['event_type']] = $res;
 }
 
 // Diagnosis
@@ -1079,18 +1079,18 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 	global $import_summary;
 	global $import_date;
 	global $import_by;
-	global $ca125_psa_event_controls;
+	global $ca125_psa_scc_event_controls;
 	
 	if($diagnosis_rec_nbrs_to_ids) {
 		//Get SARO Labo Data
-		$query_res_sardo_labo = customQuery("SELECT * FROM sardo_labo WHERE NomLabo IN ('APS pré-op', 'APS', 'CA-125') AND ParentRecNumber IN ('".implode("','", array_keys($diagnosis_rec_nbrs_to_ids))."');", __LINE__);
+		$query_res_sardo_labo = customQuery("SELECT * FROM sardo_labo WHERE NomLabo IN ('APS pré-op', 'APS', 'CA-125', 'SCC') AND ParentRecNumber IN ('".implode("','", array_keys($diagnosis_rec_nbrs_to_ids))."');", __LINE__);
 		if($query_res_sardo_labo->num_rows) {
-			$atim_labos_data = array('ca125' => array(), 'psa' => array());
-			foreach(array('ca125','psa') as $test) {
-				$event_control_id = $ca125_psa_event_controls[$test]['id'];
+			$atim_labos_data = array('ca125' => array(), 'psa' => array(), 'scc' => array());
+			foreach(array('ca125','psa', 'scc') as $test) {
+				$event_control_id = $ca125_psa_scc_event_controls[$test]['id'];
 				$query_res_atim_labo = customQuery("SELECT EventMaster.id, EventMaster.event_date, EventMaster.event_date_accuracy, EventMaster.event_control_id, EventDetail.value
-					FROM event_masters EventMaster INNER JOIN ".$ca125_psa_event_controls[$test]['detail_tablename']." EventDetail ON EventDetail.event_master_id = EventMaster.id
-					WHERE EventMaster.participant_id = $pariticpant_id AND EventMaster.deleted <> 1 AND EventMaster.event_control_id = ".$ca125_psa_event_controls[$test]['id'].";", __LINE__);
+					FROM event_masters EventMaster INNER JOIN ".$ca125_psa_scc_event_controls[$test]['detail_tablename']." EventDetail ON EventDetail.event_master_id = EventMaster.id
+					WHERE EventMaster.participant_id = $pariticpant_id AND EventMaster.deleted <> 1 AND EventMaster.event_control_id = ".$ca125_psa_scc_event_controls[$test]['id'].";", __LINE__);
 				while($atim_labo_data = mysqli_fetch_assoc($query_res_atim_labo)) {
 					$atim_formated_date = getFormatedDateForATiMDisplay($atim_labo_data['event_date'], $atim_labo_data['event_date_accuracy']);					
 					if($atim_formated_date) $atim_labos_data[$test][$atim_formated_date] = $atim_labo_data;
@@ -1098,7 +1098,18 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 			}
 			while($sardo_labo_data = mysqli_fetch_assoc($query_res_sardo_labo)) {
 				$sardo_formated_date = getFormatedDateForATiMDisplay($sardo_labo_data['Date'], $sardo_labo_data['Date_accuracy']);
-				$atim_test = (($sardo_labo_data['NomLabo'] == 'CA-125')? 'ca125' : 'psa');
+				$atim_test = '';
+				switch($sardo_labo_data['NomLabo']) {
+					case 'CA-125';
+						$atim_test = 'ca125';
+						break;
+					case 'SCC';
+						$atim_test = 'scc';
+						break;
+					default;
+						$atim_test = 'psa';
+						break;
+				}
 				if(!$sardo_formated_date) {
 					$import_summary['Labo']['WARNING']["At least one SARDO $atim_test date is not defined. $atim_test has not been studied"][] = "$atim_test = ".$sardo_labo_data['Resultat'].".See NoLabo(s) : $no_labos_string";
 				} else {
@@ -1107,7 +1118,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 					if(!isset($atim_labos_data[$atim_test][$sardo_formated_date])) {
 						$atim_event_data_to_create= array(
 							'EventMaster' => array(
-								'event_control_id' => $ca125_psa_event_controls[$atim_test]['id'],
+								'event_control_id' => $ca125_psa_scc_event_controls[$atim_test]['id'],
 								'participant_id' => $pariticpant_id,
 								'event_date' => $sardo_labo_data['Date'],
 								'event_date_accuracy' => $sardo_labo_data['Date_accuracy']),
@@ -1115,12 +1126,12 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 								'value' => $sardo_labo_data['Resultat']));
 						$event_master_id = customInsert($atim_event_data_to_create['EventMaster'], 'event_masters', __LINE__, false, true);
 						$atim_event_data_to_create['EventDetail']['event_master_id'] = $event_master_id;
-						customInsert($atim_event_data_to_create['EventDetail'],  $ca125_psa_event_controls[$atim_test]['detail_tablename'], __LINE__, true, true);
+						customInsert($atim_event_data_to_create['EventDetail'],  $ca125_psa_scc_event_controls[$atim_test]['detail_tablename'], __LINE__, true, true);
 					} else if($atim_labos_data[$atim_test][$sardo_formated_date]['value'] != $sardo_labo_data['Resultat']) {
 						$import_summary['Labo']['WARNING']["SARDO $atim_test value different than ATiM $atim_test value on the same date. Will import SARDO value"][] = "SARDO $atim_test = ".$sardo_labo_data['Resultat']." / ATiM $atim_test = ".$atim_labos_data[$atim_test][$sardo_formated_date]['value']." on $sardo_formated_date. See NoLabo(s) : $no_labos_string";
 						$new_value = $sardo_labo_data['Resultat'];
 						$event_master_id = $atim_labos_data[$atim_test][$sardo_formated_date]['id'];
-						$detail_tablename = $ca125_psa_event_controls[$atim_test]['detail_tablename'];
+						$detail_tablename = $ca125_psa_scc_event_controls[$atim_test]['detail_tablename'];
 						$queries = array(	
 							"UPDATE event_masters SET modified = '$import_date', modified_by = '$import_by' WHERE id = $event_master_id;",
 							"INSERT INTO event_masters_revs (event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, version_created) (SELECT event_control_id, id, event_summary, event_date, event_date_accuracy, modified_by, participant_id, diagnosis_master_id, modified FROM event_masters WHERE modified = '$import_date' AND modified_by = '$import_by' AND id = $event_master_id);",
