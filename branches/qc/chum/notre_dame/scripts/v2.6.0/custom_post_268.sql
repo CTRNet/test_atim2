@@ -1521,9 +1521,8 @@ INSERT INTO structure_validations(structure_field_id, rule, language_message) VA
 -- LAB
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-REPLACE INTO INTO i18n (id,en,fr) 
+REPLACE INTO i18n (id,en,fr) 
 VALUES 
-('prostate nodule review','Prostate Nodule Review', 'Révision des nodules de prostate'),
 ('prostate nodule review','Prostate Nodule Review', 'Révision des nodules de prostate');
 
 -- SCC
@@ -1905,6 +1904,64 @@ VALUES
 ('genetic test', 'Genetic Test', 'Test génétique'),
 ('study consent','Study Consent','Consentement d''étude');
 
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_internal_use_type') AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='aliquot internal use code' WHERE model='AliquotInternalUse' AND tablename='aliquot_internal_uses' AND field='use_code' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Aliquot Internal Use
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('aliquot internal use code', 'Precision', 'Précision');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Database clean up
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE qc_nd_ed_ccf_followups_revs ADD COLUMN event_master_id int(11) NOT NULL;
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('OrderItem')) AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('OrderLine')) AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('StudySummary'));
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlideUse', 'SpecimenReviewMaster', 'AliquotReviewMaster'));
+UPDATE datamart_structure_functions SET flag_active = 0
+WHERE datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide')) AND label = 'add tma slide use';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1941,10 +1998,6 @@ FROM (
 ) res
 WHERE res.ct > 1;
 
-
-
-
-
 SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migration';
 
 
@@ -1952,9 +2005,6 @@ SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migr
 
 
 
---------------------
-
---------------------
 
 
 
@@ -1963,11 +2013,10 @@ SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migr
 
 
 
-
-
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < custom_post_268.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\atim_chum_onco_axis_deno_20161101.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.4_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.5_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.6_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.7_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.8_upgrade.sql
+mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\custom_post_268.sql

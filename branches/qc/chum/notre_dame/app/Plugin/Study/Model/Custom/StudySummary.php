@@ -79,9 +79,12 @@ class StudySummaryCustom extends StudySummary
 				if(!isset($study_data['StudySummary']['title'])) {
 					$study_data = $this->find('first', array('conditions' => array('StudySummary.id' => ($study_data['StudySummary']['id']))));
 				}
+				$study_complementary_information = isset($this->study_complementary_information_for_autocomplete[$study_data['StudySummary']['id']])?
+					$this->study_complementary_information_for_autocomplete[$study_data['StudySummary']['id']] : 
+					'';
 				$this->study_data_and_code_for_display_already_set[$study_data['StudySummary']['id']] = 
 					$study_data['StudySummary']['title'] . 
-					(isset($this->study_complementary_information_for_autocomplete[$study_data['StudySummary']['id']])? ' ('.$this->study_complementary_information_for_autocomplete[$study_data['StudySummary']['id']].')': '').
+					(strlen($study_complementary_information)? ' ('.$study_complementary_information.')': '').
 					' [' . $study_data['StudySummary']['id'] . ']';
 			}
 			$formatted_data = $this->study_data_and_code_for_display_already_set[$study_data['StudySummary']['id']];
