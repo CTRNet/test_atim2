@@ -1517,6 +1517,51 @@ VALUES
 INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_order_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'notEmpty', '');
 
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_order_line_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'notEmpty', '');
+
+-- List orders with 2 different order lines study
+
+SELECT order_id AS 'Order (orer_id) with different order line study to check after migration', default_study_summary_id, study_summary_ids
+FROM (
+	SELECT count(*) AS nbr, order_id, GROUP_CONCAT( study_summary_id SEPARATOR ' & ' ) AS study_summary_ids
+	FROM (
+		SELECT DISTINCT order_id, IFNULL(study_summary_id, 'Null') AS study_summary_id FROM order_lines WHERE deleted <> 1
+	) OrderLine
+	GROUP BY order_id 
+) OrderLine2 
+INNER JOIN orders ON id = order_id
+WHERE nbr > 1;
+
+-- Clean up order study
+
+SELECT count(*) AS 'Order with no study : to fix' FROM orders WHERE deleted <> 1 AND (default_study_summary_id IS NULL OR default_study_summary_id LIKE '');
+
+-- Clean up order line study
+
+SET @modified_by = 2;
+SET @modified=(SELECT NOW() FROM users WHERE id = @modified_by);
+UPDATE orders OrderMod, order_lines OrderLineMod
+SET OrderLineMod.modified = @modified, 
+OrderLineMod.modified_by = @modified_by, 
+OrderLineMod.study_summary_id = OrderMod.default_study_summary_id
+WHERE OrderMod.deleted <> 1 AND  OrderLineMod.deleted <> 1 AND OrderLineMod.order_id = OrderMod.id
+AND (OrderMod.default_study_summary_id IS NOT NULL AND OrderMod.default_study_summary_id NOT LIKE '')
+AND (OrderLineMod.study_summary_id IS NULL OR OrderLineMod.study_summary_id LIKE '')
+AND OrderLineMod.order_id NOT IN ( 
+  SELECT order_id FROM (
+  	SELECT order_id FROM order_lines WHERE deleted <> 1 AND study_summary_id IS NOT NULL AND study_summary_id NOT LIKE ''
+  ) res
+ );
+
+INSERT INTO order_lines_revs (id,quantity_ordered,min_quantity_ordered,quantity_unit,date_required,date_required_accuracy,status,
+sample_control_id,aliquot_control_id,product_type_precision,order_id,study_summary_id,is_tma_slide,version_created,modified_by)
+(SELECT id,quantity_ordered,min_quantity_ordered,quantity_unit,date_required,date_required_accuracy,status,
+sample_control_id,aliquot_control_id,product_type_precision,order_id,study_summary_id,is_tma_slide,modified,modified_by
+FROM order_lines WHERE modified = @modified AND @modified_by = @modified_by);
+
+SELECT COUNT(*) AS 'Order line with no study : to fix' FROM order_lines WHERE deleted <> 1 AND (study_summary_id IS NULL OR study_summary_id LIKE '');
+
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 -- LAB
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1902,6 +1947,7 @@ VALUES
 ('family number', 'Family# - Patient#', 'Famille# - Patient#'),
 ('linked', 'Linked', ' Lié'),
 ('genetic test', 'Genetic Test', 'Test génétique'),
+('profile and reproductive history update', 'Profile and reproductive history update', 'Mise à jour des profils et des données gynécologiques'),
 ('study consent','Study Consent','Consentement d''étude');
 
 UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -1925,67 +1971,23 @@ ALTER TABLE qc_nd_ed_ccf_followups_revs ADD COLUMN event_master_id int(11) NOT N
 UPDATE datamart_browsing_controls 
 SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('OrderItem')) AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide'));
-UPDATE datamart_browsing_controls 
-SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
-WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('OrderLine')) AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('StudySummary'));
 UPDATE datamart_structure_functions SET flag_active = 0
 WHERE datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlideUse', 'SpecimenReviewMaster', 'AliquotReviewMaster'));
 UPDATE datamart_structure_functions SET flag_active = 0
 WHERE datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('TmaSlide')) AND label = 'add tma slide use';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Diagnosis Control Update
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE diagnosis_controls 
+SET category = 'progression - locoregional', databrowser_label = 'progression - locoregional|sardo'
+WHERE detail_tablename = 'qc_nd_dx_progression_sardos';
+REPLACE INTO i18n (id,en,fr) VALUES ('progression - locoregional', 'Progression', 'Progression');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 -- MIGRATION TODO
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-SELECT "ImportSardoDataFromXmlFile.php has been Updated" AS '### TODO ### SARDO Data Import Script'
-UNION ALL
-SELECT "1- Replace script on server" AS '### TODO ### SARDO Data Import Script'
-UNION ALL
-SELECT "2 - Check treatments (SURG/BIOP) are linked to collection " AS '### TODO ### SARDO Data Import Script'
-UNION ALL
-SELECT "2 - Check new PSA, CA125 and SCC are imported from SARDO or can be created manually into ATiM" AS '### TODO ### SARDO Data Import Script';
-
 
 SELECT identifier_value as 'Duplicated RAMQ To fix'
 FROM (
@@ -2000,23 +2002,5 @@ WHERE res.ct > 1;
 
 SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migration';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\atim_chum_onco_axis_deno_20161101.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.4_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.5_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.6_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.7_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\atim_v2.6.8_upgrade.sql
-mysql -u root chumoncoaxis --default-character-set=utf8 < C:\_NicolasLuc\Server\www\chum_onco_axis\scripts\v2.6.0\custom_post_268.sql
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE `versions` SET branch_build_number = '6586' WHERE version_number = '2.6.7';

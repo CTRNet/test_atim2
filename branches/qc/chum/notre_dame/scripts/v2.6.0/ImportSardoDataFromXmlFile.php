@@ -10,8 +10,8 @@ $import_summary = array();
 $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "am3-y-4606";
-$db_schema		= "tmponcoaxis";
+$db_pwd			= "";
+$db_schema		= "tmpicmtest";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -284,7 +284,8 @@ while($res = mysqli_fetch_assoc($query_res)) {
 	if($res['controls_type'] != 'sardo') importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002.2');
 	$diagnosis_controls[$res['category']] = $res;
 }
-if(!isset($diagnosis_controls['primary']) || !isset($diagnosis_controls['progression'])) importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002.3');
+//WARNING progression - locoregional because ATiM does not support generic defintion progression
+if(!isset($diagnosis_controls['primary']) || !isset($diagnosis_controls['progression - locoregional'])) importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002.3');
 foreach($diagnosis_controls as $category => $tmp) {
 	customQuery("DELETE FROM ".$diagnosis_controls[$category]['detail_tablename'].";", __LINE__);
 	//No SARDO data recorded in _revs table
@@ -874,7 +875,7 @@ function importProgressionData($pariticpant_id, $patient_rec_number, $diagnosis_
 		while($sardo_progressions_data = mysqli_fetch_assoc($query_res)) {
 			$atim_diagnosis_data_to_create = array(
 				'DiagnosisMaster' => array(
-					'diagnosis_control_id' => $diagnosis_controls['progression']['id'],
+					'diagnosis_control_id' => $diagnosis_controls['progression - locoregional']['id'],
 					'participant_id' => $pariticpant_id,
 					'primary_id' => $diagnosis_rec_nbrs_to_ids[$sardo_progressions_data['ParentRecNumber']],
 					'parent_id' => $diagnosis_rec_nbrs_to_ids[$sardo_progressions_data['ParentRecNumber']],
@@ -889,7 +890,7 @@ function importProgressionData($pariticpant_id, $patient_rec_number, $diagnosis_
 			//Record diagnosis
 			$diagnosis_master_id = customInsert($atim_diagnosis_data_to_create['DiagnosisMaster'], 'diagnosis_masters', __LINE__);
 			$atim_diagnosis_data_to_create['DiagnosisDetail']['diagnosis_master_id'] = $diagnosis_master_id;
-			customInsert($atim_diagnosis_data_to_create['DiagnosisDetail'], $diagnosis_controls['progression']['detail_tablename'], __LINE__, true);
+			customInsert($atim_diagnosis_data_to_create['DiagnosisDetail'], $diagnosis_controls['progression - locoregional']['detail_tablename'], __LINE__, true);
 		}
 	}
 }
@@ -1100,13 +1101,13 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 				$sardo_formated_date = getFormatedDateForATiMDisplay($sardo_labo_data['Date'], $sardo_labo_data['Date_accuracy']);
 				$atim_test = '';
 				switch($sardo_labo_data['NomLabo']) {
-					case 'CA-125';
+					case 'CA-125':
 						$atim_test = 'ca125';
 						break;
-					case 'SCC';
+					case 'SCC':
 						$atim_test = 'scc';
 						break;
-					default;
+					default:
 						$atim_test = 'psa';
 						break;
 				}
