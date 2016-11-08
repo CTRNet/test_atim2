@@ -8,6 +8,8 @@
 
 	$structure_links = array('index'=>array(), 'bottom'=>array());
 	$structure_links['index']['detail'] = '/InventoryManagement/SpecimenReviews/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/%%SpecimenReviewMaster.id%%';
+	$structure_links['index']['edit'] = '/InventoryManagement/SpecimenReviews/edit/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/%%SpecimenReviewMaster.id%%';
+	$structure_links['index']['delete'] = '/InventoryManagement/SpecimenReviews/delete/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/%%SpecimenReviewMaster.id%%';
 	if(!empty($add_links))  { $structure_links['bottom']['add'] = $add_links; }
 
 	$final_atim_structure = $atim_structure; 

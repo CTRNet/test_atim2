@@ -7,15 +7,19 @@ class TmaSlidesController extends StorageLayoutAppController {
 	var $uses = array(
 		'StorageLayout.StorageMaster',
 		'StorageLayout.TmaSlide',
+		'StorageLayout.TmaSlideUse',
 		'StorageLayout.StorageCoordinate',
-		'StorageLayout.StorageControl');
+		'StorageLayout.StorageControl',
+			
+		'Study.StudySummary'
+	);
 	
 	var $paginate = array('TmaSlide' => array('order' => 'TmaSlide.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
-		
+	 * -------------------------------------------------------------------------- */
+	
 	function listAll($tma_block_storage_master_id) {
 		// MANAGE DATA
 
@@ -56,14 +60,8 @@ class TmaSlidesController extends StorageLayoutAppController {
 		$initial_display = false;
 		$tma_block_ids = array();
 		
-		$url_to_cancel = 'javascript:history.go(-1)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-			}
-		}
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
 		
 		if($tma_block_storage_master_id != null){
@@ -91,7 +89,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		// Get TMA Blocks data
 		
 		$tma_blocks = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.id' => $tma_block_ids), 'recursive' => '0'));
-		$this->StorageMaster->sortForDisplay($tma_blocks, $tma_block_ids);
+		if($initial_display) $this->StorageMaster->sortForDisplay($tma_blocks, $tma_block_ids);
 		$tma_blocks_from_id = array();
 		$real_storage_selected = false;		// Different than TMA block
 		foreach($tma_blocks as &$tma_block_data) {
@@ -101,10 +99,12 @@ class TmaSlidesController extends StorageLayoutAppController {
 		}	
 		if($real_storage_selected) {
 			$this->flash((__('at least one selected item is not a tma block')), $url_to_cancel, 5);
+			return;
 		}
 		$display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
 		if(sizeof($tma_blocks_from_id) > $display_limit) {
 			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+			return;
 		}
 		if(sizeof($tma_blocks_from_id) != sizeof($tma_block_ids)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 
@@ -282,7 +282,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		if( $hook_link ) { require($hook_link); }	
 	}
 	
-	function edit($tma_block_storage_master_id, $tma_slide_id) {
+	function edit($tma_block_storage_master_id, $tma_slide_id, $from_slide_page = 0) {
 		// MANAGE DATA
 
 		// Get the storage data
@@ -299,6 +299,8 @@ class TmaSlidesController extends StorageLayoutAppController {
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
 
+		$this->set('from_slide_page', $from_slide_page);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type		
@@ -323,8 +325,15 @@ class TmaSlidesController extends StorageLayoutAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if(empty($this->request->data)) {
+			
 			$tma_slide_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $tma_slide_data['StorageMaster']));
+			$tma_slide_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $tma_slide_data['TmaSlide']['study_summary_id'])));
 			$this->request->data = $tma_slide_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 			
 		} else {
 			//Update data
@@ -363,29 +372,18 @@ class TmaSlidesController extends StorageLayoutAppController {
 		}
 	}
 	
-	function editInBatch($tma_block_storage_master_id = null) {
+	function editInBatch() {
 		// MANAGE DATA
 				
-		$initial_display = false;
-		
-		$url_to_cancel = 'javascript:history.go(-1)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-			}
-		}
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
 		
+		$initial_display = false;
 		$criteria = array('TmaSlide.id' => '-1');
-		$tma_slide_ids_for_sorting = array();
-		if($tma_block_storage_master_id != null){
-			// User is workning on a tma block
-			$this->StorageMaster->getOrRedirect($tma_block_storage_master_id);
-			$criteria = array('TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id);
-			if(empty($this->request->data)) $initial_display = true;
-		} else if(isset($this->request->data['TmaSlide']['id'])){
+		$tma_slide_ids = array();
+		$initial_slide_data = array();
+		if(isset($this->request->data['TmaSlide']['id'])){
 			// User launched an action from the DataBrowser or a Report Form
 			if($this->request->data['TmaSlide']['id'] == 'all' && isset($this->request->data['node'])) {
 				//The displayed elements number was higher than the databrowser_and_report_results_display_limit
@@ -393,56 +391,43 @@ class TmaSlidesController extends StorageLayoutAppController {
 				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
 				$this->request->data['TmaSlide']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 			}
-			$tma_slide_ids_for_sorting = array_filter($this->request->data['TmaSlide']['id']);
-			$criteria = array('TmaSlide.id' => $tma_slide_ids_for_sorting);
+			$tma_slide_ids = array_filter($this->request->data['TmaSlide']['id']);
+			$criteria = array('TmaSlide.id' => $tma_slide_ids);
 			$initial_display = true;
 		} else if(!empty($this->request->data)) {
 			// User submit data of the TmaSlide.editInBatch() form
-			$tma_slide_ids_for_sorting = explode(',',$this->request->data['tma_slide_ids_for_sorting']);
-			$criteria = array('TmaSlide.id' => $tma_slide_ids_for_sorting);
+			$tma_slide_ids = explode(',',$this->request->data['tma_slide_ids']);
 		} else {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
 		}
-		unset($this->request->data['tma_slide_ids_for_sorting']);
+		unset($this->request->data['tma_slide_ids']);
 		
-		$slides_data = $this->TmaSlide->find('all', array('conditions' => $criteria, 'order' => 'TmaSlide.barcode ASC'));
-		if(empty($slides_data)) {
-			$this->flash(__('no slide to update'), $url_to_cancel);
-		}
-		if($tma_slide_ids_for_sorting) $this->TmaSlide->sortForDisplay($slides_data, $tma_slide_ids_for_sorting);
-		$display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
-		if(sizeof($slides_data) > $display_limit) {
-			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
-		}
-		
-		// Set array to get id from barcode
-		$slide_id_by_barcode = array();
-		foreach($slides_data as $tmp_data){
-			$slide_id_by_barcode[$tmp_data['TmaSlide']['barcode']] = $tmp_data['TmaSlide']['id'];
+		if($initial_display) {
+			$initial_slide_data = $this->TmaSlide->find('all', array('conditions' => $criteria, 'order' => 'TmaSlide.barcode ASC'));
+			if(empty($initial_slide_data)) {
+				$this->flash(__('no slide to update'), $url_to_cancel);
+				return;
+			}
+			if($tma_slide_ids) $this->TmaSlide->sortForDisplay($initial_slide_data, $tma_slide_ids);
+			$display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
+			if(sizeof($initial_slide_data) > $display_limit) {
+				$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+				return;
+			}
 		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('url_to_cancel', $url_to_cancel);
-		$this->set('tma_block_storage_master_id', $tma_block_storage_master_id);
-		$this->set('tma_slide_ids_for_sorting', implode(',',$tma_slide_ids_for_sorting));
+		$this->set('tma_slide_ids', implode(',',$tma_slide_ids));
 		
 		// Set menu
-		if($tma_block_storage_master_id != null) {
-			// Get the current menu object. Needed to disable menu options based on storage type
-			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
-			// Inactivate Storage Coordinate Menu (unpossible for TMA type)
-			$this->set('atim_menu', $this->inactivateStorageCoordinateMenu($atim_menu));
-			// Variables
-			$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
-		} else {
-			$this->set('atim_menu', $this->Menus->get('/StorageLayout/StorageMasters/search/'));
-			$this->set('atim_menu_variables', array());
-		}
+		$this->set('atim_menu', $this->Menus->get('/StorageLayout/StorageMasters/search/'));
+		$this->set('atim_menu_variables', array());
 		
 		// Set structure
-		$this->Structures->set('tma_slides'.($tma_block_storage_master_id? '': ',tma_blocks_for_slide_creation'));
+		$this->Structures->set('tma_slides,tma_blocks_for_slide_creation');
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -452,9 +437,10 @@ class TmaSlidesController extends StorageLayoutAppController {
 		// SAVE DATA
 		
 		if($initial_display) {
-			$this->request->data = $slides_data;
+			$this->request->data = $initial_slide_data;
 			foreach($this->request->data as &$new_slides_data){
 				$new_slides_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $new_slides_data['StorageMaster']));
+				$new_slides_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $new_slides_data['TmaSlide']['study_summary_id'])));
 			}
 				
 			$hook_link = $this->hook('initial_display');
@@ -469,22 +455,28 @@ class TmaSlidesController extends StorageLayoutAppController {
 			
 			$errors = array();	
 			$record_counter = 0;
-			foreach($this->request->data as $key => $new_studied_tma){
+			$updated_tma_slide_ids = array();
+			foreach($this->request->data as $key => &$new_studied_tma){
 				$record_counter++;
 				// Get id
-				if(!isset($slide_id_by_barcode[$new_studied_tma['TmaSlide']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-				$new_studied_tma['TmaSlide']['id'] = $slide_id_by_barcode[$new_studied_tma['TmaSlide']['barcode']];
+				if(!isset($new_studied_tma['TmaSlide']['id'])) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				$updated_tma_slide_ids[] = $new_studied_tma['TmaSlide']['id'];
 				// Launch Slide validation
+				$this->TmaSlide->data = array();
 				$this->TmaSlide->set($new_studied_tma);
 				$submitted_data_validates = ($this->TmaSlide->validates()) ? $submitted_data_validates : false;
-				$new_studied_tma = $this->TmaSlide->data;
 				foreach($this->TmaSlide->validationErrors as $field => $msgs) {
 					$msgs = is_array($msgs)? $msgs : array($msgs);
 					foreach($msgs as $msg) $errors['TmaSlide'][$field][$msg][]= $record_counter;
 				}
 				// Reset data
-				$this->request->data[$key] = $new_studied_tma;				
-			}						
+				$new_studied_tma = $this->TmaSlide->data;			
+			}		
+			
+			if($this->TmaSlide->find('count', array('conditions' => array('TmaSlide.id'=> $updated_tma_slide_ids), 'recursive' => '-1')) != sizeof($updated_tma_slide_ids)) {
+				//In case a TMA slide has just been deleted by another user before we submitted updated data
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -493,9 +485,10 @@ class TmaSlidesController extends StorageLayoutAppController {
 		
 			if ($submitted_data_validates) {
 				
+				// Launch save process
+				
 				AppModel::acquireBatchViewsUpdateLock();
 				
-				// Launch save process
 				$this->TmaSlide->addWritableField(array('storage_master_id'));
 				$this->TmaSlide->writable_fields_mode = 'editgrid';
 				foreach($this->request->data as $tma_data){
@@ -512,25 +505,20 @@ class TmaSlidesController extends StorageLayoutAppController {
 					require($hook_link); 
 				}
 				
-				// Redirect
-				
 				AppModel::releaseBatchViewsUpdateLock();
 				
-				if($tma_block_storage_master_id != null){
-					$this->atimFlash(__('your data has been saved'), '/StorageLayout/StorageMasters/detail/'.$tma_block_storage_master_id);
-				}else{
-					//batch
-					$batch_ids = $tma_slide_ids_for_sorting;
-					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
-					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
-					$batch_set_data = array('BatchSet' => array(
-						'datamart_structure_id' => $datamart_structure->getIdByModelName('TmaSlide'),
-						'flag_tmp' => true
-					));
-					$batch_set_model->check_writable_fields = false;
-					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
-					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
-				}
+				// Creat Batchset then redirect
+				
+				$batch_ids = $tma_slide_ids;
+				$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+				$batch_set_data = array('BatchSet' => array(
+					'datamart_structure_id' => $datamart_structure->getIdByModelName('TmaSlide'),
+					'flag_tmp' => true
+				));
+				$batch_set_model->check_writable_fields = false;
+				$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
+				$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				
 			} else {	
 				// Set error message			
@@ -590,6 +578,136 @@ class TmaSlidesController extends StorageLayoutAppController {
 			$this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 		}		
 	}
+	
+	function autocompleteBarcode() {
+	
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+	
+		$results = array();
+	
+		//query the database
+		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+		$terms = array();
+		$terms_uses = array();
+		foreach(explode(' ', $term) as $key_word) {
+			$terms[] = "TmaSlide.barcode LIKE '%".str_replace("'", "''", $key_word)."%'";
+		}
+	
+		$conditions = array('AND' => $terms);
+		$fields = 'TmaSlide.barcode';
+		$order = 'TmaSlide.barcode ASC';
+		$joins = array();
+	
+	
+		$hook_link = $this->hook('query_args');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		$results = $this->TmaSlide->find('all', array(
+				'conditions' => $conditions,
+				'fields' => $fields,
+				'order' => $order,
+				'joins' => $joins,
+				'limit' => 10,
+				'recursive' => '-1'
+		));
+		
+		//build javascript textual array
+		$result = "";
+		foreach($results as $data_unit){
+			$result .= '"'.$data_unit['TmaSlide']['barcode'].'", ';
+		}
+		if(sizeof($result) > 0){
+			$result = substr($result, 0, -2);
+		}
+	
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	
+		$this->set('result', "[".$result."]");
+	}
+	
+	function autocompleteTmaSlideImmunochemistry() {
+	
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		
+		$results = array();
+		
+		//query the database
+		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+		$terms = array();
+		$terms_uses = array();
+		foreach(explode(' ', $term) as $key_word) {
+			$terms[] = "TmaSlide.immunochemistry LIKE '%".str_replace("'", "''", $key_word)."%'";
+			$terms_uses[] = "TmaSlideUse.immunochemistry LIKE '%".str_replace("'", "''", $key_word)."%'";
+		}
+	
+		$conditions = array('AND' => $terms);
+		$fields = 'TmaSlide.immunochemistry';
+		$order = 'TmaSlide.immunochemistry ASC';
+		$joins = array();
+	
+		$conditions_uses = array('AND' => $terms_uses);
+		$fields_uses = 'TmaSlideUse.immunochemistry';
+		$order_uses = 'TmaSlideUse.immunochemistry ASC';
+		$joins_uses = array();
+		
+		
+		$hook_link = $this->hook('query_args');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		$data = $this->TmaSlide->find('all', array(
+			'conditions' => $conditions,
+			'fields' => $fields,
+			'order' => $order,
+			'joins' => $joins,
+			'limit' => 10,
+			'recursive' => '-1'
+		));
+		
+		foreach($data as $data_unit) $results[$data_unit['TmaSlide']['immunochemistry']] = $data_unit['TmaSlide']['immunochemistry'];
+
+		$data = $this->TmaSlideUse->find('all', array(
+			'conditions' => $conditions_uses,
+			'fields' => $fields_uses,
+			'order' => $order_uses,
+			'joins' => $joins_uses,
+			'limit' => 10,
+			'recursive' => '-1'
+		));
+
+		foreach($data as $data_unit) $results[$data_unit['TmaSlideUse']['immunochemistry']] = $data_unit['TmaSlideUse']['immunochemistry'];
+		
+		ksort($results);
+	
+		//build javascript textual array
+		$result = "";
+		foreach($results as $data_unit){
+			$result .= '"'.$data_unit.'", ';
+		}
+		if(sizeof($result) > 0){
+			$result = substr($result, 0, -2);
+		}
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		$this->set('result', "[".$result."]");
+	}
+
 }
 
 ?>

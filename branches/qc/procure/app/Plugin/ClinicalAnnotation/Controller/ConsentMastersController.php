@@ -6,7 +6,9 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.ConsentMaster',
 		'ClinicalAnnotation.ConsentDetail',
 		'ClinicalAnnotation.ConsentControl',
-		'ClinicalAnnotation.Participant'
+		'ClinicalAnnotation.Participant',
+		
+		'Study.StudySummary'
 	);
 	
 	var $paginate = array('ConsentMaster'=>array('order'=>'ConsentMaster.date_first_contact ASC')); 
@@ -118,6 +120,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		}
 
 		if(empty($this->request->data)) {
+			$consent_master_data['FunctionManagement']['autocomplete_consent_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $consent_master_data['ConsentMaster']['study_summary_id'])));
 			$this->request->data = $consent_master_data;
 		} else {
 			$submitted_data_validates = true;

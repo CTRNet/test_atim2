@@ -88,6 +88,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 			
 		if($treatment_master_data['TreatmentControl']['treatment_extend_control_id']){
 			$treatment_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($treatment_master_data['TreatmentControl']['treatment_extend_control_id']);
+			$this->set('tx_extend_type',$treatment_extend_control_data['TreatmentExtendControl']['type']);
 			$this->set('tx_extend_data', $this->TreatmentExtendMaster->find('all', array('conditions' => array('TreatmentExtendMaster.treatment_master_id' => $tx_master_id, 'TreatmentExtendMaster.treatment_extend_control_id' => $treatment_master_data['TreatmentControl']['treatment_extend_control_id']))));
 			$this->Structures->set($treatment_extend_control_data['TreatmentExtendControl']['form_alias'], 'extend_form_alias');
 			if(!empty($treatment_master_data['TreatmentControl']['extended_data_import_process'])) {
@@ -241,11 +242,24 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 				
 				if($submitted_data_validates) {
 					if ( $this->TreatmentMaster->save($this->request->data) ) {
+						$treatment_master_id = $this->TreatmentMaster->getLastInsertId();
+						$url_to_flash = '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$treatment_master_id;
+						if($tx_control_data['TreatmentControl']['treatment_extend_control_id']) {
+							if($tx_control_data['TreatmentControl']['extended_data_import_process'] && isset($this->request->data['TreatmentMaster']['protocol_master_id']) && $this->request->data['TreatmentMaster']['protocol_master_id']) {
+								if(AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentExtendMasters/'.$tx_control_data['TreatmentControl']['extended_data_import_process']))
+									$url_to_flash = '/ClinicalAnnotation/TreatmentExtendMasters/'.$tx_control_data['TreatmentControl']['extended_data_import_process'].'/'.$participant_id.'/'.$treatment_master_id;
+							} else {
+								if(AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentExtendMasters/add/'))
+									$url_to_flash = '/ClinicalAnnotation/TreatmentExtendMasters/add/'.$participant_id.'/'.$treatment_master_id;
+							}
+						}
+						
 						$hook_link = $this->hook('postsave_process');
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
+						
+						$this->atimFlash(__('your data has been saved'),$url_to_flash);
 					}
 				}
 							

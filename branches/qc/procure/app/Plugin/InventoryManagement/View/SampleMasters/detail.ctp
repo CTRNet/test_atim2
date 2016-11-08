@@ -89,6 +89,7 @@
 		if(!empty($aliquots_data)) {
 			$structure_links['index'] = array(
 				'detail' => '/InventoryManagement/AliquotMasters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%',
+				'edit' => '/InventoryManagement/AliquotMasters/edit/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%',
 				'delete' => '/InventoryManagement/AliquotMasters/delete/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%');
 			
 			$counter = 0;

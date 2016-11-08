@@ -1,7 +1,11 @@
 <?php
 	$structure_links = array(
 		'top'=>NULL,
-		'index'=>'/Study/StudyInvestigators/detail/'.$atim_menu_variables['StudySummary.id'].'/%%StudyInvestigator.id%%',
+		'index'=> array(
+			'detail' => '/Study/StudyInvestigators/detail/'.$atim_menu_variables['StudySummary.id'].'/%%StudyInvestigator.id%%',
+			'edit' => '/Study/StudyInvestigators/edit/'.$atim_menu_variables['StudySummary.id'].'/%%StudyInvestigator.id%%',
+			'delete' => '/Study/StudyInvestigators/delete/'.$atim_menu_variables['StudySummary.id'].'/%%StudyInvestigator.id%%',)
+					,
 		'bottom'=>array(
 			'add'=>'/Study/StudyInvestigators/add/'.$atim_menu_variables['StudySummary.id'].'/'
 		)
