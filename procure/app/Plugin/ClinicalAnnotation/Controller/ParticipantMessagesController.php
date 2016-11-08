@@ -43,16 +43,9 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		$initial_display = false;
 		$participant_ids = array();
 	
-		$url_to_cancel = 'javascript:history.go(-1)';
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel = $this->request->data['url_to_cancel'];
-			if(preg_match('/^javascript:history.go\((-?[0-9]*)\)$/', $url_to_cancel, $matches)){
-				$back = empty($matches[1]) ? -1 : $matches[1] - 1;
-				$url_to_cancel = 'javascript:history.go('.$back.')';
-			}
-		}
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
-		$this->set('url_to_cancel', $url_to_cancel);
 	
 		if($participant_id){
 			// User is working on a participant
@@ -85,6 +78,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		if(sizeof($participants) > $display_limit) 
 			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
 		$this->set('participant_ids',implode(',',$participant_ids));
+		
+		if($participant_id) $url_to_cancel = '/ClinicalAnnotation/ParticipantMessages/listall/'.$participant_id;
+
+		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

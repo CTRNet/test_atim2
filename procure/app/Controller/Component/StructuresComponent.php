@@ -268,6 +268,7 @@ class StructuresComponent extends Component {
 				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				$form_fields_key = $value['model'].'.'.$value['field'];
 				$value_type = $value['type'];
+				$is_float = in_array($value['type'], array('float', 'float_positive'));
 				if (in_array($value_type, self::$range_types)
 					|| (strpos($value['setting'], "range") !== false)
 						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])
@@ -277,14 +278,16 @@ class StructuresComponent extends Component {
 					$form_fields[$key_start]['model']		= $value['model'];
 					$form_fields[$key_start]['field']		= $value['field'];
 					$form_fields[$key_start]['key']			= $form_fields_key.' >=';
+					$form_fields[$key_start]['is_float']	= $is_float;
 					$form_fields[$key_start]['tablename']	= $value['tablename'];
 					
 					$key_end = $form_fields_key.'_end';
-					$form_fields[$key_end]['plugin']			= $value['plugin'];
+					$form_fields[$key_end]['plugin']		= $value['plugin'];
 					$form_fields[$key_end]['model']			= $value['model'];
 					$form_fields[$key_end]['field']			= $value['field'];
 					$form_fields[$key_end]['key']			= $form_fields_key.' <=';
-					$form_fields[$key_end]['tablename']	= $value['tablename'];
+					$form_fields[$key_end]['is_float']		= $is_float;
+					$form_fields[$key_end]['tablename']		= $value['tablename'];
 					
 					if(isset($atim_structure['Accuracy'][$value['model']][$value['field']])){
 						$accuracy_fields[] = $key_start;
@@ -306,7 +309,9 @@ class StructuresComponent extends Component {
 					}else{
 						// all other types, a generic SQL fragment...
 						$form_fields[$form_fields_key]['key']		= $form_fields_key.' LIKE';
-					}						
+					}	
+					
+					$form_fields[$form_fields_key]['is_float']		= $is_float;					
 				}
 				
 				//CocingIcd magic
@@ -458,7 +463,7 @@ class StructuresComponent extends Component {
 										} else if(is_string($data)) {
 											$data = trim($data);
 										}
-										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+										$conditions[ $form_fields[$form_fields_key]['key'] ] = $form_fields[$form_fields_key]['is_float']? str_replace(',', '.', $data) : $data;
 									}
 								}
 							}

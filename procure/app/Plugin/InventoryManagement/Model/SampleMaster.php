@@ -282,7 +282,7 @@ class SampleMaster extends InventoryManagementAppModel {
 			}
 			$sources = array_unique($sources);
 			foreach($sources as $source_id){
-				$aliquot_master->updateAliquotUseAndVolume($source_id, true, true, false);
+				$aliquot_master->updateAliquotVolume($source_id);
 			}
 			return true;
 		}

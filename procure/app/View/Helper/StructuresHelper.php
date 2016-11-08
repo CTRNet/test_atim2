@@ -2258,6 +2258,7 @@ class StructuresHelper extends Helper {
 				foreach($cell as $fields){
 					foreach($fields as $field){
 						unset($override[$field['model'].".".$field['field']]);
+						if(in_array($field['type'], array('date', 'datetime'))) unset($override[$field['model'].".".$field['field'].'_accuracy']);
 					}
 				}
 			}
@@ -2770,7 +2771,24 @@ class StructuresHelper extends Helper {
 		}else if($options['type'] != 'index' && $options['type'] != 'detail' && $options['type'] != 'csv'){
 			if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
 				//priority 2, override
-				$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field'].$suffix];
+				$override_mode_field = $table_row_part['model'].".".$table_row_part['field'].$suffix;
+				$current_value = $options['override'][$override_mode_field];
+				if(in_array($table_row_part['type'], array('date', 'datetime')) && isset($options['override'][$override_mode_field.'_accuracy'])) {
+					$override_mode_field_accuracy = $options['override'][$override_mode_field.'_accuracy'];
+					if($override_mode_field_accuracy != 'c'){
+						if($override_mode_field_accuracy == 'd'){
+							$current_value = substr($current_value, 0, 7);
+						}else if($override_mode_field_accuracy == 'm'){
+							$current_value = substr($current_value, 0, 4);
+						}else if($override_mode_field_accuracy == 'y'){
+							$current_value = '±'.substr($current_value, 0, 4);
+						}else if($override_mode_field_accuracy == 'h'){
+							$current_value = substr($current_value, 0, 10);
+						}else if($override_mode_field_accuracy == 'i'){
+							$current_value = substr($current_value, 0, 13);
+						}
+					}
+				}
 				if(is_array($current_value)){
 					if(Configure::read('debug') > 0){
 						AppController::addWarningMsg(__("invalid override for model.field [%s.%s]", $table_row_part['model'], $table_row_part['field'].$suffix));

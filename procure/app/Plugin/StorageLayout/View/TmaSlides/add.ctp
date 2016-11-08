@@ -11,9 +11,8 @@ $parent_settings = array(
 		'actions' => false,
 		'form_top' => false,
 		'form_bottom' => false,
-		'header' => __('tma slides creation'),
+		'header' => $tma_block_storage_master_id? '' : __('tma slides creation'),
 		'stretch' => false,
-		"language_heading" => __('tma block'),
 		'section_start' => ($tma_block_storage_master_id? false : true)
 	)
 );
@@ -27,7 +26,8 @@ $children_settings = array(
 		'form_bottom' => false,
 		"add_fields"	=> true, 
 		"del_fields"	=> true,
-		"language_heading" => __('tma slides'),
+		'header' => $tma_block_storage_master_id? __('tma slides creation') : '',
+		"language_heading" => $tma_block_storage_master_id? '' : __('tma slides'),
 		'section_end' =>  ($tma_block_storage_master_id? false : true)
 	)
 );
@@ -84,7 +84,7 @@ while($data_unit = array_shift($this->request->data)){
 		require($hook_link); 
 	}
 	
-	$this->Structures->build($final_structure_parent, $final_options_parent);
+	if(!$tma_block_storage_master_id) $this->Structures->build($final_structure_parent, $final_options_parent);
 	$this->Structures->build($final_structure_children, $final_options_children);
 }				
 ?>
