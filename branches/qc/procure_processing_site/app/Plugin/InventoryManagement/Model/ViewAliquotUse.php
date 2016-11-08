@@ -19,13 +19,14 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	const DURATION = 15;
 	const DURATION_UNIT = 16;
 	const STUDY_SUMMARY_ID = 17;
+	const STUDY_TITLE = 18;
 
 	var $base_model = "AliquotInternalUse";
 	var $base_plugin = 'InventoryManagement';
 	
 	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
-		  id varchar(20) NOT NULL,
+		  id int(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
 		  use_definition varchar(50) DEFAULT NULL,
 		  use_code varchar(250) DEFAULT NULL,
@@ -41,7 +42,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		  detail_url varchar(250) DEFAULT NULL,
 		  sample_master_id int(11) NOT NULL,
 		  collection_id int(11) NOT NULL,
-		  study_summary_id int(11) DEFAULT NULL
+		  study_summary_id int(11) DEFAULT NULL,
+		  study_summary_title varchar(45) DEFAULT NULL
 		)";
 
 	static $table_query =
@@ -61,11 +63,13 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		AliquotInternalUse.study_summary_id AS study_summary_id
+		StudySummary.id AS study_summary_id,
+		StudySummary.title AS study_title
 		FROM aliquot_internal_uses AS AliquotInternalUse
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotInternalUse.study_summary_id AND StudySummary.deleted != 1
 		WHERE AliquotInternalUse.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -86,7 +90,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
 		SampleMaster2.id AS sample_master_id,
 		SampleMaster2.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		NULL AS study_summary_id,
+		'' AS study_title
 		FROM source_aliquots AS SourceAliquot
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
 		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
@@ -113,7 +118,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		NULL AS study_summary_id,
+		'' AS study_title
 		FROM realiquotings AS Realiquoting
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -139,7 +145,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		NULL AS study_summary_id,
+		'' AS study_title
 		FROM quality_ctrls AS QualityCtrl
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -147,32 +154,70 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
-	
-		SELECT CONCAT(OrderItem.id,4) AS id,
+		
+		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
-		'aliquot shipment' AS use_definition,
+		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
+		IF(OrderItem.shipment_id, Shipment.shipment_code, Order.order_number) AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped, OrderItem.date_added) AS use_datetime,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped_accuracy, IF(OrderItem.date_added_accuracy = 'c', 'h', OrderItem.date_added_accuracy)) AS use_datetime_accuracy,
+		NULL AS duration,
+		'' AS duration_unit,
+		IF(OrderItem.shipment_id, Shipment.shipped_by, OrderItem.added_by) AS used_by,
+		IF(OrderItem.shipment_id, Shipment.created, OrderItem.created) AS created,
+		IF(OrderItem.shipment_id,
+				CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id),
+				IF(OrderItem.order_line_id,
+						CONCAT('/Order/OrderLines/detail/',OrderItem.order_id,'/',OrderItem.order_line_id),
+						CONCAT('/Order/Orders/detail/',OrderItem.order_id))
+		) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title
+		FROM order_items OrderItem
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		LEFT JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
+		WHERE OrderItem.deleted <> 1 %%WHERE%%
+		
+		UNION ALL
+		
+		SELECT CONCAT(OrderItem.id, 7) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'shipped aliquot return' AS use_definition,
 		Shipment.shipment_code AS use_code,
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
-		Shipment.datetime_shipped AS use_datetime,
-		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
+		OrderItem.date_returned AS use_datetime,
+		IF(OrderItem.date_returned_accuracy = 'c', 'h', OrderItem.date_returned_accuracy) AS use_datetime_accuracy,
 		NULL AS duration,
 		'' AS duration_unit,
-		Shipment.shipped_by AS used_by,
-		Shipment.created AS created,
-		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		OrderItem.reception_by AS used_by,
+		OrderItem.modified AS created,
+		CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
-		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id			
-		WHERE OrderItem.deleted <> 1 %%WHERE%%
-	
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
+		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
+		
 		UNION ALL
 	
 		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
@@ -191,21 +236,23 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
+		NULL AS study_summary_id,
+		'' AS study_title
 		FROM aliquot_review_masters AS AliquotReviewMaster
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
-
-
+	
 	function getUseDefinitions() {
 		$result = array(
-				'aliquot shipment'	=> __('aliquot shipment'),
-				'quality control'	=> __('quality control'),
-				'internal use'	=> __('internal use'),
-				'realiquoted to'	=> __('realiquoted to'),
-				'specimen review'	=> __('specimen review'));
+			'aliquot shipment'	=> __('aliquot shipment'),
+			'shipped aliquot return'	=> __('shipped aliquot return'),
+			'order preparation'	=> __('order preparation'),
+			'quality control'	=> __('quality control'),
+			'internal use'	=> __('internal use'),
+			'realiquoted to'	=> __('realiquoted to'),
+			'specimen review'	=> __('specimen review'));
 
 		// Add custom uses
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
@@ -226,7 +273,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	}
 	
 	//must respect concat(id, #) order
-	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse');
+	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse', 'OrderItem');
 	
 	function getPkeyAndModelToCheck($data){
 		$pkey = null;
@@ -234,7 +281,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		if(preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches )){
 			$pkey = $matches[1];
 			$model_id = $matches[2];
-			if($model_id < 7 && $model_id > 0){
+			if($model_id < 8 && $model_id > 0){
 				$model = $this->models[$model_id - 1];
 			}else{
 				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);

@@ -10,6 +10,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		'StorageLayout.StorageTreeView',
 		'StorageLayout.StorageControl',
 		'StorageLayout.StorageCoordinate',
+		'StorageLayout.TmaBlock',
 		'StorageLayout.TmaSlide',
 		'StorageLayout.StorageCoordinate',
 		
@@ -58,8 +59,8 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('from_layout_page', $from_layout_page);
 		$this->Structures->set($structure_alias);
 		
-		//find all storage control types to build add button
-		$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+		// Get data for the add to selected button
+		$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks());
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -149,8 +150,8 @@ class StorageMastersController extends StorageLayoutAppController {
 		// Define if this detail form is displayed into the children storage tree view, storage layout, etc
 		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
 		
-		// Get all storage control types to build the add to selected button
-		$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+		// Get data for the add to selected button
+		$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks($storage_master_id));
 		
 		$this->request->data = $data;
 
@@ -446,6 +447,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$fields_to_sort_on = array(
 			'StorageMaster' => array('StorageMaster.short_label'),
 			'InitialStorageMaster' => array('StorageControl.storage_type','StorageMaster.short_label'),
+			'TmaBlock' => array('TmaBlock.short_label'),
 			'AliquotMaster' => array('AliquotMaster.barcode'),
 			'TmaSlide' => array('TmaSlide.barcode')				
 		);
@@ -461,44 +463,62 @@ class StorageMastersController extends StorageLayoutAppController {
 		$atim_menu = array();
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
-			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '0'));
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageControl.is_tma_block' => '0'), 'recursive' => '0'));
 			$tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['StorageMaster'], $tree_data);
 			if(sizeof($tree_data) > $storages_nbr_limit) $tree_data = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many children storages for display').' ('.sizeof($tree_data).')')));
+			//Aliquot
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '0'));
 			$aliquots = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['AliquotMaster'], $aliquots);
 			if(sizeof($aliquots) > $aliquots_nbr_limit) $aliquots = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many aliquots for display').' ('.sizeof($aliquots).')')));
 			$tree_data = array_merge($tree_data, $aliquots);
+			//TMA blocks
+			$tma_blocks = $this->TmaBlock->find('all', array('conditions' => array('TmaBlock.parent_id' => $storage_master_id), 'recursive' => '0'));
+			$tma_blocks = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['TmaBlock'], $tma_blocks);
+			if(sizeof($tma_blocks) > $storages_nbr_limit) $tma_blocks = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many tma blocks for display').' ('.sizeof($tma_blocks).')')));
+			$tree_data = array_merge($tree_data, $tma_blocks);
+			//TMA slide
 			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '0'));
 			$tma_slides = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['TmaSlide'], $tma_slides);
 			if(sizeof($tma_slides) > $tma_slides_nbr_limit) $tma_slides = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many tma slides for display').' ('.sizeof($tma_slides).')')));
 			$tree_data = array_merge($tree_data, $tma_slides);
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/contentTreeView/%%StorageMaster.id%%');
-			if(!$is_ajax && !$storage_data['StorageControl']['is_tma_block']) {			
-				// Get all storage control types to build the add to selected button
-				$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+			if(!$is_ajax && !$storage_data['StorageControl']['is_tma_block']) {
+				// Get data for the add to selected button
+				$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks($storage_master_id));
 			}
 		}else{
-			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL', 'StorageControl.is_tma_block' => '0'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['InitialStorageMaster'], $tree_data);
 			if(sizeof($tree_data) > $storages_nbr_limit) {
 				$this->flash(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
 				return;
 			}			
+			//TMA blocks
+			$tma_blocks = $this->TmaBlock->find('all', array('conditions' => array('TmaBlock.parent_id IS NULL'), 'recursive' => '0'));
+			$tma_blocks = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['TmaBlock'], $tma_blocks);
+			if(sizeof($tma_blocks) > $storages_nbr_limit) $tma_blocks = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many tma blocks for display').' ('.sizeof($tma_blocks).')')));
+			$tree_data = array_merge($tree_data, $tma_blocks);
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/search');
 			$this->set("search", true);
-			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+			// Get data for the add to selected button
+			$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks());
 		}
 		$ids = array();
 				
 		foreach($tree_data as $data_unit){
 			if(isset($data_unit['StorageMaster'])){
 				$ids[] = $data_unit['StorageMaster']['id'];
+			} else if(isset($data_unit['TmaBlock'])){
+				$ids[] = $data_unit['TmaBlock']['id'];
 			}
 		}
 		$ids = array_flip($this->StorageMaster->hasChild($ids));//array_key_exists is faster than in_array
 		foreach($tree_data as &$data_unit){
-			//only storages child interrests us here
-			$data_unit['children'] = isset($data_unit['StorageMaster']) && !isset($data_unit['TmaSlide']) && !isset($data_unit['AliquotMaster']) && array_key_exists($data_unit['StorageMaster']['id'], $ids);
+			if(isset($data_unit['StorageMaster']) && !isset($data_unit['TmaBlock']) && !isset($data_unit['TmaSlide']) && !isset($data_unit['AliquotMaster'])) {
+				$data_unit['children'] = array_key_exists($data_unit['StorageMaster']['id'], $ids);
+			} else if(isset($data_unit['TmaBlock']) && !isset($data_unit['StorageMaster']) && !isset($data_unit['TmaSlide']) && !isset($data_unit['AliquotMaster'])) {
+				$data_unit['children'] = array_key_exists($data_unit['TmaBlock']['id'], $ids);
+			}
 		}
 			
 		$this->request->data = $tree_data;
@@ -525,6 +545,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$atim_structure = array();
 		$atim_structure['StorageMaster']	= $this->Structures->get('form','storage_masters_for_storage_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_storage_tree_view');
+		$atim_structure['TmaBlock']			= $this->Structures->get('form','tma_blocks_for_storage_tree_view');
 		$atim_structure['TmaSlide']			= $this->Structures->get('form','tma_slides_for_storage_tree_view');
 		$atim_structure['Generated']		= $this->Structures->get('form','message_for_storage_tree_view');
 		$this->set('atim_structure', $atim_structure);	
@@ -651,33 +672,34 @@ class StorageMastersController extends StorageLayoutAppController {
 				
 				//manual validate/alteration of positions based on position conflict checks
 				$storage_config = array();
-				$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'StorageMaster', 'selection_label', $storage_config);
-				$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'AliquotMaster', 'barcode', $storage_config) || $conflicts_found;
-				$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'TmaSlide', 'barcode', $storage_config) || $conflicts_found;
-				$err = $this->StorageMaster->validationErrors;
+				$errors_or_warnings_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'StorageMaster', 'selection_label', $storage_config);
+				$errors_or_warnings_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'AliquotMaster', 'barcode', $storage_config) || $errors_or_warnings_found;
+				$errors_or_warnings_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'TmaSlide', 'barcode', $storage_config) || $errors_or_warnings_found;
 				
 				AppModel::acquireBatchViewsUpdateLock();
 				
+				$updated_record_counter = 0;
+				
 				//update StorageMaster
 				$this->StorageMaster->check_writable_fields = false;
-				$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data);
+				$errors_or_warnings_found = $this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data, $updated_record_counter) || $errors_or_warnings_found;
 				
 				//Update AliquotMaster
 				$this->AliquotMaster->check_writable_fields = false;
-				$this->StorageMaster->updateAndSaveDataArray($aliquots_initial_data, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data);
+				$errors_or_warnings_found = $this->StorageMaster->updateAndSaveDataArray($aliquots_initial_data, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data, $updated_record_counter) || $errors_or_warnings_found;
 				
 				//Update TmaSlide
 				$this->TmaSlide->check_writable_fields = false;
-				$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data);
+				$errors_or_warnings_found = $this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data, $updated_record_counter) || $errors_or_warnings_found;
 	
 				AppModel::releaseBatchViewsUpdateLock();
-				
-				if($conflicts_found){
-					AppController::addWarningMsg(__('your data has been saved'));
-					$this->StorageMaster->validationErrors = $err;
+
+				$summary_message = $updated_record_counter? __("the storage data of %s element(s) have been updated", $updated_record_counter): __("no storage data has been updated");
+				if($errors_or_warnings_found){
+					AppController::addWarningMsg(__($summary_message));
 					$storage_data = $storage_data[$storage_master_id];
 				}else{
-					$this->atimFlash(__('your data has been saved'), '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
+					$this->atimFlash(__($summary_message), '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
 					return;
 				}
 			}
@@ -713,10 +735,13 @@ class StorageMastersController extends StorageLayoutAppController {
 		}
 		
 		// Get all storage control types to build the add to selected button
-		$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
-		if(!$storage_data['StorageControl']['is_tma_block']) $this->set('storage_types_from_id', $storage_types_from_id);
+		if(!$storage_data['StorageControl']['is_tma_block']) {
+			// Get data for the add to selected button
+			$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks($storage_master_id));
+		}
 		
 		// Add translated storage type to main storage and chidlren storage
+		$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
 		$storage_control_id = $storage_data['StorageControl']['id'];
 		$storage_data['StorageControl']['translated_storage_type'] = isset($storage_types_from_id[$storage_control_id])? $storage_types_from_id[$storage_control_id] : $storage_data['StorageControl']['storage_type'];
 		foreach($storage_master_c as &$new_children_storage) {
@@ -746,13 +771,13 @@ class StorageMastersController extends StorageLayoutAppController {
 		
 		foreach($data['children'] as &$children_array){
 			if(isset($children_array['StorageMaster'])){
-				$link = $this->request->webroot."/StorageLayout/StorageMasters/detail/".$children_array["StorageMaster"]['id']."/2";
-				$this->StorageMaster->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list, $link, "storage");
+				$link = $this->request->webroot."StorageLayout/StorageMasters/detail/".$children_array["StorageMaster"]['id']."/2";
+				$this->StorageMaster->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list, $link, $children_array['StorageControl']['is_tma_block']? 'tma block' : 'storage');
 			}else if(isset($children_array['AliquotMaster'])){
-				$link = $this->request->webroot."/InventoryManagement/AliquotMasters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/2";
+				$link = $this->request->webroot."InventoryManagement/AliquotMasters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/2";
 				$this->StorageMaster->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "aliquot");
 			}else if(isset($children_array['TmaSlide'])){
-				$link = $this->request->webroot."/StorageLayout/TmaSlides/detail/".$children_array["TmaSlide"]['tma_block_storage_master_id']."/".$children_array["TmaSlide"]['id']."/2";
+				$link = $this->request->webroot."StorageLayout/TmaSlides/detail/".$children_array["TmaSlide"]['tma_block_storage_master_id']."/".$children_array["TmaSlide"]['id']."/2";
 				$this->StorageMaster->buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "slide");
 			}
 		}
@@ -854,39 +879,47 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 		
-		if(!$storage_master_data['StorageControl']['is_tma_block']) {
-			// Get all storage control types to build the add to selected button
-			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
-		}
-		
 		if(!$model) {
 			$this->Structures->set('empty', 'empty_structure');
 			if($storage_master_data['StorageControl']['is_tma_block']) {
 				$this->set('models_to_dispay', array('AliquotMaster' => 'cores'));
 			} else {
-				$this->set('models_to_dispay', array('StorageMaster' => 'storages', 'AliquotMaster' => 'aliquots', 'TmaSlide' => 'tma slides'));
+				$models_to_dispay = array('StorageMaster' => 'storages', 'AliquotMaster' => 'aliquots');
+				if($this->StorageControl->find('count', array('conditions' => array('StorageControl.is_tma_block' => '1', 'StorageControl.flag_active' => '1')))) {
+					$models_to_dispay = array_merge($models_to_dispay, array('TmaBlock' => 'tma blocks', 'TmaSlide' => 'tma slides'));
+				}
+				$this->set('models_to_dispay', $models_to_dispay);
 			}
 			if(!$storage_master_data['StorageControl']['is_tma_block']) {
-				// Get all storage control types to build the add to selected button
-				$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+				// Get data for the add to selected button
+				$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks($storage_master_id));
 			}
 			$this->set('is_main_form', true);
 		} else {
 			switch($model) {
 				case 'StorageMaster':
-					$this->request->data = $this->paginate($this->StorageMaster, array('StorageMaster.parent_id'=>$storage_master_id));
+					$this->request->data = $this->paginate($this->StorageMaster, array('StorageMaster.parent_id'=>$storage_master_id, 'StorageControl.is_tma_block' => '0'));
 					$this->Structures->set('storage_masters_for_storage_list_view');
 					$this->set('detail_url', '/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%/');
+					$this->set('icon', 'storage');
 					break;
 				case 'AliquotMaster':
 					$this->request->data = $this->paginate($this->AliquotMaster, array('AliquotMaster.storage_master_id'=>$storage_master_id));
 					$this->Structures->set('aliquot_masters_for_storage_list_view');
 					$this->set('detail_url', '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/');
+					$this->set('icon', 'aliquot');
+					break;
+				case 'TmaBlock':
+					$this->request->data = $this->paginate($this->TmaBlock, array('TmaBlock.parent_id'=>$storage_master_id));
+					$this->Structures->set('tma_blocks_for_storage_tree_view');		
+					$this->set('detail_url', '/StorageLayout/StorageMasters/detail/%%TmaBlock.id%%/');
+					$this->set('icon', 'tma block');
 					break;
 				case 'TmaSlide':
 					$this->request->data = $this->paginate($this->TmaSlide, array('TmaSlide.storage_master_id'=>$storage_master_id));
 					$this->Structures->set('tma_slides_for_storage_list_view');		
 					$this->set('detail_url', '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/');
+					$this->set('icon', 'tma slide');
 					break;
 				default:
 					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
