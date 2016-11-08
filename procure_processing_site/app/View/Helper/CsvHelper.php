@@ -6,7 +6,7 @@ class CsvHelper extends AppHelper {
     var $filename = 'export'; 
     var $line = array(); 
     var $buffer; 
-    var $csv_separator = csv_separator;
+    var $csv_separator = ";"; //var $csv_separator = csv_separator;  See Issue# 3318:  Fixe following notice: Notice (8): Use of undefined constant csv_separator
     static $nodes_info = null;
     static $structures = null;
      

@@ -24,7 +24,6 @@ if($controls){
 		'links' => array(
 			'top' => '/Tools/Template/edit/'.$template_id,
 			'bottom' => array(
-				'list' => '/Tools/Template/index',
 				'reset' => array('link' => 'javascript:confirmReset();', 'icon' => 'redo')
 			)
 		), 'settings' => array('return' => true, 'form_bottom' => true),
@@ -386,7 +385,7 @@ if(isset($is_ajax)){
 			$(".ajaxContent").html("<div class='center'><?php echo __('done'); ?><br/><?php echo __('redirecting to samples & aliquots'); ?></div>");
 			$(".tree_root li:first").css("background-color", "#dfd");
 			$(".tree_root a.add").remove();
-			document.location = root_url + '/InventoryManagement/Collections/detail/' + collectionId;
+			document.location = root_url + 'InventoryManagement/Collections/detail/' + collectionId;
 		}
 	}
 	
