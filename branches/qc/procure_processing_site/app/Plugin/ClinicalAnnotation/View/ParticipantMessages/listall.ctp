@@ -1,7 +1,11 @@
 <?php 
 
 	$structure_links = array(
-		'index'=>array('detail'=>'/ClinicalAnnotation/ParticipantMessages/detail/'.$atim_menu_variables['Participant.id'].'/%%ParticipantMessage.id%%/'),
+		'index'=>array(
+			'detail'=>'/ClinicalAnnotation/ParticipantMessages/detail/'.$atim_menu_variables['Participant.id'].'/%%ParticipantMessage.id%%/',
+			'edit'=>'/ClinicalAnnotation/ParticipantMessages/edit/'.$atim_menu_variables['Participant.id'].'/%%ParticipantMessage.id%%/',
+			'delete'=>'/ClinicalAnnotation/ParticipantMessages/delete/'.$atim_menu_variables['Participant.id'].'/%%ParticipantMessage.id%%/'
+		),
 		'bottom'=>array(
 			'add'=>'/ClinicalAnnotation/ParticipantMessages/add/'.$atim_menu_variables['Participant.id'].'/'
 		)
