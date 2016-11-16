@@ -138,6 +138,12 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 
 		if(empty($this->request->data)) {
 			$this->request->data = $treatment_master_data;
+
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		} else {
 			// LAUNCH SPECIAL VALIDATION PROCESS	
 			$submitted_data_validates = true;
@@ -259,7 +265,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 							require($hook_link);
 						}
 						
-						$this->atimFlash(__('your data has been saved'),$url_to_flash);
+						$this->atimFlash(__('your data has been saved'), $url_to_flash);
 					}
 				}
 							
@@ -311,12 +317,13 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 						$this->TreatmentMaster->data = array();
 						if(!$this->TreatmentMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 					}
+					$url_to_flash = '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id.'/';
 					$hook_link = $this->hook('postsave_process_batch');
 					if( $hook_link ) {
 						require($hook_link);
 					}
 					AppModel::releaseBatchViewsUpdateLock();
-					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id.'/');
+					$this->atimFlash(__('your data has been updated'), $url_to_flash);
 				} else {
 					$this->TreatmentMaster->validationErrors = array();
 					foreach($errors_tracking as $field => $msg_and_lines) {
