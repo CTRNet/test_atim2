@@ -272,12 +272,14 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 						$this->DiagnosisMaster->tryCatchQuery(str_replace("diagnosis_masters", "diagnosis_masters_revs", $query_to_update));
 					}
 					
+					$url_to_flash = '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/';
+					
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
 					
-					$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/' );
+					$this->atimFlash(__('your data has been saved'), $url_to_flash);
 				}
 			}
 		}
