@@ -119,11 +119,12 @@ UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 VALUES
 ('biopsy','biopsy'),
-('to define','*** to define ***');
+('clinical exam to define','clinical exam to define');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('clinical exam to define', 'Exam (To define)', 'Examen (À définir)');
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
 VALUES 
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types"), (SELECT id FROM structure_permissible_values WHERE value="biopsy" AND language_alias="biopsy"), "1", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types"), (SELECT id FROM structure_permissible_values WHERE value="to define" AND language_alias="*** to define ***"), "1000", "1");
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types"), (SELECT id FROM structure_permissible_values WHERE value="clinical exam to define" AND language_alias="clinical exam to define"), "1000", "1");
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 VALUES 
 ("procure_followup_exam_type_precisions", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Clinical Exam Precisions\')");
@@ -144,7 +145,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_event'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='type_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_type_precisions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events ADD COLUMN type_precision VARCHAR(100) DEFAULT NULL;
 ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs ADD COLUMN type_precision VARCHAR(100) DEFAULT NULL;
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('*** to define ***', '*** To define ***', '*** À définir ***');
 ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events ADD COLUMN progression_comorbidity VARCHAR(100) DEFAULT NULL;
 ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs ADD COLUMN progression_comorbidity VARCHAR(100) DEFAULT NULL;
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
@@ -156,7 +156,7 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Progressions & Comorbidities');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
 VALUES 
-('*** to define ***', '*** To Define ***', '*** À Définir ***', '1', @control_id),
+('progressions comorbidity to define', 'Progression/Comorbidity (To Define)', 'Progression/comorbidité (À définir)', '1', @control_id),
 ('local tumor progression', 'Local tumor progression', 'Progression locale de la tumeur', '1', @control_id),
 ("bone metastases", "Bone metastases", "Métastases osseuses", '1', @control_id),
 ("hydronephrosis", "Hydronephrosis", "Hydronephrose", '1', @control_id),
@@ -619,6 +619,7 @@ WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND TreatmentDetail.drug_id IS NOT NULL 
 AND TreatmentDetail.drug_id NOT LIKE '';
+ALTER TABLE procure_txd_followup_worksheet_treatments DROP FOREIGN KEY `FK_procure_txd_followup_worksheet_treatments_drugs`;
 ALTER TABLE procure_txd_followup_worksheet_treatments CHANGE drug_id procure_deprecated_field_drug_id INT(11) DEFAULT NULL;
 ALTER TABLE procure_txd_followup_worksheet_treatments_revs CHANGE drug_id procure_deprecated_field_drug_id INT(11) DEFAULT NULL;
 
@@ -993,7 +994,7 @@ AND clinical_recurrence_type = 'local');
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
-(SELECT DISTINCT '*** to define ***', @ev_control_id, participant_id,
+(SELECT DISTINCT 'progressions comorbidity to define', @ev_control_id, participant_id,
 "Metastasis undefined. Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
@@ -1003,7 +1004,7 @@ OR (clinical_recurrence_type = 'distant' AND clinical_recurrence_site_bones = '0
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
-(SELECT DISTINCT '*** to define ***', @ev_control_id, participant_id,
+(SELECT DISTINCT 'progressions comorbidity to define', @ev_control_id, participant_id,
 "Recurrence undefined. Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
@@ -1012,7 +1013,7 @@ AND clinical_recurrence = 'y'
 AND (clinical_recurrence_type = '' OR clinical_recurrence_type IS NULL)
 AND clinical_recurrence_site_bones = '0' AND clinical_recurrence_site_liver = '0' AND clinical_recurrence_site_lungs = '0' AND clinical_recurrence_site_others = '0');
 INSERT INTO procure_ed_prostate_cancer_clinical_exams (`event_master_id`, `type`, `results`, `progression_comorbidity`)
-(SELECT id, 'to define', 'positive', tmp_progression FROM event_masters 
+(SELECT id, 'clinical exam to define', 'positive', tmp_progression FROM event_masters 
 WHERE event_control_id = @ev_control_id AND tmp_progression IS NOT NULL AND tmp_progression NOT LIKE '' AND created = @modified);
 INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, 
 date_requested, date_requested_accuracy, reference_number, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, 
@@ -1335,22 +1336,105 @@ UPDATE treatment_controls SET databrowser_label = tx_method WHERE flag_active = 
 
 
 
---
+
+
+
+
+
+
+-- Structure Value Domain Clean Up
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE structure_value_domains SET domain_name = 'procure_treatment_types' WHERE domain_name = 'procure_followup_treatment_types';
 
+--
+-- Clinical exam
+--
 
+-- procure_clinical_exam_results
 
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Clinical Exam - Results (PROCURE values only)\')" WHERE domain_name = 'procure_clinical_exam_results';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Clinical Exam - Results (PROCURE values only)', 1, 50, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam - Results (PROCURE values only)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+(SELECT value, en, fr, '1', @control_id
+FROM structure_value_domains domain
+INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
+INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = language_alias
+WHERE link.flag_active = 1
+AND domain_name = 'procure_clinical_exam_results'); 
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_clinical_exam_results");
 
+-- procure_clinical_exam_types
 
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Clinical Exam - Types (PROCURE values only)\')" WHERE domain_name = 'procure_clinical_exam_types';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Clinical Exam - Types (PROCURE values only)', 1, 50, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam - Types (PROCURE values only)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+(SELECT value, en, fr, '1', @control_id
+FROM structure_value_domains domain
+INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
+INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = language_alias
+WHERE link.flag_active = 1
+AND domain_name = 'procure_clinical_exam_types'); 
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_clinical_exam_types");
 
+-- procure_clinical_exam_type_precisions
+-- procure_progressions_comorbidities
 
+UPDATE structure_permissible_values_custom_controls SET name = 'Clinical Exam Precisions (PROCURE values only)' WHERE name = 'Clinical Exam Precisions';
+UPDATE structure_permissible_values_custom_controls SET name = 'Progressions & Comorbidities (PROCURE values only)' WHERE name = 'Progressions & Comorbidities';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Clinical Exam Precisions (PROCURE values only)\')" 
+WHERE domain_name = 'procure_clinical_exam_type_precisions';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Progressions & Comorbidities (PROCURE values only)\')" 
+WHERE domain_name = 'procure_progressions_comorbidities';
 
+--
+-- Treatment
+--
 
+UPDATE structure_permissible_values_custom_controls SET name = 'Surgery Types (PROCURE values only)' WHERE name = 'Surgery Types';
+UPDATE structure_permissible_values_custom_controls SET name = 'Treatment Sites (PROCURE values only)' WHERE name = 'Treatment Sites';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Surgery Types (PROCURE values only)\')" 
+WHERE domain_name = 'procure_surgery_type';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment Sites (PROCURE values only)\')" 
+WHERE domain_name = 'procure_treatment_site';
 
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment Precisions (PROCURE values only)\')" WHERE domain_name = 'procure_treatment_precision';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Treatment Precisions (PROCURE values only)', 1, 50, 'clinical - treatment');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Precisions (PROCURE values only)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+(SELECT value, en, fr, '1', @control_id
+FROM structure_value_domains domain
+INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
+INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = language_alias
+WHERE link.flag_active = 1
+AND domain_name = 'procure_treatment_precision'); 
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_treatment_precision");
 
-  
-
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment Types (PROCURE values only)\')" WHERE domain_name = 'procure_treatment_types';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Treatment Types (PROCURE values only)', 1, 50, 'clinical - treatment');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Types (PROCURE values only)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+(SELECT value, en, fr, '1', @control_id
+FROM structure_value_domains domain
+INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
+INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = language_alias
+WHERE link.flag_active = 1
+AND domain_name = 'procure_treatment_types'); 
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_treatment_types");
 
 
 

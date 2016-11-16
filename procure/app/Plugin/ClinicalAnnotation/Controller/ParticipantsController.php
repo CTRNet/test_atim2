@@ -110,12 +110,14 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				if ( $this->Participant->save($this->request->data) ) {
 					
+					$url_to_flash = '/ClinicalAnnotation/Participants/profile/'.$this->Participant->getLastInsertID();
+					
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
 					
-					$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/'.$this->Participant->getLastInsertID());
+					$this->atimFlash(__('your data has been saved'), $url_to_flash);
 				}
 			}
 		}
