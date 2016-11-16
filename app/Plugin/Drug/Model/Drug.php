@@ -113,7 +113,7 @@ class Drug extends DrugAppModel {
 		if(!isset($this->drug_titles_already_checked[$drug_data_and_code])) {
 			$matches = array();
 			$selected_drugs = array();
-			if(preg_match("/(.+)\[([0-9]+)\]/", $drug_data_and_code, $matches) > 0){
+			if(preg_match("/(.+)\[([0-9]+)\]$/", $drug_data_and_code, $matches) > 0){
 				// Auto complete tool has been used
 				$selected_drugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".trim($matches[1])."%'", 'Drug.id' => $matches[2])));
 			} else {
