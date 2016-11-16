@@ -487,12 +487,17 @@ class StorageMastersController extends StorageLayoutAppController {
 				$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks($storage_master_id));
 			}
 		}else{
-			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL', 'StorageControl.is_tma_block' => '0'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['InitialStorageMaster'], $tree_data);
 			if(sizeof($tree_data) > $storages_nbr_limit) {
 				$this->flash(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
 				return;
 			}			
+			//TMA blocks
+			$tma_blocks = $this->TmaBlock->find('all', array('conditions' => array('TmaBlock.parent_id IS NULL'), 'recursive' => '0'));
+			$tma_blocks = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['TmaBlock'], $tma_blocks);
+			if(sizeof($tma_blocks) > $storages_nbr_limit) $tma_blocks = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many tma blocks for display').' ('.sizeof($tma_blocks).')')));
+			$tree_data = array_merge($tree_data, $tma_blocks);
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/search');
 			$this->set("search", true);
 			// Get data for the add to selected button

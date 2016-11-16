@@ -1329,7 +1329,7 @@ class AppController extends Controller {
 			AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label')";
 		$flag_detail_result = $AliquotMaster_model->query($tmp_sql);
 		$aliquot_label_flag_detail = '1';
-		if($flag_detail_result) $aliquot_label_flag_detail = $flag_detail_result[0]['structure_formats']['flag_detail'];		
+		if($flag_detail_result) $aliquot_label_flag_detail = empty($flag_detail_result[0]['structure_formats']['flag_detail'])? '0' : '1';		
 		
 		$structure_formats_queries = array();
 		switch(Configure::read('order_item_type_config')) {

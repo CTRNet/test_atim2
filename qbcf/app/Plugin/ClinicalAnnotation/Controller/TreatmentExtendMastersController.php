@@ -85,6 +85,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 					if(!$this->TreatmentExtendMaster->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				
+				$url_to_flash = '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id;
+				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
 					require($hook_link);
@@ -92,7 +94,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				
 				AppModel::releaseBatchViewsUpdateLock();
 				
-				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
+				$this->atimFlash(__('your data has been saved'), $url_to_flash);
 
 			} else  {
 				$this->TreatmentExtendMaster->validationErrors = array();

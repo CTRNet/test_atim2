@@ -17,15 +17,19 @@
 --      to 'false' to hide the section.
 --
 --
+--		
 --   ### 2 # Replaced the study drop down list to both an autocomplete field and a text field
 --
 --      Replaced all 'study_summary_id' field with 'select' type and 'domain_name' equals to 'study_list' by the 2 following fields
 --			- Study.FunctionManagement.autocomplete_{.*}_study_summary_id for any data creation and update
 --			- Study.StudySummary.title for any data display in detail or index form.
+--		
 --		A field study_summary_title has been created for both ViewAliquot and ViewAliquotUse.
+--		
 --      The defintion of study linked to a created/updated data is now done through an 'autocomplete' field.
+--		
 --      The search of a study linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
---
+--		
 --      TODO:
 --
 --      Review any of these forms:
@@ -43,6 +47,7 @@
 --
 --      Update $table_querie variables of the ViewAliquotCustom and ViewAliquotUseCustom models (if exists).
 --
+--		
 --
 --   ### 2 # Added Study Model to the databrowser
 --
@@ -59,17 +64,23 @@
 --   ### 3 # Added ICD-0-3-Topo Categories (tissue site/category)
 --
 --		The ICD-0-3-Topo categories have been defined based on an internet reasearch (no source file).
+--		
 --		Created field 'diagnosis_masters.icd_0_3_topography_category' to record a ICD-0-3-Topo 3 digits codes (C07, etc) 
 --		and to let user searches on tissue site/category (more generic than tissue descritpion - ex: colon, etc).
+--		
 --		A search field on ICD-0-3-Topo categories has been created for each form displaying a field linked to the ICD-0-3-Topo tool.
+--		
 --      Note the StructureValueDomain 'icd_0_3_topography_categories' can also be used to set the site of any record of surgery, radiation, tissue source, etc .
 --
 --      TODO:
 --
 --		Check field has been correctly linked to any form displaying the ICD-0-3-Topo tool.
+--		
 --		Check field diagnosis_masters.icd_0_3_topography_category of existing records has been correctly populated based on diagnosis_masters.topography 
+--		
 --		field (when the diagnosis_masters.topography field contains ICD-0-3-Topo codes).
 --
+--		
 --
 --   ### 4 # Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
 --
@@ -78,6 +89,7 @@
 --      TODO:
 --
 --		Check any of your secondary diagnosis forms.
+--		
 --
 --
 --   ### 5 # Changed DiagnosisControl.category values
@@ -90,6 +102,7 @@
 --      TODO:
 --
 --		Update custom code if required.
+--		
 --
 --
 --   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field plus moved drug_id field to Master model
@@ -100,14 +113,16 @@
 --			- Drug.Drug.generic_name for any data display in detail or index form
 --
 --      The definition of drug linked to a created/updated data is now done through an 'autocomplete' field.
+--		
 --      The search of a drug linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
---      The drug_id table fields of the models 'TreatmentExtendDetail' and 'ProtocolExtendDetail' should be moved to the Master level (already done
---		for txe_chemos and pe_chemos).
+--		
+--      The drug_id table fields of the models 'TreatmentExtendDetail' and 'ProtocolExtendDetail' should be moved to the Master level (already done for txe_chemos and pe_chemos).
 --
 --      TODO:
 --
 --      Review any forms listed in treatment_extend_controls.detail_form_alias and protocol_extend_controls.detail_form_alias 
 --      to update any of them containing a drug_id field.
+--		
 --      Migrate drug_id values of any tablename listed in treatment_extend_controls.detail_tablename and protocol_extend_controls.detail_tablename
 -- 		and having a drug_id field to the treatment_extend_masters.drug_id or protocol_extend_masters.drug_id field.
 --      
@@ -122,22 +137,28 @@
 --      ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
 --      ALTER TABLE {tablename} DROP COLUMN drug_id;
 --      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
+--		
 --
 --
 --   ### 7 # TMA slide new features
 --
 --      Created an immunochemistry autocomplete field.
+--		
 -- 		Created a new object TmaSlideUse linked to a TmaSlide to track any slide scoring or analysis and added this one to the databrowser.
+--		
 --		Changed code to be able to add a TMA Slide to an Order (see point 8 below).
 --
 --		TODO:
 --
 --		Customize the TmaSlideUse controller and forms if required.
+--		
 --		Activate the TmaSlide to TmaSlideUse databrowser link if required.
 --			UPDATE datamart_browsing_controls 
 --          SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
 --          WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
+--		
 --		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
+--		
 --
 --
 --   ### 8 # Order tool upgrade
@@ -149,12 +170,19 @@
 --
 --		TODO:
 --
---		Note the OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(). Check if custom code has to be update or not.
---		Set core variable 'order_item_type_config' to define the type(s) of item that could be added to order (both tma slide and aliquot, aliquot only, tma slide only). 
---      Besd on the 'order_item_type_config' variable, the field display properties (flag_index, etc) of the 'shippeditems', 'orderitems', 'orderitems_returned' 
---      and 'orderlines' forms will be updated by the AppController.newVersionSetup() function based on the 'order_item_type_config' value.
+--		The OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(). Check if custom code has to be update or not.
+--		
+--		Core variables 'AddAliquotToOrder_processed_items_limit' and 'AddAliquotToShipment_processed_items_limit' have been renamed to 'AddToOrder_processed_items_limit' and 'AddToShipment_processed_items_limit'
+--		plus two new ones have been created 'edit_processed_items_limit'and 'defineOrderItemsReturned_processed_items_limit'. Check if custom code has to be update or not.
+--		
+--		Set the new core variable 'order_item_type_config' to define the type(s) of item that could be added to order ('both tma slide and aliquot' or 'aliquot only' or 'tma slide only'). Based on this variable,  
+--      the fields display properties (flag_index, flag_add, etc) of the following forms 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' will be updated by 
+--      the AppController.newVersionSetup() function.
+--		
 --		Activate databrowser links if required plus review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
+--		
 --      Update $table_querie variable of the ViewAliquotUseCustom model (if exists).
+--		
 --
 --
 --   ### 9 # New Sample and aliquot controls
@@ -168,13 +196,19 @@
 --		TODO:
 --
 --		Activate these sample types if required.
+--		
 --
 --
 --   ### 10 # Removed AliquotMaster.use_counter field
 --
+-- 		Function AliquotMaster.updateAliquotUseAndVolume() is now deprecated and repalced by AliquotMaster.updateAliquotVolume().
+--
 --		TODO:
 --
 --		Validate no custom code or migration script populate/update/use this field.
+--		
+--		Check custom function AliquotMasterCustom.updateAliquotUseAndVolume() exists and update this one if required.
+--		
 --
 --
 --   ### 11 # datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
@@ -185,6 +219,7 @@
 --			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
 --			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND name != 'list all children storages');
 --
+--		
 --
 --   ### 12 # Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
 --
@@ -193,6 +228,7 @@
 --		Run following query to detect errors
 --			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
 --
+--		
 --
 --   ### 13 # Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
 --
@@ -200,6 +236,7 @@
 --		
 --		Check any custom code using AliquotMaster.getDefaultStorageDate().
 --
+--		
 --
 --  ### 14 # Changed displayed pages workflow after treatment creation.
 --
@@ -213,6 +250,7 @@
 --		Change workflow by hook if required.
 --
 --
+--		
 --  ### 15 # Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
 --
 --		Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields.
@@ -221,6 +259,7 @@
 --		
 --		Override the CodingIcdAppModel.globalSearch and CodingIcdAppModel.getDescription functions.
 --
+--		
 --
 --  ### 16 # Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 
 --
@@ -230,6 +269,7 @@
 --			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excisional biopsy';
 --			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excis. resect.';
 --
+--		
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -809,7 +849,7 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='orderitems'), (SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='id' AND `type`='hidden' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0');
 
-INSERT INTO i18n (id,en,fr) 
+INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
 ('shipped aliquot return','Shipped Aliquot Return','Retour d''aliquot envoyé'),
 ('order preparation','Order Preparation','Préparation de commande');
@@ -1151,7 +1191,7 @@ VALUES
 -- when they exist. 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('from associated protocol', 'from associated protocol', 'à partir du protocole associé');
 
@@ -1417,7 +1457,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- Include TMA Blocks label to the StorageLayout tool menus and buttons
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('storage contains too many tma blocks for display','Storage contains too many TMA blocks for display','L\'entreposage contient trop de blocs de TMA pour l\'affichage');
 INSERT INTO structures(`alias`) VALUES ('tma_blocks_for_storage_tree_view');
@@ -1495,7 +1535,7 @@ VALUES
 ALTER TABLE datamart_structures MODIFY `display_name` varchar(100) NOT NULL;
 UPDATE datamart_structures SET display_name = 'storage (non tma block) - value generated by newVersionSetup function' WHERE id = @datamart_structure_id;
 REPLACE INTO i18n (id,en,fr) (SELECT "storage (non tma block) - value generated by newVersionSetup function", en, fr FROM i18n WHERE id = 'storage');
-INSERT INTO i18n (id,en,fr) VALUES ('storage (non tma block)', 'Entreposage (Non TMA Block)', 'Entreposage (Bloc de TMA exclu)'); 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('storage (non tma block)', 'Entreposage (Non TMA Block)', 'Entreposage (Bloc de TMA exclu)'); 
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Change structure_value_domains 'models' to get data directly from datamart_structures table
@@ -1625,7 +1665,7 @@ DELETE FROM structure_formats WHERE id = @structure_format_id;
 -- Simplify way we display fields in order tool based on the core variable 'order_item_type_config' value
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'.",
 "Structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'.",
@@ -2353,7 +2393,7 @@ UPDATE structure_formats SET `display_order`='221' WHERE structure_id=(SELECT id
 UPDATE structure_formats SET `display_order`='222' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='deep_margin_distance_of_tumor_from_margin_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='distance_unit') AND `flag_confidential`='0');
 UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL  WHERE model='EventDetail' AND tablename='ed_cap_report_16_colon_resections' AND field='other_margin_specify' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='colon_surgery_2016_margins_1');
 
-INSERT INTO i18n (id,en)
+INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('distance of tumor from margin', 'Distance of tumor from margin'),
 ('mesenteric margin', 'Mesenteric margin');
@@ -2378,7 +2418,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='distance_of_invasive_carcinoma_from_closest_mucosal_margin' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='distance of invasive carcinoma from closest mucosal margin'), '2', '231', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='distance_of_invasive_carcinoma_from_closest_mucosal_margin_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='distance_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '232', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='mucosal_margin_specify_location' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify location'), '2', '233', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en)
+INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('mucosal margin', 'Mucosal margin'),
 ('distance of invasive carcinoma from closest mucosal margin', 'Distance of invasive carcinoma from closest mucosal margin');
@@ -2410,7 +2450,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='microscopic_tumor_extension'), '2', '200', 'microscopic tumor extension', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='microscopic_tumor_extension_specify'), '2', '201', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en)
+INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('no invasion', 'No invasion'),
 ('tumor invades lamina propria/muscularis mucosae', 'Tumor invades lamina propria/muscularis mucosae');
@@ -2625,7 +2665,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='additional_pathologic_other'), '2', '407', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='additional_pathologic_other_specify'), '2', '408', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
-INSERT INTO i18n (id,en)
+INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('diverticulosis', 'Diverticulosis'),
 ('specify site', 'Specify Site'),
@@ -2892,7 +2932,7 @@ CREATE TABLE `ed_cap_report_16_colon_resections_revs` (
 UPDATE structure_fields SET  `language_label`='specify location',  `language_tag`='' WHERE model='EventDetail' AND tablename='ed_cap_report_16_colon_resections' AND field='mucosal_margin_specify_location' AND `type`='input' AND structure_value_domain  IS NULL ;
 UPDATE structure_formats SET `margin`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='mucosal_margin_specify_location' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-INSERT INTO i18n (id,en)
+INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('no nodes submitted or found', 'No nodes submitted or found'),
 ('number of lymph nodes examined', 'Number of lymph nodes examined');
@@ -2903,7 +2943,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '415', 'notes', '0', '1', 'notes', '0', '', '0', '', '0', '', '1', 'cols=40, rows=6', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 UPDATE structure_fields SET  `language_label`='adenomas' WHERE model='EventDetail' AND tablename='ed_cap_report_16_colon_resections' AND field='additional_pathologic_adenoma' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
-INSERT INTO i18n (id,en) VALUES ('adenomas', 'Adenomas');
+INSERT IGNORE INTO i18n (id,en) VALUES ('adenomas', 'Adenomas');
 
 ALTER TABLE ed_cap_report_16_colon_biopsies_revs DROP COLUMN modified_by;
 ALTER TABLE ed_cap_report_16_colon_resections_revs DROP COLUMN modified_by;
