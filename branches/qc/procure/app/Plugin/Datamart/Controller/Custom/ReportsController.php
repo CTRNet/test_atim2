@@ -121,8 +121,8 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($participant_model->query($query) as $res) {
 			$tx_controls[$res['treatment_controls']['tx_method']] = array('id' => $res['treatment_controls']['id'], 'detail_tablename' => $res['treatment_controls']['detail_tablename']);
 		}
-		$diagnosis_event_control_id = $event_controls['procure diagnostic information worksheet']['id'];
-		$diagnosis_event_detail_tablename = $event_controls['procure diagnostic information worksheet']['detail_tablename'];
+		$diagnosis_event_control_id = $event_controls['prostate cancer - diagnosis']['id'];
+		$diagnosis_event_detail_tablename = $event_controls['prostate cancer - diagnosis']['detail_tablename'];
 		$pathology_event_control_id = $event_controls['procure pathology report']['id'];
 		$pathology_event_detail_tablename = $event_controls['procure pathology report']['detail_tablename'];
 		$followup_treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
@@ -249,7 +249,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//Analyze participants psa
 		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-		$event_control_id = $event_controls['procure follow-up worksheet - aps']['id'];
+		$event_control_id = $event_controls['prostate cancer - laboratory']['id'];
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL'), 'order' => array('EventMaster.event_date ASC')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
@@ -275,7 +275,7 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		//Analyze participants 1st clinical recurrence
-		$event_control_id = $event_controls['procure follow-up worksheet - clinical event']['id'];
+		$event_control_id = $event_controls['prostate cancer - clinical exam']['id'];
 		$all_participants_test = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL', 'EventDetail.results' => 'positive'), 'order' => array('EventMaster.event_date ASC')));	
 		foreach($all_participants_test as $new_test) {
 			$participant_id = $new_test['EventMaster']['participant_id'];
@@ -360,8 +360,8 @@ class ReportsControllerCustom extends ReportsController {
 		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
 		$event_controls = array();
 		foreach($participant_model->query($query) as $res) $event_controls[$res['event_controls']['event_type']] = array('id' => $res['event_controls']['id'], 'detail_tablename' => $res['event_controls']['detail_tablename']);
-		$followup_event_control_id = $event_controls['procure follow-up worksheet']['id'];
-		$followup_event_detail_tablename = $event_controls['procure follow-up worksheet']['detail_tablename'];
+		$followup_event_control_id = $event_controls['visit - contact']['id'];
+		$followup_event_detail_tablename = $event_controls['visit - contact']['detail_tablename'];
 		if(!$followup_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
 		$query = "SELECT id,tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
 		$tx_controls = array();
@@ -923,7 +923,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//Analyze participants psa
 		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-		$event_control_id = $event_controls['procure follow-up worksheet - aps']['id'];
+		$event_control_id = $event_controls['prostate cancer - laboratory']['id'];
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL'), 'order' => array('EventMaster.event_date ASC')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
@@ -1120,7 +1120,7 @@ class ReportsControllerCustom extends ReportsController {
 			
 			$new_data = $record_template;
 			$new_data['0']['procure_next_followup_data'] = __('last visit');
-			$last_data = $event_model->find('first', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'procure follow-up worksheet'), 'order' => 'EventMaster.event_date DESC'));
+			$last_data = $event_model->find('first', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'visit - contact'), 'order' => 'EventMaster.event_date DESC'));
 			if(!$last_data) {
 				$new_data['0']['procure_next_followup_value'] = __('none');
 			} else {
@@ -1132,7 +1132,7 @@ class ReportsControllerCustom extends ReportsController {
 			
 			//*** Last PSA ***
 			
-			$all_atim_data = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'procure follow-up worksheet - aps'), 'order' => 'EventMaster.event_date DESC', 'limit' => $last_record_nbr));
+			$all_atim_data = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'prostate cancer - laboratory'), 'order' => 'EventMaster.event_date DESC', 'limit' => $last_record_nbr));
 			if(!$all_atim_data) {
 				$new_data = $record_template;
 				$new_data['0']['procure_next_followup_data'] = __('last psa').' - '.__('total ng/ml');
@@ -1151,7 +1151,7 @@ class ReportsControllerCustom extends ReportsController {
 			
 			//*** Last clinical event ***
 				
-			$all_atim_data = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'procure follow-up worksheet - clinical event'), 'order' => 'EventMaster.event_date DESC', 'limit' => $last_record_nbr));
+			$all_atim_data = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $new_participant_id, 'EventControl.event_type' => 'prostate cancer - clinical exam'), 'order' => 'EventMaster.event_date DESC', 'limit' => $last_record_nbr));
 			if(!$all_atim_data) {
 				$new_data = $record_template;
 				$new_data['0']['procure_next_followup_data'] = __('last clinical event');

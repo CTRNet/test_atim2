@@ -138,6 +138,12 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 
 		if(empty($this->request->data)) {
 			$this->request->data = $treatment_master_data;
+
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		} else {
 			// LAUNCH SPECIAL VALIDATION PROCESS	
 			$submitted_data_validates = true;
