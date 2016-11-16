@@ -133,12 +133,14 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 					if(!$this->FamilyHistory->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				
+				$url_to_flash = '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id;
+				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
 					require($hook_link);
 				}
 				
-				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been saved'), $url_to_flash );
 
 			} else  {
 				$this->FamilyHistory->validationErrors = array();
