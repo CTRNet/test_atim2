@@ -324,19 +324,29 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		if(AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/detail/')){
 			$txs = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id)));
 			foreach($txs as $tx){
+				$start_suffix_msg = '';
+				$finish_suffix_msg = '';
+				if($tx['TreatmentMaster']['start_date'] || $tx['TreatmentMaster']['finish_date']) {
+					$start_suffix_msg = " (".__("start").")";
+					$finish_suffix_msg = empty($tx['TreatmentMaster']['finish_date'])? '' : " (".__("end").")";
+					if($tx['TreatmentMaster']['start_date'] == $tx['TreatmentMaster']['finish_date'] && $tx['TreatmentMaster']['start_date_accuracy'] == $tx['TreatmentMaster']['finish_date_accuracy']) {
+						$start_suffix_msg = " (".__("start")." & ".__("end").")";
+						$finish_suffix_msg = '';
+					}
+				}
 				$chronolgy_data_treatment_start = array(
 					'date'			=> $tx['TreatmentMaster']['start_date'],
 					'date_accuracy' => $tx['TreatmentMaster']['start_date_accuracy'],
-					'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method'])." (".__("start").")",
+					'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method']).$start_suffix_msg,
 					'chronology_details' => '',
 					'link'			=> '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id']
 				);
 				$chronolgy_data_treatment_finish = false;
-				if(!empty($tx['TreatmentMaster']['finish_date'])){
+				if($finish_suffix_msg){
 					$chronolgy_data_treatment_finish = array(
 						'date'			=> $tx['TreatmentMaster']['finish_date'],
 						'date_accuracy' => $tx['TreatmentMaster']['finish_date_accuracy'],
-						'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method'])." (".__("end").")",
+						'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method']).$finish_suffix_msg,
 						'chronology_details' => '',
 						'link'			=> '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id']
 					);

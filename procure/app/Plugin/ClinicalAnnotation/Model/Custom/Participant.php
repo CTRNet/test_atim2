@@ -70,149 +70,45 @@ class ParticipantCustom extends Participant {
 		$add_links = array();
 		
 		if(Configure::read('procure_atim_version') == 'BANK') {
-			$add_links = array(__('quick procure collection creation button') => array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection'));
+			$add_links = array(__('collection') => array(
+				'link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 
+				'icon' => 'collection'));
 			//Consent
 			$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
 			$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
+			$add_links_tmp = array();
 			foreach ($consent_controls_list as $consent_control) {
-				$add_links[__($consent_control['ConsentControl']['controls_type'])] = array('link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 'icon' => 'participant');
+				$add_links_tmp[__($consent_control['ConsentControl']['controls_type'])] = array(
+					'link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 
+					'icon' => 'consents');
 			}
+			ksort($add_links_tmp);
+			$add_links = array_merge($add_links, $add_links_tmp);
 			//Event
 			$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
 			$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
+			$add_links_tmp = array();
 			foreach ($event_controls_list as $event_ctrl) {
-				$add_links[__($event_ctrl['EventControl']['event_type'])] = array('link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 'icon' => 'participant');
-			}	
+				$add_links_tmp[__($event_ctrl['EventControl']['event_type'])] = array(
+					'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 
+					'icon' => 'annotation');
+			}
+			ksort($add_links_tmp);
+			$add_links = array_merge($add_links, $add_links_tmp);	
 			//Treatment
 			$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 			$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
+			$add_links_tmp = array();
 			foreach ($tx_controls_list as $treatment_control) {
-				$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
-			}		
-			ksort($add_links);	
+				$add_links_tmp[__($treatment_control['TreatmentControl']['tx_method'])] = array(
+					'link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 
+					'icon' => 'treatments');
+			}
+			ksort($add_links_tmp);
+			$add_links = array_merge($add_links, $add_links_tmp);
 		}
 		
 		return $add_links;
-	}
-	
-	function setParticipantIdentifierForFormValidation($participant_id) {
-		$participant_identifier = $this->find('first', array('conditions' => array('Participant.id' => $participant_id), 'fields' => array('Participant.participant_identifier'), 'recursvie' => '0'));
-		if(!$participant_identifier) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		$this->participant_identifier_for_form_validation = $participant_identifier['Participant']['participant_identifier'];
-	}
-	
-	function validateFormIdentification($procure_form_identification, $model, $id, $control_id = null) {
-		if(!$this->participant_identifier_for_form_validation) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		$pattern_suffix = null;
-		$main_worksheet = true;
-		switch($model) {
-			case 'ConsentMaster':
-				$pattern_suffix = "CSF";
-				break;
-				
-			case 'EventMaster':
-				if($id) {
-					$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-					$studied_event = $EventMaster->find('first', array('conditions' => array('EventMaster.id' => $id), 'recursive' => '0'));
-					$event_type = $studied_event['EventControl']['event_type'];
-				} else if($control_id) {
-					$EventControl = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
-					$studied_event_control = $EventControl->find('first', array('conditions' => array('id' => $control_id), 'recursive' => '0'));
-					$event_type = $studied_event_control['EventControl']['event_type'];
-				}
-				$pattern_suffix_suffix = '';
-				switch($event_type) {
-					case 'procure pathology report':
-						$pattern_suffix = "PST";
-						break;
-					case 'procure diagnostic information worksheet':
-						$pattern_suffix = "FBP";
-						break;
-					case 'procure questionnaire administration worksheet':
-						$pattern_suffix = "QUE";
-						break;
-					case 'procure follow-up worksheet':
-						$pattern_suffix = "FSP";
-						break;
-					case 'procure follow-up worksheet - aps':
-					case 'procure follow-up worksheet - clinical event':
-					case 'procure follow-up worksheet - other tumor dx':
-					case 'procure follow-up worksheet - clinical note':
-						$pattern_suffix = "FSP";
-						$main_worksheet = false;
-						break;
-					default:
-						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				}
-				break;
-				
-			case 'TreatmentMaster':
-				if($id) {
-					$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-					$studied_treatment = $TreatmentMaster->find('first', array('conditions' => array('TreatmentMaster.id' => $id), 'recursive' => '0'));
-					$tx_method = $studied_treatment['TreatmentControl']['tx_method'];
-				} else if($control_id) {
-					$TreatmentControl = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
-					$studied_treatment_control = $TreatmentControl->find('first', array('conditions' => array('id' => $control_id), 'recursive' => '0'));
-					$tx_method = $studied_treatment_control['TreatmentControl']['tx_method'];
-				} else {
-					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				}
-				switch($tx_method) {
-					case 'procure medication worksheet':
-						$pattern_suffix = "MED";
-						break;
-					case 'procure follow-up worksheet - treatment':
-					case 'procure follow-up worksheet - other tumor tx': 
-						$pattern_suffix = "FSP";
-						$main_worksheet = false;
-						break;
-					case 'procure medication worksheet - drug':
-						$pattern_suffix = "MED";
-						$main_worksheet = false;
-						break;
-					default:
-						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
-				}
-		}
-		if(empty($pattern_suffix)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
-		//Check Format
-		if($main_worksheet) {
-			if(!preg_match("/^".$this->participant_identifier_for_form_validation." V((0[1-9])|(1[0-9])) -".$pattern_suffix."[0-9]+$/", $procure_form_identification)) return __("the identification format is wrong")." (".$this->participant_identifier_for_form_validation." V00 -".$pattern_suffix."0)";
-		} else {
-			if(!preg_match("/^".$this->participant_identifier_for_form_validation." Vx -".$pattern_suffix."x$/", $procure_form_identification)) return __("the identification format is wrong")." (".$this->participant_identifier_for_form_validation." Vx -".$pattern_suffix."x)";
-		}
-		//Check Unique
-		if($main_worksheet) {
-			switch($model) {
-				case 'EventMaster':
-					$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-					$conditions = array('EventMaster.procure_form_identification' => $procure_form_identification);
-					if($id && $model == 'EventMaster') $conditions[] = 'EventMaster.id != '. $id;
-					$dup = $EventMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return __("the identification value should be unique");;
-					break;
-				case 'ConsentMaster':
-					$ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
-					$conditions = array('ConsentMaster.procure_form_identification' => $procure_form_identification);
-					if($id && $model == 'ConsentMaster') $conditions[] = 'ConsentMaster.id != '. $id;
-					$dup = $ConsentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return __("the identification value should be unique");
-					break;
-				case 'TreatmentMaster':
-					$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-					$conditions = array('TreatmentMaster.procure_form_identification' => $procure_form_identification);
-					if($id && $model == 'TreatmentMaster') $conditions[] = 'TreatmentMaster.id != '. $id;
-					$dup = $TreatmentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return __("the identification value should be unique");;
-					break;
-				default:
-					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			}
-		}
-		//All is ok
-		return false;
 	}
 }
 

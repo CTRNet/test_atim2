@@ -330,7 +330,6 @@ class CollectionsControllerCustom extends CollectionsController{
 								'barcode' => $data_unit['AliquotMaster']['barcode'],
 								'aliquot_label' => $data_unit['AliquotMaster']['aliquot_label'],
 								'in_stock' => 'yes - available',
-								'use_counter' => '1',
 								'procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']),
 							'AliquotDetail' => array());
 						$detail_fields = array('aliquot_master_id');
@@ -348,7 +347,7 @@ class CollectionsControllerCustom extends CollectionsController{
 								$warning_messages[__('no concentration has been recorded')][] = $data_unit['AliquotMaster']['barcode'];
 							}
 						}
-						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'aliquot_label', 'in_stock', 'use_counter','procure_created_by_bank'));
+						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'aliquot_label', 'in_stock', 'procure_created_by_bank'));
 						$this->AliquotMaster->addWritableField($detail_fields, $aliquot_controls[$aliquot_control_id]['detail_tablename']);
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
