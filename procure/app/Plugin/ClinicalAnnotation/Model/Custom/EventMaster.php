@@ -47,26 +47,12 @@ class EventMasterCustom extends EventMaster {
 						$result = false;
 					}
 					break;
-					
-					
-				/*	
-					
-					| laboratory                  |
-					| clinical exam               |
-					| questionnaire               |
-					| clinical note               |
-					| other tumor diagnosis       |
-					
-					*/
-					
-					
 				case 'visit/contact':
 					if(empty($this->data['EventMaster']['event_date'])) {
 						$this->validationErrors['event_date'][] = __('the visite date has to be completed');
 						$result = false;
 					}
 					break;
-					
 			}
 		}
 		

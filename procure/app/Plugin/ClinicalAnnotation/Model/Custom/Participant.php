@@ -110,6 +110,76 @@ class ParticipantCustom extends Participant {
 		
 		return $add_links;
 	}
+	
+	function setNextUrlToFlashForVisitDataEntry($participant_id, $current_control_model, $current_control_data) {
+		$visit_data_entry_workflow_steps = array(
+			array('EventControl', 'event_type', 'visit/contact'),
+			array('EventControl', 'event_type', 'laboratory'),
+			array('EventControl', 'event_type', 'clinical exam'),
+			array('EventControl', 'event_type', 'clinical note'),
+			array('TreatmentControl', 'tx_method', 'treatment'),
+			array('EventControl', 'event_type', 'other tumor diagnosis')
+		);
+		
+		$first_step_key = 0;
+		if($current_control_model == $visit_data_entry_workflow_steps[$first_step_key][0] 
+		&& $current_control_data[$visit_data_entry_workflow_steps[$first_step_key][1]] == $visit_data_entry_workflow_steps[$first_step_key][2]) {
+			//First step detected: initiate workflow setting the next step url	
+			$next_step_key = 1;
+			$next_step_workflow_data = $visit_data_entry_workflow_steps[$next_step_key];
+			list($next_step_control_model, $next_step_control_type_field, $next_step_control_type) = $next_step_workflow_data;
+			$NextStepControlModel = AppModel::getInstance("ClinicalAnnotation", $next_step_control_model, true);
+			$next_step_control_data = $NextStepControlModel->find('first', array('conditions' => array("$next_step_control_model.$next_step_control_type_field" => $next_step_control_type)));
+			$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry'] = array(
+				'previous_url' => "/ClinicalAnnotation/".str_replace('Control', 'Masters', $current_control_model)."/add/$participant_id/".$current_control_data['id'],
+				'next_url' => "/ClinicalAnnotation/".str_replace('Control', 'Masters', $next_step_control_model)."/add/$participant_id/".$next_step_control_data[$next_step_control_model]['id'],
+				'step_key' => $next_step_key);
+		} else {
+			if(isset($_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry'])) {
+				//Get the current url and the previous one
+				$UserLog = AppModel::getInstance("", "UserLog", true);
+				$last_user_logs = $UserLog->find('all', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id']), 'order' => array('UserLog.id DESC'), 'limit' => '2'));
+				$previous_user_log = $last_user_logs[1]['UserLog']['url'];
+				$current_user_log = $last_user_logs[0]['UserLog']['url'];
+				//Check urls matche the session data
+				if(strpos($previous_user_log, $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['previous_url']) !== false
+				&& strpos($current_user_log, $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url']) !== false) {
+					//Here is the good one... set the next step urls
+					$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['previous_url'] = $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'];
+					$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['step_key']++;
+					$next_step_key = $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['step_key'];
+					if(isset($visit_data_entry_workflow_steps[$next_step_key])) {
+						$next_step_workflow_data = $visit_data_entry_workflow_steps[$next_step_key];
+						list($next_step_control_model, $next_step_control_type_field, $next_step_control_type) = $next_step_workflow_data;
+						$NextStepControlModel = AppModel::getInstance("ClinicalAnnotation", $next_step_control_model, true);
+						$next_step_control_data = $NextStepControlModel->find('first', array('conditions' => array("$next_step_control_model.$next_step_control_type_field" => $next_step_control_type)));
+						$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'] = "/ClinicalAnnotation/".str_replace('Control', 'Masters', $next_step_control_model)."/add/$participant_id/".$next_step_control_data[$next_step_control_model]['id'];
+					} else if($next_step_key == sizeof($visit_data_entry_workflow_steps)) {
+						//End of the workflow
+						$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'] = "/ClinicalAnnotation/Participants/edit/$participant_id";
+					} else {
+						unset($_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']);
+					}
+				} else {
+					unset($_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']);
+				}
+			}
+		}
+	}
+	
+	function getNextUrlToFlashForVisitDataEntry() {
+		if(isset($_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry'])) {
+			//Get the current url 
+			$UserLog = AppModel::getInstance("", "UserLog", true);
+			$current_user_log = $UserLog->find('first', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id']), 'order' => array('UserLog.id DESC'), 'limit' => '2'));
+			$current_user_log = $current_user_log['UserLog']['url'];
+			if(strpos($current_user_log, $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['previous_url']) !== false) {
+				AppController::addWarningMsg(__('visit data entry step'));
+				return $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'];
+			}
+		}
+		return '';
+	}
 }
 
 ?>

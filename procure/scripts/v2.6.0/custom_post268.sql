@@ -1329,18 +1329,11 @@ ALTER TABLE procure_txd_medications_revs RENAME TO procure_deprecated_table_txd_
 UPDATE event_controls SET databrowser_label = event_type WHERE flag_active = 1;
 UPDATE treatment_controls SET databrowser_label = tx_method WHERE flag_active = 1;
 
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT INTO i18n (id,en,fr)
+VALUES
+('visit data entry step', 'Visit data entry step', 'Étape de saisie de données de visite'),
+('skip visit data entry step', 'Next step with no entry', 'Prchaine étape sans saisie'),
+('visit data entry done', 'Data Entry Done', 'Saisie de données terminée');
 
 -- Structure Value Domain Clean Up
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1435,6 +1428,13 @@ LEFT JOIN i18n ON i18n.id = language_alias
 WHERE link.flag_active = 1
 AND domain_name = 'procure_treatment_types'); 
 DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_treatment_types");
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Inventory Management
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Collection
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
