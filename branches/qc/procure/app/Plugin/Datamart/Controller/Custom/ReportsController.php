@@ -207,7 +207,7 @@ class ReportsControllerCustom extends ReportsController {
 				'TreatmentMaster.participant_id' => $participant_ids,
 				'TreatmentMaster.treatment_control_id' => $followup_treatment_control_id,
 				'TreatmentMaster.start_date IS NOT NULL',
-				"TreatmentDetail.treatment_type" => 'prostatectomy');
+				"TreatmentDetail.treatment_type" => 'prostatectomy ++++++++++ ajouter si abroted'); 
 		$all_participants_prostatectomy = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join), 'order' => array('TreatmentMaster.start_date ASC')));
 		foreach($all_participants_prostatectomy as $new_prostatectomy) {
 			$participant_id = $new_prostatectomy['TreatmentMaster']['participant_id'];

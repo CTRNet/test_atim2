@@ -1234,6 +1234,7 @@ div.nodeBlock .rightPart.disabled_psp_record{
 .icon16.participant.messages { background-position: 0 -96px; }
 .icon16.paste { background-position: -32px -64px; }
 .icon16.popup { background-position: -80px 0; }
+	.icon16.procureskip { background-position: -16px -64px; }
 .icon16.quality.controls { background-position: -48px -48px; }
 .icon16.range { background-position: -16px -48px; }
 .icon16.reproductive { background-position: -112px -80px; }
