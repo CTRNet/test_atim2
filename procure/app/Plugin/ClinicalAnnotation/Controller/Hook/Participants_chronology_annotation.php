@@ -50,7 +50,7 @@
 			$exam_data = array();
 			// Add Exam
 			$exam_type = $procure_exam_types_values[$annotation['EventDetail']['type']];
-			$exam_precision = $clinical_exam_precision[$annotation['EventDetail']['type_precision']];
+			$exam_precision = $clinical_exam_precision_values[$annotation['EventDetail']['type_precision']];
 			$exam_result = $procure_exam_results_values[$annotation['EventDetail']['results']];
 			$chronolgy_data_annotation['event'] = $exam_type.' '.$exam_precision;
 			$chronolgy_data_annotation['chronology_details'] = $exam_result;
@@ -58,7 +58,7 @@
 			// Add progression
 			if(strlen($annotation['EventDetail']['progression_comorbidity'])) {
 				$chronolgy_data_annotation['event'] = __('progression / comorbidity');
-				$chronolgy_data_annotation['chronology_details'] = $procure_progressions_comorbidities[$annotation['EventDetail']['progression_comorbidity']];
+				$chronolgy_data_annotation['chronology_details'] = $procure_progressions_comorbidities_values[$annotation['EventDetail']['progression_comorbidity']];
 				$exam_data[] = $chronolgy_data_annotation;
 			}
 			while(sizeof($exam_data) > 1) {
@@ -72,7 +72,7 @@
 			break;
 		case 'clinical note':
 			$chronolgy_data_annotation['event'] = __('clinical notes');
-			$chronolgy_data_annotation['chronology_details'] = $procure_event_note_types[$annotation['EventDetail']['type']];
+			$chronolgy_data_annotation['chronology_details'] = $procure_event_note_type_values[$annotation['EventDetail']['type']];
 			break;	
 		case 'procure pathology report':
 			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);

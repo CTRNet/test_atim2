@@ -177,7 +177,7 @@ class DrugsController extends DrugAppController {
   		//layout = ajax to avoid printing layout
   		$this->layout = 'ajax';
   		//debug = 0 to avoid printing debug queries that would break the javascript array
-  	//	Configure::write('debug', 0);
+  		Configure::write('debug', 0);
   	
   		//query the database
   		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
