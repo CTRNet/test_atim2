@@ -659,7 +659,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
-		$query = "SELECT id, sample_type FROM sample_controls WHERE sample_type IN ('blood', 'serum', 'plasma', 'pbmc','centrifuged urine', 'tissue', 'rna', 'dna');";
+		$query = "SELECT id, sample_type FROM sample_controls WHERE sample_type IN ('blood', 'serum', 'plasma', 'pbmc', 'buffy coat', 'centrifuged urine', 'tissue', 'rna', 'dna');";
 		$sample_controls = array();
 		foreach($participant_model->query($query) as $res) {
 			$sample_controls[$res['sample_controls']['id']] = $res['sample_controls']['sample_type'];
@@ -734,7 +734,10 @@ class ReportsControllerCustom extends ReportsController {
 					case 'plasma tube':
 						$report_aliquot_key = 'PLA';
 						break;
-					case 'pbmc tube':
+					case 'pbmc':
+						$report_aliquot_key = 'PBMC';
+						break;
+					case 'buffy coat tube':
 						$report_aliquot_key = 'BFC';
 						break;
 					case 'blood whatman paper':
@@ -1316,8 +1319,9 @@ class ReportsControllerCustom extends ReportsController {
 					'collection_id' => $new_aliquot['AliquotMaster']['collection_id'],
 					'sample_master_id' => $new_aliquot['AliquotMaster']['sample_master_id'],
 					'aliquot_master_id' => $new_aliquot['AliquotMaster']['id']),
-				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode'], 'aliquot_label' => $new_aliquot['AliquotMaster']['aliquot_label']),
+				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode'], 'aliquot_label' => $new_aliquot['AliquotMaster']['aliquot_label'], 'storage_coord_x' => $new_aliquot['AliquotMaster']['storage_coord_x'], 'storage_coord_y' => $new_aliquot['AliquotMaster']['storage_coord_y']),
 				'AliquotDetail' => array('concentration' => isset($new_aliquot['AliquotDetail']['concentration'])? $new_aliquot['AliquotDetail']['concentration'] : '', 'concentration_unit' => isset($new_aliquot['AliquotDetail']['concentration_unit'])? $new_aliquot['AliquotDetail']['concentration_unit'] : ''),
+				'StorageMaster' => array('short_label' => $new_aliquot['StorageMaster']['short_label']),
 				'FunctionManagement' => array('procure_transferred_aliquots_description' => $control_ids_sequence),
 				'Generated' => array('procure_sample_aliquot_ctrl_ids_sequence' => $control_ids_sequence));
 		}

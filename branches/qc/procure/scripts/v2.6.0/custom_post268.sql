@@ -1332,7 +1332,7 @@ UPDATE treatment_controls SET databrowser_label = tx_method WHERE flag_active = 
 INSERT INTO i18n (id,en,fr)
 VALUES
 ('visit data entry step', 'Visit data entry step', 'Étape de saisie de données de visite'),
-('skip visit data entry step', 'Next step with no entry', 'Prchaine étape sans saisie'),
+('skip visit data entry step', 'Next step (skip data no entry)', 'Prochaine étape (sans saisie de données)'),
 ('visit data entry done', 'Data Entry Done', 'Saisie de données terminée');
 
 -- Structure Value Domain Clean Up
@@ -1436,745 +1436,317 @@ DELETE FROM structure_value_domains_permissible_values WHERE structure_value_dom
 -- Collection
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_fields SET type = 'input', setting = 'size=4,class=range', structure_value_domain = null WHERE field = 'procure_visit';
+INSERT INTO i18n (id,en,fr) VALUES ('wrong procure collection visit format', 'Wrong collection visit format', 'Le format de la visite n''est pas supporté');
 
+-- identity confirmation
 
+ALTER TABLE collections CHANGE procure_patient_identity_verified procure_deprecated_field_procure_patient_identity_verified tinyint(1) DEFAULT '0';
+ALTER TABLE collections_revs CHANGE procure_patient_identity_verified procure_deprecated_field_procure_patient_identity_verified tinyint(1) DEFAULT '0';
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model` IN ('ViewCollection', 'Collection') AND `field`='procure_patient_identity_verified');
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model` IN ('ViewCollection', 'Collection') AND `field`='procure_patient_identity_verified';
 
+-- replace pbmc by buffy coat then use pbmc
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(216, 217, 218);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(65);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(70);
 
+SELECT 'Check no difference exist in sample_controls and aliquot_controls for pbmc and buffy coat - Detail tables field should be identical' AS 'WARNING';
+SELECT * from sample_controls WHERE sample_type in ('buffy coat', 'pbmc');
+SELECT * FROM aliquot_controls WHERE sample_control_id IN (select id from sample_controls WHERE sample_type in ('buffy coat', 'pbmc'));
 
+INSERT INTO sd_der_buffy_coats (sample_master_id) (SELECT sample_master_id FROM sd_der_pbmcs);
+DELETE FROM sd_der_pbmcs;
+INSERT INTO sd_der_buffy_coats_revs (sample_master_id, version_created) (SELECT sample_master_id, version_created FROM sd_der_pbmcs_revs);
+DELETE FROM sd_der_pbmcs_revs;
+UPDATE sample_masters 
+SET sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat')
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc');
+UPDATE sample_masters_revs 
+SET sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat')
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc');
+UPDATE aliquot_masters 
+SET aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube')
+WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube');
+UPDATE aliquot_masters_revs
+SET aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube')
+WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube');
 
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('pbmc', 'PBMC', 'PBMC');
 
+-- Collection tempalte
 
+SET @template_id = (SELECT id FROM templates WHERE name = 'Blood/Sang');
+SET @sample_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
 
+DELETE FROM template_nodes 
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube')
+AND quantity = 3;
 
+DELETE FROM template_nodes 
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'whatman paper');
 
+UPDATE template_nodes
+SET quantity = '2'
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'serum' AND aliquot_type = 'tube');
 
+UPDATE template_nodes
+SET quantity = '6'
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'plasma' AND aliquot_type = 'tube');
 
+SET @bcf_control_id = (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'buffy coat' );
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+(SELECT parent_id, @template_id, @sample_datamart_structure_id, @bcf_control_id, '1'
+FROM template_nodes
+WHERE template_id = @template_id 
+AND datamart_structure_id = @sample_datamart_structure_id 
+AND control_id = (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'pbmc'));
 
+SET @bcf_aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube');
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+(SELECT id, @template_id, @aliquot_datamart_structure_id, @bcf_aliquot_control_id, '2'
+FROM template_nodes
+WHERE template_id = @template_id 
+AND datamart_structure_id = @sample_datamart_structure_id 
+AND control_id = @bcf_control_id);
 
-	
-	
-	
+SET @template_id = (SELECT id FROM templates WHERE name = 'Urine');
+SET @sample_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
 
+DELETE FROM template_nodes 
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'urine' AND aliquot_type = 'cup');
 
+UPDATE template_nodes
+SET quantity = '4'
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'centrifuged urine' AND aliquot_type = 'tube');
 
+-- View
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Generated', '', 'procure_generated_sample_types', 'input',  NULL , '0', '', '', '', 'samples', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='procure_generated_sample_types' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='samples' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+-- Sample
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+SET @keep_field_id = (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'datetime' LIMIT 0,1);
+SET @remove_field_id = (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type = 'datetime' LIMIT 1,1);
+UPDATE structure_formats SET structure_field_id = @keep_field_id WHERE structure_field_id = @remove_field_id;
+DELETE FROM structure_fields WHERE id = @remove_field_id;
 
+INSERT INTO structures(`alias`) VALUES ('procure_centrifugations');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_centrifugations'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '500', '', '0', '1', 'centrifugation date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('procure_extractions');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_extractions'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '500', '', '0', '1', 'extraction date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('procure_creations');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_creations'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '500', '', '0', '1', 'creation date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('procure_amplifications');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_amplifications'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '500', '', '0', '1', 'amplification date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_centrifugations') WHERE sample_type IN ('pbmc', 'plasma', 'serum', 'buffy coat', 'centrifuged urine');
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_extractions') WHERE sample_type IN ('dna', 'rna');
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_amplifications') WHERE sample_type IN ('amplified rna ');
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_creations') WHERE sample_type IN ('cdna');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('centrifugation date', 'Centrifugation Date', 'Date de centrifugation'),
+('extraction date', 'Extraction date', 'Date d''extraction'),
+('amplification date', 'Amplification Date', 'Date d''amplification');
 
+-- Blood
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit_readonly`='1', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='procure_refrigeration_time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_without_incident' AND `language_label`='without incident' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_inverted_8_10_times' AND `language_label`='tubes_inverted 8 10 times' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_correclty_stored' AND `language_label`='procure blood tubes correclty stored' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='procure_tubes_correclty_stored_help' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_without_incident' AND `language_label`='without incident' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_inverted_8_10_times' AND `language_label`='tubes_inverted 8 10 times' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_correclty_stored' AND `language_label`='procure blood tubes correclty stored' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='procure_tubes_correclty_stored_help' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_without_incident' AND `language_label`='without incident' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_inverted_8_10_times' AND `language_label`='tubes_inverted 8 10 times' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_correclty_stored' AND `language_label`='procure blood tubes correclty stored' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='procure_tubes_correclty_stored_help' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE sd_spe_bloods 
+  CHANGE procure_collection_without_incident procure_deprecated_field_collection_without_incident tinyint(1) DEFAULT '0',
+  CHANGE procure_tubes_inverted_8_10_times procure_deprecated_field_tubes_inverted_8_10_times tinyint(1) DEFAULT '0',
+  CHANGE procure_tubes_correclty_stored procure_deprecated_field_tubes_correclty_stored tinyint(1) DEFAULT '0';
+ALTER TABLE sd_spe_bloods_revs 
+  CHANGE procure_collection_without_incident procure_deprecated_field_collection_without_incident tinyint(1) DEFAULT '0',
+  CHANGE procure_tubes_inverted_8_10_times procure_deprecated_field_tubes_inverted_8_10_times tinyint(1) DEFAULT '0',
+  CHANGE procure_tubes_correclty_stored procure_deprecated_field_tubes_correclty_stored tinyint(1) DEFAULT '0';
 
+-- Urine
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_concentrated' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_tag`='for a volume of ml' WHERE model='SampleDetail' AND tablename='sd_der_urine_cents' AND field='procure_pellet_volume_ml' AND `type`='float' AND structure_value_domain  IS NULL ;
+REPLACE INTO i18n (id,en,fr) VALUES ('approximatif pellet volume ml', 'Approximate volume (ml) of pellet', 'Volume (ml) approximatif du culot');
+INSERT INTO i18n (id,en,fr) VALUES ('for a volume of ml', 'For a volume (ml) of', 'Pour un volume (ml) de');
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_processed_at_reception' AND `language_label`='processed at reception' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_conserved_at_4' AND `language_label`='conserved at 4' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_time_at_4' AND `language_label`='' AND `language_tag`='time at 4' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_refrigeration' AND `language_label`='urine aspect after refrigeration' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_refrigeration' AND `language_label`='' AND `language_tag`='other precision' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_centrifugation' AND `language_label`='urine aspect after centrifugation' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_urine_aspect_after_centrifugation') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_centrifugation' AND `language_label`='' AND `language_tag`='other precision' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_processed_at_reception' AND `language_label`='processed at reception' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_conserved_at_4' AND `language_label`='conserved at 4' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_time_at_4' AND `language_label`='' AND `language_tag`='time at 4' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_refrigeration' AND `language_label`='urine aspect after refrigeration' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_refrigeration' AND `language_label`='' AND `language_tag`='other precision' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_centrifugation' AND `language_label`='urine aspect after centrifugation' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_urine_aspect_after_centrifugation') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_centrifugation' AND `language_label`='' AND `language_tag`='other precision' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_processed_at_reception' AND `language_label`='processed at reception' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_conserved_at_4' AND `language_label`='conserved at 4' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_time_at_4' AND `language_label`='' AND `language_tag`='time at 4' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_refrigeration' AND `language_label`='urine aspect after refrigeration' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_refrigeration' AND `language_label`='' AND `language_tag`='other precision' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_centrifugation' AND `language_label`='urine aspect after centrifugation' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_urine_aspect_after_centrifugation') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_centrifugation' AND `language_label`='' AND `language_tag`='other precision' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE sd_der_urine_cents
+		CHANGE procure_processed_at_reception procure_deprecated_field_processed_at_reception tinyint(1) DEFAULT '0',
+		CHANGE procure_conserved_at_4 procure_deprecated_field_conserved_at_4 tinyint(1) DEFAULT '0',
+		CHANGE procure_time_at_4 procure_deprecated_field_time_at_4 int(6),
+		CHANGE procure_aspect_after_refrigeration procure_deprecated_field_aspect_after_refrigeration  varchar(50),
+		CHANGE procure_other_aspect_after_refrigeration procure_deprecated_field_other_aspect_after_refrigeration varchar(250),
+		CHANGE procure_aspect_after_centrifugation procure_deprecated_field_aspect_after_centrifugation varchar(50),
+		CHANGE procure_other_aspect_after_centrifugation procure_deprecated_field_other_aspect_after_centrifugation varchar(250);
+ALTER TABLE sd_der_urine_cents_revs
+		CHANGE procure_processed_at_reception procure_deprecated_field_processed_at_reception tinyint(1) DEFAULT '0',
+		CHANGE procure_conserved_at_4 procure_deprecated_field_conserved_at_4 tinyint(1) DEFAULT '0',
+		CHANGE procure_time_at_4 procure_deprecated_field_time_at_4 int(6),
+		CHANGE procure_aspect_after_refrigeration procure_deprecated_field_aspect_after_refrigeration  varchar(50),
+		CHANGE procure_other_aspect_after_refrigeration procure_deprecated_field_other_aspect_after_refrigeration varchar(250),
+		CHANGE procure_aspect_after_centrifugation procure_deprecated_field_aspect_after_centrifugation varchar(50),
+		CHANGE procure_other_aspect_after_centrifugation procure_deprecated_field_other_aspect_after_centrifugation varchar(250);
+
+ Aliquot
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) VALUES ('initial storage date', 'Storage Date', 'Date d''entreposage');
+UPDATE storage_controls SET check_conflicts = 2 WHERE flag_active = 1 AND check_conflicts = 1; 
+
+ALTER TABLE ad_tubes CHANGE procure_expiration_date procure_deprecated_field_expiration_date varchar(50);
+ALTER TABLE ad_tubes_revs CHANGE procure_expiration_date procure_deprecated_field_expiration_date varchar(50);
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_aliquot_expiration_date');
+DELETE FROM structures WHERE alias='procure_aliquot_expiration_date';
+DELETE FROM structure_fields WHERE field = 'procure_expiration_date';
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, ',procure_aliquot_expiration_date', '');
+
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='cell_count' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='cell_count_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='concentration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_tubes' AND `field`='concentration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_concentration_unit') AND `flag_confidential`='0');
+
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
+UPDATE aliquot_masters AliquotMaster, sd_spe_bloods SampleDetail, sample_masters SampleMaster
+SET AliquotMaster.modified = @modified, AliquotMaster.modified_by = @modified_by, AliquotMaster.deleted = 1
+WHERE AliquotMaster.deleted <> 1
+AND AliquotMaster.aliquot_control_id IN (
+	SELECT AlCt.id 
+	FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id 
+	WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCT.detail_tablename = 'ad_tubes'
+) AND AliquotMaster.sample_master_id = SampleMaster.id 
+AND SampleMaster.deleted <> 1
+AND SampleDetail.sample_master_id = SampleMaster.id
+AND SampleDetail.blood_type IN ('serum', 'k2-EDTA ')
+AND AliquotMaster.in_stock = 'no'
+AND AliquotMaster.id NOT IN (
+	SELECT DISTINCT aliquot_master_id FROM aliquot_internal_uses WHERE deleted <> 1
+	UNION ALL
+	SELECT DISTINCT aliquot_master_id FROM source_aliquots WHERE deleted <> 1
+	UNION ALL
+	SELECT DISTINCT aliquot_master_id FROM quality_ctrls WHERE deleted <> 1
+	UNION ALL
+	SELECT DISTINCT aliquot_master_id FROM order_items WHERE deleted <> 1
+	UNION ALL
+	SELECT DISTINCT parent_aliquot_master_id FROM realiquotings WHERE deleted <> 1
+	UNION ALL
+	SELECT DISTINCT child_aliquot_master_id FROM realiquotings WHERE deleted <> 1
+);
+INSERT INTO aliquot_masters_revs (id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, 
+study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, 
+procure_created_by_bank,
+modified_by, version_created)
+(SELECT id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, 
+study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, 
+procure_created_by_bank,
+modified_by, modified
+FROM aliquot_masters WHERE deleted = 1 AND modified = @modified AND modified_by = @modified_by
+AND aliquot_control_id IN (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCT.detail_tablename = 'ad_tubes'));
+INSERT INTO ad_tubes_revs (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, cell_viability, hemolysis_signs, 
+procure_deprecated_field_expiration_date, procure_tube_weight_gr, procure_total_quantity_ug, procure_concentration_nanodrop, procure_concentration_unit_nanodrop, procure_total_quantity_ug_nanodrop,
+version_created)
+(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, cell_viability, hemolysis_signs, 
+procure_deprecated_field_expiration_date, procure_tube_weight_gr, procure_total_quantity_ug, procure_concentration_nanodrop, procure_concentration_unit_nanodrop, procure_total_quantity_ug_nanodrop,
+modified
+FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE deleted = 1 AND modified = @modified AND modified_by = @modified_by
+AND aliquot_control_id IN (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCT.detail_tablename = 'ad_tubes'));
  
- 
- 
- 
- 
+ -- Urine
 
+ALTER TABLE aliquot_controls MODIFY  `aliquot_type` enum('cup','block','cell gel matrix','core','slide','tube','whatman paper','envelope') NOT NULL COMMENT 'Generic name.';
+UPDATE aliquot_controls SET aliquot_type = 'cup' WHERE sample_control_id = (select id from sample_controls WHERE sample_type = 'urine');
+UPDATE aliquot_controls AL, sample_controls SC SET AL.databrowser_label = CONCAT(sample_type, '|', aliquot_type) WHERE sample_control_id = SC.id;
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Report
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+A faire...
 
+-- Participant Identifiers
 
+REPLACE INTO i18n (id,en,fr) VALUES ('list all identifiers of selected participants', 'List all identifiers of selected participants', 'Liste tous les identifiants de participants sélectionnés');
 
+-- PROCURE - In Stock Aliquots Summary
 
+UPDATE datamart_reports SET flag_active = 0 WHERE name = 'procure aliquots summary';
 
+-- PROCURE - Aliquots Transfer File Creation
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='short_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '20', '', '0', '1', 'storage', '0', '', '1', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '21', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+TODO
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-procure_created_by_bank
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-mysql -u root procure --default-character-set=utf8 < procure_267_with_data2.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < custom_post268.sql
-
-
-
-
-
-
-
+PROCURE - Wrong Aliquot Identifiers Formats
+PROCURE - Biochemical Relapses Detection
+PROCURE - Diagnosis & Treatments Summary
+PROCURE - Patients Followup Summary	Display
 
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-
 
 TODO PROCESSING SITE
-
 
 UPDATE datamart_browsing_controls 
 SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
-
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-Voire ce que nous mettons dans custom liste / et pas dans custom liste
-
-
----------------------------------------------------------------------------------------
-
--- F1a
-
-Supprimer la fiche global de medicament (F1a).
-Supprimer chir pour hyperplasie de la prostate et créer un traitement hyperplasie de la prostate.
-
--- F1
-
-Date de la visite devient un formulaire mise a jour des données clinique.
-Date de chirurgie est deja dna s treatment prostatectomie.
-La recidive biochimique on s'en fout car deja dans PSA.
-
-Recidive clinique displarait par contre on doit:
-  - Ajouter une precision (chest / abomen pelvis / FDG) au niveau des examen.
-  - Si un examen est positifi l'utilisateur est redirigé vers un nouveau formulaire 'Progression & Comorbidité' avec un champ select qui liste tous les examens la date 
-  est donc celle de l'Examen et un deuxieme champ detail avec hydronephrosis, bone metastases, liver metastasesm spinal cord compression, region chirurgicale, etc). Faudra migrer ce qui existe deja.
-
-
-AJouter chirurgie metastase dans treatment.
-
-
-Enlever le je confirme...
-
-Supprimer les F1 F1a.... et les noms des worksheet.
-
-Donc en gros plus de viche F1 F1a general.
-
-
-Pour le type d'examen regarder si on veut vraiment une liste ou on garde un champ texte...
-
-
-
-La version demo fin octobre....
-Migration avant Noel....
-
-Sortir la liste de tous les champs des 4 sites pour comparaison.
-
-Penser au dernieres données a migrer de claire et lucie...
-
-Path review et RIN sont mis au cusm dans un fichier structuré seront migrés dans ATiM dans un prochain temps.
-
-
-
-mettre tout dans custom drop down liste mais flagger dans le libellé celles qui doivent E^tre gérée par PROCURE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dans les liste de traitement, annotation etc... avoir le bouton edit pour ne pas à avoir acliquer sur detail.
-Ajouter email dans contact
-
-
-On veut voire les bcr de l'année dans le rapport et non pas juste la première.
-
-
-
-
-
-Bug au niveau de la chronology. Si PSA bcr = no, la données s'affiche comme BCR dans la chronology.
-
-Ne garder au niveau de specimen 'creation sans incident et le flager a no par defaut
-PAr défaut date entreposage = date creeation si template ou pbmc, etc
-Avec les tempaltes jouer sur les valeurs par défaut pour ne pas répeter comme entreposé par. Permet avoir valeur par défaut.
-
-Voudrait proposer la boite et la position par default en fonction du dernier aliquot de même type entreposé.....
-Ajouter la boite et la position au niveau du fichier de transfert...
-
--- Reunion du 2016 10 11 ------------------------------------------------------------------------------------------------------------------
-
-Creation d'une collection... bypasser le add collection - New collection creation sauf si y a des collections seules.
-
--- Collection
-
-Ajouter a coté du champ visite une deuxieme drop down list 1 to 9 pour faire les visite v02.1, etc
-Enlever I confirm that the identity....
-Dans l'arbre de clinical collection link, afficher les specimens collectés au niveau de la collection.
-
--- Sang
-
-Ne plus créer les tubes de sang qui sont créés mais pas disponibles car centrifugés tout de suite
-Maintenant on a plus que 2 tubes de 1.5ml
-
-On va créer 6 tubes de plasma de 1.8ml
-On va créer 2 tubes de bfc 1 de 300ul et l'autre indéterminé.
-On va créer aussi à partir des tubes EDTA du PBMC, 3 tubes (des fois juste 1). Mettre 1 par défaut.
-
-Plus de papier whatman dans le template. Les garder en inventaire.
-
-Pour les nouveaux tubes de sang pas de siasie de temps sur glace. Donc garder les vieilles données mais ne pas afficher pour 'add' et 'edit'.
-
-'the blood collection was done' mettre 'clinic' par défaut.
-Les 3 derniers check boxes garder les valeurs en BD mais ne plus les afficher.
-
-Flager a deleted les tubes de sang (mis a part paxgene) qui sont'not in stock' dans la base de données car ne servent à rien.
-
-
--- Plasma, serum, pbmc, bfc 
-
-Remplacer creation date par centrifugation date.
-Verifier que date et heure de la centrifugation est bien recopiée à partir du plasma créé initialement.
-
----> Tube de plamsa
-
-hemolyze no par defaut.
-1.8 ml par defaut
-
----> Tube de paxgene
-
-Pas d'expiration date.
-Dans les banques il n'y a aucune position de saisie car devait être envoyé directement à PROCURE. Il faut loader les positions maintenant. 
-Voire si on peut loader les position en batch.
-
----> Tube pbmc
-
-Ajouter concentration et nbr de cellules. Comme sur la version de l'axe cancer.
-
--- Aliquots (general)
-
-Aller chercher le dernier aliquots entreposés, chercher la boite, et afficher la boite par défaut et la prochaine position.
-Bloquer si un tube est déjà à la position.
-Remplacer initial storage date par storage date tout court.
-
--- Urine
-
-Garder temps sur la galce.
-Valuer no par defaut. Valeur Clear par defaut.
-Date de centrifugation pour l'urine centrifugé.
-Pas de cup d'urine.
-
-On créé 4 tubes de 5ml d'urine centrifugé.
-
-Pour le champ approximate volume of pellet, supprimer le for 50 ml et ajouter dans le dexuieme champ 50 par defaut.
-
-
--- Urine centrifugé.
-
-Cacher le caoncentrated flag dans les écrans de add et edit
-
-Enlever le processed at arrival et le stored à 4c et urine aspect mais garder pellet aspect.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- MIGRATION DETAIL:
--- 
---   ### 1 # Added Investigator and Funding sub-models to study tool
---
---      To be able to create one to many investigators or fundings of a study.
---
---      TODO:
---
---      In /app/Plugin/StudyView/StudySummaries/detail.ctp, set the variables $display_study_fundings and/or $display_study_investigators
---      to 'false' to hide the section.
---
---
---		
---   ### 2 # Replaced the study drop down list to both an autocomplete field and a text field
---
---      Replaced all 'study_summary_id' field with 'select' type and 'domain_name' equals to 'study_list' by the 2 following fields
---			- Study.FunctionManagement.autocomplete_{.*}_study_summary_id for any data creation and update
---			- Study.StudySummary.title for any data display in detail or index form.
---		
---		A field study_summary_title has been created for both ViewAliquot and ViewAliquotUse.
---		
---      The defintion of study linked to a created/updated data is now done through an 'autocomplete' field.
---		
---      The search of a study linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
---		
---      TODO:
---
---      Review any of these forms:
---         - aliquotinternaluses
---         - aliquot_masters
---         - aliquot_master_edit_in_batchs
---         - consent_masters_study
---         - miscidentifiers_study
---         - orderlines
---         - orders
---         - tma_slides
---         - tma_slide_uses
---         - view_aliquot_joined_to_sample_and_collection
---         - viewaliquotuses
---
---      Update $table_querie variables of the ViewAliquotCustom and ViewAliquotUseCustom models (if exists).
---
---		
---
---   ### 2 # Added Study Model to the databrowser
---
---      TODO:
---
---		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
---
---		Activate databrowser links (if required) using following query:
---			UPDATE datamart_browsing_controls 
---          SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
---          WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Model1') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'Model2');
---
---
---   ### 3 # Added ICD-0-3-Topo Categories (tissue site/category)
---
---		The ICD-0-3-Topo categories have been defined based on an internet reasearch (no source file).
---		
---		Created field 'diagnosis_masters.icd_0_3_topography_category' to record a ICD-0-3-Topo 3 digits codes (C07, etc) 
---		and to let user searches on tissue site/category (more generic than tissue descritpion - ex: colon, etc).
---		
---		A search field on ICD-0-3-Topo categories has been created for each form displaying a field linked to the ICD-0-3-Topo tool.
---		
---      Note the StructureValueDomain 'icd_0_3_topography_categories' can also be used to set the site of any record of surgery, radiation, tissue source, etc .
---
---      TODO:
---
---		Check field has been correctly linked to any form displaying the ICD-0-3-Topo tool.
---		
---		Check field diagnosis_masters.icd_0_3_topography_category of existing records has been correctly populated based on diagnosis_masters.topography 
---		
---		field (when the diagnosis_masters.topography field contains ICD-0-3-Topo codes).
---
---		
---
---   ### 4 # Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
---
--- 		New field is linked to the StructureValueDomain 'secondary_diagnosis_icd10_code_who' that gathers only ICD-10 codes of secondaries.
---
---      TODO:
---
---		Check any of your secondary diagnosis forms.
---		
---
---
---   ### 5 # Changed DiagnosisControl.category values
--- 	
---		Changed:	
---         - 'secondary' to 'secondary - distant'
---         - 'progression' to 'progression - locoregional'
---         - 'recurrence' to 'recurrence - locoregional'
---
---      TODO:
---
---		Update custom code if required.
---		
---
---
---   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field plus moved drug_id field to Master model
---
---		Replaced all 'drug_id' field with 'select' type and 'domain_name' equals to 'drug_list' by the 3 following field
---			- ClinicalAnnotation.FunctionManagement.autocomplete_treatment_drug_id for any data creation and update
---			- Protocol.FunctionManagement.autocomplete_protocol_drug_id for any data creation and update
---			- Drug.Drug.generic_name for any data display in detail or index form
---
---      The definition of drug linked to a created/updated data is now done through an 'autocomplete' field.
---		
---      The search of a drug linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
---		
---      The drug_id table fields of the models 'TreatmentExtendDetail' and 'ProtocolExtendDetail' should be moved to the Master level (already done for txe_chemos and pe_chemos).
---
---      TODO:
---
---      Review any forms listed in treatment_extend_controls.detail_form_alias and protocol_extend_controls.detail_form_alias 
---      to update any of them containing a drug_id field.
---		
---      Migrate drug_id values of any tablename listed in treatment_extend_controls.detail_tablename and protocol_extend_controls.detail_tablename
--- 		and having a drug_id field to the treatment_extend_masters.drug_id or protocol_extend_masters.drug_id field.
---      
---      UPDATE protocol_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id;
---      UPDATE protocol_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.protocol_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
---      ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
---      ALTER TABLE {tablename} DROP COLUMN drug_id;
---      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
---      
---      UPDATE treatment_extend_masters Master, {tablename} Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id;
---      UPDATE treatment_extend_masters_revs Master, {tablename}_revs Detail SET Master.drug_id = Detail.drug_id WHERE Master.id = Detail.treatment_extend_master_id AND CAST(Master.version_created AS DATE) = CAST(Detail.version_created AS DATE);
---      ALTER TABLE `{tablename}` DROP FOREIGN KEY `FK_{tablename}_drugs`;
---      ALTER TABLE {tablename} DROP COLUMN drug_id;
---      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
---		
---
---
---   ### 7 # TMA slide new features
---
---      Created an immunochemistry autocomplete field.
---		
--- 		Created a new object TmaSlideUse linked to a TmaSlide to track any slide scoring or analysis and added this one to the databrowser.
---		
---		Changed code to be able to add a TMA Slide to an Order (see point 8 below).
---
---		TODO:
---
---		Customize the TmaSlideUse controller and forms if required.
---		
---		Activate the TmaSlide to TmaSlideUse databrowser link if required.
---			UPDATE datamart_browsing_controls 
---          SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
---          WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
---		
---		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
---		
---
---
---   ### 8 # Order tool upgrade
---
---      The all Order tool has been redesigned to be able to:
---			- Add tma slide to an order (both aliquot and tma slide will be considered as OrderItem).
---			- Define a shipped item as returned to the bank.
---			- Browse on OrderLine model with the databrowser.
---
---		TODO:
---
---		The OrderItem.addAliquotsInBatch() function has been renamed to OrderItem.addOrderItemsInBatch(). Check if custom code has to be update or not.
---		
---		Core variables 'AddAliquotToOrder_processed_items_limit' and 'AddAliquotToShipment_processed_items_limit' have been renamed to 'AddToOrder_processed_items_limit' and 'AddToShipment_processed_items_limit'
---		plus two new ones have been created 'edit_processed_items_limit'and 'defineOrderItemsReturned_processed_items_limit'. Check if custom code has to be update or not.
---		
---		Set the new core variable 'order_item_type_config' to define the type(s) of item that could be added to order ('both tma slide and aliquot' or 'aliquot only' or 'tma slide only'). Based on this variable,  
---      the fields display properties (flag_index, flag_add, etc) of the following forms 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' will be updated by 
---      the AppController.newVersionSetup() function.
---		
---		Activate databrowser links if required plus review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
---		
---      Update $table_querie variable of the ViewAliquotUseCustom model (if exists).
---		
---
---
---   ### 9 # New Sample and aliquot controls
---
---      Created:
---			- Buffy Coat
---			- Nail
---			- Stool
---			- Vaginal swab
---
---		TODO:
---
---		Activate these sample types if required.
---		
---
---
---   ### 10 # Removed AliquotMaster.use_counter field
---
--- 		Function AliquotMaster.updateAliquotUseAndVolume() is now deprecated and repalced by AliquotMaster.updateAliquotVolume().
---
---		TODO:
---
---		Validate no custom code or migration script populate/update/use this field.
---		
---		Check custom function AliquotMasterCustom.updateAliquotUseAndVolume() exists and update this one if required.
---		
---
---
---   ### 11 # datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
---
---		TODO:
---		
---		Run following queries to check if some custom functions and reports have to be reviewed:
---			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
---			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND name != 'list all children storages');
---
---		
---
---   ### 12 # Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
---
---		TODO:
---		
---		Run following query to detect errors
---			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
---
---		
---
---   ### 13 # Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
---
---		TODO:
---		
---		Check any custom code using AliquotMaster.getDefaultStorageDate().
---
---		
---
---  ### 14 # Changed displayed pages workflow after treatment creation.
---
---		Based on the created treatment type and the selected protocol (when option exists), the next page displayed after a treatment creation could be:
---			- The treatment detail form.
---			- The treatment detail form with the list of all treatment precisions already attached to the treatment based on the selected protocol (when protocol is itself linked to precisions).
---          - The treatment precision creation form when no protocol is attached to the treatment and treatment precision can be attached to the treatment.
---
---		TODO:
---		
---		Change workflow by hook if required.
---
---
---		
---  ### 15 # Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
---
---		Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields.
---
---		TODO:
---		
---		Override the CodingIcdAppModel.globalSearch and CodingIcdAppModel.getDescription functions.
---
---		
---
---  ### 16 # Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 
---
---		TODO:
---		
---		Run queries to activate the reports:
---			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excisional biopsy';
---			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excis. resect.';
---
---		
--- -----------------------------------------------------------------------------------------------------------------------------------
-
-Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
-
-- Added Investigator and Funding to study tool.
-- Replaced the study drop down list to an autocomplete field to help user data entry.
-- Added Study and OrderLine Models to the databrowser.
-- Added ICD-0-3-Topo Categories (tissue site/category).
-- Replaced the drug drop down list to an autocomplete field.
-- Added object to track any TMA slide acoring and analysis.
-- Change order tool to allow user to add a TMA slide to an order.
-- Added feature to be able to flag a shipped item as returned.
-- Created Buffy Coat and Nail sample types.
-- Changed feature to let user to link more than one aliquot type to a path-review.
-- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0)  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Verifier ce champ... DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
-DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail');
-DELETE FROM structure_fields WHERE structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND structure_fields.model LIKE 'TreatmentExtendDetail';
-
-
-
---   ### 1 # Added Investigator and Funding sub-models to study tool
---   ### 2 # Replaced the study drop down list to both an autocomplete field and a text field
---   ### 2 # Added Study Model to the databrowser
---   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field plus moved drug_id field to Master model
---   ### 8 # Order tool upgrade
---   ### 9 # New Sample and aliquot controls
---
---      Created:
---			- Buffy Coat
---			- Nail
---			- Stool
---			- Vaginal swab
-
-
-
-
-
-
-
-
-
-
-
-mysql -u root procure --default-character-set=utf8 < 
-
-
-
-
-
-mysql -u root procure --default-character-set=utf8 < atim_procure_v2.6.0_full_installation.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.1_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.2_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < custom_post262.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.3_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < custom_post263.sql
-mysql -u root procure --default-character-set=utf8 < custom_post263.2.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < custom_post264.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < custom_post265.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < custom_post266.sql
-mysql -u root procure --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
-mysql -u root procure --default-character-set=utf8 < custom_post267.sql
