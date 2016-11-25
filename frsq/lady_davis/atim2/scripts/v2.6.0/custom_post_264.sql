@@ -569,3 +569,72 @@ FROM participants WHERE modified = @modified AND modified_by = @modified_by);
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6345' WHERE version_number = '2.6.4';
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2016-11-25
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_blood_markers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'clinical', 'genetic marker', 1, 'qc_lady_genetic_markers', 'qc_lady_genetic_markers', 0, 'genetic marker', 0, 1, 1);
+CREATE TABLE IF NOT EXISTS `qc_lady_genetic_markers` (
+  `event_master_id` int(11) NOT NULL,
+  `marker` varchar(100) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;CREATE TABLE IF NOT EXISTS `qc_lady_genetic_markers_revs` (
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `marker` varchar(100) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=405 ;
+ALTER TABLE `qc_lady_genetic_markers`
+  ADD CONSTRAINT `qc_lady_genetic_markers_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+
+INSERT INTO structures(`alias`) VALUES ('qc_lady_genetic_markers');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_lady_genetic_markers', "StructurePermissibleValuesCustom::getCustomDropdown('Genetic Markers')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Genetic Markers', 1, 100, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Genetic Markers');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('BRCA_1', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('BRCA_2', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_lady_genetic_marker_results', "StructurePermissibleValuesCustom::getCustomDropdown('Genetic Marker Results')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Genetic Marker Results', 1, 100, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Genetic Marker Results');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('yes', 'Yes',  'Ou', '1', @control_id, NOW(), NOW(), 1, 1),
+('no', 'No',  'Non', '1', @control_id, NOW(), NOW(), 1, 1),
+('unknown', 'Unknown', 'Inconnu',  '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_lady_genetic_markers', 'marker', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_genetic_markers') , '0', '', '', '', 'marker', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_lady_genetic_markers', 'result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_genetic_marker_results') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_genetic_markers'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'cols=40,rows=1', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_genetic_markers'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_genetic_markers' AND `field`='marker'), '2', '140', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_genetic_markers'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_genetic_markers' AND `field`='result'), '2', '141', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_genetic_markers' AND `field`='marker'), 'notEmpty');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_genetic_markers' AND `field`='result'), 'notEmpty');
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('marker', 'Marker', 'Marqueur'),
+('genetic marker', 'Genetic Marker', 'Marqueur génétique');
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6598' WHERE version_number = '2.6.4';
