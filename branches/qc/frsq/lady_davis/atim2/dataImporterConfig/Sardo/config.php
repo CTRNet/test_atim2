@@ -9,7 +9,7 @@ class Config{
 	static $db_port 		= "3306";
 	static $db_user 		= "root";
 	static $db_pwd			= "";
-	static $db_schema		= "jghbreast";
+	static $db_schema		= "ldbreast";
 	
 // 	static $db_port 		= "3306";
 // 	static $db_user 		= "root";
@@ -26,8 +26,15 @@ class Config{
 	
 	//if reading excel file
 	
-//	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/COEUR-OTB-#1_20131129.xls";
- 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/AllSardoData_20141001.xls";
+	static $xls_file_path = "C:/Users/p0029164/Desktop/Breast_excel_file_work_in_progress/2016-09-08/2016/AllSardoData_2016_20160908.xls";
+ //	static $xls_file_path = "C:/Users/p0029164/Desktop/Breast_excel_file_work_in_progress/2016-09-08/2015/AllSardoData_2015_20160908.xls";
+ //	static $xls_file_path = "C:/Users/p0029164/Desktop/Breast_excel_file_work_in_progress/2016-09-08/2014-2015/AllSardoData_2014-2015_20160908.xls";
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
 // 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors.xls";
  	
  	
@@ -86,6 +93,8 @@ class Config{
 		'Protocole Taxotère + Herceptin' => array('Taxotère','Herceptin')
 	);
 	//TODO compelte fi required as follow: 'Protocole Taxol/Herceptin' => array('Taxol', 'Herceptin')
+	
+	static $tmp_receptor_summary_msg_title = 'Unknown worksheet';
 }
 
 //add your end queries here
@@ -99,7 +108,7 @@ class Config{
 //Config::$parent_models[] = "participants";
 
 //add your configs
-$relative_path = 'C:/_Perso/Server/jgh_breast/dataImporterConfig/Sardo/tablesMapping/';
+$relative_path = 'C:/_NicolasLuc/Server/www/ld_breast/dataImporterConfig/Sardo/tablesMapping/';
 Config::$config_files[] = $relative_path.'diagnosis.php';
 Config::$config_files[] = $relative_path.'treatments.php';
 Config::$config_files[] = $relative_path.'receptors.php';
@@ -141,16 +150,12 @@ function addonFunctionStart(){
 	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_keys[$tmp['name']] = $key;
 	
 	loadDxCodes($tmp_xls_reader, $sheets_keys);
-	if(!loadDiagnosis($tmp_xls_reader, $sheets_keys)) {
-		echo "<br><FONT COLOR=\"red\" >Process Aborted</FONT><br>";
-		displayMessage();
-		die();		
-	}
+	$unmigrated_excel_participant_jgh_nbrs = loadDiagnosis($tmp_xls_reader, $sheets_keys);
 	loadDbProtcolsAndDrugs();
-	loadReceptors($tmp_xls_reader, $sheets_keys);
-	loadTreatments($tmp_xls_reader, $sheets_keys);
-	loadFamHisto($tmp_xls_reader, $sheets_keys);
-	loadReproHisto($tmp_xls_reader, $sheets_keys);
+	loadReceptors($tmp_xls_reader, $sheets_keys, $unmigrated_excel_participant_jgh_nbrs);
+	loadTreatments($tmp_xls_reader, $sheets_keys, $unmigrated_excel_participant_jgh_nbrs);
+	loadFamHisto($tmp_xls_reader, $sheets_keys, $unmigrated_excel_participant_jgh_nbrs);
+	loadReproHisto($tmp_xls_reader, $sheets_keys, $unmigrated_excel_participant_jgh_nbrs);
 }
 
 function addonFunctionEnd(){
