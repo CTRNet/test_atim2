@@ -26,12 +26,12 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = "C:/Users/p0029164/Desktop/Breast_excel_file_work_in_progress/2016-09-08/2016/AllSardoData_2016_20160908.xls";
+//	static $xls_file_path = "C:/Users/p0029164/Desktop/Breast_excel_file_work_in_progress/2016-09-08/2016/AllSardoData_2016_20160908.xls";
  //	static $xls_file_path = "C:/Users/p0029164/Desktop/Breast_excel_file_work_in_progress/2016-09-08/2015/AllSardoData_2015_20160908.xls";
  //	static $xls_file_path = "C:/Users/p0029164/Desktop/Breast_excel_file_work_in_progress/2016-09-08/2014-2015/AllSardoData_2014-2015_20160908.xls";
  	
  	
- 	
+	static $xls_file_path = "C:/_NicolasLuc/Server/www/AllSardoData_2014-2015_20160908.xls";
  	
  	
  	
@@ -190,65 +190,73 @@ function addonFunctionEnd(){
 		}
 	}
 	//Record Surgical Procedure
-	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Surgical Procedure'";
+	$query = "SELECT id, values_max_length FROM structure_permissible_values_custom_controls WHERE name = 'Surgical Procedure'";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
-	$control_id = $row['id'];
+	$control_id = $row['id'];$values_max_length = $row['values_max_length'];
 	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$existing_values = array();
 	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
 	foreach(Config::$surgical_procedures as $value => $fr) {
-		if(!in_array($value, $existing_values)) {
+		if(strlen($value) > $values_max_length) {
+			die('ERR_structure_permissible_values_customs_Surgical Procedure['.$value.'] length = '.strlen($value));
+		} else if(!in_array($value, $existing_values)) {
 			customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
 		}
 	}
 	//Record Biopsy Procedure
-	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Biopsy Procedure'";
+	$query = "SELECT id, values_max_length FROM structure_permissible_values_custom_controls WHERE name = 'Biopsy Procedure'";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
-	$control_id = $row['id'];
+	$control_id = $row['id'];$values_max_length = $row['values_max_length'];
 	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$existing_values = array();
 	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
 	foreach(Config::$biopsy_procedures as $value => $fr) {
-		if(!in_array($value, $existing_values)) {
+		if(strlen($value) > $values_max_length) {
+			die('ERR_structure_permissible_values_customs_Biopsy Procedure['.$value.'] length = '.strlen($value));
+		} else if(!in_array($value, $existing_values)) {
 			customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
 		}
 	}
 	//Record Radiation Procedure
-	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radiation Procedure'";
+	$query = "SELECT id, values_max_length FROM structure_permissible_values_custom_controls WHERE name = 'Radiation Procedure'";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
-	$control_id = $row['id'];
+	$control_id = $row['id'];$values_max_length = $row['values_max_length'];
 	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$existing_values = array();
 	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
 	foreach(Config::$radiation_procedures as $value => $fr) {
-		if(!in_array($value, $existing_values)) {
-		customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+		if(strlen($value) > $values_max_length) {
+			die('ERR_structure_permissible_values_customs_Radiation Procedure['.$value.'] length = '.strlen($value));
+		} else if(!in_array($value, $existing_values)) {
+			customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
 		}
 	}
 	//Record Imaging Types
-	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Imaging Types'";
+	$query = "SELECT id, values_max_length FROM structure_permissible_values_custom_controls WHERE name = 'Imaging Types'";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
-	$control_id = $row['id'];
+	$control_id = $row['id'];$values_max_length = $row['values_max_length'];
 	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$existing_values = array();
 	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
 	foreach(Config::$imaging_types as $value => $fr) {
-		if(!in_array($value, $existing_values)) {
+		if(strlen($value) > $values_max_length) {
+			die('ERR_structure_permissible_values_customs_Imaging Types['.$value.'] length = '.strlen($value));
+		} else if(!in_array($value, $existing_values)) {
 			customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
 		}
 	}
 	
 	//Record data
 	foreach(Config::$participants as $jgh_nbr => $patient_data) {
-		if(!empty($participant_data['participant_id'])) {
+		if(!empty($patient_data['participant_id'])) {
 			if(isset($patient_data['diagnoses_data'])) {
 				foreach($patient_data['diagnoses_data'] as $tmp_date_dx => $pt_data_level1) {
 					if(array_key_exists('tmp_receptor_data', $pt_data_level1)) {
