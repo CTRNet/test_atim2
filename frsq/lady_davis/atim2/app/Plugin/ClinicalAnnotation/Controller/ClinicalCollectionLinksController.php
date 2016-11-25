@@ -222,7 +222,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			
 		} else {
 			// Launch Save Process
-			$fields = array('participant_id', 'diagnosis_master_id', 'consent_master_id', 'treatment_master_id', 'event_master_id');
+			$fields = array('participant_id', 'diagnosis_master_id', 'consent_master_id', 'treatment_master_id', 'event_master_id', 'created_by', 'modified_by');
 			if($this->request->data['Collection']['id']){
 				//test if the collection exists and is available
 				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.participant_id IS NULL', 'Collection.collection_property' => 'participant collection', 'Collection.id' => $this->request->data['Collection']['id'])));

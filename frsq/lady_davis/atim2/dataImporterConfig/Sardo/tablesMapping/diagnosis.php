@@ -27,18 +27,44 @@ function loadDxCodes(&$tmp_xls_reader, $sheets_keys) {
 			}
 		}
 	}
-	$query = "SELECT * FROM coding_icd10_who WHERE id IN ('".implode("','", Config::$topos)."')";
-	$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
-	if($res->num_rows != sizeof(Config::$topos)) die('ERR 38383287268268');
+	$codes_validated = true;
+	foreach(Config::$topos as $description => $code) {
+		$query = "SELECT * FROM coding_icd10_who WHERE id = '$code'";
+		$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
+		if($res->num_rows == 1) {
+			//Code found
+		} else if($res->num_rows == 0) {
+			if(preg_match('/^(C[0-9]{2})9$/', $code, $matches)) {
+				$new_code = $matches[1];
+				$query = "SELECT fr_description FROM coding_icd10_who WHERE id = '$new_code'";
+				$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
+				if($res->num_rows == 1) {
+					$row = $res->fetch_assoc();
+					Config::$summary_msg[$summary_msg_title]['@@WARNING@@']["Excel ICD-WHO Code replaced by a code matching into ATiM. Value will be migrated but ATiM code will be used. Please confrim."][] = "See Excel Topo code $code ($description) replaced by ATiM Topo Code $new_code (".$row['fr_description'].").";
+					Config::$topos[$description] = $new_code;
+				} else {
+					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Missing ICD-WHO Code into ATiM. Value will be migrated but won't match a value into ATiM (coding_icd10_who)"][] = "See Topo code $code ($description).";
+				}
+			} else {
+				Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Missing ICD-WHO Code into ATiM. Value will be migrated but won't match a value into ATiM (coding_icd10_who)"][] = "See Topo code $code ($description).";
+			}
+		} else if($res->num_rows > 1) {
+			die('ERR 38383287268263');
+		} 
+	}
 	$query = "SELECT * FROM coding_icd_o_3_morphology_custom WHERE id IN ('".implode("','", Config::$morphos)."')";
 	$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
-	if($res->num_rows != sizeof(Config::$morphos)) die('ERR 38383287268263');
+	if($res->num_rows != sizeof(Config::$morphos)) {
+		pr(Config::$morphos);
+		pr($query);
+		die('ERR 38383287268263');
+	}
 }
 
 function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 	Config::$participants = array();
 	
-	$participants_validated = true;
+	$unmigrated_excel_participant_jgh_nbrs = array();
 	
 	$worksheet_name = 'Sardo Dx';
 	if(!isset($tmp_xls_reader->sheets[$sheets_keys[$worksheet_name]])) die('ERR 838838383');
@@ -73,16 +99,16 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 					INNER JOIN participants p ON p.id = i.participant_id
 					WHERE i.deleted != 1 
 					AND i.misc_identifier_control_id = 6 
-					AND i.identifier_value = '$jgh_nbr'";
+					AND i.identifier_value REGEXP '^[\ ]*".$jgh_nbr."[\ ]*$'";
 				$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
 				if($res->num_rows > 1) {
-					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Same JGH# For Different Participant'][] = "See JGH# $jgh_nbr line $excel_line_counter";
+					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Same JGH# For Different Participant. No data will be migrated.'][] = "See JGH# $jgh_nbr line $excel_line_counter";
 					Config::$participants[$jgh_nbr] = array('participant_id' => null);
-					$participants_validated = false;
+					$unmigrated_excel_participant_jgh_nbrs[$jgh_nbr] = $jgh_nbr;
 				} else if(!$res->num_rows){
-					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Missing Participant'][] = "See JGH# $jgh_nbr line $excel_line_counter : Patient does not exist into ATIM";
+					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Missing Participant. No data will be migrated.'][] = "See JGH# $jgh_nbr line $excel_line_counter : Patient does not exist into ATIM";
 					Config::$participants[$jgh_nbr] = array('participant_id' => null);
-					$participants_validated = false;
+					$unmigrated_excel_participant_jgh_nbrs[$jgh_nbr] = $jgh_nbr;
 				} else {
 					$row = $res->fetch_assoc();
 					Config::$participants[$jgh_nbr] = array(
@@ -104,10 +130,10 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 						'diagnoses_data' => array());
 //						'participant_db_data_to_update' => array());
 					if(!empty($row['qc_lady_sardo_data_migration_date'])) {
-						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['SARDO Data Already Migrated'][] = "See JGH# $jgh_nbr line $excel_line_counter.";
-						$participants_validated = false;
+						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['SARDO Data Already Migrated. Data of the patient wont be migrated.'][] = "See JGH# $jgh_nbr line $excel_line_counter.";
+						$unmigrated_excel_participant_jgh_nbrs[$jgh_nbr] = $jgh_nbr;
 					}
-					if($row['last_name'] != $new_line_data['Nom']) Config::$summary_msg[$summary_msg_title_participant]['@@WARNING@@']['Patient Worksheet Name != Db Name : To validate'][] = "See JGH# $jgh_nbr line $excel_line_counter : ".$row['last_name']." != ".$new_line_data['Nom'];
+					if($row['last_name'] != $new_line_data['Nom']) Config::$summary_msg[$summary_msg_title_participant]['@@WARNING@@']['Patient Worksheet Last Name != ATiM Last Name : To validate'][] = "See JGH# $jgh_nbr line $excel_line_counter : ".$row['last_name']." != ".$new_line_data['Nom'];
 				}
 			} else {
 				if(Config::$participants[$jgh_nbr]['dx_worksheet_patient_data']['last_name'] != $new_line_data['Nom']) Config::$summary_msg[$summary_msg_title_participant]['@@ERROR@@']['Patient Worksheet Data not Consistent : Field Nom'][] = "See JGH# $jgh_nbr line $excel_line_counter";
@@ -151,7 +177,7 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 							Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Dates of death are different in db and file (nothing will be updated)'][] = "See JGH# $jgh_nbr line $excel_line_counter [$file_date_of_death($file_date_of_death_accuracy) != $db_date_of_death($db_date_of_death_accuracy)]";
 						}
 					} else {
-						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Vital status are different in db and file (nothing will be updated)'][] = "See JGH# $jgh_nbr line $excel_line_counter [(ATiM) $db_vital_status != (file) ".(empty($file_vital_status)? 'No value' : $file_vital_status)."]";
+						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Vital status are different in db and file (nothing will be updated - to update manually)'][] = "See JGH# $jgh_nbr line $excel_line_counter [(ATiM) $db_vital_status != (file) ".(empty($file_vital_status)? 'No value' : $file_vital_status)."]";
 					}
 					Config::$participants[$jgh_nbr]['participant_db_data_to_update'] = $participant_data_to_update;
 				}
@@ -175,7 +201,7 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 					$end_date = new DateTime($dx_date);
 					$interval = $start_date->diff($end_date);
 					if($interval->invert) {
-						die('ERR 2763 8726387 687 632 '.$jgh_nbr.' '.$dx_date.' '.Config::$participants[$jgh_nbr]['date_of_birth']);
+						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Error in the date of birth (ATiM) and date of diagnosis (Excel) definitions'][] = "See JGH# $jgh_nbr line $excel_line_counter [(ATiM date of birth) ".Config::$participants[$jgh_nbr]['date_of_birth']." < (Excel date of dx) $dx_date]";
 					} else {
 						$age_at_dx = $interval->y;
 						$age_at_dx = empty($age_at_dx)? '0' : $age_at_dx;
@@ -199,7 +225,7 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 				}
 				$tumour_grade = $new_line_data['Grade CIM-O'];
 				if(!in_array($new_line_data['Grade CIM-O'], array('1','2','3',''))) {
-					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Grade'][] = "See JGH# $jgh_nbr line. Grade ".$new_line_data['Grade CIM-O']." is not supported.";
+					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Grade value is not supported. Data wont be recorded. Please update manually.'][] = "See JGH# $jgh_nbr line. Grade ".$new_line_data['Grade CIM-O'].".";
 					$tumour_grade = '';
 				}
 				$diagnosis_master_id++;
@@ -231,6 +257,6 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 		}
 	} 
 	
-	return $participants_validated;
+	return $unmigrated_excel_participant_jgh_nbrs;
 }
 
