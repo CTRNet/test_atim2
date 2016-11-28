@@ -1,7 +1,6 @@
 <?php
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/Sop/SopExtends/listall/'.$atim_menu_variables['SopMaster.id'].'/',
 			'edit'=>'/Sop/SopExtends/edit/'.$atim_menu_variables['SopMaster.id'].'/%%SopExtend.id%%/', 
 			'delete'=>'/Sop/SopExtends/delete/'.$atim_menu_variables['SopMaster.id'].'/%%SopExtend.id%%/'
 		)

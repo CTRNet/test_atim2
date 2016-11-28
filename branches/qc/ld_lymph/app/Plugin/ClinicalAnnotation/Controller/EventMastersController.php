@@ -10,7 +10,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	);
 	
 	var $paginate = array(
-		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date ASC')
+		'EventMaster'=>array('order'=>'EventMaster.event_date ASC')
 	);
 	
 	function beforeFilter( ) {
@@ -24,8 +24,8 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		$search_criteria = array();
 		if(!$event_control_id) {
 			// 1 - MANAGE DISPLAY
-			$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
-			$controls_for_subform_display = array();
+			$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' ), 'order' => array('EventControl.display_order ASC')));
+			$controls_for_subform_display = array('-1' => array());
 			foreach($event_controls as $new_ctrl) {
 				if($new_ctrl['EventControl']['use_detail_form_for_index']) {
 					// Controls that should be listed using detail form
@@ -35,7 +35,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 					$controls_for_subform_display['-1']['EventControl'] = array('id' => '-1', 'ev_header' => null);
 				}
 			}
-			ksort($controls_for_subform_display);
+			if(empty($controls_for_subform_display['-1'])) unset($controls_for_subform_display['-1']);
 			$this->set('controls_for_subform_display', $controls_for_subform_display);
 			// find all EVENTCONTROLS, for ADD form
 			$add_links = $this->EventControl->buildAddLinks($event_controls, $participant_id, $event_group);
@@ -110,7 +110,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	
 	function add( $participant_id, $event_control_id, $diagnosis_master_id = null) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
-			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
 		// MANAGE DATA
@@ -173,11 +173,12 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				
 				$this->EventMaster->addWritableField(array('participant_id', 'event_control_id', 'diagnosis_master_id'));
 				if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
+					$url_to_flash = '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId();
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+					$this->atimFlash(__('your data has been updated'), $url_to_flash);
 				}
 					
 			} else {
@@ -187,7 +188,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				$errors_tracking = array();
 				
 				// Launch Structure Fields Validation
-				$diagnosis_master_id = $this->request->data['EventMaster']['diagnosis_master_id'];
+				$diagnosis_master_id = (array_key_exists('EventMaster', $this->request->data) && array_key_exists('diagnosis_master_id', $this->request->data['EventMaster']))? $this->request->data['EventMaster']['diagnosis_master_id'] : null;
 				unset($this->request->data['EventMaster']);
 						
 				$row_counter = 0;
@@ -228,12 +229,13 @@ class EventMastersController extends ClinicalAnnotationAppController {
 						$this->EventMaster->data = array();
 						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 					}
+					$url_to_flash = '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/';
 					$hook_link = $this->hook('postsave_process_batch');
 					if( $hook_link ) {
 						require($hook_link);
 					}
 					AppModel::releaseBatchViewsUpdateLock();
-					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
+					$this->atimFlash(__('your data has been updated'), $url_to_flash);
 				} else {
 					$this->EventMaster->validationErrors = array();
 					foreach($errors_tracking as $field => $msg_and_lines) {
@@ -249,7 +251,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	
 	function edit( $participant_id, $event_master_id ) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
-			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
 		// MANAGE DATA
@@ -321,6 +323,10 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->EventMaster->atimDelete( $event_master_id )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );

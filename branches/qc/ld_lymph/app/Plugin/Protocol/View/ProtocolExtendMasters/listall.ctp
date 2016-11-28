@@ -3,6 +3,7 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/Protocol/ProtocolExtendMasters/detail/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/',
+			'edit'=>'/Protocol/ProtocolExtendMasters/edit/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/',
 			'delete'=>'/Protocol/ProtocolExtendMasters/delete/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/'
 		),
 		'bottom'=>array('add' => '/Protocol/ProtocolExtendMasters/add/'.$atim_menu_variables['ProtocolMaster.id'])

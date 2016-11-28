@@ -16,8 +16,7 @@ class CodingIcdAppController extends AppController {
 		if($is_tool){
 			$model_name_to_use = $model_to_use->name;
 			$this->layout = 'ajax';
-			$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-			$this->Structures->set("CodingIcd_".$lang);
+			$this->Structures->set("CodingIcd");
 			$limit = 25;
 			
 			if (!$db = ConnectionManager::getDataSource($model_to_use->useDbConfig)) {
@@ -30,7 +29,6 @@ class CodingIcdAppController extends AppController {
 				unset($this->request->data[$limit]);
 				$this->set("overflow", true);
 			}
-			$this->request->data = $model_to_use->convertDataToNeutralIcd($this->request->data);
 		}else{
 			die("Not implemented");
 		}

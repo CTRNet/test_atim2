@@ -2,7 +2,7 @@
 
 class AdminUsersController extends AdministrateAppController {
 	var $uses = array('User', 'Group');
-	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC'));
+	var $paginate = array('User'=>array('order'=>'User.username ASC'));
 
 	function beforeFilter(){
 		parent::beforeFilter();
@@ -162,7 +162,7 @@ class AdminUsersController extends AdministrateAppController {
 	}
 	
 	function search($search_id = 0){
-		$this->set( 'atim_menu', $this->Menus->get('/Administrate/Groups') );
+		$this->set( 'atim_menu', $this->Menus->get('/Administrate/Groups/index') );
 		$this->searchHandler($search_id, $this->User, 'users', '/Administrate/AdminUsers/search');
 		$this->Structures->set('empty', 'empty_structure');
 		

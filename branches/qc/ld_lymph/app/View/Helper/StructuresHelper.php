@@ -792,6 +792,10 @@ class StructuresHelper extends Helper {
 		}
 		echo("</dl>");
 	}
+
+        private function get_open_file_link($current_value) {
+            return '<a href="?file='.$current_value.'">'.__("open file").'</a>';
+        }
 	
 	/**
 	 * Echoes a structure field
@@ -830,7 +834,6 @@ class StructuresHelper extends Helper {
 					}
 				}
 				
-				$display = "";
 				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
@@ -903,7 +906,15 @@ class StructuresHelper extends Helper {
 				$current_value = str_replace('.', ',', $current_value);
 			} else if($table_row_part['type'] == "textarea") {
 				$current_value = str_replace('\n', "\n", $current_value);	
-			}			
+                        }else if($table_row_part['type'] == 'file'){
+                            if ($current_value) {
+                                $display = $this->get_open_file_link($current_value);
+                                $display .= '<input type="radio" class="fileOption" name="data['.$field_name.'][option]" value="" checked="checked"><span>'._('keep').'</span>';
+                                $display .= '<input type="radio" class="fileOption" name="data['.$field_name.'][option]" value="delete"><span>'._('delete').'</span>';
+                                $display .= '<input type="radio" class="fileOption" name="data['.$field_name.'][option]" value="replace"><span>'._('replace').'</span>';
+                                $display .= ' ';
+                            }
+                        }
 			$display .= $table_row_part['format'];//might contain hidden field if the current one is disabled
 			
 			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
@@ -955,6 +966,8 @@ class StructuresHelper extends Helper {
 				$current_value = str_replace('\n', in_array($options['type'], self::$write_modes) ? "\n" : '<br/>', $current_value);
 				$current_value = str_replace('&dbs;', '\\', $current_value);
 				$display = html_entity_decode($current_value);
+			}else if($table_row_part['type'] == 'file'){
+                            $display = $this->get_open_file_link($current_value);
 			}else{
 				$display = $current_value;
 			}
@@ -1227,6 +1240,7 @@ class StructuresHelper extends Helper {
 		if(isset($csv::$nodes_info)){
 			//same line mode
 			$this->Csv->current = array();
+			$tmp_CodingIcdCheck = false;	//$options['CodingIcdCheck'] has not been set by previous functions
 			if($options['settings']['csv_header']){
 				//first call, build all structures
 				$options['type'] = 'index';
@@ -1253,6 +1267,13 @@ class StructuresHelper extends Helper {
 									$sub_line[] = __('accuracy');
 									$heading_sub_line[] = $last_heading;
 								}
+								if(!isset($options['CodingIcdCheck'])){
+									foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
+										if(strpos($table_row_part['setting'], $trigger) !== false){
+											$tmp_CodingIcdCheck = true;
+										}
+									}
+								}								
 							}
 						}
 						
@@ -1274,7 +1295,11 @@ class StructuresHelper extends Helper {
 			
 			$lines = array();
 			//data = array(node => pkey => data rows => data line
-					
+
+			if(!isset($options['CodingIcdCheck'])){
+				$options['CodingIcdCheck'] = $tmp_CodingIcdCheck;
+			}
+			
 			foreach($csv::$nodes_info as $node_id => $node_info){
 				//fill the node section of the lines array. the index is the pkey of the line
 				foreach($data[$node_id] as $pkey => $data_row){
@@ -1291,7 +1316,8 @@ class StructuresHelper extends Helper {
 										if(in_array($table_row_part['type'], array('date', 'datetime'))) {
 											$lines[$pkey] = array_merge($lines[$pkey], $this->getDateValuesFormattedForExcel($model_data[$table_row_part['model']], $table_row_part['field'], $table_row_part['type']));
 										} else {
-											$lines[$pkey][] = trim($this->getPrintableField($table_row_part, $options, $model_data[$table_row_part['model']][$table_row_part['field']], null, null));
+											$current_value = self::getCurrentValue($model_data, $table_row_part, "", $options);	
+											$lines[$pkey][] = trim($this->getPrintableField($table_row_part, $options, $current_value, null, null));
 										}	
 									}else{
 										$lines[$pkey][] = '';
@@ -1371,7 +1397,8 @@ class StructuresHelper extends Helper {
 										if(in_array($table_row_part['type'], array('date', 'datetime'))) {
 											$line = array_merge($line, $this->getDateValuesFormattedForExcel($data_unit[$table_row_part['model']], $table_row_part['field'], $table_row_part['type']));
 										} else {	
-											$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+											$current_value = self::getCurrentValue($data_unit, $table_row_part, "", $options);										
+											$line[] = trim($this->getPrintableField($table_row_part, $options, $current_value, null, null));
 										}
 									}else{
 										$line[] = "";
@@ -1383,7 +1410,7 @@ class StructuresHelper extends Helper {
 						$this->Csv->addRow($line);
 					}
 				}else{
-					// Multi-Lines and Multi Column Report Display: Date format for excel not supported
+					// Multi-Lines and Multi Column Report Display: Date format for excel not supported + no ICD description generated
 					foreach($table_structure as $table_column){
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
@@ -2049,7 +2076,11 @@ class StructuresHelper extends Helper {
 										$current['tool'] = '<a href="'.$href.'" class="tool_popup"></a>';
 									}
 								}else{
-									$settings[$setting[0]] = $setting[1];
+									if($setting[0] == 'class' && isset($settings['class'])) {
+										$settings['class'] .=  ' '.$setting[1];
+									} else {
+										$settings[$setting[0]] = $setting[1];
+									}
 								}
 							}
 						}
@@ -2205,7 +2236,7 @@ class StructuresHelper extends Helper {
 						}
 						$current['settings']['options'] = $dropdown_result;
 					}
-					
+
 					if(!isset($stack[$sfs['display_column']][$sfs['display_order']])){
 						$stack[$sfs['display_column']][$sfs['display_order']] = array();
 					}
@@ -2227,6 +2258,7 @@ class StructuresHelper extends Helper {
 				foreach($cell as $fields){
 					foreach($fields as $field){
 						unset($override[$field['model'].".".$field['field']]);
+						if(in_array($field['type'], array('date', 'datetime'))) unset($override[$field['model'].".".$field['field'].'_accuracy']);
 					}
 				}
 			}
@@ -2656,11 +2688,11 @@ class StructuresHelper extends Helper {
 		}else{
 			foreach($pref_date as $part){
 				if($part == "Y"){
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($year_attributes, array('type' => 'number', 'min' => 1900, 'max' => 2100,  'value' => $year, 'size' => 6, 'maxlength' => 4)))."<div>".__('year', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($year_attributes, array('type' => 'number', 'min' => 1900, 'max' => 2100,  'value' => $year, 'size' => 6, 'maxlength' => 4, 'class' => 'year')))."<div>".__('year', true)."</div></span>";
 				}else if($part == "M"){
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 12, 'value' => $month, 'size' => 3, 'maxlength' => 2)))."<div>".__('month', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 12, 'value' => $month, 'size' => 3, 'maxlength' => 2, 'class' => 'month')))."<div>".__('month', true)."</div></span>";
 				}else{
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".day", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 31, 'value' => $day, 'size' => 3, 'maxlength' => 2)))."<div>".__('day', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".day", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 31, 'value' => $day, 'size' => 3, 'maxlength' => 2, 'class' => 'month')))."<div>".__('day', true)."</div></span>";
 				}
 			}
 		}
@@ -2736,10 +2768,27 @@ class StructuresHelper extends Helper {
 		){
 			//priority 1, data
 			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
-		}else if($options['type'] != 'index' && $options['type'] != 'detail'){
+		}else if($options['type'] != 'index' && $options['type'] != 'detail' && $options['type'] != 'csv'){
 			if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
 				//priority 2, override
-				$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field'].$suffix];
+				$override_mode_field = $table_row_part['model'].".".$table_row_part['field'].$suffix;
+				$current_value = $options['override'][$override_mode_field];
+				if(in_array($table_row_part['type'], array('date', 'datetime')) && isset($options['override'][$override_mode_field.'_accuracy'])) {
+					$override_mode_field_accuracy = $options['override'][$override_mode_field.'_accuracy'];
+					if($override_mode_field_accuracy != 'c'){
+						if($override_mode_field_accuracy == 'd'){
+							$current_value = substr($current_value, 0, 7);
+						}else if($override_mode_field_accuracy == 'm'){
+							$current_value = substr($current_value, 0, 4);
+						}else if($override_mode_field_accuracy == 'y'){
+							$current_value = '±'.substr($current_value, 0, 4);
+						}else if($override_mode_field_accuracy == 'h'){
+							$current_value = substr($current_value, 0, 10);
+						}else if($override_mode_field_accuracy == 'i'){
+							$current_value = substr($current_value, 0, 13);
+						}
+					}
+				}
 				if(is_array($current_value)){
 					if(Configure::read('debug') > 0){
 						AppController::addWarningMsg(__("invalid override for model.field [%s.%s]", $table_row_part['model'], $table_row_part['field'].$suffix));
@@ -2766,7 +2815,7 @@ class StructuresHelper extends Helper {
 			AppController::addWarningMsg(__("no data for [%s.%s]" , $table_row_part['model'], $table_row_part['field']));
 		}
 		
-		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail') && $current_value){
+		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail' || $options['type'] == 'csv') && $current_value){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				if(strpos($table_row_part['setting'], $trigger) !== false){
 					eval('$instance = '.$key.'::getSingleton();');

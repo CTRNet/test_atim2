@@ -14,6 +14,12 @@ $final_options = array(
 		'links'		=> $structure_links,
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][consent_master_id]" '.($consent_found ? '' : 'checked="checked"').'" value=""/>'.__('n/a'))
 );
+if(!AppController::checkLinkPermission('/ClinicalAnnotation/ConsentMasters/detail/')) {
+	$final_atim_structure = array();
+	$final_options['type'] = 'detail';
+	$final_options['data'] = array();
+	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+}
 
 $display_next_sub_form = true;
 
@@ -46,6 +52,12 @@ $final_options = array(
 		'links'	=> $structure_links,
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][diagnosis_master_id]"  '.($found_dx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
+if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/detail/')) {
+	$final_atim_structure = array();
+	$final_options['type'] = 'detail';
+	$final_options['data'] = array();
+	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+}
 
 $display_next_sub_form = true;
 
@@ -74,6 +86,12 @@ $final_options = array(
 		'links'		=> $structure_links,
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][treatment_master_id]"  '.($found_tx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
+if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/detail/')) {
+	$final_atim_structure = array();
+	$final_options['type'] = 'detail';
+	$final_options['data'] = array();
+	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+}
 
 $display_next_sub_form = true;
 
@@ -103,6 +121,12 @@ $final_options = array(
 		'links'		=> $structure_links,
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][event_master_id]"  '.($found_event ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
+if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/detail/')) {
+	$final_atim_structure = array();
+	$final_options['type'] = 'detail';
+	$final_options['data'] = array();
+	$final_options['extras'] = '<div>'.('You are not authorized to access that location.').'</div>';
+}
 
 $display_next_sub_form = true;
 

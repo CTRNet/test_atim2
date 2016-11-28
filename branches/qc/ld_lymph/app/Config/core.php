@@ -4,8 +4,6 @@
  *
  * Use it to configure core behavior of Cake.
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -19,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 0;
+$debug = 2;
 /**
  * CakePHP Debug Level:
  *
@@ -45,7 +43,7 @@ $debug = 0;
  * - `handler` - callback - The callback to handle errors. You can set this to any callable type,
  *   including anonymous functions.
  *   Make sure you add App::uses('MyHandler', 'Error'); when using a custom handler class
- * - `level` - int - The level of errors you are interested in capturing.
+ * - `level` - integer - The level of errors you are interested in capturing.
  * - `trace` - boolean - Include stack traces for errors in log files.
  *
  * @see ErrorHandler for more information on error handling and configuration.
@@ -97,8 +95,8 @@ $debug = 0;
  * /app/webroot/.htaccess
  *
  * And uncomment the App.baseUrl below. But keep in mind
- * that plugin assets such as images, CSS and Javascript files
- * will not work without url rewriting!
+ * that plugin assets such as images, CSS and JavaScript files
+ * will not work without URL rewriting!
  * To work around this issue you should either symlink or copy
  * the plugin assets into you app's webroot directory. This is
  * recommended even when you are using mod_rewrite. Handling static
@@ -254,7 +252,7 @@ $debug = 0;
  * Plug in your own custom JavaScript compressor by dropping a script in your webroot to handle the
  * output, and setting the config below to the name of the script.
  *
- * To use, prefix your JavaScript link URLs with '/cjs/' instead of '/js/' or use JavaScriptHelper::link().
+ * To use, prefix your JavaScript link URLs with '/cjs/' instead of '/js/' or use JsHelper::link().
  */
 	//Configure::write('Asset.filter.js', 'custom_javascript_output_filter.php');
 
@@ -270,6 +268,14 @@ $debug = 0;
  * any date & time related errors.
  */
 	//date_default_timezone_set('UTC');
+
+/**
+ * `Config.timezone` is available in which you can set users' timezone string.
+ * If a method of CakeTime class is called with $timezone parameter as null and `Config.timezone` is set,
+ * then the value of `Config.timezone` will be used. This feature allows you to set users' timezone just
+ * once instead of passing it each time in function calls.
+ */
+	//Configure::write('Config.timezone', 'Europe/Paris');
 
 /**
  *
@@ -384,13 +390,13 @@ Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 
 Cache::config('default', array('engine' => 'File'));
 
 Configure::write('use_compression', true);
-Configure::write('Session.timeout', $debug ? 3600 : 600);
+Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 /**
  * Define the complexity of a password format:
  *	- level 0: No constrain
- *	- level 1: Minimal length of 8 characters + contains at least one lowercase letter		
- *	- level 2: level 1 + contains at least one number	
+ *	- level 1: Minimal length of 8 characters + contains at least one lowercase letter
+ *	- level 2: level 1 + contains at least one number
  *	- level 3: level 2 + contains at least one uppercase letter
  *	- level 4: level 3 + special at least one character [!$-_.]
  */
@@ -412,10 +418,56 @@ Configure::write('time_mn_IP_disabled', 20);
 Configure::write('max_user_login_attempts', 5);
 
 /**
- * Period of password validity in month. 
+ * Period of password validity in month.
  * Keep empty if no control has to be done.
  * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
  */
 Configure::write('password_validity_period_month', null);
+
+/**
+ * Set the limit of records that could either be displayed in the databrowser results 
+ * form or into a report.
+ */
+Configure::write('databrowser_and_report_results_display_limit', 1000);
+
+/**
+ * Set the limit of items that could be processed in batch
+ */
+Configure::write('ParticipantMessageCreation_processed_participants_limit', 50);		// ParticipantMessage.add()
+
+Configure::write('SampleDerivativeCreation_processed_items_limit', 50);		// SampleMasters.batchDerivative()
+	
+Configure::write('AliquotCreation_processed_items_limit', 50);				// AliquotMasters.add()
+Configure::write('AliquotModification_processed_items_limit', 50);			// AliquotMasters.editInBatch()
+Configure::write('AliquotInternalUseCreation_processed_items_limit', 50);	// AliquotMasters.addAliquotInternalUse()
+Configure::write('RealiquotedAliquotCreation_processed_items_limit', 50);	// AliquotMasters.realiquot()
+Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotMasters.printBarcodes()
+	
+Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
+	
+Configure::write('AddToOrder_processed_items_limit', 50);					// OrderItems.add() & OrderItems.addOrderItemsInBatch()
+Configure::write('AddToShipment_processed_items_limit', 50);				// Shipments.addToShipment()
+Configure::write('defineOrderItemsReturned_processed_items_limit', 50);		// OrderItems.defineOrderItemsReturned()
+Configure::write('edit_processed_items_limit', 50);							// OrderItems.editInBatch()
+
+Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add(), TmaSlides.editInBatch(), TmaSlideUses.add(), TmaSlideUses.editInBatch(), 
+
+/**
+ * Set the allowed links that exists between an OrderItem and different Order plugin objects:
+ * 		1 => link OrderItem to both Order and OrderLine (order line submodule available) 
+ * 		2 => link OrderItem to OrderLine only (order line submodule available) 
+ * 		3 => link OrderItem to Order only (order line submodule not available) 
+ */
+Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
+
+Configure::write('uploadDirectory', './atimUploadDirectory');
+
+/**
+ * Set the type(s) of item that could be added to order:
+ * 		1 => both tma slide and aliquot
+ * 		2 => aliquot only
+ * 		3 => tma slide only
+ */
+Configure::write('order_item_type_config', 1);
 
 unset($debug);

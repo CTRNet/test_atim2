@@ -8,7 +8,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		'CodingIcd.CodingIcd10Who',
 		'CodingIcd.CodingIcd10Ca');
 	
-	var $paginate = array('FamilyHistory'=>array('limit' => pagination_amount,'order'=>'FamilyHistory.relation'));
+	var $paginate = array('FamilyHistory'=>array('order'=>'FamilyHistory.relation'));
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -133,12 +133,14 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 					if(!$this->FamilyHistory->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				
+				$url_to_flash = '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id;
+				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
 					require($hook_link);
 				}
 				
-				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been saved'), $url_to_flash );
 
 			} else  {
 				$this->FamilyHistory->validationErrors = array();
@@ -235,6 +237,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			
 			$flash_link = '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id;
 			if ($this->FamilyHistory->atimDelete($family_history_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), $flash_link );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), $flash_link );

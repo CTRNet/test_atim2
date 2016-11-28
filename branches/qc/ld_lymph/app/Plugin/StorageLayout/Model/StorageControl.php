@@ -26,6 +26,36 @@ class StorageControl extends StorageLayoutAppModel {
 		return $result;
 	}
 	
+	function getNonTmaBlockStorageTypePermissibleValues() {
+		$storage_types_from_id = $this->getStorageTypePermissibleValues();
+		foreach($this->find('all', array('conditions' => array('flag_active = 1', 'is_tma_block = 1', 'id' => array_keys($storage_types_from_id)), 'fields' => array('StorageControl.id'))) as $new_tma_block_storage_control_id) {
+			unset($storage_types_from_id[$new_tma_block_storage_control_id['StorageControl']['id']]);
+		}
+		return $storage_types_from_id;		
+	}
+	
+	function getTmaBlockStorageTypePermissibleValues() {
+		$storage_types_from_id = $this->getStorageTypePermissibleValues();
+		$tma_block_control_ids = array();
+		foreach($this->find('all', array('conditions' => array('flag_active = 1', 'is_tma_block = 1', 'id' => array_keys($storage_types_from_id)), 'fields' => array('StorageControl.id'))) as $new_tma_block_storage_control_id) $tma_block_control_ids[] = $new_tma_block_storage_control_id['StorageControl']['id'];
+		foreach($storage_types_from_id as $storage_control_id => $val) if(!in_array($storage_control_id, $tma_block_control_ids)) unset($storage_types_from_id[$storage_control_id]);
+		return $storage_types_from_id;
+	}
+	
+	function getAddStorageStructureLinks($storage_master_id = null) {
+		$storage_types_from_id = $this->getStorageTypePermissibleValues();
+		$tma_block_control_ids = array();
+		foreach($this->find('all', array('conditions' => array('flag_active = 1', 'is_tma_block = 1', 'id' => array_keys($storage_types_from_id)), 'fields' => array('StorageControl.id'))) as $new_tma_block_storage_control_id) $tma_block_control_ids[] = $new_tma_block_storage_control_id['StorageControl']['id'];
+		$add_links = array();
+		foreach($storage_types_from_id as $storage_control_id => $translated_storage_type) {
+			$add_links[$translated_storage_type] = array(
+				'link' => "/StorageLayout/StorageMasters/add/$storage_control_id/".($storage_master_id? $storage_master_id."/" : ''),
+				'icon' => in_array($storage_control_id, $tma_block_control_ids)? 'add_tma_block' : 'add_storage');
+		}
+		if(empty($add_links)) $add_links = '/underdevelopment/';
+		return $add_links;
+	}
+	
 	/**
 	 * Define if the coordinate 'x' list of a storage having a specific type
 	 * can be set by the application user.
