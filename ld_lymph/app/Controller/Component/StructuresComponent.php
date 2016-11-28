@@ -205,7 +205,19 @@ class StructuresComponent extends Component {
 			}
 			$this->updateAccuracyChecks($return['structure']);
 		}
-		
+
+        // seek file fields
+        foreach($return as $structure) {
+            if (!isset($structure['Sfs'])) {
+                continue;
+            }
+            foreach($structure['Sfs'] as $field) {
+                if($field['type'] == 'file') {
+                    $prefix = $field['model'].'.'.$field['field'];
+                    $this->controller->allowed_file_prefixes[$prefix] = null;
+                }
+            }
+        }
 		
 		return $return;
 	}
@@ -256,6 +268,7 @@ class StructuresComponent extends Component {
 				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				$form_fields_key = $value['model'].'.'.$value['field'];
 				$value_type = $value['type'];
+				$is_float = in_array($value['type'], array('float', 'float_positive'));
 				if (in_array($value_type, self::$range_types)
 					|| (strpos($value['setting'], "range") !== false)
 						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])
@@ -265,14 +278,16 @@ class StructuresComponent extends Component {
 					$form_fields[$key_start]['model']		= $value['model'];
 					$form_fields[$key_start]['field']		= $value['field'];
 					$form_fields[$key_start]['key']			= $form_fields_key.' >=';
+					$form_fields[$key_start]['is_float']	= $is_float;
 					$form_fields[$key_start]['tablename']	= $value['tablename'];
 					
 					$key_end = $form_fields_key.'_end';
-					$form_fields[$key_end]['plugin']			= $value['plugin'];
+					$form_fields[$key_end]['plugin']		= $value['plugin'];
 					$form_fields[$key_end]['model']			= $value['model'];
 					$form_fields[$key_end]['field']			= $value['field'];
 					$form_fields[$key_end]['key']			= $form_fields_key.' <=';
-					$form_fields[$key_end]['tablename']	= $value['tablename'];
+					$form_fields[$key_end]['is_float']		= $is_float;
+					$form_fields[$key_end]['tablename']		= $value['tablename'];
 					
 					if(isset($atim_structure['Accuracy'][$value['model']][$value['field']])){
 						$accuracy_fields[] = $key_start;
@@ -294,7 +309,9 @@ class StructuresComponent extends Component {
 					}else{
 						// all other types, a generic SQL fragment...
 						$form_fields[$form_fields_key]['key']		= $form_fields_key.' LIKE';
-					}						
+					}	
+					
+					$form_fields[$form_fields_key]['is_float']		= $is_float;					
 				}
 				
 				//CocingIcd magic
@@ -341,18 +358,25 @@ class StructuresComponent extends Component {
 						if((!empty($data) || $data == "0")  && isset($form_fields[$form_fields_key])){
 							// if CSV file uploaded...
 							if(is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name']){
-								
-								// set $DATA array based on contents of uploaded FILE
-								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
-								unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
-								// in each LINE, get FIRST csv value, and attach to DATA array
-								while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-								    $data[] = $csv_data[0];
+								if(!preg_match('/((\.txt)|(\.csv))$/', $this->controller->data[$model][$key.'_with_file_upload']['name'])) {
+									$this->controller->redirect('/Pages/err_submitted_file_extension', null, true);
+								} else {
+									// set $DATA array based on contents of uploaded FILE
+									$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
+									if($handle) {
+										unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
+										// in each LINE, get FIRST csv value, and attach to DATA array
+										while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+										    $data[] = $csv_data[0];
+										}
+										fclose($handle);
+									} else {
+										$this->controller->redirect('/Pages/err_opening_submitted_file', null, true);
+									}
 								}
-								
-								fclose($handle);
-								
-								unset($this->controller->data[$model][$key.'_with_file_upload']);
+								$tmp_controler_data = $this->controller->data;
+								unset($tmp_controler_data[$model][$key.'_with_file_upload']);
+								$this->controller->data = $tmp_controler_data;
 							}
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
@@ -393,12 +417,12 @@ class StructuresComponent extends Component {
 								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
 										foreach($data as &$unit){
-											$unit = Sanitize::escape($unit);
+											$unit = trim(Sanitize::escape($unit));
 										}
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
 									}else{
-										$data = '%'.Sanitize::escape($data).'%';
+										$data = '%'.trim(Sanitize::escape($data)).'%';
 									}
 								}
 								
@@ -433,8 +457,13 @@ class StructuresComponent extends Component {
 											$form_fields[$form_fields_key.'_accuracy']['key'] => array('m', 'y')
 										);
 										$conditions[] = array("OR" => $tmp_cond);
-									}else{
-										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+									}else{										
+										if(is_array($data)) {
+											foreach($data as &$unit) if(is_string($unit)) $unit = trim($unit);
+										} else if(is_string($data)) {
+											$data = trim($data);
+										}
+										$conditions[ $form_fields[$form_fields_key]['key'] ] = $form_fields[$form_fields_key]['is_float']? str_replace(',', '.', $data) : $data;
 									}
 								}
 							}

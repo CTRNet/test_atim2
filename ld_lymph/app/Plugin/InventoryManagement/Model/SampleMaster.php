@@ -6,15 +6,15 @@ class SampleMaster extends InventoryManagementAppModel {
 	
 	var $actsAs = array('MinMax');
 	
-	var $belongsTo = array(       
-		'SampleControl' => array(           
-			'className'		=> 'InventoryManagement.SampleControl',            
+	var $belongsTo = array(
+		'SampleControl' => array(
+			'className'		=> 'InventoryManagement.SampleControl',
 			'foreignKey'	=> 'sample_control_id',
-			'type'			=> 'INNER'),        
-		'Collection' => array(           
-			'className'		=> 'InventoryManagement.Collection',            
+			'type'			=> 'INNER'),
+		'Collection' => array(
+			'className'		=> 'InventoryManagement.Collection',
 			'foreignKey'	=> 'collection_id',
-			'type'			=> 'INNER'));   
+			'type'			=> 'INNER'));
 
 	var $hasOne = array(
 		'SpecimenDetail' => array(
@@ -282,7 +282,7 @@ class SampleMaster extends InventoryManagementAppModel {
 			}
 			$sources = array_unique($sources);
 			foreach($sources as $source_id){
-				$aliquot_master->updateAliquotUseAndVolume($source_id, true, true, false);
+				$aliquot_master->updateAliquotVolume($source_id);
 			}
 			return true;
 		}

@@ -3,7 +3,9 @@
 	if(isset($derivatives_data)) {
 		$structure_links = array();
 		$structure_links['index']['detail'] = '/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.id%%';
-	
+		$structure_links['index']['edit'] = '/InventoryManagement/SampleMasters/edit/%%Collection.id%%/%%SampleMaster.id%%';
+		$structure_links['index']['delete'] = '/InventoryManagement/SampleMasters/delete/%%Collection.id%%/%%SampleMaster.id%%';
+		
 		$hook_link = $this->Structures->hook();
 		if($hook_link){
 			require($hook_link); 

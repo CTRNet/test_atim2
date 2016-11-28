@@ -7,7 +7,7 @@ if(AppController::checkLinkPermission('ClinicalAnnotation/DiagnosisMasters/add/'
 	foreach($diagnosis_controls_list as $dx_ctrl){
 		if($dx_ctrl['DiagnosisControl']['category'] != 'primary'){
 			$current[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category']) . ' - ' .__($dx_ctrl['DiagnosisControl']['controls_type']);
-			if($dx_ctrl['DiagnosisControl']['category'] == 'secondary'){
+			if($dx_ctrl['DiagnosisControl']['category'] == 'secondary - distant'){
 				$secondary_ctrl_id[] = $dx_ctrl['DiagnosisControl']['id'];
 			}
 		}

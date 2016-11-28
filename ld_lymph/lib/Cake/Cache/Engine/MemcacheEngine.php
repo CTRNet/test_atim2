@@ -2,9 +2,6 @@
 /**
  * Memcache storage engine for cache
  *
- *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -208,13 +205,13 @@ class MemcacheEngine extends CacheEngine {
 		if ($check) {
 			return true;
 		}
-		foreach ($this->_Memcache->getExtendedStats('slabs') as $slabs) {
+		foreach ($this->_Memcache->getExtendedStats('slabs', 0) as $slabs) {
 			foreach (array_keys($slabs) as $slabId) {
 				if (!is_numeric($slabId)) {
 					continue;
 				}
 
-				foreach ($this->_Memcache->getExtendedStats('cachedump', $slabId) as $stats) {
+				foreach ($this->_Memcache->getExtendedStats('cachedump', $slabId, 0) as $stats) {
 					if (!is_array($stats)) {
 						continue;
 					}

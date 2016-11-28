@@ -7,7 +7,9 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		'Protocol.ProtocolExtendControl',
 			
 		'Protocol.ProtocolMaster',
-		'Protocol.ProtocolControl');
+		'Protocol.ProtocolControl',
+			
+		'Drug.Drug');
 		
 	var $paginate = array();
 
@@ -125,8 +127,14 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		if( $hook_link ) { require($hook_link); }
 
 		if (empty($this->request->data)) {
+			$prot_extend_data['FunctionManagement']['autocomplete_protocol_drug_id'] = $this->Drug->getDrugDataAndCodeForDisplay(array('Drug' => array('id' => $prot_extend_data['ProtocolExtendMaster']['drug_id'])));
 			$this->request->data = $prot_extend_data;
 			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+				
 		} else {
 			$submitted_data_validates = true;
 			
@@ -167,6 +175,10 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->ProtocolExtendMaster->atimDelete( $protocol_extend_master_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);

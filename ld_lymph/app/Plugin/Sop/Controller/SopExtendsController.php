@@ -7,7 +7,7 @@ class SopExtendsController extends SopAppController {
 		'Sop.SopMaster',
 		'Sop.SopControl',
 		'Material.Material');
-	var $paginate = array('SopMaster'=>array('limit' => pagination_amount,'order'=>'SopMaster.id DESC'));
+	var $paginate = array('SopMaster'=>array('order'=>'SopMaster.id DESC'));
 	
 	function listall($sop_master_id){
 		$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
