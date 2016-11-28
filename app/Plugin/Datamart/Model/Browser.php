@@ -1175,7 +1175,7 @@ class Browser extends DatamartAppModel {
 		//building the relationship logic between nodes
 		foreach($nodes_to_fetch as $node){
 			$current_browsing = self::$browsing_result_model->findById($node);
-			$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['model'], true);
+			$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['model'], true);	
 			$current_sub_model = null;
 			if ($current_browsing['BrowsingResult']['browsing_structures_sub_id']) {
 			    $current_sub_model = $current_browsing['BrowsingResult']['browsing_structures_sub_id'];
@@ -1183,6 +1183,9 @@ class Browser extends DatamartAppModel {
 			$ids = explode(",", $current_browsing['BrowsingResult']['id_csv']);
 			$ids[] = 0;
 			$model_and_struct_for_node = self::$browsing_result_model->getModelAndStructureForNode($current_browsing);
+			if(!$current_sub_model && $model_and_struct_for_node['control_id']) {
+				$current_sub_model = $model_and_struct_for_node['control_id'];
+			}
 			$structure = $model_and_struct_for_node['structure'];
 			$header_sub_type = ($model_and_struct_for_node['header_sub_type'] ? "/".self::getTranslatedDatabrowserLabel($model_and_struct_for_node['header_sub_type']) : '').' ';
 			if(!$model_and_struct_for_node['specific'] && $current_browsing['DatamartStructure']['control_master_model']){
