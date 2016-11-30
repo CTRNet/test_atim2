@@ -29,8 +29,8 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		// Get data
-		
-		$AVAILABLE_ALIQUOT_JOIN = ($parameters['FunctionManagement']['ld_lymph_limit_to_available_sample'][0])? "INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id AND AliquotMaster.deleted <> 1 AND AliquotMaster.in_stock != 'no'" : '';
+			
+		$AVAILABLE_ALIQUOT_JOIN = (!isset($parameters['FunctionManagement']['ld_lymph_limit_to_available_sample']) || $parameters['FunctionManagement']['ld_lymph_limit_to_available_sample'][0])? "INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id AND AliquotMaster.deleted <> 1 AND AliquotMaster.in_stock != 'no'" : '';
 		$DX_JOIN = isset($criterias['DiagnosisMaster.ld_lymph_lymphoma_type'])? 'INNER' : 'LEFT';	
 		$report_query = "
 			SELECT DISTINCT
@@ -110,7 +110,7 @@ class ReportsControllerCustom extends ReportsController {
 	
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
