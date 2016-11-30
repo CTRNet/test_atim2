@@ -7,14 +7,11 @@ class ReportsControllerCustom extends ReportsController {
 		// Build criteria
 		
 		$criterias = array("ConsentMaster.consent_status" => array('obtained'));
-		foreach(array('Participant' => 'id', 'Participant' => 'participant_identifier', 'SampleControl' => 'sample_type', 'DiagnosisMaster' => 'ld_lymph_lymphoma_type') as $model => $field) {
-			if(isset($parameters[$model][$field])) {
-				foreach($parameters[$model][$field] as $new_val) {
-					if($new_val) {
-						if(!isset($criterias[$model.'.'.$field])) $criterias[$model.'.'.$field] = array();
-						$criterias[$model.'.'.$field][] = $new_val;
-					}
-				}
+		foreach(array('Participant.id', 'Participant.participant_identifier', 'SampleControl.sample_type', 'DiagnosisMaster.ld_lymph_lymphoma_type') as $model_field) {
+			list($model, $field) = explode('.', $model_field);
+			if(isset($parameters[$model]) && isset($parameters[$model][$field])) {
+				$parameters[$model][$field] = array_filter($parameters[$model][$field]);
+				if($parameters[$model][$field]) $criterias[$model.'.'.$field] = $parameters[$model][$field];
 			}
 		}
 		$WHERE_CRITERIA = 'true';
