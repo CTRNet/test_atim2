@@ -269,7 +269,15 @@
 --			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excisional biopsy';
 --			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excis. resect.';
 --
+--
 --		
+--   ### 17 # Added aliquot in stock detail to ViewAliquot
+--
+--      TODO:
+--
+--      Update $table_querie variable of the ViewAliquotCustom model (if exists).
+--
+--
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -2955,6 +2963,15 @@ ALTER TABLE ed_cap_report_16_colon_resections_revs DROP COLUMN modified_by;
 INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`, `lab_book_control_id`) VALUES
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat'), (SELECT id FROM sample_controls WHERE sample_type = 'cell culture'), 0, NULL),
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 0, NULL);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Added aliquot in stock detail to ViewAliquot
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquot', '', 'in_stock_detail', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') , '0', '', '', '', 'aliquot in stock detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='in_stock_detail' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot in stock detail' AND `language_tag`=''), '0', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
