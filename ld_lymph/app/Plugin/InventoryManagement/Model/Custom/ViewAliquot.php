@@ -30,6 +30,7 @@ SampleMaster.ld_lymph_specimen_number,
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
+			AliquotMaster.in_stock_detail,
 			StudySummary.title AS study_summary_title,
 			StudySummary.id AS study_summary_id,
 		
