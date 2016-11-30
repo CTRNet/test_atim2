@@ -272,22 +272,11 @@ ALTER TABLE orders
   DROP COLUMN tmp_shipped_date_accuracy,
   DROP COLUMN tmp_order_used_by;
 
+update storage_controls SET flag_active = 0 where is_tma_block = 1;
+
 -- ----------------------------------------------------------------------------------------------------------
 -- Versions
 -- ----------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6603' WHERE version_number = '2.6.8';
+UPDATE versions SET branch_build_number = '6604' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
-
-
-
-
-
-mysql -u root ldlymph --default-character-set=utf8 < C:\_NicolasLuc\Server\www\atim_jgh_lymph_20161127.sql
-mysql -u root ldlymph --default-character-set=utf8 < atim_v2.6.3_upgrade.sql
-mysql -u root ldlymph --default-character-set=utf8 < atim_v2.6.4_upgrade.sql > 4.txt
-mysql -u root ldlymph --default-character-set=utf8 < atim_v2.6.5_upgrade.sql > 5.txt
-mysql -u root ldlymph --default-character-set=utf8 < atim_v2.6.6_upgrade.sql > 6.txt
-mysql -u root ldlymph --default-character-set=utf8 < atim_v2.6.7_upgrade.sql > 7.txt
-mysql -u root ldlymph --default-character-set=utf8 < atim_v2.6.8_upgrade.sql > 8.txt
-mysql -u root ldlymph --default-character-set=utf8 < custom_post_268.sql
