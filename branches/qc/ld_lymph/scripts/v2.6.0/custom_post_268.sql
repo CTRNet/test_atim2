@@ -80,14 +80,18 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Aliquot In Stock Details', 1, 30, 'inventory');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot In Stock Details');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-(SELECT val.value,en,fr, '1', @control_id
+SET @created_by = (SELECT id FROM users WHERE username = 'NicoEn');
+SET @created = (SELECT NOW() FROM users WHERE username = 'NicoEn');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT val.value,en,fr, '1', @control_id, @created, @created, @created_by, @created_by
 FROM structure_value_domains dom 
 INNER JOIN structure_value_domains_permissible_values lk ON lk.structure_value_domain_id = dom.id AND lk.flag_active = 1
 INNER JOIN structure_permissible_values val ON val.id = structure_permissible_value_id
 LEFT JOIN i18n ON i18n.id =val.value
 WHERE dom.domain_name = 'aliquot_in_stock_detail');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES ('destroyed/not consented', 'Destroyed - Not consented', '', '1', @control_id);
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('destroyed/not consented', 'Destroyed - Not consented', '', '1', @control_id, @created, @created, @created_by, @created_by);
 DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'aliquot_in_stock_detail'); 
 
 -- ---------------------------------------------------------------------------------------------------------
@@ -196,8 +200,8 @@ tmp_order_used_by = ALiquotInternalUse.used_by
 WHERE AliquotMaster.id = ALiquotInternalUse.aliquot_master_id
 AND AliquotMaster.deleted <> 1 AND ALiquotInternalUse.deleted <> 1
 AND AliquotMaster.in_stock = 'no' AND AliquotMaster.in_stock_detail = 'shipped'
-AND (ALiquotInternalUse.used_volume IS NULL OR AliquotMaster.initial_volume IS NULL OR (ALiquotInternalUse.used_volume = AliquotMaster.initial_volume))
-AND ALiquotInternalUse.use_code NOT IN('Vit D', 'FL on W&W', 'Internal use');
+AND (ALiquotInternalUse.used_volume IS NULL OR AliquotMaster.initial_volume IS NULL OR (ALiquotInternalUse.used_volume = AliquotMaster.initial_volume));
+-- AND ALiquotInternalUse.use_code NOT IN('Vit D', 'FL on W&W', 'Internal use');
 
 SET @created_by = (SELECT id FROM users WHERE username = 'NicoEn');
 SET @created = (SELECT NOW() FROM users WHERE username = 'NicoEn');
