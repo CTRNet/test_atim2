@@ -1177,6 +1177,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE diagnosis_controls MODIFY `category`varchar(200);
+ALTER TABLE diagnosis_controls MODIFY databrowser_label varchar(200) DEFAULT '';
 UPDATE diagnosis_controls SET category = 'secondary - distant' WHERE  category = 'secondary';
 UPDATE diagnosis_controls SET category = 'progression - locoregional' WHERE  category = 'progression';
 UPDATE diagnosis_controls SET category = 'recurrence - locoregional' WHERE  category = 'recurrence';
@@ -2332,7 +2333,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='specify_percentage'), '1', '184', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='medullary_tumor_component'), '1', '185', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='high_histologic_grade'), '1', '186', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-REPLACE INTO i18n (id,en) VALUES ('specify percentage', 'Specify percentage');
+REPLACE INTO i18n (id,en, fr) VALUES ('specify percentage', 'Specify percentage', '');
 
 INSERT INTO structure_value_domains (domain_name) VALUES ('colon_surgery_2016_margins_1');
 INSERT IGNORE INTO structure_value_domains_permissible_values 
