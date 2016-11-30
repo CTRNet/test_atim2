@@ -12,6 +12,7 @@
 	$structure_links = array(
 		'bottom' => array(
 			'edit' => '/Order/Shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
+			'copy for new shipment' => array('link' => '/Order/Shipments/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/', 'icon' => 'copy'),
 			'delete' => '/Order/Shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
 			'order items' => array(
 				'define order items returned' => array('link' => '/Order/OrderItems/defineOrderItemsReturned/'.$atim_menu_variables['Order.id'].'/0/'.$atim_menu_variables['Shipment.id'], 'icon'=>'order items returned')
