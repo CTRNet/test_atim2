@@ -25,14 +25,14 @@ if(!testExcelFile($tmp_files_names_list)) {
 
 // *** PARSE EXCEL FILES ***
 
-$created_sample_counter = 0;
-$created_aliquot_counter = 0;
+$file_counter = 0;
 foreach($excel_files_names as $file_data) {
+	$file_counter++;
 	
 	// New Excel File
 	
 	list($bank, $excel_file_name, $excel_xls_offset) = $file_data;
-	$excel_file_name_for_ref = ((strlen($excel_file_name) > 24)? substr($excel_file_name, '1', '20')."...xls" : $excel_file_name);
+	$excel_file_name_for_ref = "File#$file_counter - ".((strlen($excel_file_name) > 30)? substr($excel_file_name, '0', '30')."...xls" : $excel_file_name);
 	$test_new_file_for_excel_xls_offset = true;
 	
 	$banks_data = getSelectQueryResult("SELECT id, name FROM banks WHERE name like '$bank%'");
@@ -46,7 +46,7 @@ foreach($excel_files_names as $file_data) {
 		recordErrorAndMessage('Files & Bank', '@@ERROR@@', "More than one bank matches the file bank name - No file data will be migrated", "See Excel Bank '$bank' matching ATiM banks '".implode(', ', $ATiM_banks_names)."'");
 	} else {
 		$bank = $banks_data[0]['name'];
-		recordErrorAndMessage('Files & Bank', '@@MESSAGE@@', "Excel Files Parsed", "$excel_file_name - Bank : $bank");
+		recordErrorAndMessage('Files & Bank', '@@MESSAGE@@', "Excel Files Parsed", "File#$file_counter - $excel_file_name - Bank : $bank");
 		
 		$qbcf_bank_id = $banks_data[0]['id'];
 		$qbcf_bank_participant_identifier_to_participant_id = array();
@@ -324,7 +324,6 @@ foreach($excel_files_names as $file_data) {
 						array('Mitotic Rate', $tx_detail_tablename, 'mitotic_rate', 'qbcf_mitotic_rate'),
 						array('Margin Status', $tx_detail_tablename, 'margin_status', 'qbcf_margin_status'),
 						array('Number of positive Regional LN (Category)', $tx_detail_tablename, 'number_of_positive_regional_ln_category', 'qbcf_number_of_positive_regional_ln_category'),
-						array('Number of positive Sentinel LN (Category)', $tx_detail_tablename, 'number_of_positive_sentinel_ln_category', 'qbcf_number_of_positive_sentinel_ln_category'),
 						array('ER Overall (From path report)', $tx_detail_tablename, 'er_overall', 'qbcf_er_overall'),
 						array('ER Intensity', $tx_detail_tablename, 'er_intensity', 'qbcf_er_intensity'),
 						array('PR Overall (in path report)', $tx_detail_tablename, 'pr_overall', 'qbcf_pr_overall'),
@@ -341,7 +340,7 @@ foreach($excel_files_names as $file_data) {
 						switch($domain_name) {
 							case 'qbcf_tnm_ct':
 							case 'qbcf_tnm_pt':
-								$excel_line_data[$excel_field] = preg_replace('/^T((1[abc])|(1(mi)))$/i', '$2$4', $excel_line_data[$excel_field]);
+								$excel_line_data[$excel_field] = preg_replace('/^((1[abc])|(1(mi)))$/i', 'T$2$4', $excel_line_data[$excel_field]);
 								break;
 							case 'qbcf_grade_notthingham_sbr_ee':
 							case 'qbcf_glandular_acinar_tubular_differentiation':
@@ -356,6 +355,9 @@ foreach($excel_files_names as $file_data) {
 							case 'qbcf_er_overall':
 							case 'qbcf_pr_overall':
 								$excel_line_data[$excel_field] = preg_replace('/^unknown$/i', 'Unknown, not provided', $excel_line_data[$excel_field]);
+								break;
+							case 'qbcf_number_of_positive_regional_ln_category':
+								$excel_line_data[$excel_field] = preg_replace('/^u$/i', 'Unknown', $excel_line_data[$excel_field]);
 								break;
 						}
 						//Get data
@@ -437,7 +439,7 @@ foreach($excel_files_names as $file_data) {
 					
 					} else if($type_of_event == 'Diagnostic' && !empty($excel_breast_diagnosis_event_data)) {
 						if(!array_key_exists('type_of_intervention', $excel_breast_diagnosis_event_data[$tx_detail_tablename])) {
-							recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "Breast diagnosis event intevention type not defined (or erased by migration script after value check) - No excel diagnosis event data will be migrated", "See following participant : $excel_data_references.");
+							recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "Breast diagnosis event intervention type not defined (or erased by migration script after value check) - No excel diagnosis event data will be migrated", "See following participant : $excel_data_references.");
 								
 						} else {
 						
@@ -472,7 +474,7 @@ foreach($excel_files_names as $file_data) {
 								}
 								$atim_breast_diagnosis_event_data = $query_data[0];
 								if($excel_start_date_accuracy != 'c') {
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast diagnosis event matches the excel participant diagnosis event based on date and the type of intervention - But date is unlcear. Please confrim.", "See breast diagnosis event for following participant : $excel_data_references.");
+									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast diagnosis event matches the excel participant diagnosis event based on date and the type of intervention,  but date is unlcear. System will compare excel data to ATiM data but please confrim.", "See breast diagnosis event for following participant : $excel_data_references.");
 								}
 							}
 							
@@ -589,7 +591,7 @@ foreach($excel_files_names as $file_data) {
 								}
 								$atim_diagnosis_data = $query_data[0];
 								if($excel_start_date_accuracy != 'c') {
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast progression diagnosis matches the excel participant diagnosis progression based on date and the site of the progression - But date is unlcear. Please confrim.", "See breast diagnosis progression for following participant : $excel_data_references.");
+									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast progression diagnosis matches the excel participant diagnosis progression based on date and the site of the progression,  but date is unlcear. System will compare excel data to ATiM data but please confrim.", "See breast diagnosis progression for following participant : $excel_data_references.");
 								}
 							}
 								
@@ -622,8 +624,10 @@ foreach($excel_files_names as $file_data) {
 					$specific_summary_section_title = "$summary_section_title : Breast Treatment";
 					
 					$excel_systemic_treatment_data_set = false;
-					$treatment_fields = array('Clinical Trial/ Protocol Used', 
-						'Number of cycles', 
+					$treatment_fields = array('Clinical Trial/ Protocol Used',
+						'Systemic treatement - Treatment completed', 
+						'Systemic treatement - Number of cycles planned', 
+						'Systemic treatement - Number of cycles received', 
 						'Drug 1', 
 						'Drug 2', 
 						'Drug 3', 
@@ -632,6 +636,7 @@ foreach($excel_files_names as $file_data) {
 					
 					$excel_radiation_treatment_data_set = false;
 					$treatment_fields = array('Radiation Type', 
+						'Radiation Completed',
 						'Conventional-Number of cycles', 
 						'Conventional - Dose (number of Gray)', 
 						'Boost - Number of cycles', 
@@ -651,11 +656,13 @@ foreach($excel_files_names as $file_data) {
 							'hormonotherapy' => 'hormonotherapy', 
 							'chemotherapy' => 'chemotherapy',
 							'bone specific' => 'bone specific therapy',
+							'immunotherapy' => 'immunotherapy', 
 							'immunotherapy (trastuzumab)' => 'immunotherapy', 
-							'radiation' => 'radiotherapy');
+							'radiation' => 'radiotherapy', 
+							'other' => 'other (breast cancer systemic treatment)');
 						$excel_treatment_type = strtolower($excel_line_data['Treatment Type']);
 						if(!in_array($excel_treatment_type, array_keys($excel_treatment_type_to_atim_control_type))) {
-							recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "Breast treatment type not defined or not supported - No excel treatment data will be migrated", "See treatment '$excel_treatment_type' for following participant : $excel_data_references.");
+							recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "Breast treatment type not defined or not supported - No excel treatment data will be migrated", "See treatment '".(strlen($excel_treatment_type)? $excel_treatment_type : '(Empty cell)')."' for following participant : $excel_data_references.");
 					
 						} else {
 							if(!array_key_exists($excel_treatment_type_to_atim_control_type[$excel_treatment_type], $atim_controls['treatment_controls'])) die('ERR_8983993');
@@ -693,15 +700,16 @@ foreach($excel_files_names as $file_data) {
 								$excel_treatment_data[$tx_detail_tablename][$atim_field] =
 									validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $specific_summary_section_title, $excel_field, "See $excel_data_references");
 
-								$excel_field = 'Brachytherapy (number of Gray)';
-								$atim_field = 'dose_brachytherapy';
-								$domain_name = 'qbcf_dose_brachytherapy';
+								$excel_field = 'Radiation Completed';
+								$atim_field = 'completed';
+								$domain_name = 'qbcf_yes_no_unk';
 								$excel_treatment_data[$tx_detail_tablename][$atim_field] =
 									validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $specific_summary_section_title, $excel_field, "See $excel_data_references");
 								
 								$excel_to_atim_fields = array(
 									array('Conventional - Dose (number of Gray)', $tx_detail_tablename, 'dose_conventional'),
-									array('Boost- Dose (number of Gray)', $tx_detail_tablename, 'dose_boost'));
+									array('Boost- Dose (number of Gray)', $tx_detail_tablename, 'dose_boost'),
+									array('Brachytherapy (number of Gray)', $tx_detail_tablename, 'dose_brachytherapy'));
 								foreach($excel_to_atim_fields as $excel_to_atim_field) {
 									list($excel_field, $tx_detail_tablename, $atim_field) = $excel_to_atim_field;
 									if(strtolower($excel_line_data[$excel_field]) == 'u') {
@@ -744,7 +752,7 @@ foreach($excel_files_names as $file_data) {
 									}
 									$atim_treatment_data = $query_data[0];
 									if($excel_start_date_accuracy != 'c') {
-										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - But date is unlcear. Please confrim.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment,  but date is unlcear. System will compare excel data to ATiM data but please confrim.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									}
 								}
 									
@@ -783,15 +791,19 @@ foreach($excel_files_names as $file_data) {
 								
 								$excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'] = $excel_line_data['Clinical Trial/ Protocol Used'];
 								
-								$excel_field = 'Number of cycles';
-								$atim_field = 'num_cycles';
-								if($atim_treatment_control_data['tx_method'] == 'bone specific therapy' && strlen($excel_line_data[$excel_field])) {
-									recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "'$excel_field' defined into excel for a '".$excel_line_data['Treatment Type']."' (systemic breast treatment) - Value won't be mirgated. Please confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
-								} else if($atim_treatment_control_data['tx_method'] != 'bone specific therapy') {
-									if(strtolower($excel_line_data[$excel_field]) == 'u') {
-										$excel_treatment_data[$tx_detail_tablename][$atim_field.'_integer_unknown'] = '1';
-									} else {
-										$excel_treatment_data[$tx_detail_tablename][$atim_field] = validateAndGetInteger($excel_line_data[$excel_field], $specific_summary_section_title, $excel_field, "See $excel_data_references");
+								foreach(array('Systemic treatement - Number of cycles planned' => 'num_cycles_planned',	'Systemic treatement - Number of cycles received' => 'num_cycles_received',	'Systemic treatement - Treatment completed' => 'cycles_completed') as $excel_field => $atim_field) {
+									if($atim_treatment_control_data['tx_method'] == 'bone specific therapy' && strlen($excel_line_data[$excel_field])) {
+										recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "'$excel_field' defined into excel for a '".$excel_line_data['Treatment Type']."' (systemic breast treatment) - Value won't be mirgated. Please confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+									} else if($atim_treatment_control_data['tx_method'] != 'bone specific therapy') {
+										if($excel_field == 'Systemic treatement - Treatment completed') {
+											$excel_treatment_data[$tx_detail_tablename]['cycles_completed'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qbcf_yes_no_unk', $specific_summary_section_title, $excel_field, "See $excel_data_references");
+										} else {
+											if(strtolower($excel_line_data[$excel_field]) == 'u') {
+												$excel_treatment_data[$tx_detail_tablename][$atim_field.'_unknown'] = '1';
+											} else {
+												$excel_treatment_data[$tx_detail_tablename][$atim_field] = $excel_line_data[$excel_field];
+											}
+										}
 									}
 								}
 								
@@ -820,6 +832,7 @@ foreach($excel_files_names as $file_data) {
 									AND TreatmentMaster.diagnosis_master_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['breast_diagnosis_id']."
 									AND TreatmentMaster.start_date = '$excel_start_date'
 									AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy'
+									AND (".(strlen($excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])? "TreatmentMaster.qbcf_clinical_trial_protocol_number = '".$excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number']."'" : 'TRUE').")
 									GROUP BY TreatmentMaster.id;";
 								$query_data = getSelectQueryResult($query);
 								if($query_data) {
@@ -829,7 +842,7 @@ foreach($excel_files_names as $file_data) {
 									}
 									$atim_treatment_data = $query_data[0];
 									if($excel_start_date_accuracy != 'c') {
-										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment - But date is unlcear. Please confrim.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM breast treatment matches the excel treatment based on the start date and the type of the treatment,  but date is unlcear. System will compare excel data to ATiM data but please confrim.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									}
 								}
 									
@@ -860,7 +873,7 @@ foreach($excel_files_names as $file_data) {
 										updateTableData($atim_treatment_data['treatment_master_id'], $data_to_update);
 										addUpdatedDataToSummary('Breast Treatment Update ('.$excel_line_data['Treatment Type'].")", array_merge($data_to_update['treatment_masters'], $data_to_update[$tx_detail_tablename]), $excel_data_references);
 									}
-									$atim_treatment_drug_ids = explode(',', $atim_treatment_data['drug_ids']);
+									$atim_treatment_drug_ids = array_filter(explode(',', $atim_treatment_data['drug_ids']));
 									$drug_ids_only_in_excel = array_diff($atim_drug_ids_to_link_to_treatment, $atim_treatment_drug_ids);
 									if($drug_ids_only_in_excel) {
 										foreach($drug_ids_only_in_excel as $new_drug_id) {
@@ -876,7 +889,7 @@ foreach($excel_files_names as $file_data) {
 									}
 									$drug_ids_only_in_atim = array_diff($atim_treatment_drug_ids, $atim_drug_ids_to_link_to_treatment);
 									if($drug_ids_only_in_atim) {
-										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "At least one breast treatment drug is already attached to the treatment into ATiM but this one is not defined into Excel - Please confirm.", "Compare ATiM and excel drugs defintion of a '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
+										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "At least one breast treatment drug is already attached to the treatment into ATiM but this one is not defined into Excel (raison could be that 2 drugs are defined on 2 different lines into Excel) - Please confirm.", "Compare ATiM and excel drugs defintion of a '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									}
 								}
 							}	
@@ -1329,7 +1342,7 @@ foreach($excel_files_names as $file_data) {
 									}
 									$atim_treatment_data = $query_data[0];
 									if($excel_start_date_accuracy != 'c') {
-										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM other diagnosis treatment matches the excel treatment based on the start date, the type of the other cancer and the type of the treatment - But date is unlcear. Please confrim.", "See '$excel_other_diagnosis_treatment_type' treatment for following participant : $excel_data_references.");
+										recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "An ATiM other diagnosis treatment matches the excel treatment based on the start date, the type of the other cancer and the type of the treatment,  but date is unlcear. System will compare excel data to ATiM data but please confrim.", "See '$excel_other_diagnosis_treatment_type' treatment for following participant : $excel_data_references.");
 									}
 								}
 								
@@ -1358,278 +1371,58 @@ foreach($excel_files_names as $file_data) {
 				}
 			}
 		} // End 'other cancer- not Breast' worksheet
-	
+		
 		//----------------------------------------------------------------------------------------------
-		// Inventory : 'Inventory - FFPE block sent' worksheet
+		// Inventory : 
+		//      - 'Inventory - FFPE block sent' worksheet not use anymore. 
+		//      - Just set the collection.treatment_master_id value.
 		//----------------------------------------------------------------------------------------------
 		
-		$worksheet_name = 'Inventory - FFPE block sent';
-		$summary_section_title = 'Block Creation';
-		while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1, $excel_xls_offset)) {
-			if($line_number > 3 && strlen($excel_line_data['Patient # in biobank'])) {
-				$qbcf_bank_participant_identifier = $excel_line_data['Patient # in biobank'];
-				$excel_data_references = "Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>' & Excel '<b>$excel_file_name_for_ref</b>' & Line '<b>$line_number</b>' & Worksheet '<b>$worksheet_name</b>'";
-		
-				if(!isset($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier])) {
-		
-					// 1- PARTICIPANT DETECTION ERROR
-		
-					recordErrorAndMessage('Participant Detection', '@@ERROR@@', "Patient of '".$worksheet_name."' worksheet not defined into the 'patient' worksheet - No excel inventory data will be migrated", "See following participant : $excel_data_references.");
-		
-				} else {
-						
-					//Check block label
-						
-					$excel_pathology_nbr = $excel_line_data['Pathology ID number'];
-					$excel_block_id = $excel_line_data['Block ID'];
-					
-					if(!strlen($excel_pathology_nbr) || !strlen($excel_block_id)) {
-							
-						// 2- BLOCK LABEL ERROR
-		
-						recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The Pathology ID or the Block ID is missing - No excel inventory data will be migrated", "See data for following participant : $excel_data_references.");
-							
-					} else {
-						
-						$tissue_sample_detail_tablename = $atim_controls['sample_controls']['tissue']['detail_tablename'];
-						$tissue_block_sample_detail_tablename = $atim_controls['aliquot_controls']['tissue-block']['detail_tablename'];
-		
-						// 3- BLOCK CREATION/UPDATE
-						
-						$excel_block_aliquot_label = $excel_pathology_nbr.' '.$excel_block_id;	
-						
-						$excel_field = 'Date of FFPE block sent';
-						$excel_field_accuracy = "Date of FFPE block sent - accuracy";
-						reformatExcelDate($excel_line_data, $excel_field, $excel_field_accuracy);
-						list($excel_block_reception_datetime, $excel_block_reception_datetime_accuracy)
-							= updateDateWithExcelAccuracy(
-								validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
-								$excel_line_data["Date of FFPE block sent - accuracy"]);
-						
-						$excel_field = 'Laterality of specimen';
-						$domain_name = 'tissue_laterality';
-						$excel_tissue_laterality = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $summary_section_title, $excel_field, "See $excel_data_references");
-						
-						$excel_tissue_source = 'breast';
-						
-						$query = "SELECT Participant.qbcf_bank_id,
-							Participant. qbcf_bank_participant_identifier,
-							Collection.id as collection_id,
-							Collection.treatment_master_id,
-							Collection.qbcf_pathology_id,
-							SampleMaster.id AS sample_master_id,
-							SampleDetail.tissue_source,
-							SampleDetail.tissue_laterality,
-							AliquotMaster.id AS aliquot_master_id,
-							AliquotMaster.barcode,
-							AliquotMaster.aliquot_label,
-							AliquotDetail.patho_dpt_block_code,
-							AliquotDetail.qbcf_shipping_reception_date,
-							AliquotDetail.qbcf_shipping_reception_date_accuracy
-							FROM participants Participant
-							INNER JOIN collections Collection ON Collection.participant_id = Participant.id
-							INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
-							INNER JOIN $tissue_sample_detail_tablename SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
-							INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND SampleMaster.id = AliquotMaster.sample_master_id
-							INNER JOIN $tissue_block_sample_detail_tablename AliquotDetail ON AliquotMaster.id = AliquotDetail.aliquot_master_id
-							WHERE Participant.deleted <> 1
-							AND Participant.qbcf_bank_id = '$qbcf_bank_id' 
-							AND Collection.deleted <> 1
-							AND Collection.qbcf_pathology_id = '$excel_pathology_nbr'
-							AND SampleMaster.sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
-							AND SampleMaster.deleted <> 1
-							AND AliquotMaster.deleted <> 1
-							AND AliquotMaster.aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
-							AND AliquotDetail.patho_dpt_block_code = '$excel_block_id';";
-						$query_data = getSelectQueryResult($query);
-						
-						if($query_data) {
-							
-							// 3.a- BLOCK UPDATE (if required)
-							
-							// Bank Block already created (based on the bank & the Pathology ID number & the Block ID) : Check data and update block if required
-								
-							if(sizeof($query_data) > 1) {
-								// Two bank blocks matched the excel file block based on 'Pathology ID number' & 'Block ID' & the bank
-								recordErrorAndMessage($summary_section_title, '@@ERROR@@', "More than one ATiM tissue block matches the excel tissue block (based on Pathology ID number' & 'Block ID' & the bank name) - System will only compare excel data to the first ATiM record and update data of this one if required.", "See block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+		$specific_summary_section_title = "Breast Dx & Event - Creation/Update : Breast Diagnostic Event";
+		foreach($qbcf_bank_participant_identifier_to_participant_id as $qbcf_bank_participant_identifier => $excel_participant_data) {
+			$participant_id = $excel_participant_data['participant_id'];
+			$excel_collection_treatment_id = $excel_participant_data['collection_treatment_id'];
+			$excel_data_references = "Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>' & Excel '<b>$excel_file_name_for_ref</b>'";
+			if($excel_collection_treatment_id) {
+				// Dx event to link to collection : Create new collection or update an existing one
+				$query = "SELECT DISTINCT Collection.id AS collection_id, Collection.qbcf_pathology_id, Collection.treatment_master_id
+					FROM collections Collection
+					WHERE Collection.deleted <> 1
+					AND Collection.participant_id = '$participant_id'";
+				$query_data = getSelectQueryResult($query);
+				if($query_data) {
+					// Collection exists : update collection
+					$update_collection_treatment_master_id = true;
+					$collection_ids_to_update = array();
+					foreach($query_data as $atim_collection_data) {
+						if($atim_collection_data['treatment_master_id']) {
+							if($atim_collection_data['treatment_master_id'] != $excel_collection_treatment_id) {
+								$update_collection_treatment_master_id = false;
 							}
-							$atim_block_data = $query_data[0];
-							
-							if($atim_block_data['qbcf_bank_participant_identifier'] != $qbcf_bank_participant_identifier) {
-								// ATiM block not linked to the same participant idenitifier than this one listed into excel
-								recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank block already exists into ATiM (based on 'Pathology ID number' & 'Block ID' & the bank name) but the participant does not match the excel participant based on the Patient # in biobank - ATiM block won't be both created and updated", "See block '$excel_block_aliquot_label' linked to ATiM bank participant '".$atim_block_data['qbcf_bank_participant_identifier']."'for following participant : $excel_data_references.");
-							} else {
-								
-								$atim_field_to_excel = array(
-									'Collection.collections.treatment_master_id' 
-										=> array("Breast diagnosis event linked to the block ('Specimen sent to CHUM ')", $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']),
-									"Sample.$tissue_sample_detail_tablename.tissue_source"
-										=> array("Tissue source of the block (not an excel value)", $excel_tissue_source),
-									"Sample.$tissue_sample_detail_tablename.tissue_laterality" 
-										=> array("Laterality of the block", $excel_tissue_laterality),
-									"Aliquot.aliquot_masters.aliquot_label"
-										=> array('Pathology ID number' & 'Block ID', $excel_block_aliquot_label),
-									"Aliquot.$tissue_block_sample_detail_tablename.qbcf_shipping_reception_date" 
-										=> array("Date of FFPE block sent", $excel_block_reception_datetime),
-									"Aliquot.$tissue_block_sample_detail_tablename.qbcf_shipping_reception_date_accuracy"  
-										=> array("Date of FFPE block sent (accuracy)", $excel_block_reception_datetime_accuracy));
-								
-								$block_data_mismatches_array = array();
-								$block_data_to_update_boolean = false;
-								$block_data_to_update_array = array(
-									'Collection' => array('collections' => array()),
-									'Sample' => array('sample_masters' => array(), 'specimen_details' => array(), $tissue_sample_detail_tablename => array()),
-									'Aliquot' => array('aliquot_masters' => array(), $tissue_block_sample_detail_tablename => array()));
-								
-								foreach($atim_field_to_excel as $atim_table_and_field => $excel_field_value) {
-									$atim_table_and_field = explode('.', $atim_table_and_field);
-									list($atim_data_type, $atim_table_name, $atim_field) = $atim_table_and_field;
-									list($excel_field, $excel_value) = $excel_field_value;
-									if(!strlen($atim_block_data[$atim_field]) && strlen($excel_value)) {
-										$block_data_to_update_array[$atim_data_type][$atim_table_name][$atim_field] = $excel_value;
-										$block_data_to_update_boolean = true;
-									} else if($excel_value != $atim_block_data[$atim_field]) {
-										$block_data_mismatches_array[] = "$excel_field ([ATiM] '".$atim_block_data[$atim_field]."' != [Excel] '$excel_value')";
-									}	
-								}
-								if($block_data_mismatches_array) {
-									recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Bank block already exists into ATiM (based on 'Pathology ID number' & 'Block ID' & the bank name) but differences exist between excel and ATiM data - No ATiM value (excepted empty value) will be updated. Please confirm and update block if required.", "See block '$excel_block_aliquot_label' and data [".implode(' & ', $block_data_mismatches_array)."] for following participant : $excel_data_references.");
-								}
-								if($block_data_to_update_boolean) {
-									//Collection Update
-									if($block_data_to_update_array['Collection']['collections']) {
-										updateTableData($atim_block_data['collection_id'], $block_data_to_update_array['Collection']);
-										addUpdatedDataToSummary('Block Collection Update', $block_data_to_update_array['Collection']['collections'], $excel_data_references);
-									}
-									//Block Tissue Update
-									if($block_data_to_update_array['Sample']['sample_masters'] || $block_data_to_update_array['Sample']['specimen_details'] || $block_data_to_update_array['Sample'][$tissue_sample_detail_tablename]) {
-										updateTableData($atim_block_data['sample_master_id'], $block_data_to_update_array['Sample']);
-										addUpdatedDataToSummary('Block Tissue Update', array_merge($block_data_to_update_array['Sample']['sample_masters'], $block_data_to_update_array['Sample']['specimen_details'], $block_data_to_update_array['Sample'][$tissue_sample_detail_tablename]), $excel_data_references);
-									}
-									//Block Update
-									if($block_data_to_update_array['Aliquot']['aliquot_masters'] || $block_data_to_update_array['Aliquot'][$tissue_block_sample_detail_tablename]) {
-										updateTableData($atim_block_data['aliquot_master_id'], $block_data_to_update_array['Aliquot']);
-										addUpdatedDataToSummary('Block Update', array_merge($block_data_to_update_array['Aliquot']['aliquot_masters'], $block_data_to_update_array['Aliquot'][$tissue_block_sample_detail_tablename]), $excel_data_references);
-									}
-								}
-							}
-							
 						} else {
-							
-							// 3.b- BLOCK CREATION
-							
-							// Check block code does not exist into ATiM for an other bank
-							
-							$query = "SELECT AliquotMaster.barcode
-								FROM collections Collection
-								INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
-								INNER JOIN $tissue_sample_detail_tablename SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
-								INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND SampleMaster.id = AliquotMaster.sample_master_id
-								INNER JOIN $tissue_block_sample_detail_tablename AliquotDetail ON AliquotMaster.id = AliquotDetail.aliquot_master_id
-								WHERE Collection.deleted <> 1
-								AND Collection.qbcf_pathology_id = '$excel_pathology_nbr'
-								AND SampleMaster.sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
-								AND SampleMaster.deleted <> 1
-								AND AliquotMaster.deleted <> 1
-								AND AliquotMaster.aliquot_control_id = ".$atim_controls['aliquot_controls']['tissue-block']['id']."
-								AND AliquotDetail.patho_dpt_block_code = '$excel_block_id';";
-													
-							$query_data = getSelectQueryResult($query);
-							if($query_data) {
-								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Block already exists into ATiM (based on 'Pathology ID number' & 'Block ID') but the bank is different - New block will be created but please validate.", "See block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
-							}
-							
-							// Create new collection or use an old one
-							
-							$query = "SELECT DISTINCT Collection.id AS collection_id,
-								Collection.treatment_master_id
-								FROM participants Participant
-								INNER JOIN collections Collection ON Collection.participant_id = Participant.id
-								WHERE Participant.deleted <> 1
-								AND Participant.qbcf_bank_id = '$qbcf_bank_id'
-								AND Participant. qbcf_bank_participant_identifier = '$qbcf_bank_participant_identifier'
-								AND Collection.deleted <> 1
-								AND Collection.qbcf_pathology_id = '$excel_pathology_nbr'";
-							$query_data = getSelectQueryResult($query);
-							
-							$collection_id = null;
-							if($query_data) {
-								//Collection already created
-								
-								if(sizeof($query_data) > 1) {
-									// Two collections matched the excel file block based on 'Pathology ID number' & 'Block ID' & the bank
-									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "More than one ATiM collection matches the excel tissue block defintion (based on Pathology ID number' & Patient # in biobank & the bank name) - System will only compare excel data to the first ATiM record and update data of this one if required plus use this one too.", "See block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
-								}
-								$atim_collection_data = $query_data[0];
-								$collection_id = $atim_collection_data['collection_id'];
-								
-								//Compare collection treatment id
-								if(!$atim_collection_data['treatment_master_id'] && $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']) {
-									//ATiM collection diagnosis event not already set : update value
-									updateTableData($collection_id, array('collections' => array('treatment_master_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'])));
-									addUpdatedDataToSummary('Block Collection Update', array('collection_treatment_master_id' => 'Excel Diagnosis Event (treatment_master_id = '.$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'].')'), $excel_data_references);
-								} else if($atim_collection_data['treatment_master_id'] != $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']) {
-									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "ATiM collection matches the excel tissue block defintion (based on Pathology ID number' & Patient # in biobank & the bank name) but the diagnosis event (treatment_master_id) linked to the collection into ATiM is different than the event defined into excel - New collection will be created but please validate.", "See block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
-									$collection_id = null;
-								}
-							}
-
-							if(!$collection_id) {
-								$collection_data = array(
-									'collection_property' => 'participant collection',
-									'participant_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['participant_id'],
-									'treatment_master_id' => $qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'],
-									'qbcf_pathology_id' => $excel_pathology_nbr);
-								$collection_id = customInsertRecord(array('collections' => $collection_data));
-								addCreatedDataToSummary('New Collection', "New collection for participant '$qbcf_bank_participant_identifier' of bank '$bank' and block '$excel_block_aliquot_label'", $excel_data_references);
-							}
-							
-							// Create one tissue sample per block
-							
-							$created_sample_counter++;
-							$sample_data = array(
-								'sample_masters' => array(
-									"sample_code" => 'tmp_tissue_'.$created_sample_counter,
-									"sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
-									"initial_specimen_sample_type" => 'tissue',
-									"collection_id" => $collection_id),
-								'specimen_details' => array(),
-								$tissue_sample_detail_tablename => array(
-									'tissue_source' => $excel_tissue_source,
-									'tissue_laterality' => $excel_tissue_laterality));
-							$sample_master_id = customInsertRecord($sample_data);
-							
-							// Create block
-							
-							$created_aliquot_counter++;
-							$aliquot_data = array(
-								'aliquot_masters' => array(
-									"barcode" => 'tmp_core_'.$created_aliquot_counter,
-									'aliquot_label' => $excel_block_aliquot_label,
-									"aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-block']['id'],
-									"collection_id" => $collection_id,
-									"sample_master_id" => $sample_master_id,
-									'in_stock' => 'yes - available',
-									'in_stock_detail' => ''),
-								$tissue_block_sample_detail_tablename => array(
-									'patho_dpt_block_code' => $excel_block_id,
-									'qbcf_shipping_reception_date' => $excel_block_reception_datetime,
-									'qbcf_shipping_reception_date_accuracy' => $excel_block_reception_datetime_accuracy));
-							customInsertRecord($aliquot_data);
-							addCreatedDataToSummary('New Block', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label'", $excel_data_references);
+							$collection_ids_to_update[$atim_collection_data['collection_id']] = $atim_collection_data['qbcf_pathology_id'];
 						}
 					}
+					if(!$update_collection_treatment_master_id) {
+						recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "A Breast Diagnostic Event is already linked to collection into ATiM and different than the value defined into the Excel file. Breast Diagnostic Event to collection link won't be updated. Please review all links for the listed participants after the migration process.", "See $excel_data_references.");
+					} else if($collection_ids_to_update) {
+						foreach($collection_ids_to_update as $collection_id => $qbcf_pathology_id) {
+							//ATiM collection diagnosis event not already set : update value
+							updateTableData($collection_id, array('collections' => array('treatment_master_id' => $excel_collection_treatment_id)));
+						}
+						addUpdatedDataToSummary('Update Breast diagnostic Event to collection link(s)', array('collection_treatment_master_id' => 'Excel Diagnosis Event (treatment_master_id = '.$excel_collection_treatment_id.')'), "See all collections of following participant : $excel_data_references");
+					}				
+				} else {
+					recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "No collection exists. Breast Diagnostic Event to collection link won't be recorded. Please review data rpeviously imported.", "See $excel_data_references.");
 				}
 			}
-		} // End 'Inventory - FFPE block sent' worksheet
+		}
 	}
 } // End new excel file
 	
 $last_queries_to_execute = array(
 	"UPDATE participants SET participant_identifier = id WHERE participant_identifier = '' OR participant_identifier IS NULL;",
 	"UPDATE diagnosis_masters SET primary_id = id WHERE primary_id IS NULL AND parent_id IS NULL;",
-	"UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE sample_control_id=". $atim_controls['sample_controls']['tissue']['id']." AND sample_code LIKE 'tmp_tissue_%';",
-	"UPDATE aliquot_masters SET barcode=id WHERE aliquot_control_id=".$atim_controls['aliquot_controls']['tissue-block']['id']." AND barcode LIKE 'tmp_core_%';",
 	"UPDATE versions SET permissions_regenerated = 0;"
 );
 foreach($last_queries_to_execute as $query)	customQuery($query);

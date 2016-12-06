@@ -1065,7 +1065,7 @@ function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_n
 			$data_found = false;
 			foreach($studied_excel_file_name_properties['headers'] as $key => $field) {
 				if(isset($new_excel_line_data[$key])) {
-					$formatted_new_line_data[trim(utf8_encode($field))] = trim(utf8_encode($new_excel_line_data[$key]));
+					$formatted_new_line_data[trim(utf8_encode($field))] = trim(utf8_encode(str_replace('"', "'", $new_excel_line_data[$key])));
 					$data_found = true;
 				} else {
 					$formatted_new_line_data[trim(utf8_encode($field))] = '';

@@ -125,6 +125,7 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 					if(isset($result['ViewAliquot']['bank_id'])) $result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
 					if(isset($result['ViewAliquot']['qbcf_bank_participant_identifier'])) $result['ViewAliquot']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 					if(isset($result['ViewAliquot']['participant_bank_name'])) $result['ViewAliquot']['participant_bank_name'] = CONFIDENTIAL_MARKER;
+					if(isset($result['ViewAliquot']['qbcf_pathology_id'])) $result['ViewAliquot']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER; 
 					if(isset($result['ViewAliquot']['aliquot_label'])) $result['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER; 
 				}
 				//Create the aliquot information label to display

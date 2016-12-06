@@ -84,9 +84,9 @@ SampleMaster.qbcf_tma_sample_control_bank_id,
 			|| isset($results[0]['ViewSample']['qbcf_pathology_id'])) {
 				foreach($results as &$result){
 					if((!isset($result['ViewSample']['bank_id'])) || $result['ViewSample']['bank_id'] != $user_bank_id) {		
-						$result['ViewSample']['bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewSample']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
-						$result['ViewSample']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
+						if(isset($results['ViewSample']['bank_id'])) $result['ViewSample']['bank_id'] = CONFIDENTIAL_MARKER;
+						if(isset($results['ViewSample']['qbcf_bank_participant_identifier'])) $result['ViewSample']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+						if(isset($results['ViewSample']['qbcf_pathology_id'])) $result['ViewSample']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
 					}
 				}
 			} else if(isset($results['ViewSample'])){

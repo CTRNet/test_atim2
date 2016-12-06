@@ -222,7 +222,7 @@ foreach($excel_files_names as $file_data) {
 								
 								$qbcf_reviewed_by_dr_tran_thanh = '';
 								$excel_field = 'Reviewed by Dr Tran';
-								if(in_array($excel_line_data[$excel_field], array('yes','y'))) {
+								if(in_array(strtoloer($excel_line_data[$excel_field]), array('yes','y'))) {
 									$qbcf_reviewed_by_dr_tran_thanh = '1';
 								} else if(in_array($excel_line_data[$excel_field], array('no','n'))) {
 								} else if(strlen($excel_line_data[$excel_field])) {
