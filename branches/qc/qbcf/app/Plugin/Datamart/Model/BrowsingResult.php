@@ -72,7 +72,7 @@ class BrowsingResult extends DatamartAppModel {
 			$structure = $structures_component->get('form', $structure_alias);
 		}
 		
-		return array('specific' => $control_id != null, 'model' => $model, 'structure' => $structure, 'header_sub_type' => $header_sub_type);
+		return array('specific' => $control_id != null, 'model' => $model, 'structure' => $structure, 'header_sub_type' => $header_sub_type, 'control_id' => $control_id);
 	}
 	
 	

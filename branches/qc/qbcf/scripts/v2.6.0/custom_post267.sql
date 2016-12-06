@@ -369,10 +369,10 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('t1', 'T1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('mi', 'mi',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('1a', '1a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('1b', '1b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('1c', '1c',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('tmi', 'Tmi',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('t1a', 'T1a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('t1b', 'T1b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('t1c', 'T1c',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('t2', 'T2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('t3', 'T3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('t4', 'T4',  '', '1', @control_id, NOW(), NOW(), 1, 1),
@@ -383,12 +383,12 @@ VALUES
 ('n0', 'N0',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n1', 'N1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n2', 'N2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('2a', '2a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('2b', '2b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('n2a', 'N2a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('n2b', 'N2b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('n3', 'N3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('3a', '3a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('3b', '3b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('3c', '3c',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('n3a', 'N3a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('n3b', 'N3b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('n3c', 'N3c',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('nx', 'NX',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : TNM (cM)');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
@@ -419,10 +419,10 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('t1', 'T1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('mi', 'mi',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('1a', '1a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('1b', '1b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('1c', '1c',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('tmi', 'Tmi',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('t1a', 'T1a',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('t1b', 'T1b',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('t1c', 'T1c',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('t2', 'T2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('t3', 'T3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('t4', 'T4',  '', '1', @control_id, NOW(), NOW(), 1, 1),
@@ -804,8 +804,6 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `use_as_input
 VALUES
 ('bone', 'Bone', '1', @control_id, NOW(), NOW(), 1, 1),
 ('brain', 'Brain', '1', @control_id, NOW(), NOW(), 1, 1),
-('breast', 'Breast', '1', @control_id, NOW(), NOW(), 1, 1),
-('breast contralateral', 'Breast contralateral', '1', @control_id, NOW(), NOW(), 1, 1),
 ('liver', 'Liver', '1', @control_id, NOW(), NOW(), 1, 1),
 ('lung', 'Lung', '1', @control_id, NOW(), NOW(), 1, 1),
 ('lymph node - regional', 'Lymph Node - regional', '1', @control_id, NOW(), NOW(), 1, 1),

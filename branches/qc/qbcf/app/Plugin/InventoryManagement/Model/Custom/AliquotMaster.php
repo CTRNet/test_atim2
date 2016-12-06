@@ -35,7 +35,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				}
 			}
 		} else if(isset($results['AliquotMaster'])){
-			pr('TODO afterFind ViewAliquot');
+			pr('TODO afterFind AliquotMaster');
 			pr($results);
 			exit;
 		}

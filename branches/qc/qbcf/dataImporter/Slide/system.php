@@ -761,7 +761,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 		return array($date, 'c');
 	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/',$date,$matches)) {
 		return array($date.'-01', 'd');
-	} else if(preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-unk$/',$date,$matches)) {
+	} else if(preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-((unk)|(xx))$/',$date,$matches)) {
 		return array($matches[1].'-01', 'd');
 	} else if(preg_match('/^(19|20)([0-9]{2})$/',$date,$matches)) {
 		return array($date.'-01-01', 'm');

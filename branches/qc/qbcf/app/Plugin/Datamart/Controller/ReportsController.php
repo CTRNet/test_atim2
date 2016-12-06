@@ -883,6 +883,7 @@ class ReportsController extends DatamartAppController {
 		
 		// **blood**
 		// **pbmc**
+		// **buffy coat**
 		// **blood cell**
 		// **plasma**
 		// **serum**
@@ -890,7 +891,7 @@ class ReportsController extends DatamartAppController {
 		// **dna**
 		// **cell culture**
 		
-		$sample_types = "'blood', 'pbmc', 'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
+		$sample_types = "'blood', 'pbmc', 'buffy coat',  'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
 		
 		$tmp_data = array();
 		$sql = "

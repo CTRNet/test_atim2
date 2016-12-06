@@ -86,10 +86,10 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
 			|| isset($results[0]['ViewCollection']['qbcf_bank_participant_identifier'])
 			|| isset($results[0]['ViewCollection']['qbcf_pathology_id'])) {
 				foreach($results as &$result){
-					if((!isset($result['ViewCollection']['bank_id'])) || $result['ViewCollection']['bank_id'] != $user_bank_id) {		
-						$result['ViewCollection']['bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewCollection']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
-						$result['ViewCollection']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
+					if((!isset($result['ViewCollection']['bank_id'])) || $result['ViewCollection']['bank_id'] != $user_bank_id) {
+						if(isset($result['ViewCollection']['bank_id'])) $result['ViewCollection']['bank_id'] = CONFIDENTIAL_MARKER;
+						if(isset($result['ViewCollection']['qbcf_bank_participant_identifier'])) $result['ViewCollection']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+						if(isset($result['ViewCollection']['qbcf_pathology_id'])) $result['ViewCollection']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
 					}
 				}
 			} else if(isset($results['ViewCollection'])){
@@ -98,7 +98,7 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
 				exit;
 			}
 		}
-	
+		
 		return $results;
 	}	
 		

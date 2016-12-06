@@ -43,8 +43,8 @@ foreach($excel_files_names as $file_data) {
 	
 	$worksheet_name = 'Feuil1';
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1, $excel_xls_offset)) {
-		if($line_number > 2)  {
-			$qbcf_bank_participant_identifier = $excel_line_data['Patient # in biobank (absolutely needed)'];
+		if($line_number > 3) {
+			$qbcf_bank_participant_identifier = $excel_line_data['Patient # in biobank'];
 			$bank = $excel_line_data['Site'];
 			$excel_data_references = "Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>' & Excel '<b>$excel_file_name_for_ref</b>' & Line '<b>$line_number</b>' & Worksheet '<b>$worksheet_name</b>'";
 			
@@ -136,6 +136,19 @@ foreach($excel_files_names as $file_data) {
 							
 							$excel_block_aliquot_label = $excel_pathology_id.' '.$excel_block_code;
 							
+							$excel_field = 'Date of FFPE block sent to CHUM';
+							list($qbcf_shipping_reception_date, $qbcf_shipping_reception_date_accuracy) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], 'Block', $excel_field, "See $excel_data_references");
+							if($qbcf_shipping_reception_date_accuracy == 'c') 	{
+								switch($excel_line_data['Date of FFPE block sent to CHUM - Accuracy']) {
+									case 'y':
+										$qbcf_shipping_reception_date_accuracy = 'm';
+										break;
+									case 'm':
+										$qbcf_shipping_reception_date_accuracy = 'd';
+										break;
+								}
+							}
+
 							$block_storage_master_id = getStorageMasterId($excel_data_references, $excel_line_data['Localisation block'], 'room', null);
 							
 							$excel_tissue_source = 'breast';
@@ -154,7 +167,9 @@ foreach($excel_files_names as $file_data) {
 								AliquotMaster.storage_master_id,
 								AliquotMaster.storage_coord_x,
 								AliquotMaster.storage_coord_y,
-								AliquotDetail.patho_dpt_block_code
+								AliquotDetail.patho_dpt_block_code,
+								AliquotDetail.qbcf_shipping_reception_date ,
+								AliquotDetail.qbcf_shipping_reception_date_accuracy
 								FROM participants Participant
 								INNER JOIN collections Collection ON Collection.participant_id = Participant.id
 								INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
@@ -206,7 +221,11 @@ foreach($excel_files_names as $file_data) {
 										"Aliquot.aliquot_masters.storage_coord_x"
 											=> array("Block storage position x (storage_coord_x)", ''),
 										"Aliquot.aliquot_masters.storage_coord_y"
-											=> array("Block storage position y (storage_coord_y)", ''));
+											=> array("Block storage position y (storage_coord_y)", ''),
+										"Aliquot.$tissue_block_sample_detail_tablename.qbcf_shipping_reception_date"
+											=> array('Date of FFPE block sent to CHUM', $qbcf_shipping_reception_date),
+										"Aliquot.$tissue_block_sample_detail_tablename.qbcf_shipping_reception_date_accuracy"
+											=> array('Date of FFPE block sent to CHUM - Accuracy', $qbcf_shipping_reception_date_accuracy));
 									
 									$block_data_mismatches_array = array();
 									$block_data_to_update_boolean = false;
@@ -334,7 +353,10 @@ foreach($excel_files_names as $file_data) {
 										'in_stock' => 'yes - available',
 										'in_stock_detail' => ''),
 									$tissue_block_sample_detail_tablename => array(
-										'patho_dpt_block_code' => $excel_block_code));
+										'patho_dpt_block_code' => $excel_block_code,
+										'qbcf_shipping_reception_date' => $qbcf_shipping_reception_date,
+										'qbcf_shipping_reception_date_accuracy' => $qbcf_shipping_reception_date_accuracy
+								));
 								$block_aliquot_master_id = customInsertRecord($aliquot_data);
 								addCreatedDataToSummary('New Block', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label'", $excel_data_references);
 							}
@@ -367,7 +389,6 @@ foreach($excel_files_names as $file_data) {
 								}
 								if(!$slide_storage_master_id) $slide_storage_coord_x = '';
 								
-								$excel_field = 'Date of coloration';
 								list($qbcf_staining_date, $qbcf_staining_date_accuracy) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], 'Block Slide', $excel_field, "See $excel_data_references");
 								
 								$created_aliquot_counter++;
@@ -493,7 +514,7 @@ function getStorageMasterId($excel_data_references, $short_label, $storage_type,
 				AND (".($parent_storage_master_id? 'parent_id = '.$parent_storage_master_id : 'TRUE').");";
 			$query_data = getSelectQueryResult($query);
 			if($query_data) {
-				if($query_data > 1) {
+				if(sizeof($query_data) > 1) {
 					recordErrorAndMessage('Storage', '@@ERROR@@', "More than one storage matches the excel storage based on short label and storage type - System will only use the first one. Please update data if required.", "See $storage_type short label '$short_label' [$excel_data_references].");
 				}
 				return $query_data[0]['storage_master_id'];				

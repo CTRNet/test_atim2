@@ -735,7 +735,8 @@ VALUES
 ('invasive cribriform carcinoma', 'Invasive cribriform carcinoma',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
 ('invasive carcinoma, type cannot be determined', 'Invasive carcinoma, type cannot be determined',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
 ('invasive ductal carcinoma pleiomorphic', 'Invasive ductal carcinoma pleiomorphic',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('invasive ductal carcinoma apocrine', 'Invasive ductal carcinoma apocrine',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+('invasive ductal carcinoma apocrine', 'Invasive ductal carcinoma apocrine',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('other', 'Other',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'histology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_histology') , '0', '', '', '', 'histology', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'tubular_formation', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_1_2_3') , '0', '', '', '', 'tubular formation', ''), 
@@ -1314,21 +1315,23 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Review Warnings');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('no invasive cancer found on slide', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('necrotic tissue', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('cancer area too small (less than 3 cores of 0.6mm)', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('mostly in situ', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('poor tissue quality', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('poor staining/section quality', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('wrong block (other tissue type)', '',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
-('not part of the list - see comments', '',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+('no invasive cancer found on slide', 'no invasive cancer found on slide',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('necrotic tissue', 'necrotic tissue',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('cancer area too small (less than 3 cores of 0.6mm)', 'cancer area too small (less than 3 cores of 0.6mm)',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('mostly in situ', 'mostly in situ',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('poor tissue quality', 'poor tissue quality',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('poor staining/section quality', 'poor staining/section quality',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('wrong block (other tissue type)', 'wrong block (other tissue type)',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('neo-adjuvant treatment', 'neo-adjuvant treatment',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('bilateral cancer', 'bilateral cancer',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
+('not part of the list - see comments', 'not part of the list - see comments',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'qbcf_warnings', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings') , '0', '', '', '', 'warnings', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='qbcf_warnings' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='warnings' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
-DELETE FROM structure_permissible_values_custom_controls WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
 ('L Fossouo', '',  '', '1', @control_id, NOW(), NOW(), 1, 1),
@@ -1376,6 +1379,197 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_nature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_tissue_natures') AND `flag_confidential`='0');
 
+UPDATE structure_fields SET flag_confidential = '0' WHERE  field = 'qbcf_pathology_id';
+
+-- Systemic Treatment - Nbr of cycles
+
+ALTER TABLE qbcf_txd_chemos 
+	DROP COLUMN num_cycles,
+	DROP COLUMN num_cycles_integer_unknown,
+	ADD COLUMN cycles_completed  varchar(50) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned_unknown` char(1) DEFAULT '',
+	ADD COLUMN `num_cycles_received` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_received_unknown` char(1) DEFAULT '';
+ALTER TABLE qbcf_txd_chemos_revs
+	DROP COLUMN num_cycles,
+	DROP COLUMN num_cycles_integer_unknown,
+	ADD COLUMN cycles_completed  varchar(50) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned_unknown` char(1) DEFAULT '',
+	ADD COLUMN `num_cycles_received` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_received_unknown` char(1) DEFAULT '';
+ALTER TABLE qbcf_txd_hormonos 
+	DROP COLUMN num_cycles,
+	DROP COLUMN num_cycles_integer_unknown,
+	ADD COLUMN cycles_completed  varchar(50) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned_unknown` char(1) DEFAULT '',
+	ADD COLUMN `num_cycles_received` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_received_unknown` char(1) DEFAULT '';
+ALTER TABLE qbcf_txd_hormonos_revs
+	DROP COLUMN num_cycles,
+	DROP COLUMN num_cycles_integer_unknown,
+	ADD COLUMN cycles_completed  varchar(50) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned_unknown` char(1) DEFAULT '',
+	ADD COLUMN `num_cycles_received` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_received_unknown` char(1) DEFAULT '';
+ALTER TABLE qbcf_txd_immunos 
+	DROP COLUMN num_cycles,
+	DROP COLUMN num_cycles_integer_unknown,
+	ADD COLUMN cycles_completed  varchar(50) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned_unknown` char(1) DEFAULT '',
+	ADD COLUMN `num_cycles_received` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_received_unknown` char(1) DEFAULT '';
+ALTER TABLE qbcf_txd_immunos_revs
+	DROP COLUMN num_cycles,
+	DROP COLUMN num_cycles_integer_unknown,
+	ADD COLUMN cycles_completed  varchar(50) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_planned_unknown` char(1) DEFAULT '',
+	ADD COLUMN `num_cycles_received` varchar(250) DEFAULT NULL,
+	ADD COLUMN `num_cycles_received_unknown` char(1) DEFAULT '';
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qbcf_txd_chemos', 'qbcf_txd_hormonos', 'qbcf_txd_immunos')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qbcf_%' AND `field`='num_cycles');
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qbcf_txd_chemos', 'qbcf_txd_hormonos', 'qbcf_txd_immunos')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qbcf_%' AND `field`='num_cycles_integer_unknown');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qbcf_%' AND `field`='num_cycles');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qbcf_%' AND `field`='num_cycles_integer_unknown');
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qbcf_%' AND `field`='num_cycles';
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename` LIKE 'qbcf_%' AND `field`='num_cycles_integer_unknown';
+	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_chemos', 'cycles_completed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk') , '0', '', '', '', 'completed', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_chemos', 'num_cycles_planned', 'integer_positive',  NULL , '0', 'size=3', '', '', 'planned', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_chemos', 'num_cycles_planned_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_chemos', 'num_cycles_received', 'integer_positive',  NULL , '0', 'size=3', '', '', 'received', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_chemos', 'num_cycles_received_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_chemos' AND `field`='cycles_completed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='completed' AND `language_tag`=''), '2', '13', 'cycles', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_chemos' AND `field`='num_cycles_planned' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='planned' AND `language_tag`=''), '2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_chemos' AND `field`='num_cycles_planned_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_chemos' AND `field`='num_cycles_received' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='received' AND `language_tag`=''), '2', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_chemos' AND `field`='num_cycles_received_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_hormonos', 'cycles_completed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk') , '0', '', '', '', 'completed', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_hormonos', 'num_cycles_planned', 'integer_positive',  NULL , '0', 'size=3', '', '', 'planned', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_hormonos', 'num_cycles_planned_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_hormonos', 'num_cycles_received', 'integer_positive',  NULL , '0', 'size=3', '', '', 'received', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_hormonos', 'num_cycles_received_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_hormonos' AND `field`='cycles_completed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='completed' AND `language_tag`=''), '2', '13', 'cycles', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_hormonos' AND `field`='num_cycles_planned' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='planned' AND `language_tag`=''), '2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_hormonos' AND `field`='num_cycles_planned_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_hormonos' AND `field`='num_cycles_received' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='received' AND `language_tag`=''), '2', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_hormonos' AND `field`='num_cycles_received_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_immunos', 'cycles_completed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk') , '0', '', '', '', 'completed', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_immunos', 'num_cycles_planned', 'integer_positive',  NULL , '0', 'size=3', '', '', 'planned', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_immunos', 'num_cycles_planned_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_immunos', 'num_cycles_received', 'integer_positive',  NULL , '0', 'size=3', '', '', 'received', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_immunos', 'num_cycles_received_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_immunos' AND `field`='cycles_completed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='completed' AND `language_tag`=''), '2', '13', 'cycles', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_immunos' AND `field`='num_cycles_planned' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='planned' AND `language_tag`=''), '2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_immunos' AND `field`='num_cycles_planned_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_immunos' AND `field`='num_cycles_received' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='received' AND `language_tag`=''), '2', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_immunos' AND `field`='num_cycles_received_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('cycles', 'Cycles', 'Cycles'), ('received', 'Received', 'Reçu');
+
+UPDATE structure_fields 
+SET  type = 'input', setting='size=10', structure_value_domain = NULL 
+WHERE tablename like 'qbcf_txd_%'  AND field IN ('num_cycles_planned', 'num_cycles_received'); 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_radios', 'completed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk') , '0', '', '', '', 'completed', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_txd_radios'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_radios' AND `field`='completed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='completed' AND `language_tag`=''), '1', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE qbcf_txd_radios_revs
+	ADD COLUMN completed  varchar(50) DEFAULT NULL;
+ALTER TABLE qbcf_txd_radios
+	ADD COLUMN completed  varchar(50) DEFAULT NULL;
+
+ALTER TABLE qbcf_tx_breast_diagnostic_events DROP COLUMN number_of_positive_sentinel_ln_category;
+ALTER TABLE qbcf_tx_breast_diagnostic_events_revs DROP COLUMN number_of_positive_sentinel_ln_category;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_sentinel_ln_category' AND `language_label`='number of positive sentinel ln (category)' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_number_of_positive_sentinel_ln_category') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_sentinel_ln_category' AND `language_label`='number of positive sentinel ln (category)' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_number_of_positive_sentinel_ln_category') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='number_of_positive_sentinel_ln_category' AND `language_label`='number of positive sentinel ln (category)' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_number_of_positive_sentinel_ln_category') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Type of intervention');
+UPDATE structure_permissible_values_customs 
+SET value = 'biopsy breast', en = 'Biopsy Breast', fr = ''
+WHERE control_id = @control_id AND value = 'biopsy';
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('biopsy ln', 'Biopsy LN',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('biopsy other site', 'Biopsy Other Site',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+ALTER TABLE qbcf_txd_radios 
+  DROP COLUMN dose_brachytherapy,
+  ADD COLUMN  `dose_brachytherapy` decimal(8,2) DEFAULT NULL,
+  ADD COLUMN `dose_brachytherapy_decimal_unknown` char(1) DEFAULT '';
+ALTER TABLE qbcf_txd_radios_revs 
+  DROP COLUMN dose_brachytherapy,
+  ADD COLUMN  `dose_brachytherapy` decimal(8,2) DEFAULT NULL,
+  ADD COLUMN `dose_brachytherapy_decimal_unknown` char(1) DEFAULT '';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Brachytherapy Dose');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE name = 'Brachytherapy Dose';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_radios', 'dose_brachytherapy_decimal_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_txd_radios'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_radios' AND `field`='dose_brachytherapy_decimal_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '43', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_fields SET  `type`='float_positive',  `structure_value_domain`= NULL ,  `setting`='size=3' WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='dose_brachytherapy' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_dose_brachytherapy');
+DELETE FROM structure_value_domains WHERE domain_name = 'qbcf_dose_brachytherapy';
+
+CREATE TABLE IF NOT EXISTS `qbcf_txd_others` (
+  `treatment_master_id` int(11) NOT NULL,
+  `cycles_completed` varchar(50) DEFAULT NULL,
+  `num_cycles_planned` varchar(250) DEFAULT NULL,
+  `num_cycles_planned_unknown` char(1) DEFAULT '',
+  `num_cycles_received` varchar(250) DEFAULT NULL,
+  `num_cycles_received_unknown` char(1) DEFAULT '',
+  KEY `qbcf_txd_others_ibfk_1` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qbcf_txd_others_revs` (
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `cycles_completed` varchar(50) DEFAULT NULL,
+  `num_cycles_planned` varchar(250) DEFAULT NULL,
+  `num_cycles_planned_unknown` char(1) DEFAULT '',
+  `num_cycles_received` varchar(250) DEFAULT NULL,
+  `num_cycles_received_unknown` char(1) DEFAULT '',
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qbcf_txd_others`
+  ADD CONSTRAINT `qbcf_txd_others_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, 'other (breast cancer systemic treatment)', '', 1, 'qbcf_txd_others', 'qbcf_txd_others', 0, NULL, '', 'other (breast cancer systemic treatment)', 0, 4, 0, 1);
+INSERT INTO i18n (Id,en,fr) VALUES ('other (breast cancer systemic treatment)','Other (Breast Cancer Systemic Treatment)','Autre (traitement systémique du cancer du sein)');
+INSERT INTO structures(`alias`) VALUES ('qbcf_txd_others');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_others', 'cycles_completed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk') , '0', '', '', '', 'completed', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_others', 'num_cycles_planned', 'input',  NULL , '0', 'size=10', '', '', 'planned', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_others', 'num_cycles_planned_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_others', 'num_cycles_received', 'input',  NULL , '0', 'size=10', '', '', 'received', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_txd_others', 'num_cycles_received_unknown', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qbcf_clinical_trial_protocol_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='protocol' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qbcf_suspected_finish_date' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='suspected finish date' AND `language_tag`=''), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_others' AND `field`='cycles_completed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='completed' AND `language_tag`=''), '2', '13', 'cycles', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_others' AND `field`='num_cycles_planned' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='planned' AND `language_tag`=''), '2', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_others' AND `field`='num_cycles_planned_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_others' AND `field`='num_cycles_received' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='received' AND `language_tag`=''), '2', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_txd_others' AND `field`='num_cycles_received_unknown' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_integer_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_laterality' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_laterality') AND `flag_confidential`='0');
 
 
 
@@ -1389,11 +1583,25 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 
 
 
-Je ne peux pas voire la collection tree view si je ne suis pas du CHUM
-par contre dans le aliquot search je vois le patho id
+
+
+
+
+
+
+6- Après discussion avec Saima, on se demandait si on pouvait faire une règle qui mentionne que si un nouveau dx de sein arrive moins de 5 ans après le précédent, 
+on le considère comme progression au sein. Sauf s'il s'agit d'une morpho/histopatho différente ou encore rct status différent... peux tu faire aller ta magie?
+
+​7- Finalement, encore suite à la discussion, serait-il possible d'avoir une colonne ou encore dans le rapport... une colonne qui mentionne: 
+tx adjuvant (qui a été donné dans l'année suivant le Dx de sein) avec le type (RT Immuno Chemo, etc)
+
+Il y aura les specimen collection, patho review et TMA map à migrer aussi
+
+
+
+
 
 revoir Databrowser Relations Links Summary
-verifier affichage des aliquot labels des blocks car confidential...
 verifier databrowser et reports
 
 mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
