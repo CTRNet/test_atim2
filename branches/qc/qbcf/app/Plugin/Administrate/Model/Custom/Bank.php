@@ -31,12 +31,6 @@ class BankCustom extends Bank {
 	function allowDeletion($bank_id){
 		$res = parent::allowDeletion($bank_id);
 		if(!$res['allow_deletion']) return $res;
-
-		$SampleMasterModel = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
-		$data = $SampleMasterModel->find('first', array('conditions' => array('SampleMaster.qbcf_tma_sample_control_bank_id' => $bank_id)));
-		if($data) {
-			return array('allow_deletion' => false, 'msg' => 'this bank is linked to at least one tissue and flagged as provider');
-		}
 		
 		$ParticipantModel = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
 		$data = $ParticipantModel->find('first', array('conditions' => array('Participant.qbcf_bank_id' => $bank_id)));

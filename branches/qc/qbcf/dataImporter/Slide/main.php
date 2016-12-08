@@ -2,8 +2,6 @@
 
 require_once 'system.php';
 
-global $atim_short_label_storage_master_id;
-$atim_short_label_storage_master_id = array();
 global $atim_storage_master_id_to_storage_data;
 $atim_storage_master_id_to_storage_data = array();
 global $created_storage_counter;
@@ -20,7 +18,7 @@ foreach($excel_files_names as $file_data) {
 	$tmp_files_names_list[] = $excel_file_name;
 }
 
-displayMigrationTitle('QBCF Slide Data Creation');
+displayMigrationTitle('QBCF Block & Slide Data Creation');
 
 if(!testExcelFile($tmp_files_names_list)) {
 	dislayErrorAndMessage();
@@ -33,13 +31,16 @@ $bank_to_bank_id = array();
 $qbcf_bank_participant_identifier_to_participant_id = array();
 $created_sample_counter = 0;
 $created_aliquot_counter = 0;
+$file_counter = 0;
 foreach($excel_files_names as $file_data) {
+	$file_counter++;
 	
 	// New Excel File
 	
 	list($excel_file_name, $excel_xls_offset) = $file_data;
-	$excel_file_name_for_ref = ((strlen($excel_file_name) > 24)? substr($excel_file_name, '1', '20')."...xls" : $excel_file_name);
-	$test_new_file_for_excel_xls_offset = true;
+	$excel_file_name_for_ref = "File#$file_counter - ".((strlen($excel_file_name) > 30)? substr($excel_file_name, '0', '30')."...xls" : $excel_file_name);
+	
+	recordErrorAndMessage('Files', '@@MESSAGE@@', "Excel Files Parsed", "File#$file_counter - $excel_file_name");
 	
 	$worksheet_name = 'Feuil1';
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1, $excel_xls_offset)) {
@@ -57,14 +58,10 @@ foreach($excel_files_names as $file_data) {
 				if(isset($bank_to_bank_id[$bank])) {
 					$qbcf_bank_id = $bank_to_bank_id[$bank];
 				} else {
-					$banks_data = getSelectQueryResult("SELECT id, name FROM banks WHERE name like '$bank%'");
+					$banks_data = getSelectQueryResult("SELECT id, name FROM banks WHERE name like '%$bank%'");
 					if(!$banks_data) {
 						recordErrorAndMessage('Bank', '@@ERROR@@', "Bank unknown into ATiM - No line data will be migrated", "See Bank '$bank' for participant : $excel_data_references");
 					} else if(sizeof($banks_data) > 1) {
-						$ATiM_banks_names = array();
-						foreach($banks_data as $new_bank) {
-							$ATiM_banks_names[] = $new_bank['name'];
-						}
 						recordErrorAndMessage('Bank', '@@ERROR@@', "More than one bank matches the bank name - No line data will be migrated", "See Bank '$bank' for participant : $excel_data_references");
 					} else {
 						$qbcf_bank_id = $banks_data[0]['id'];
@@ -483,11 +480,6 @@ function addUpdatedDataToSummary($update_type, $updated_data, $excel_data_refere
 		foreach($updated_data as $field => $value) $updates[] = "[$field = $value]";
 		recordErrorAndMessage('Data Update Summary', '@@MESSAGE@@', $update_type, "Updated field(s) : ".implode(' + ', $updates).". See $excel_data_references.");
 	}
-}
-
-function getDrugKey($drug_name, $type) {
-	if(!in_array($type, array('bone specific', 'chemotherapy', 'immunotherapy', 'hormonal'))) die('ERR 237 7263726 drug type'.$type);
-	return strtolower($drug_name.'## ##'.$type);
 }
 
 function getStorageMasterId($excel_data_references, $short_label, $storage_type, $parent_storage_master_id = null) {

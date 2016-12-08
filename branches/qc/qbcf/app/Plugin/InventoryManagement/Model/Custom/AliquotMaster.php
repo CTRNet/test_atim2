@@ -43,16 +43,19 @@ class AliquotMasterCustom extends AliquotMaster {
 		return $results;
 	}
 	
-	function updateAliquotLabel($collection_ids, $acquireBatchViewsUpdateLock = false) {
-		if($collection_ids && is_array($collection_ids)) {
+	function updateAliquotLabel($collection_ids, $acquireBatchViewsUpdateLock = false) {	
+		if(!is_array($collection_ids)) $collection_ids = array($collection_ids);
+		if($collection_ids) {
 			$collection_ids = implode(',', $collection_ids);
 			if($collection_ids) {
 				$query = "SELECT
 					AliquotMaster.id AS aliquot_master_id,
 					AliquotMaster.sample_master_id AS sample_master_id,
 					SampleControl.sample_type,
+					SampleMaster.qbcf_tma_sample_control_code,
 					AliquotControl.aliquot_type,
 					Collection.qbcf_pathology_id,
+					Collection.collection_property,
 					AliquotMaster.aliquot_label,
 					BlockAliquotDetail.patho_dpt_block_code,
 					ParentBlockAliquotDetail.patho_dpt_block_code,
@@ -76,31 +79,35 @@ class AliquotMasterCustom extends AliquotMaster {
 				if($acquireBatchViewsUpdateLock) AppModel::acquireBatchViewsUpdateLock();
 				
 				$this->addWritableField(array('aliquot_label'));
-				foreach($this->tryCatchQuery($query) as $new_aliquot) {			
+				foreach($this->tryCatchQuery($query) as $new_aliquot) {
 					$new_aliquot_label = '';
 					$suffix = '';
-					switch($new_aliquot['AliquotControl']['aliquot_type']) {
-						case 'block':
-							$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.$new_aliquot['BlockAliquotDetail']['patho_dpt_block_code'];
-							break;
-						case 'core':
-							$suffix = strlen($new_aliquot['CoreAliquotDetail']['qbcf_core_nature_revised'])? 
-								$new_aliquot['CoreAliquotDetail']['qbcf_core_nature_revised'] : 
-								(strlen($new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'])? $new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'] : 'U');
-			
-							if(strlen($suffix)) {
-								$suffix = ' -'.substr(strtoupper($suffix), 0, 1);
-							} else {
-								$suffix = ' -?';
-							}
-						case 'slide':
-							$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.(strlen($new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'])? $new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'] : '?');
-							break;
-								
-						default:
-							AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+					if($new_aliquot['Collection']['collection_property'] == 'participant collection') {
+						switch($new_aliquot['AliquotControl']['aliquot_type']) {
+							case 'block':
+								$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.$new_aliquot['BlockAliquotDetail']['patho_dpt_block_code'];
+								break;
+							case 'core':
+								$suffix = strlen($new_aliquot['CoreAliquotDetail']['qbcf_core_nature_revised'])? 
+									$new_aliquot['CoreAliquotDetail']['qbcf_core_nature_revised'] : 
+									(strlen($new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'])? $new_aliquot['CoreAliquotDetail']['qbcf_core_nature_site'] : 'U');
+								if(strlen($suffix)) {
+									$suffix = ' -'.substr(strtoupper($suffix), 0, 1);
+								} else {
+									$suffix = ' -?';
+								}
+							case 'slide':
+								$new_aliquot_label = $new_aliquot['Collection']['qbcf_pathology_id'].' '.(strlen($new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'])? $new_aliquot['ParentBlockAliquotDetail']['patho_dpt_block_code'] : '?');
+								break;
+									
+							default:
+								AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+						}
+					} else {
+						//Control
+						$new_aliquot_label = $new_aliquot_label = $new_aliquot['SampleMaster']['qbcf_tma_sample_control_code'];
 					}
-					$new_aliquot_label = $new_aliquot_label.$suffix;
+					$new_aliquot_label = $new_aliquot_label.$suffix;					
 					if($new_aliquot['AliquotMaster']['aliquot_label'] != $new_aliquot_label) {					
 						$this->data = array();
 						$this->id = $new_aliquot['AliquotMaster']['aliquot_master_id'];

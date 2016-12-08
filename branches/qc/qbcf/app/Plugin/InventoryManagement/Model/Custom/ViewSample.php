@@ -30,7 +30,6 @@ Collection.qbcf_pathology_id,
 		SampleMaster.sample_code,
 SampleMaster.qbcf_is_tma_sample_control,
 SampleMaster.qbcf_tma_sample_control_code,
-SampleMaster.qbcf_tma_sample_control_bank_id,
 		SampleControl.sample_category,
 		
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,

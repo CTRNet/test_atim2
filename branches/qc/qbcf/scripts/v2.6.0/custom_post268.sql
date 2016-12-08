@@ -1571,6 +1571,114 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_laterality' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_laterality') AND `flag_confidential`='0');
 
+-- ------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+
+UPDATE datamart_reports SET flag_active = 0 WHERE name != 'number of elements per participant';
+
+UPDATE datamart_structure_functions
+SET flag_active = 1 
+WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot')
+AND label = 'create uses/events (aliquot specific)';
+UPDATE datamart_structure_functions
+SET flag_active = 1 
+WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot')
+AND label = 'create use/event (applied to all)';
+UPDATE datamart_structure_functions
+SET flag_active = 1 
+WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide')
+AND label = 'add tma slide use';
+UPDATE datamart_structure_functions
+SET flag_active = 1 
+WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'TmaSlideUse')
+AND label = 'edit';
+
+-- -----------------------------------------------------------------------------------------------------------------------
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Sources');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('prostate', 'Prostate', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('tonsil', 'Tonsil', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('xeno breast', 'Xeno Breast',  '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('please set pathology id value to control', "Please set pathology id value to 'Control'.", ''),
+('qbcf_tma_sample_control_code and tissue_source combination should be unique', 'Tissue Source and Code combination should be unique.', ''),
+('only one control collection can be created', 'Only one control collection can be created', '');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) VALUES
+(16, 'CPCBN Summary - Level3', 'Include clinical data, TMA cores positions and core revisions data', 'qc_tf_cpcbn_summary_parameters', 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_positions,qc_tf_cpcbn_summary_core_details', 'index', 'buildCpcbnSummaryLevel3', 1, 4, 0);
+(8, 'CPCBN Summary - Level1', 'Include distinct clinical data', 'qc_tf_cpcbn_summary_parameters', 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_participant_reviewed_grades', 'index', 'buildCpcbnSummary', 1, 4, 0),
+(9, 'CPCBN Summary - Level2', 'Include both clinical data and TMA cores positions', 'qc_tf_cpcbn_summary_parameters', 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_positions', 'index', 'buildCpcbnSummaryLevel2', 1, 4, 0),
+
+
+
+
+
+
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(16, 3, 'build cpcbn summary level 1', '/Datamart/Reports/manageReport/8', 1, ''),
+(17, 4, 'build cpcbn summary level 1', '/Datamart/Reports/manageReport/8', 1, ''),
+(18, 3, 'build cpcbn summary level 2', '/Datamart/Reports/manageReport/9', 1, ''),
+(19, 4, 'build cpcbn summary level 2', '/Datamart/Reports/manageReport/9', 1, ''),
+(58, 3, 'build cpcbn summary level 3', '/Datamart/Reports/manageReport/16', 1, ''),
+(59, 4, 'build cpcbn summary level 3', '/Datamart/Reports/manageReport/16', 1, ''),
+
+
+
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('CPCBN Summary - Level1', 'CPCBN Summary - Clinical Data'),
+('CPCBN Summary - Level2', 'CPCBN Summary - Clinical Data + Cores Positions'),
+('CPCBN Summary - Level3', 'CPCBN Summary - Clinical Data + Cores Positions & Revisions Data'),
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1595,7 +1703,7 @@ on le considère comme progression au sein. Sauf s'il s'agit d'une morpho/histop
 ​7- Finalement, encore suite à la discussion, serait-il possible d'avoir une colonne ou encore dans le rapport... une colonne qui mentionne: 
 tx adjuvant (qui a été donné dans l'année suivant le Dx de sein) avec le type (RT Immuno Chemo, etc)
 
-Il y aura les specimen collection, patho review et TMA map à migrer aussi
+TMA map à migrer aussi
 
 
 

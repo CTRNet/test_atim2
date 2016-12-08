@@ -5,6 +5,23 @@ class CollectionCustom extends Collection {
 	var $useTable = 'collections';
 	var $name = 'Collection';
 	
+	function validates($options = array()){
+		if(isset($this->data['Collection']['qbcf_pathology_id'])) {
+			if(!isset($this->data['Collection']['collection_property'])) {
+				AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+			}
+			if($this->data['Collection']['collection_property'] == 'independent collection') {
+				if($this->data['Collection']['qbcf_pathology_id'] != 'Control') {
+					$this->validationErrors['qbcf_pathology_id'][] = 'please set pathology id value to control';
+				}
+				if($this->find('count', array('conditions' => array('Collection.collection_property' => 'independent collection', 'Collection.id != '.$this->id)))) {
+					$this->validationErrors['collection_property'][] = 'only one control collection can be created';
+				}
+			}
+		}
+		return parent::validates($options);	
+	}
+	
 	function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
 	
