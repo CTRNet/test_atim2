@@ -104,10 +104,12 @@ class Collection extends InventoryManagementAppModel {
 	function validates($options = array()) {
 		//make sure all linked model are owned by the right participant
 		$tmp_data = $this->data;
+		$tmp_validation_errors = $this->validationErrors;
 		$prev_data = null;
 		if($this->id){
 			$prev_data = $this->read();
 			$this->data = $tmp_data;
+			$this->validationErrors = $tmp_validation_errors;
 		}
 		foreach(array('ConsentMaster' => 'consent_master_id', 'DiagnosisMaster' => 'diagnosis_master_id', 'TreatmentMaster' => 'treatment_master_id', 'EventMaster' => 'event_master_id') as $model_name => $model_key){
 			if(isset($this->data['Collection'][$model_key]) && $this->data['Collection'][$model_key] && (!isset($prev_data['Collection'][$model_key]) || $prev_data['Collection'][$model_key] != $this->data['Collection'][$model_key])){
