@@ -30,7 +30,6 @@ Collection.qbcf_pathology_id,
 
 SampleMaster.qbcf_is_tma_sample_control,
 SampleMaster.qbcf_tma_sample_control_code,
-SampleMaster.qbcf_tma_sample_control_bank_id,
 		
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
@@ -134,8 +133,7 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 						//Tissue Control
 						$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
 							$result['ViewAliquot']['qbcf_tma_sample_control_code']." - QBCF# ".$result['ViewAliquot']['barcode'].
-							" (".__('control').
-							(empty($result['ViewAliquot']['qbcf_tma_sample_control_bank_id'])? '' : ' - '.$bank_list[$result['ViewAliquot']['qbcf_tma_sample_control_bank_id']]).')';
+							" (".__('control').')';
 					} else {
 						//Particiapnt Tissue
 						$aliquot_participant_id_and_barcode = 'P#'.(empty($result['ViewAliquot']['participant_identifier'])? '?' : $result['ViewAliquot']['participant_identifier']).' - QBCF# '.$result['ViewAliquot']['barcode'];

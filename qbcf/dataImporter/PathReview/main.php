@@ -2,13 +2,6 @@
 
 require_once 'system.php';
 
-global $atim_short_label_storage_master_id;
-$atim_short_label_storage_master_id = array();
-global $atim_storage_master_id_to_storage_data;
-$atim_storage_master_id_to_storage_data = array();
-global $created_storage_counter;
-$created_storage_counter = 0;
-
 //==============================================================================================
 // Main Code
 //==============================================================================================
@@ -33,13 +26,16 @@ $bank_to_bank_id = array();
 $qbcf_bank_participant_identifier_to_participant_id = array();
 $created_sample_counter = 0;
 $created_aliquot_counter = 0;
+	$file_counter = 0;
 foreach($excel_files_names as $file_data) {
+	$file_counter++;
 	
 	// New Excel File
 	
 	list($excel_file_name, $excel_xls_offset) = $file_data;
-	$excel_file_name_for_ref = ((strlen($excel_file_name) > 24)? substr($excel_file_name, '1', '20')."...xls" : $excel_file_name);
-	$test_new_file_for_excel_xls_offset = true;
+	$excel_file_name_for_ref = "File#$file_counter - ".((strlen($excel_file_name) > 30)? substr($excel_file_name, '0', '30')."...xls" : $excel_file_name);
+	
+	recordErrorAndMessage('Files', '@@MESSAGE@@', "Excel Files Parsed", "File#$file_counter - $excel_file_name");
 	
 	$worksheet_name = 'Feuil1';
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1, $excel_xls_offset)) {
@@ -222,7 +218,7 @@ foreach($excel_files_names as $file_data) {
 								
 								$qbcf_reviewed_by_dr_tran_thanh = '';
 								$excel_field = 'Reviewed by Dr Tran';
-								if(in_array(strtoloer($excel_line_data[$excel_field]), array('yes','y'))) {
+								if(in_array(strtolower($excel_line_data[$excel_field]), array('yes','y'))) {
 									$qbcf_reviewed_by_dr_tran_thanh = '1';
 								} else if(in_array($excel_line_data[$excel_field], array('no','n'))) {
 								} else if(strlen($excel_line_data[$excel_field])) {
@@ -334,91 +330,6 @@ dislayErrorAndMessage(true, 'Creation/Update Summary');
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
 //==================================================================================================================================================================================
-
-function getDataToUpdate($atim_data, $excel_data) {
-	$data_to_update = array();
-	foreach($excel_data as $key => $value) {
-		if(!array_key_exists($key, $atim_data)) die('ERR_8837282882:'.$key);
-		if(strlen($value) && $value != $atim_data[$key]) $data_to_update[$key] = $value;
-	}
-	return $data_to_update;
-}
-
-function addCreatedDataToSummary($creation_type, $detail, $excel_data_references) {
-	recordErrorAndMessage('Data Creation Summary', '@@MESSAGE@@', $creation_type, "$detail. See $excel_data_references.");
-}
-
-function addUpdatedDataToSummary($update_type, $updated_data, $excel_data_references) {
-	if($updated_data) {
-		$updates = array();
-		foreach($updated_data as $field => $value) $updates[] = "[$field = $value]";
-		recordErrorAndMessage('Data Update Summary', '@@MESSAGE@@', $update_type, "Updated field(s) : ".implode(' + ', $updates).". See $excel_data_references.");
-	}
-}
-
-function getDrugKey($drug_name, $type) {
-	if(!in_array($type, array('bone specific', 'chemotherapy', 'immunotherapy', 'hormonal'))) die('ERR 237 7263726 drug type'.$type);
-	return strtolower($drug_name.'## ##'.$type);
-}
-
-function getStorageMasterId($excel_data_references, $short_label, $storage_type, $parent_storage_master_id = null) {
-	global $atim_controls;
-	global $atim_storage_key_storage_master_id;
-	global $atim_storage_master_id_to_storage_data;
-	global $created_storage_counter;
-	
-	if(!isset($atim_controls['storage_controls'][$storage_type])) die('ERR_storage_control_type#80064884 :: '.$storage_type);
-	$storage_controls = $atim_controls['storage_controls'][$storage_type];
-	
-	if(empty($short_label)) {
-		return null;
-	} else {
-		$storage_key = $storage_type.'-'.($parent_storage_master_id? $parent_storage_master_id : 'null').'-'.$short_label;
-		if(isset($atim_storage_key_storage_master_id[$storage_key])) {
-			return $atim_storage_key_storage_master_id[$storage_key];
-		} else {
-			$query = "SELECT id AS storage_master_id
-				FROM storage_masters
-				WHERE deleted <> 1
-				AND storage_control_id = ".$storage_controls['id']."
-				AND short_label = '$short_label' 
-				AND (".($parent_storage_master_id? 'parent_id = '.$parent_storage_master_id : 'TRUE').");";
-			$query_data = getSelectQueryResult($query);
-			if($query_data) {
-				if($query_data > 1) {
-					recordErrorAndMessage('Storage', '@@ERROR@@', "More than one storage matches the excel storage based on short label and storage type - System will only use the first one. Please update data if required.", "See $storage_type short label '$short_label' [$excel_data_references].");
-				}
-				return $query_data[0]['storage_master_id'];				
-			} else {
-				//Get parent storage
-				if($parent_storage_master_id && !isset($atim_storage_master_id_to_storage_data[$parent_storage_master_id])) {
-					$query = "SELECT short_label, selection_label FROM storage_masters WHERE id = $parent_storage_master_id AND deleted <> 1";
-					$query_data = getSelectQueryResult($query);
-					if(!$query_data) die('ERR_storage_master_id#74784884');
-					$atim_storage_master_id_to_storage_data[$parent_storage_master_id] = array(
-						'short_label' => $query_data[0]['short_label'],
-						'selection_label' => $query_data[0]['selection_label']);
-				}
-				$selection_label = ($parent_storage_master_id? $atim_storage_master_id_to_storage_data[$parent_storage_master_id]['selection_label'].'-' : '').$short_label;
-				if(sizeof($short_label) > 50) recordErrorAndMessage('Storage', '@@WARNING@@', "Storage short label too long (>50) - Will generate many storage creation.", "See $storage_type short label '$short_label' [$excel_data_references].");
-				if(sizeof($selection_label) > 110) recordErrorAndMessage('Storage', '@@WARNING@@', "Storage selection label too long (>50) - Will generate many storage creation.", "See $storage_type selection label '$selection_label' [$excel_data_references].");
-				$created_storage_counter++;
-				$storage_data = array(
-					'storage_masters' => array(
-						"code" => 'tmp'.$created_storage_counter,
-						"short_label" => $short_label,
-						"selection_label" => $selection_label,
-						"storage_control_id" => $storage_controls['id'],
-						"parent_id" => $parent_storage_master_id),
-					$storage_controls['detail_tablename'] => array());
-				$storage_master_id = customInsertRecord($storage_data);
-				addCreatedDataToSummary('Storage', "New Storage $storage_type '$short_label'.", $short_label);
-				$atim_storage_key_storage_master_id[$storage_key] = $storage_master_id;
-				return $storage_master_id;
-			}
-		}
-	}
-}
 	
 ?>
 		

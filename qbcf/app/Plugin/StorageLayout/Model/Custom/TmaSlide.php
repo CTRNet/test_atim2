@@ -6,8 +6,6 @@ class TmaSlideCustom extends TmaSlide{
 	private $section_ids_check = array(); 	//used for validations
 		
 	function validates($options = array()){
-		parent::validates($options);
-	
 		//Check tma slide section id (id unique per block)
 		if(isset($this->data['TmaSlide']['qbcf_section_id'])) {
 			$qbcf_section_id = $this->data['TmaSlide']['qbcf_section_id'];
@@ -43,6 +41,6 @@ class TmaSlideCustom extends TmaSlide{
 			}
 		}
 		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 }

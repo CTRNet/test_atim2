@@ -33,7 +33,6 @@ foreach($excel_files_names as $file_data) {
 	
 	list($bank, $excel_file_name, $excel_xls_offset) = $file_data;
 	$excel_file_name_for_ref = "File#$file_counter - ".((strlen($excel_file_name) > 30)? substr($excel_file_name, '0', '30')."...xls" : $excel_file_name);
-	$test_new_file_for_excel_xls_offset = true;
 	
 	$banks_data = getSelectQueryResult("SELECT id, name FROM banks WHERE name like '$bank%'");
 	if(!$banks_data) {
@@ -108,11 +107,6 @@ foreach($excel_files_names as $file_data) {
 						list($excel_participant_data['date_of_death'], $excel_participant_data['date_of_death_accuracy']) = updateDateWithExcelAccuracy(
 							validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, $excel_field, "See $excel_data_references"),
 							$excel_line_data[$excel_field_accuracy]);
-						
-						if($test_new_file_for_excel_xls_offset && strlen($excel_participant_data['date_of_death'])) {
-							pr("<font color = 'red'>Test of xls_offset for file '$excel_file_name' : $excel_field = '".$excel_participant_data['date_of_death']."'. See $excel_data_references.</font>");
-							$test_new_file_for_excel_xls_offset = false;
-						}
 						
 						$excel_field = 'Suspected Date of Death';
 						$excel_field_accuracy = "$excel_field Accuracy";
