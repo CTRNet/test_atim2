@@ -254,10 +254,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		if(isset($this->data['AliquotMaster']['barcode'])){
 			$this->checkDuplicatedAliquotBarcode($this->data);
-		}		
-		parent::validates($options);
+		}	
 		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	/**
