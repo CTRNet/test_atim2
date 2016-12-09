@@ -229,10 +229,6 @@ foreach($excel_files_names as $file_data) {
 								$excel_field = "Reviewed by";
 								$qbcf_reviewer = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
 								
-								$domain_name = 'qbcf_path_review_warnings';
-								$excel_field = "Warning";
-								$qbcf_warnings = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
-													
 								$specimen_review_data = array(
 									'specimen_review_masters' => array(
 										'specimen_review_control_id' => $atim_controls['specimen_review_controls']['tissue block review']['id'],
@@ -240,7 +236,6 @@ foreach($excel_files_names as $file_data) {
 										'sample_master_id' => $block_sample_master_id,
 										'qbcf_reviewer' => $qbcf_reviewer,
 										'qbcf_reviewed_by_dr_tran_thanh' => $qbcf_reviewed_by_dr_tran_thanh,
-										'qbcf_warnings' => $qbcf_warnings,
 										'notes' => $excel_line_data['comments']),
 									$atim_controls['specimen_review_controls']['tissue block review']['detail_tablename'] => array());
 								$specimen_review_master_id = customInsertRecord($specimen_review_data);
@@ -257,6 +252,7 @@ foreach($excel_files_names as $file_data) {
 								
 								$fields_data = array(
 									array("Histology", 'histology', 'qbcf_path_review_histology'),
+									array("Warning", 'qbcf_warnings', 'qbcf_path_review_warnings'),
 									array("Tubular formation", 'tubular_formation', 'qbcf_1_2_3'),
 									array("Nuclear Atypia", 'nuclear_atypia', 'qbcf_1_2_3'),
 									array("Mitosis count", 'mitosis_count', 'qbcf_1_2_3'),

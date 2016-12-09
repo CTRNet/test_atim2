@@ -340,7 +340,7 @@ foreach($excel_files_names as $file_data) {
 							case 'qbcf_glandular_acinar_tubular_differentiation':
 							case 'qbcf_nuclear_pleomorphism':
 							case 'qbcf_mitotic_rate':
-								$excel_line_data[$excel_field] = preg_replace('/^([1-3])$/', 'Score $1', $excel_line_data[$excel_field]);
+								$excel_line_data[$excel_field] = $excel_line_data[$excel_field];
 								break;
 							case 'qbcf_pr_intensity':
 							case 'qbcf_er_intensity':
@@ -472,6 +472,17 @@ foreach($excel_files_names as $file_data) {
 								}
 							}
 							
+							if(strtolower($excel_line_data['Specimen sent to CHUM']) == 'yes') {
+								if($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']) {
+									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Two patient breast diagnosis events are defined as linked to specimen - Only the first one will be linked to the inventory, please validate and add correction if required into ATiM after the migration.", "See diagnosis for following participant : $excel_data_references.");
+								} else {
+									$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'] = $treatment_master_id;
+								}
+								$excel_breast_diagnosis_event_data[$tx_detail_tablename]['specimen_sent_to_chum_in_excel'] = 'y';
+							} else {
+								$excel_breast_diagnosis_event_data[$tx_detail_tablename]['specimen_sent_to_chum_in_excel'] = 'n';
+							}
+							
 							$treatment_master_id = null;
 							if(!$atim_breast_diagnosis_event_data) {
 							
@@ -494,14 +505,6 @@ foreach($excel_files_names as $file_data) {
 								}
 								
 							}
-							
-							if(strtolower($excel_line_data['Specimen sent to CHUM']) == 'yes') {
-								if($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']) {
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Two patient breast diagnosis events are defined as linked to specimen - Only the first one will be linked to the inventory, please validate and add correction if required into ATiM after the migration.", "See diagnosis for following participant : $excel_data_references.");
-								} else {
-									$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'] = $treatment_master_id;
-								}
-							}	
 						}
 					}
 					
@@ -826,7 +829,7 @@ foreach($excel_files_names as $file_data) {
 									AND TreatmentMaster.diagnosis_master_id = ".$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['breast_diagnosis_id']."
 									AND TreatmentMaster.start_date = '$excel_start_date'
 									AND TreatmentMaster.start_date_accuracy = '$excel_start_date_accuracy'
-									AND (".(strlen($excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])? "TreatmentMaster.qbcf_clinical_trial_protocol_number = '".$excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number']."'" : 'TRUE').")
+									AND (".(strlen($excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])? "TreatmentMaster.qbcf_clinical_trial_protocol_number = '".str_replace("'", "''", $excel_treatment_data['treatment_masters']['qbcf_clinical_trial_protocol_number'])."'" : 'TRUE').")
 									GROUP BY TreatmentMaster.id;";
 								$query_data = getSelectQueryResult($query);
 								if($query_data) {

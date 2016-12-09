@@ -160,7 +160,7 @@ foreach($excel_files_names as $file_data) {
 								INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
 								INNER JOIN $tissue_sample_detail_tablename SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
 								WHERE Collection.deleted <> 1
-								AND Collection.id = $control_collection_id
+								AND Collection.id = $collection_id
 								AND SampleMaster.sample_control_id = ".$atim_controls['sample_controls']['tissue']['id']."
 								AND SampleMaster.deleted <> 1
 								AND SampleMaster.qbcf_tma_sample_control_code = '$patho_id'
@@ -172,15 +172,14 @@ foreach($excel_files_names as $file_data) {
 								}
 								$tissue_sample_master_id = $query_data[0]['sample_master_id'];
 							} else {
-								$collection_id = $control_collection_id;
-								
 								$created_sample_counter++;
 								$sample_data = array(
 									'sample_masters' => array(
 										"sample_code" => 'tmp_tissue_'.$created_sample_counter,
 										"sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
 										"initial_specimen_sample_type" => 'tissue',
-										"collection_id" => $control_collection_id,
+										"collection_id" => $collection_id,
+										'qbcf_is_tma_sample_control' => '1',
 										'qbcf_tma_sample_control_code' => $patho_id),
 									'specimen_details' => array(),
 									$tissue_sample_detail_tablename => array(
@@ -210,7 +209,7 @@ foreach($excel_files_names as $file_data) {
 							if($block_aliquot_master_id) {
 								$realiquoting_data = array('realiquotings' => array(
 									'parent_aliquot_master_id' => $block_aliquot_master_id,
-									'child_aliquot_master_id' => $block_aliquot_master_id));
+									'child_aliquot_master_id' => $core_aliquot_master_id));
 								customInsertRecord($realiquoting_data);
 							}
 						}

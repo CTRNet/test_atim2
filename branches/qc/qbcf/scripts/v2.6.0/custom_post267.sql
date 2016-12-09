@@ -475,30 +475,30 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Grade Notthingham / SBR-EE');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('score 1','Score 1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 2','Score 2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 3','Score 3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('1','1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('2','2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('3','3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('u','U',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Glandular (Acinar)/ Tubular Differentiation');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('score 1','Score 1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 2','Score 2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 3','Score 3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('1','1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('2','2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('3','3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('u','U',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Nuclear Pleomorphism');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('score 1','Score 1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 2','Score 2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 3','Score 3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('1','1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('2','2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('3','3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('u','U',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Mitotic Rate');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
 VALUES
-('score 1','Score 1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 2','Score 2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
-('score 3','Score 3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('1','1',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('2','2',  '', '1', @control_id, NOW(), NOW(), 1, 1),
+('3','3',  '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('u','U',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Margin Status');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
