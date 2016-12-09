@@ -335,7 +335,7 @@ foreach($excel_files_names as $file_data) {
 									$tissue_sample_detail_tablename => array(
 										'tissue_source' => $excel_tissue_source));
 								$block_sample_master_id = customInsertRecord($sample_data);
-									
+								
 								// Create block
 									
 								$created_aliquot_counter++;
@@ -354,6 +354,7 @@ foreach($excel_files_names as $file_data) {
 										'qbcf_shipping_reception_date' => $qbcf_shipping_reception_date,
 										'qbcf_shipping_reception_date_accuracy' => $qbcf_shipping_reception_date_accuracy
 								));
+								
 								$block_aliquot_master_id = customInsertRecord($aliquot_data);
 								addCreatedDataToSummary('New Block', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label'", $excel_data_references);
 							}
@@ -386,6 +387,7 @@ foreach($excel_files_names as $file_data) {
 								}
 								if(!$slide_storage_master_id) $slide_storage_coord_x = '';
 								
+								$excel_field = "Date of coloration";
 								list($qbcf_staining_date, $qbcf_staining_date_accuracy) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], 'Block Slide', $excel_field, "See $excel_data_references");
 								
 								$created_aliquot_counter++;
@@ -406,6 +408,7 @@ foreach($excel_files_names as $file_data) {
 										'qbcf_staining_date_accuracy' => $qbcf_staining_date_accuracy,
 										'qbcf_thickness_um' => $qbcf_thickness_um,));
 								$slide_aliquot_master_id = customInsertRecord($aliquot_data);
+								
 								addCreatedDataToSummary('Block Slide', "Participant '$qbcf_bank_participant_identifier' of bank '$bank' : Aliquot '$excel_block_aliquot_label'", $excel_data_references);
 								
 								$excel_field = 'Date of sectionning';
@@ -416,6 +419,7 @@ foreach($excel_files_names as $file_data) {
 									'child_aliquot_master_id' => $slide_aliquot_master_id,
 									'realiquoting_datetime' => $realiquoting_datetime,
 									'realiquoting_datetime_accuracy' => $realiquoting_datetime_accuracy));
+								
 								customInsertRecord($realiquoting_data);
 							}
 						}

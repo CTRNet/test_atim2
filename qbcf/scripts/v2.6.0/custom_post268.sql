@@ -1304,8 +1304,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='qbcf_reviewed_by_dr_tran_thanh' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reviewed by dr tran thanh' AND `language_tag`=''), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr) VALUES ('reviewed by dr tran thanh', 'Reviewed by Dr Tran Thanh', 'Révisé par Dr Tran Thanh');
 
-ALTER TABLE `specimen_review_masters` ADD COLUMN qbcf_warnings varchar(100) DEFAULT NULL;
-ALTER TABLE `specimen_review_masters_revs`  ADD COLUMN qbcf_warnings varchar(100) DEFAULT NULL;
+ALTER TABLE `qbcf_ar_tissue_blocks` ADD COLUMN qbcf_warnings varchar(100) DEFAULT NULL;
+ALTER TABLE `qbcf_ar_tissue_blocks_revs`  ADD COLUMN qbcf_warnings varchar(100) DEFAULT NULL;
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
 ('qbcf_path_review_warnings', "StructurePermissibleValuesCustom::getCustomDropdown('Tissue Review Warnings')");
@@ -1326,9 +1326,9 @@ VALUES
 ('bilateral cancer', 'bilateral cancer',  '', '1', @control_id, NOW(), NOW(), 1, 1), 
 ('not part of the list - see comments', 'not part of the list - see comments',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'qbcf_warnings', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings') , '0', '', '', '', 'warnings', '');
+('InventoryManagement', 'AliquotReviewDetail', 'qbcf_ar_tissue_blocks', 'qbcf_warnings', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings') , '0', '', '', '', 'warnings', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='qbcf_warnings' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='warnings' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='qbcf_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qbcf_ar_tissue_blocks' AND `field`='qbcf_warnings' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_path_review_warnings')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='warnings' AND `language_tag`=''), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laboratory Staff');
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
@@ -1627,6 +1627,13 @@ VALUES
 ('qbcf_tma_sample_control_code and tissue_source combination should be unique', 'Tissue Source and Code combination should be unique.', ''),
 ('only one control collection can be created', 'Only one control collection can be created', '');
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'specimen_sent_to_chum_in_excel', 'yes_no',  NULL , '0', '', '', '', 'specimen sent to chum (excel value)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='specimen_sent_to_chum_in_excel' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen sent to chum (excel value)' AND `language_tag`=''), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('specimen sent to chum (excel value)','Specimen Sent to CHUM (Excel Value)');
+ALTER TABLE qbcf_tx_breast_diagnostic_events ADD COLUMN specimen_sent_to_chum_in_excel char(1) DEFAULT '';
+ALTER TABLE qbcf_tx_breast_diagnostic_events_revs ADD COLUMN specimen_sent_to_chum_in_excel char(1) DEFAULT '';
 
 
 
@@ -1637,7 +1644,7 @@ VALUES
 
 
 
-
+exit
 
 
 
@@ -1674,6 +1681,16 @@ VALUES
 
 
 
+TO TEST
+lien entre block et slide pas fait.
+Ne plus voire Score 1 , etc mais 1 dans dx event
+
+
+TO DO
+
+ne pas afficher le code du tissue d'un controle dans TMA layout car cest le patho number
+Reviewer et warning au niveau de l'aliquot review et non au nivean de specimen review
+aliquot reviewajouter les valeurs dans la recherche pour le databwrowser
 
 
 
@@ -1681,7 +1698,10 @@ VALUES
 
 
 
-
+'sample_master_id' => $block_sample_master_id,
+'qbcf_reviewer' => $qbcf_reviewer,
+'qbcf_reviewed_by_dr_tran_thanh' => $qbcf_reviewed_by_dr_tran_thanh,
+'qbcf_warnings' => $qbcf_warnings,
 
 
 
@@ -1712,18 +1732,18 @@ TMA map à migrer aussi
 revoir Databrowser Relations Links Summary
 verifier databrowser et reports
 
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.0_full_installation.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.1_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.2_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.3_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.4_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.5_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.6_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.7_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < custom_post267.sql
-mysql -u root qbcf --default-character-set=utf8 < atim_v2.6.8_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < custom_post268.sql
-mysql -u root qbcf --default-character-set=utf8 < acos.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.0_full_installation.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.1_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.2_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.3_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.4_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.5_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.6_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.7_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\custom_post267.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.8_upgrade.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\custom_post268.sql
+mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\acos.sql
 
 
 

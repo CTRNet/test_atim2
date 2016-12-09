@@ -15,12 +15,11 @@ $migration_user_id = 1;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$files_path = "C:/_NicolasLuc/Server/www/qbcf/data/TMA/";
+$files_path = "C:/_NicolasLuc/Server/www/qbcf/data/IN/TMA/";
 //$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateClinicalData/data/";
 // Serial number $windows_xls_offset = 36526 & $mac_xls_offset = 35064;
 $excel_files_names = array(
-	array('MAP_Opti_QBCF_2MB_chri_bloc_TOUS_ATiM_pourNicolasVOedit2.xls', 'Sheet1'),
-	array('qbcf_TMA_ex.xls', 'Sheet1')
+	array('161206_MAP_Opti_QBCF_2MB_chri_bloc_TOUS_ATiM_pourNicolasVOedit2.xls', 'Sheet1')
 );
 
 ?>
