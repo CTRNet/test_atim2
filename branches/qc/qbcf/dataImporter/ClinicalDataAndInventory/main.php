@@ -712,7 +712,11 @@ foreach($excel_files_names as $file_data) {
 									if(strtolower($excel_line_data[$excel_field]) == 'u') {
 										$excel_treatment_data[$tx_detail_tablename][$atim_field.'_decimal_unknown'] = '1';
 									} else {
-										$excel_treatment_data[$tx_detail_tablename][$atim_field] = validateAndGetDecimal($excel_line_data[$excel_field], $specific_summary_section_title, $excel_field, "See $excel_data_references");
+										if(strlen($excel_line_data[$excel_field]) && !preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $excel_line_data[$excel_field])) {
+											recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Excel value format different than a decimal value. Please confirm.", "See '$excel_field' value '".$excel_line_data[$excel_field]."' for participant : $excel_data_references.");
+										}
+										$excel_treatment_data[$tx_detail_tablename][$atim_field] = $excel_line_data[$excel_field];
+										//$excel_treatment_data[$tx_detail_tablename][$atim_field] = validateAndGetDecimal($excel_line_data[$excel_field], $specific_summary_section_title, $excel_field, "See $excel_data_references");
 									}
 								}
 									
@@ -725,7 +729,11 @@ foreach($excel_files_names as $file_data) {
 									if(strtolower($excel_line_data[$excel_field]) == 'u') {
 										$excel_treatment_data[$tx_detail_tablename][$atim_field.'_integer_unknown'] = '1';
 									} else {
-										$excel_treatment_data[$tx_detail_tablename][$atim_field] = validateAndGetInteger($excel_line_data[$excel_field], $specific_summary_section_title, $excel_field, "See $excel_data_references");
+										if(strlen($excel_line_data[$excel_field]) && !preg_match('/^[0-9]*$/', $excel_line_data[$excel_field])) {
+											recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Excel value format different than an integer value. Please confirm.", "See '$excel_field' value '".$excel_line_data[$excel_field]."' for participant : $excel_data_references.");
+										}
+										$excel_treatment_data[$tx_detail_tablename][$atim_field] = $excel_line_data[$excel_field];
+										//$excel_treatment_data[$tx_detail_tablename][$atim_field] = validateAndGetInteger($excel_line_data[$excel_field], $specific_summary_section_title, $excel_field, "See $excel_data_references");
 									}
 								}
 								
@@ -917,7 +925,8 @@ foreach($excel_files_names as $file_data) {
 				TreatmentMaster.start_date,
 				TreatmentMaster.start_date_accuracy,
 				TreatmentDetail.time_to_last_contact_months,
-				TreatmentDetail.time_to_first_progression_months
+				TreatmentDetail.time_to_first_progression_months,
+				TreatmentDetail.time_to_next_breast_dx_event_months
 				FROM participants Participant
 				INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.participant_id = Participant.id
 				INNER JOIN ".$atim_controls['treatment_controls']['breast diagnostic event']['detail_tablename']." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
@@ -950,6 +959,7 @@ foreach($excel_files_names as $file_data) {
 
 				$new_time_to_last_contact_months = '';
 				$new_time_to_first_progression_months = '';
+				$new_time_to_next_breast_dx_event_months = '';
 				if($new_breast_diagnosis_event_tx['start_date']) {
 					$start_date = $new_breast_diagnosis_event_tx['start_date'];
 					$start_date_accuracy = $new_breast_diagnosis_event_tx['start_date_accuracy'];
@@ -961,7 +971,7 @@ foreach($excel_files_names as $file_data) {
 							$end_date_ob = new DateTime($last_contact_or_death_date);
 							$interval = $start_date_ob->diff($end_date_ob);
 							if($interval->invert) {
-								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "All times to last contact' cannot be calculated because dates are not chronological", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "All 'times to last contact' cannot be calculated because dates are not chronological", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
 							} else {
 								$new_time_to_last_contact_months = $interval->y*12 + $interval->m;
 							}
@@ -987,11 +997,11 @@ foreach($excel_files_names as $file_data) {
 						$first_progression_date = $first_progression[0]['dx_date'];
 						$first_progression_date_accuracy = $first_progression[0]['dx_date_accuracy'];
 						if(in_array($start_date_accuracy.$first_progression_date_accuracy, array('cc', 'cd', 'dc'))) {
-							if($start_date_accuracy.$first_progression_date_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A time to first progression' has been calculated with at least one unaccuracy date", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
+							if($start_date_accuracy.$first_progression_date_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A 'time to first progression' has been calculated with at least one unaccuracy date", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
 							$end_date_ob = new DateTime($first_progression_date);
 							$interval = $start_date_ob->diff($end_date_ob);
 							if($interval->invert) {
-								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A time to first progression' cannot be calculated because dates are not chronological", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A 'time to first progression' cannot be calculated because dates are not chronological", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
 							} else {
 								$new_time_to_first_progression_months = $interval->y*12 + $interval->m;
 							}
@@ -999,13 +1009,45 @@ foreach($excel_files_names as $file_data) {
 							recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A 'time to first progression' cannot be calculated on inaccurate dates", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");		
 						}
 					}
+					// Time to next breast diagnosis
+					$query_3 = "SELECT TreatmentMaster.id AS treatment_master_id,
+						TreatmentMaster.start_date,
+						TreatmentMaster.start_date_accuracy
+						FROM treatment_masters AS TreatmentMaster
+						WHERE TreatmentMaster.id != ".$new_breast_diagnosis_event_tx['treatment_master_id']."
+						AND TreatmentMaster.participant_id = ".$new_breast_diagnosis_event_tx['participant_id']."
+						AND TreatmentMaster.deleted <> 1
+						AND TreatmentMaster.treatment_control_id = ".$atim_controls['treatment_controls']['breast diagnostic event']['id']."
+						AND TreatmentMaster.diagnosis_master_id = ".$new_breast_diagnosis_event_tx['diagnosis_master_id']."
+						AND TreatmentMaster.start_date IS NOT NULL
+						AND TreatmentMaster.start_date > '".$new_breast_diagnosis_event_tx['start_date']."'
+						ORDER BY TreatmentMaster.start_date ASC
+						LIMIT 0,1;";
+					$next_breast_dx_event = getSelectQueryResult($query_3);
+					if($next_breast_dx_event) {
+						$next_breast_dx_event_date = $next_breast_dx_event[0]['start_date'];
+						$next_breast_dx_event_date_accuracy = $next_breast_dx_event[0]['start_date_accuracy'];
+						if(in_array($start_date_accuracy.$next_breast_dx_event_date_accuracy, array('cc', 'cd', 'dc'))) {
+							if($start_date_accuracy.$next_breast_dx_event_date_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A 'time to next breast diagnosis event' has been calculated with at least one unaccuracy date", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
+							$end_date_ob = new DateTime($next_breast_dx_event_date);
+							$interval = $start_date_ob->diff($end_date_ob);
+							if($interval->invert) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A 'time to next breast diagnosis event' cannot be calculated because dates are not chronological", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
+							} else {
+								$new_time_to_next_breast_dx_event_months = $interval->y*12 + $interval->m;
+							}
+						} else {
+							recordErrorAndMessage($summary_section_title, '@@WARNING@@', "A 'time to next breast diagnosis event' cannot be calculated on inaccurate dates", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
+						}
+					}
 				} else {
 					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "At least one breast diagnosis date is unknown - the 'time to' values cannot be calculated for 'un-dated' diagnosis", "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");
 				}
 				//Update data
 				$breast_diagnosis_event_detail_to_update = array();
-				if($new_time_to_last_contact_months != $new_breast_diagnosis_event_tx['time_to_last_contact_months']) $breast_diagnosis_event_detail_to_update['time_to_last_contact_months'] = $new_time_to_last_contact_months;
-				if($new_time_to_first_progression_months != $new_breast_diagnosis_event_tx['time_to_first_progression_months']) $breast_diagnosis_event_detail_to_update['time_to_first_progression_months'] = $new_time_to_first_progression_months;
+				if($new_time_to_last_contact_months !== $new_breast_diagnosis_event_tx['time_to_last_contact_months']) $breast_diagnosis_event_detail_to_update['time_to_last_contact_months'] = $new_time_to_last_contact_months;
+				if($new_time_to_first_progression_months !== $new_breast_diagnosis_event_tx['time_to_first_progression_months']) $breast_diagnosis_event_detail_to_update['time_to_first_progression_months'] = $new_time_to_first_progression_months;
+				if($new_time_to_next_breast_dx_event_months !== $new_breast_diagnosis_event_tx['time_to_next_breast_dx_event_months']) $breast_diagnosis_event_detail_to_update['time_to_next_breast_dx_event_months'] = $new_time_to_next_breast_dx_event_months;
 				if($breast_diagnosis_event_detail_to_update) {
 					updateTableData($new_breast_diagnosis_event_tx['treatment_master_id'], array('treatment_masters' => array(), $atim_controls['treatment_controls']['breast diagnostic event']['detail_tablename'] => $breast_diagnosis_event_detail_to_update));
 					addUpdatedDataToSummary($summary_section_title, $breast_diagnosis_event_detail_to_update, "See Bank '<b>$bank</b>' & Participant '<b>$qbcf_bank_participant_identifier</b>'", "$bank-$qbcf_bank_participant_identifier");

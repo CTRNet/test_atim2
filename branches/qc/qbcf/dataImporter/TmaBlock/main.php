@@ -141,7 +141,7 @@ foreach($excel_files_names as $file_data) {
 									AND AliquotMaster.aliquot_label = '$patho_id';";
 								$query_data = getSelectQueryResult($query);
 								if($query_data) {
-									if(sizeof($query_data)) {
+									if(sizeof($query_data) > 1) {
 										recordErrorAndMessage('Bank tissue block', '@@ERROR@@', "More than one bank tissue block of a core has been found into ATiM. New core will be created and linked to the first one. Please confirm.", "See '$excel_tissue_source' tissue block for $excel_data_references.");
 									}
 									$collection_id = $query_data[0]['collection_id'];
@@ -167,7 +167,7 @@ foreach($excel_files_names as $file_data) {
 								AND SampleDetail.tissue_source = '$excel_tissue_source';";
 							$query_data = getSelectQueryResult($query);
 							if($query_data) {
-								if(sizeof($query_data)) {
+								if(sizeof($query_data) > 1) {
 									recordErrorAndMessage('Control tissue', '@@ERROR@@', "More than one control tissue has been found into ATiM. New core will be created and linked to the first one. Please confirm.", "See '$excel_tissue_source' Control Tissue with code '$patho_id' for $excel_data_references.");
 								}
 								$tissue_sample_master_id = $query_data[0]['sample_master_id'];

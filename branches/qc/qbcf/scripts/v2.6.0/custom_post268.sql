@@ -838,8 +838,6 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as
 VALUES
 ('returned to bank', 'Returned to bank',  '', '1', @control_id, NOW(), NOW(), 1, 1);
 
-UPDATE structure_formats SET `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') AND `flag_confidential`='0');
-
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='duration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -1635,6 +1633,149 @@ INSERT INTO i18n (id,en) VALUES ('specimen sent to chum (excel value)','Specimen
 ALTER TABLE qbcf_tx_breast_diagnostic_events ADD COLUMN specimen_sent_to_chum_in_excel char(1) DEFAULT '';
 ALTER TABLE qbcf_tx_breast_diagnostic_events_revs ADD COLUMN specimen_sent_to_chum_in_excel char(1) DEFAULT '';
 
+ALTER TABLE qbcf_txd_radios
+   MODIFY num_cycles_conventional varchar(50) DEFAULT NULL,
+   MODIFY dose_conventional varchar(50) DEFAULT NULL,
+   MODIFY num_cycles_boost varchar(50) DEFAULT NULL,
+   MODIFY dose_boost varchar(50) DEFAULT NULL,
+   MODIFY num_cycles_brachytherapy varchar(50) DEFAULT NULL,
+   MODIFY dose_brachytherapy varchar(50) DEFAULT NULL;
+ALTER TABLE qbcf_txd_radios_revs
+   MODIFY num_cycles_conventional varchar(50) DEFAULT NULL,
+   MODIFY dose_conventional varchar(50) DEFAULT NULL,
+   MODIFY num_cycles_boost varchar(50) DEFAULT NULL,
+   MODIFY dose_boost varchar(50) DEFAULT NULL,
+   MODIFY num_cycles_brachytherapy varchar(50) DEFAULT NULL,
+   MODIFY dose_brachytherapy varchar(50) DEFAULT NULL;
+UPDATE structure_fields SET  `type`='input' WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='num_cycles_conventional' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='input' WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='dose_conventional' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='input' WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='num_cycles_boost' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='input' WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='dose_boost' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='input' WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='num_cycles_brachytherapy' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='input' WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='dose_brachytherapy' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qbcf_tx_breast_diagnostic_events', 'time_to_next_breast_dx_event_months', 'integer_positive',  NULL , '0', 'size=3', '', '', 'time to next breast diagnosis event (months)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_tx_breast_diagnostic_events'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qbcf_tx_breast_diagnostic_events' AND `field`='time_to_next_breast_dx_event_months' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='time to next breast diagnosis event (months)' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE `qbcf_tx_breast_diagnostic_events` ADD COLUMN `time_to_next_breast_dx_event_months` int(5) DEFAULT NULL;
+ALTER TABLE `qbcf_tx_breast_diagnostic_events_revs` ADD COLUMN `time_to_next_breast_dx_event_months` int(5) DEFAULT NULL;
+INSERT IGNORE INTO i18n (id,en) 
+VALUES 
+('time to next breast diagnosis event (months)', 'Time to Next Breast diagnostic Event (months)'),
+("at least one breast diagnosis event date is unknown", "At least one breast diagnosis event date is unknown"),
+("'time to next breast diagnosis event' has been calculated with at least one unaccuracy date", "'Time to Next Breast Diagnosis Event' has been calculated with at least one unaccuracy date"),
+("'time to next breast diagnosis event' cannot be calculated because dates are not chronological", "'Time to Next Breast Diagnosis Event' cannot be calculated because dates are not chronological"),
+("'time to next breast diagnosis event' cannot be calculated on inaccurate dates", "'Time to Next Breast Diagnosis Event' cannot be calculated on inaccurate dates");
+
+UPDATE structure_fields SET  `setting`='size=20,class=file' WHERE model='Participant' AND tablename='participants' AND field='qbcf_bank_participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='size=20,class=file range' WHERE model='Participant' AND tablename='participants' AND field='participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+UPDATE structure_fields SET  `setting`='size=30,class=file range' WHERE model='ViewAliquot' AND tablename='' AND field='participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='size=20,class=file' WHERE model='ViewAliquot' AND tablename='' AND field='qbcf_bank_participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='size=20,class=file' WHERE model='ViewAliquot' AND tablename='' AND field='qbcf_pathology_id' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET `setting`='size=30,class=file' WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0';
+UPDATE structure_fields SET `setting`='class=file' WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0';
+UPDATE structure_fields SET `setting`='size=30,class=file' WHERE `model`='AliquotMaster' AND  `field`='barcode';
+UPDATE structure_fields SET `setting`='class=file' WHERE `model`='AliquotMaster' AND  `field`='aliquot_label';
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+exit
+
+
+
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, 
+`associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) 
+VALUES
+(null, 'QBCF Summary - From TMA Blocks', 'QBCF summary from TMA blocks', 'qbcf_summary_parameters_from_blocks', 'qbcf_summary_results,qbcf_summary_aliquots', 'index', 'buildQbcfSummaryFromBlocks', 1, 
+(SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 0),
+(null, 'QBCF Summary - From Participants', 'QBCF summary from Participants', 'qbcf_summary_parameters_from_participants', 'qbcf_summary_results,qbcf_summary_aliquots', 'index', 'buildQbcfSummary', 1, 
+(SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 0),
+(null, 'QBCF Summary - From Aliquots', 'QBCF summary from Aliquots', 'qbcf_summary_parameters_from_aliquots', 'qbcf_summary_results', 'index', 'buildQbcfSummaryFromAliquots', 1, 
+(SELECT id FROM datamart_structures WHERE model = 'Participant'), 0);
+INSERT INTO datamart_structure_functions 
+(id, datamart_structure_id, label, link, flag_active)
+VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'Participant'), 'QBCF Summary', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'QBCF Summary - From Participants')), 1),
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'QBCF Summary', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'QBCF Summary - From Aliquots')), 1),
+(null, (SELECT id FROM datamart_structures WHERE model = 'TmaBlock'), 'QBCF Summary', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'QBCF Summary - From TMA Blocks')), 1);
+
+INSERT INTO structures(`alias`) VALUES ('qbcf_summary_parameters_from_participants');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier'), '1', '-1', 'clin_demographics', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qbcf_bank_id'), '1', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qbcf_bank_participant_identifier'), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('qbcf_summary_parameters_from_aliquots');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'size=30,class=range file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage' AND `language_tag`=''), '0', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_collection_bank_defintion' AND `language_label`='collection bank' AND `language_tag`=''), '0', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='class=file' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_pathology_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,class=file' AND `default`='' AND `language_help`='' AND `language_label`='pathology id' AND `language_tag`=''), '0', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('qbcf_summary_parameters_from_blocks');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_blocks'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='' AND `field`='code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='storage_code_help' AND `language_label`='storage code' AND `language_tag`=''), '1', '100', 'system data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_blocks'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='' AND `field`='short_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='stor_short_label_defintion' AND `language_label`='storage short label' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_blocks'), (SELECT id FROM structure_fields WHERE `model`='TmaBlock' AND `tablename`='' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELETE FROM datamart_structure_functions WHERE label like '%QBCF Summary%';
+DELETE FROM datamart_reports WHERE name like '%QBCF Summary%';
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_aliquots');
+
+
+
+qbcf_summary_parameters_from_aliquots
+
+
+
+
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('your search will be limited to your bank', 'Your search will be limited to your bank'),
+('QBCF Summary', 'QBCF Summary'), 
+('QBCF Summary - From TMA Blocks', 'QBCF Summary (TMA)'), 
+('QBCF Summary - From Participants', 'QBCF Summary (Participant)'), 
+('QBCF Summary - From Aliquots', 'QBCF Summary (Aliquot)'), 
+('QBCF summary from TMA blocks', 'Build the QBCF summary from a list of TMA blocks'),
+('QBCF summary from Aliquots', 'Build the QBCF summary from a list of aliquots'),
+('QBCF summary from Participants', 'Build the QBCF summary from a list of participants');
+
+
+
+
+
+
 
 
 
@@ -1651,10 +1792,29 @@ exit
 
 
 
-INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) VALUES
-(16, 'CPCBN Summary - Level3', 'Include clinical data, TMA cores positions and core revisions data', 'qc_tf_cpcbn_summary_parameters', 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_positions,qc_tf_cpcbn_summary_core_details', 'index', 'buildCpcbnSummaryLevel3', 1, 4, 0);
-(8, 'CPCBN Summary - Level1', 'Include distinct clinical data', 'qc_tf_cpcbn_summary_parameters', 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_participant_reviewed_grades', 'index', 'buildCpcbnSummary', 1, 4, 0),
-(9, 'CPCBN Summary - Level2', 'Include both clinical data and TMA cores positions', 'qc_tf_cpcbn_summary_parameters', 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_positions', 'index', 'buildCpcbnSummaryLevel2', 1, 4, 0),
+
+
+
+
+(SELECT id FROM datamart_structures WHERE model = 'Participant')
+(SELECT id FROM datamart_structures WHERE model = 'TmaBlock')
+
+
+(SELECT id FROM datamart_structures WHERE model = 'ViewAliquot')
+
+
+
++----+---------------------+-----------------------+--
+| id | plugin              | model                 | s
++----+---------------------+-----------------------+--
+|  1 | InventoryManagement | ViewAliquot           |
+|  2 | InventoryManagement | ViewCollection        |
+|  3 | StorageLayout       | NonTmaBlockStorage    |
+|  4 | ClinicalAnnotation  | Participant           |
+
+
+
+
 
 
 
@@ -1674,8 +1834,8 @@ INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `labe
 INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('CPCBN Summary - Level1', 'CPCBN Summary - Clinical Data'),
-('CPCBN Summary - Level2', 'CPCBN Summary - Clinical Data + Cores Positions'),
-('CPCBN Summary - Level3', 'CPCBN Summary - Clinical Data + Cores Positions & Revisions Data'),
+('CPCBN Summary - From Aliquots', 'CPCBN Summary - Clinical Data + Cores Positions'),
+('CPCBN Summary - From TMA Blocks', 'CPCBN Summary - Clinical Data + Cores Positions & Revisions Data'),
 
 
 
@@ -1722,8 +1882,6 @@ on le considère comme progression au sein. Sauf s'il s'agit d'une morpho/histop
 
 ​7- Finalement, encore suite à la discussion, serait-il possible d'avoir une colonne ou encore dans le rapport... une colonne qui mentionne: 
 tx adjuvant (qui a été donné dans l'année suivant le Dx de sein) avec le type (RT Immuno Chemo, etc)
-
-TMA map à migrer aussi
 
 
 
