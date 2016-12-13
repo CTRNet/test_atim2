@@ -142,9 +142,20 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		$progression_with_no_date = $DiagnosisMaster->find('count', array('conditions'=>$conditions, 'recursive' => '0'));
 		if($progression_with_no_date) $all_warnings["at least one breast progression diagnosis date is unknown"] = array(); 
 		
+		// Check all breast diagnosis event dates are set
+		$conditions = array(
+			'TreatmentMaster.deleted != 1',
+			'TreatmentControl.tx_method' => 'breast diagnostic event',
+			'TreatmentMaster.participant_id' => $participant_id,
+			"TreatmentMaster.start_date IS NULL"
+		);
+		$breast_dx_event_with_no_date = $this->find('count', array('conditions'=>$conditions, 'recursive' => '0'));
+		if($breast_dx_event_with_no_date) $all_warnings["at least one breast diagnosis event date is unknown"] = array();
+		
 		foreach($all_breast_tx_diagnosis_event as $new_breast_tx) {
 			$new_time_to_last_contact_months = '';
 			$new_time_to_first_progression_months = '';
+			$new_time_to_next_breast_dx_event_months = '';
 			if($new_breast_tx['TreatmentMaster']['start_date']) {
 				$start_date = $new_breast_tx['TreatmentMaster']['start_date'];
 				$start_date_accuracy = $new_breast_tx['TreatmentMaster']['start_date_accuracy'];
@@ -191,13 +202,41 @@ class TreatmentMasterCustom extends TreatmentMaster {
 						$all_warnings["'time to first progression' cannot be calculated on inaccurate dates"][$start_date] = $start_date;
 					}
 				}
+				// Time to next diagnosis event
+				$conditions = array(
+					'TreatmentMaster.id != '.$new_breast_tx['TreatmentMaster']['id'],
+					'TreatmentMaster.deleted != 1',
+					'TreatmentControl.tx_method' => 'breast diagnostic event',
+					'TreatmentMaster.participant_id' => $participant_id,
+					'TreatmentMaster.diagnosis_master_id' => $new_breast_tx['TreatmentMaster']['diagnosis_master_id'],
+					"TreatmentMaster.start_date IS NOT NULL",
+					"TreatmentMaster.start_date > '".$start_date."'"
+				);
+				$next_breast_diagnosis_event = $this->find('first', array('conditions'=>$conditions, 'recursive' => '0', 'order' => array('TreatmentMaster.start_date ASC')));			
+				if($next_breast_diagnosis_event) {
+					$next_breast_diagnosis_event_date = $next_breast_diagnosis_event['TreatmentMaster']['start_date'];
+					$next_breast_diagnosis_event_date_accuracy = $next_breast_diagnosis_event['TreatmentMaster']['start_date_accuracy'];
+					if(in_array($start_date_accuracy.$next_breast_diagnosis_event_date_accuracy, array('cc', 'cd', 'dc'))) {
+						if($start_date_accuracy.$next_breast_diagnosis_event_date_accuracy != 'cc') $all_warnings["'time to next breast diagnosis event' has been calculated with at least one unaccuracy date"][$start_date] = $start_date;
+						$end_date_ob = new DateTime($next_breast_diagnosis_event_date);
+						$interval = $start_date_ob->diff($end_date_ob);
+						if($interval->invert) {
+							$all_warnings["'time to next breast diagnosis event' cannot be calculated because dates are not chronological"][$start_date] = $start_date;
+						} else {
+							$new_time_to_next_breast_dx_event_months = $interval->y*12 + $interval->m;							
+						}
+					} else {
+						$all_warnings["'time to next breast diagnosis event' cannot be calculated on inaccurate dates"][$start_date] = $start_date;
+					}
+				}
 			} else {
 				$all_warnings["at least one breast diagnostic event date is unknown - the 'time to' values cannot be calculated for 'un-dated' event"] = array();
 			}
 			//Update data
 			$treatment_detail_to_update = array();
-			if($new_time_to_last_contact_months != $new_breast_tx['TreatmentDetail']['time_to_last_contact_months']) $treatment_detail_to_update['time_to_last_contact_months'] = $new_time_to_last_contact_months;
-			if($new_time_to_first_progression_months != $new_breast_tx['TreatmentDetail']['time_to_first_progression_months']) $treatment_detail_to_update['time_to_first_progression_months'] = $new_time_to_first_progression_months;
+			if($new_time_to_last_contact_months !== $new_breast_tx['TreatmentDetail']['time_to_last_contact_months']) $treatment_detail_to_update['time_to_last_contact_months'] = $new_time_to_last_contact_months;
+			if($new_time_to_first_progression_months !== $new_breast_tx['TreatmentDetail']['time_to_first_progression_months']) $treatment_detail_to_update['time_to_first_progression_months'] = $new_time_to_first_progression_months;
+			if($new_time_to_next_breast_dx_event_months !== $new_breast_tx['TreatmentDetail']['time_to_next_breast_dx_event_months']) $treatment_detail_to_update['time_to_next_breast_dx_event_months'] = $new_time_to_next_breast_dx_event_months;
 			if($treatment_detail_to_update) {
 				$this->data = array();
 				$this->id = $new_breast_tx['TreatmentMaster']['id'];

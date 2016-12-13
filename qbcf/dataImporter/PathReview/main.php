@@ -259,6 +259,7 @@ foreach($excel_files_names as $file_data) {
 									array("Final Grade (Nottingham)", 'final_grade', 'qbcf_1_2_3'));
 								foreach($fields_data as $field_data) {
 									list($excel_field, $atim_field, $domain_name) = $field_data;
+									if($domain_name == 'qbcf_1_2_3' && preg_match('/^\-$/', $excel_line_data[$excel_field])) $excel_line_data[$excel_field] = '';
 									$aliquot_review_data[$aliquot_review_detail_tablename][$atim_field] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, 'Slide Review', $excel_field, "See $excel_data_references");
 								}
 								
