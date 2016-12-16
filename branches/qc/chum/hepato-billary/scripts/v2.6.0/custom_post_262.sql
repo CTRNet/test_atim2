@@ -788,3 +788,8 @@ VALUES
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6506' WHERE version_number = '2.6.2';
+
+UPDATE structure_formats SET `flag_edit_readonly`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE versions SET branch_build_number = '6612' WHERE version_number = '2.6.2';
