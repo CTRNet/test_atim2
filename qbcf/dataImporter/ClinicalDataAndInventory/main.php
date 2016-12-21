@@ -472,16 +472,7 @@ foreach($excel_files_names as $file_data) {
 								}
 							}
 							
-							if(strtolower($excel_line_data['Specimen sent to CHUM']) == 'yes') {
-								if($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']) {
-									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Two patient breast diagnosis events are defined as linked to specimen - Only the first one will be linked to the inventory, please validate and add correction if required into ATiM after the migration.", "See diagnosis for following participant : $excel_data_references.");
-								} else {
-									$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'] = $treatment_master_id;
-								}
-								$excel_breast_diagnosis_event_data[$tx_detail_tablename]['specimen_sent_to_chum_in_excel'] = 'y';
-							} else {
-								$excel_breast_diagnosis_event_data[$tx_detail_tablename]['specimen_sent_to_chum_in_excel'] = 'n';
-							}
+							$excel_breast_diagnosis_event_data[$tx_detail_tablename]['specimen_sent_to_chum_in_excel'] = (strtolower($excel_line_data['Specimen sent to CHUM']) == 'yes')? 'y' : 'n';
 							
 							$treatment_master_id = null;
 							if(!$atim_breast_diagnosis_event_data) {
@@ -504,6 +495,13 @@ foreach($excel_files_names as $file_data) {
 									addUpdatedDataToSummary('Breast Diagnosis Event Update', array_merge($data_to_update['treatment_masters'], $data_to_update[$tx_detail_tablename]), $excel_data_references);
 								}
 								
+							}
+							if($excel_breast_diagnosis_event_data[$tx_detail_tablename]['specimen_sent_to_chum_in_excel'] == 'y') {
+								if($qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id']) {
+									recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "Two patient breast diagnosis events are defined as linked to specimen - Only the first one will be linked to the inventory, please validate and add correction if required into ATiM after the migration.", "See diagnosis for following participant : $excel_data_references.");
+								} else {
+									$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier]['collection_treatment_id'] = $treatment_master_id;
+								}
 							}
 						}
 					}
@@ -814,12 +812,12 @@ foreach($excel_files_names as $file_data) {
 								
 								// Drugs
 								
-								$atim_drug_type = str_replace(array('bone specific therapy', 'hormonotherapy'), array('bone specific', 'hormonal'), $excel_treatment_type_to_atim_control_type[$excel_treatment_type]);
+								$atim_drug_type = str_replace(array('bone specific therapy', 'hormonotherapy', 'other (breast cancer systemic treatment)'), array('bone specific', 'hormonal', 'other'), $excel_treatment_type_to_atim_control_type[$excel_treatment_type]);
 								$atim_drug_ids_to_link_to_treatment = array();
 								for($i = 1; $i < 5; $i ++) {
 									$key = 'Drug '.$i;
 									if(!in_array($excel_line_data[$key], array('', 'no', 'unknown', 'NA, event not related to Systemic treatment  or no combination used'))){
-										$atim_drug_ids_to_link_to_treatment['Drug-'.$i] = getDrugId($excel_line_data[$key], $atim_drug_type);
+										$atim_drug_ids_to_link_to_treatment['Drug-'.$i] = getDrugId($excel_line_data[$key], $atim_drug_type, $excel_data_references);
 									}
 								}
 								$atim_drug_ids_to_link_to_treatment = array_filter($atim_drug_ids_to_link_to_treatment);
@@ -1452,7 +1450,7 @@ foreach($excel_files_names as $file_data) {
 						addUpdatedDataToSummary('Update Breast diagnostic Event to collection link(s)', array('collection_treatment_master_id' => 'Excel Diagnosis Event (treatment_master_id = '.$excel_collection_treatment_id.')'), "See all collections of following participant : $excel_data_references");
 					}				
 				} else {
-					recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "No collection exists. Breast Diagnostic Event to collection link won't be recorded. Please review data rpeviously imported.", "See $excel_data_references.");
+					recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "No collection exists. Breast Diagnostic Event to collection link won't be recorded. Please review data previously imported.", "See $excel_data_references.");
 				}
 			}
 		}
@@ -1539,7 +1537,7 @@ function addUpdatedDataToSummary($update_type, $updated_data, $excel_data_refere
 	}
 }
 
-function getDrugId($drug_name, $type) {
+function getDrugId($drug_name, $type, $excel_data_references) {
 	global $atim_drugs;
 	
 	if(!strlen($drug_name)) return null;
@@ -1548,12 +1546,14 @@ function getDrugId($drug_name, $type) {
 		//Get first drugs list from ATiM
 		$query = "SELECT id, generic_name, type FROM drugs WHERE deleted <> 1;";
 		foreach(getSelectQueryResult($query) as $new_record) {
-			$drug_key = getDrugKey($new_record['generic_name'], $new_record['type']);
+			$drug_key = getDrugKey($new_record['generic_name'], $new_record['type'], $excel_data_references);
 			$atim_drugs[$drug_key] = $new_record['id'];
 		}
 	}
-
-	$drug_key = getDrugKey($drug_name, $type);
+	
+	$drug_name = formatDrugName($drug_name, $type, $excel_data_references);
+	
+	$drug_key = getDrugKey($drug_name, $type, $excel_data_references);
 	if(array_key_exists($drug_key, $atim_drugs)) return $atim_drugs[$drug_key];
 
 	$drug_data = array('drugs' => array('generic_name' => $drug_name, 'type' =>$type));
@@ -1563,8 +1563,93 @@ function getDrugId($drug_name, $type) {
 	return $atim_drugs[$drug_key];
 }
 
-function getDrugKey($drug_name, $type) {
-	if(!in_array($type, array('bone specific', 'chemotherapy', 'immunotherapy', 'hormonal'))) die('ERR 237 7263726 drug type'.$type);
+function formatDrugName($xls_drug_name, $xls_drug_type, $excel_data_references) {
+	
+	$drug_matches = array(
+		"5-fluorouracil" => array("5-fluorouracil", "chemotherapy"),
+		"5-fluouracil" => array("5-fluorouracil", "chemotherapy"),
+		"fluorouracile" => array("5-fluorouracil", "chemotherapy"),
+		"fluouracile" => array("5-fluorouracil", "chemotherapy"),
+		"abemaciclib" => array("abemaciclib", "chemotherapy"),
+		"abraxane" => array("abraxane", "chemotherapy"),
+		"anastrozole" => array("anastrozole", "hormonal"),
+		"anastrozole" => array("anastrozole", "hormonal"),
+		"anatrozole" => array("anastrozole", "hormonal"),
+		"arimidex" => array("anastrozole", "hormonal"),
+		"arimidex + zoladex" => array("anastrozole+goserelin", "hormonal"),
+		"aredia" => array("aredia", "bone specific"),
+		"avastin" => array("Bevacizumab ", "chemotherapy"),
+		"bevacizumab" => array("Bevacizumab ", "chemotherapy"),
+		"capecitabine" => array("capecitabine", "chemotherapy"),
+		"xeloda" => array("capecitabine", "chemotherapy"),
+		"carboplatin" => array("carboplatin", "chemotherapy"),
+		"carboplatine" => array("carboplatin", "chemotherapy"),
+		"cyclophosphamide" => array("cyclophosphamide", "chemotherapy"),
+		"cyclophosphamide" => array("cyclophosphamide", "chemotherapy"),
+		"cyclphosphamide" => array("cyclophosphamide", "chemotherapy"),
+		"cylophosphamide" => array("cyclophosphamide", "chemotherapy"),
+		"denosumab" => array("denosumab", "bone specific"),
+		"denosumab" => array("denosumab", "bone specific"),
+		"denosumab ou placebo" => array("denosumab or placebo", "bone specific"),
+		"docetaxel" => array("docetaxel", "chemotherapy"),
+		"taxotere" => array("docetaxel", "chemotherapy"),
+		"taxotere" => array("docetaxel", "chemotherapy"),
+		"docetaxel + herceptin" => array("docetaxel + trastuzumab", "chemotherapy"),
+		"adramicin" => array("doxorubicin", "chemotherapy"),
+		"adriamcyin" => array("doxorubicin", "chemotherapy"),
+		"adriamcyin" => array("doxorubicin", "chemotherapy"),
+		"adriamycin" => array("doxorubicin", "chemotherapy"),
+		"adriamycine" => array("doxorubicin", "chemotherapy"),
+		"doxorubicin" => array("doxorubicin", "chemotherapy"),
+		"epirubicin" => array("epirubicin", "chemotherapy"),
+		"epirubicine" => array("epirubicin", "chemotherapy"),
+		"eribulin" => array("eribulin", "chemotherapy"),
+		"eribuline" => array("eribulin", "chemotherapy"),
+		"aromasin" => array("exemestane", "hormonal"),
+		"exemestane" => array("exemestane", "hormonal"),
+		"fulvestrant" => array("fulvestrant", "hormonal"),
+		"gemcitabine" => array("gemcitabine", "chemotherapy"),
+		"gosereline" => array("goserelin", "hormonal"),
+		"gosereline" => array("goserelin", "hormonal"),
+		"lapatinib" => array("lapatinib", "chemotherapy"),
+		"femara" => array("letrozole", "hormonal"),
+		"letrozole" => array("letrozole", "hormonal"),
+		"leuprolide" => array("leuprolide", "hormonal"),
+		"metformin vs placebo" => array("metformin vs placebo", "other"),
+		"methotrexate" => array("methotrexate", "chemotherapy"),
+		"paclitaxel" => array("paclitaxel", "chemotherapy"),
+		"taxol" => array("paclitaxel", "chemotherapy"),
+		"pamidronate" => array("pamidronate", "bone specific"),
+		"tamoxifen" => array("tamoxifen", "hormonal"),
+		"tamoxifen 3 mo" => array("tamoxifen", "hormonal"),
+		"herceptin" => array("trastuzumab", "immunotherapy"),
+		"herceptin" => array("trastuzumab", "immunotherapy"),
+		"trastuzumab" => array("trastuzumab", "immunotherapy"),
+		"triptorelin" => array("triptorelin", "hormonal"),
+		"vinorelbin" => array("vinorelbine", "chemotherapy"),
+		"vinorelbine" => array("vinorelbine", "chemotherapy"),
+		"acide zoledronique" => array("zoledronic acid", "bone specific"),
+		"zoledronic acid" => array("zoledronic acid", "bone specific"),
+		"zometa" => array("zoledronic acid", "bone specific"));
+	$xls_drug_name = strtolower($xls_drug_name);
+	
+	$drug_name = $xls_drug_name;
+	if(array_key_exists($xls_drug_name, $drug_matches)) {
+		list($atim_drug_name, $atim_drug_type) = $drug_matches[$xls_drug_name];
+		if($xls_drug_name != $atim_drug_name) {
+			recordErrorAndMessage('Drug', '@@MESSAGE@@', "Re-named Drug Name", "Replaced '$xls_drug_name' by '$atim_drug_name'. See $excel_data_references.");
+			$drug_name = $atim_drug_name;
+		}
+		if($atim_drug_type != $xls_drug_type) {
+			recordErrorAndMessage('Drug', '@@WARNING@@', "Drug Type Mis-Matche", "The excel $xls_drug_type drug '$xls_drug_name' is defined as a '$atim_drug_type' drug".($xls_drug_name != $atim_drug_name? " with name '$atim_drug_name'" : '')." into ATiM. The drug will be recorded as a $xls_drug_type drug with name '$atim_drug_name'. Please validate and correct data if required. See $excel_data_references.");	
+		}
+	}
+	
+	return ucfirst($drug_name);
+}
+
+function getDrugKey($drug_name, $type, $excel_data_references) {
+	if(!in_array($type, array('bone specific', 'chemotherapy', 'immunotherapy', 'hormonal', 'other'))) die('ERR 237 7263726 drug type'.$type." See $excel_data_references");
 	return strtolower($drug_name.'## ##'.$type);
 }
 	

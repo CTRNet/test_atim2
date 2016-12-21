@@ -24,7 +24,7 @@ class CollectionCustom extends Collection {
 	
 	function afterFind($results, $primary = false){
 		$results = parent::afterFind($results);
-	
+		
 		if(isset($results[0]['Collection'])) {
 			$ViewCollectionModel = null;
 			foreach($results as &$result) {

@@ -15,11 +15,11 @@ $migration_user_id = 1;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$files_path = "C:/_NicolasLuc/Server/www/qbcf/data/IN/specimen collection/";
+$files_path = "C:/_NicolasLuc/Server/www/qbcf/data/20161221/specimen collection/";
 //$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateClinicalData/data/";
 // Serial number $windows_xls_offset = 36526 & $mac_xls_offset = 35064;
 $excel_files_names = array(
-	array('161124_161020_collection_20161020_CHUM-MHUC-CHUQ_813patients.xls', $windows_xls_offset)
+	array('161124_161020_collection_20161020_CHUM-MHUC-CHUQ_813patients_VOedit.xls', $windows_xls_offset)
 );
 
 ?>
