@@ -4,7 +4,6 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	var $useTable = 'treatment_masters';
 	var $name = 'TreatmentMaster';
 	
-	
 	function validatesTreatmentToDiagnosisLink($treatment_master_data, $treatment_control_data){
 		
 		$submitted_data_validates = true;
@@ -21,6 +20,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 				case 'bone specific therapy':
 				case 'radiotherapy':
 				case 'breast diagnostic event':
+				case 'other (breast cancer systemic treatment)':
 					if($selected_dx['DiagnosisControl']['controls_type'] != 'breast') {
 						$this->validationErrors['diagnosis_master_id'][] = __('this treatment can not be linked to this type of diagnosis');
 						$submitted_data_validates = false;

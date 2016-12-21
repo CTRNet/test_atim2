@@ -26,3 +26,11 @@
 	$treatment_extend_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
 	$this->ViewCollection = AppModel::getInstance('InventoryManagement', 'ViewCollection', true);
 	
+	$health_status = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'health_status'), 'recursive' => 2));
+	$health_status_values = array();
+	if($health_status) {
+		foreach($health_status['StructurePermissibleValue'] as $new_value) {
+			$health_status_values[$new_value['value']] = __($new_value['language_alias']);
+		}
+	}
+	

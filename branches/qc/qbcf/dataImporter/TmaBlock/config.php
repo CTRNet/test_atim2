@@ -15,7 +15,7 @@ $migration_user_id = 1;
 
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
-$files_path = "C:/_NicolasLuc/Server/www/qbcf/data/IN/TMA/";
+$files_path = "C:/_NicolasLuc/Server/www/qbcf/data/20161221/TMA/";
 //$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateClinicalData/data/";
 // Serial number $windows_xls_offset = 36526 & $mac_xls_offset = 35064;
 $excel_files_names = array(
