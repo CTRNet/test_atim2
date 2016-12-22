@@ -1,19 +1,12 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
 	
-	function buildQbcfSummaryFromBlocks($parameters) {
-		return $this->buildQbcfSummary($parameters, 'tma_block');
-	}
-	
-	function buildQbcfSummaryFromAliquots($parameters) {
-		return $this->buildQbcfSummary($parameters, 'aliquot');
-	}
-
-	function buildQbcfSummary($parameters, $display_option = '') {
+	function buildQbcfSummary($parameters) {
 		
 		$conditions = array();
+		$participant_conditions_only = array();
+		$include_tma_core = false;
 		$warnings = array();	
-		$join_on_storage = 'LEFT JOIN';
 		
 		if(!isset($parameters['exact_search']) || $parameters['exact_search'] != 'no') {
 			$warnings[] = __('only exact search is supported');
@@ -23,8 +16,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		$user_bank_id = ($_SESSION['Auth']['User']['group_id'] == '1')? 
 			'all' :
-			(empty($_SESSION['Auth']['User']['Group']['bank_id'])? '-1' : $_SESSION['Auth']['User']['Group']['bank_id']);
-			
+			(empty($_SESSION['Auth']['User']['Group']['bank_id'])? '-1' : $_SESSION['Auth']['User']['Group']['bank_id']);			
 		$limit_to_bank = false;
 		
 		if(isset($parameters['Browser'])) {
@@ -32,20 +24,27 @@ class ReportsControllerCustom extends ReportsController {
 			// 0-REPORT LAUNCHED FROM DATA BROWSER
 				
 			if(isset($parameters['ViewStorageMaster']['id'])) {
-				$conditions[] = "StorageMaster.storage_control_id IN (SELECT id FROM storage_controls WHERE is_tma_block = '1' AND flag_active = '1')";
-			 	$join_on_storage = 'INNER JOIN';
+				$include_tma_core = true;
 				if(($parameters['ViewStorageMaster']['id'] != 'all')) {
 					$conditions[] = 'StorageMaster.id IN ('.implode(array_filter($parameters['ViewStorageMaster']['id']), ',').')' ;
+				}				
+			} else if(isset($parameters['TmaBlock']['id'])) {
+				$include_tma_core = true;
+				if(($parameters['TmaBlock']['id'] != 'all')) {
+					$conditions[] = 'StorageMaster.id IN ('.implode(array_filter($parameters['TmaBlock']['id']), ',').')' ;
 				}				
 			} else if(isset($parameters['Participant']['id'])) {
 				if(($parameters['Participant']['id'] != 'all')) {
 					$conditions[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
+					$participant_conditions_only[] = 'Participant.id IN ('.implode(array_filter($parameters['Participant']['id']), ',').')' ;
 				}
 			} else if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
+				$include_tma_core = true;
 				if(($parameters['ViewAliquot']['aliquot_master_id'] != 'all')) {
-					$conditions[] = 'AliquotMaster.id IN ('.implode(array_filter($parameters['ViewAliquot']['aliquot_master_id']), ',').')' ;
+					$conditions[] = 'ViewAliquot.aliquot_master_id IN ('.implode(array_filter($parameters['ViewAliquot']['aliquot_master_id']), ',').')' ;
 				}
 			} else {
+				pr($parameters);
 				die('ERR 9900303');
 			}
 			
@@ -54,11 +53,20 @@ class ReportsControllerCustom extends ReportsController {
 			// 1-BANKS
 			
 			$bank_ids = array();
-			if(isset($parameters['Participant']['qbcf_bank_id'])) $bank_ids = array_filter($parameters['Participant']['qbcf_bank_id']);
-			if(isset($parameters['ViewAliquot']['qbcf_bank_id'])) $bank_ids = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
-			if(!empty($bank_ids)) {
-				$conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
-				$limit_to_bank = true;
+			if(isset($parameters['Participant']['qbcf_bank_id'])) {
+				$bank_ids = array_filter($parameters['Participant']['qbcf_bank_id']);
+				if($bank_ids) {
+					$conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
+					$participant_conditions_only[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
+					$limit_to_bank = true;
+				}
+			} else if(isset($parameters['ViewAliquot']['qbcf_bank_id'])) {
+				$bank_ids = array_filter($parameters['ViewAliquot']['qbcf_bank_id']);
+				$include_tma_core = true;
+				if($bank_ids) {
+					$conditions[] = 'Participant.qbcf_bank_id IN ('."'".implode(str_replace("'", "''", $bank_ids), "','")."'".')';
+					$limit_to_bank = true;
+				}
 			}
 			
 			// 2-PARTICIPANT IDENTIFIERS
@@ -66,35 +74,43 @@ class ReportsControllerCustom extends ReportsController {
 			if(isset($parameters['Participant']['participant_identifier_start'])) {
 				if(strlen($parameters['Participant']['participant_identifier_start'])) {
 					$conditions[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
+					$participant_conditions_only[] = 'Participant.participant_identifier >= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_start'])."'";
 				}
 				if(strlen($parameters['Participant']['participant_identifier_end'])) {
 					$conditions[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
+					$participant_conditions_only[] = 'Participant.participant_identifier <= '."'".str_replace("'", "''", $parameters['Participant']['participant_identifier_end'])."'";
 				}
 			} else if(isset($parameters['Participant']['participant_identifier'])) {
 				$participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-				if($participant_identifiers) $conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+				if($participant_identifiers) {
+					$conditions[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+					$participant_conditions_only[] = 'Participant.participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+				}
 			}
 			
 			if(isset($parameters['Participant']['qbcf_bank_participant_identifier'])) {
 				$participant_identifiers = array_filter($parameters['Participant']['qbcf_bank_participant_identifier']);
 				if($participant_identifiers) {
 					$conditions[] = 'Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
+					$participant_conditions_only[] ='Participant.qbcf_bank_participant_identifier IN ('."'".implode(str_replace("'", "''", $participant_identifiers), "','")."'".')';
 					$limit_to_bank = true;
 				}
 			}
 			
 			// 3- ALIQUOTS
 			
+			if(isset($parameters['ViewAliquot'])) $include_tma_core = true;
+			
 			if(isset($parameters['ViewAliquot']['barcode_start'])) {
 				if(strlen($parameters['ViewAliquot']['barcode_start'])) {
-					$conditions[] = 'AliquotMaster.barcode >= '."'".str_replace("'", "''", $parameters['ViewAliquot']['barcode_start'])."'";
+					$conditions[] = 'ViewAliquot.barcode >= '."'".str_replace("'", "''", $parameters['ViewAliquot']['barcode_start'])."'";
 				}
 				if(strlen($parameters['ViewAliquot']['barcode_end'])) {
-					$conditions[] = 'AliquotMaster.barcode <= '."'".str_replace("'", "''", $parameters['ViewAliquot']['barcode_end'])."'";
+					$conditions[] = 'ViewAliquot.barcode <= '."'".str_replace("'", "''", $parameters['ViewAliquot']['barcode_end'])."'";
 				}
 			} else if(isset($parameters['ViewAliquot']['barcode'])) {
 				$barcodes = array_filter($parameters['ViewAliquot']['barcode']);
-				if($barcodes) $conditions[] = 'AliquotMaster.barcode IN ('."'".implode(str_replace("'", "''", $barcodes), "','")."'".')';
+				if($barcodes) $conditions[] = 'ViewAliquot.barcode IN ('."'".implode(str_replace("'", "''", $barcodes), "','")."'".')';
 			}
 			
 			if(isset($parameters['ViewAliquot']['qbcf_pathology_id'])) {
@@ -108,7 +124,7 @@ class ReportsControllerCustom extends ReportsController {
 			if(isset($parameters['ViewAliquot']['aliquot_label'])) {
 				$aliquot_labels = array_filter($parameters['ViewAliquot']['aliquot_label']);
 				if($aliquot_labels) {
-					$conditions[] = 'AliquotMaster.aliquot_label IN ('."'".implode(str_replace("'", "''", $aliquot_labels), "','")."'".')';
+					$conditions[] = 'ViewAliquot.aliquot_label IN ('."'".implode(str_replace("'", "''", $aliquot_labels), "','")."'".')';
 					$limit_to_bank = true;
 				}
 			}
@@ -116,28 +132,27 @@ class ReportsControllerCustom extends ReportsController {
 			if(isset($parameters['ViewAliquot']['selection_label'])) {
 				$selection_labels = array_filter($parameters['ViewAliquot']['selection_label']);
 				if($selection_labels) $conditions[] = 'StorageMaster.selection_label IN ('."'".implode(str_replace("'", "''", $selection_labels), "','")."'".')';
-				$join_on_storage = 'INNER JOIN';
 			}
 			
 			// 2-STORAGE
 			
 			if(isset($parameters['TmaBlock'])) {
-				$conditions[] = "StorageMaster.storage_control_id IN (SELECT id FROM storage_controls WHERE is_tma_block = '1' AND flag_active = '1')";
-				$join_on_storage = 'INNER JOIN';
+				$include_tma_core = true;
 				foreach($parameters['TmaBlock'] as $field => $new_field_criteria) {
 					$tmp_criteria = array_filter($new_field_criteria);
-					if($tmp_criteria) $conditions[] = 'StorageMaster.$field IN ('."'".implode(str_replace("'", "''", $tmp_criteria), "','")."'".')';
+					if($tmp_criteria) $conditions[] = "StorageMaster.$field IN ("."'".implode(str_replace("'", "''", $tmp_criteria), "','")."'".')';
 				}
 			}
 			
 		}
 	
-		$conditions_str = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
-		
 		if($limit_to_bank && $user_bank_id != 'all') {
-			$conditions[] = "Participant.qbcf_bank_id = '$user_bank_id'";
-			$warnings[] = _('your search will be limited to your bank');
+			$conditions[] = "Participant.qbcf_bank_id = $user_bank_id";
+			if($participant_conditions_only) $participant_conditions_only[] = "Participant.qbcf_bank_id = $user_bank_id";
+			$warnings[] = __('your search will be limited to your bank');
 		}
+		
+		$conditions_str = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
 		
 		// *********** Get Control Data & all ***********
 		
@@ -171,71 +186,123 @@ class ReportsControllerCustom extends ReportsController {
 		
 		// *********** Get Participant & Diagnosis & Fst Bcr & TMA data ***********
 
+		$sql_participant_fields = "Participant.id,
+			Participant.participant_identifier,
+			Participant.qbcf_bank_id,
+			Participant.vital_status,
+			Participant.qbcf_bank_participant_identifier,
+			Participant.qbcf_study_exclusion,
+			Participant.qbcf_breast_cancer_fam_hist,
+			Participant.qbcf_ovarian_cancer_fam_hist,
+			Participant.qbcf_other_cancer_fam_hist,
+			Participant.qbcf_breast_cancer_previous_hist,
+			Participant.qbcf_gravida,
+			Participant.qbcf_gravidaplus_integer_unknown,
+			Participant.qbcf_para,
+			Participant.qbcf_paraplus_integer_unknown,
+			Participant.qbcf_aborta,
+			Participant.qbcf_abortaplus_integer_unknown,
+			Participant.qbcf_menopause";
+		$sql_treatment_fields = "TreatmentMaster.id,
+			TreatmentMaster.diagnosis_master_id,
+			TreatmentMaster.start_date,
+			TreatmentMaster.start_date_accuracy,
+			TreatmentDetail.age_at_dx,
+			TreatmentDetail.type_of_intervention,
+			TreatmentDetail.laterality,
+			TreatmentDetail.path_stage_summary,
+			TreatmentDetail.path_tstage,
+			TreatmentDetail.path_nstage,
+			TreatmentDetail.path_mstage,
+			TreatmentDetail.morphology,
+			TreatmentDetail.grade_notthingham_sbr_ee,
+			TreatmentDetail.tumor_size,
+			TreatmentDetail.margin_status,
+			TreatmentDetail.number_of_positive_regional_ln,
+			TreatmentDetail.number_of_positive_regional_ln_integer_unknown,
+			TreatmentDetail.total_number_of_regional_ln_analysed,
+			TreatmentDetail.total_number_of_regional_ln_analysed_integer_unknown,
+			TreatmentDetail.number_of_positive_regional_ln_category,
+			TreatmentDetail.number_of_positive_sentinel_ln,
+			TreatmentDetail.number_of_positive_sentinel_ln_integer_unknown,
+			TreatmentDetail.total_number_of_sentinel_ln_analysed,
+			TreatmentDetail.total_number_of_sentinel_ln_analysed_integer_unknown,
+			TreatmentDetail.er_overall,
+			TreatmentDetail.pr_overall,
+			TreatmentDetail.her2_ihc,
+			TreatmentDetail.her2_fish,
+			TreatmentDetail.her_2_status,
+			TreatmentDetail.tnbc,
+			TreatmentDetail.time_to_last_contact_months,
+			TreatmentDetail.time_to_first_progression_months,
+			TreatmentDetail.time_to_next_breast_dx_event_months";
+		$sql_core_fields = "ViewAliquot.aliquot_master_id,
+			ViewAliquot.sample_master_id,
+			ViewAliquot.collection_id,
+			ViewAliquot.qbcf_pathology_id,
+			ViewAliquot.aliquot_type,
+			ViewAliquot.barcode,
+			ViewAliquot.aliquot_label,
+			ViewAliquot.selection_label,
+			ViewAliquot.storage_coord_x,
+			ViewAliquot.storage_coord_y";
+		
+		$join_on_storage = "INNER JOIN storage_masters AS StorageMaster ON ViewAliquot.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 AND StorageMaster.storage_control_id IN (SELECT id FROM storage_controls WHERE is_tma_block = '1' AND flag_active = '1')";
+		
 		$sql =
 			"SELECT DISTINCT
-				Participant.id,
-				Participant.participant_identifier,
-				Participant.qbcf_bank_id,
-				Participant.vital_status,
-				Participant.qbcf_bank_participant_identifier,
-				Participant.qbcf_study_exclusion,
-				Participant.qbcf_breast_cancer_fam_hist,
-				Participant.qbcf_ovarian_cancer_fam_hist,
-				Participant.qbcf_other_cancer_fam_hist,
-				Participant.qbcf_breast_cancer_previous_hist,
-				Participant.qbcf_gravida,
-				Participant.qbcf_gravidaplus_integer_unknown,
-				Participant.qbcf_para,
-				Participant.qbcf_paraplus_integer_unknown,
-				Participant.qbcf_aborta,
-				Participant.qbcf_abortaplus_integer_unknown,
-				Participant.qbcf_menopause,
-				
-				TreatmentMaster.id,
-				TreatmentMaster.diagnosis_master_id,
-				TreatmentMaster.start_date,
-				TreatmentMaster.start_date_accuracy,
-				TreatmentDetail.age_at_dx,
-				TreatmentDetail.type_of_intervention,
-				TreatmentDetail.laterality,
-				TreatmentDetail.path_stage_summary,
-				TreatmentDetail.path_tstage,
-				TreatmentDetail.path_nstage,
-				TreatmentDetail.path_mstage,
-				TreatmentDetail.morphology,
-				TreatmentDetail.grade_notthingham_sbr_ee,
-				TreatmentDetail.tumor_size,
-				TreatmentDetail.margin_status,
-				TreatmentDetail.number_of_positive_regional_ln,
-				TreatmentDetail.number_of_positive_regional_ln_integer_unknown,
-				TreatmentDetail.total_number_of_regional_ln_analysed,
-				TreatmentDetail.total_number_of_regional_ln_analysed_integer_unknown,
-				TreatmentDetail.number_of_positive_regional_ln_category,
-				TreatmentDetail.number_of_positive_sentinel_ln,
-				TreatmentDetail.number_of_positive_sentinel_ln_integer_unknown,
-				TreatmentDetail.total_number_of_sentinel_ln_analysed,
-				TreatmentDetail.total_number_of_sentinel_ln_analysed_integer_unknown,
-				TreatmentDetail.er_overall,
-				TreatmentDetail.pr_overall,
-				TreatmentDetail.her2_ihc,
-				TreatmentDetail.her2_fish,
-				TreatmentDetail.her_2_status,
-				TreatmentDetail.tnbc,
-				TreatmentDetail.time_to_last_contact_months,
-				TreatmentDetail.time_to_first_progression_months,
-				TreatmentDetail.time_to_next_breast_dx_event_months				
-				
+				$sql_participant_fields,
+				$sql_treatment_fields
+				".($include_tma_core? ",$sql_core_fields" : "")."
 				FROM participants AS Participant
 				INNER JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']." AND TreatmentMaster.deleted <> 1
 				INNER JOIN ".$tx_controls['breast diagnostic event']['detail_tablename']." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 				INNER JOIN collections AS Collection ON Collection.participant_id = Participant.id AND Collection.treatment_master_id = TreatmentMaster.id AND Collection.deleted <> 1
-				INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1
-				$join_on_storage storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1
-				
-				WHERE Participant.deleted <> 1 AND ($conditions_str)
-				ORDER BY Participant.qbcf_bank_id ASC, Participant.qbcf_bank_participant_identifier ASC, StorageMaster.selection_label ASC, AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC;";
-		
+				INNER JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id
+				".($include_tma_core? "$join_on_storage" : "")."
+				WHERE Participant.deleted <> 1 
+				AND ($conditions_str)
+				ORDER BY ".
+				($include_tma_core? 
+					"StorageMaster.selection_label ASC, ViewAliquot.storage_coord_x ASC, ViewAliquot.storage_coord_y ASC":
+					"Participant.qbcf_bank_id ASC, Participant.qbcf_bank_participant_identifier ASC");
 		$main_results = $this->Report->tryCatchQuery($sql);
+		
+		if($participant_conditions_only) {
+			//Look for participants matching the participant criteria but not linked to a breast diagnosis event and/or an aliquot
+			$main_result_participant_ids = '-1';
+			if($main_results) {
+				$main_result_participant_ids = $this->Report->tryCatchQuery("SELECT GROUP_CONCAT(DISTINCT Participant.id SEPARATOR ',') AS participant_ids ".substr($sql, strpos($sql, 'FROM participants AS Participant'), (strpos($sql, 'ORDER BY') - strpos($sql, 'FROM participants AS Participant'))));
+				$main_result_participant_ids = $main_result_participant_ids[0][0]['participant_ids'];
+			}
+			$sql_for_unlinked =
+				"SELECT DISTINCT
+					$sql_participant_fields
+					FROM participants AS Participant
+					WHERE Participant.deleted <> 1 
+					AND (".implode($participant_conditions_only, ' AND ').")
+					AND Participant.id NOT IN ($main_result_participant_ids)
+					ORDER BY Participant.qbcf_bank_id ASC, Participant.qbcf_bank_participant_identifier ASC;";
+			$result_for_unlinked = $this->Report->tryCatchQuery($sql_for_unlinked);
+			if($result_for_unlinked) {
+				$tx_empty_array = array();
+				foreach(explode(',', preg_replace("/[\n\r\s\s+]/","",$sql_treatment_fields)) as $new_field) {
+					list($model, $field) = explode('.', $new_field);
+					$tx_empty_array[$model][$field] = 'n/a';
+				}
+				foreach($result_for_unlinked as $new_participant) {
+					$main_results[] =$new_participant+$tx_empty_array;
+				}
+			}
+		}
+		
+		if(sizeof($main_results) > Configure::read('databrowser_and_report_results_display_limit')) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => __('the report contains too many results - please redefine search criteria')." [> ".sizeof($main_results)." ".__('lines').']');
+		}
 		foreach($main_results as &$new_participant) {
 			// ** 1 ** Set confidential data
 			
@@ -243,40 +310,46 @@ class ReportsControllerCustom extends ReportsController {
 			if($confidential_record) {
 				$new_participant['Participant']['qbcf_bank_id'] = CONFIDENTIAL_MARKER;
 				$new_participant['Participant']['qbcf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+				if(isset($new_participant['ViewAliquot'])) {
+					$new_participant['ViewAliquot']['qbcf_pathology_id'] = CONFIDENTIAL_MARKER;
+					$new_participant['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER;
+				}			
 			}
 			
 			if($new_participant['TreatmentMaster']['start_date_accuracy'] != 'y') $new_participant['TreatmentMaster']['start_date_accuracy'] = 'm';
 			
+			$empty_value = $new_participant['TreatmentMaster']['id'] != 'n/a'? '' : 'n/a';
+			
 			// ** 2 ** Pre/Post Breast Diagnosis Event
 			
 			$new_participant['GeneratedQbcfPreBrDxEv'] = array(
-				'event_to_collection_months' => '',
-				'type_of_intervention' => '',
-				'laterality' => '',
-				'clinical_stage_summary' => '',
-				'clinical_tstage' => '',
-				'clinical_nstage' => '',
-				'clinical_mstage' => '',
-				'morphology' => '',
-				'grade_notthingham_sbr_ee' => '',
-				'er_overall' => '',
-				'pr_overall' => '',
-				'pr_percent' => '',
-				'her2_ihc' => '',
-				'her2_fish' => '',
-				'her_2_status' => '',
-				'tnbc' => '');
+				'event_to_collection_months' => $empty_value,
+				'type_of_intervention' => $empty_value,
+				'laterality' => $empty_value,
+				'clinical_stage_summary' => $empty_value,
+				'clinical_tstage' => $empty_value,
+				'clinical_nstage' => $empty_value,
+				'clinical_mstage' => $empty_value,
+				'morphology' => $empty_value,
+				'grade_notthingham_sbr_ee' => $empty_value,
+				'er_overall' => $empty_value,
+				'pr_overall' => $empty_value,
+				'pr_percent' => $empty_value,
+				'her2_ihc' => $empty_value,
+				'her2_fish' => $empty_value,
+				'her_2_status' => $empty_value,
+				'tnbc' => $empty_value);
 			$new_participant['GeneratedQbcfPostBrDxEv'] = array(			
-				'collection_to_event_months' => '',
-				'type_of_post_breast_dx_event' => '',
-				'type_of_post_breast_dx_event_detail' => '',
-				'type_of_intervention' => '',
-				'laterality' => '',
-				'morphology' => '',
-				'er_overall' => '',
-				'pr_overall' => '',
-				'her_2_status' => '');
-			if($new_participant['TreatmentMaster']['start_date']) {
+				'collection_to_event_months' => $empty_value,
+				'type_of_post_breast_dx_event' => $empty_value,
+				'type_of_post_breast_dx_event_detail' => $empty_value,
+				'type_of_intervention' => $empty_value,
+				'laterality' => $empty_value,
+				'morphology' => $empty_value,
+				'er_overall' => $empty_value,
+				'pr_overall' => $empty_value,
+				'her_2_status' => $empty_value);
+			if($new_participant['TreatmentMaster']['id'] != 'n/a' && $new_participant['TreatmentMaster']['start_date']) {
 				$sql =
 					"SELECT DISTINCT
 						GeneratedQbcfPreBrDxEvMaster.start_date,
@@ -360,31 +433,31 @@ class ReportsControllerCustom extends ReportsController {
 			// ** 3 ** Treatment
 			
 			$new_participant['GeneratedQbcfBxTx'] = array(
-				'pre_collection_chemotherapy' => '',
-				'pre_collection_hormonotherapy' => '',
-				'pre_collection_immunotherapy' => '',
-				'pre_collection_bone_specific_therapy' => '',
-				'pre_collection_other_systemic_treatment' => '',
-				'pre_collection_radiotherapy' => '',
-				'adjuvant_chemotherapy' => '',
-				'adjuvant_hormonotherapy' => '',
-				'adjuvant_immunotherapy' => '',
-				'adjuvant_bone_specific_therapy' => '',
-				'adjuvant_other_systemic_treatment' => '',
-				'adjuvant_radiotherapy' => '',
-				'adjuvant_chemotherapy_detail' => '',
-				'adjuvant_hormonotherapy_detail' => '',
-				'adjuvant_immunotherapy_detail' => '',
-				'adjuvant_bone_specific_therapy_detail' => '',
-				'adjuvant_other_systemic_treatment_detail' => '',
-				'adjuvant_radiotherapy_detail' => '',
-				'post_collection_chemotherapy' => '',
-				'post_collection_hormonotherapy' => '',
-				'post_collection_immunotherapy' => '',
-				'post_collection_bone_specific_therapy' => '',
-				'post_collection_other_systemic_treatment' => '',
-				'post_collection_radiotherapy' => '');
-			if($new_participant['TreatmentMaster']['start_date']) {
+				'pre_collection_chemotherapy' => $empty_value,
+				'pre_collection_hormonotherapy' => $empty_value,
+				'pre_collection_immunotherapy' => $empty_value,
+				'pre_collection_bone_specific_therapy' => $empty_value,
+				'pre_collection_other_systemic_treatment' => $empty_value,
+				'pre_collection_radiotherapy' => $empty_value,
+				'adjuvant_chemotherapy' => $empty_value,
+				'adjuvant_hormonotherapy' => $empty_value,
+				'adjuvant_immunotherapy' => $empty_value,
+				'adjuvant_bone_specific_therapy' => $empty_value,
+				'adjuvant_other_systemic_treatment' => $empty_value,
+				'adjuvant_radiotherapy' => $empty_value,
+				'adjuvant_chemotherapy_detail' => $empty_value,
+				'adjuvant_hormonotherapy_detail' => $empty_value,
+				'adjuvant_immunotherapy_detail' => $empty_value,
+				'adjuvant_bone_specific_therapy_detail' => $empty_value,
+				'adjuvant_other_systemic_treatment_detail' => $empty_value,
+				'adjuvant_radiotherapy_detail' => $empty_value,
+				'post_collection_chemotherapy' => $empty_value,
+				'post_collection_hormonotherapy' => $empty_value,
+				'post_collection_immunotherapy' => $empty_value,
+				'post_collection_bone_specific_therapy' => $empty_value,
+				'post_collection_other_systemic_treatment' => $empty_value,
+				'post_collection_radiotherapy' => $empty_value);
+			if($new_participant['TreatmentMaster']['id'] != 'n/a' && $new_participant['TreatmentMaster']['start_date']) {
 				//Pre
 				$control_ids = array(
 					$tx_controls['chemotherapy']['id'],
@@ -534,10 +607,10 @@ class ReportsControllerCustom extends ReportsController {
 			// ** 4 ** Breast Progression
 			
 			$new_participant['GeneratedQbcfBrDxProg'] = array(
-				'first_progression' => '',
-				'collection_to_first_progression_months' => '',
-				'other_progressions' => array());
-			if($new_participant['TreatmentMaster']['start_date']) {
+				'first_progression' => $empty_value,
+				'collection_to_first_progression_months' => $empty_value,
+				'other_progressions' => array($empty_value));
+			if($new_participant['TreatmentMaster']['id'] != 'n/a' && $new_participant['TreatmentMaster']['start_date']) {
 				$sql =
 					"SELECT DiagnosisMaster.dx_date, DiagnosisDetail.site
 						FROM diagnosis_masters DiagnosisMaster
