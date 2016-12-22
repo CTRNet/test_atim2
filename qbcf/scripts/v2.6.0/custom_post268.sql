@@ -1699,11 +1699,11 @@ INSERT INTO i18n (id,en) VALUES ('study exclusion', 'Study Exclusion');
 INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, 
 `associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) 
 VALUES
-(null, 'QBCF Summary - From TMA Blocks', 'QBCF summary from TMA blocks', 'qbcf_summary_parameters_from_blocks', 'qbcf_summary_results,qbcf_summary_aliquots', 'index', 'buildQbcfSummaryFromBlocks', 1, 
+(null, 'QBCF Summary - From TMA Blocks', 'QBCF summary from TMA blocks', 'qbcf_summary_parameters_from_blocks', 'qbcf_summary_results,qbcf_summary_aliquots', 'index', 'buildQbcfSummary', 1, 
 (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 0),
-(null, 'QBCF Summary - From Participants', 'QBCF summary from Participants', 'qbcf_summary_parameters_from_participants', 'qbcf_summary_results,qbcf_summary_aliquots', 'index', 'buildQbcfSummary', 1, 
+(null, 'QBCF Summary - From Participants', 'QBCF summary from Participants', 'qbcf_summary_parameters_from_participants', 'qbcf_summary_results', 'index', 'buildQbcfSummary', 1, 
 (SELECT id FROM datamart_structures WHERE model = 'Participant'), 0),
-(null, 'QBCF Summary - From Aliquots', 'QBCF summary from Aliquots', 'qbcf_summary_parameters_from_aliquots', 'qbcf_summary_results', 'index', 'buildQbcfSummaryFromAliquots', 1, 
+(null, 'QBCF Summary - From Aliquots', 'QBCF summary from Aliquots', 'qbcf_summary_parameters_from_aliquots,qbcf_summary_aliquots', 'qbcf_summary_results', 'index', 'buildQbcfSummary', 1, 
 (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 0);
 INSERT INTO datamart_structure_functions 
 (id, datamart_structure_id, label, link, flag_active)
@@ -1910,13 +1910,14 @@ VALUES
 ('breast progression diagnosis (distant)', 'Breast Progression (Distant)'),
 ('other tumors','Other Tumors'),
 ('sites', 'Sites'),
+('only exact search is supported', 'Only exact search is supported'),
 ('your search will be limited to your bank', 'Your search will be limited to your bank'),
 ('QBCF Summary', 'QBCF Summary'), 
 ('QBCF Summary - From TMA Blocks', 'QBCF Summary (TMA)'), 
 ('QBCF Summary - From Participants', 'QBCF Summary (Participant)'), 
-('QBCF Summary - From Aliquots', 'QBCF Summary (Aliquot)'), 
+('QBCF Summary - From Aliquots', 'QBCF Summary (TMA Block Cores)'), 
 ('QBCF summary from TMA blocks', 'Build the QBCF summary from a list of TMA blocks'),
-('QBCF summary from Aliquots', 'Build the QBCF summary from a list of aliquots'),
+('QBCF summary from Aliquots', 'Build the QBCF summary from a list of TMA block cores'),
 ('QBCF summary from Participants', 'Build the QBCF summary from a list of participants'),
 ('tissue breast diagnosis event', 'Tissue Breast Diagnosis Event'),
 ('pre tissue breast diagnosis event', 'Breast Diagnosis Event (Pre)'),
@@ -2018,7 +2019,6 @@ INSERT INTO collections_revs (`qbcf_pathology_id`, `collection_property`, `modif
 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='study / project' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
 UPDATE datamart_browsing_controls
 SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
@@ -2045,43 +2045,20 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qbcf_pathology_id' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qbcf_pathology_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='ViewCollection' AND `tablename`='' AND `field`='collection_datetime' AND `language_label`='collection datetime' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='inv_collection_datetime_defintion' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_summary_parameters_from_aliquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='StorageLayout' AND `model`='ViewAliquot' AND `tablename`='' AND `field`='selection_label' AND `language_label`='storage' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='stor_selection_label_defintion' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
+INSERT INTO structures(`alias`) VALUES ('qbcf_summary_aliquots');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_summary_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='qbcf_pathology_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,class=file' AND `default`='' AND `language_help`='' AND `language_label`='pathology id' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'size=30,class=range file', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='class=file' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', 'TMA core', '0', '1', 'tma block', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '2', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_aliquots'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=11' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT IGNORE INTO i18n (id,en) VALUES ('TMA core', 'TMA Core');
 
 -- --------------------------------------------------------------------------------------------
-
-
-
-
-
-Finir les rapports
-
-
-TO DO
-
-ne pas afficher le code du tissue d'un controle dans TMA layout car cest le patho number
-
-
-
-
 
 mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.0_full_installation.sql
 mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.1_upgrade.sql

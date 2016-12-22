@@ -179,7 +179,7 @@ foreach($excel_files_names as $file_data) {
 										"sample_control_id" => $atim_controls['sample_controls']['tissue']['id'],
 										"initial_specimen_sample_type" => 'tissue',
 										"collection_id" => $collection_id,
-										'qbcf_is_tma_sample_control' => '1',
+										'qbcf_is_tma_sample_control' => 'y',
 										'qbcf_tma_sample_control_code' => $patho_id),
 									'specimen_details' => array(),
 									$tissue_sample_detail_tablename => array(
