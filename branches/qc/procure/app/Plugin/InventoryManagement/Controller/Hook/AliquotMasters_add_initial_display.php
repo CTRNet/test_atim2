@@ -51,7 +51,7 @@
 					switch($sample_data['SampleDetail']['blood_type']) {
 						case 'paxgene':
 							$barcode_suffix = '-RNB';
-							$default_volume = '9.0';
+							$default_volume = '2.5';
 							break;
 						default:
 							$barcode_suffix = '-?';
@@ -60,7 +60,7 @@
 					break;
 				case 'serum-tube':
 					$default_hemolysis_signs = 'n';
-					$default_volume = '1.5';
+					$default_volume = '1.8';
 					$barcode_suffix = '-SER';
 					break;
 				case 'plasma-tube':

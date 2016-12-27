@@ -8,6 +8,9 @@
 		case 'laboratory':
 			$override_data['EventDetail.biochemical_relapse'] = 'n';
 			break;
+		case 'visit/contact':
+			$override_data['EventDetail.refusing_treatments'] = 'n';
+			break;
 	}
 	$this->set('override_data', $override_data);
 	
@@ -15,7 +18,7 @@
 	$this->EventMaster->setEventTypeForDataEntryValidation($event_control_data['EventControl']['event_type']);
 	
 	//Set data for visit data entry worklfow
-	if (empty($this->request->data)) $this->Participant->setNextUrlToFlashForVisitDataEntry($participant_id, 'EventControl', $event_control_data['EventControl']);
+	if (empty($this->request->data)) $this->Participant->setNextUrlToFlashForVisitDataEntry($participant_id, 'EventControl', $event_control_data['EventControl'], $this->passedArgs);
 	$next_url_to_flash_for_visit_data_entry = $this->Participant->getNextUrlToFlashForVisitDataEntry();
 	$this->set('next_url_to_flash_for_visit_data_entry', $next_url_to_flash_for_visit_data_entry);	
 	

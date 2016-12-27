@@ -70,9 +70,10 @@ class ParticipantCustom extends Participant {
 		$add_links = array();
 		
 		if(Configure::read('procure_atim_version') == 'BANK') {
-			$add_links = array(__('collection') => array(
-				'link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 
-				'icon' => 'collection'));
+			$add_links['add collection'] = array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection');
+			$add_links['update clinical record'] = false;
+			
+			$add_links['add procure clinical information'] = array();
 			//Consent
 			$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
 			$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
@@ -83,7 +84,7 @@ class ParticipantCustom extends Participant {
 					'icon' => 'consents');
 			}
 			ksort($add_links_tmp);
-			$add_links = array_merge($add_links, $add_links_tmp);
+			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
 			//Event
 			$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
 			$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
@@ -92,9 +93,13 @@ class ParticipantCustom extends Participant {
 				$add_links_tmp[__($event_ctrl['EventControl']['event_type'])] = array(
 					'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 
 					'icon' => 'annotation');
+				if($event_ctrl['EventControl']['event_type'] == 'visit/contact')
+					$add_links['update clinical record'] = array(
+						'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/launch_clinical_record_completion', 
+						'icon' => 'duplicate');
 			}
 			ksort($add_links_tmp);
-			$add_links = array_merge($add_links, $add_links_tmp);	
+			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);	
 			//Treatment
 			$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 			$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
@@ -105,25 +110,26 @@ class ParticipantCustom extends Participant {
 					'icon' => 'treatments');
 			}
 			ksort($add_links_tmp);
-			$add_links = array_merge($add_links, $add_links_tmp);
+			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
 		}
 		
 		return $add_links;
 	}
 	
-	function setNextUrlToFlashForVisitDataEntry($participant_id, $current_control_model, $current_control_data) {
+	function setNextUrlToFlashForVisitDataEntry($participant_id, $current_control_model, $current_control_data, $passed_args) {
 		$visit_data_entry_workflow_steps = array(
 			array('EventControl', 'event_type', 'visit/contact'),
+			array('TreatmentControl', 'tx_method', 'treatment'),
 			array('EventControl', 'event_type', 'laboratory'),
 			array('EventControl', 'event_type', 'clinical exam'),
 			array('EventControl', 'event_type', 'clinical note'),
-			array('TreatmentControl', 'tx_method', 'treatment'),
 			array('EventControl', 'event_type', 'other tumor diagnosis')
 		);
 		
 		$first_step_key = 0;
 		if($current_control_model == $visit_data_entry_workflow_steps[$first_step_key][0] 
-		&& $current_control_data[$visit_data_entry_workflow_steps[$first_step_key][1]] == $visit_data_entry_workflow_steps[$first_step_key][2]) {
+		&& $current_control_data[$visit_data_entry_workflow_steps[$first_step_key][1]] == $visit_data_entry_workflow_steps[$first_step_key][2]
+		&& in_array('launch_clinical_record_completion', $passed_args)) {
 			//First step detected: initiate workflow setting the next step url	
 			$next_step_key = 1;
 			$next_step_workflow_data = $visit_data_entry_workflow_steps[$next_step_key];
@@ -133,6 +139,7 @@ class ParticipantCustom extends Participant {
 			$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry'] = array(
 				'previous_url' => "/ClinicalAnnotation/".str_replace('Control', 'Masters', $current_control_model)."/add/$participant_id/".$current_control_data['id'],
 				'next_url' => "/ClinicalAnnotation/".str_replace('Control', 'Masters', $next_step_control_model)."/add/$participant_id/".$next_step_control_data[$next_step_control_model]['id'],
+				'next_url_title' => $next_step_control_type,				
 				'step_key' => $next_step_key);
 		} else {
 			if(isset($_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry'])) {
@@ -154,9 +161,11 @@ class ParticipantCustom extends Participant {
 						$NextStepControlModel = AppModel::getInstance("ClinicalAnnotation", $next_step_control_model, true);
 						$next_step_control_data = $NextStepControlModel->find('first', array('conditions' => array("$next_step_control_model.$next_step_control_type_field" => $next_step_control_type)));
 						$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'] = "/ClinicalAnnotation/".str_replace('Control', 'Masters', $next_step_control_model)."/add/$participant_id/".$next_step_control_data[$next_step_control_model]['id'];
+						$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url_title'] = $next_step_control_type;			
 					} else if($next_step_key == sizeof($visit_data_entry_workflow_steps)) {
 						//End of the workflow
-						$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'] = "/ClinicalAnnotation/Participants/edit/$participant_id";
+						$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'] = "/ClinicalAnnotation/Participants/edit/$participant_id/end_of_clinical_record_update";
+						$_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url_title'] = 'profile';
 					} else {
 						unset($_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']);
 					}
@@ -174,8 +183,8 @@ class ParticipantCustom extends Participant {
 			$current_user_log = $UserLog->find('first', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id']), 'order' => array('UserLog.id DESC'), 'limit' => '2'));
 			$current_user_log = $current_user_log['UserLog']['url'];
 			if(strpos($current_user_log, $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['previous_url']) !== false) {
-				AppController::addWarningMsg(__('visit data entry step'));
-				return $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'];
+				AppController::addWarningMsg(__('clinical record update step'));
+				return array('next_url' => $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url'], 'next_url_title' => $_SESSION['PROCURE.NextUrlToFlashForVisitDataEntry']['next_url_title']);
 			}
 		}
 		return '';

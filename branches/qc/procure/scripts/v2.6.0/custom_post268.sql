@@ -1472,6 +1472,8 @@ WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN 
 UPDATE aliquot_masters_revs
 SET aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube')
 WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube');
+UPDATE sample_masters SET parent_sample_type = 'buffy coat' WHERE parent_sample_type = 'pbmc';
+UPDATE sample_masters_revs SET parent_sample_type = 'buffy coat' WHERE parent_sample_type = 'pbmc';
 
 REPLACE INTO i18n (id,en,fr)
 VALUES
@@ -1643,7 +1645,7 @@ ALTER TABLE sd_der_urine_cents_revs
 		CHANGE procure_aspect_after_centrifugation procure_deprecated_field_aspect_after_centrifugation varchar(50),
 		CHANGE procure_other_aspect_after_centrifugation procure_deprecated_field_other_aspect_after_centrifugation varchar(250);
 
- Aliquot
+-- Aliquot
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 REPLACE INTO i18n (id,en,fr) VALUES ('initial storage date', 'Storage Date', 'Date d''entreposage');
@@ -1714,6 +1716,49 @@ UPDATE aliquot_controls SET aliquot_type = 'cup' WHERE sample_control_id = (sele
 UPDATE aliquot_controls AL, sample_controls SC SET AL.databrowser_label = CONCAT(sample_type, '|', aliquot_type) WHERE sample_control_id = SC.id;
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- New Request : 2016-12-22
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('clinical record update step', 'Clinical Record Update Step', 'Étape de mise à jour du dossier clinique'),
+('update clinical record', 'Update Clinical Record', 'Mettre à jour dossier clinique'),
+('skip go to %s', 'Skip - Go To %s', 'Passer - Prochaien étape : %s'),
+('add procure clinical information', 'Add Specific Information', 'Ajouter information spécifique');
+
+UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_treatments' AND `field`='surgery_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_surgery_type') AND `flag_confidential`='0');
+UPDATE structure_fields SET  `setting`='size=6' WHERE model='TreatmentDetail' AND tablename='procure_txd_treatments' AND field='dosage' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='size=6' WHERE model='TreatmentDetail' AND tablename='procure_txd_treatments' AND field='duration' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantMessages/%';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Participant Message Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('next visit' ,'Next Visit', 'Prochaine Visite', '1', @control_id);
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantMessage') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_structure_functions SET flag_active = 1 WHERE label = 'create participant message (applied to all)';
+
+UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'ad_der_cell_tubes_incl_ml_vol', 'ad_der_tubes_incl_ml_vol') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat');
+
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_pbmc_tube') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc');
+INSERT INTO structures(`alias`) VALUES ('procure_pbmc_tube');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_time_at_minus_80_hr', 'integer_positive',  NULL , '0', 'size=3', '', '', 'time at -80 (hr)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_pbmc_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_time_at_minus_80_hr'), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE ad_tubes ADD COLUMN procure_time_at_minus_80_hr int(5) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs ADD COLUMN procure_time_at_minus_80_hr int(5) DEFAULT NULL;
+INSERT INTO i18n (id,en,fr) VALUES ('time at -80 (hr)', 'time at -80c (hr)', 'Temps à -80c (hr)');
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES 
+('photocopy of drugs for other diseases',
+'A photocopy of this list is atached to the patient worksheet',
+'Une copie de cette liste est jointe à la fiche du patient');
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Report
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1728,6 +1773,7 @@ REPLACE INTO i18n (id,en,fr) VALUES ('list all identifiers of selected participa
 UPDATE datamart_reports SET flag_active = 0 WHERE name = 'procure aliquots summary';
 
 -- PROCURE - Aliquots Transfer File Creation
+-- And be able to load data
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='short_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '20', '', '0', '1', 'storage', '0', '', '1', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 

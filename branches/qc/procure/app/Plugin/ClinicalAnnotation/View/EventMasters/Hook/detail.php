@@ -1,8 +1,10 @@
 <?php
 
 	if(isset($add_link_for_procure_forms)) {
-		$final_options['links']['bottom']['add form'] = $add_link_for_procure_forms;
-		$structure_links['bottom']['add form'] = $add_link_for_procure_forms;
+		foreach($add_link_for_procure_forms as $button_title => $links) {
+			$final_options['links']['bottom'][$button_title] = $links;
+			$structure_links['bottom'][$button_title] = $links;
+		}
 	}
 	
 	if(isset($linked_events_control_data)) {  
