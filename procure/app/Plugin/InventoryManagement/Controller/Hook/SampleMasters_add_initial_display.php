@@ -14,13 +14,11 @@
 	//--------------------------------------------------------------------------------
 	
 	if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
-		$collection_blood_samples = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id']), 'order' => array('SpecimenDetail.reception_datetime DESC'), 'recursive' => '0'));
-		if(!empty($collection_blood_samples)) {				
+		$collection_blood_types = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id']), 'fields' => array("GROUP_CONCAT(SampleDetail.blood_type SEPARATOR ',') as blood_types"), 'recursive' => '0'));
+		$last_received_blood_sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id']), 'order' => array('SpecimenDetail.reception_datetime DESC'), 'recursive' => '0'));	
+		if(!empty($last_received_blood_sample)) {				
 			// Collection blood sample already created
-			$already_created = array();			
-			foreach($collection_blood_samples as $new_blood) {
-				$already_created[$new_blood['SampleDetail']['blood_type']] = $new_blood['SampleDetail']['blood_type'];
-			}
+			$already_created = explode(',',$collection_blood_types[0][0]['blood_types']);
 			if(!in_array('serum', $already_created)) {
 				$this->request->data['SampleDetail']['blood_type'] = 'serum';
 			} else if(!in_array('paxgene', $already_created)) {
@@ -29,10 +27,10 @@
 				$this->request->data['SampleDetail']['blood_type'] = 'k2-EDTA';
 			}
 			
-			$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_blood_samples['SpecimenDetail']['reception_datetime'];
-			$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $collection_blood_samples['SpecimenDetail']['reception_datetime_accuracy'];
+			$this->request->data['SpecimenDetail']['reception_datetime'] = $last_received_blood_sample['SpecimenDetail']['reception_datetime'];
+			$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $last_received_blood_sample['SpecimenDetail']['reception_datetime_accuracy'];
 			
-			$this->request->data['SampleDetail']['procure_collection_site'] = $collection_blood_samples['SampleDetail']['procure_collection_site'];
+			$this->request->data['SampleDetail']['procure_collection_site'] = $last_received_blood_sample['SampleDetail']['procure_collection_site'];
 			
 		} else {
 			// No collection blood sample already created
