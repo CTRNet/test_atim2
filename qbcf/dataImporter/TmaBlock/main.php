@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Script to dowload new tissu blocks core and TMA block int ATiM ABCF.
+ *
+ * Notes:
+ *   - No collection, sample and block will be created by the script.
+ *   - Tissue Core will be created if the system is able to find a tissue block into ATiM matching bank, pathology id + block code. 
+ *   - No control on existing core will be done. A new core will be created each time.
+ *   - An existing TMA block will be reused then no control on duplicated position will be done.
+ */
+ 
 require_once 'system.php';
 
 global $atim_storage_master_id_to_storage_data;
@@ -92,7 +102,7 @@ foreach($excel_files_names as $file_data) {
 							strlen($excel_line_data['NUMERO CORE'])? 'NUMERO CORE : '.$excel_line_data['NUMERO CORE'].'.' : '',
 							strlen($excel_line_data['lignée + Code ATiM'])? 'lignée + Code ATiM : '.$excel_line_data['lignée + Code ATiM'].'.' : '',
 							$excel_line_data['notes']);
-						$excel_notes = array_filter($excel_notes);
+						$excel_notes = array_filter($excel_notes, function($var){return (!($var == '' || is_null($var)));});
 						$excel_notes = implode(' ', $excel_notes);
 						
 						$collection_id = null;

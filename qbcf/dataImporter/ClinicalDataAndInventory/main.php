@@ -1,5 +1,22 @@
 <?php
 
+/**
+ * Script to dowload all participant clinical data into ATiM QBCF and link existing participant collection to the breast diagnosis event (treatment).
+ *
+ * Notes on clinical data:
+*   - A breast diagnosis event (treamtent) will be updated if an existing one exists into ATiM with the same date and type of intervention else a new one will be created.
+*   - A breast diagnosis progression (diagnosis) will be updated if an existing one exists into ATiM with the same date and site else a new one will be created.
+*   - A breast diagnosis treamtent will be updated if an existing one exists into ATiM with the same start date and type of treatment else a new one will be created.
+*   - An other tumor diagnosis will be updated if an existing one exists into ATiM with the same date and site else a new one will be created.
+*   - An other tumor diagnosis progression will be updated if an existing one exists into ATiM with the same site else a new one will be created.
+*   - An other tumor diagnosis treamtent will be updated if an existing one exists into ATiM with the same start date and type of treatment else a new one will be created.
+*
+* Notes on invenotry data:
+*   - No collection, sample and block will be created by the script.
+*   - When a breast diagnosis event is defined as event of collection of the block shipped to the chum, the script will list all participant collections existing into ATiM
+*     and not already linked to a breast diagnosis event then links them to the event (treatment). No update on existing collection to breast diagnosis event will be upadted.
+*/
+ 
 require_once 'system.php';
 
 global $atim_drugs;
@@ -421,8 +438,8 @@ foreach($excel_files_names as $file_data) {
 					
 					// Treatment creation or update
 					
-					$excel_breast_diagnosis_event_data['treatment_masters'] = array_filter($excel_breast_diagnosis_event_data['treatment_masters']);
-					$excel_breast_diagnosis_event_data[$tx_detail_tablename] = array_filter($excel_breast_diagnosis_event_data[$tx_detail_tablename]);
+					$excel_breast_diagnosis_event_data['treatment_masters'] = array_filter($excel_breast_diagnosis_event_data['treatment_masters'], function($var){return (!($var == '' || is_null($var)));});
+					$excel_breast_diagnosis_event_data[$tx_detail_tablename] = array_filter($excel_breast_diagnosis_event_data[$tx_detail_tablename], function($var){return (!($var == '' || is_null($var)));});
 					if(empty($excel_breast_diagnosis_event_data['treatment_masters']) && empty ($excel_breast_diagnosis_event_data[$tx_detail_tablename])) $excel_breast_diagnosis_event_data = array();
 
 					if($type_of_event == 'Diagnostic' && empty($excel_breast_diagnosis_event_data)) {
@@ -538,8 +555,8 @@ foreach($excel_files_names as $file_data) {
 					
 					// Diagnosis creation or update
 						
-					$excel_breast_progression_diagnosis_data['diagnosis_masters'] = array_filter($excel_breast_progression_diagnosis_data['diagnosis_masters']);
-					$excel_breast_progression_diagnosis_data[$dx_detail_tablename] = array_filter($excel_breast_progression_diagnosis_data[$dx_detail_tablename]);
+					$excel_breast_progression_diagnosis_data['diagnosis_masters'] = array_filter($excel_breast_progression_diagnosis_data['diagnosis_masters'], function($var){return (!($var == '' || is_null($var)));});
+					$excel_breast_progression_diagnosis_data[$dx_detail_tablename] = array_filter($excel_breast_progression_diagnosis_data[$dx_detail_tablename], function($var){return (!($var == '' || is_null($var)));});
 					if(empty($excel_breast_progression_diagnosis_data['diagnosis_masters']) && empty ($excel_breast_progression_diagnosis_data[$dx_detail_tablename])) $excel_breast_progression_diagnosis_data = array();
 					
 					if($type_of_event == 'Follow-up' && empty($excel_breast_progression_diagnosis_data)) {
@@ -1186,8 +1203,8 @@ foreach($excel_files_names as $file_data) {
 						$excel_field = 'Development of Metastasis';
 						$excel_other_diagnosis_data[$dx_detail_tablename]['metastasis_development'] = validateAndGetExcelValueFromList($excel_line_data[$excel_field], array('yes' => 'y', 'no' => 'n', 'unknown' => ''), true, $summary_section_title, $excel_field, "See $excel_data_references");
 						
-						$excel_other_diagnosis_data['diagnosis_masters'] = array_filter($excel_other_diagnosis_data['diagnosis_masters']);
-						$excel_other_diagnosis_data[$dx_detail_tablename] = array_filter($excel_other_diagnosis_data[$dx_detail_tablename]);
+						$excel_other_diagnosis_data['diagnosis_masters'] = array_filter($excel_other_diagnosis_data['diagnosis_masters'], function($var){return (!($var == '' || is_null($var)));});
+						$excel_other_diagnosis_data[$dx_detail_tablename] = array_filter($excel_other_diagnosis_data[$dx_detail_tablename], function($var){return (!($var == '' || is_null($var)));});
 						if(empty($excel_other_diagnosis_data['diagnosis_masters']) && empty ($excel_other_diagnosis_data[$dx_detail_tablename])) $excel_other_diagnosis_data = array();
 						
 						if(!empty($excel_other_diagnosis_data)) {

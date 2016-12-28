@@ -152,6 +152,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		$breast_dx_event_with_no_date = $this->find('count', array('conditions'=>$conditions, 'recursive' => '0'));
 		if($breast_dx_event_with_no_date) $all_warnings["at least one breast diagnosis event date is unknown"] = array();
 		
+		$all_breast_tx_diagnosis_event_to_update = array();
 		foreach($all_breast_tx_diagnosis_event as $new_breast_tx) {
 			$new_time_to_last_contact_months = '';
 			$new_time_to_first_progression_months = '';
@@ -238,9 +239,16 @@ class TreatmentMasterCustom extends TreatmentMaster {
 			if($new_time_to_first_progression_months !== $new_breast_tx['TreatmentDetail']['time_to_first_progression_months']) $treatment_detail_to_update['time_to_first_progression_months'] = $new_time_to_first_progression_months;
 			if($new_time_to_next_breast_dx_event_months !== $new_breast_tx['TreatmentDetail']['time_to_next_breast_dx_event_months']) $treatment_detail_to_update['time_to_next_breast_dx_event_months'] = $new_time_to_next_breast_dx_event_months;
 			if($treatment_detail_to_update) {
-				$this->data = array();
-				$this->id = $new_breast_tx['TreatmentMaster']['id'];
-				if(!$this->save(array('TreatmentMaster' => array(), 'TreatmentDetail' => $treatment_detail_to_update))) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );					
+				$all_breast_tx_diagnosis_event_to_update[] = array(
+					'TreatmentMaster' => array('id' => $new_breast_tx['TreatmentMaster']['id']),
+					'TreatmentDetail' => $treatment_detail_to_update);
+			}
+		}
+		foreach($all_breast_tx_diagnosis_event_to_update as $new_breast_tx_diagnosis_event_to_update) {
+			$this->data = array(); // *** To guaranty no merge will be done with previous data ***
+			$this->id = $new_breast_tx_diagnosis_event_to_update['TreatmentMaster']['id'];			
+			if(!$this->save($new_breast_tx_diagnosis_event_to_update, false)) {
+				$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}
 		foreach($all_warnings as $new_warning => $all_start_dates) AppController::getInstance()->addWarningMsg(__($new_warning).($all_start_dates? ' - '.str_replace('%s', implode(', ', $all_start_dates), __('see treatment done on %s')) : ''));

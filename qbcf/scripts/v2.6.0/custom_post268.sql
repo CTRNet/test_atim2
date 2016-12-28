@@ -2058,6 +2058,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en) VALUES ('TMA core', 'TMA Core');
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'GeneratedQbcfBrDxEv', '', 'block_available', 'yes_no',  NULL , '0', '', '', '', 'block in stock', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_summary_results'), (SELECT id FROM structure_fields WHERE `model`='GeneratedQbcfBrDxEv' AND `tablename`='' AND `field`='block_available' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='block in stock' AND `language_tag`=''), '1', '150', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en) VALUES ('block in stock', 'Block(s) In Stock');
+
 -- --------------------------------------------------------------------------------------------
 
 mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.0_full_installation.sql

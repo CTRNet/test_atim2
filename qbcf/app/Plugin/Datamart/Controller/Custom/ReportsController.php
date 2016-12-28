@@ -184,8 +184,15 @@ class ReportsControllerCustom extends ReportsController {
 			$dx_controls[$new_dx['diagnosis_controls']['controls_type']] = $new_dx['diagnosis_controls'];
 		}
 		
+		$tma_control_ids = array();
+		$query = "SELECT id FROM storage_controls WHERE is_tma_block = '1' AND flag_active = '1'";
+		foreach($this->Report->tryCatchQuery($query) as $new_tma_ctrl) {
+			$tma_control_ids[] = $new_tma_ctrl['id'];
+		}		
+		
 		// *********** Get Participant & Diagnosis & Fst Bcr & TMA data ***********
-
+//1- Verifier si on a deux blocs alors on a deux lignes
+//2- Definir si block dispo.... en tout cas faut différencier les collections
 		$sql_participant_fields = "Participant.id,
 			Participant.participant_identifier,
 			Participant.qbcf_bank_id,
@@ -247,18 +254,19 @@ class ReportsControllerCustom extends ReportsController {
 			ViewAliquot.storage_coord_x,
 			ViewAliquot.storage_coord_y";
 		
-		$join_on_storage = "INNER JOIN storage_masters AS StorageMaster ON ViewAliquot.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 AND StorageMaster.storage_control_id IN (SELECT id FROM storage_controls WHERE is_tma_block = '1' AND flag_active = '1')";
+		$join_on_storage = "INNER JOIN storage_masters AS StorageMaster ON ViewAliquot.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 AND StorageMaster.storage_control_id IN (".implode(',',($tma_control_ids? $tma_control_ids : array('-1'))).")";
 		
 		$sql =
 			"SELECT DISTINCT
 				$sql_participant_fields,
+				Collection.id,
 				$sql_treatment_fields
 				".($include_tma_core? ",$sql_core_fields" : "")."
 				FROM participants AS Participant
 				INNER JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']." AND TreatmentMaster.deleted <> 1
 				INNER JOIN ".$tx_controls['breast diagnostic event']['detail_tablename']." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 				INNER JOIN collections AS Collection ON Collection.participant_id = Participant.id AND Collection.treatment_master_id = TreatmentMaster.id AND Collection.deleted <> 1
-				INNER JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id
+				".($include_tma_core? 'INNER' : 'LEFT')." JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id
 				".($include_tma_core? "$join_on_storage" : "")."
 				WHERE Participant.deleted <> 1 
 				AND ($conditions_str)
@@ -319,6 +327,8 @@ class ReportsControllerCustom extends ReportsController {
 			if($new_participant['TreatmentMaster']['start_date_accuracy'] != 'y') $new_participant['TreatmentMaster']['start_date_accuracy'] = 'm';
 			
 			$empty_value = $new_participant['TreatmentMaster']['id'] != 'n/a'? '' : 'n/a';
+			
+			$new_participant['GeneratedQbcfBrDxEv']['block_available'] = 'n';
 			
 			// ** 2 ** Pre/Post Breast Diagnosis Event
 			
