@@ -30,7 +30,8 @@ Collection.qbcf_pathology_id,
 
 SampleMaster.qbcf_is_tma_sample_control,
 SampleMaster.qbcf_tma_sample_control_code,
-		
+SampleDetail.tissue_source,
+			
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
 			AliquotControl.aliquot_type,
@@ -70,6 +71,7 @@ SampleMaster.qbcf_tma_sample_control_code,
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
+LEFT JOIN sd_spe_tissues AS SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
 			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
 			INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
 			LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
@@ -116,6 +118,9 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 			}
 			$BankModel = AppModel::getInstance("Administrate", "Bank", true);
 			$bank_list = $BankModel->getBankPermissibleValuesForControls();
+			$StructurePermissibleValuesCustomModel = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+			$tissue_sources = $StructurePermissibleValuesCustomModel->getCustomDropdown(array('Tissue Sources'));
+			$tissue_sources = array_merge($tissue_sources['defined'], $tissue_sources['previously_defined']);
 			//Process data
 			foreach($results as &$result){
 				//Manage confidential information
@@ -133,7 +138,7 @@ LEFT JOIN banks AS ParticipantBank ON ParticipantBank.id = Participant.qbcf_bank
 						//Tissue Control
 						$result['ViewAliquot']['qbcf_generated_label_for_display'] = 
 							$result['ViewAliquot']['qbcf_tma_sample_control_code']." - QBCF# ".$result['ViewAliquot']['barcode'].
-							" (".__('control').')';
+							" (".__('control').' - '.$tissue_sources[$result['ViewAliquot']['tissue_source']].')';
 					} else {
 						//Particiapnt Tissue
 						$aliquot_participant_id_and_barcode = 'P#'.(empty($result['ViewAliquot']['participant_identifier'])? '?' : $result['ViewAliquot']['participant_identifier']).' - QBCF# '.$result['ViewAliquot']['barcode'];

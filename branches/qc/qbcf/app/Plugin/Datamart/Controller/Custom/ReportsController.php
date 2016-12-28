@@ -169,6 +169,7 @@ class ReportsControllerCustom extends ReportsController {
 		$other_dx_treatments = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Tx : Other Cancer Treatment'));
 		$other_dx_treatments = array_merge($other_dx_treatments['defined'], $other_dx_treatments['previously_defined']);
 		
+		App::uses('StructureValueDomain', 'Model');
 		$this->StructureValueDomain = new StructureValueDomain();
 		$ctrnet_submission_disease_site = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'ctrnet_submission_disease_site'), 'recursive' => 2));
 		$ctrnet_submission_disease_site_values = array();
@@ -187,12 +188,16 @@ class ReportsControllerCustom extends ReportsController {
 		$tma_control_ids = array();
 		$query = "SELECT id FROM storage_controls WHERE is_tma_block = '1' AND flag_active = '1'";
 		foreach($this->Report->tryCatchQuery($query) as $new_tma_ctrl) {
-			$tma_control_ids[] = $new_tma_ctrl['id'];
-		}		
+			$tma_control_ids[] = $new_tma_ctrl['storage_controls']['id'];
+		}	
+		
+		$tissue_block_aliquot_control_id = '';
+		$query = "SELECT aliquot_controls.id FROM sample_controls INNER JOIN aliquot_controls ON sample_controls.id = sample_control_id WHERE sample_type = 'tissue' AND aliquot_type = 'block' AND aliquot_controls.flag_active = '1'";
+		$tissue_block_aliquot_control_id = $this->Report->tryCatchQuery($query);
+		$tissue_block_aliquot_control_id = $tissue_block_aliquot_control_id? $tissue_block_aliquot_control_id[0]['aliquot_controls']['id'] : '-1';
 		
 		// *********** Get Participant & Diagnosis & Fst Bcr & TMA data ***********
-//1- Verifier si on a deux blocs alors on a deux lignes
-//2- Definir si block dispo.... en tout cas faut différencier les collections
+		
 		$sql_participant_fields = "Participant.id,
 			Participant.participant_identifier,
 			Participant.qbcf_bank_id,
@@ -217,6 +222,10 @@ class ReportsControllerCustom extends ReportsController {
 			TreatmentDetail.age_at_dx,
 			TreatmentDetail.type_of_intervention,
 			TreatmentDetail.laterality,
+			TreatmentDetail.clinical_stage_summary,
+			TreatmentDetail.clinical_tstage,
+			TreatmentDetail.clinical_nstage,
+			TreatmentDetail.clinical_mstage,
 			TreatmentDetail.path_stage_summary,
 			TreatmentDetail.path_tstage,
 			TreatmentDetail.path_nstage,
@@ -242,7 +251,8 @@ class ReportsControllerCustom extends ReportsController {
 			TreatmentDetail.tnbc,
 			TreatmentDetail.time_to_last_contact_months,
 			TreatmentDetail.time_to_first_progression_months,
-			TreatmentDetail.time_to_next_breast_dx_event_months";
+			TreatmentDetail.time_to_next_breast_dx_event_months,	
+			IF(IFNULL(TissueBlockAliquotMaster.in_stock, 'n') = 'n', 'n', 'y') AS generated_blocks_in_stock";
 		$sql_core_fields = "ViewAliquot.aliquot_master_id,
 			ViewAliquot.sample_master_id,
 			ViewAliquot.collection_id,
@@ -254,7 +264,7 @@ class ReportsControllerCustom extends ReportsController {
 			ViewAliquot.storage_coord_x,
 			ViewAliquot.storage_coord_y";
 		
-		$join_on_storage = "INNER JOIN storage_masters AS StorageMaster ON ViewAliquot.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 AND StorageMaster.storage_control_id IN (".implode(',',($tma_control_ids? $tma_control_ids : array('-1'))).")";
+		$inner_join_on_storage = "INNER JOIN storage_masters AS StorageMaster ON ViewAliquot.storage_master_id = StorageMaster.id AND StorageMaster.deleted <> 1 AND StorageMaster.storage_control_id IN (".implode(',',($tma_control_ids? $tma_control_ids : array('-1'))).")";
 		
 		$sql =
 			"SELECT DISTINCT
@@ -266,9 +276,11 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']." AND TreatmentMaster.deleted <> 1
 				INNER JOIN ".$tx_controls['breast diagnostic event']['detail_tablename']." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 				INNER JOIN collections AS Collection ON Collection.participant_id = Participant.id AND Collection.treatment_master_id = TreatmentMaster.id AND Collection.deleted <> 1
-				".($include_tma_core? 'INNER' : 'LEFT')." JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id
-				".($include_tma_core? "$join_on_storage" : "")."
-				WHERE Participant.deleted <> 1 
+				LEFT JOIN aliquot_masters AS TissueBlockAliquotMaster ON TissueBlockAliquotMaster.collection_id = Collection.id AND TissueBlockAliquotMaster.deleted <> 1 AND TissueBlockAliquotMaster.aliquot_control_id = '$tissue_block_aliquot_control_id' AND TissueBlockAliquotMaster.in_stock != 'no' 
+				".($include_tma_core? 
+					"INNER JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id AND ViewAliquot.aliquot_type = 'core' $inner_join_on_storage" : 
+					"").
+				" WHERE Participant.deleted <> 1 
 				AND ($conditions_str)
 				ORDER BY ".
 				($include_tma_core? 
@@ -312,6 +324,7 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => __('the report contains too many results - please redefine search criteria')." [> ".sizeof($main_results)." ".__('lines').']');
 		}
 		foreach($main_results as &$new_participant) {
+			
 			// ** 1 ** Set confidential data
 			
 			$confidential_record  = ($user_bank_id != 'all' && $new_participant['Participant']['qbcf_bank_id'] != $user_bank_id)? true : false;
@@ -387,6 +400,7 @@ class ReportsControllerCustom extends ReportsController {
 						AND GeneratedQbcfPreBrDxEvMaster.deleted <> 1
 						AND GeneratedQbcfPreBrDxEvMaster.start_date <= '".$new_participant['TreatmentMaster']['start_date']."'
 						AND GeneratedQbcfPreBrDxEvMaster.start_date IS NOT NULL
+						AND (GeneratedQbcfPreBrDxEv.type_of_intervention LIKE 'fine needle aspiration%' OR GeneratedQbcfPreBrDxEv.type_of_intervention LIKE 'biopsy%')		
 						ORDER BY GeneratedQbcfPreBrDxEvMaster.start_date DESC";
 				$sub_results = $this->Report->tryCatchQuery($sql);
 				if($sub_results) {
@@ -432,7 +446,7 @@ class ReportsControllerCustom extends ReportsController {
 							$type_of_post_breast_dx_event = __('progression');
 						}
 					} else {
-						$type_of_post_breast_dx_event_detail = _('> 5 years');
+						$type_of_post_breast_dx_event_detail = __('> 5 years');
 						$type_of_post_breast_dx_event = __('new diagnosis');
 					}
 					$new_participant['GeneratedQbcfPostBrDxEv']['type_of_post_breast_dx_event'] = $type_of_post_breast_dx_event;
@@ -547,6 +561,7 @@ class ReportsControllerCustom extends ReportsController {
 						GROUP BY TreatmentMaster.id, TreatmentMaster.qbcf_clinical_trial_protocol_number";
 				foreach($this->Report->tryCatchQuery($sql) as $new_tx) {
 					$new_tx['tx_method'] = $tx_method;
+					$new_tx['TreatmentDetail']['completed'] = $new_tx['0']['completed'];
 					$adjuvant_treatment[] = $new_tx;
 				}
 				$tx_method = 'radiotherapy';
@@ -570,7 +585,7 @@ class ReportsControllerCustom extends ReportsController {
 					$field_name = str_replace(array('chemotherapy', 'hormonotherapy', 'immunotherapy', 'bone specific therapy', 'radiotherapy', 'other (breast cancer systemic treatment)'),
 						array('adjuvant_chemotherapy', 'adjuvant_hormonotherapy', 'adjuvant_immunotherapy', 'adjuvant_bone_specific_therapy', 'adjuvant_radiotherapy', 'adjuvant_other_systemic_treatment'),
 						$tx_merthod);
-					$new_participant['GeneratedQbcfBxTx'][$field_name] = 'y';
+					$new_participant['GeneratedQbcfBxTx'][$field_name] = 'y';				
 					$tx_detail = array(
 						str_replace(array('yes', 'no', 'unknown'), array(__('completed'), __('not completed'), ''), $new_tx['TreatmentDetail']['completed']),
 						$new_tx['TreatmentMaster']['qbcf_clinical_trial_protocol_number'],

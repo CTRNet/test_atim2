@@ -40,9 +40,9 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				'table' => 'qbcf_tx_breast_diagnostic_events', 
 				'alias' => 'TreatmentDetail', 
 				'type' => 'INNER', 
-				'conditions' => array('Treatmentmaster.id = TreatmentDetail.treatment_master_id'));
+				'conditions' => array('TreatmentMaster.id = TreatmentDetail.treatment_master_id'));
 			$breast_dx_event_laterality = $TreatmentModel->find('all', array(
-				'conditions' => array('TreatmentControl.tx_method' => 'breast diagnostic event', 'Treatmentmaster.diagnosis_master_id' => $new_brest_dx['DiagnosisMaster']['id']), 
+				'conditions' => array('TreatmentControl.tx_method' => 'breast diagnostic event', 'TreatmentMaster.diagnosis_master_id' => $new_brest_dx['DiagnosisMaster']['id']), 
 				'joins' => array($tx_joins),
 				'fields' => array('DISTINCT TreatmentDetail.laterality')));
 			$all_dx_laterality = array('laterality_left' => 'n', 'laterality_right' => 'n', 'laterality_bilateral' => 'n');
