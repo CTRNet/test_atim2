@@ -25,5 +25,4 @@ $excel_files_names = array(
 	array('CHUM', '161124_QBCF-clinical data-V4.2sept2016CHUM 272-358(87)_VOedit2_Natreviewed_2_drugok.xls', $mac_xls_offset),
 	array('CHUQ', '161206_QBCF-clinical dataCHUQ-V4.2(2)(nobreastFU)_VOedit3_Natreviewed_2_drugok.xls', $windows_xls_offset)
 	);
-
 ?>

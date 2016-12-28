@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Script to dowload new tissu blocks and slide into ATiM QBCF. 
+ * 
+ * Notes:
+ *   - Limited Participant profile will be created if this one does not exist with 'qbcf_bank_id', 'qbcf_bank_participant_identifier', 'last_modification' data.
+ *   - New participant collection will be created if no participant collection matches the pathology id else an existing one will be used to create the block.
+ *   - The link between the breast diagnosis event (treatment_master_id) and a new block collection won't be created. Script of the ClinicalDataAndInventory directory
+ *     should be executed to create link with a new participant breast diagnosis event.
+ *   - No new block will be created if an exisitng one matching the participant, the pathology id and the block code exists but data could be upadted.
+ *   - A new slide will be created at any time.
+ */
+
 require_once 'system.php';
 
 global $atim_storage_master_id_to_storage_data;
@@ -153,7 +165,6 @@ foreach($excel_files_names as $file_data) {
 							$query = "SELECT Participant.qbcf_bank_id,
 								Participant. qbcf_bank_participant_identifier,
 								Collection.id as collection_id,
-								Collection.treatment_master_id,
 								Collection.qbcf_pathology_id,
 								SampleMaster.id AS sample_master_id,
 								SampleDetail.tissue_source,
@@ -291,8 +302,7 @@ foreach($excel_files_names as $file_data) {
 									
 								// Create new collection or use an old one
 									
-								$query = "SELECT DISTINCT Collection.id AS collection_id,
-									Collection.treatment_master_id
+								$query = "SELECT DISTINCT Collection.id AS collection_id
 									FROM participants Participant
 									INNER JOIN collections Collection ON Collection.participant_id = Participant.id
 									WHERE Participant.deleted <> 1

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Script to dowload all block slide reviews into ATiM QBCF.
+ *
+ * Notes:
+ *   - No collection, sample, block and slide will be created by the script.
+ *   - Path review data will be created if the system is able to find a tissue block into ATiM matching bank, pathology id and block code then block slide.
+ *   - No Path review will be created if an existing one already exists for the tissue block.
+ */
+ 
 require_once 'system.php';
 
 //==============================================================================================

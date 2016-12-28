@@ -34,6 +34,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		$participant_breast_dx = $this->find('all', array('conditions' => array(
 			'DiagnosisControl.controls_type' => 'breast', 
 			'DiagnosisMaster.participant_id' => $participant_id)));
+		$all_dx_to_update = array();
 		foreach($participant_breast_dx as $new_brest_dx) {
 			$tx_joins = array(
 				'table' => 'qbcf_tx_breast_diagnostic_events', 
@@ -55,9 +56,16 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				}
 			}
 			if($all_dx_laterality) {
-				$this->data = array();
-				$this->id = $new_brest_dx['DiagnosisMaster']['id'];
-				if(!$this->save(array('DiagnosisMaster' => array(), 'DiagnosisDetail' => $all_dx_laterality))) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );	
+				$all_dx_to_update[] = array(
+					'DiagnosisMaster' => array('id' => $new_brest_dx['DiagnosisMaster']['id']),
+					'DiagnosisDetail' => $all_dx_laterality);
+			}
+		}
+		foreach($all_dx_to_update as $new_dx_to_update) {
+			$this->data = array(); // *** To guaranty no merge will be done with previous data ***
+			$this->id = $new_dx_to_update['DiagnosisMaster']['id'];			
+			if(!$this->save($new_dx_to_update, false)) {
+				$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}
 	}
