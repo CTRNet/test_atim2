@@ -25,9 +25,11 @@ class TreatmentExtendMasterCustom extends TreatmentExtendMaster {
 			
 			switch($drug_type) {
 				case 'chemotherapy':
-				case 'bone specific':
 				case 'immunotherapy':
 					if(strcmp("$drug_type drug", $treatment_extend_control_type) !== 0) $val_types = false;
+					break;
+				case 'bone specific':
+					if(strcmp("bone specific therapy drug", $treatment_extend_control_type) !== 0) $val_types = false;
 					break;
 				case 'hormonal':
 					if(strcmp("hormonotherapy drug", $treatment_extend_control_type) !== 0) $val_types = false;

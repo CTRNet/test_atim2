@@ -244,8 +244,7 @@ foreach($excel_files_names as $file_data) {
 										'collection_id' => $block_collection_id,
 										'sample_master_id' => $block_sample_master_id,
 										'qbcf_reviewer' => $qbcf_reviewer,
-										'qbcf_reviewed_by_dr_tran_thanh' => $qbcf_reviewed_by_dr_tran_thanh,
-										'notes' => $excel_line_data['comments']),
+										'qbcf_reviewed_by_dr_tran_thanh' => $qbcf_reviewed_by_dr_tran_thanh),
 									$atim_controls['specimen_review_controls']['tissue block review']['detail_tablename'] => array());
 								$specimen_review_master_id = customInsertRecord($specimen_review_data);
 							
@@ -257,7 +256,7 @@ foreach($excel_files_names as $file_data) {
 										'aliquot_review_control_id' => $atim_controls['specimen_review_controls']['tissue block review']['aliquot_review_control_id'],
 										'specimen_review_master_id' => $specimen_review_master_id,
 										'aliquot_master_id' => $slide_aliquot_master_id),
-									$aliquot_review_detail_tablename => array());
+									$aliquot_review_detail_tablename => array('notes' => $excel_line_data['comments']));
 								
 								$fields_data = array(
 									array("Histology", 'histology', 'qbcf_path_review_histology'),
