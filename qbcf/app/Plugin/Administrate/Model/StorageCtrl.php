@@ -49,7 +49,6 @@ class StorageCtrl extends AdministrateAppModel {
 	}
 	
 	function validates($options = array()){
-		parent::validates($options);	
 		if(isset($this->data['StorageCtrl']['coord_x_title']) && isset($this->data['StorageCtrl']['coord_y_title'])) {
 			// 2d storage
 			if(empty($this->data['StorageCtrl']['coord_x_size'])) $this->validationErrors['coord_x_size'][] = 'the coordinate x size has to be completed';
@@ -63,7 +62,7 @@ class StorageCtrl extends AdministrateAppModel {
 			if(!strlen($this->data['StorageCtrl']['coord_x_size']) && $this->data['StorageCtrl']['coord_x_type'] != 'list') $this->validationErrors['coord_x_size'][] = 'a coordinate x size has to be set';
 			if($this->data['StorageCtrl']['coord_x_type'] != 'list' && (($this->data['StorageCtrl']['display_x_size']*$this->data['StorageCtrl']['display_y_size']) != $this->data['StorageCtrl']['coord_x_size'])) $this->validationErrors['coord_x_size'][] = 'display y size * display y size should be equal to coord x size';
 		}
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	function getListArgs($passedArgs) {
