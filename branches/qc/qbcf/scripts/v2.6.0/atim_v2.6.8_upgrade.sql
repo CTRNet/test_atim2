@@ -2980,21 +2980,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'6564','n/a');
-
--- -----------------------------------------------------------------------------------------------------------------------------------
--- -----------------------------------------------------------------------------------------------------------------------------------
-
-Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
-
-- Added Investigator and Funding to study tool.
-- Replaced the study drop down list to an autocomplete field to help user data entry.
-- Added Study and OrderLine Models to the databrowser.
-- Added ICD-0-3-Topo Categories (tissue site/category).
-- Replaced the drug drop down list to an autocomplete field.
-- Added object to track any TMA slide acoring and analysis.
-- Change order tool to allow user to add a TMA slide to an order.
-- Added feature to be able to flag a shipped item as returned.
-- Created Buffy Coat and Nail sample types.
-- Changed feature to let user to link more than one aliquot type to a path-review.
-- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0)  
+('2.6.8', NOW(),'6608','n/a');

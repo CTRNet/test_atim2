@@ -2089,20 +2089,4 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qbcf_summary_results'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='generated_blocks_in_stock' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='block in stock' AND `language_tag`=''), '1', '253', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
--- --------------------------------------------------------------------------------------------
-
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.0_full_installation.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.1_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.2_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.3_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.4_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.5_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.6_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.7_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\custom_post267.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\atim_v2.6.8_upgrade.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\custom_post268.sql
-mysql -u root qbcf --default-character-set=utf8 < C:\_NicolasLuc\Server\www\qbcf\scripts\v2.6.0\acos.sql
-
-
-
+UPDATE versions SET branch_build_number = '6618' WHERE version_number = '2.6.8';

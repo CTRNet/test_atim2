@@ -21,10 +21,8 @@ class ConsentMaster extends ClinicalAnnotationAppModel {
 	function validates($options = array()){
 	
 		$this->validateAndUpdateConsentStudyData();
-	
-		parent::validates($options);
-	
-		return empty($this->validationErrors);
+		
+		return parent::validates($options);
 	}
 	
 	/**
