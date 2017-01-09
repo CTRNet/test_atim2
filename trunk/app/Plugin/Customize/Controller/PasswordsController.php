@@ -6,7 +6,7 @@ class PasswordsController extends CustomizeAppController {
 	var $uses = array('User');
 	
 	function index() {
-		$this->Structures->set('old_password_for_change,password');
+		$this->Structures->set('password_update_by_user');
 			
 		$this->User->id = $this->Session->read('Auth.User.id');
 		
