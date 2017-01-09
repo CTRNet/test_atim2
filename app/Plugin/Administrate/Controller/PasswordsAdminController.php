@@ -7,7 +7,7 @@ class PasswordsAdminController extends AdministrateAppController {
 	
 	function index( $group_id, $user_id ) {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
-		$this->Structures->set('admin_user_password_for_change,password');
+		$this->Structures->set('password_update_by_administartor');
 		
 		$this->User->id = $user_id;
 			
