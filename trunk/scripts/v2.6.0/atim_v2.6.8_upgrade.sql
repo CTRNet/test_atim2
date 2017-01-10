@@ -3044,6 +3044,23 @@ from (((`structure_formats` `sfo` join `structure_fields` `sfi` on((`sfo`.`struc
 UPDATE structure_fields SET sortable = '0' WHERE model IN ('0', 'FunctionManagement', 'Generated', 'GeneratedParentAliquot', 'GeneratedParentSample');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3341: Password Reset Issue
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE users ADD COLUMN force_password_reset tinyint(1) DEFAULT '1';
+ALTER TABLE users_revs ADD COLUMN force_password_reset tinyint(1) DEFAULT '1';
+UPDATE users SET force_password_reset = 0 WHERE flag_active = 1;
+UPDATE users_revs SET force_password_reset = 0 WHERE flag_active = 1;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'User', 'users', 'force_password_reset', 'checkbox',  NULL , '0', '', '1', 'force_password_reset_help', 'force password reset', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='users'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='force_password_reset' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='force_password_reset_help' AND `language_label`='force password reset' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('force_password_reset_help', 'Force user to reset his password at next login', 'Forcer l''utilisateur à réinitialiser son mot de passe à la prochaine connexion'),
+('force password reset', 'Password Reset Required', 'Réinitialisation mot de passe requis');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
@@ -3067,5 +3084,7 @@ Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
 - Created Buffy Coat and Nail sample types.
 - Changed feature to let user to link more than one aliquot type to a path-review.
 - Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0)  
-- Changed structures for password update both by user and administrator
+- Changed structures for password update (both for update in customize and administrator plugin)
+- Add flag to force user to reset the password
+
  

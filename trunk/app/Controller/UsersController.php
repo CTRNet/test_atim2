@@ -29,10 +29,11 @@ class UsersController extends AppController {
 		$this->set('skip_expiration_cookie', true);
 		
 		// Test last login results from IP adress
+		$remote_addr = empty($_SERVER['HTTP_CLIENT_IP'])? (empty($_SERVER['HTTP_X_FORWARDED_FOR'])? $_SERVER['REMOTE_ADDR'] : $remote_addr =$_SERVER['HTTP_X_FORWARDED_FOR']): $remote_addr =$_SERVER['HTTP_CLIENT_IP'];
 		$is_locked_IP = true;
 		$max_login_attempts_from_IP = Configure::read('max_login_attempts_from_IP');
 		$mn_IP_disabled = Configure::read('time_mn_IP_disabled');	
-		$last_login_attempts_from_ip = $this->UserLoginAttempt->find('all', array('conditions' => array('UserLoginAttempt.ip_addr' => $_SERVER['REMOTE_ADDR']), 'order' => array('UserLoginAttempt.id DESC'), 'limit' => $max_login_attempts_from_IP));	
+		$last_login_attempts_from_ip = $this->UserLoginAttempt->find('all', array('conditions' => array('UserLoginAttempt.ip_addr' => $remote_addr), 'order' => array('UserLoginAttempt.id DESC'), 'limit' => $max_login_attempts_from_IP));	
 		if(sizeof($last_login_attempts_from_ip) < $max_login_attempts_from_IP) {
 			$is_locked_IP = false;
 		} else {
@@ -53,7 +54,7 @@ class UsersController extends AppController {
 				//successfulll login
 				$login_data = array(
 						"username"			=> $this->request->data['User']['username'],
-						"ip_addr"			=> $_SERVER['REMOTE_ADDR'],
+						"ip_addr"			=> $remote_addr,
 						"succeed"			=> true,
 						"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT'],
 						"attempt_time"		=> now()
@@ -64,7 +65,9 @@ class UsersController extends AppController {
 				$_SESSION['ctrapp_core']['info_msg'] = array();//init
 				//Authentication credentials expiration 
 				$user_data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
-				if(!$user_data['User']['password_modified'] && Configure::read('password_validity_period_month')) {
+				if($user_data['User']['force_password_reset']) {
+					$reset_pwd = true;
+				} else if(!$user_data['User']['password_modified'] && Configure::read('password_validity_period_month')) {
 					$reset_pwd = true;
 				} else {
 					$last_password_modified = $user_data['User']['password_modified'];
@@ -85,6 +88,7 @@ class UsersController extends AppController {
 				$this->render('ok');
 			}else if($reset_pwd) {
 				AppController::addWarningMsg(__('your password has expired. please change your password for security reason.'));
+				$_SESSION['ctrapp_core']['force_reset_pwd'] = true; 
 				$this->redirect('/Customize/Passwords/index/');
 			} else {
 				$this->redirect('/Menus');
@@ -113,7 +117,7 @@ class UsersController extends AppController {
 			//UserLoginAttempt->save() should be after user->save() for test "$last_login_attempts_for_username[0]['UserLoginAttempt']['attempt_time']. ' < ' . $user_data['User']['modified']" above
 			$login_data = array(
 					"username" => $this->request->data['User']['username'],
-					"ip_addr" => $_SERVER['REMOTE_ADDR'],
+					"ip_addr" => $remote_addr,
 					"succeed" => false,
 					"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT'],
 					"attempt_time"		=> now()

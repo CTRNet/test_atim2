@@ -51,7 +51,7 @@ class User extends AppModel {
 		return $result;
 	}
 	
-	function savePassword(array $data, $error_flash_link, $success_flash_link){
+	function savePassword(array $data, $error_flash_link, $success_flash_link, $set_force_password_reset_to_null = false){
 		assert($this->id);
 		$this->validatePassword($data);
 		
@@ -67,10 +67,12 @@ class User extends AppModel {
 				'password' => Security::hash($data['User']['new_password'], null, true),
 				'password_modified' => now())
 			);
+			if($set_force_password_reset_to_null) $data_to_save['User']['force_password_reset'] = '0';
 			
 			$this->data = null;
 			$this->check_writable_fields = false;
 			if ( $this->save( $data_to_save ) ) {
+				unset($_SESSION['ctrapp_core']['force_reset_pwd']);
 				AppController::getInstance()->atimFlash(__('your data has been updated'), $success_flash_link );
 			}
 		}
