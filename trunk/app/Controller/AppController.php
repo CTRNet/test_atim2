@@ -71,16 +71,11 @@ class AppController extends Controller {
 		}
 		
 		$this->Auth->authorize = 'Actions';
-		
+
 		//Check password should be reset
-		if(isset($_SESSION['ctrapp_core']['force_reset_pwd']) && $_SESSION['ctrapp_core']['force_reset_pwd']) {
-			$tmp_url = strtolower($this->request->here);
-			if($this->request->here !== $this->request->webroot
-			&& strpos($tmp_url, '/users/logout') === false
-			&& strpos($tmp_url, '/pages') === false
-			&& strpos($tmp_url, '/customize/passwords/index') === false
-			&& strpos($tmp_url, '/customize/passwords/index') === false) {
-				AppController::addWarningMsg(__('your password has expired. please change your password for security reason.'));
+		$lower_url_here = strtolower($this->request->here);
+		if($this->Session->read('Auth.User.force_password_reset') && strpos($lower_url_here, '/users/logout') === false) {
+			if(strpos($lower_url_here, '/customize/passwords/index') === false) {
 				$this->redirect('/Customize/Passwords/index/');
 			}
 		}

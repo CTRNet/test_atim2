@@ -403,17 +403,21 @@ Configure::write('Session.timeout', $debug ? 3600 : 3600);
 Configure::write('password_security_level', 2);
 
 /**
- * Maximum number of successive failed login attempts (max_login_attempts_from_IP) before an IP address is disabled.
- * Time in minute (time_mn_IP_disabled) before an IP adress can retest login.
+ * Maximum number of successive failed login attempts (max_login_attempts_from_IP) 
+ * before an IP address is temporary disabled what ever the username used. 
+ * See 'time_mn_IP_disabled' core varaible to set the time before an IP address is reactivated.
+ * Set value to null if you don't want the system disables an IP address based on login attempts.
  */
 Configure::write('max_login_attempts_from_IP', 5);
 /**
- * Time in minute (time_mn_IP_disabled) before an IP adress is reactivated.
+ * Time in minute (time_mn_IP_disabled) before an IP address is reactivated.
  */
 Configure::write('time_mn_IP_disabled', 20);
 
 /**
- * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.
+ * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled. 
+ * The status of a disabled username can only be changed by a user with administartor rights.
+ * Set value to null if you don't want the system disables a username based on login attempts.
  */
 Configure::write('max_user_login_attempts', 5);
 

@@ -3059,6 +3059,18 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('force_password_reset_help', 'Force user to reset his password at next login', 'Forcer l''utilisateur à réinitialiser son mot de passe à la prochaine connexion'),
 ('force password reset', 'Password Reset Required', 'Réinitialisation mot de passe requis');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='password_update_by_administartor'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='force_password_reset' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='force_password_reset_help' AND `language_label`='force password reset' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+UPDATE i18n SET id = 'login failed - invalid username or password or disabled user' WHERE id = 'Login failed. Invalid username or password or disabled user.';
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('too many failed login attempts - connection to atim disabled temporarily', 'Too many failed login attempts. Your connection to ATiM has been disabled temporarily.', 'Trop de tentatives de connexion. Votre connexion à ATiM a été désactivée temporairement.'),
+('your username has been disabled - contact your administartor', 'Your username to ATiM has been disabled. Please contact your ATiM administartor to activate it.', 'Votre compte utilisateurM a été désactivé. Contcatez l''administartor d''ATiM pour le réactiver.');
+REPLACE INTO i18n (id,en,fr) VALUES (
+'your password has expired. please change your password for security reason.',
+'Your password has expired. Please change your password for security reasons.', 
+'Votre mot de passe a expiré. Veuillez changer votre mot de passe pour des raisons de sécurité.');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
