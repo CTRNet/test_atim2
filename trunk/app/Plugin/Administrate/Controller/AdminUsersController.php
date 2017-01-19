@@ -11,6 +11,7 @@ class AdminUsersController extends AdministrateAppController {
 	
 	function listall($group_id ) {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
+		$this->Structures->set('users,users_form_for_admin');
 		
 		$this->hook();
 		
@@ -19,6 +20,7 @@ class AdminUsersController extends AdministrateAppController {
 	
 	function detail($group_id, $user_id ) {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
+		$this->Structures->set('users,users_form_for_admin');
 		
 		$this->hook();
 		
@@ -27,7 +29,7 @@ class AdminUsersController extends AdministrateAppController {
 
 	function add($group_id){
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
-		$this->Structures->set('users');
+		$this->Structures->set('users,users_form_for_admin');
 		$this->set("atim_menu", $this->Menus->get('/Administrate/AdminUsers/listall/%%Group.id%%/'));
 			
 		if($this->Group->hasPermissions($group_id)){
@@ -80,7 +82,7 @@ class AdminUsersController extends AdministrateAppController {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id, 'User.id'=>$user_id) );
 		$user_data = $this->User->getOrRedirect($user_id);
 	
-		$this->Structures->set('users');
+		$this->Structures->set('users,users_form_for_admin');
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 

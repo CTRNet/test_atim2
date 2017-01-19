@@ -3071,6 +3071,129 @@ REPLACE INTO i18n (id,en,fr) VALUES (
 'your password has expired. please change your password for security reason.',
 'Your password has expired. Please change your password for security reasons.', 
 'Votre mot de passe a expiré. Veuillez changer votre mot de passe pour des raisons de sécurité.');
+UPDATE structure_formats SET `display_order`= (`display_order` - 1) WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('username', 'password'));
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Remove fields 'Active' and 'Password Reset Required' in users form when displyed in Customize tool
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structures(`alias`) VALUES ('users_form_for_admin');
+SET @control_id = (SELECT id FROM structures WHERE alias='users_form_for_admin');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) 
+(SELECT @control_id, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`
+FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='users') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field` IN ('flag_active', 'force_password_reset')));
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='users') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field` IN ('flag_active', 'force_password_reset'));
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE users
+   ADD COLUMN forgotten_password_reset_question_1 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_answer_1 VARCHAR(250) DEFAULT NULL,
+   ADD COLUMN forgotten_password_reset_question_2 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_answer_2 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_question_3 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_answer_3 VARCHAR(250) DEFAULT NULL; 
+ALTER TABLE users_revs
+   ADD COLUMN forgotten_password_reset_question_1 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_answer_1 VARCHAR(250) DEFAULT NULL,
+   ADD COLUMN forgotten_password_reset_question_2 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_answer_2 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_question_3 VARCHAR(250) DEFAULT NULL, 
+   ADD COLUMN forgotten_password_reset_answer_3 VARCHAR(250) DEFAULT NULL; 
+INSERT INTO structures(`alias`) VALUES ('forgotten_password_reset_questions');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('forgotten_password_reset_questions', "StructurePermissibleValuesCustom::getCustomDropdown('Password Reset Questions')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Password Reset Questions', 1, 500, 'administration');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Password Reset Questions');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("which phone number do you remember most from your childhood?", "Which phone number do you remember most from your childhood?", "Quel numéro de téléphone vous souvenez-vous le plus de votre enfance?", '1', @control_id, NOW(), NOW(), 1, 1), 
+("what primary school did you attend?", "What primary school did you attend?", "À quel école primaire êtes-vous allé?", '1', @control_id, NOW(), NOW(), 1, 1), 
+("what is your mother's first name and maiden name?", "What is your mother's first name and maiden name?", "Quel est le prénom et le nom de jeune fille de votre mère?", '1', @control_id, NOW(), NOW(), 1, 1), 
+("what is your health card number?", "What is your health card number?", "Quel est votre numéro de carte d'assurance santé?", '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'User', 'users', 'forgotten_password_reset_question_1', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', 'question 1', ''), 
+('Administrate', 'User', 'users', 'forgotten_password_reset_answer_1', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', '', ''),
+('Administrate', 'User', 'users', 'forgotten_password_reset_question_2', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', 'question 2', ''), 
+('Administrate', 'User', 'users', 'forgotten_password_reset_answer_2', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', '', ''),
+('Administrate', 'User', 'users', 'forgotten_password_reset_question_3', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', 'question 3', ''), 
+('Administrate', 'User', 'users', 'forgotten_password_reset_answer_3', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='forgotten_password_reset_questions') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_question_1'), '2', '100', 'forgotten password reset questions', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_answer_1'), '2', '101', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_question_2'), '2', '105', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_answer_2'), '2', '106', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_question_3'), '2', '110', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_answer_3'), '2', '111', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message)
+(SELECT structure_field_id, 'notEmpty', '' FROM structure_formats WHERE `structure_id`=(SELECT id FROM structures WHERE alias='forgotten_password_reset_questions'));
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('reset password', 'Reset Password', 'Réinitialiser mot de passe'),
+('forgotten password reset questions', 'Password Reset Questions', 'Questions - Réinitialisation mot de passe'),
+('question 1', 'Question #1', 'Question #1'),
+('question 2', 'Question #2', 'Question #2'),
+('question 3', 'Question #3', 'Question #3'),
+('invalid username or disabled user', "Invalid username or disabled user.","Nom d'utilisateur invalide ou ustilisateur désactivé."),
+('the question has been modified. please enter a new answer.', 'The question has been modified. Please enter a new answer.', "La question a été modifiée. Veuillez saisir une nouvelle réponse."),
+('a question can not be used twice.', 'Same question can not be used twice.', "La même question ne peut être ustilisée deux fois."),
+('a same answer can not be written twice.', 'An answer can not be written twice.', "La réponse ne peut être saisie deux fois."),
+('the length of the answer should be bigger than 10.', 'The length of the answer should be bigger than 10.', "La longueur de la réponse doit être superieure à 10."),
+('user questions to reset forgotten password are not completed - update your profile with the customize tool', 
+"The questions to reset password (in case of forgetfulness) are not completed. Please complete questions in your profile (see 'Customize' icon).", 
+"Les questions pour la ré-initialisation du mot de passe (en cas d'oubli) ne sont pas complétées. Veuillez remplir les questions dans votre profil (voir icône 'Personnaliser').");
+UPDATE structure_fields SET `language_label`='forgotten_password_reset answer', language_help = 'forgotten_password_reset_answer_help', setting = 'size=50' WHERE `model`='User' AND `tablename`='users' AND `field` LIKE 'forgotten_password_reset_answer_%';
+
+INSERT INTO structures(`alias`) VALUES ('forgotten_password_reset');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='username'), '2', '50', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_question_1'), '2', '100', 'forgotten password reset questions', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_answer_1'), '2', '101', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_question_2'), '2', '105', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_answer_2'), '2', '106', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_question_3'), '2', '110', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='forgotten_password_reset_answer_3'), '2', '111', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUE
+('forgotten_password_reset_answer_help', 'Answers will be encrypted in database.', 'Les réponses seront encryptées en base de données.'),
+('forgotten_password_reset answer', 'Answer', 'Réponse'),
+('click here to see them', 'Click here to see them', 'Cliquez ici pour les afficher'),
+('at least one error exists in the questions you answered - password can not be reset', 
+'At least one error exists in the questions you answered. Password can not be reset.', 
+"Il y a au moins une erreur dans les questions auxquelles vous avez répondu. Le mot de passe ne peut pas être réinitialisé."),
+('click here to update','Click here to update','Cliquez ici pour mettre les données à jour');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='new_password' AND `type`='password' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='core_newpassword' AND `language_tag`=''), '2', '150', 'reset password', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='confirm_password' AND `type`='password' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='core_confirmpassword' AND `language_tag`=''), '2', '150', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('other_user_login_to_forgotten_password_reset');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', '0', '', 'other_user_check_username', 'input',  NULL , '0', 'size=20', '', '', 'username', ''), 
+('Administrate', '0', '', 'other_user_check_password', 'password',  NULL , '0', 'size=20', '', '', 'password', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='other_user_login_to_forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='other_user_check_username' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='username' AND `language_tag`=''), '2', '125', 'other user control', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='other_user_login_to_forgotten_password_reset'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='other_user_check_password' AND `type`='password' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='password' AND `language_tag`=''), '2', '126', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule, language_message)
+(SELECT structure_field_id, 'notEmpty', '' FROM structure_formats WHERE `structure_id`=(SELECT id FROM structures WHERE alias='other_user_login_to_forgotten_password_reset'));
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUE
+('step %s', 'Step %s', 'Étape %s'),
+('password should be different than the %s previous one', 'Password should be different than the %s previous one', 'Le mot de passe doit être différent des %s précédents mots de passe'),
+('please enter you username', 'Please enter you username', 'Veuillez saisir votre nom d''utilisateur'),
+('please conplete the security questions', 'Please conplete the security questions', 'Veuillez compléter les questions de sécurités'),
+('other user control', 'Other User Control', 'Contrôle autre utilisateur');
+
+INSERT INTO structures(`alias`) VALUES ('username');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='username'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='username' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='login_help' AND `language_label`='username' AND `language_tag`=''), '1', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------

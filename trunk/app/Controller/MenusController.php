@@ -40,6 +40,16 @@ class MenusController extends AppController {
 			}
 			$this->set('unlinked_part_coll', $collection_model->find('count', array('conditions' => $conditions)));
 			
+			//msg about uncompleted user questions to reset forgotten password
+			if(Configure::read('reset_forgotten_password_feature')) {
+				$user_model = AppModel::getInstance('', 'User');
+				$user = $user_model->find('first', array('conditions' => array('User.id' => $this->Session->read('Auth.User.id'))));
+				$missing_forgotten_password_reset_answers = false;
+				foreach($user_model->getForgottenPasswordResetFormFields() as $question_field => $answer_field) {
+					if(!strlen($user['User'][$question_field]) || !strlen($user['User'][$answer_field])) $missing_forgotten_password_reset_answers = true;
+				}
+				$this->set('missing_forgotten_password_reset_answers', $missing_forgotten_password_reset_answers);
+			}
 			
 		}else if($set_of_menus == "tools"){
 			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );

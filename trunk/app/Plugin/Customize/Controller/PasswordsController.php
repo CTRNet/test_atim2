@@ -13,7 +13,7 @@ class PasswordsController extends CustomizeAppController {
 		$this->hook();
 		
 		if ( empty($this->request->data) ) {
-			if($this->Session->read('Auth.User.force_password_reset')) AppController::addWarningMsg(__('your password has expired. please change your password for security reason..'));
+			if($this->Session->read('Auth.User.force_password_reset')) AppController::addWarningMsg(__('your password has expired. please change your password for security reason.'));
 			$this->set( 'data', $this->User->read() );
 		}else {
 			$conditions = array(
