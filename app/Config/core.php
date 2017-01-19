@@ -392,6 +392,12 @@ Cache::config('default', array('engine' => 'File'));
 Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
+Configure::write('uploadDirectory', './atimUploadDirectory');
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// LOGIN & PASSWORD
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
 /**
  * Define the complexity of a password format:
  *	- level 0: No constrain
@@ -429,6 +435,34 @@ Configure::write('max_user_login_attempts', 5);
 Configure::write('password_validity_period_month', null);
 
 /**
+ * Period of password validity in month.
+ * Keep empty if no control has to be done.
+ * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
+ */
+Configure::write('password_validity_period_month', null);
+
+/**
+ * Define if the feature of forgotten password reset by user is available on this installation or not
+ * plus the complexity level of the process:
+ *	- level 0: Not supported
+ *	- level 1: Will require the exact answers to 3 user custom questions
+ *	- level 2: Will require the exact answers to 3 user custom questions plus the login and password of a second user
+ */
+Configure::write('reset_forgotten_password_feature', 2);
+
+/**
+ * Define the number of different passwords a user should use before to use an old one.
+ *	- level 0: Not supported (new password should be different than the previous one)
+ *	- level 1: New pasword must be different than the 2 old one passwords
+ *	- level 2: New pasword must be different than the 3 old one passwords
+ */
+Configure::write('different_passwords_number_before_re_use', 2);
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// DATABROWSER AND BATCH ACTIONS
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+/**
  * Set the limit of records that could either be displayed in the databrowser results 
  * form or into a report.
  */
@@ -456,6 +490,10 @@ Configure::write('edit_processed_items_limit', 50);							// OrderItems.editInBa
 
 Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.add(), TmaSlides.editInBatch(), TmaSlideUses.add(), TmaSlideUses.editInBatch(), 
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// ORDER
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
 /**
  * Set the allowed links that exists between an OrderItem and different Order plugin objects:
  * 		1 => link OrderItem to both Order and OrderLine (order line submodule available) 
@@ -463,8 +501,6 @@ Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.
  * 		3 => link OrderItem to Order only (order line submodule not available) 
  */
 Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
-
-Configure::write('uploadDirectory', './atimUploadDirectory');
 
 /**
  * Set the type(s) of item that could be added to order:

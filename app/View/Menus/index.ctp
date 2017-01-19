@@ -43,12 +43,13 @@
 	
 	$due_msg_cond = isset($due_messages_count) && $due_messages_count > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/');
 	$coll_cond = isset($unlinked_part_coll) && $unlinked_part_coll > 0 && AppController::checkLinkPermission('/InventoryManagement/Collections/search/');  
+	$complete_forgotten_password_answers = isset($missing_forgotten_password_reset_answers) && $missing_forgotten_password_reset_answers && AppController::checkLinkPermission('/Customize/Profiles/index/');  
 	
-	if($due_msg_cond || $coll_cond){
+	if($due_msg_cond || $coll_cond || $complete_forgotten_password_answers){
 		$atim_content['messages'] = '';
 		if($due_msg_cond){
 			$atim_content['messages'] = '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('not done participant messages having reached their due date').': '.$due_messages_count.'.
-				Click <a id="goToNotDue" href="javascript:goToNotDoneDueMessages()">here</a> to see them.
+				<a id="goToNotDue" href="javascript:goToNotDoneDueMessages()">'.__('click here to see them').'</a>.
 				</li></ul>
 				<form action="'.$this->request->webroot.'ClinicalAnnotation/ParticipantMessages/search/'.AppController::getNewSearchId().'" method="POST" id="doneDueMessages">
 					<input type="hidden" name="data[ParticipantMessage][done]" value="0">
@@ -59,7 +60,13 @@
 		if($coll_cond){
 			$for_bank_part = isset($bank_filter) ? __('for your bank') : __('for all banks');
 			$atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('unlinked participant collections').' ('.$for_bank_part.'): '.$unlinked_part_coll.'.
-				Click <a id="goToUnlinkedColl" href="'.$this->request->webroot.'InventoryManagement/Collections/search/'.AppController::getNewSearchId().'/unlinkedParticipants:/ ">here</a> to see them.
+				 <a id="goToUnlinkedColl" href="'.$this->request->webroot.'InventoryManagement/Collections/search/'.AppController::getNewSearchId().'/unlinkedParticipants:/ ">'.__('click here to see them').'</a>.
+				</li></ul>
+			';
+		}
+		if($complete_forgotten_password_answers){
+			$atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('user questions to reset forgotten password are not completed - update your profile with the customize tool').'
+				 <a id="goToUnlinkedColl" href="'.$this->request->webroot.'Customize/Profiles/index/">'.__('click here to update').'</a>.
 				</li></ul>
 			';
 		}

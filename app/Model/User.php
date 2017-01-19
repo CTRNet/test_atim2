@@ -129,11 +129,25 @@ class User extends AppModel {
 			}
 			if($db_user_data['User']['password'] === Security::hash($data['User']['new_password'], null, true)) {
 				$validation_errors['password'][] = 'password should be different than the previous one';
+			} else {
+			
+				$different_passwords_number = (int)Configure::read('different_passwords_number_before_re_use');
+				if (!preg_match('/^[0-5]$/', $different_passwords_number)) {
+					$different_passwords_number =  5;
+				}
+				if($different_passwords_number) {
+					$previous_passwords = $this->tryCatchQuery("SELECT password FROM users_revs WHERE id = ".$this->id." ORDER BY version_id DESC LIMIT 1, $different_passwords_number");	// Take last revs record equals current record in consideration
+					foreach($previous_passwords as $previous_password){
+						if($previous_password['users_revs']['password'] == Security::hash($data['User']['new_password'], null, true)) {
+							$validation_errors['password'][] = __('password should be different than the %s previous one', ($different_passwords_number+1));
+						}
+					}
+				}
 			}
 		}
 		
 		$password_security_level = (int)Configure::read('password_security_level');
-		if (!in_array($password_security_level, array(0,1,2,3,4), true)) {
+		if (!preg_match('/^[0-4]$/', $password_security_level)) {
 			$password_security_level =  4;
 		}
 		$password_format_error = false;
@@ -176,7 +190,7 @@ class User extends AppModel {
 	
 		// Set default in case user has never logged in before
 		if (!$last_successful_login_time) {
-			$last_successful_login_time = date('Y-m-d H:i:s');
+			$last_successful_login_time = date('Y-m-d');	//Removed 'H:i:s' in case there is a server client time discrepency
 		}
 	
 		$failed_login_attempts_from_ip = $model_UserLoginAttempt->find('all', array(
@@ -262,7 +276,7 @@ class User extends AppModel {
  * @return void
  */
 	public function disableUser($id) {
-		$this->checkWritableFields = false;
+		$this->check_writable_fields = false;
 		$this->data = array();
 		$this->id = $id;
 		$this->save(array('User' => array('flag_active' => false)));
@@ -315,5 +329,28 @@ class User extends AppModel {
 		}
 		
 		return false;
+	}
+	
+/**
+ * Return the list of all fields of the 'users' database table used to record both personal questions and answers 
+ * used by the 'Forgotten Password Rest' process.
+ *
+ * @return array Table fields (key=[question field]/value=[answer field]) 
+ */
+	function getForgottenPasswordResetFormFields() {
+		$form_fields = array();
+		for($question_id = 1; $question_id < 4; $question_id++) {
+			$form_fields['forgotten_password_reset_question_'.$question_id] = 'forgotten_password_reset_answer_'.$question_id;
+		}
+		return $form_fields;
+	}
+	
+/**
+ * Return the encrypted answer to the questions used by the 'Forgotten Password Rest' process to be recorded into database.
+ *
+ * @return string encrypted answer
+ */	
+	function hashSecuritAsnwer($answer) {
+		return Security::hash(strtolower(trim($answer)), null, true);
 	}
 }
