@@ -1721,8 +1721,8 @@ UPDATE aliquot_controls AL, sample_controls SC SET AL.databrowser_label = CONCAT
 
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
-('clinical record update step', 'Clinical Record Update Step', 'Étape de mise à jour du dossier clinique'),
-('update clinical record', 'Update Clinical Record', 'Mettre à jour dossier clinique'),
+('clinical record update step', 'Clinical File Update Step', 'Étape de mise à jour du dossier clinique'),
+('update clinical record', 'Update Clinical File', 'Mettre à jour dossier clinique'),
 ('skip go to %s', 'Skip - Go To %s', 'Passer - Prochaien étape : %s'),
 ('add procure clinical information', 'Add Specific Information', 'Ajouter information spécifique');
 
@@ -1745,18 +1745,95 @@ UPDATE aliquot_controls SET detail_form_alias = REPLACE(detail_form_alias, 'ad_d
 UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_pbmc_tube') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc');
 INSERT INTO structures(`alias`) VALUES ('procure_pbmc_tube');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_time_at_minus_80_hr', 'integer_positive',  NULL , '0', 'size=3', '', '', 'time at -80 (hr)', '');
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_time_at_minus_80_days', 'integer_positive',  NULL , '0', 'size=3', '', '', 'time at -80 (days)', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='procure_pbmc_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_time_at_minus_80_hr'), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
-ALTER TABLE ad_tubes ADD COLUMN procure_time_at_minus_80_hr int(5) DEFAULT NULL;
-ALTER TABLE ad_tubes_revs ADD COLUMN procure_time_at_minus_80_hr int(5) DEFAULT NULL;
-INSERT INTO i18n (id,en,fr) VALUES ('time at -80 (hr)', 'time at -80c (hr)', 'Temps à -80c (hr)');
+((SELECT id FROM structures WHERE alias='procure_pbmc_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_time_at_minus_80_days'), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE ad_tubes ADD COLUMN procure_time_at_minus_80_days int(5) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs ADD COLUMN procure_time_at_minus_80_days int(5) DEFAULT NULL;
+INSERT INTO i18n (id,en,fr) VALUES ('time at -80 (days)', 'Time At -80c (Days)', 'Temps à -80c (jours)');
 
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
 ('photocopy of drugs for other diseases',
 'A photocopy of this list is atached to the patient worksheet',
 'Une copie de cette liste est jointe à la fiche du patient');
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 20170120
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Collection tempalte : Urine cup
+
+SET @template_id = (SELECT id FROM templates WHERE name = 'Urine');
+SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+
+DELETE FROM template_nodes 
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'urine' AND aliquot_type = 'cup');
+
+-- Centrifuged Urine : Field 'For a volume (ml) of'
+
+ALTER TABLE sd_der_urine_cents CHANGE procure_pellet_volume_ml procure_deprecated_field_procure_pellet_volume_ml decimal(10,5);
+ALTER TABLE sd_der_urine_cents_revs CHANGE procure_pellet_volume_ml procure_deprecated_field_procure_pellet_volume_ml decimal(10,5);
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_pellet_volume_ml' AND `language_label`='' AND `language_tag`='for a volume of ml' AND `type`='float' AND `setting`='size=6' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_pellet_volume_ml' AND `language_label`='' AND `language_tag`='for a volume of ml' AND `type`='float' AND `setting`='size=6' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_pellet_volume_ml' AND `language_label`='' AND `language_tag`='for a volume of ml' AND `type`='float' AND `setting`='size=6' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+-- Tissue Review
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE model='SpecimenReviewMaster' AND tablename='specimen_review_masters' AND field='review_date' AND `type`='date' AND structure_value_domain  IS NULL), 'notEmpty'),
+((SELECT id FROM structure_fields WHERE model='SpecimenReviewMaster' AND tablename='specimen_review_masters' AND field='review_status' AND `type`='select'), 'notEmpty');
+UPDATE structure_fields SET `default`='done' WHERE model='SpecimenReviewMaster' AND tablename='specimen_review_masters' AND field='review_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status');
+ALTER TABLE procure_ar_tissue_slides
+  ADD COLUMN tissue_type VARCHAR(20),
+  ADD COLUMN tumor_size_mm decimal(6,1) NULL,
+  ADD COLUMN tumor_pct decimal(6,1) NULL;
+ALTER TABLE procure_ar_tissue_slides_revs
+  ADD COLUMN tissue_type VARCHAR(20),
+  ADD COLUMN tumor_size_mm decimal(6,1) NULL,
+  ADD COLUMN tumor_pct decimal(6,1) NULL; 
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_slide_tissue_type", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Slide Review : Tissue Type\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Slide Review : Tissue Type', 1, 20, 'inventory - specimen review');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Slide Review : Tissue Type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('tumor' ,'Tumor', 'Tumer', '1', @control_id),
+('normal' ,'Normal', 'Normal', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'procure_ar_tissue_slides', 'tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_slide_tissue_type') , '0', '', '', '', 'type', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'procure_ar_tissue_slides', 'tumor_size_mm', 'float_positive',  NULL , '0', '', '', '', 'tumor size (mm)', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'procure_ar_tissue_slides', 'tumor_pct', 'float_positive',  NULL , '0', '', '', '', 'tumor pct', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tissue_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_slide_tissue_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tumor_size_mm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size (mm)' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tumor_pct' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor pct' AND `language_tag`=''), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('tumor size (mm)', 'Tumor Size (mm)', 'Taille tumeur (mm)'),
+('tumor pct', 'Tumor &#37;', '&#37; tumeur');  
+
+-- Clinical Relapse
+
+ALTER TABLE procure_ed_clinical_exams 
+  ADD COLUMN clinical_relapse CHAR(1) DEFAULT '';
+ALTER TABLE procure_ed_clinical_exams_revs 
+  ADD COLUMN clinical_relapse CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_exams', 'clinical relapse', 'yes_no',  NULL , '0', '', '', '', 'clinical relapse', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_clinical_exams'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_exams' AND `field`='clinical relapse' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical relapse' AND `language_tag`=''), '1', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('clinical relapse', 'Clinical Relapse', 'Récidive clinique');
+
+-- 'vital status mismatch'
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('changed vital status to deceased', 'Changed vital status to deceased', 'Changement du statut vital à  décédé');
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Report
@@ -1780,12 +1857,40 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '21', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+
+
+
+
+
+
+
+
+
+
+
+
+TODO 20170118:
+
+
+Dans la mise à jour des données clinique a la fin si on clique sur go to progile http://atim-software.ca/atim/test/procure/ClinicalAnnotation/Participants/edit/2/end_of_clinical_record_update
+Si on est dans le clinical update et que nous sauvons un tx on est redirigé sur listall
+
+
+
+
+
+
+
+
 TODO
 
 PROCURE - Wrong Aliquot Identifiers Formats
 PROCURE - Biochemical Relapses Detection
 PROCURE - Diagnosis & Treatments Summary
 PROCURE - Patients Followup Summary	Display
+
+utiliser ICD-O-3 Site Code?
+
 
 
 ---------------------------------------------------------------------------------------
