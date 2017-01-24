@@ -2344,7 +2344,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='specify_percentage'), '1', '184', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='medullary_tumor_component'), '1', '185', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='high_histologic_grade'), '1', '186', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-REPLACE INTO i18n (id,en, fr) VALUES ('specify percentage', 'Specify percentage', '');
+REPLACE INTO i18n (id,en, fr) VALUES ('specify percentage', 'Specify percentage', 'Précisez le pourcentage');
 
 INSERT INTO structure_value_domains (domain_name) VALUES ('colon_surgery_2016_margins_1');
 INSERT IGNORE INTO structure_value_domains_permissible_values 
@@ -3106,6 +3106,7 @@ INSERT INTO structures(`alias`) VALUES ('forgotten_password_reset_questions');
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
 ('forgotten_password_reset_questions', "StructurePermissibleValuesCustom::getCustomDropdown('Password Reset Questions')");
+ALTER TABLE structure_permissible_values_custom_controls MODIFY values_max_length INT(4) DEFAULT '5';
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
 VALUES 
 ('Password Reset Questions', 1, 500, 'administration');
@@ -3213,13 +3214,34 @@ Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
 - Added Study and OrderLine Models to the databrowser.
 - Added ICD-0-3-Topo Categories (tissue site/category).
 - Replaced the drug drop down list to an autocomplete field.
-- Added object to track any TMA slide acoring and analysis.
-- Change order tool to allow user to add a TMA slide to an order.
+- Added object to track any TMA slide scoring and analysis.
+- Changed order tool to allow user to add a TMA slide to an order.
 - Added feature to be able to flag a shipped item as returned.
-- Created Buffy Coat and Nail sample types.
+- Created Buffy Coat, Nail, Stool and Vaginal swab sample types.
 - Changed feature to let user to link more than one aliquot type to a path-review.
-- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0)  
+- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0)  ¸
 - Changed structures for password update (both for update in customize and administrator plugin)
-- Add flag to force user to reset the password
-
+- Add flag to force user to reset the password and keep user on the reset form until the password is changed.
+- Created process to reset a forgotten password by security questions.
+- Add core option to ask user to change a password with a new one different than the 2 or 3 old ones.
+- Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
+- Changed DiagnosisControl.category values to
+         - 'secondary' to 'secondary - distant'
+         - 'progression' to 'progression - locoregional'
+         - 'recurrence' to 'recurrence - locoregional'      
+- Created a TMA slide immunochemistry autocomplete field.
+- Removed AliquotMaster.use_counter field
+- datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
+- Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
+- Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
+- Changed displayed pages workflow after treatment creation.	
+- Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
+- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 	
+- Added aliquot in stock detail to ViewAliquot
+- Added field structure_fields.sortable to disable to sort option on 'generated' fields
+ 
+ 
+ 
+ 
+ 
  

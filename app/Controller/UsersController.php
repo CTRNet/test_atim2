@@ -50,6 +50,7 @@ class UsersController extends AppController {
 		
 		if($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
 			// Too many login attempts - froze atim for couple of minutes
+			$this->request->data = array();
 			$this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily'));
 
 		} else if ($this->Auth->login() && (!isset($this->passedArgs['login']))) {
@@ -78,6 +79,7 @@ class UsersController extends AppController {
 				if($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
 					AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
 				}
+				$this->request->data = array();
 				$this->Auth->flash(__('login failed - invalid username or password or disabled user'));
 		}
 

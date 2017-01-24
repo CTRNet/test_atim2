@@ -435,13 +435,6 @@ Configure::write('max_user_login_attempts', 5);
 Configure::write('password_validity_period_month', null);
 
 /**
- * Period of password validity in month.
- * Keep empty if no control has to be done.
- * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
- */
-Configure::write('password_validity_period_month', null);
-
-/**
  * Define if the feature of forgotten password reset by user is available on this installation or not
  * plus the complexity level of the process:
  *	- level 0: Not supported
