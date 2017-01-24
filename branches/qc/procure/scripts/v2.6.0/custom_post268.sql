@@ -132,13 +132,13 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Clinical Exam Precisions', 1, 100, 'clinical - annotation');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam Precisions');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-('chest' ,'Chest', 'Poitrine', '1', @control_id),
-('fdg' ,'FDG', '', '1', @control_id),
-('abdomen / pelvis' ,'Abdomen/Pelvis', 'Abdomen/Bassin', '1', @control_id),
-('spine' ,'Spine', 'Colonne vertébrale', '1', @control_id),
-('bone' ,'Bone', 'Os', '1', @control_id);
+('chest' ,'Chest', 'Poitrine', '1', @control_id, NOW(), '1', NOW(), '1'),
+('fdg' ,'FDG', '', '1', @control_id, NOW(), '1', NOW(), '1'),
+('abdomen / pelvis' ,'Abdomen/Pelvis', 'Abdomen/Bassin', '1', @control_id, NOW(), '1', NOW(), '1'),
+('spine' ,'Spine', 'Colonne vertébrale', '1', @control_id, NOW(), '1', NOW(), '1'),
+('bone' ,'Bone', 'Os', '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_followup_worksheet_clinical_events', 'type_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_type_precisions') , '0', '', '', '', '', 'precision');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -154,19 +154,19 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Progressions & Comorbidities', 1, 100, 'clinical - annotation');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Progressions & Comorbidities');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-('progressions comorbidity to define', 'Progression/Comorbidity (To Define)', 'Progression/comorbidité (À définir)', '1', @control_id),
-('local tumor progression', 'Local tumor progression', 'Progression locale de la tumeur', '1', @control_id),
-("bone metastases", "Bone metastases", "Métastases osseuses", '1', @control_id),
-("hydronephrosis", "Hydronephrosis", "Hydronephrose", '1', @control_id),
-("liver metastases", "Liver metastases", "Métastases hépatiques", '1', @control_id),
-("lung metastases", "Lung metastases", "Métastases pulmonaires", '1', @control_id),
-("pelvic lymph nodes", "Pelvic lymph nodes", "Nodules lymphatiques pelviens", '1', @control_id),
-("retroperitoneal lymph nodes", "Retroperitoneal lymph nodes", "Glandes rétropéritonéales", '1', @control_id),
-("spinal cord compression", "Spinal cord compression", "Compression de la moelle épinière", '1', @control_id),
-("spine metastases", "Spine metastases", "Métastases de la colonne vertébrale", '1', @control_id),
-("thoracic lymph nodes", "Thoracic lymph nodes", "Noeuds lymphatiques thoraciques", '1', @control_id);
+('progressions comorbidity to define', 'Progression/Comorbidity (To Define)', 'Progression/comorbidité (À définir)', '1', @control_id, NOW(), '1', NOW(), '1'),
+('local tumor progression', 'Local tumor progression', 'Progression locale de la tumeur', '1', @control_id, NOW(), '1', NOW(), '1'),
+("bone metastases", "Bone metastases", "Métastases osseuses", '1', @control_id, NOW(), '1', NOW(), '1'),
+("hydronephrosis", "Hydronephrosis", "Hydronephrose", '1', @control_id, NOW(), '1', NOW(), '1'),
+("liver metastases", "Liver metastases", "Métastases hépatiques", '1', @control_id, NOW(), '1', NOW(), '1'),
+("lung metastases", "Lung metastases", "Métastases pulmonaires", '1', @control_id, NOW(), '1', NOW(), '1'),
+("pelvic lymph nodes", "Pelvic lymph nodes", "Nodules lymphatiques pelviens", '1', @control_id, NOW(), '1', NOW(), '1'),
+("retroperitoneal lymph nodes", "Retroperitoneal lymph nodes", "Glandes rétropéritonéales", '1', @control_id, NOW(), '1', NOW(), '1'),
+("spinal cord compression", "Spinal cord compression", "Compression de la moelle épinière", '1', @control_id, NOW(), '1', NOW(), '1'),
+("spine metastases", "Spine metastases", "Métastases de la colonne vertébrale", '1', @control_id, NOW(), '1', NOW(), '1'),
+("thoracic lymph nodes", "Thoracic lymph nodes", "Noeuds lymphatiques thoraciques", '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_followup_worksheet_clinical_events', 'progression_comorbidity', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_progressions_comorbidities') , '0', '', '', '', 'progression / comorbidity', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -200,9 +200,9 @@ INSERT INTO i18n (id,en,fr)
 VALUES ('prostate cancer - clinical exam', 'Clinical Exam', 'Examen clinique');
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam Precisions');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-("prostate", "Prostate", "Prostate", '1', @control_id);
+("prostate", "Prostate", "Prostate", '1', @control_id, NOW(), '1', NOW(), '1');
 
 -- Prostate Diagnostic
 --      ** Event Type : procure diagnostic information worksheet => prostate cancer - diagnosis
@@ -517,9 +517,9 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Clinical Note Types', 1, 100, 'clinical - annotation');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Note Types');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-('hospitalization' ,'Hospitalization', 'Hospitalization', '1', @control_id);
+('hospitalization' ,'Hospitalization', 'Hospitalization', '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_prostate_cancer_clinical_notes', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_event_note_types') , '0', '', '', '', 'type', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -731,15 +731,15 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Surgery Types', 1, 100, 'clinical - treatment');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Surgery Types');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-('transurethral resection of prostate' ,'Transurethral resection of prostate', 'Résection transurethral de la prostate', '1', @control_id),
-('transurethral resection of bladder lesion' ,'Transurethral resection of bladder lesion', 'Résection transurethral des lésions de la vessie', '1', @control_id),
-('cystoscopy double J placement' ,'Cystoscopy double J placement', '', '1', @control_id),
-('radical cystoprostatectomy', 'Radical cystoprostatectomy', 'Cysto-prostatectomie radicale', '1', @control_id),
-('prostatectomy', 'Prostatectomy', 'Prostatectomie', '1', @control_id),
-('prostatectomy aborted', 'Prostatectomy (Aborted)', 'Prostatectomie (Abandonnée)', '1', @control_id),
-('prostatic hyperplasia surgery', 'Prostatic Hyperplasia surgery', 'Chirurgie de l''hyperplasie prostatique', '1', @control_id);
+('transurethral resection of prostate' ,'Transurethral resection of prostate', 'Résection transurethral de la prostate', '1', @control_id, NOW(), '1', NOW(), '1'),
+('transurethral resection of bladder lesion' ,'Transurethral resection of bladder lesion', 'Résection transurethral des lésions de la vessie', '1', @control_id, NOW(), '1', NOW(), '1'),
+('cystoscopy double J placement' ,'Cystoscopy double J placement', '', '1', @control_id, NOW(), '1', NOW(), '1'),
+('radical cystoprostatectomy', 'Radical cystoprostatectomy', 'Cysto-prostatectomie radicale', '1', @control_id, NOW(), '1', NOW(), '1'),
+('prostatectomy', 'Prostatectomy', 'Prostatectomie', '1', @control_id, NOW(), '1', NOW(), '1'),
+('prostatectomy aborted', 'Prostatectomy (Aborted)', 'Prostatectomie (Abandonnée)', '1', @control_id, NOW(), '1', NOW(), '1'),
+('prostatic hyperplasia surgery', 'Prostatic Hyperplasia surgery', 'Chirurgie de l''hyperplasie prostatique', '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_treatments', 'surgery_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_surgery_type') , '0', '', '', '', 'type', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -759,8 +759,8 @@ UPDATE structure_permissible_values_custom_controls SET name = 'Treatment Sites'
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment Sites\')' WHERE domain_name = 'procure_treatment_site';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Sites');
 SELECT `value` AS 'Custom value of Treatment Site not supported by procure. To clean up.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value != 'prostate bed';
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-(SELECT DISTINCT lower(`en_sub_title`), `en_sub_title`, `fr_sub_title`, '1', @control_id FROM `coding_icd_o_3_topography` WHERE en_sub_title != 'unknown primary site');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+(SELECT DISTINCT lower(`en_sub_title`), `en_sub_title`, `fr_sub_title`, '1', @control_id, NOW(), '1', NOW(), '1' FROM `coding_icd_o_3_topography` WHERE en_sub_title != 'unknown primary site');
 
 -- Remove prostatectomy from treatment type
 
@@ -1290,8 +1290,9 @@ modified, modified_by FROM treatment_masters WHERE created = @modified AND creat
 INSERT INTO procure_txd_treatments_revs(treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
 treatment_line,duration,surgery_type,
 version_created)
-(SELECT modified, treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
-treatment_line,duration,surgery_type
+(SELECT treatment_type,dosage,treatment_master_id,procure_deprecated_field_drug_id,treatment_site,treatment_precision,treatment_combination,
+treatment_line,duration,surgery_type,
+modified
 FROM treatment_masters INNER JOIN procure_txd_treatments ON id = treatment_master_id AND created = @modified AND created_by = @modified_by AND tmp_benign_hyperplasia = '1');
 
 ALTER TABLE treatment_masters DROP COLUMN tmp_benign_hyperplasia;
@@ -1351,8 +1352,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Clinical Exam - Results (PROCURE values only)', 1, 50, 'clinical - annotation');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam - Results (PROCURE values only)');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-(SELECT value, en, fr, '1', @control_id
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+(SELECT value, en, fr, '1', @control_id, NOW(), '1', NOW(), '1'
 FROM structure_value_domains domain
 INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
 INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
@@ -1368,8 +1369,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Clinical Exam - Types (PROCURE values only)', 1, 50, 'clinical - annotation');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam - Types (PROCURE values only)');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-(SELECT value, en, fr, '1', @control_id
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+(SELECT value, en, fr, '1', @control_id, NOW(), '1', NOW(), '1'
 FROM structure_value_domains domain
 INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
 INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
@@ -1404,8 +1405,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Treatment Precisions (PROCURE values only)', 1, 50, 'clinical - treatment');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Precisions (PROCURE values only)');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-(SELECT value, en, fr, '1', @control_id
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+(SELECT value, en, fr, '1', @control_id, NOW(), '1', NOW(), '1'
 FROM structure_value_domains domain
 INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
 INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
@@ -1419,8 +1420,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Treatment Types (PROCURE values only)', 1, 50, 'clinical - treatment');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Types (PROCURE values only)');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-(SELECT value, en, fr, '1', @control_id
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+(SELECT value, en, fr, '1', @control_id, NOW(), '1', NOW(), '1'
 FROM structure_value_domains domain
 INNER JOIN structure_value_domains_permissible_values link ON domain.id = link.structure_value_domain_id
 INNER JOIN structure_permissible_values val ON val.id =link.structure_permissible_value_id
@@ -1732,9 +1733,9 @@ UPDATE structure_fields SET  `setting`='size=6' WHERE model='TreatmentDetail' AN
 
 UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantMessages/%';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Participant Message Types');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-('next visit' ,'Next Visit', 'Prochaine Visite', '1', @control_id);
+('next visit' ,'Next Visit', 'Prochaine Visite', '1', @control_id, NOW(), '1', NOW(), '1');
 UPDATE datamart_browsing_controls 
 SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantMessage') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
@@ -1802,10 +1803,10 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 VALUES 
 ('Slide Review : Tissue Type', 1, 20, 'inventory - specimen review');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Slide Review : Tissue Type');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-('tumor' ,'Tumor', 'Tumer', '1', @control_id),
-('normal' ,'Normal', 'Normal', '1', @control_id);
+('tumor' ,'Tumor', 'Tumeur', '1', @control_id, NOW(), '1', NOW(), '1'),
+('normal' ,'Normal', 'Normal', '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'AliquotReviewDetail', 'procure_ar_tissue_slides', 'tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_slide_tissue_type') , '0', '', '', '', 'type', ''), 
 ('InventoryManagement', 'AliquotReviewDetail', 'procure_ar_tissue_slides', 'tumor_size_mm', 'float_positive',  NULL , '0', '', '', '', 'tumor size (mm)', ''), 
@@ -1839,8 +1840,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('changed vital status to deceased', '
 -- Report
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-A faire...
-
 -- Participant Identifiers
 
 REPLACE INTO i18n (id,en,fr) VALUES ('list all identifiers of selected participants', 'List all identifiers of selected participants', 'Liste tous les identifiants de participants sélectionnés');
@@ -1857,23 +1856,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '21', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+TODO PROCESSING SITE todo
 
 
 
 
-
-
-
-
-
-
-
-
-TODO 20170118:
-
-
-Dans la mise à jour des données clinique a la fin si on clique sur go to progile http://atim-software.ca/atim/test/procure/ClinicalAnnotation/Participants/edit/2/end_of_clinical_record_update
-Si on est dans le clinical update et que nous sauvons un tx on est redirigé sur listall
 
 
 
@@ -1888,10 +1875,6 @@ PROCURE - Wrong Aliquot Identifiers Formats
 PROCURE - Biochemical Relapses Detection
 PROCURE - Diagnosis & Treatments Summary
 PROCURE - Patients Followup Summary	Display
-
-utiliser ICD-O-3 Site Code?
-
-
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------

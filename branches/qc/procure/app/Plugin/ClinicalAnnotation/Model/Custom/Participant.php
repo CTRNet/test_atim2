@@ -164,9 +164,10 @@ class ParticipantCustom extends Participant {
 			// 2- Get last user logs and check current url matches the $visit_data_entry_workflow_steps data
 			
 			$UserLog = AppModel::getInstance("", "UserLog", true);
-			$last_user_logs = $UserLog->find('all', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id']), 'fields' => array('DISTINCT UserLog.url'), 'order' => array('UserLog.id DESC'), 'limit' => '2'));
-			$previous_user_log = $last_user_logs[1]['UserLog']['url'];
-			$current_user_log = $last_user_logs[0]['UserLog']['url'];
+			$last_user_logs = $UserLog->find('first', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id']), 'fields' => array('UserLog.id, UserLog.url'), 'order' => array('UserLog.id DESC'), 'limit' => '1'));		
+			$current_user_log = $last_user_logs['UserLog']['url'];
+			$last_user_logs = $UserLog->find('first', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id'], "UserLog.url <> '$current_user_log'"), 'fields' => array('UserLog.id, UserLog.url'), 'order' => array('UserLog.id DESC'), 'limit' => '1'));
+			$previous_user_log = $last_user_logs['UserLog']['url'];		
 			
 			$step_url_defined = $this->getClinicalFileUpdateProcessUrl($participant_id, $current_step_nbr);
 			if(strpos($current_user_log, $step_url_defined['url']) === false) {

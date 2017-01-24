@@ -1394,7 +1394,7 @@ ALTER TABLE `ad_envelopes`
 INSERT INTO sample_controls ( sample_type, sample_category, detail_form_alias, detail_tablename, databrowser_label) 
 VALUES
 ('nail', 'specimen','specimens', 'sd_spe_nails', 'nail');
-ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper', 'envelope') NOT NULL COMMENT 'Generic name.';
+ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper', 'envelope', 'cup') NOT NULL COMMENT 'Generic name.';
 INSERT INTO aliquot_controls (sample_control_id,aliquot_type,detail_form_alias,detail_tablename,flag_active,databrowser_label)
 VALUES
 ((SELECT id FROM sample_controls WHERE sample_type = 'nail'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'nail|tube'),
@@ -2324,7 +2324,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='specify_percentage'), '1', '184', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='medullary_tumor_component'), '1', '185', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_cap_report_16_colon_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_16_colon_resections' AND `field`='high_histologic_grade'), '1', '186', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-REPLACE INTO i18n (id,en) VALUES ('specify percentage', 'Specify percentage');
+REPLACE INTO i18n (id,en, fr) VALUES ('specify percentage', 'Specify percentage', 'Précisez le pourcentage');
 
 INSERT INTO structure_value_domains (domain_name) VALUES ('colon_surgery_2016_margins_1');
 INSERT IGNORE INTO structure_value_domains_permissible_values 
