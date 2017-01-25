@@ -166,6 +166,8 @@ class AdminUsersController extends AdministrateAppController {
 		$this->searchHandler($search_id, $this->User, 'users', '/Administrate/AdminUsers/search');
 		$this->Structures->set('empty', 'empty_structure');
 		
+		$this->set('search_id', $search_id);
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
 			require($hook_link);

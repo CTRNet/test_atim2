@@ -29,6 +29,24 @@ class MenusController extends AppController {
 			$participant_message_model = AppModel::getInstance('ClinicalAnnotation', 'ParticipantMessage', true);
 			$this->set('due_messages_count', $participant_message_model->find('count', array('conditions' => array('ParticipantMessage.done' => 0, 'ParticipantMessage.due_date <' => now()))));
 			
+			//msg about due announcements
+			$conditions = array(
+				array('OR' => 
+					array(
+						array('Announcement.bank_id'=> $_SESSION['Auth']['User']['Group']['bank_id']),
+						array('Announcement.group_id' => $_SESSION['Auth']['User']['group_id'], 'Announcement.user_id' => $_SESSION['Auth']['User']['id'])
+					)
+				),
+				array('OR' => 
+					array(
+						array("Announcement.date = '".date("Y-m-d")."'"),
+						array("Announcement.date_start <= '".date("Y-m-d")."'", "Announcement.date_end >= '".date("Y-m-d")."'")
+					)
+				)
+			);
+			$announcement_model = AppModel::getInstance('', 'Announcement', true);
+			$this->set('due_annoucements_count', $announcement_model->find('count', array('conditions' => $conditions)));
+			
 			//msg about unlinked participant collections
 			$group_model = AppModel::getInstance('', 'Group');
 			$group = $group_model->find('first', array('conditions' => array('Group.id' => $this->Session->read('Auth.User.group_id'))));

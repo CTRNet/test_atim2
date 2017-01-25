@@ -3197,6 +3197,60 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='username'), (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='username' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='login_help' AND `language_label`='username' AND `language_tag`=''), '1', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3360: User 'Account Status' field value does not match list value in edit mode
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='preferences_lock');
+DELETE FROM structures WHERE alias='preferences_lock';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3365 : Annoucements : Unable to create annoucements for a bank or a user
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE menus SET use_link = '/Administrate/Announcements/index/user/%%Group.id%%/%%User.id%%/' WHERE use_link = '/Administrate/Announcements/index/%%Group.id%%/%%User.id%%/';
+UPDATE menus SET use_link = '/Administrate/Announcements/index/bank/%%Bank.id%%/' WHERE use_link = '/Administrate/Announcements/index/%%Bank.id%%/';
+UPDATE menus SET use_summary = 'Administrate.User::summary' WHERE use_link = '/Administrate/Announcements/index/user/%%Group.id%%/%%User.id%%/';
+UPDATE menus SET use_summary = 'Administrate.Bank::summary' WHERE use_link = '/Administrate/Announcements/index/bank/%%Bank.id%%/';
+ALTER TABLE `announcements` 
+  MODIFY `date` date DEFAULT NULL,
+  MODIFY `date_start` date DEFAULT NULL,
+  MODIFY `date_end` date DEFAULT NULL;
+ALTER TABLE `announcements_revs`
+  MODIFY `date` date DEFAULT NULL,
+  MODIFY `date_start` date DEFAULT NULL,
+  MODIFY `date_end` date DEFAULT NULL;  
+DROP TABLE IF EXISTS `announcements_revs`;
+CREATE TABLE `announcements_revs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `group_id` int(11) DEFAULT NULL,
+  `bank_id` int(11) DEFAULT '0',
+  `date` date DEFAULT NULL,
+  `date_accuracy` char(1) NOT NULL DEFAULT '',
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `body` text NOT NULL,
+  `date_start` date DEFAULT NULL,
+  `date_start_accuracy` char(1) NOT NULL DEFAULT '',
+  `date_end` date DEFAULT NULL,
+  `date_end_accuracy` char(1) NOT NULL DEFAULT '',
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+UPDATE structure_fields SET tablename = 'announcements' WHERE tablename = 'annoucements';
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='body' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='date_start' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='date_end' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='body' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='date_start' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='announcements') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Announcement' AND `tablename`='announcements' AND `field`='date_end' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE menus SET flag_active = '1' WHERE use_link = '/Administrate/Announcements/index/user/%%Group.id%%/%%User.id%%/';
+INSERT INTO i18n (id,en,fr) VALUES ('you have %s due annoucements', 'You have %s annoucements.', 'Vous avez %s annonces');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
@@ -3239,9 +3293,5 @@ Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
 - Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 	
 - Added aliquot in stock detail to ViewAliquot
 - Added field structure_fields.sortable to disable to sort option on 'generated' fields
- 
- 
- 
- 
- 
+- Re-written code for announcements management
  
