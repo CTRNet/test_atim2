@@ -119,6 +119,12 @@ class AppController extends Controller {
 		if(isset($this->request->query['file'])) {
             pr($this->request->query['file']);
 		}
+
+            if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
+                AppController::addWarningMsg(
+                    __('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, '
+                       .'which will cause problems whenever you display more options than max_input_vars'));
+            }
 	}
 	
 	function hook( $hook_extension='' ) {
