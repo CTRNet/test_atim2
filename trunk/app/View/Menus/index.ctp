@@ -44,8 +44,9 @@
 	$due_msg_cond = isset($due_messages_count) && $due_messages_count > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/');
 	$coll_cond = isset($unlinked_part_coll) && $unlinked_part_coll > 0 && AppController::checkLinkPermission('/InventoryManagement/Collections/search/');  
 	$complete_forgotten_password_answers = isset($missing_forgotten_password_reset_answers) && $missing_forgotten_password_reset_answers && AppController::checkLinkPermission('/Customize/Profiles/index/');  
+	$due_annoucements_cond = isset($due_annoucements_count) && $due_annoucements_count > 0 && AppController::checkLinkPermission('/Customize/Announcements/index/');
 	
-	if($due_msg_cond || $coll_cond || $complete_forgotten_password_answers){
+	if($due_msg_cond || $coll_cond || $complete_forgotten_password_answers || $due_annoucements_cond){
 		$atim_content['messages'] = '';
 		if($due_msg_cond){
 			$atim_content['messages'] = '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('not done participant messages having reached their due date').': '.$due_messages_count.'.
@@ -66,7 +67,13 @@
 		}
 		if($complete_forgotten_password_answers){
 			$atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('user questions to reset forgotten password are not completed - update your profile with the customize tool').'
-				 <a id="goToUnlinkedColl" href="'.$this->request->webroot.'Customize/Profiles/index/">'.__('click here to update').'</a>.
+				 <a id="goToNotDue" href="'.$this->request->webroot.'Customize/Profiles/index/">'.__('click here to update').'</a>.
+				</li></ul>
+			';
+		}
+		if($due_annoucements_cond) {
+			$atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('you have %s due annoucements', $due_annoucements_cond).'
+				 <a id="goToNotDue" href="'.$this->request->webroot.'Customize/Announcements/index/">'.__('click here to see them').'</a>.
 				</li></ul>
 			';
 		}
