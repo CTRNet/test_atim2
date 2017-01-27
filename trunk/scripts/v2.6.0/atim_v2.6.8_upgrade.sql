@@ -3251,6 +3251,47 @@ UPDATE menus SET flag_active = '1' WHERE use_link = '/Administrate/Announcements
 INSERT INTO i18n (id,en,fr) VALUES ('you have %s due annoucements', 'You have %s annoucements.', 'Vous avez %s annonces');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Changed the labels of the list of the 'Check Conflict' field used when setting the data of a new storage type 
+-- (Tool : Manage storage types)
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("0", "storage_check_conflicts_none"),("1", "storage_check_conflicts_warning"),("2", "storage_check_conflicts_error");
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts");
+INSERT IGNORE INTO structure_value_domains_permissible_values 
+(structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="storage_check_conflicts_none"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="storage_check_conflicts_warning"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="storage_check_conflicts"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="storage_check_conflicts_error"), "3", "1");
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('storage_check_conflicts_none', 'No control for items stored in the same position', 'Aucun contrôle sur les items entreposés à la même position'),
+('storage_check_conflicts_warning', 'Items stored in the same position generate warning', 'Items entreposés à la même position génèrent un avertissement'),
+('storage_check_conflicts_error', 'Items stored in the same position generate error', 'Items entreposés à la même position génèrent une erreur');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Added mail cod to study investigator address
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE study_investigators
+  ADD COLUMN mail_code VARCHAR(10) DEFAULT NULL;
+ALTER TABLE study_investigators_revs
+  ADD COLUMN mail_code VARCHAR(10) DEFAULT NULL; 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudyInvestigator', 'study_investigators', 'mail_code', 'input',  NULL , '0', 'size=7', '', '', 'mail_code', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studyinvestigators'), (SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='mail_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=7' AND `default`='' AND `language_help`='' AND `language_label`='mail_code' AND `language_tag`=''), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#3367: The Order line type 'TMA Slide' is missing in the order items list
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='orderitems_and_lines'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='product_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='order_line_product_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='product type' AND `language_tag`=''), '0', '36', 'line', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_and_lines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_and_lines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type_from_id') AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;

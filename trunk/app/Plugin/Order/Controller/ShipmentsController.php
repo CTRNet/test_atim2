@@ -384,16 +384,20 @@ class ShipmentsController extends OrderAppController {
 			if(!isset($data[$order_item['OrderLine']['id']])){
 				$name = '';
 				if($order_item['OrderLine']['id']) {
-					$sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);
-					$name = __($sample_ctrl['SampleControl']['sample_type']);
-					if($order_item['OrderLine']['aliquot_control_id']){
-						$aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
-						$name .= ' - '.$aliquot_ctrl['AliquotControl']['aliquot_type'];
-					}
-					if($order_item['OrderLine']['sample_aliquot_precision']){
-						$name .= ' - '.$order_item['OrderLine']['sample_aliquot_precision'];
-					}
-				}				
+					if($order_item['OrderLine']['sample_control_id']) {					
+						$sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);		
+						$name = __($sample_ctrl['SampleControl']['sample_type']);
+						if($order_item['OrderLine']['aliquot_control_id']){
+							$aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
+							$name .= ' - '.$aliquot_ctrl['AliquotControl']['aliquot_type'];
+						}
+						if($order_item['OrderLine']['product_type_precision']){
+							$name .= ' - '.$order_item['OrderLine']['product_type_precision'];
+						}
+					} else if($order_item['OrderLine']['is_tma_slide']) {
+						$name = __('tma slide');
+					}		
+				}
 				$data[$order_item['OrderLine']['id']] = array('name' => $name, 'order_line_id' => $order_item['OrderLine']['id'], 'data' => array());
 				$name_to_id[$name][] = $order_item['OrderLine']['id'];
 			}
