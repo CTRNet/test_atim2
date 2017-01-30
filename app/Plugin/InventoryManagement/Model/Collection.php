@@ -58,7 +58,7 @@ class Collection extends InventoryManagementAppModel {
 	 */
 	function hasChild(array $collection_ids){
 		$sample_master = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
-		return array_filter($sample_master->find('list', array('fields' => array("SampleMaster.collection_id"), 'conditions' => array('SampleMaster.collection_id' => $collection_ids, 'SampleMaster.parent_id IS NULL'), 'group' => array('SampleMaster.collection_id'))));
+		return array_unique(array_filter($sample_master->find('list', array('fields' => array("SampleMaster.collection_id"), 'conditions' => array('SampleMaster.collection_id' => $collection_ids, 'SampleMaster.parent_id IS NULL')))));
 	}
 
 	/**
