@@ -44,6 +44,11 @@ class OrderItem extends OrderAppModel {
 				$new_item['Generated']['type'] = 'tma slide';
 				if(isset($new_item['TmaSlide']['barcode'])) $new_item['Generated']['barcode'] = $new_item['TmaSlide']['barcode'];
 			}
+			//Set the order line product type value
+			if(isset($new_item['OrderLine']) &&  array_key_exists('sample_control_id', $new_item['OrderLine']) && array_key_exists('aliquot_control_id', $new_item['OrderLine']) &&  array_key_exists('is_tma_slide', $new_item['OrderLine'])) {
+				$new_item['FunctionManagement']['product_type'] = $new_item['OrderLine']['sample_control_id'].'|'.$new_item['OrderLine']['aliquot_control_id'].'|'.$new_item['OrderLine']['is_tma_slide'];
+				if('||' == $new_item['FunctionManagement']['product_type']) $new_item['FunctionManagement']['product_type'] = '';
+			}
 		}
 		return $results;
 	}

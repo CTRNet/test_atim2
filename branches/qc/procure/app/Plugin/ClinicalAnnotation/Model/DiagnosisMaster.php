@@ -147,20 +147,17 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 	function hasChild(array $diagnosis_master_ids){
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 		$event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-		return array_merge($this->find('list', array(
+			return array_unique(array_merge($this->find('list', array(
 				'fields'		=> array('DiagnosisMaster.parent_id'),
-				'conditions'	=> array('DiagnosisMaster.parent_id' => $diagnosis_master_ids),
-				'group'			=> array('DiagnosisMaster.parent_id')
+				'conditions'	=> array('DiagnosisMaster.parent_id' => $diagnosis_master_ids)
 			)), $tx_model->find('list', array(
 				'fields'		=> array('TreatmentMaster.diagnosis_master_id'),
-				'conditions'	=> array('TreatmentMaster.diagnosis_master_id' => $diagnosis_master_ids),
-				'group'			=> array('TreatmentMaster.diagnosis_master_id')
+				'conditions'	=> array('TreatmentMaster.diagnosis_master_id' => $diagnosis_master_ids)
 			)), $event_master_model->find('list', array(
 				'fields'		=> array('EventMaster.diagnosis_master_id'),
-				'conditions'	=> array('EventMaster.diagnosis_master_id' => $diagnosis_master_ids),
-				'group'			=> array('EventMaster.diagnosis_master_id')
+				'conditions'	=> array('EventMaster.diagnosis_master_id' => $diagnosis_master_ids)
 			))
-		);
+		));
 	}
 	
 	/**

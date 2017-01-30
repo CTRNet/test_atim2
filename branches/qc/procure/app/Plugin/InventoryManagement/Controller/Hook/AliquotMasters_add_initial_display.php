@@ -70,6 +70,7 @@
 					break;
 				case 'pbmc-tube':		
 					$barcode_suffix = '-PBMC';
+					$default_volume = '1';
 					break;
 				case 'buffy coat-tube':		
 					$barcode_suffix = '-BFC';

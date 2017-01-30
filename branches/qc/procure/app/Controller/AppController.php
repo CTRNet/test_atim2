@@ -71,7 +71,15 @@ class AppController extends Controller {
 		}
 		
 		$this->Auth->authorize = 'Actions';
-			
+
+		//Check password should be reset
+		$lower_url_here = strtolower($this->request->here);
+		if($this->Session->read('Auth.User.force_password_reset') && strpos($lower_url_here, '/users/logout') === false) {
+			if(strpos($lower_url_here, '/customize/passwords/index') === false) {
+				$this->redirect('/Customize/Passwords/index/');
+			}
+		}
+		
 		// record URL in logs
 		$log_activity_data['UserLog']['user_id']  = $this->Session->read('Auth.User.id');
 		$log_activity_data['UserLog']['url']  = $this->request->here;
@@ -111,6 +119,12 @@ class AppController extends Controller {
 		if(isset($this->request->query['file'])) {
             pr($this->request->query['file']);
 		}
+
+            if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
+                AppController::addWarningMsg(
+                    __('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, '
+                       .'which will cause problems whenever you display more options than max_input_vars'));
+            }
 	}
 	
 	function hook( $hook_extension='' ) {
@@ -1135,6 +1149,28 @@ if(Configure::read('procure_atim_version') == 'CENTRAL') Configure::write('use_c
 		AppModel::acquireBatchViewsUpdateLock();
 		//Current Volume
 		$current_volumes_updated = array();
+		//Search all aliquots having initial_volume but no current_volume
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
+			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NOT NULL AND am.current_volume IS NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'current_volume' => $new_aliquot['am']['initial_volume'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}
+		//Search all aliquots having current_volume but no initial_volume
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
+			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NULL AND am.current_volume IS NOT NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'current_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}
 		//Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
 		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
 		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);

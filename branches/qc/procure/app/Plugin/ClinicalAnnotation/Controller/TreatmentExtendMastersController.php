@@ -98,7 +98,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 
 			} else  {
 				$this->TreatmentExtendMaster->validationErrors = array();
-				$this->TreatmentExtendDetail->validationErrors = array();
+				if(isset($this->TreatmentExtendDetail->validationErrors)) $this->TreatmentExtendDetail->validationErrors = array();
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
 						$msg = __($msg);

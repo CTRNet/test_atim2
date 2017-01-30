@@ -851,9 +851,12 @@ class AppModel extends Model {
 			}
 		}
 		if($instance === false && $error_view_on_null){
-			pr(AppController::getStackTrace());
-			die('died in AppModel::getInstance ['.$plugin_name.$class_name.'] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');//TODO: remove me!
-			AppController::getInstance()->redirect( '/Pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
+			if (Configure::read('debug') > 0) {
+				pr(AppController::getStackTrace());
+				die('died in AppModel::getInstance ['.$plugin_name.$class_name.'] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
+			} else {
+				AppController::getInstance()->redirect( '/Pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
+			}
 		}
 		
 		return $instance;
@@ -1524,5 +1527,13 @@ class AppModel extends Model {
 		self::$cached_views_delete = array();
 		self::$cached_views_insert = array();
         self::$locked_views_update = false;
+	}
+	
+	static function getRemoteIPAddress(){
+		return (!empty($_SERVER['HTTP_CLIENT_IP']))? 
+			$_SERVER['HTTP_CLIENT_IP'] : 
+			((!empty($_SERVER['HTTP_X_FORWARDED_FOR']))? 
+				$_SERVER['HTTP_X_FORWARDED_FOR'] : 
+				$_SERVER['REMOTE_ADDR']);
 	}
 }

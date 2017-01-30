@@ -1463,7 +1463,7 @@ class StructuresHelper extends Helper {
 		$reformatted_date = array();
 		if(isset($model_data[$field])) {
 			if(!empty($model_data[$field])) {	
-				$accuracy =  isset($model_data[$field.'_accuracy'])? $model_data[$field.'_accuracy'] : 'c';
+				$accuracy =  isset($model_data[$field.'_accuracy'])? ($model_data[$field.'_accuracy']? $model_data[$field.'_accuracy'] : 'c' ): 'c';
 				$reformatted_date  = $model_data[$field];
 				if(($field_type == 'date' && !preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $reformatted_date)) || ($field_type == 'datetime' && !preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}\ [0-9]{2}\:[0-9]{2}(\:[0-9][0-9]){0,1}$/', $reformatted_date))) {				
 					//Add regular expression on date to be sure date has been first formated by updateDataWithAccuracy() (not done when exproting data on same line from databrowser)
@@ -1874,8 +1874,8 @@ class StructuresHelper extends Helper {
 							
 							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
 							$default_sorting_direction = strtolower($default_sorting_direction);
-
-							if($options['settings']['pagination'] || $options['settings']['sorting']){
+							
+							if($table_row_part['sortable'] && ($options['settings']['pagination'] || $options['settings']['sorting'])){
 								$sorted_on_current_column = $table_row_part['model'].'.'.$table_row_part['field'] == $sort_on;
 								if($sorted_on_current_column){
 									$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
@@ -2033,6 +2033,7 @@ class StructuresHelper extends Helper {
 						"help" 				=> strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
 						"setting" 			=> $sfs['setting'],//required for icd10 magic
 						"default"			=> $sfs['default'],
+						"sortable"			=> $sfs['sortable'],
 						"flag_confidential"	=> $sfs['flag_confidential'],
 						"flag_float"		=> $sfs['flag_float'],
 						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"],
