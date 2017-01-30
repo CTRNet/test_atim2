@@ -1,13 +1,14 @@
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- ATiM v2.6.8 Upgrade Script
 --
--- See ATiM wiki fpr more information: 
+-- See ATiM wiki for more information: 
 --    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
 -- -----------------------------------------------------------------------------------------------------------------------------------
 --
 -- MIGRATION DETAIL:
 -- 
 --   ### 1 # Added Investigator and Funding sub-models to study tool
+--   ---------------------------------------------------------------
 --
 --      To be able to create one to many investigators or fundings of a study.
 --
@@ -16,9 +17,9 @@
 --      In /app/Plugin/StudyView/StudySummaries/detail.ctp, set the variables $display_study_fundings and/or $display_study_investigators
 --      to 'false' to hide the section.
 --
---
 --		
 --   ### 2 # Replaced the study drop down list to both an autocomplete field and a text field
+--   ----------------------------------------------------------------------------------------
 --
 --      Replaced all 'study_summary_id' field with 'select' type and 'domain_name' equals to 'study_list' by the 2 following fields
 --			- Study.FunctionManagement.autocomplete_{.*}_study_summary_id for any data creation and update
@@ -26,7 +27,7 @@
 --		
 --		A field study_summary_title has been created for both ViewAliquot and ViewAliquotUse.
 --		
---      The defintion of study linked to a created/updated data is now done through an 'autocomplete' field.
+--      The definition of study linked to a created/updated data is now done through an 'autocomplete' field.
 --		
 --      The search of a study linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
 --		
@@ -48,8 +49,8 @@
 --      Update $table_querie variables of the ViewAliquotCustom and ViewAliquotUseCustom models (if exists).
 --
 --		
---
 --   ### 2 # Added Study Model to the databrowser
+--   --------------------------------------------
 --
 --      TODO:
 --
@@ -62,11 +63,12 @@
 --
 --
 --   ### 3 # Added ICD-0-3-Topo Categories (tissue site/category)
+--   ------------------------------------------------------------
 --
---		The ICD-0-3-Topo categories have been defined based on an internet reasearch (no source file).
+--		The ICD-0-3-Topo categories have been defined based on an internet research (no source file).
 --		
 --		Created field 'diagnosis_masters.icd_0_3_topography_category' to record a ICD-0-3-Topo 3 digits codes (C07, etc) 
---		and to let user searches on tissue site/category (more generic than tissue descritpion - ex: colon, etc).
+--		and to let user searches on tissue site/category (more generic than tissue description - ex: colon, etc).
 --		
 --		A search field on ICD-0-3-Topo categories has been created for each form displaying a field linked to the ICD-0-3-Topo tool.
 --		
@@ -81,8 +83,8 @@
 --		field (when the diagnosis_masters.topography field contains ICD-0-3-Topo codes).
 --
 --		
---
 --   ### 4 # Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
+--   -----------------------------------------------------------------------------------------------------------------------------------
 --
 -- 		New field is linked to the StructureValueDomain 'secondary_diagnosis_icd10_code_who' that gathers only ICD-10 codes of secondaries.
 --
@@ -91,8 +93,8 @@
 --		Check any of your secondary diagnosis forms.
 --		
 --
---
 --   ### 5 # Changed DiagnosisControl.category values
+--   ------------------------------------------------
 -- 	
 --		Changed:	
 --         - 'secondary' to 'secondary - distant'
@@ -104,8 +106,8 @@
 --		Update custom code if required.
 --		
 --
---
 --   ### 6 # Replaced the drug drop down list to both an autocomplete field and a text field plus moved drug_id field to Master model
+--   --------------------------------------------------------------------------------------------------------------------------------
 --
 --		Replaced all 'drug_id' field with 'select' type and 'domain_name' equals to 'drug_list' by the 3 following field
 --			- ClinicalAnnotation.FunctionManagement.autocomplete_treatment_drug_id for any data creation and update
@@ -139,8 +141,8 @@
 --      ALTER TABLE {tablename}_revs DROP COLUMN drug_id;
 --		
 --
---
 --   ### 7 # TMA slide new features
+--   ------------------------------
 --
 --      Created an immunochemistry autocomplete field.
 --		
@@ -160,8 +162,8 @@
 --		Review the /app/webroot/img/dataBrowser/datamart_structures_relationships.vsd document.
 --		
 --
---
 --   ### 8 # Order tool upgrade
+--   --------------------------
 --
 --      The all Order tool has been redesigned to be able to:
 --			- Add tma slide to an order (both aliquot and tma slide will be considered as OrderItem).
@@ -184,8 +186,8 @@
 --      Update $table_querie variable of the ViewAliquotUseCustom model (if exists).
 --		
 --
---
 --   ### 9 # New Sample and aliquot controls
+--   ---------------------------------------
 --
 --      Created:
 --			- Buffy Coat
@@ -198,10 +200,10 @@
 --		Activate these sample types if required.
 --		
 --
---
 --   ### 10 # Removed AliquotMaster.use_counter field
+--   ------------------------------------------------
 --
--- 		Function AliquotMaster.updateAliquotUseAndVolume() is now deprecated and repalced by AliquotMaster.updateAliquotVolume().
+-- 		Function AliquotMaster.updateAliquotUseAndVolume() is now deprecated and replaced by AliquotMaster.updateAliquotVolume().
 --
 --		TODO:
 --
@@ -210,8 +212,8 @@
 --		Check custom function AliquotMasterCustom.updateAliquotUseAndVolume() exists and update this one if required.
 --		
 --
---
 --   ### 11 # datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
+--   ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --
 --		TODO:
 --		
@@ -219,9 +221,9 @@
 --			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
 --			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND name != 'list all children storages';
 --
---		
 --
 --   ### 12 # Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
+--   -------------------------------------------------------------------------------------------------------------
 --
 --		TODO:
 --		
@@ -229,16 +231,16 @@
 --			SELECT storage_type, coord_x_size, coord_y_size FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);
 --
 --		
---
 --   ### 13 # Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
+--   -----------------------------------------------------------------------------------------------------------
 --
 --		TODO:
 --		
 --		Check any custom code using AliquotMaster.getDefaultStorageDate().
 --
 --		
---
---  ### 14 # Changed displayed pages workflow after treatment creation.
+--   ### 14 # Changed displayed pages workflow after treatment creation.
+--   ------------------------------------------------------------------
 --
 --		Based on the created treatment type and the selected protocol (when option exists), the next page displayed after a treatment creation could be:
 --			- The treatment detail form.
@@ -250,8 +252,8 @@
 --		Change workflow by hook if required.
 --
 --
---		
---  ### 15 # Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
+--   ### 15 # Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
+--   ------------------------------------------------------------------------------------------------------
 --
 --		Removed the CodingIcd.%_title, CodingIcd.%_sub_title and CodingIcd.%_descriptions fields.
 --
@@ -260,8 +262,8 @@
 --		Override the CodingIcdAppModel.globalSearch and CodingIcdAppModel.getDescription functions.
 --
 --		
---
 --  ### 16 # Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 
+--   -----------------------------------------------------------------------------------------------------------------------------------------------------------
 --
 --		TODO:
 --		
@@ -270,16 +272,16 @@
 --			- UPDATE event_controls SET flag_active = '1' WHERE event_type = 'cap report 2016 - colon/rectum - excis. resect.';
 --
 --
---		
 --   ### 17 # Added aliquot in stock detail to ViewAliquot
+--   -----------------------------------------------------
 --
 --      TODO:
 --
 --      Update $table_querie variable of the ViewAliquotCustom model (if exists).
 --
 --
---		
---   ### 18 # Added field structure_fields.sortable 
+--   ### 18 # Added field structure_fields.sortable
+--   ---------------------------------------------- 
 --
 --      In index view, the 'sortable' value will define if the user can sort records based on field column data or not. A field
 --      displaying data generated by the system can not be used as sort criteria.
@@ -289,6 +291,27 @@
 --      Review custom fields and set value to 0 if fields can not be used to sort data
 --
 --
+--   ### 19 # Added new password management features
+--   -----------------------------------------------
+--   
+--      Some features have been developed to:
+--			- Ban use of a limited number of previous passwords for any user who has to change his password.
+--			- Allow users to reset a forgotten password with no support of the administrator.
+--
+--      TODO:
+--
+--		Set the new core variables 'reset_forgotten_password_feature' and 'different_passwords_number_before_re_use'.
+--		Change the list of questions a user can select to record personal answers that will be used by the 'Reset forgotten password feature'. See the 'Password Reset Questions' list 
+--		of the 'Dropdown List Configuration' tool.
+--
+--
+--   ### 20 # Changed trunk code to support sql_mode ONLY_FULL_GROUP_BY
+--   ------------------------------------------------------------------
+--   
+--       TODO:
+--
+--		Review any custom code if your installation set up includes the sql_mode ONLY_FULL_GROUP_BY.
+-- 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -3085,7 +3108,7 @@ FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE ali
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='users') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field` IN ('flag_active', 'force_password_reset'));
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- 
+-- Reset Password
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE users
@@ -3266,7 +3289,7 @@ VALUES
 ('storage_check_conflicts_error', 'Items stored in the same position generate error', 'Items entreposés à la même position génèrent une erreur');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Added mail cod to study investigator address
+-- Added mail code to study investigator address
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE study_investigators
@@ -3288,6 +3311,13 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_and_lines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type_from_id') AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add missing category to custom drop down list
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("administration", "administration");
+INSERT IGNORE INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="administration" AND language_alias="administration"), "", "1");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- 'Missing translations
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -3302,60 +3332,5 @@ VALUES
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'6564','n/a');
-
--- -----------------------------------------------------------------------------------------------------------------------------------
--- -----------------------------------------------------------------------------------------------------------------------------------
-
-Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
-
-- Added Investigator and Funding to study tool.
-- Replaced the study drop down list to an autocomplete field to help user data entry.
-- Added Study and OrderLine Models to the databrowser.
-- Added ICD-0-3-Topo Categories (tissue site/category).
-- Replaced the drug drop down list to an autocomplete field.
-- Added object to track any TMA slide scoring and analysis.
-- Changed order tool to allow user to add a TMA slide to an order.
-- Added feature to be able to flag a shipped item as returned.
-- Created Buffy Coat, Nail, Stool and Vaginal swab sample types.
-- Changed feature to let user to link more than one aliquot type to a path-review.
-- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0)  ¸
-- Changed structures for password update (both for update in customize and administrator plugin)
-- Add flag to force user to reset the password and keep user on the reset form until the password is changed.
-- Created process to reset a forgotten password by security questions.
-- Add core option to ask user to change a password with a new one different than the 2 or 3 old ones.
-- Changed field 'Disease Code (ICD-10_WHO code)' of secondary diagnosis form from ICD-10_WHO tool to a limited drop down list
-- Changed DiagnosisControl.category values to
-         - 'secondary' to 'secondary - distant'
-         - 'progression' to 'progression - locoregional'
-         - 'recurrence' to 'recurrence - locoregional'      
-- Created a TMA slide immunochemistry autocomplete field.
-- Removed AliquotMaster.use_counter field
-- datamart_structures 'storage' replaced by either datamart_structures 'storage (non tma block)' and datamart_structures 'tma blocks (storages sub-set)'
-- Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
-- Replaced AliquotMaster.getDefaultStorageDate() by AliquotMaster.getDefaultStorageDateAndAccuracy()
-- Changed displayed pages workflow after treatment creation.	
-- Changed way we format the displayed results of a search on a Coding System List (WHO-10, etc).
-- Added CAP Report "Protocol for the Examination of Specimens From Patients With Primary Carcinoma of the Colon and Rectum" (version 2016 - v3.4.0.0) 	
-- Added aliquot in stock detail to ViewAliquot
-- Added field structure_fields.sortable to disable to sort option on 'generated' fields
-- Re-written code for announcements management
-
-
-
-
-
-
-Ability for users to reset password
-Add OrderLine to databrowser
-Add study to databrowser
-Annoucements : Unable to create annoucements for a bank or a user
-Be able to add a TMA slide to an order 
-Be able to create one to many TMA slide uses/analysis/scoring
-Be able to flag a shipped aliquot as returned 
-create both buffy coat and pbmc
-Impossible to set user password
-Password Reset Issue
-Replace drop down list field by autocomplete field for any study field
-
+('2.6.8', NOW(),'6636','n/a');
  
