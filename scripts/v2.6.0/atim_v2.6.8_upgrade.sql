@@ -3215,13 +3215,9 @@ ALTER TABLE `announcements`
   MODIFY `date` date DEFAULT NULL,
   MODIFY `date_start` date DEFAULT NULL,
   MODIFY `date_end` date DEFAULT NULL;
-ALTER TABLE `announcements_revs`
-  MODIFY `date` date DEFAULT NULL,
-  MODIFY `date_start` date DEFAULT NULL,
-  MODIFY `date_end` date DEFAULT NULL;  
 DROP TABLE IF EXISTS `announcements_revs`;
 CREATE TABLE `announcements_revs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `group_id` int(11) DEFAULT NULL,
   `bank_id` int(11) DEFAULT '0',
@@ -3292,6 +3288,15 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_and_lines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type_from_id') AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- 'Missing translations
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES 
+('news', 'News', 'Actualités')
+('minute', 'Minute', 'Minute');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
@@ -3335,4 +3340,22 @@ Lines to remove and to add to ATiM Wiki after v2.6.8 tag.
 - Added aliquot in stock detail to ViewAliquot
 - Added field structure_fields.sortable to disable to sort option on 'generated' fields
 - Re-written code for announcements management
+
+
+
+
+
+
+Ability for users to reset password
+Add OrderLine to databrowser
+Add study to databrowser
+Annoucements : Unable to create annoucements for a bank or a user
+Be able to add a TMA slide to an order 
+Be able to create one to many TMA slide uses/analysis/scoring
+Be able to flag a shipped aliquot as returned 
+create both buffy coat and pbmc
+Impossible to set user password
+Password Reset Issue
+Replace drop down list field by autocomplete field for any study field
+
  
