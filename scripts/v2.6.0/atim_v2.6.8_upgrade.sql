@@ -3323,7 +3323,7 @@ INSERT IGNORE INTO structure_value_domains_permissible_values (structure_value_d
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
-('news', 'News', 'Actualités')
+('news', 'News', 'Actualités'),
 ('minute', 'Minute', 'Minute');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -3332,5 +3332,5 @@ VALUES
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'6636','n/a');
+('2.6.8', NOW(),'6638','n/a');
  
