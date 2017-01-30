@@ -72,7 +72,7 @@
 			';
 		}
 		if($due_annoucements_cond) {
-			$atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('you have %s due annoucements', $due_annoucements_cond).'
+			$atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('you have %s due annoucements', $due_annoucements_count).'
 				 <a id="goToNotDue" href="'.$this->request->webroot.'Customize/Announcements/index/">'.__('click here to see them').'</a>.
 				</li></ul>
 			';
