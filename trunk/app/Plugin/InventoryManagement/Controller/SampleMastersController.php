@@ -94,7 +94,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			//aliquots that are not realiquots
 			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 			$aliquot_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
-			$aliquot_ids = array_diff($aliquot_ids, $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids), 'group' => array("Realiquoting.child_aliquot_master_id"))));
+			$aliquot_ids = array_diff($aliquot_ids, array_unique(array_filter($this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids))))));
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
 			
 			$aliquot_ids[] = 0;//counters Eventum 1353
@@ -106,7 +106,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			}
 			$this->request->data = array_merge($aliquots, $this->request->data);
 		}
-
+		
 		// Set menu variables
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
 		
