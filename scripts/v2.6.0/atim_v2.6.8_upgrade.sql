@@ -3332,5 +3332,5 @@ VALUES
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'6638','n/a');
+('2.6.8', NOW(),'6640','n/a');
  
