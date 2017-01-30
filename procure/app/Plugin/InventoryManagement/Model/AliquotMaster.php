@@ -254,10 +254,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		if(isset($this->data['AliquotMaster']['barcode'])){
 			$this->checkDuplicatedAliquotBarcode($this->data);
-		}		
-		parent::validates($options);
+		}	
 		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	/**
@@ -454,7 +453,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	function hasChild(array $aliquot_master_ids){
 		$ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", TRUE);
-		return array_filter($ViewAliquotUse->find('list', array('fields' => array('ViewAliquotUse.aliquot_master_id'), 'conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_ids), 'group' => array('ViewAliquotUse.aliquot_master_id'))));
+		return array_unique(array_filter($ViewAliquotUse->find('list', array('fields' => array('ViewAliquotUse.aliquot_master_id'), 'conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_ids)))));
 	}
 	
 	

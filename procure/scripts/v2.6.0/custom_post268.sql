@@ -1836,6 +1836,39 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('clinical relapse', 'Clinical Relapse
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('changed vital status to deceased', 'Changed vital status to deceased', 'Changement du statut vital à  décédé');
 
+-- update paxgen tube weight from derivative creation form
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lorsque que nous faisons une extraction à partir d'un tube paxgene a coté de used volume mette un champ pagen tube weight et mattre a jour l'info lié au tube. 
+   ...Par défaut afficher le poids si le poids était déjà mis.
+Verrifier que on peut faire recherche par mot clef dans les notes comme traitement...
+Cacher PSA-Free
+Comme on a tous les tx dans un seul formulaire pourra t on lister que les surgery que les hormono dans le listall
+Dans clincial exam FDG doit etre dans exam  et non prceison : C'est un FDG scan
+VAlider utilisation ICD-O-3 category pour la liste des sites
+Dans clinical notes type ajouter date de survie....
+examen precision devient site... comme traitement
+
+
+MIGRATED FROM 6590 to 6635
+
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Report
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1875,6 +1908,144 @@ PROCURE - Wrong Aliquot Identifiers Formats
 PROCURE - Biochemical Relapses Detection
 PROCURE - Diagnosis & Treatments Summary
 PROCURE - Patients Followup Summary	Display
+
+
+
+
+Controls tables pointing to invalid tables
+
+treatment_controls → detail_tablename → procure_txd_medications
+treatment_controls → detail_tablename → procure_txd_medication_drugs
+treatment_controls → detail_tablename → procure_txd_followup_worksheet_other_tumor_treatments
+Databrowser Relations Links Summary
+
+Model 1	Model 2	Used Field	Status
+ViewAliquot	ViewCollection	collection_id	active
+ViewAliquot	NonTmaBlockStorage	storage_master_id	active
+ViewAliquot	ViewSample	sample_master_id	active
+ViewCollection	Participant	participant_id	active
+ViewSample	ViewCollection	collection_id	active
+ViewSample	ViewSample	parent_id	active
+MiscIdentifier	Participant	participant_id	active
+ViewAliquotUse	ViewAliquot	aliquot_master_id	active
+ConsentMaster	Participant	participant_id	active
+TreatmentMaster	Participant	participant_id	active
+ParticipantMessage	Participant	participant_id	active
+QualityCtrl	ViewAliquot	aliquot_master_id	active
+QualityCtrl	ViewSample	sample_master_id	active
+EventMaster	Participant	participant_id	active
+SpecimenReviewMaster	ViewSample	sample_master_id	active
+ParticipantContact	Participant	participant_id	active
+AliquotReviewMaster	ViewAliquot	aliquot_master_id	active
+AliquotReviewMaster	SpecimenReviewMaster	specimen_review_master_id	active
+ViewAliquot	TmaBlock	storage_master_id	disable
+ViewAliquot	StudySummary	study_summary_id	disable
+ViewCollection	ConsentMaster	consent_master_id	disable
+ViewCollection	DiagnosisMaster	diagnosis_master_id	disable
+ViewCollection	TreatmentMaster	treatment_master_id	disable
+ViewCollection	EventMaster	event_master_id	disable
+MiscIdentifier	StudySummary	study_summary_id	disable
+ViewAliquotUse	StudySummary	study_summary_id	disable
+ConsentMaster	StudySummary	study_summary_id	disable
+DiagnosisMaster	Participant	participant_id	disable
+DiagnosisMaster	DiagnosisMaster	parent_id	disable
+TreatmentMaster	DiagnosisMaster	diagnosis_master_id	disable
+FamilyHistory	Participant	participant_id	disable
+EventMaster	DiagnosisMaster	diagnosis_master_id	disable
+OrderItem	ViewAliquot	aliquot_master_id	disable
+OrderItem	Shipment	shipment_id	disable
+OrderItem	Order	order_id	disable
+OrderItem	TmaSlide	tma_slide_id	disable
+OrderItem	OrderLine	order_line_id	disable
+Shipment	Order	order_id	disable
+ReproductiveHistory	Participant	participant_id	disable
+TreatmentExtendMaster	TreatmentMaster	treatment_master_id	disable
+Order	StudySummary	default_study_summary_id	disable
+TmaSlide	NonTmaBlockStorage	storage_master_id	disable
+TmaSlide	TmaBlock	tma_block_storage_master_id	disable
+TmaSlide	StudySummary	study_summary_id	disable
+TmaBlock	NonTmaBlockStorage	parent_id	disable
+OrderLine	Order	order_id	disable
+OrderLine	StudySummary	study_summary_id	disable
+TmaSlideUse	TmaSlide	tma_slide_id	disable
+TmaSlideUse	StudySummary	study_summary_id	disable
+Reports
+
+Report	Status
+All Derivatives Display	active
+Initial Specimens Display	active
+List all child storage entities	active
+Number of elements per participant	active
+Participant Identifiers	active
+PROCURE - Aliquots Transfer File Creation	active
+PROCURE - Biochemical Relapses Detection	active
+PROCURE - Data for next followup visite	active
+PROCURE - Diagnosis & Treatments Summary	active
+PROCURE - In Stock Aliquots Summary	active
+PROCURE - Patients Followup Summary	active
+PROCURE - Wrong Aliquot Identifiers Formats	active
+Bank Activity Report	disable
+Bank Activity Report (Per Period)	disable
+CTRNet catalogue	disable
+List all related diagnosis	disable
+Specimens Collection/Derivatives Creation	disable
+Structure Functions Summary
+
+Model	Function	Used Field	Status
+ViewAliquot	define realiquoted children	active
+ViewAliquot	realiquot	active
+ViewAliquot	create derivative	active
+ViewAliquot	create quality control	active
+ViewAliquot	create uses/events (aliquot specific)	active
+ViewAliquot	edit	active
+ViewAliquot	create use/event (applied to all)	active
+ViewAliquot	number of elements per participant (Report 'Number of elements per participant')	active
+ViewAliquot	create aliquots transfer file (Report 'PROCURE - Aliquots Transfer File Creation')	active
+ViewAliquot	update aliquot barcode (and label)	active
+ViewCollection	number of elements per participant (Report 'Number of elements per participant')	active
+NonTmaBlockStorage	list all children storages (Report 'List all child storage entities')	active
+Participant	participant identifiers report (Report 'Participant Identifiers')	active
+Participant	procure diagnosis and treatments summary (Report 'PROCURE - Diagnosis & Treatments Summary')	active
+Participant	procure followup summary (Report 'PROCURE - Patients Followup Summary')	active
+Participant	procure aliquots summary (Report 'PROCURE - In Stock Aliquots Summary')	active
+Participant	procure bcr detection (Report 'PROCURE - Biochemical Relapses Detection')	active
+Participant	procure next followup report (Report 'PROCURE - Data for next followup visite')	active
+Participant	create participant message (applied to all)	active
+ViewSample	create derivative	active
+ViewSample	create aliquots	active
+ViewSample	create quality control	active
+ViewSample	initial specimens display (Report 'Initial Specimens Display')	active
+ViewSample	all derivatives display (Report 'All Derivatives Display')	active
+ViewSample	number of elements per participant (Report 'Number of elements per participant')	active
+MiscIdentifier	number of elements per participant (Report 'Number of elements per participant')	active
+ViewAliquotUse	number of elements per participant (Report 'Number of elements per participant')	active
+ConsentMaster	number of elements per participant (Report 'Number of elements per participant')	active
+TreatmentMaster	number of elements per participant (Report 'Number of elements per participant')	active
+QualityCtrl	number of elements per participant (Report 'Number of elements per participant')	active
+EventMaster	number of elements per participant (Report 'Number of elements per participant')	active
+SpecimenReviewMaster	number of elements per participant (Report 'Number of elements per participant')	active
+AliquotReviewMaster	number of elements per participant (Report 'Number of elements per participant')	active
+TmaSlide	add tma slide use	active
+TmaSlide	add to order	active
+TmaSlideUse	edit	active
+ViewAliquot	add to order	disable
+ViewAliquot	print barcodes	disable
+ViewCollection	print barcodes	disable
+Participant	edit	disable
+Participant	list all related diagnosis (Report 'List all related diagnosis')	disable
+ViewSample	print barcodes	disable
+DiagnosisMaster	list all related diagnosis (Report 'List all related diagnosis')	disable
+DiagnosisMaster	number of elements per participant (Report 'Number of elements per participant')	disable
+FamilyHistory	number of elements per participant (Report 'Number of elements per participant')	disable
+ParticipantMessage	number of elements per participant (Report 'Number of elements per participant')	disable
+OrderItem	defined as returned	disable
+OrderItem	edit	disable
+ParticipantContact	number of elements per participant (Report 'Number of elements per participant')	disable
+ReproductiveHistory	number of elements per participant (Report 'Number of elements per participant')	disable
+TreatmentExtendMaster	number of elements per participant (Report 'Number of elements per participant')	disable
+TmaSlide	edit	disable
+TmaBlock	create tma slide	disable
+
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------

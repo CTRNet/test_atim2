@@ -1,6 +1,6 @@
 <?php 
 $atim_final_structure = $atim_structure;
-if(empty($this->request->data)){
+if(empty($this->request->data) && !$search_id){
 	$final_options = array(
 		'type' => 'search',
 		'links' => array(
@@ -14,7 +14,7 @@ if(empty($this->request->data)){
 	
 	$final_atim_structure2 = $empty_structure;
 	$final_options2 = array(
-			'links'		=> array('bottom' => array('new search' => array('link' => '/Administrate/AdminUsers/search/', 'icon' => 'search'))),
+			'links'		=> array('bottom' => array()),
 			'extras'	=> '<div class="ajax_search_results"></div>'
 	);
 	
@@ -27,10 +27,9 @@ if(empty($this->request->data)){
 	$final_options = array(
 		'type' => 'index',
 		'links' => array(
-			'bottom' => array('new search' => array('link' => '/Administrate/AdminUsers/search/', 'icon' => 'search')),
+			'bottom' => array(),
 			'index' => array('detail' => '/Administrate/AdminUsers/detail/%%User.group_id%%/%%User.id%%/')
 		), 'settings' => array(
-			'header' => __('search type').": ".__('users'),
 			'return' => true
 		)
 	);

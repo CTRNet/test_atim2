@@ -33,9 +33,7 @@ class TmaSlide extends StorageLayoutAppModel {
 		
 		$this->validateAndUpdateTmaSlideStudyData();
 		
-		parent::validates($options);
-		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	function validateAndUpdateTmaSlideStorageData(){
