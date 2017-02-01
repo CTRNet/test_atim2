@@ -1,4 +1,4 @@
-
+﻿
 -- ---------------------------------------------------------------------------------------------------------
 -- Participants
 -- ----------------------------------------------------------------------------------------------------------
@@ -282,5 +282,63 @@ update storage_controls SET flag_active = 0 where is_tma_block = 1;
 -- Versions
 -- ----------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6604' WHERE version_number = '2.6.8';
+UPDATE versions SET branch_build_number = '6605' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
+
+-- ---------------------------------------------------------------------------------------------------------
+-- Pathology blocks creation in batch : data clean up
+-- ----------------------------------------------------------------------------------------------------------
+
+
+	SET @created_by = (SELECT id FROM users WHERE username = 'NicoEn');
+	SET @created = (SELECT NOW() FROM users WHERE username = 'NicoEn');
+		
+	-- Biopsy Sites	
+		
+	SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Biopsy Sites');
+	UPDATE ld_lymph_ed_biopsies SET site = 	LOWER(site);	
+	UPDATE ld_lymph_ed_biopsies_revs SET site = 	LOWER(site);	
+	UPDATE structure_permissible_values_customs SET value = LOWER(value) WHERE control_id = @control_id;
+		
+	INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+	(SELECT DISTINCT EventDetail.site, EventDetail.site, '', '1', @control_id, @created, @created, @created_by, @created_by
+	FROM event_masters EventMaster INNER JOIN ld_lymph_ed_biopsies EventDetail ON EventMaster.id = EventDetail.event_master_id
+	WHERE EventMaster.deleted <> 1 
+	AND EventDetail.site NOT IN (SELECT value FROM structure_permissible_values_customs WHERE control_id = @control_id)
+	AND EventDetail.site IS NOT NULL AND EventDetail.site NOT LIKE '');
+	INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+	VALUES
+	('mediastinal mass', 'Mediastinal mass', '', '1', @control_id, @created, @created, @created_by, @created_by),
+	('thyroid mass', 'Thyroid mass', '', '1', @control_id, @created, @created, @created_by, @created_by);	
+
+	-- Tissue source	
+		
+	SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Source');
+	UPDATE sd_spe_tissues SET tissue_source = 	LOWER(tissue_source);	
+	UPDATE sd_spe_tissues_revs SET tissue_source = 	LOWER(tissue_source);	
+	UPDATE structure_permissible_values_customs SET value = LOWER(value) WHERE control_id = @control_id;
+		
+	INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+	(SELECT DISTINCT SampleDetail.tissue_source, SampleDetail.tissue_source, '', '1', @control_id, @created, @created, @created_by, @created_by
+	FROM event_masters SampleMaster INNER JOIN sd_spe_tissues SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+	WHERE SampleMaster.deleted <> 1 
+	AND SampleDetail.tissue_source NOT IN (SELECT value FROM structure_permissible_values_customs WHERE control_id = @control_id)
+	AND SampleDetail.tissue_source IS NOT NULL AND SampleDetail.tissue_source NOT LIKE '');
+	INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+	VALUES
+	('mediastinal mass', 'Mediastinal mass', '', '1', @control_id, @created, @created, @created_by, @created_by),
+	('thyroid mass', 'Thyroid mass', '', '1', @control_id, @created, @created, @created_by, @created_by);	
+	
+	-- Aliquot In Stock Details
+	
+	SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot In Stock Details');
+	INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+	VALUES
+	('pathology department aliquot', 'Pathology department aliquot', '', '1', @control_id, @created, @created, @created_by, @created_by);
+	
+-- ----------------------------------------------------------------------------------------------------------
+-- Versions
+-- ----------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '6642' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
