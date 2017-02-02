@@ -3244,3 +3244,9 @@ VALUES
 ('precisions', 'Precisions'),('collection to reception in pathology spent time', 'Collection to reception in pathology spent time');
 
 UPDATE `versions` SET branch_build_number = '6566' WHERE version_number = '2.6.8';
+
+ALTER TABLE `aliquot_masters` CHANGE `storage_coord_x` varchar(11) DEFAULT NULL;
+ALTER TABLE `aliquot_masters` CHANGE `storage_coord_y` varchar(11) DEFAULT NULL;
+
+UPDATE `versions` SET branch_build_number = '6646' WHERE version_number = '2.6.8';
+  
