@@ -853,6 +853,8 @@ class StorageMaster extends StorageLayoutAppModel {
 		}else{
 			$children_array['DisplayData']['x'] = "";
 		}
+		if(is_null($children_array['DisplayData']['x'])) $children_array['DisplayData']['x'] = '';
+		if(is_null($children_array['DisplayData']['y'])) $children_array['DisplayData']['y'] = '';
 		
 		$children_array['DisplayData']['label'] = $this->getLabel($children_array, $type_key, $label_key);
 		$children_array['DisplayData']['type'] = $type_key;
