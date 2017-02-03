@@ -41,7 +41,7 @@ class EventMasterCustom extends EventMaster {
 				case 'laboratory':
 					//Rules:
 					// - A value should be set
-					if(!strlen($this->data['EventDetail']['psa_total_ngml'].$this->data['EventDetail']['psa_free_ngml'].$this->data['EventDetail']['testosterone_nmoll']) 
+					if(!strlen($this->data['EventDetail']['psa_total_ngml'].$this->data['EventDetail']['testosterone_nmoll']) 
 					&& $this->data['EventDetail']['biochemical_relapse'] != 'y') {
 						$this->validationErrors[][] = __('at least a psa or testosterone value should be set');
 						$result = false;

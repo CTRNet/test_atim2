@@ -13,14 +13,10 @@
 			break;
 		case 'laboratory':
 			$lab_data = array();
-			if(strlen($annotation['EventDetail']['psa_total_ngml']) || strlen($annotation['EventDetail']['psa_free_ngml'])) {
+			if(strlen($annotation['EventDetail']['psa_total_ngml'])) {
 				$tmp_annotation = $chronolgy_data_annotation;
 				$chronology_events = array();
 				$chronology_details = array();
-				if(strlen($annotation['EventDetail']['psa_free_ngml'])) {
-					$chronology_events[] = __('free ng/ml');
-					$chronology_details[] = $annotation['EventDetail']['psa_free_ngml'];
-				}
 				if(strlen($annotation['EventDetail']['psa_total_ngml'])) {
 					$chronology_events[] = __('total ng/ml');
 					$chronology_details[] = $annotation['EventDetail']['psa_total_ngml'];
@@ -50,7 +46,7 @@
 			$exam_data = array();
 			// Add Exam
 			$exam_type = $procure_exam_types_values[$annotation['EventDetail']['type']];
-			$exam_precision = $clinical_exam_precision_values[$annotation['EventDetail']['type_precision']];
+			$exam_precision = $clinical_exam_site_values[$annotation['EventDetail']['site_precision']];
 			$exam_result = $procure_exam_results_values[$annotation['EventDetail']['results']];
 			$chronolgy_data_annotation['event'] = $exam_type.' '.$exam_precision;
 			$chronolgy_data_annotation['chronology_details'] = $exam_result;
