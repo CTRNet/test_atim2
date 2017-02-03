@@ -14,16 +14,15 @@
 	//--------------------------------------------------------------------------------
 	
 	if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
-		$collection_blood_types = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id']), 'fields' => array("GROUP_CONCAT(SampleDetail.blood_type SEPARATOR ',') as blood_types"), 'recursive' => '0'));
+		$collection_blood_types = $this->SampleMaster->find('list', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id']), 'fields' => array("SampleDetail.blood_type"), 'recursive' => '0'));	
 		$last_received_blood_sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_data['SampleControl']['id']), 'order' => array('SpecimenDetail.reception_datetime DESC'), 'recursive' => '0'));	
 		if(!empty($last_received_blood_sample)) {				
 			// Collection blood sample already created
-			$already_created = explode(',',$collection_blood_types[0][0]['blood_types']);
-			if(!in_array('serum', $already_created)) {
+			if(!in_array('serum', $collection_blood_types)) {
 				$this->request->data['SampleDetail']['blood_type'] = 'serum';
-			} else if(!in_array('paxgene', $already_created)) {
+			} else if(!in_array('paxgene', $collection_blood_types)) {
 				$this->request->data['SampleDetail']['blood_type'] = 'paxgene';
-			} else  if(!in_array('k2-EDTA', $already_created)) {
+			} else  if(!in_array('k2-EDTA', $collection_blood_types)) {
 				$this->request->data['SampleDetail']['blood_type'] = 'k2-EDTA';
 			}
 			

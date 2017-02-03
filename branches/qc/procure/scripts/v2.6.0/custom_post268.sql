@@ -134,11 +134,11 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam Precisions');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
+('abdomen / pelvis' ,'Abdomen/Pelvis', 'Abdomen/Bassin', '1', @control_id, NOW(), '1', NOW(), '1'),
+('bone' ,'Bone', 'Os', '1', @control_id, NOW(), '1', NOW(), '1'),
 ('chest' ,'Chest', 'Poitrine', '1', @control_id, NOW(), '1', NOW(), '1'),
 ('fdg' ,'FDG', '', '1', @control_id, NOW(), '1', NOW(), '1'),
-('abdomen / pelvis' ,'Abdomen/Pelvis', 'Abdomen/Bassin', '1', @control_id, NOW(), '1', NOW(), '1'),
-('spine' ,'Spine', 'Colonne vertébrale', '1', @control_id, NOW(), '1', NOW(), '1'),
-('bone' ,'Bone', 'Os', '1', @control_id, NOW(), '1', NOW(), '1');
+('spine' ,'Spine', 'Colonne vertébrale', '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_followup_worksheet_clinical_events', 'type_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_type_precisions') , '0', '', '', '', '', 'precision');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -1836,38 +1836,71 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('clinical relapse', 'Clinical Relapse
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('changed vital status to deceased', 'Changed vital status to deceased', 'Changement du statut vital à  décédé');
 
--- update paxgen tube weight from derivative creation form
+-- Storage control test
+
+SELECT storage_type, coord_x_size, coord_y_size, 'Sizes should be bigger than 1' FROM storage_controls WHERE (coord_x_size IS NOT NULL AND coord_x_size < 2) OR (coord_y_size IS NOT NULL AND coord_y_size < 2);  
+
+-- Hide Nail specimen type
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(220);
+
+-- Update paxgen tube weight from derivative creation form
+
+INSERT INTO structures(`alias`) VALUES ('procure_tube_weight_for_derivative_creation');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_tube_weight_for_derivative_creation'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_tube_weight_gr' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='tube weight gr' AND `language_tag`=''), '0', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='initial tube weight gr' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_tube_weight_for_derivative_creation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_tube_weight_gr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('initial tube weight gr','Initial Weight of tube (gr)','Poids initial du tube (gr)');
+
+-- Missing translations
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('an error has been detected - the clinical file update process has been finished prematurely', 
+"An error has been detected. The 'Clinical File Update' process has been finished prematurely.", 
+"Une erreur a été détectée. Le processus de mise à jour du 'dossier clinique' a été terminé prématurément."),
+("the 'last chart checked date' is currently set to '%s'", "The 'last chart checked date' is currently '%s'.", "La date de la 'dernière révision de données' est actuellement '%s'."),
+('set last chart checked date to the current date', "Set by default the new 'Last Chart Checked' date to the current date.", "La date de la 'dernière révision de données' a été mise à la date d'aujourd'hui par défaut."),
+('set last chart checked date to the date of the visit of the form you compelted today', "Set by default the 'Last Chart Checked' to the date of the visit of the form you compelted today.", 
+ "La date de la 'dernière révision de données' a été mise par défaut à la date du formulaire de visitde que vous avez complété aujourd'hui.");
+
+-- PSA Free
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_laboratories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_laboratories' AND `field`='psa_free_ngml' AND `language_label`='psa - free ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_laboratories' AND `field`='psa_free_ngml' AND `language_label`='psa - free ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_laboratories' AND `field`='psa_free_ngml' AND `language_label`='psa - free ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+ALTER TABLE procure_ed_laboratories CHANGE psa_free_ngml procure_deprecated_field_psa_free_ngml decimal(10,2) DEFAULT NULL;
+ALTER TABLE procure_ed_laboratories_revs CHANGE psa_free_ngml procure_deprecated_field_psa_free_ngml decimal(10,2) DEFAULT NULL;
+
+-- survival date
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Note Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+VALUES 
+('survival date' ,'Survival Date (Date a non specific information validates the participant is alive)', 'Date de survie (Date à laquelle une information non spécifique valide que le participant est en vie)', '1', @control_id, NOW(), '1', NOW(), '1');
+
+-- Clinical Exam Site
+
+UPDATE structure_fields SET field='site_precision', `language_tag`='site' WHERE model='EventDetail' AND tablename='procure_ed_clinical_exams' AND field='type_precision' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_type_precisions');
+UPDATE structure_value_domains SET domain_name='procure_clinical_exam_type_sites' WHERE domain_name='procure_clinical_exam_type_precisions'; 
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Clinical Exam - Sites (PROCURE values only)\')" WHERE domain_name = 'procure_clinical_exam_type_sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'Clinical Exam - Sites (PROCURE values only)' WHERE name = 'Clinical Exam Precisions (PROCURE values only)';
+UPDATE structure_value_domains SET domain_name='procure_clinical_exam_sites' WHERE domain_name='procure_clinical_exam_type_sites'; 
+ALTER TABLE procure_ed_clinical_exams CHANGE type_precision site_precision varchar(100) DEFAULT NULL;
+ALTER TABLE procure_ed_clinical_exams_revs CHANGE type_precision site_precision varchar(100) DEFAULT NULL;
+
+-- Add search on treatment notes
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lorsque que nous faisons une extraction à partir d'un tube paxgene a coté de used volume mette un champ pagen tube weight et mattre a jour l'info lié au tube. 
-   ...Par défaut afficher le poids si le poids était déjà mis.
-Verrifier que on peut faire recherche par mot clef dans les notes comme traitement...
-Cacher PSA-Free
-Comme on a tous les tx dans un seul formulaire pourra t on lister que les surgery que les hormono dans le listall
-Dans clincial exam FDG doit etre dans exam  et non prceison : C'est un FDG scan
 VAlider utilisation ICD-O-3 category pour la liste des sites
-Dans clinical notes type ajouter date de survie....
-examen precision devient site... comme traitement
+Autre tumeur site - utiliser ICD
 
-
-MIGRATED FROM 6590 to 6635
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Report

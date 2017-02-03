@@ -30,9 +30,9 @@
 	$procure_exam_results_values  = array_merge($procure_exam_results_values ['defined'], $procure_exam_results_values ['previously_defined']);
 	$procure_exam_results_values[''] = '';
 	
-	$clinical_exam_precision_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Clinical Exam Precisions (PROCURE values only)'));
-	$clinical_exam_precision_values = array_merge($clinical_exam_precision_values['defined'], $clinical_exam_precision_values['previously_defined']);
-	$clinical_exam_precision_values[''] = '';
+	$clinical_exam_site_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Clinical Exam - Sites (PROCURE values only)'));
+	$clinical_exam_site_values = array_merge($clinical_exam_site_values['defined'], $clinical_exam_site_values['previously_defined']);
+	$clinical_exam_site_values[''] = '';
 	
 	$procure_progressions_comorbidities_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Progressions & Comorbidities (PROCURE values only)'));
 	$procure_progressions_comorbidities_values = array_merge($procure_progressions_comorbidities_values['defined'], $procure_progressions_comorbidities_values['previously_defined']);
