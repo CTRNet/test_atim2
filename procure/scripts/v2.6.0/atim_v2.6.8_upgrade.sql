@@ -18,7 +18,6 @@
 --      to 'false' to hide the section.
 --
 --		
---		
 --   ### 2 # Replaced the study drop down list to both an autocomplete field and a text field
 --   ----------------------------------------------------------------------------------------
 --
@@ -29,7 +28,6 @@
 --		A field study_summary_title has been created for both ViewAliquot and ViewAliquotUse.
 --		
 --      The definition of study linked to a created/updated data is now done through an 'autocomplete' field.
---		
 --		
 --      The search of a study linked to a data is done by the use of the text field (list could be complex to use for any long list of values).
 --		
@@ -69,10 +67,8 @@
 --
 --		The ICD-0-3-Topo categories have been defined based on an internet research (no source file).
 --		
---		
 --		Created field 'diagnosis_masters.icd_0_3_topography_category' to record a ICD-0-3-Topo 3 digits codes (C07, etc) 
 --		and to let user searches on tissue site/category (more generic than tissue description - ex: colon, etc).
---		
 --		
 --		A search field on ICD-0-3-Topo categories has been created for each form displaying a field linked to the ICD-0-3-Topo tool.
 --		
@@ -225,7 +221,6 @@
 --			SELECT * FROM datamart_structure_functions WHERE datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND label != 'list all children storages';
 --			SELECT * FROM datamart_reports WHERE associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage') AND name != 'list all children storages';
 --
---		
 --
 --   ### 12 # Added new controls on storage_controls: coord_x_size and coord_y_size should be bigger than 1 if set
 --   -------------------------------------------------------------------------------------------------------------
@@ -3337,5 +3332,5 @@ VALUES
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.8', NOW(),'6639','n/a');
+('2.6.8', NOW(),'6645','n/a');
  
