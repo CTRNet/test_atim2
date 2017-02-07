@@ -12,7 +12,7 @@
 			foreach($treatment_detail_properties as $new_detail) {
 				list($model, $field,  $lists) = $new_detail;
 				if($lists) {
-					$chronolgy_data_annotation['chronology_details'] = $lists[$tx[$model][$field]];
+					$treatment_details[] = $lists[$tx[$model][$field]];
 				} else {
 					$treatment_details[] = $tx[$model][$field];
 				}

@@ -24,7 +24,7 @@ class EventMasterCustom extends EventMaster {
 							$this->validationErrors['results'][] = __('result should be set to positive or suspicious for any progression or comorbidity diagnosis');
 							$result = false;
 						}
-						if($this->data['EventDetail']['type_precision'] == 'prostate') {
+						if($this->data['EventDetail']['site_precision'] == 'prostate') {
 							$this->validationErrors['results'][] = __('no progression/comorbidity should be set for a prostate clinical exam');
 							$result = false;
 						}
