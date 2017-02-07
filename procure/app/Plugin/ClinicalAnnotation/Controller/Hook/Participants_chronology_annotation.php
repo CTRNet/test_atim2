@@ -48,7 +48,7 @@
 			$exam_type = $procure_exam_types_values[$annotation['EventDetail']['type']];
 			$exam_precision = $clinical_exam_site_values[$annotation['EventDetail']['site_precision']];
 			$exam_result = $procure_exam_results_values[$annotation['EventDetail']['results']];
-			$chronolgy_data_annotation['event'] = $exam_type.' '.$exam_precision;
+			$chronolgy_data_annotation['event'] = $exam_type.' - '.$exam_precision;
 			$chronolgy_data_annotation['chronology_details'] = $exam_result;
 			$exam_data[] = $chronolgy_data_annotation;
 			// Add progression
@@ -57,6 +57,11 @@
 				$chronolgy_data_annotation['chronology_details'] = $procure_progressions_comorbidities_values[$annotation['EventDetail']['progression_comorbidity']];
 				$exam_data[] = $chronolgy_data_annotation;
 			}
+			if($annotation['EventDetail']['clinical_relapse'] == 'y')  {
+				$chronolgy_data_annotation['event'] = __('clinical relapse');
+				$chronolgy_data_annotation['chronology_details'] = $procure_progressions_comorbidities_values[$annotation['EventDetail']['progression_comorbidity']];
+				$exam_data[] = $chronolgy_data_annotation;
+			}	
 			while(sizeof($exam_data) > 1) {
 				$add_to_tmp_array(array_shift($exam_data));
 			}

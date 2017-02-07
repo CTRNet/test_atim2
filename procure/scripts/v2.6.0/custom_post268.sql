@@ -1856,6 +1856,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('initial tube weight gr','Initial Wei
 
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
+('error', 'Error', 'Erreur'),
 ('an error has been detected - the clinical file update process has been finished prematurely', 
 "An error has been detected. The 'Clinical File Update' process has been finished prematurely.", 
 "Une erreur a été détectée. Le processus de mise à jour du 'dossier clinique' a été terminé prématurément."),
@@ -1893,198 +1894,71 @@ ALTER TABLE procure_ed_clinical_exams_revs CHANGE type_precision site_precision 
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
-
-
-
-
-VAlider utilisation ICD-O-3 category pour la liste des sites
-Autre tumeur site - utiliser ICD
-
-
--- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Report
--- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
--- Participant Identifiers
+UPDATE datamart_structure_functions, datamart_structures
+SET datamart_structure_functions.flag_active = 0 
+WHERE datamart_structure_id = datamart_structures.id
+AND datamart_structures.model IN ('TmaSlide', 'TmaSlideUse');
 
-REPLACE INTO i18n (id,en,fr) VALUES ('list all identifiers of selected participants', 'List all identifiers of selected participants', 'Liste tous les identifiants de participants sélectionnés');
+UPDATE datamart_structure_functions, datamart_structures
+SET datamart_structure_functions.flag_active = 1
+WHERE datamart_structure_id = datamart_structures.id
+AND datamart_structures.model IN ('ParticipantMessage', 'ParticipantContact')
+AND datamart_structure_functions.label = 'number of elements per participant';
 
 -- PROCURE - In Stock Aliquots Summary
 
 UPDATE datamart_reports SET flag_active = 0 WHERE name = 'procure aliquots summary';
+UPDATE datamart_structure_functions, datamart_structures
+SET datamart_structure_functions.flag_active = 0
+WHERE datamart_structure_id = datamart_structures.id
+AND datamart_structures.model IN ('Participant')
+AND datamart_structure_functions.label = 'procure aliquots summary';
 
 -- PROCURE - Aliquots Transfer File Creation
--- And be able to load data
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='short_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '20', '', '0', '1', 'storage', '0', '', '1', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '21', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
-TODO PROCESSING SITE todo
+-- Participant Identifiers
 
+REPLACE INTO i18n (id,en,fr) VALUES ('list all identifiers of selected participants', 'List all identifiers of selected participants', 'Liste tous les identifiants de participants sélectionnés');
 
+-- 'clinical relapse'
 
+UPDATE structure_fields SET field = 'clinical_relapse' WHERE field = 'clinical relapse';
 
+-- Report field update
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_total_ng_ml' AND `language_label`='total ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_free_ng_ml' AND `language_label`='free ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_total_ng_ml' AND `language_label`='total ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_free_ng_ml' AND `language_label`='free ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_total_ng_ml' AND `language_label`='total ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_free_ng_ml' AND `language_label`='free ng/ml' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='aps_pre_surgery_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
 
+-- Report sortable field
 
+UPDATE structure_fields 
+SET  sortable = '1'
+WHERE plugin = 'Datamart' 
+AND model='0' 
+AND tablename=''
+AND id IN (SELECT structure_field_id FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('procure_next_followup_report_result', 'procure_diagnosis_and_treatments_report_result', 'procure_bcr_detection_result')));
 
+UPDATE datamart_reports SET flag_active = 0 WHERE name = 'procure followup summary';
+UPDATE datamart_structure_functions, datamart_structures
+SET datamart_structure_functions.flag_active = 0
+WHERE datamart_structure_id = datamart_structures.id
+AND datamart_structures.model IN ('Participant')
+AND datamart_structure_functions.label = 'procure followup summary';
 
-
-
-
-TODO
-
-PROCURE - Wrong Aliquot Identifiers Formats
-PROCURE - Biochemical Relapses Detection
-PROCURE - Diagnosis & Treatments Summary
-PROCURE - Patients Followup Summary	Display
-
-
-
-
-Controls tables pointing to invalid tables
-
-treatment_controls → detail_tablename → procure_txd_medications
-treatment_controls → detail_tablename → procure_txd_medication_drugs
-treatment_controls → detail_tablename → procure_txd_followup_worksheet_other_tumor_treatments
-Databrowser Relations Links Summary
-
-Model 1	Model 2	Used Field	Status
-ViewAliquot	ViewCollection	collection_id	active
-ViewAliquot	NonTmaBlockStorage	storage_master_id	active
-ViewAliquot	ViewSample	sample_master_id	active
-ViewCollection	Participant	participant_id	active
-ViewSample	ViewCollection	collection_id	active
-ViewSample	ViewSample	parent_id	active
-MiscIdentifier	Participant	participant_id	active
-ViewAliquotUse	ViewAliquot	aliquot_master_id	active
-ConsentMaster	Participant	participant_id	active
-TreatmentMaster	Participant	participant_id	active
-ParticipantMessage	Participant	participant_id	active
-QualityCtrl	ViewAliquot	aliquot_master_id	active
-QualityCtrl	ViewSample	sample_master_id	active
-EventMaster	Participant	participant_id	active
-SpecimenReviewMaster	ViewSample	sample_master_id	active
-ParticipantContact	Participant	participant_id	active
-AliquotReviewMaster	ViewAliquot	aliquot_master_id	active
-AliquotReviewMaster	SpecimenReviewMaster	specimen_review_master_id	active
-ViewAliquot	TmaBlock	storage_master_id	disable
-ViewAliquot	StudySummary	study_summary_id	disable
-ViewCollection	ConsentMaster	consent_master_id	disable
-ViewCollection	DiagnosisMaster	diagnosis_master_id	disable
-ViewCollection	TreatmentMaster	treatment_master_id	disable
-ViewCollection	EventMaster	event_master_id	disable
-MiscIdentifier	StudySummary	study_summary_id	disable
-ViewAliquotUse	StudySummary	study_summary_id	disable
-ConsentMaster	StudySummary	study_summary_id	disable
-DiagnosisMaster	Participant	participant_id	disable
-DiagnosisMaster	DiagnosisMaster	parent_id	disable
-TreatmentMaster	DiagnosisMaster	diagnosis_master_id	disable
-FamilyHistory	Participant	participant_id	disable
-EventMaster	DiagnosisMaster	diagnosis_master_id	disable
-OrderItem	ViewAliquot	aliquot_master_id	disable
-OrderItem	Shipment	shipment_id	disable
-OrderItem	Order	order_id	disable
-OrderItem	TmaSlide	tma_slide_id	disable
-OrderItem	OrderLine	order_line_id	disable
-Shipment	Order	order_id	disable
-ReproductiveHistory	Participant	participant_id	disable
-TreatmentExtendMaster	TreatmentMaster	treatment_master_id	disable
-Order	StudySummary	default_study_summary_id	disable
-TmaSlide	NonTmaBlockStorage	storage_master_id	disable
-TmaSlide	TmaBlock	tma_block_storage_master_id	disable
-TmaSlide	StudySummary	study_summary_id	disable
-TmaBlock	NonTmaBlockStorage	parent_id	disable
-OrderLine	Order	order_id	disable
-OrderLine	StudySummary	study_summary_id	disable
-TmaSlideUse	TmaSlide	tma_slide_id	disable
-TmaSlideUse	StudySummary	study_summary_id	disable
-Reports
-
-Report	Status
-All Derivatives Display	active
-Initial Specimens Display	active
-List all child storage entities	active
-Number of elements per participant	active
-Participant Identifiers	active
-PROCURE - Aliquots Transfer File Creation	active
-PROCURE - Biochemical Relapses Detection	active
-PROCURE - Data for next followup visite	active
-PROCURE - Diagnosis & Treatments Summary	active
-PROCURE - In Stock Aliquots Summary	active
-PROCURE - Patients Followup Summary	active
-PROCURE - Wrong Aliquot Identifiers Formats	active
-Bank Activity Report	disable
-Bank Activity Report (Per Period)	disable
-CTRNet catalogue	disable
-List all related diagnosis	disable
-Specimens Collection/Derivatives Creation	disable
-Structure Functions Summary
-
-Model	Function	Used Field	Status
-ViewAliquot	define realiquoted children	active
-ViewAliquot	realiquot	active
-ViewAliquot	create derivative	active
-ViewAliquot	create quality control	active
-ViewAliquot	create uses/events (aliquot specific)	active
-ViewAliquot	edit	active
-ViewAliquot	create use/event (applied to all)	active
-ViewAliquot	number of elements per participant (Report 'Number of elements per participant')	active
-ViewAliquot	create aliquots transfer file (Report 'PROCURE - Aliquots Transfer File Creation')	active
-ViewAliquot	update aliquot barcode (and label)	active
-ViewCollection	number of elements per participant (Report 'Number of elements per participant')	active
-NonTmaBlockStorage	list all children storages (Report 'List all child storage entities')	active
-Participant	participant identifiers report (Report 'Participant Identifiers')	active
-Participant	procure diagnosis and treatments summary (Report 'PROCURE - Diagnosis & Treatments Summary')	active
-Participant	procure followup summary (Report 'PROCURE - Patients Followup Summary')	active
-Participant	procure aliquots summary (Report 'PROCURE - In Stock Aliquots Summary')	active
-Participant	procure bcr detection (Report 'PROCURE - Biochemical Relapses Detection')	active
-Participant	procure next followup report (Report 'PROCURE - Data for next followup visite')	active
-Participant	create participant message (applied to all)	active
-ViewSample	create derivative	active
-ViewSample	create aliquots	active
-ViewSample	create quality control	active
-ViewSample	initial specimens display (Report 'Initial Specimens Display')	active
-ViewSample	all derivatives display (Report 'All Derivatives Display')	active
-ViewSample	number of elements per participant (Report 'Number of elements per participant')	active
-MiscIdentifier	number of elements per participant (Report 'Number of elements per participant')	active
-ViewAliquotUse	number of elements per participant (Report 'Number of elements per participant')	active
-ConsentMaster	number of elements per participant (Report 'Number of elements per participant')	active
-TreatmentMaster	number of elements per participant (Report 'Number of elements per participant')	active
-QualityCtrl	number of elements per participant (Report 'Number of elements per participant')	active
-EventMaster	number of elements per participant (Report 'Number of elements per participant')	active
-SpecimenReviewMaster	number of elements per participant (Report 'Number of elements per participant')	active
-AliquotReviewMaster	number of elements per participant (Report 'Number of elements per participant')	active
-TmaSlide	add tma slide use	active
-TmaSlide	add to order	active
-TmaSlideUse	edit	active
-ViewAliquot	add to order	disable
-ViewAliquot	print barcodes	disable
-ViewCollection	print barcodes	disable
-Participant	edit	disable
-Participant	list all related diagnosis (Report 'List all related diagnosis')	disable
-ViewSample	print barcodes	disable
-DiagnosisMaster	list all related diagnosis (Report 'List all related diagnosis')	disable
-DiagnosisMaster	number of elements per participant (Report 'Number of elements per participant')	disable
-FamilyHistory	number of elements per participant (Report 'Number of elements per participant')	disable
-ParticipantMessage	number of elements per participant (Report 'Number of elements per participant')	disable
-OrderItem	defined as returned	disable
-OrderItem	edit	disable
-ParticipantContact	number of elements per participant (Report 'Number of elements per participant')	disable
-ReproductiveHistory	number of elements per participant (Report 'Number of elements per participant')	disable
-TreatmentExtendMaster	number of elements per participant (Report 'Number of elements per participant')	disable
-TmaSlide	edit	disable
-TmaBlock	create tma slide	disable
-
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-
-TODO PROCESSING SITE
-
-UPDATE datamart_browsing_controls 
-SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
-WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE versions SET branch_build_number = '6649' WHERE version_number = '2.6.8';
+UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
