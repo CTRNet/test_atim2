@@ -85,6 +85,13 @@ class ParticipantCustom extends Participant {
 				$this->validationErrors['participant_identifier'][] = "please check the patient withdrawn checkbox if required";
 			}
 		}
+		if(array_key_exists('date_of_death', $this->data['Participant'])) {
+			if(($this->data['Participant']['date_of_death'] || $this->data['Participant']['procure_cause_of_death']) && $this->data['Participant']['vital_status'] != 'deceased') {
+				$this->data['Participant']['vital_status'] = 'deceased';
+				AppController::addWarningMsg(__('changed vital status to deceased'));
+			}
+		}
+		
 		return $result;
 	}
 	
@@ -92,149 +99,138 @@ class ParticipantCustom extends Participant {
 		$add_links = array();
 		
 		if(Configure::read('procure_atim_version') == 'BANK') {
-			$add_links = array(__('quick procure collection creation button') => array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection'));
+			$add_links['add collection'] = array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection');
+			$tmp_url = $this->getClinicalFileUpdateProcessUrl($participant_id, '1');
+			if($tmp_url) $add_links['update clinical record'] = array('link'=> $tmp_url['url'], 'icon' => 'duplicate');
+			$add_links['add procure clinical information'] = array();
 			//Consent
 			$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
 			$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
+			$add_links_tmp = array();
 			foreach ($consent_controls_list as $consent_control) {
-				$add_links[__($consent_control['ConsentControl']['controls_type'])] = array('link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 'icon' => 'participant');
+				$add_links_tmp[__($consent_control['ConsentControl']['controls_type'])] = array(
+					'link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 
+					'icon' => 'consents');
 			}
+			ksort($add_links_tmp);
+			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
 			//Event
 			$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
 			$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
+			$add_links_tmp = array();
 			foreach ($event_controls_list as $event_ctrl) {
-				$add_links[__($event_ctrl['EventControl']['event_type'])] = array('link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 'icon' => 'participant');
-			}	
+				$add_links_tmp[__($event_ctrl['EventControl']['event_type'])] = array(
+					'link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 
+					'icon' => 'annotation');
+			}
+			ksort($add_links_tmp);
+			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);	
 			//Treatment
 			$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 			$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
+			$add_links_tmp = array();
 			foreach ($tx_controls_list as $treatment_control) {
-				$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
-			}		
-			ksort($add_links);	
+				$add_links_tmp[__($treatment_control['TreatmentControl']['tx_method'])] = array(
+					'link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 
+					'icon' => 'treatments');
+			}
+			ksort($add_links_tmp);
+			$add_links['add procure clinical information'] = array_merge($add_links['add procure clinical information'], $add_links_tmp);
 		}
 		
 		return $add_links;
 	}
 	
-	function setParticipantIdentifierForFormValidation($participant_id) {
-		$participant_identifier = $this->find('first', array('conditions' => array('Participant.id' => $participant_id), 'fields' => array('Participant.participant_identifier'), 'recursvie' => '0'));
-		if(!$participant_identifier) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		$this->participant_identifier_for_form_validation = $participant_identifier['Participant']['participant_identifier'];
+	//-------------------------------------------------------------------------------------------------------------------------
+	// Clinical file update functions
+	//-------------------------------------------------------------------------------------------------------------------------
+	
+	var $visit_data_entry_workflow_steps = array(
+			array('EventControl', 'event_type', 'visit/contact'),
+			array('TreatmentControl', 'tx_method', 'treatment'),
+			array('EventControl', 'event_type', 'laboratory'),
+			array('EventControl', 'event_type', 'clinical exam'),
+			array('EventControl', 'event_type', 'clinical note'),
+			array('EventControl', 'event_type', 'other tumor diagnosis'));
+	
+	function getClinicalFileUpdateProcessUrl($participant_id, $step_nbr) {
+		if(isset($this->visit_data_entry_workflow_steps[$step_nbr-1])) {
+			list($control_model, $control_type_field, $control_type) = $this->visit_data_entry_workflow_steps[$step_nbr-1];
+			$ControlModel = AppModel::getInstance("ClinicalAnnotation", $control_model, true);
+			$next_step_control_data = $ControlModel->find('first', array('conditions' => array("$control_model.$control_type_field" => $control_type, "$control_model.flag_active" => '1')));
+			if($next_step_control_data) {
+				return array(
+					'title' => $control_type,
+					'url' => '/ClinicalAnnotation/'.str_replace('Control', 'Masters', $control_model).'/add/'.$participant_id.'/'.$next_step_control_data[$control_model]['id'].'/clinical_file_update_process_step'.$step_nbr
+				);
+			}
+		} else if($step_nbr == (sizeof($this->visit_data_entry_workflow_steps)+1)) {
+			return array(
+				'title' => 'profile',
+				'url' => '/ClinicalAnnotation/Participants/edit/'.$participant_id.'/clinical_file_update_process_step'.$step_nbr
+			);
+		}
+		return null;
 	}
 	
-	function validateFormIdentification($procure_form_identification, $model, $id, $control_id = null) {
-		if(!$this->participant_identifier_for_form_validation) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		$pattern_suffix = null;
-		$main_worksheet = true;
-		switch($model) {
-			case 'ConsentMaster':
-				$pattern_suffix = "CSF";
-				break;
-				
-			case 'EventMaster':
-				if($id) {
-					$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-					$studied_event = $EventMaster->find('first', array('conditions' => array('EventMaster.id' => $id), 'recursive' => '0'));
-					$event_type = $studied_event['EventControl']['event_type'];
-				} else if($control_id) {
-					$EventControl = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
-					$studied_event_control = $EventControl->find('first', array('conditions' => array('id' => $control_id), 'recursive' => '0'));
-					$event_type = $studied_event_control['EventControl']['event_type'];
-				}
-				$pattern_suffix_suffix = '';
-				switch($event_type) {
-					case 'procure pathology report':
-						$pattern_suffix = "PST";
-						break;
-					case 'procure diagnostic information worksheet':
-						$pattern_suffix = "FBP";
-						break;
-					case 'procure questionnaire administration worksheet':
-						$pattern_suffix = "QUE";
-						break;
-					case 'procure follow-up worksheet':
-						$pattern_suffix = "FSP";
-						break;
-					case 'procure follow-up worksheet - aps':
-					case 'procure follow-up worksheet - clinical event':
-					case 'procure follow-up worksheet - other tumor dx':
-					case 'procure follow-up worksheet - clinical note':
-						$pattern_suffix = "FSP";
-						$main_worksheet = false;
-						break;
-					default:
-						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				}
-				break;
-				
-			case 'TreatmentMaster':
-				if($id) {
-					$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-					$studied_treatment = $TreatmentMaster->find('first', array('conditions' => array('TreatmentMaster.id' => $id), 'recursive' => '0'));
-					$tx_method = $studied_treatment['TreatmentControl']['tx_method'];
-				} else if($control_id) {
-					$TreatmentControl = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
-					$studied_treatment_control = $TreatmentControl->find('first', array('conditions' => array('id' => $control_id), 'recursive' => '0'));
-					$tx_method = $studied_treatment_control['TreatmentControl']['tx_method'];
-				} else {
-					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				}
-				switch($tx_method) {
-					case 'procure medication worksheet':
-						$pattern_suffix = "MED";
-						break;
-					case 'procure follow-up worksheet - treatment':
-					case 'procure follow-up worksheet - other tumor tx': 
-						$pattern_suffix = "FSP";
-						$main_worksheet = false;
-						break;
-					case 'procure medication worksheet - drug':
-						$pattern_suffix = "MED";
-						$main_worksheet = false;
-						break;
-					default:
-						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
-				}
-		}
-		if(empty($pattern_suffix)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
-		//Check Format
-		if($main_worksheet) {
-			if(!preg_match("/^".$this->participant_identifier_for_form_validation." V((0[1-9])|(1[0-9])) -".$pattern_suffix."[0-9]+$/", $procure_form_identification)) return __("the identification format is wrong")." (".$this->participant_identifier_for_form_validation." V00 -".$pattern_suffix."0)";
-		} else {
-			if(!preg_match("/^".$this->participant_identifier_for_form_validation." Vx -".$pattern_suffix."x$/", $procure_form_identification)) return __("the identification format is wrong")." (".$this->participant_identifier_for_form_validation." Vx -".$pattern_suffix."x)";
-		}
-		//Check Unique
-		if($main_worksheet) {
-			switch($model) {
-				case 'EventMaster':
-					$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-					$conditions = array('EventMaster.procure_form_identification' => $procure_form_identification);
-					if($id && $model == 'EventMaster') $conditions[] = 'EventMaster.id != '. $id;
-					$dup = $EventMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return __("the identification value should be unique");;
-					break;
-				case 'ConsentMaster':
-					$ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
-					$conditions = array('ConsentMaster.procure_form_identification' => $procure_form_identification);
-					if($id && $model == 'ConsentMaster') $conditions[] = 'ConsentMaster.id != '. $id;
-					$dup = $ConsentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return __("the identification value should be unique");
-					break;
-				case 'TreatmentMaster':
-					$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-					$conditions = array('TreatmentMaster.procure_form_identification' => $procure_form_identification);
-					if($id && $model == 'TreatmentMaster') $conditions[] = 'TreatmentMaster.id != '. $id;
-					$dup = $TreatmentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return __("the identification value should be unique");;
-					break;
-				default:
-					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+	function setNextUrlOfTheClinicalFileUpdateProcess($participant_id, $passed_args) {
+		if(preg_match('/clinical_file_update_process_step([0-9]+)/', implode('/', $passed_args), $matches)) {
+			// 1- Get Process Step Number
+			
+			$current_step_nbr = $matches[1];
+			if(!$current_step_nbr || $current_step_nbr > (sizeof($this->visit_data_entry_workflow_steps)+1)) {
+				$this->generateClinicalFileUpdateProcessError();
+				return;
 			}
+			
+			// 2- Get last user logs and check current url matches the $visit_data_entry_workflow_steps data
+			
+			$UserLog = AppModel::getInstance("", "UserLog", true);
+			$last_user_logs = $UserLog->find('first', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id']), 'fields' => array('UserLog.id, UserLog.url'), 'order' => array('UserLog.id DESC'), 'limit' => '1'));		
+			$current_user_log = $last_user_logs['UserLog']['url'];
+			$last_user_logs = $UserLog->find('first', array('conditions' => array('UserLog.user_id' => $_SESSION['Auth']['User']['id'], "UserLog.url <> '$current_user_log'"), 'fields' => array('UserLog.id, UserLog.url'), 'order' => array('UserLog.id DESC'), 'limit' => '1'));
+			$previous_user_log = $last_user_logs['UserLog']['url'];		
+			
+			$step_url_defined = $this->getClinicalFileUpdateProcessUrl($participant_id, $current_step_nbr);
+			if(strpos($current_user_log, $step_url_defined['url']) === false) {
+				$this->generateClinicalFileUpdateProcessError();
+				return;
+			}
+			
+			// 3 - Set session data
+			
+			if($current_step_nbr != 1) {
+				//Check that url matches session data
+				if(!isset($_SESSION['procure_clinical_file_update_process']) 
+				|| !strpos($current_user_log, $_SESSION['procure_clinical_file_update_process']['next_page_url']) !== false ) {
+					$this->generateClinicalFileUpdateProcessError();
+					return;
+				}					
+			}
+			$next_url = $this->getClinicalFileUpdateProcessUrl($participant_id, ($current_step_nbr+1));
+			$_SESSION['procure_clinical_file_update_process'] = array(
+				'current_page_url_suffix' => 'clinical_file_update_process_step'.$current_step_nbr,
+				'current_page_step_nbr' => $current_step_nbr,
+				'next_page_title' => $next_url? $next_url['title'] : null,
+				'next_page_url' => $next_url? $next_url['url'] : null
+			);
+			
+		} else {
+			unset($_SESSION['procure_clinical_file_update_process']);
 		}
-		//All is ok
-		return false;
+	}
+	
+	function addClinicalFileUpdateProcessInfo() {
+		if(isset($_SESSION['procure_clinical_file_update_process']['current_page_step_nbr'])) {
+			foreach($_SESSION['ctrapp_core']['info_msg'] as $msg => $count) if(strpos($msg, __('clinical record update step')) !== false) unset($_SESSION['ctrapp_core']['info_msg'][$msg]);	//To remove warning generated before previous data creation
+			AppController::addInfoMsg(__('clinical record update step').': '.$_SESSION['procure_clinical_file_update_process']['current_page_step_nbr'].'/'.(sizeof($this->visit_data_entry_workflow_steps)+1));
+		}		
+	}
+	
+	function generateClinicalFileUpdateProcessError() {
+		foreach($_SESSION['ctrapp_core']['info_msg'] as $msg => $count) if(strpos($msg, __('clinical record update step')) !== false) unset($_SESSION['ctrapp_core']['info_msg'][$msg]);	//To remove warning generated before previous data creation
+		AppController::addWarningMsg(__('an error has been detected - the clinical file update process has been finished prematurely'));
+		unset($_SESSION['procure_clinical_file_update_process']);
 	}
 }
 

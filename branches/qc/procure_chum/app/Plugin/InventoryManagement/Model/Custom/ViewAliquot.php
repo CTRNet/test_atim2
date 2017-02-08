@@ -31,6 +31,9 @@ Collection.procure_visit AS procure_visit,
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
+			AliquotMaster.in_stock_detail,
+			StudySummary.title AS study_summary_title,
+			StudySummary.id AS study_summary_id,
 AliquotMaster.procure_created_by_bank,
 			
 			StorageMaster.code,
@@ -58,7 +61,7 @@ AliquotMaster.procure_created_by_bank,
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-			 
+			
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
 MiscIdentifier.identifier_value AS qc_nd_no_labo  
 			
@@ -75,7 +78,7 @@ MiscIdentifier.identifier_value AS qc_nd_no_labo
 			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
-	
 }

@@ -26,7 +26,30 @@ class ViewStorageMaster extends StorageLayoutAppModel {
 		LEFT JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.storage_master_id=StorageMaster.id AND AliquotMaster.deleted=0
 		LEFT JOIN tma_slides AS TmaSlide ON TmaSlide.storage_master_id=StorageMaster.id AND TmaSlide.deleted=0
 		LEFT JOIN storage_masters AS ChildStorageMaster ON ChildStorageMaster.parent_id=StorageMaster.id AND ChildStorageMaster.deleted=0
-		WHERE StorageMaster.deleted=0 %%WHERE%% GROUP BY StorageMaster.id';
+		WHERE StorageMaster.deleted=0 %%WHERE%% 
+		GROUP BY StorageMaster.id, 
+		StorageMaster.code, 
+		StorageMaster.storage_control_id, 
+		StorageMaster.parent_id, 
+		StorageMaster.lft, 
+		StorageMaster.rght, 
+		StorageMaster.barcode, 
+		StorageMaster.short_label, 
+		StorageMaster.selection_label, 
+		StorageMaster.storage_status, 
+		StorageMaster.parent_storage_coord_x, 
+		StorageMaster.parent_storage_coord_y, 
+		StorageMaster.temperature, 
+		StorageMaster.temp_unit, 
+		StorageMaster.notes,
+		StorageMaster.created,
+		StorageMaster.created_by,
+		StorageMaster.modified,
+		StorageMaster.modified_by,
+		StorageMaster.deleted,
+		StorageControl.is_tma_block,
+		StorageControl.coord_x_size,
+		StorageControl.coord_y_size';
 }
 
 ?>

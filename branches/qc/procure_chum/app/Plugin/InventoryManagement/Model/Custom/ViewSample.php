@@ -14,10 +14,10 @@ class ViewSampleCustom extends ViewSample {
 		Collection.sop_master_id, 
 		Collection.participant_id, 
 		
-		Participant.participant_identifier,
+		Participant.participant_identifier, 
 Participant.procure_participant_attribution_number, 
 		
-		Collection.acquisition_label, 
+		Collection.acquisition_label,
 Collection.procure_visit AS procure_visit,
 		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
@@ -28,7 +28,7 @@ Collection.procure_visit AS procure_visit,
 		SampleMaster.sample_control_id,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
-SampleMaster.procure_created_by_bank,			
+SampleMaster.procure_created_by_bank,
 		
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
