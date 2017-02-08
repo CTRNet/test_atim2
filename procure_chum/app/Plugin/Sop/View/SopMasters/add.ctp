@@ -7,7 +7,7 @@
 	);
 	
 	$final_atim_structure = $atim_structure;
-	$final_options = array('links'=>$structure_links, 'settings' => array('header' => $sop_control_data['sop_group'].' - '.$sop_control_data['type']));
+	$final_options = array('links'=>$structure_links, 'settings' => array('header' => __($sop_control_data['sop_group']).' - '.__($sop_control_data['type'])));
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();

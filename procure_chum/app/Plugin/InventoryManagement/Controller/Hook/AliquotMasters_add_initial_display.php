@@ -25,10 +25,23 @@
 			$barcode_suffix = '-?';
 			$default_in_stock_value = 'yes - available';
 			$default_storage_datetime = ($sample_data['SampleControl']['sample_category'] == 'specimen')?  $sample_data['SpecimenDetail']['reception_datetime'] : $sample_data['DerivativeDetail']['creation_datetime'];
-			if($default_storage_datetime) $default_storage_datetime = substr($default_storage_datetime, 0, strpos($default_storage_datetime, ' '));
+			$default_storage_datetime_accuracy = 'h';
+			if(in_array($new_sample_record['parent']['ViewSample']['sample_type'], array('serum', 'pbmc', 'buffy coat', 'plasma'))) {
+				$sample_control_ids = $this->SampleControl->find('list', array('conditions' => array('sample_type' => array('serum', 'plasma', 'buffy coat', 'pbmc'))));
+				$aliquot_control_ids = $this->AliquotControl->find('list', array('conditions' => array('sample_control_id' => $sample_control_ids)));
+				$collection_blood_derivative_aliquots = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $new_sample_record['parent']['ViewSample']['collection_id'], 'AliquotMaster.aliquot_control_id' => $aliquot_control_ids), 'order' => array('AliquotMaster.storage_datetime DESC'), 'recursive' => '1'));
+				if($collection_blood_derivative_aliquots) {
+					$default_storage_datetime = $collection_blood_derivative_aliquots['AliquotMaster']['storage_datetime'];
+					$default_storage_datetime_accuracy = $collection_blood_derivative_aliquots['AliquotMaster']['storage_datetime_accuracy'];
+				}
+			}			
 			$default_volume = '';
 			$default_concentration_unit = '';
-			$default_procure_card_completed_datetime = '';
+			$default_hemolysis_signs = '';
+			
+			$default_storage = null;
+			$last_stored_aliquot = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.aliquot_control_id' => $aliquot_control['AliquotControl']['id'], 'AliquotMaster.storage_master_id IS NOT NULL'), 'recursive' => '0', 'order' => array('AliquotMaster.created DESC')));
+			if($last_stored_aliquot) $default_storage = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $last_stored_aliquot['StorageMaster']));
 			
 			switch($new_sample_record['parent']['ViewSample']['sample_type'].'-'.$aliquot_control['AliquotControl']['aliquot_type']) {	
 				//--------------------------------------------------------------------------------
@@ -36,40 +49,30 @@
 				//--------------------------------------------------------------------------------
 				case 'blood-tube':
 					switch($sample_data['SampleDetail']['blood_type']) {
-						case 'serum':
-							$barcode_suffix = '-SRB';
-							$default_in_stock_value = 'no';
-							$default_storage_datetime = '';
-							$default_volume = '5.0';
-							break;
 						case 'paxgene':
 							$barcode_suffix = '-RNB';
-							$default_volume = '9.0';
-							break;
-						case 'k2-EDTA':
-							$barcode_suffix = '-EDB';
-							$default_in_stock_value = 'no';
-							$default_storage_datetime = '';
-							$default_volume = '9.0';
+							$default_volume = '2.5';
 							break;
 						default:
 							$barcode_suffix = '-?';
 							$default_in_stock_value = 'no';
-							$default_storage_datetime = '';
 					}
 					break;
-				case 'blood-whatman paper':
-					$barcode_suffix = '-WHT';
-					$default_procure_card_completed_datetime = $default_storage_datetime;
-					$default_storage_datetime = '';
-					break;
 				case 'serum-tube':
+					$default_hemolysis_signs = 'n';
+					$default_volume = '1.8';
 					$barcode_suffix = '-SER';
 					break;
 				case 'plasma-tube':
+					$default_hemolysis_signs = 'n';
+					$default_volume = '1.8';
 					$barcode_suffix = '-PLA';
 					break;
 				case 'pbmc-tube':		
+					$barcode_suffix = '-PBMC';
+					$default_volume = '1';
+					break;
+				case 'buffy coat-tube':		
 					$barcode_suffix = '-BFC';
 					break;
 				//--------------------------------------------------------------------------------
@@ -78,7 +81,6 @@
 				case 'urine-cup':
 					$barcode_suffix = '-URI';
 					$default_in_stock_value = 'no';
-					$default_storage_datetime = '';
 					$default_volume = $sample_data['SampleDetail']['collected_volume'];	
 					break;				
 				case 'centrifuged urine-tube':
@@ -120,12 +122,12 @@
 				$tmp_default_aliquot_data['AliquotMaster.barcode'] = $participant_identifier . ' ' . $visite . ' ' . $barcode_suffix;
 				$tmp_default_aliquot_data['AliquotMaster.in_stock'] = $default_in_stock_value;
 				$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $default_storage_datetime;
+				$tmp_default_aliquot_data['AliquotMaster.storage_datetime_accuracy'] = $default_storage_datetime_accuracy;
 				if(strlen($default_volume)) $tmp_default_aliquot_data['AliquotMaster.initial_volume'] = $default_volume;
 				if($default_concentration_unit) $tmp_default_aliquot_data['AliquotDetail.concentration_unit'] = $default_concentration_unit;
-				if($default_procure_card_completed_datetime) {
-					$tmp_default_aliquot_data['AliquotDetail.procure_card_completed_datetime'] = $default_procure_card_completed_datetime;
-					$tmp_default_aliquot_data['AliquotDetail.procure_card_sealed_date'] = $default_procure_card_completed_datetime;				
-				}
+				if($default_hemolysis_signs) $tmp_default_aliquot_data['AliquotDetail.hemolysis_signs'] = $default_hemolysis_signs;
+				if($default_storage) $tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = $default_storage;
+				
 				//Add barcode suffix number
 				$counter = 0;
 				foreach($new_sample_record['children'] AS &$new_aliquot) {
@@ -136,7 +138,7 @@
 			}	
 			
 			$default_aliquot_data[$new_sample_record['parent']['ViewSample']['sample_master_id']] = $tmp_default_aliquot_data;
-		
+			
 		} else if(Configure::read('procure_atim_version') == 'PROCESSING') {
 			
 			// -2- Set Default Data For PROCESSING SITE
