@@ -72,7 +72,7 @@ SET event_type = 'prostate cancer - laboratory',
 detail_form_alias = 'procure_ed_prostate_cancer_laboratory', 
 detail_tablename = 'procure_ed_prostate_cancer_laboratory'
 WHERE event_type = 'procure follow-up worksheet - aps';
-INSERT INTO i18n (id,en,fr) VALUES ('prostate cancer - laboratory', 'Laboratory', 'Laboratoire');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('prostate cancer - laboratory', 'Laboratory', 'Laboratoire');
 
 ALTER TABLE procure_ed_clinical_followup_worksheet_aps 
   RENAME procure_ed_prostate_cancer_laboratory;
@@ -87,14 +87,14 @@ ALTER TABLE procure_ed_prostate_cancer_laboratory_revs
 UPDATE structures SET alias = 'procure_ed_prostate_cancer_laboratory' WHERE alias = 'procure_ed_followup_worksheet_aps';
 UPDATE structure_fields SET tablename = 'procure_ed_prostate_cancer_laboratory' WHERE tablename = 'procure_ed_clinical_followup_worksheet_aps';
 UPDATE structure_fields SET field = 'psa_total_ngml', language_label = 'psa - total ng/ml' WHERE tablename = 'procure_ed_prostate_cancer_laboratory' AND field = 'total_ngml';
-INSERT INTO i18n (id,en,fr) VALUES ('psa - total ng/ml', 'PSA - Total (ng/ml)', 'APS - Total (ng/ml)');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('psa - total ng/ml', 'PSA - Total (ng/ml)', 'APS - Total (ng/ml)');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_prostate_cancer_laboratory', 'testosterone_nmoll', 'float_positive',  NULL , '0', 'size=5', '', '', 'testosterone - nmol/l', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_laboratory'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_laboratory' AND `field`='testosterone_nmoll' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='testosterone - nmol/l' AND `language_tag`=''), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en,fr) VALUES ('testosterone - nmol/l', 'Testosterone (nmol/l)', 'Téstostérone (nmol/l)');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('testosterone - nmol/l', 'Testosterone (nmol/l)', 'Téstostérone (nmol/l)');
 DELETE FROM structure_validations WHERE structure_field_id = (SELECT id from structure_fields WHERE field = 'psa_total_ngml');
-INSERT INTO i18n (id,en,fr) VALUES ('at least a psa or testosterone value should be set', 'At least a psa or testosterone value should be set', 'Au moins une valeur d''APS ou de téstostérone doit être saisie');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('at least a psa or testosterone value should be set', 'At least a psa or testosterone value should be set', 'Au moins une valeur d''APS ou de téstostérone doit être saisie');
 
 ALTER TABLE procure_ed_prostate_cancer_laboratory
   ADD COLUMN psa_free_ngml  decimal(10,2) DEFAULT NULL;
@@ -106,7 +106,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_laboratory'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_laboratory' AND `field`='psa_free_ngml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='psa - free ng/ml' AND `language_tag`=''), '1', '31', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 UPDATE structure_formats SET `language_heading`='psa' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_laboratory') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_laboratory' AND `field`='psa_total_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='other' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_laboratory') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_laboratory' AND `field`='testosterone_nmoll' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('psa - free ng/ml', 'PSA - Free (ng/ml)', 'APS - Libre (ng/ml)');
 UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_laboratory') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_laboratory' AND `field`='psa_free_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -196,7 +196,7 @@ ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events
 ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs 
   RENAME TO procure_ed_prostate_cancer_clinical_exams_revs;
 UPDATE structure_fields SET tablename = 'procure_ed_prostate_cancer_clinical_exams' WHERE tablename = 'procure_ed_clinical_followup_worksheet_clinical_events';
-INSERT INTO i18n (id,en,fr) 
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES ('prostate cancer - clinical exam', 'Clinical Exam', 'Examen clinique');
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Exam Precisions');
@@ -236,7 +236,7 @@ ALTER TABLE procure_ed_lab_diagnostic_information_worksheets
 ALTER TABLE procure_ed_lab_diagnostic_information_worksheets_revs 
   RENAME TO procure_ed_prostate_cancer_diagnosis_revs;
 UPDATE structure_fields SET tablename = 'procure_ed_prostate_cancer_diagnosis' WHERE tablename = 'procure_ed_lab_diagnostic_information_worksheets';
-INSERT INTO i18n (id,en,fr) 
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES ('prostate cancer - diagnosis', 'Prostate - Diagnosis (Pathology of biopsy)', 'Prostate - Diagnostic (pathologie de la biopsie)');
 
 UPDATE structure_formats SET `language_heading`='biopsy' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_diagnosis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='biopsy_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -503,7 +503,7 @@ ALTER TABLE procure_ed_followup_worksheet_clinical_notes
 ALTER TABLE procure_ed_followup_worksheet_clinical_notes_revs 
   RENAME TO procure_ed_prostate_cancer_clinical_notes_revs;
 UPDATE structure_fields SET tablename = 'procure_ed_prostate_cancer_clinical_notes' WHERE tablename = 'procure_ed_followup_worksheet_clinical_notes';
-INSERT INTO i18n (id,en,fr) 
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES ('prostate cancer - clinical note', 'Clinical Note', 'Note clinique');
 
 ALTER TABLE procure_ed_prostate_cancer_clinical_notes
@@ -541,7 +541,7 @@ ALTER TABLE procure_ed_lifestyle_quest_admin_worksheets
 ALTER TABLE procure_ed_lifestyle_quest_admin_worksheets_revs 
   RENAME TO procure_ed_questionnaires_revs;
 UPDATE structure_fields SET tablename = 'procure_ed_questionnaires' WHERE tablename = 'procure_ed_lifestyle_quest_admin_worksheets';
-INSERT INTO i18n (id,en,fr) 
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES ('questionnaire', 'Questionnaire', 'Questionnaire');
 
 -- delete procure_ed_questionnaires.patient_identity_verified
@@ -567,7 +567,7 @@ ALTER TABLE procure_ed_followup_worksheet_other_tumor_diagnosis
 ALTER TABLE procure_ed_followup_worksheet_other_tumor_diagnosis_revs 
   RENAME TO procure_ed_other_tumor_diagnosis_revs;
 UPDATE structure_fields SET tablename = 'procure_ed_other_tumor_diagnosis' WHERE tablename = 'procure_ed_followup_worksheet_other_tumor_diagnosis';
-INSERT INTO i18n (id,en,fr) 
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES ('other tumor diagnosis', 'Other tumor - Diagnosis', 'Autre tumeur - Diagnostic');
 
 -- @@@ Pathology report @@@
@@ -593,7 +593,7 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 UPDATE structure_fields 
 SET `language_help`='procure_help_drug_study'
 WHERE `model`='Drug' AND `tablename`='drugs' AND `field`='procure_study' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0';
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('procure_help_drug_study', 
 "For any experimental treatment or clinical study that you could classify with another type (ex: chemotherapy, hormonal therapy) than the generic type 'experimental treatment'. This will be more informative.", 
@@ -758,7 +758,9 @@ VALUES
 UPDATE structure_permissible_values_custom_controls SET name = 'Treatment Sites' WHERE name = 'Radiotherapy Sites';
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment Sites\')' WHERE domain_name = 'procure_treatment_site';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Sites');
-SELECT `value` AS 'Custom value of Treatment Site not supported by procure. To clean up.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value != 'prostate bed';
+SELECT `value` AS 'Custom value of Treatment Site not supported by procure. Values of field procure_txd_treatments.treatment_site to clean up.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value != 'prostate bed'
+AND value NOT IN (SELECT DISTINCT lower(`en_sub_title`) FROM `coding_icd_o_3_topography` WHERE en_sub_title != 'unknown primary site');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value != 'prostate bed';
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 (SELECT DISTINCT lower(`en_sub_title`), `en_sub_title`, `fr_sub_title`, '1', @control_id, NOW(), '1', NOW(), '1' FROM `coding_icd_o_3_topography` WHERE en_sub_title != 'unknown primary site');
 
@@ -857,7 +859,7 @@ ALTER TABLE procure_ed_clinical_followup_worksheets
 ALTER TABLE procure_ed_clinical_followup_worksheets_revs 
   RENAME TO procure_ed_visits_revs;
 UPDATE structure_fields SET tablename = 'procure_ed_visits' WHERE tablename = 'procure_ed_clinical_followup_worksheets';
-INSERT INTO i18n (id,en,fr) 
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES ('visit/contact', 'Visit / Contact', 'Visite / Contact');
 
 UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_visits') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -1250,7 +1252,7 @@ ALTER TABLE treatment_masters DROP COLUMN tmp_migrated_id;
 
 -- Prostate hyperplasia
 
-SELECT Participant.participant_identifier AS "Participant with 'prostate hyperplasia' place, comments and date but flag 'yes/no' different than 'yes'. No data will be created by migration process. Please review patient clinical history.", TreatmentMaster.id AS 'TreatmentMaster id record', benign_hyperplasia_place_and_date AS 'Place and date', benign_hyperplasia_notes AS notes
+SELECT Participant.participant_identifier AS "Participant with data for either field 'Benign hyperplasia: place and date' or 'Comments' but the answer to 'Did the patient have surgery for benign prostatoc hyperplasia' is different than 'yes'. No data will be created by migration process. Please review patient clinical history.", TreatmentMaster.id AS 'TreatmentMaster id record', benign_hyperplasia_place_and_date AS 'Place and date', benign_hyperplasia_notes AS notes
 FROM participants Participant, treatment_masters TreatmentMaster, procure_txd_medications TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
@@ -1330,7 +1332,7 @@ ALTER TABLE procure_txd_medications_revs RENAME TO procure_deprecated_table_txd_
 UPDATE event_controls SET databrowser_label = event_type WHERE flag_active = 1;
 UPDATE treatment_controls SET databrowser_label = tx_method WHERE flag_active = 1;
 
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('visit data entry step', 'Visit data entry step', 'Étape de saisie de données de visite'),
 ('skip visit data entry step', 'Next step (skip data no entry)', 'Prochaine étape (sans saisie de données)'),
@@ -1438,7 +1440,7 @@ DELETE FROM structure_value_domains_permissible_values WHERE structure_value_dom
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE structure_fields SET type = 'input', setting = 'size=4,class=range', structure_value_domain = null WHERE field = 'procure_visit';
-INSERT INTO i18n (id,en,fr) VALUES ('wrong procure collection visit format', 'Wrong collection visit format', 'Le format de la visite n''est pas supporté');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('wrong procure collection visit format', 'Wrong collection visit format', 'Le format de la visite n''est pas supporté');
 
 -- identity confirmation
 
@@ -1606,7 +1608,7 @@ ALTER TABLE sd_spe_bloods_revs
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_concentrated' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_fields SET  `language_tag`='for a volume of ml' WHERE model='SampleDetail' AND tablename='sd_der_urine_cents' AND field='procure_pellet_volume_ml' AND `type`='float' AND structure_value_domain  IS NULL ;
 REPLACE INTO i18n (id,en,fr) VALUES ('approximatif pellet volume ml', 'Approximate volume (ml) of pellet', 'Volume (ml) approximatif du culot');
-INSERT INTO i18n (id,en,fr) VALUES ('for a volume of ml', 'For a volume (ml) of', 'Pour un volume (ml) de');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('for a volume of ml', 'For a volume (ml) of', 'Pour un volume (ml) de');
 
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_processed_at_reception' AND `language_label`='processed at reception' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_conserved_at_4' AND `language_label`='conserved at 4' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
@@ -1751,7 +1753,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_pbmc_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_time_at_minus_80_days'), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 ALTER TABLE ad_tubes ADD COLUMN procure_time_at_minus_80_days int(5) DEFAULT NULL;
 ALTER TABLE ad_tubes_revs ADD COLUMN procure_time_at_minus_80_days int(5) DEFAULT NULL;
-INSERT INTO i18n (id,en,fr) VALUES ('time at -80 (days)', 'Time At -80c (Days)', 'Temps à -80c (jours)');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('time at -80 (days)', 'Time At -80c (Days)', 'Temps à -80c (jours)');
 
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
