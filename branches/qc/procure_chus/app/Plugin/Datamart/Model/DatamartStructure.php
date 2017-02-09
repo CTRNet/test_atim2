@@ -34,4 +34,14 @@ class DatamartStructure extends DatamartAppModel {
 		$d = $this->findById($id);
 		return AppModel::getInstance($d['DatamartStructure']['plugin'], $model_name ?: $d['DatamartStructure']['model']);
 	}
+	
+	function getDisplayNameFromModel() {
+		$data = $this->find('all', array('conditions' => array(), 'recursive' => -1, 'fields' => array('DatamartStructure.model', 'DatamartStructure.control_master_model', 'DatamartStructure.display_name')));
+		$results = array();
+		foreach($data as $new_record) {
+			$results[$new_record['DatamartStructure']['model']] = __($new_record['DatamartStructure']['display_name']);
+			if(isset($new_record['DatamartStructure']['control_master_model'])) $results[$new_record['DatamartStructure']['control_master_model']] = __($new_record['DatamartStructure']['display_name']);
+		}
+		return $results;
+	}
 }

@@ -8,7 +8,7 @@
 	);
 	
 	$structure_settings = array(
-			'header' => __('precision', null),
+			'header' => ($tx_extend_type? __($tx_extend_type, null) : __('precision', null)),
 			'pagination' => false,
 			'add_fields' => true,
 			'del_fields' => true

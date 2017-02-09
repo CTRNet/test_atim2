@@ -2,21 +2,20 @@
 	
 	// Set links and settings
 	$structure_links = array();
-	$settings =  array('header' => __('tma slide'));
+	$settings =  array('header' => __('tma slide'), 'actions' => ($is_from_tree_view_or_layout)? true : false);
 	
 	//Basic
 	$structure_links = array(
 		'bottom' => array(
-			'edit' => '/StorageLayout/TmaSlides/edit/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
+			'edit' => '/StorageLayout/TmaSlides/edit/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'].'/1',
 			'delete' => '/StorageLayout/TmaSlides/delete/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
-			'list' => '/StorageLayout/StorageMasters/detail/' . $atim_menu_variables['StorageMaster.id']
+			'add tma slide use' => '/StorageLayout/TmaSlideUses/add/' . $atim_menu_variables['TmaSlide.id']
 		)
 	);		
 	
 	//Clean up based on form type 
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
-		unset($structure_links['bottom']['list']);
 	
 	} else if($is_from_tree_view_or_layout == 2) {
 		// Storage Layout
@@ -36,5 +35,53 @@
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );		
+	$this->Structures->build( $final_atim_structure, $final_options );	
+	
+	// TMA Slide Uses
+	
+	if(!$is_from_tree_view_or_layout) {
+		
+		// Uses
+		
+		$final_atim_structure = array();
+		$final_options = array(
+			'links'	=> $structure_links,
+			'settings' => array(
+				'actions' => (Configure::read('order_item_type_config') == '2'),
+				'header' => __('analysis/scoring', null)
+			), 'extras' => array('end' => $this->Structures->ajaxIndex('StorageLayout/TmaSlideUses/listAll/'.$atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'])));
+		
+		// CUSTOM CODE
+		$hook_link = $this->Structures->hook('uses');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		// BUILD FORM
+		$this->Structures->build( $final_atim_structure, $final_options );
+		
+		// Orders
+		
+		if(Configure::read('order_item_type_config') != '2') {
+			
+			$structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addOrderItemsInBatch/TmaSlide/'.$atim_menu_variables['TmaSlide.id'].'/', "icon" => "add_to_order");
+			
+			$final_atim_structure = array();
+			$final_options = array(
+					'links'	=> $structure_links,
+					'settings' => array(
+							'header' => __('orders', null)
+					), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listAllOrderItemsLinkedToOneObject/TmaSlide/'.$atim_menu_variables['TmaSlide.id'])));
+		
+			// CUSTOM CODE
+			$hook_link = $this->Structures->hook('orders');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+				
+			// BUILD FORM
+			$this->Structures->build( $final_atim_structure, $final_options );
+		}
+	}
+			
 ?>

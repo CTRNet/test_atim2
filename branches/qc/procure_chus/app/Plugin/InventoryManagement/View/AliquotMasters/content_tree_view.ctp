@@ -5,7 +5,8 @@
 	$structure_settings = array(
 		'tree'=>array(
 			'AliquotMaster'	=> 'AliquotMaster',
-			
+			'OrderItemReturn' => 'Shipment',
+			'OrderItem' => 'Order',
 			'QualityCtrl' => 'QualityCtrl',
 			'SampleMaster' => 'SampleMaster',
 			'Shipment' => 'Shipment',
@@ -29,7 +30,27 @@
 					'icon' => 'detail'
 				)
 			),	
-			// *** Aliquot Uses ***			
+			// *** Aliquot Uses ***	
+			'OrderItemReturn' => array(
+				'detail' => array(
+					'link' => '/Order/Shipments/detail/%%FunctionManagement.url_ids%%/1/',
+					'icon' => 'order items returned'
+				),
+				'access to all data' => array(
+					'link' => '/Order/Shipments/detail/%%FunctionManagement.url_ids%%/1/',
+					'icon' => 'detail'
+				)
+			),		
+			'OrderItem' => array(
+				'detail' => array(
+					'link' => '/Order/Orders/detail/%%FunctionManagement.url_ids%%/1/',
+					'icon' => 'order items'
+				),
+				'access to all data' => array(
+					'link' => '/Order/Orders/detail/%%FunctionManagement.url_ids%%/',
+					'icon' => 'detail'
+				)
+			),		
 			'QualityCtrl' => array(
 				'detail' => array(
 					'link' => '/InventoryManagement/QualityCtrls/detail/%%FunctionManagement.url_ids%%/1/',

@@ -14,7 +14,6 @@ class ViewCollectionCustom extends ViewCollection {
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
-Collection.procure_patient_identity_verified AS procure_patient_identity_verified,
 Collection.procure_visit AS procure_visit,
 -- PROCURE CHUS
 Collection.procure_chus_collection_specimen_sample_control_id AS procure_chus_collection_specimen_sample_control_id,

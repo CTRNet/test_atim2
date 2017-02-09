@@ -25,12 +25,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		//permissions on collections, consent, dx, tx and event are required
 		$error = array();
 		$check = array(
-			'collection'	=> '/InventoryManagement/Collections/detail/',
-			'consent'		=> '/ClinicalAnnotation/ConsentMasters/detail/',
-			'diagnosis'		=> '/ClinicalAnnotation/DiagnosisMasters/detail/',
-			'treatment'		=> '/ClinicalAnnotation/TreatmentMasters/detail/',
-			'event'			=> '/ClinicalAnnotation/EventMasters/detail/'
-		);
+			'collection'	=> '/InventoryManagement/Collections/detail/');
 		foreach($check as $name => $link){
 			if(!AppController::checkLinkPermission($link)){
 				$error[] = __($name);
@@ -82,6 +77,25 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			'joins' => $joins, 
 			'fields' => array('*')
 		));
+		
+		// Check permission and data to display
+		$array_data_for_permissions = array(
+				'/ClinicalAnnotation/ConsentMasters/detail/' => array('ConsentControl', 'consent_masters_dup', 'ConsentMaster', 'ConsentDetail'),
+				'/ClinicalAnnotation/DiagnosisMasters/detail/' => array('DiagnosisControl', 'diagnosis_masters_dup', 'DiagnosisMaster', 'DiagnosisDetail'),
+				'/ClinicalAnnotation/TreatmentMasters/detail/' => array('TreatmentControl', 'treatment_masters_dup', 'TreatmentMaster', 'TreatmentDetail'),
+				'/ClinicalAnnotation/EventMasters/detail/' => array('EventControl', 'event_masters_dup', 'EventMaster', 'EventDetail'),
+		);
+		foreach($array_data_for_permissions as $link => $model_names_to_hide) {
+			if(!AppController::checkLinkPermission($link)) {
+				foreach($this->request->data as &$new_record) {
+					foreach($new_record as $new_record_model => &$new_record_model_data) {
+						if(in_array($new_record_model, $model_names_to_hide)) {
+							foreach($new_record_model_data as &$new_record_value) $new_record_value = '';
+						}
+					}
+				}
+			}
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -190,7 +204,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		//set event list
 		$event_data = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventControl.flag_use_for_ccl' => true)));
 		$found_event = false;
-		if(isset($this->request->data['Collection']['treatment_master_id'])){
+		if(isset($this->request->data['Collection']['event_master_id'])){
 			$found_event = $this->setForRadiolist($event_data, 'EventMaster', 'id', $this->request->data, 'Collection', 'event_master_id');
 		}
 		$this->set('event_data', $event_data);
