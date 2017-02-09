@@ -13,22 +13,13 @@
 			break;
 		case 'laboratory':
 			$lab_data = array();
-			if(strlen($annotation['EventDetail']['psa_total_ngml'])) {
+			if(strlen($annotation['EventDetail']['psa_total_ngml']) || $annotation['EventDetail']['biochemical_relapse'] == 'y') {
 				$tmp_annotation = $chronolgy_data_annotation;
-				$chronology_events = array();
+				$tmp_annotation['event'] = __('psa').' '. __('total ng/ml');
 				$chronology_details = array();
-				if(strlen($annotation['EventDetail']['psa_total_ngml'])) {
-					$chronology_events[] = __('total ng/ml');
-					$chronology_details[] = $annotation['EventDetail']['psa_total_ngml'];
-				}
-				$tmp_annotation['event'] = __('psa').' '.implode(' / ', $chronology_events);
-				$tmp_annotation['chronology_details'] = implode(' / ', $chronology_details);
-				$lab_data[] = $tmp_annotation;
-			}
-			if($annotation['EventDetail']['biochemical_relapse'] == 'y')  {
-				$tmp_annotation = $chronolgy_data_annotation;
-				$tmp_annotation['event'] = __('biochemical relapse');
-				$tmp_annotation['chronology_details'] = '';
+				$chronology_details[] = strlen($annotation['EventDetail']['psa_total_ngml'])? $annotation['EventDetail']['psa_total_ngml'] : '?';
+				if($annotation['EventDetail']['biochemical_relapse'] == 'y') $chronology_details[] = '('.__('biochemical relapse').')';
+				$tmp_annotation['chronology_details'] = implode(' ', $chronology_details);
 				$lab_data[] = $tmp_annotation;
 			}
 			if(strlen($annotation['EventDetail']['testosterone_nmoll'])) {
@@ -52,16 +43,14 @@
 			$chronolgy_data_annotation['chronology_details'] = $exam_result;
 			$exam_data[] = $chronolgy_data_annotation;
 			// Add progression
-			if(strlen($annotation['EventDetail']['progression_comorbidity'])) {
-				$chronolgy_data_annotation['event'] = __('progression / comorbidity');
+			if(strlen($annotation['EventDetail']['progression_comorbidity']) || $annotation['EventDetail']['clinical_relapse'] == 'y') {
+				$tmp_event = array();
+				if(strlen($annotation['EventDetail']['progression_comorbidity'])) $tmp_event[] = __('progression / comorbidity'); 
+				if($annotation['EventDetail']['clinical_relapse'] == 'y') $tmp_event[] = __('clinical relapse');
+				$chronolgy_data_annotation['event'] = implode(' ', $tmp_event);
 				$chronolgy_data_annotation['chronology_details'] = $procure_progressions_comorbidities_values[$annotation['EventDetail']['progression_comorbidity']];
 				$exam_data[] = $chronolgy_data_annotation;
-			}
-			if($annotation['EventDetail']['clinical_relapse'] == 'y')  {
-				$chronolgy_data_annotation['event'] = __('clinical relapse');
-				$chronolgy_data_annotation['chronology_details'] = $procure_progressions_comorbidities_values[$annotation['EventDetail']['progression_comorbidity']];
-				$exam_data[] = $chronolgy_data_annotation;
-			}	
+			}			
 			while(sizeof($exam_data) > 1) {
 				$add_to_tmp_array(array_shift($exam_data));
 			}
