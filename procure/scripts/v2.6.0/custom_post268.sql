@@ -259,7 +259,7 @@ DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM st
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='data_collection_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
 -- data migration of biopsy information
-SELECT Participant.participant_identifier AS 'Participant with biopsies before the biopsy of diagnostic but no date set. No biospy will be created by migration process. Please review patient clinical history.', EventMaster.id AS 'EventMaster id record'
+SELECT Participant.participant_identifier AS "### WARNING ### : Participant with field 'Did the patient have biopsies before (pre-surgery biopsy)' set to 'yes' in 'F1b - Diagnostic Information Worksheet' but no date set. No biospy will be created by migration process based on this information. Please review patient clinical history.", EventMaster.id AS 'EventMaster id record'
 FROM participants Participant
 INNER JOIN event_masters EventMaster ON Participant.id = EventMaster.participant_id
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
@@ -272,22 +272,20 @@ ALTER TABLE event_masters ADD COLUMN tmp_procure_migration varchar(100) DEFAULT 
 SET @clinical_exam_event_control_id = (SELECT id FROM event_controls WHERE event_type = 'prostate cancer - clinical exam');
 SET @modified = (SELECT NOW() FROM users limit 0, 1);
 SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
-INSERT INTO event_masters (participant_id, event_control_id, event_date, event_date_accuracy, procure_created_by_bank, event_summary, 
-modified, created, created_by, modified_by, tmp_procure_migration) 
-(SELECT DISTINCT EventMaster.participant_id, @clinical_exam_event_control_id, EventDetail.biopsy_date, EventDetail.biopsy_date_accuracy, procure_created_by_bank, "Created by migration process from 'Diagnosis' form based on 'Biopsy pre diagnostic' field.",
-@modified, @modified, @modified_by, @modified_by, '1'
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with 'Date' equals to the 'Date of biopsy prior to surgery ', a site equals to 'Prostate' and 'Result' value equals to 'Positive' based on the 'Date of biopsy prior to surgery ' field (not empty) in 'F1 -  Diagnostic Information Worksheet'") AS '###MESSAGE###'
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 WHERE EventMaster.deleted <> 1
-AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL AND EventDetail.biopsy_pre_surgery_date NOT LIKE '')
 AND EventMaster.id NOT IN (
 	SELECT DxBiopsyRec.event_master_id
 	FROM (
-		SELECT EventMaster.id as event_master_id, EventMaster.participant_id, EventDetail.biopsy_date, EventDetail.biopsy_date_accuracy
+		SELECT EventMaster.id as event_master_id, EventMaster.participant_id, EventDetail.biopsy_pre_surgery_date, EventDetail.biopsy_pre_surgery_date_accuracy
 		FROM event_masters EventMaster
 		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
-		AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+		AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL AND EventDetail.biopsy_pre_surgery_date NOT LIKE '')
 	) DxBiopsyRec,
 	(
 		SELECT EventMaster.participant_id, EventMaster.event_date, EventMaster.event_date_accuracy
@@ -295,18 +293,17 @@ AND EventMaster.id NOT IN (
 		INNER JOIN procure_ed_prostate_cancer_clinical_exams EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
 		AND EventDetail.type = 'biopsy'
+		AND EventDetail.results = 'positive'
 		AND (EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE '')
 	) ExamBiopsyRec
 	WHERE DxBiopsyRec.participant_id = ExamBiopsyRec.participant_id
-	AND DxBiopsyRec.biopsy_date = ExamBiopsyRec.event_date
-	AND DxBiopsyRec.biopsy_date_accuracy = ExamBiopsyRec.event_date_accuracy
-));
-INSERT INTO procure_ed_prostate_cancer_clinical_exams (type, type_precision, results, event_master_id)
-(SELECT 'biopsy', 'prostate', '', id FROM event_masters WHERE tmp_procure_migration = '1' AND created = @modified AND created_by = @modified_by);
-
+	AND DxBiopsyRec.biopsy_pre_surgery_date = ExamBiopsyRec.event_date
+	AND DxBiopsyRec.biopsy_pre_surgery_date_accuracy = ExamBiopsyRec.event_date_accuracy
+);
 INSERT INTO event_masters (participant_id, event_control_id, event_date, event_date_accuracy, procure_created_by_bank, event_summary, 
 modified, created, created_by, modified_by, tmp_procure_migration) 
-(SELECT DISTINCT EventMaster.participant_id, @clinical_exam_event_control_id, EventDetail.biopsy_pre_surgery_date, EventDetail.biopsy_pre_surgery_date_accuracy, procure_created_by_bank, "Created by migration process from 'Diagnosis' form based on 'Biopsy of diagnostic' field.",
+(SELECT DISTINCT EventMaster.participant_id, @clinical_exam_event_control_id, EventDetail.biopsy_pre_surgery_date, EventDetail.biopsy_pre_surgery_date_accuracy, procure_created_by_bank, 
+CONCAT("Created by migration process (v268) from 'Diagnosis' form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Date of biopsy prior to surgery' field."),
 @modified, @modified, @modified_by, @modified_by, '2'
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
@@ -336,6 +333,66 @@ AND EventMaster.id NOT IN (
 ));
 INSERT INTO procure_ed_prostate_cancer_clinical_exams (type, type_precision, results, event_master_id)
 (SELECT 'biopsy', 'prostate', 'positive', id FROM event_masters WHERE tmp_procure_migration = '2' AND created = @modified AND created_by = @modified_by);
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with 'Date' equals to the 'Biopsy Date', a site equals to 'Prostate' and a empty 'Result' value based on the 'Biopsy ( before pre-surgery biopsy): Date' field (not empty) in 'F1 -  Diagnostic Information Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster
+INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
+WHERE EventMaster.deleted <> 1
+AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+AND EventMaster.id NOT IN (
+	SELECT DxBiopsyRec.event_master_id
+	FROM (
+		SELECT EventMaster.id as event_master_id, EventMaster.participant_id, EventDetail.biopsy_date, EventDetail.biopsy_date_accuracy
+		FROM event_masters EventMaster
+		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
+		WHERE EventMaster.deleted <> 1
+		AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+	) DxBiopsyRec,
+	(
+		SELECT EventMaster.participant_id, EventMaster.event_date, EventMaster.event_date_accuracy
+		FROM event_masters EventMaster
+		INNER JOIN procure_ed_prostate_cancer_clinical_exams EventDetail ON EventMaster.id = EventDetail.event_master_id
+		WHERE EventMaster.deleted <> 1
+		AND EventDetail.type = 'biopsy'
+		AND (EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE '')
+	) ExamBiopsyRec
+	WHERE DxBiopsyRec.participant_id = ExamBiopsyRec.participant_id
+	AND DxBiopsyRec.biopsy_date = ExamBiopsyRec.event_date
+	AND DxBiopsyRec.biopsy_date_accuracy = ExamBiopsyRec.event_date_accuracy
+);
+INSERT INTO event_masters (participant_id, event_control_id, event_date, event_date_accuracy, procure_created_by_bank, event_summary, 
+modified, created, created_by, modified_by, tmp_procure_migration) 
+(SELECT DISTINCT EventMaster.participant_id, @clinical_exam_event_control_id, EventDetail.biopsy_date, EventDetail.biopsy_date_accuracy, procure_created_by_bank,
+CONCAT("Created by migration process (v268) from 'Diagnosis' form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Biopsy : Date' field."),
+@modified, @modified, @modified_by, @modified_by, '1'
+FROM event_masters EventMaster
+INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
+WHERE EventMaster.deleted <> 1
+AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+AND EventMaster.id NOT IN (
+	SELECT DxBiopsyRec.event_master_id
+	FROM (
+		SELECT EventMaster.id as event_master_id, EventMaster.participant_id, EventDetail.biopsy_date, EventDetail.biopsy_date_accuracy
+		FROM event_masters EventMaster
+		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
+		WHERE EventMaster.deleted <> 1
+		AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+	) DxBiopsyRec,
+	(
+		SELECT EventMaster.participant_id, EventMaster.event_date, EventMaster.event_date_accuracy
+		FROM event_masters EventMaster
+		INNER JOIN procure_ed_prostate_cancer_clinical_exams EventDetail ON EventMaster.id = EventDetail.event_master_id
+		WHERE EventMaster.deleted <> 1
+		AND EventDetail.type = 'biopsy'
+		AND (EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE '')
+	) ExamBiopsyRec
+	WHERE DxBiopsyRec.participant_id = ExamBiopsyRec.participant_id
+	AND DxBiopsyRec.biopsy_date = ExamBiopsyRec.event_date
+	AND DxBiopsyRec.biopsy_date_accuracy = ExamBiopsyRec.event_date_accuracy
+));
+INSERT INTO procure_ed_prostate_cancer_clinical_exams (type, type_precision, results, event_master_id)
+(SELECT 'biopsy', 'prostate', '', id FROM event_masters WHERE tmp_procure_migration = '1' AND created = @modified AND created_by = @modified_by);
+
 INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, 
 date_requested, date_requested_accuracy, reference_number, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, 
 version_created, modified_by)
@@ -367,7 +424,7 @@ ALTER TABLE procure_ed_prostate_cancer_diagnosis_revs
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='biopsy' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_diagnosis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='biopsy_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- data migration of PSA information
-SELECT Participant.participant_identifier AS 'Participant with PSA information but either date or value is missing to be migrated. No PSA will be created by migration process. Please review patient clinical history.',
+SELECT Participant.participant_identifier AS 'Participant with PSA information but either date or value is missing to be migrated. The PSA wont be created by migration process. Please review patient clinical history.',
 EventMaster.id AS 'EventMaster id record',
 aps_pre_surgery_date AS 'PSA DATE',
 aps_pre_surgery_total_ng_ml AS 'PSA total', 
@@ -395,7 +452,8 @@ procure_created_by_bank, event_summary,
 modified, created, created_by, modified_by, tmp_procure_migration) 
 (SELECT DISTINCT EventMaster.participant_id, @clinical_psa_event_control_id, EventDetail.aps_pre_surgery_date, EventDetail.aps_pre_surgery_date_accuracy, 
 EventDetail.aps_pre_surgery_total_ng_ml, EventDetail.aps_pre_surgery_free_ng_ml,
-procure_created_by_bank, "Created by migration process from 'Diagnosis' form based on 'PSA' field.",
+procure_created_by_bank,
+CONCAT("Created by migration process (v268) from 'Diagnosis' form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'PSA' field."),
 @modified, @modified, @modified_by, @modified_by, '1'
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
@@ -758,7 +816,9 @@ VALUES
 UPDATE structure_permissible_values_custom_controls SET name = 'Treatment Sites' WHERE name = 'Radiotherapy Sites';
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment Sites\')' WHERE domain_name = 'procure_treatment_site';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Sites');
-SELECT `value` AS 'Custom value of Treatment Site not supported by procure. Values of field procure_txd_treatments.treatment_site to clean up.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value != 'prostate bed'
+SELECT `value` AS '### WARNING ### : Values of custom drop down list 'Treatment Site' not supported by procure. Values of field procure_txd_treatments.treatment_site to clean up after migration.' 
+FROM structure_permissible_values_customs 
+WHERE control_id = @control_id AND value != 'prostate bed'
 AND value NOT IN (SELECT DISTINCT lower(`en_sub_title`) FROM `coding_icd_o_3_topography` WHERE en_sub_title != 'unknown primary site');
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value != 'prostate bed';
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
@@ -874,7 +934,7 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 
 -- Biochemical Recurrence
 
-SELECT DISTINCT Participant.participant_identifier AS 'Participant with BCR defined but no BCR exists iton ATiM (see laboratory records). To correct.'
+SELECT DISTINCT Participant.participant_identifier AS "### WARNING ### : Participant with 'Biochemical Recurrence (>=0.2ng/ml)' set to yes in a 'F1 - Follow-up Worksheet' but no 'PSA' value was defined as 'BCR'. Information won't be migrated. To validate and correct after migration."
 FROM participants Participant
 INNER JOIN event_masters EventMaster ON Participant.id = EventMaster.participant_id
 INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id
@@ -890,37 +950,50 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 
 -- Surgery for métastases
 
-SELECT DISTINCT surgery_site 'Surgery Sites for metastases - Check if something could be migrated into field TreatmentMaster.treatment_site'
-FROM event_masters EventMaster
-INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
-WHERE EventMaster.deleted <> 1 AND surgery_site IS NOt NULL AND surgery_site NOT LIKE '';
-
 SET @modified = (SELECT NOW() FROM users limit 0, 1);
 SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
 SET @tx_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'treatment');
+
+SELECT DISTINCT surgery_site "Values of field 'Surgery for metastases : Site' from 'F1 - Follow-up Worksheet'. Value will be migrated into the notes of a created 'Treatment' record with 'Date' equals to 'Surgery for Metastases : Date', a 'Type' equals to 'Surgery' and an empty value for field 'Site'. Check if 'Site' could be populated by migration scritp."
+FROM event_masters EventMaster
+INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE EventMaster.deleted <> 1 AND surgery_site IS NOT NULL AND surgery_site NOT LIKE '';
+
+SELECT CONCAT("Created ", count(*)," 'Treatment' records with 'Treatment Date' equals 'Surgery for Metastases : Date', a type equals to 'Surgery' and site information in notes (site to complete after migration) based on the 'Surgery for Metastases' fields ('Surgery for Metastases' set to yes and/or 'Date' not empty and/or 'Site' not empty) in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL AND surgery_date NOT LIKE '') OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE ''));
+
+SELECT Participant.participant_identifier '### WARNING ### : Participant with surgery for metastases defined but some information is missing. Please validate and complete after mifration if required', 
+surgery_for_metastases 'Suregery For Metastases Value', surgery_date 'Surgery Date', surgery_site 'Surgery Site'
+FROM participants Participant
+INNER JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id
+INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE EventMaster.deleted <> 1 
+AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL AND surgery_date NOT LIKE '') OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE ''))
+AND (surgery_for_metastases IS NULL OR surgery_for_metastases != 'y' OR surgery_date IS NULL OR surgery_date LIKE '' OR surgery_site IS NULL OR surgery_site LIKE '');
 
 INSERT INTO treatment_masters (treatment_control_id, start_date, start_date_accuracy, 
 notes, 
 participant_id, procure_created_by_bank, created, created_by, modified, modified_by)
 (SELECT DISTINCT @tx_control_id, surgery_date, surgery_date_accuracy, 
-CONCAT("Surgery for Metastases. Site '", IFNULL(IF(surgery_site = '', null, surgery_site), 'unknown'),"'. (Created by migration process from 'Visit/Contact' form based on 'Surgery for Metastases' field)."),
+CONCAT("Surgery for Metastases. Site '", IFNULL(IF(surgery_site = '', null, surgery_site), 'unknown'),"'. (Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Surgery for Metastases' fields)."),
 participant_id, procure_created_by_bank, @modified, @modified_by, @modified, @modified_by 
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
-WHERE deleted <> 1 AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL AND surgery_date NOT LIKE '')));
+WHERE deleted <> 1 AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL AND surgery_date NOT LIKE '') OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE '')));
 INSERT INTO procure_txd_treatments (treatment_master_id, treatment_type)
 (SELECT id, 'surgery' 
 FROM treatment_masters  
-WHERE treatment_control_id = @tx_control_id AND created = @modified AND created_by = @modified_by AND notes LIKE "%Created by migration process from 'Visit/Contact' form based on 'Surgery for Metastases' field%");
+WHERE treatment_control_id = @tx_control_id AND created = @modified AND created_by = @modified_by AND notes LIKE "%Created by migration process (v268) from previous ATiM Version form%based on 'Surgery for Metastases' field%");
 INSERT INTO treatment_masters_revs (id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
 protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
 version_created, modified_by)
 (SELECT id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes,
 protocol_master_id, participant_id, diagnosis_master_id, procure_deprecated_field_procure_form_identification, procure_created_by_bank, procure_drug_id,
-modified, modified_by FROM treatment_masters WHERE created = @modified AND created_by = @modified_by AND notes LIKE "%Created by migration process from 'Visit/Contact' form based on 'Surgery for Metastases' field%");
+modified, modified_by FROM treatment_masters WHERE created = @modified AND created_by = @modified_by AND notes LIKE "%Created by migration process (v268) from previous ATiM Version form%based on 'Surgery for Metastases' field%");
 INSERT INTO procure_txd_treatments_revs (treatment_type, dosage, treatment_master_id, procure_deprecated_field_drug_id, treatment_site, treatment_precision, treatment_combination, treatment_line, duration, surgery_type, version_created)
 (SELECT treatment_type, dosage, treatment_master_id, procure_deprecated_field_drug_id, treatment_site, treatment_precision, treatment_combination, treatment_line, duration, surgery_type, modified
 FROM treatment_masters INNEr JOIN procure_txd_treatments ON id= treatment_master_id
-WHERE created = @modified AND created_by = @modified_by AND notes LIKE "%Created by migration process from 'Visit/Contact' form based on 'Surgery for Metastases' field%");
+WHERE created = @modified AND created_by = @modified_by AND notes LIKE "%Created by migration process (v268) from previous ATiM Version form%based on 'Surgery for Metastases' field%");
 SELECT DISTINCT Participant.participant_identifier AS "Participant with site of surgery for metastases but no date and no field 'Sugery for Metastases' set to yes. No data will be migrated. To correct.", surgery_site
 FROM participants Participant
 INNER JOIN event_masters EventMaster ON Participant.id = EventMaster.participant_id
@@ -951,69 +1024,105 @@ SET @modified = (SELECT NOW() FROM users limit 0, 1);
 SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
 SET @ev_control_id = (SELECT id FROM event_controls WHERE event_type = 'prostate cancer - clinical exam');
 ALTER TABLE event_masters ADD COLUMN tmp_progression varchar(250);
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with no 'Exam Date', a type 'To Define', a result 'Positive' and a 'Bone Metastases' progression based on the 'Bone Metastasis' field set to yes in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 AND clinical_recurrence_site_bones = '1';
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
 (SELECT DISTINCT 'bone metastases', @ev_control_id, participant_id,
-"Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
+CONCAT("Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Clinical Recurrence : Bone Metastasis' field."), 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE deleted <> 1 AND clinical_recurrence_site_bones = '1');
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with no 'Exam Date', a type 'To Define', a result 'Positive' and a 'Liver Metastases' progression based on the 'Liver Metastasis' field set to yes in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 AND clinical_recurrence_site_liver = '1';
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
 (SELECT DISTINCT 'liver metastases', @ev_control_id, participant_id,
-"Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
+CONCAT("Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Clinical Recurrence : Liver Metastasis' field."), 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE deleted <> 1 AND clinical_recurrence_site_liver = '1');
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with no 'Exam Date', a type 'To Define', a result 'Positive' and a 'Lung Metastases' progression based on the 'Lung Metastasis' field set to yes in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 AND clinical_recurrence_site_lungs = '1';
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
 (SELECT DISTINCT 'lung metastases', @ev_control_id, participant_id,
-"Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
+CONCAT("Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Clinical Recurrence : Lung Metastasis' field."), 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE deleted <> 1 AND clinical_recurrence_site_lungs = '1');
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with no 'Exam Date', a type 'To Define', a result 'Positive' and a progression to 'Pelvic Lymph Nodes' based on the 'Clinical Recurrence Type' field set to 'regional' in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 
+AND clinical_recurrence_type = 'regional';
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
 (SELECT DISTINCT 'pelvic lymph nodes', @ev_control_id, participant_id,
-"Regional tumor progression. Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
+CONCAT("Regional tumor progression. Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Clinical Recurrence : Type' field equals to 'regional'."), 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE deleted <> 1 
 AND clinical_recurrence_type = 'regional');
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with no 'Exam Date', a type 'To Define', a result 'Positive' and a 'Local' progression based on the 'Clinical Recurrence Type' field set to 'local' in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 
+AND clinical_recurrence_type = 'local';
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
 (SELECT DISTINCT 'local tumor progression', @ev_control_id, participant_id,
-"Local tumor progression. Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
+CONCAT("Local tumor progression. Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Clinical Recurrence : Type' field equals to 'local'."), 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE deleted <> 1 
 AND clinical_recurrence_type = 'local');
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with no 'Exam Date', a type 'To Define', a result 'Positive' and a progression value equals to 'To Define' based on the 'Clinical Recurrence Type' field set to 'distant' or a 'Others Metastasis' field set to yes with no additional information in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 
+AND (clinical_recurrence_site_others = '1' 
+OR (clinical_recurrence_type = 'distant' AND clinical_recurrence_site_bones = '0' AND clinical_recurrence_site_liver = '0' AND clinical_recurrence_site_lungs = '0'));
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
 (SELECT DISTINCT 'progressions comorbidity to define', @ev_control_id, participant_id,
-"Metastasis undefined. Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
+CONCAT("Metastasis undefined. Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Clinical Recurrence : Others Metastasis' field."), 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE deleted <> 1 
 AND (clinical_recurrence_site_others = '1' 
 OR (clinical_recurrence_type = 'distant' AND clinical_recurrence_site_bones = '0' AND clinical_recurrence_site_liver = '0' AND clinical_recurrence_site_lungs = '0')));
+
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with no 'Exam Date', a type 'To Define', a result 'Positive' and a progression value equals to 'To Define' based on the 'Clinical Recurrence' field set to 'yes' with no additional information in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
+FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
+WHERE deleted <> 1 
+AND clinical_recurrence = 'y'
+AND (clinical_recurrence_type = '' OR clinical_recurrence_type IS NULL)
+AND clinical_recurrence_site_bones = '0' AND clinical_recurrence_site_liver = '0' AND clinical_recurrence_site_lungs = '0' AND clinical_recurrence_site_others = '0';
 INSERT INTO event_masters (tmp_progression, event_control_id, participant_id,  
 event_summary, 
 procure_created_by_bank, modified, created, created_by, modified_by)
 (SELECT DISTINCT 'progressions comorbidity to define', @ev_control_id, participant_id,
-"Recurrence undefined. Created by migration process from 'Visit/Contact' form based on 'Clinical Recurrence' field.", 
+CONCAT("Recurrence undefined. Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Clinical Recurrence : Yes/No' field."), 
 procure_created_by_bank, @modified, @modified, @modified_by, @modified_by
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE deleted <> 1 
 AND clinical_recurrence = 'y'
 AND (clinical_recurrence_type = '' OR clinical_recurrence_type IS NULL)
 AND clinical_recurrence_site_bones = '0' AND clinical_recurrence_site_liver = '0' AND clinical_recurrence_site_lungs = '0' AND clinical_recurrence_site_others = '0');
+
 INSERT INTO procure_ed_prostate_cancer_clinical_exams (`event_master_id`, `type`, `results`, `progression_comorbidity`)
 (SELECT id, 'clinical exam to define', 'positive', tmp_progression FROM event_masters 
 WHERE event_control_id = @ev_control_id AND tmp_progression IS NOT NULL AND tmp_progression NOT LIKE '' AND created = @modified);
@@ -1252,7 +1361,8 @@ ALTER TABLE treatment_masters DROP COLUMN tmp_migrated_id;
 
 -- Prostate hyperplasia
 
-SELECT Participant.participant_identifier AS "Participant with data for either field 'Benign hyperplasia: place and date' or 'Comments' but the answer to 'Did the patient have surgery for benign prostatoc hyperplasia' is different than 'yes'. No data will be created by migration process. Please review patient clinical history.", TreatmentMaster.id AS 'TreatmentMaster id record', benign_hyperplasia_place_and_date AS 'Place and date', benign_hyperplasia_notes AS notes
+SELECT Participant.participant_identifier AS "### WARNING ### : Participant with data for either field 'Benign hyperplasia: place and date' or 'Comments' but the answer to 'Did the patient have surgery for benign prostatoc hyperplasia' is different than 'yes' in form 'F1a - Medication Worksheet'. No data will be created by the migration process. Please review data.", 
+TreatmentMaster.id AS 'TreatmentMaster id record', benign_hyperplasia_place_and_date AS 'Benign hyperplasia : Place and date', benign_hyperplasia_notes AS 'Benign hyperplasia : notes'
 FROM participants Participant, treatment_masters TreatmentMaster, procure_txd_medications TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
@@ -1455,7 +1565,7 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(216
 UPDATE aliquot_controls SET flag_active=true WHERE id IN(65);
 UPDATE realiquoting_controls SET flag_active=true WHERE id IN(70);
 
-SELECT 'Check no difference exist in sample_controls and aliquot_controls for pbmc and buffy coat - Detail tables field should be identical' AS 'WARNING';
+SELECT 'Check no difference exist in sample_controls and aliquot_controls for pbmc and buffy coat - Detail tables field should be identical' AS '### TODO ###';
 SELECT * from sample_controls WHERE sample_type in ('buffy coat', 'pbmc');
 SELECT * FROM aliquot_controls WHERE sample_control_id IN (select id from sample_controls WHERE sample_type in ('buffy coat', 'pbmc'));
 
@@ -1470,11 +1580,11 @@ UPDATE sample_masters_revs
 SET sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'buffy coat')
 WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc');
 UPDATE aliquot_masters 
-SET aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube')
-WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube');
+SET aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube')
+WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube');
 UPDATE aliquot_masters_revs
-SET aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube')
-WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube');
+SET aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube')
+WHERE aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube');
 UPDATE sample_masters SET parent_sample_type = 'buffy coat' WHERE parent_sample_type = 'pbmc';
 UPDATE sample_masters_revs SET parent_sample_type = 'buffy coat' WHERE parent_sample_type = 'pbmc';
 
@@ -1491,25 +1601,25 @@ SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE m
 DELETE FROM template_nodes 
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
-AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube')
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube')
 AND quantity = 3;
 
 DELETE FROM template_nodes 
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
-AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'whatman paper');
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'whatman paper');
 
 UPDATE template_nodes
 SET quantity = '2'
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
-AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'serum' AND aliquot_type = 'tube');
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'serum' AND aliquot_type = 'tube');
 
 UPDATE template_nodes
 SET quantity = '6'
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
-AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'plasma' AND aliquot_type = 'tube');
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'plasma' AND aliquot_type = 'tube');
 
 SET @bcf_control_id = (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'buffy coat' );
 INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
@@ -1519,7 +1629,7 @@ WHERE template_id = @template_id
 AND datamart_structure_id = @sample_datamart_structure_id 
 AND control_id = (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'pbmc'));
 
-SET @bcf_aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube');
+SET @bcf_aliquot_control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube');
 INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
 (SELECT id, @template_id, @aliquot_datamart_structure_id, @bcf_aliquot_control_id, '2'
 FROM template_nodes
@@ -1534,13 +1644,13 @@ SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE m
 DELETE FROM template_nodes 
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
-AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'urine' AND aliquot_type = 'cup');
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'urine' AND aliquot_type = 'cup');
 
 UPDATE template_nodes
 SET quantity = '4'
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
-AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'centrifuged urine' AND aliquot_type = 'tube');
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'centrifuged urine' AND aliquot_type = 'tube');
 
 -- View
 
@@ -1673,8 +1783,8 @@ SET AliquotMaster.modified = @modified, AliquotMaster.modified_by = @modified_by
 WHERE AliquotMaster.deleted <> 1
 AND AliquotMaster.aliquot_control_id IN (
 	SELECT AlCt.id 
-	FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id 
-	WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCT.detail_tablename = 'ad_tubes'
+	FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id 
+	WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCt.detail_tablename = 'ad_tubes'
 ) AND AliquotMaster.sample_master_id = SampleMaster.id 
 AND SampleMaster.deleted <> 1
 AND SampleDetail.sample_master_id = SampleMaster.id
@@ -1702,7 +1812,7 @@ study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id
 procure_created_by_bank,
 modified_by, modified
 FROM aliquot_masters WHERE deleted = 1 AND modified = @modified AND modified_by = @modified_by
-AND aliquot_control_id IN (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCT.detail_tablename = 'ad_tubes'));
+AND aliquot_control_id IN (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCt.detail_tablename = 'ad_tubes'));
 INSERT INTO ad_tubes_revs (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, cell_viability, hemolysis_signs, 
 procure_deprecated_field_expiration_date, procure_tube_weight_gr, procure_total_quantity_ug, procure_concentration_nanodrop, procure_concentration_unit_nanodrop, procure_total_quantity_ug_nanodrop,
 version_created)
@@ -1710,7 +1820,7 @@ version_created)
 procure_deprecated_field_expiration_date, procure_tube_weight_gr, procure_total_quantity_ug, procure_concentration_nanodrop, procure_concentration_unit_nanodrop, procure_total_quantity_ug_nanodrop,
 modified
 FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE deleted = 1 AND modified = @modified AND modified_by = @modified_by
-AND aliquot_control_id IN (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCT.detail_tablename = 'ad_tubes'));
+AND aliquot_control_id IN (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube' AND AlCt.detail_tablename = 'ad_tubes'));
  
  -- Urine
 
@@ -1773,7 +1883,7 @@ SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE m
 DELETE FROM template_nodes 
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
-AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCT ON AlCT.sample_control_id = SpCt.id WHERE sample_type = 'urine' AND aliquot_type = 'cup');
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'urine' AND aliquot_type = 'cup');
 
 -- Centrifuged Urine : Field 'For a volume (ml) of'
 
@@ -1960,6 +2070,23 @@ SET datamart_structure_functions.flag_active = 0
 WHERE datamart_structure_id = datamart_structures.id
 AND datamart_structures.model IN ('Participant')
 AND datamart_structure_functions.label = 'procure followup summary';
+
+-- Migration report
+
+SELECT Participant.participant_identifier '### TODO ### : Participant with clinical exam build from Follow-up form data that should be compelted', 
+event_date, EventDetail.type, EventDetail.site_precision, EventDetail.results, EventDetail.progression_comorbidity, event_summary
+FROM participants Participant
+INNER JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id
+INNER JOIN procure_ed_clinical_exams EventDetail ON EventDetail.event_master_id = EventMaster.id
+WHERE EventMaster.deleted <> 1
+AND (EventDetail.type like 'clinical exam to define' OR EventDetail.progression_comorbidity LIKE 'progressions comorbidity to define');
+
+--
+
+UPDATE structure_formats 
+SET `flag_add_readonly`=`flag_add`, `flag_edit_readonly`=`flag_edit`, `flag_addgrid_readonly`= `flag_addgrid`, `flag_editgrid_readonly`=`flag_editgrid`, 
+`flag_batchedit_readonly`=`flag_batchedit`='1'
+ WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `field` LIKE 'qc_nd_%' OR `field` LIKE 'procure_chuq_%' OR `field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%' OR `field` LIKE 'procure_cusm_%' OR `field` LIKE 'cusm_%');
 
 UPDATE versions SET branch_build_number = '6649' WHERE version_number = '2.6.8';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.8';
