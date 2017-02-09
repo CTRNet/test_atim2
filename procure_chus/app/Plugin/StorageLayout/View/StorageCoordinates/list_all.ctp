@@ -5,13 +5,8 @@
 		'bottom' => array('add' => '/StorageLayout/StorageCoordinates/add/' . $atim_menu_variables['StorageMaster.id'] . '/')
 	);	
 	
-	if(isset($storage_types_from_id)) {
-		$add_links = array();
-		foreach ($storage_types_from_id as $storage_control_id => $translated_storage_type) {
-			$add_links[$translated_storage_type] = '/StorageLayout/StorageMasters/add/' . $storage_control_id . '/' . $atim_menu_variables['StorageMaster.id'];
-		}
-		ksort($add_links);
-		$structure_links['bottom']['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);
+	if(isset($add_links)) {
+		$structure_links['bottom']['add to storage'] = $add_links;
 	}
 
 	$final_atim_structure = $atim_structure; 

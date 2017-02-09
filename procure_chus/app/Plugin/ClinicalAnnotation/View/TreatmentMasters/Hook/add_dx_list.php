@@ -1,2 +1,4 @@
 <?php
-	$final_options = array('links'	=> $final_options['links']);
+	
+	$display_next_sub_form = false;
+	

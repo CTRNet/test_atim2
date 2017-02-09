@@ -1,29 +1,23 @@
 <?php 
 	
-	$default_procure_form_identification = '';
+  	$this->set('ev_header', __($event_control_data['EventControl']['event_type']));
+	
+	//Set default data 
+	$override_data = array();
 	switch($event_control_data['EventControl']['event_type']) {
-		case 'procure pathology report':
-			$default_procure_form_identification = $participant_data['Participant']['participant_identifier'].' V0 -PST1';
+		case 'laboratory':
+			$override_data['EventDetail.biochemical_relapse'] = 'n';
 			break;
-		case 'procure diagnostic information worksheet':
-			$default_procure_form_identification = $participant_data['Participant']['participant_identifier'].' V0 -FBP1';
-			break;
-		case 'procure follow-up worksheet':
-			$default_procure_form_identification = $participant_data['Participant']['participant_identifier'].' V0 -FSP1';
-			break;
-		case 'procure questionnaire administration worksheet':
-			$default_procure_form_identification = $participant_data['Participant']['participant_identifier'].' V0 -QUE1';
-			break;
-		case 'procure follow-up worksheet - clinical event':
-		case 'procure follow-up worksheet - aps':
-		case 'procure follow-up worksheet - other tumor dx':
-		case 'procure follow-up worksheet - clinical note':
-			$default_procure_form_identification = $participant_data['Participant']['participant_identifier'].' Vx -FSPx';
+		case 'visit/contact':
+			$override_data['EventDetail.refusing_treatments'] = 'n';
 			break;
 	}
-	$this->set('default_procure_form_identification', $default_procure_form_identification);
-	$this->set('ev_header', __($event_control_data['EventControl']['event_type']));
+	$this->set('override_data', $override_data);
 	
-	//Following line cannot be done in presave_process hook for multi-lines record because validate function is call first
-	if (!empty($this->request->data)) $this->Participant->setParticipantIdentifierForFormValidation($participant_id);
+	//Set data for validation
+	$this->EventMaster->setEventTypeForDataEntryValidation($event_control_data['EventControl']['event_type']);
+	
+	// Clinical file update process
+	if (empty($this->request->data)) $this->Participant->setNextUrlOfTheClinicalFileUpdateProcess($participant_id, $this->passedArgs);
+	$this->Participant->addClinicalFileUpdateProcessInfo();
 	

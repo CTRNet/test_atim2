@@ -4,7 +4,7 @@
 	foreach($this->request->data as $procure_aliquot_data_set) {
 		$record_counter++;
 		$procure_participant_identifier = $procure_visit = null;
-		if(Configure::read('procure_atim_version') != 'PROCESSING' && preg_match('/^(PS[1-4]P[0-9]{4})\ (V[0-9]{2})/',$procure_aliquot_data_set['parent']['AliquotMaster']['barcode'], $matches)) {
+		if(Configure::read('procure_atim_version') != 'PROCESSING' && preg_match('/^(PS[1-4]P[0-9]{4})\ ([Vv]((0[1-9])|([1-9][0-9]))([\.,]([1-9])){0,1})/',$procure_aliquot_data_set['parent']['AliquotMaster']['barcode'], $matches)) {
 			$procure_participant_identifier = $matches[1];
 			$procure_visit = $matches[2];
 		}

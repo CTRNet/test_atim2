@@ -7,26 +7,33 @@ class TmaSlide extends StorageLayoutAppModel {
 			'foreignKey'    => 'storage_master_id'),
 		'Block' => array(           
 			'className'    => 'StorageLayout.StorageMaster',            
-			'foreignKey'    => 'tma_block_storage_master_id'
-		)	    
-	);
+			'foreignKey'    => 'tma_block_storage_master_id'),
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	var $actsAs = array('StoredItem');
 	
 	public static $storage = null;
+	public static $study_model = null;
 	
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 		
 	function validates($options = array()){
+		if(isset($this->data['TmaSlide']['in_stock']) && $this->data['TmaSlide']['in_stock'] == 'no'
+		&& (!empty($this->data['TmaSlide']['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
+			$this->validationErrors['in_stock'][] = 'a tma slide being not in stock can not be linked to a storage';
+		}
+		
 		$this->validateAndUpdateTmaSlideStorageData();
 			
 		if(isset($this->data['TmaSlide']['barcode'])){
 			$this->isDuplicatedTmaSlideBarcode($this->data);
 		}
 		
-		parent::validates($options);
+		$this->validateAndUpdateTmaSlideStudyData();
 		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	function validateAndUpdateTmaSlideStorageData(){
@@ -134,6 +141,60 @@ class TmaSlide extends StorageLayoutAppModel {
 				}
 			}
 		}
+	}
+	
+
+	function validateAndUpdateTmaSlideStudyData() {
+		$tma_slide_data =& $this->data;
+	
+		// check data structure
+		$tmp_arr_to_check = array_values($tma_slide_data);
+		if((!is_array($tma_slide_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['TmaSlide']))) {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	
+		// Launch validation
+		if(array_key_exists('FunctionManagement', $tma_slide_data) && array_key_exists('autocomplete_tma_slide_study_summary_id', $tma_slide_data['FunctionManagement'])) {
+			$tma_slide_data['TmaSlide']['study_summary_id'] = null;
+			$tma_slide_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id'] = trim($tma_slide_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id']);
+			$this->addWritableField(array('study_summary_id'));
+			if(strlen($tma_slide_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id'])) {
+				// Load model
+				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
+					
+				// Check the aliquot internal use study definition
+				$arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($tma_slide_data['FunctionManagement']['autocomplete_tma_slide_study_summary_id']);
+	
+				// Set study summary id
+				if(isset($arr_study_selection_results['StudySummary'])){
+					$tma_slide_data['TmaSlide']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+				}
+	
+				// Set error
+				if(isset($arr_study_selection_results['error'])){
+					$this->validationErrors['autocomplete_tma_slide_study_summary_id'][] = $arr_study_selection_results['error'];
+				}
+			}
+	
+		}
+	}
+	
+	function allowDeletion($tma_slide_id) {
+		// Check no use exists
+		$tma_slide_use_model = AppModel::getInstance("StorageLayout", "TmaSlideUse", true);
+		$nbr_storage_aliquots = $tma_slide_use_model->find('count', array('conditions' => array('TmaSlideUse.tma_slide_id' => $tma_slide_id), 'recursive' => '-1'));
+		if($nbr_storage_aliquots > 0) {
+			return array('allow_deletion' => false, 'msg' => 'use exists for the deleted tma slide');
+		}
+		
+		// Check tma slide is not linked to an order
+		$order_item_model = AppModel::getInstance("Order", "OrderItem", true);
+		$nbr_order_items = $order_item_model->find('count', array('conditions' => array('OrderItem.tma_slide_id' => $tma_slide_id), 'recursive' => '-1'));
+		if($nbr_order_items > 0) {
+			return array('allow_deletion' => false, 'msg' => 'order exists for the deleted tma slide');
+		}
+			
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 ?>

@@ -1,4 +1,33 @@
 <?php 
+
+	$structure_links = array(
+		'bottom' => array(
+			'edit' => '/Administrate/StorageControls/edit/'.$atim_menu_variables['StorageCtrl.id'].'/',
+			'copy' => '/Administrate/StorageControls/add/0/'.$atim_menu_variables['StorageCtrl.id'].'/',
+			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/'.$atim_menu_variables['StorageCtrl.id'].'/seeStorageLayout/', 'icon' => 'confirm')
+		)
+	);
+	
+	// 1 ** DISPLAY STORAGE CONTROL DATA **
+
+	$settings = array( 
+		'actions' => false);
+	$final_options = array(
+		'data' => $storage_control_data,
+		'type' => 'detail',
+		'settings' => $settings,
+		'links' => $structure_links);
+	$final_atim_structure = $atim_structure;
+	
+	$hook_link = $this->Structures->hook('detail');
+	if($hook_link){
+		require($hook_link);
+	}
+	
+	$this->Structures->build($final_atim_structure, $final_options);
+	
+	// 2 ** DISPLAY STORAGE LAYOUT **
+	
 	/**
 	 * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
 	 * @param unknown_type $var The variable to loop on, must be null on the first iteration
@@ -48,7 +77,7 @@
 		//continuous numbering with 2 dimensions
 		$use_width = $y_size = max(1, $storage_control_data['StorageCtrl']['display_x_size']);
 		$use_height = $x_size = max(1, $storage_control_data['StorageCtrl']['display_y_size']);
-		$twoAxis = true;
+		$one_coord_to_display_as_two_axis = true;
 		//Validate that the number of displayed cells is the same as the number of actual cells
 		if(max(1, $storage_control_data['StorageCtrl']['coord_x_size']) * max(1, $storage_control_data['StorageCtrl']['coord_y_size']) != $x_size * $y_size){
 			echo("The current box properties are invalid. The storage cells count and the cells count to display doesn't match. Contact ATiM support.<br/>");
@@ -58,7 +87,7 @@
 			exit;
 		}
 	}else{
-		$twoAxis = false;
+		$one_coord_to_display_as_two_axis = false;
 		if(strlen($x_size) == 0 || $x_size < 1){
 			$x_size = 1;
 		}
@@ -75,17 +104,18 @@
 	$j = null;
 	while(axisLoopCondition($j, $storage_control_data['StorageCtrl']['reverse_y_numbering'], $use_height)){
 		echo("<tr>");
-		if(!$twoAxis){
+		if(!$one_coord_to_display_as_two_axis){
 			$y_val = $y_alpha ? chr($j + 64) : $j;
 		}
 		$i = null;
 		while(axisLoopCondition($i, $storage_control_data['StorageCtrl']['reverse_x_numbering'], $use_width)){
-			if($twoAxis){
+			if($one_coord_to_display_as_two_axis){
 				if($horizontal_increment){
 					$display_value = ($j - 1) * $y_size + $i;
 				}else{
 					$display_value = ($i - 1) * $x_size + $j;
 				}
+				$display_value = $x_alpha ? chr($display_value + 64) : $display_value;
 				$use_value = $display_value."_1"; //static y = 1
 			}else{
 				$x_val = $x_alpha ? chr($i + 64) : $i;
@@ -110,23 +140,31 @@
 </div>
 
 <?php 
+
 	$content = ob_get_clean();
 	
 	$structure_links = array(
 		'bottom' => array(
 			'edit' => '/Administrate/StorageControls/edit/'.$atim_menu_variables['StorageCtrl.id'].'/',
 			'copy' => '/Administrate/StorageControls/add/0/'.$atim_menu_variables['StorageCtrl.id'].'/',
-			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/'.$atim_menu_variables['StorageCtrl.id'].'/', 'icon' => 'confirm'),
-			'list'=> '/Administrate/StorageControls/listAll/'
+			'change active status' => array('link' => '/Administrate/StorageControls/changeActiveStatus/'.$atim_menu_variables['StorageCtrl.id'].'/seeStorageLayout/', 'icon' => 'confirm')
 		)
 	);			
 	
-	$settings = array('actions' => true);
-	
-	$this->Structures->build($empty_structure, array(
-		'type' => 'detail', 
+	$settings = array(
+		'header' => __('storage layout', null), 
+		'actions' => true);
+	$final_options = array(
+		'data' => array(),
+		'type' => 'detail',
 		'settings' => $settings,
-		'extras' => $content, 
-		'links' => $structure_links
-	));	
+		'extras' => $no_layout_msg? __($no_layout_msg) : $content, 
+		'links' => $structure_links);
+	
+	$hook_link = $this->Structures->hook('layout');
+	if($hook_link){
+		require($hook_link);
+	}
+	
+	$this->Structures->build($empty_structure, $final_options);	
 ?>

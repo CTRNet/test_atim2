@@ -114,7 +114,7 @@ class CollectionsControllerCustom extends CollectionsController{
 					$row_counter++;
 					//Check aliquot barcode format
 					$data_unit['AliquotMaster']['barcode'] = trim($data_unit['AliquotMaster']['barcode']);
-					if(preg_match('/^(PS[1-4]P[0-9]{4})\ (V(([01][1-9])|(10)))\ \-[A-Z]{3}/', $data_unit['AliquotMaster']['barcode'], $matches)) {
+					if(preg_match('/^(PS[1-4]P[0-9]{4})\ ([Vv]((0[1-9])|([1-9][0-9]))([\.,]([1-9])){0,1})\ \-[A-Z]{3}/', $data_unit['AliquotMaster']['barcode'], $matches)) {
 						$studied_participants[$matches[1]] = '-1';
 						$data_unit['Participant']['participant_identifier'] = $matches[1];
 						$data_unit['Collection']['procure_visit'] = $matches[2];
@@ -147,7 +147,6 @@ class CollectionsControllerCustom extends CollectionsController{
 					//Create internal use to set date accuracy
 					$new_aliquot_internal_use = array(
 						'aliquot_master_id' => null,
-						'type' => 'received from bank',
 						'use_code' => 'PS'.$data_unit['AliquotMaster']['procure_created_by_bank'],
 						'use_datetime' => $data_unit['FunctionManagement']['procure_transferred_aliquot_reception_date'],
 						'procure_created_by_bank' => 'p');
@@ -161,6 +160,7 @@ class CollectionsControllerCustom extends CollectionsController{
 						}
 					}
 					$data_unit['AliquotInternalUse'] = $this->AliquotInternalUse->data['AliquotInternalUse'];
+					$data_unit['AliquotInternalUse']['type'] = 'received from bank';
 				}
 				unset($data_unit);
 				
@@ -330,7 +330,6 @@ class CollectionsControllerCustom extends CollectionsController{
 								'barcode' => $data_unit['AliquotMaster']['barcode'],
 								'aliquot_label' => $data_unit['AliquotMaster']['aliquot_label'],
 								'in_stock' => 'yes - available',
-								'use_counter' => '1',
 								'procure_created_by_bank' => $data_unit['AliquotMaster']['procure_created_by_bank']),
 							'AliquotDetail' => array());
 						$detail_fields = array('aliquot_master_id');
@@ -348,7 +347,7 @@ class CollectionsControllerCustom extends CollectionsController{
 								$warning_messages[__('no concentration has been recorded')][] = $data_unit['AliquotMaster']['barcode'];
 							}
 						}
-						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'aliquot_label', 'in_stock', 'use_counter','procure_created_by_bank'));
+						$this->AliquotMaster->addWritableField(array('collection_id', 'sample_master_id', 'aliquot_control_id', 'barcode', 'aliquot_label', 'in_stock', 'procure_created_by_bank'));
 						$this->AliquotMaster->addWritableField($detail_fields, $aliquot_controls[$aliquot_control_id]['detail_tablename']);
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
@@ -377,7 +376,8 @@ class CollectionsControllerCustom extends CollectionsController{
 					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				
 				} else {
-
+					
+					$this->AliquotInternalUse->validationErrors = array();
 					$this->AliquotMaster->validationErrors = array();
 					foreach($errors_tracking as $field => $msg_and_lines) {
 						foreach($msg_and_lines as $msg => $lines) {
