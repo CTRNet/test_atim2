@@ -424,7 +424,7 @@ ALTER TABLE procure_ed_prostate_cancer_diagnosis_revs
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='biopsy' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_prostate_cancer_diagnosis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_prostate_cancer_diagnosis' AND `field`='biopsy_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- data migration of PSA information
-SELECT Participant.participant_identifier AS 'Participant with PSA information but either date or value is missing to be migrated. The PSA wont be created by migration process. Please review patient clinical history.',
+SELECT Participant.participant_identifier AS '### WARNING### : Participant with PSA pre surgery information but either date or value is missing to be migrated. The PSA wont be created by migration process. Please review patient clinical history.',
 EventMaster.id AS 'EventMaster id record',
 aps_pre_surgery_date AS 'PSA DATE',
 aps_pre_surgery_total_ng_ml AS 'PSA total', 
@@ -816,7 +816,7 @@ VALUES
 UPDATE structure_permissible_values_custom_controls SET name = 'Treatment Sites' WHERE name = 'Radiotherapy Sites';
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment Sites\')' WHERE domain_name = 'procure_treatment_site';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Sites');
-SELECT `value` AS '### WARNING ### : Values of custom drop down list 'Treatment Site' not supported by procure. Values of field procure_txd_treatments.treatment_site to clean up after migration.' 
+SELECT `value` AS "### WARNING ### : Values of custom drop down list 'Treatment Site' not supported by procure. Values of field procure_txd_treatments.treatment_site to clean up after migration." 
 FROM structure_permissible_values_customs 
 WHERE control_id = @control_id AND value != 'prostate bed'
 AND value NOT IN (SELECT DISTINCT lower(`en_sub_title`) FROM `coding_icd_o_3_topography` WHERE en_sub_title != 'unknown primary site');
@@ -2083,10 +2083,34 @@ AND (EventDetail.type like 'clinical exam to define' OR EventDetail.progression_
 
 --
 
-UPDATE structure_formats 
-SET `flag_add_readonly`=`flag_add`, `flag_edit_readonly`=`flag_edit`, `flag_addgrid_readonly`= `flag_addgrid`, `flag_editgrid_readonly`=`flag_editgrid`, 
-`flag_batchedit_readonly`=`flag_batchedit`='1'
- WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `field` LIKE 'qc_nd_%' OR `field` LIKE 'procure_chuq_%' OR `field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%' OR `field` LIKE 'procure_cusm_%' OR `field` LIKE 'cusm_%');
+-- UPDATE structure_formats 
+-- SET `flag_add_readonly`=`flag_add`, `flag_edit_readonly`=`flag_edit`, `flag_addgrid_readonly`= `flag_addgrid`, `flag_editgrid_readonly`=`flag_editgrid`, 
+--`flag_batchedit_readonly`=`flag_batchedit`='1'
+-- WHERE structure_field_id IN (SELECT id FROM structure_fields 
+-- WHERE `field` LIKE 'qc_nd_%' OR `field` LIKE 'procure_chuq_%' 
+-- OR `field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%' OR `field` LIKE 'procure_cusm_%' OR `field` LIKE 'cusm_%');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+(select CONCAT(language_label, ' (#ChusField)'), CONCAT(i18n.en, ' (#ChusData)'), CONCAT(i18n.fr, ' (#DonnéeChus)')
+FROM structure_fields 
+LEFT JOIN i18n ON i18n.id = language_label
+WHERE language_label IS NOT NULL AND language_label NOT LIKE '' AND (`field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%'));
+UPDATE structure_fields
+SET language_label = CONCAT(language_label, ' (#ChusField)')
+WHERE language_label IS NOT NULL AND language_label NOT LIKE '' AND language_label NOT LIKE '%(#ChusField)' 
+AND (`field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+(select CONCAT(language_tag, ' (#ChusField)'), CONCAT(i18n.en, ' (#ChusData)'), CONCAT(i18n.fr, ' (#DonnéeChus)')
+FROM structure_fields 
+LEFT JOIN i18n ON i18n.id = language_tag
+WHERE language_tag IS NOT NULL AND language_tag NOT LIKE '' AND (`field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%'));
+UPDATE structure_fields
+SET language_tag = CONCAT(language_tag, ' (#ChusField)')
+WHERE language_tag IS NOT NULL AND language_tag NOT LIKE '' AND language_tag NOT LIKE '%(#ChusField)' 
+AND (`field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%');
+
+--
 
 UPDATE versions SET branch_build_number = '6649' WHERE version_number = '2.6.8';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.8';
