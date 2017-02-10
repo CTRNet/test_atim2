@@ -53,7 +53,8 @@ class UsersController extends AppController {
 				//successfulll login
 				$login_data = array(
 						"username"			=> $this->request->data['User']['username'],
-						"ip_addr"			=> $_SERVER['REMOTE_ADDR'],
+						//"ip_addr"			=> $_SERVER['REMOTE_ADDR'],
+						"ip_addr"			=> $this->User->getRemoteIPAddress(),
 						"succeed"			=> true,
 						"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT'],
 						"attempt_time"		=> now()
@@ -113,7 +114,8 @@ class UsersController extends AppController {
 			//UserLoginAttempt->save() should be after user->save() for test "$last_login_attempts_for_username[0]['UserLoginAttempt']['attempt_time']. ' < ' . $user_data['User']['modified']" above
 			$login_data = array(
 					"username" => $this->request->data['User']['username'],
-					"ip_addr" => $_SERVER['REMOTE_ADDR'],
+					//"ip_addr" => $_SERVER['REMOTE_ADDR'],
+					"ip_addr" => $this->User->getRemoteIPAddress(),
 					"succeed" => false,
 					"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT'],
 					"attempt_time"		=> now()

@@ -19,9 +19,16 @@ class CollectionsController extends InventoryManagementAppController {
 		'ExternalLink'
 	);
 	
+    // BB-157
+    /*
 	var $paginate = array(
 		'Collection' 		=> array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
 		'ViewCollection'	=> array('limit' => pagination_amount, 'order' => 'ViewCollection.acquisition_label ASC')
+	);
+    */
+    var $paginate = array(
+		'Collection' 		=> array('limit' => pagination_amount, 'order' => 'Collection.created DESC'),
+		'ViewCollection'	=> array('limit' => pagination_amount, 'order' => 'ViewCollection.created DESC')
 	);
 	
 	function search($search_id = 0, $is_ccl_ajax = false){
@@ -374,7 +381,14 @@ class CollectionsController extends InventoryManagementAppController {
 		}
 		
 		$template_init_id = null;
-		if(!empty($this->request->data)){
+		if(empty($this->request->data)){
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}	
+			
+		} else {
 			//validate and stuff
 			$data_validates = true;
 			

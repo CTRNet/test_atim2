@@ -8,10 +8,14 @@
 			'new search' => OrderAppController::$search_links,
 			'edit'=>'/Order/Orders/edit/' . $atim_menu_variables['Order.id'] . '/',
 			'add order line'=>'/Order/OrderLines/add/' . $atim_menu_variables['Order.id'] . '/',
+			'add items to order' => array('link'=>'/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'add_to_order'),
+			'edit all order items' => '/Order/OrderItems/edit/'.$atim_menu_variables['Order.id'].'/',
 			'add shipment'=>array('link'=> '/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
 			'delete'=>'/Order/Orders/delete/' . $atim_menu_variables['Order.id'] . '/'
 		)
 	);
+	if(Configure::read('order_item_to_order_objetcs_link_setting') == 3)  unset($structure_links['bottom']['add order line']);
+	if(Configure::read('order_item_to_order_objetcs_link_setting') == 2)  unset($structure_links['bottom']['add items to order']);
 	
 	$structure_override = array();
 	
@@ -27,6 +31,7 @@
 	
 	// ----- ORDER LINES -----
 	
+	if(Configure::read('order_item_to_order_objetcs_link_setting') != 3) {
 	$final_atim_structure = array(); 
 	$final_options = array(
 		'links'	=> $structure_links,
@@ -44,7 +49,7 @@
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );	
-
+	}
 	// ----- SHIPMENTS -----
 	
 	$final_atim_structure = array();

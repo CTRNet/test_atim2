@@ -5,3 +5,7 @@
 	}
 
 	$this->SampleMaster->generateSampleLabel($collection_data, $sample_control_data['SampleControl']['sample_type'], $sample_master_id);
+
+	//BB-232 
+	
+	//$this->SampleMaster->generateTrackingCode($sample_master_id, $sample_control_id);

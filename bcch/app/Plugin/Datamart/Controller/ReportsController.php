@@ -7,7 +7,7 @@ class ReportsController extends DatamartAppController {
 		"Datamart.BatchSet",
 		"Structure");
 
-	var $paginate = array('Report' => array('limit' => pagination_amount , 'order' => 'Report.name ASC'));
+	var $paginate = array('Report' => array('order' => 'Report.name ASC'));
 	
 	// -------------------------------------------------------------------------------------------------------------------
 	// SELECT ELEMENTS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
@@ -298,6 +298,7 @@ class ReportsController extends DatamartAppController {
 				$criteria_to_build_report = empty($this->request->data)? array() : $this->request->data;
 				// Manage data from csv file			
 				foreach($criteria_to_build_report as $model => $fields_parameters) {
+					if(!($model == 'exact_search' && !is_array($fields_parameters))) {
 					foreach($fields_parameters as $field => $parameters) {
 						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
 							$matched_field_name = $matches[1];
@@ -319,6 +320,7 @@ class ReportsController extends DatamartAppController {
 							}
 							unset($criteria_to_build_report[$model][$field]);
 						}
+					}
 					}
 				}	
 				
@@ -634,10 +636,10 @@ class ReportsController extends DatamartAppController {
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
 		}
 		
-		if(empty($parameters[0]['report_date_range_period']['0'])) {
+		if(empty($parameters[0]['report_date_range_period'])) {
 			return array('error_msg' => 'no period has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
 		}
-		$month_period = ($parameters[0]['report_date_range_period']['0'] == 'month')? true:false;
+		$month_period = ($parameters[0]['report_date_range_period'] == 'month')? true:false;
 		
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);

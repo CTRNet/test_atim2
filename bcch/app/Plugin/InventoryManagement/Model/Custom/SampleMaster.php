@@ -3,7 +3,11 @@ class SampleMasterCustom extends SampleMaster {
 
 	var $useTable = 'sample_masters';
 	var $name = 'SampleMaster';
-
+	
+	//$collection_data is the structure of the collection model
+	//$sample_type is just string
+	//$sample_master_id is just string
+	
 	function generateSampleLabel($collection_data, $sample_type, $sample_master_id) {
 		// Parameters check: Verify parameters have been set
 		if(empty($sample_master_id) || empty($collection_data) || empty($sample_type)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
@@ -117,7 +121,14 @@ class SampleMasterCustom extends SampleMaster {
 				break;
 			case 'xenograft':
 				$sample_label = 'XE';
-				break;				
+				break;	
+            case 'cell pellet': 
+                $sample_label = 'CP';
+                break;	
+			// BB-214
+			case 'urine supernatant':
+				$sample_label = 'US';
+				break;		
 		}
 
 		// Set participant ID for finding collections and sample counts
@@ -163,6 +174,76 @@ class SampleMasterCustom extends SampleMaster {
 		$this->tryCatchQuery($query_to_update);
 
 	}
+
+	//BB-232
+	/*
+	function generateTrackingCode($sample_master_id, $sample_control_id) {
+
+		// Get all aliquots that now need barcodes
+		$sample_to_update = 
+			$this->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id)));			
+		pr($sample_to_update);
+		pr($sample_control_id);
+
+		if($sample_to_update['SampleControl']['sample_category'] == 'specimen') {
+			die();
+			$next_barcode = $this->findNextBarcode();
+			$query = "UPDATE sample_masters SET `tracking_code` = '" . $next_barcode . "' WHERE `id` = " . $sample_master_id . ";";
+			$this->tryCatchQuery($query);
+
+			$query = "UPDATE sample_masters_revs SET `tracking_code` = '" . $next_barcode . "' WHERE `id` = " . $sample_master_id . " ORDER BY `version_id` DESC LIMIT 1;";
+			$this->tryCatchQuery($query);
+
+		} else {
+			// Derivatives barcode
+			$parent_sample_id = $sample_to_update['SampleMaster']['parent_id'];
+			pr($parent_sample_id);
+			$query = "SELECT `sample_barcode` FROM sample_masters WHERE `id`=" . $parent_sample_id . ";";
+
+			$next_barcode_array = $this->find('first', array(
+				'conditions' => array('SampleMaster.id' => $parent_sample_id), 
+				'fields' => array('SampleMaster.sample_barcode'),
+				'recursive' => -1
+			));
+
+			//exit(pr($next_barcode_array));
+			$next_barcode = $next_barcode_array['SampleMaster']['sample_barcode'];
+			$query = "UPDATE sample_masters SET `sample_barcode` = '" . $next_barcode . "' WHERE `id` = " . $sample_master_id . ";";
+			$this->tryCatchQuery($query);			
+
+		}
+
+		//$sample_control_data = $this->SampleControl->getOrRedirect($sample_control_id);
+		//pr($sample_control_data);
+		
+		if($sample_to_update['SampleControl']['sample_category'] == 'specimen') {
+
+			$next_barcode = $this->findNextBarcode();
+			$query = "UPDATE sample_masters SET `sample_barcode` = '" . $next_barcode . "' WHERE `id` = " . $sample_master_id . ";";
+			$this->tryCatchQuery($query);
+
+		} else {
+			// Derivatives barcode
+			$parent_sample_id = $sample_to_update['SampleMaster']['parent_id'];
+			pr($parent_sample_id);
+			$query = "SELECT `sample_barcode` FROM sample_masters WHERE `id`=" . $parent_sample_id . ";";
+
+			$next_barcode_array = $this->find('first', array(
+				'conditions' => array('SampleMaster.id' => $parent_sample_id), 
+				'fields' => array('SampleMaster.sample_barcode'),
+				'recursive' => -1
+			));
+
+			//exit(pr($next_barcode_array));
+			$next_barcode = $next_barcode_array['SampleMaster']['sample_barcode'];
+			$query = "UPDATE sample_masters SET `sample_barcode` = '" . $next_barcode . "' WHERE `id` = " . $sample_master_id . ";";
+			$this->tryCatchQuery($query);			
+
+		}
+		
+	}
+	*/
+
 }
 
 ?>

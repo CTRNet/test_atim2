@@ -25,6 +25,7 @@ function axisLoopCondition(&$var, $reverseOrder, $limit){
 }
 ob_start();
 ?>
+
  <div style="display: table-cell; vertical-align: top;">
  	<ul style='margin-right: 10px';>
  		<li><span class="button RecycleStorage" style='width: 80%;'><span class="ui-icon ui-icon-refresh"></span><?php echo(__("unclassify all storage's items")); ?></span></li>
@@ -41,6 +42,7 @@ ob_start();
 			<?php echo $data['parent']['StorageControl']['translated_storage_type'] , ' : ' , $data['parent']['StorageMaster']['short_label']; ?>
 		</h4>
 		<table class='storageLayout' style="width: 100%;">
+			
 <?php
 	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
 		if(isset($data['parent']['StorageControl']['horizontal_display']) && $data['parent']['StorageControl']['horizontal_display']){
@@ -125,7 +127,7 @@ ob_start();
 	}
 	
 	//NOTE: No hook supported!
-	
+
 ?>
 		</table>
 	</div>
@@ -162,6 +164,41 @@ ob_start();
 		</li>
 	</ul>
 </div>
+
+<script>
+
+/**
+* BB-150
+**/
+/*
+if (typeof jQuery != 'undefined') {  
+    // jQuery is loaded => print the version
+    alert(jQuery.fn.jquery);
+}
+*/
+//Getting a pathway name
+var completePathname = top.location.pathname;
+var completePathnameArray = completePathname.split("/");
+completePathnameArray.reverse();
+
+// The below script only triggers at storageLayout view
+if(completePathnameArray[3] === 'StorageLayout' && (completePathnameArray[2] === 'StorageMasters' && completePathnameArray[1] === 'storageLayout')) {
+
+	$('.storageLayout td').dblclick(function() {		
+		if($(this).children("ul").children().length <= 0) {
+
+			$(this).children("ul").append('<li class="barcode-input"></li>')
+			$(this).children("ul").children(".barcode-input").attr("contentEditable", "true");
+			$(this).children("ul").children(".barcode-input").css("background-color", "yellow");
+			$(this).children("ul").children(".barcode-input").focus();
+
+		} 
+	});
+
+}
+
+</script>
+
 <?php 
 $content = ob_get_clean();
 

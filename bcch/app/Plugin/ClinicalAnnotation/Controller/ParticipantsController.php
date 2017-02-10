@@ -17,13 +17,16 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.TreatmentMaster',
 		'ClinicalAnnotation.MiscIdentifierControl',
 		'Codingicd.CodingIcd10Who',
-		'Codingicd.CodingIcd10Ca',
+		'Codingicd.CodingIcd10Ca'
 	);
 	var $paginate = array(
 		// BB-90 change to order by id instead of first name and last name
 		//'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
-		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.id ASC'),
-		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifier.study_summary_id ASC, MiscIdentifierControl.misc_identifier_name ASC')); 
+		// BB-109: Reverse the order of participant from search result
+		//'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.id ASC'),
+		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.id DESC'),
+		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifier.study_summary_id ASC, MiscIdentifierControl.misc_identifier_name ASC')
+	); 
 	
 	function search($search_id = ''){
 		$this->searchHandler($search_id, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');

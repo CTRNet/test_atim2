@@ -24,16 +24,16 @@
 
 	// @author Stephen Fung
 	// @since 2015-03-18
-	// Disable the re-aliquoting function until requirements are finalized
-	// Disable the create derviative function until requirements are finalized	
+	// @update 2015-08-24
+	// Re-Enable the re-aliquoting function until requirements are finalized
+	// Re-Enable the create derviative function until requirements are finalized	
 	
 	$structure_links['bottom']['realiquoting'] = array(
 		'realiquot' =>  array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/creation/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
 		'define realiquoted children' => array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
-	/*
-	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/InventoryManagement/SampleMasters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
-	*/
 
+	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/InventoryManagement/SampleMasters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
+	
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
 		$settings['header'] = __('aliquot', null) . ': '.__('details');

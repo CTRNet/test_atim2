@@ -9,7 +9,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.Participant'
 	);
 	
-	var $paginate = array('ConsentMaster'=>array('limit' => pagination_amount,'order'=>'ConsentMaster.date_first_contact ASC')); 
+	var $paginate = array('ConsentMaster'=>array('order'=>'ConsentMaster.date_first_contact ASC')); 
 
 	function listall( $participant_id ) {
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
@@ -155,6 +155,10 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->ConsentMaster->atimDelete( $consent_master_id )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ConsentMasters/listall/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ConsentMasters/listall/'.$participant_id );

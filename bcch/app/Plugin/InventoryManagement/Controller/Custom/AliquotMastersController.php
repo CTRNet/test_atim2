@@ -46,7 +46,7 @@ class AliquotMastersControllerCustom extends AliquotMastersController {
 		$offset = 0;
 		AppController::atimSetCookie(false);
 		$at_least_once = false;
-$aliquots_count = $this->AliquotMaster->find('count', array('conditions' => $conditions, 'limit' => 1000, 'offset' => $offset));
+		$aliquots_count = $this->AliquotMaster->find('count', array('conditions' => $conditions, 'limit' => 1000, 'offset' => $offset));
 		$display_limit = Configure::read('AliquotBarcodePrint_processed_items_limit');
 		if($aliquots_count > $display_limit) {
 			$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", "javascript:history.back();", 5);

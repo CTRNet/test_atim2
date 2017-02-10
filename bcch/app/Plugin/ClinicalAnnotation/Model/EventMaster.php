@@ -65,7 +65,9 @@ class EventMaster extends ClinicalAnnotationAppModel {
 		}
 	}
 	
-	function allowDeletion($event_master_id){
+	// Commented out the original implementation due to BB-192
+	/*
+	function allowDeletion($event_master_id) {
 		$collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
 		if($collection_model->find('first', array('conditions' => array('Collection.event_master_id' => $event_master_id)))){
 			return array('allow_deletion' => false, 'msg' => 'at least one collection is linked to that annotation');
@@ -73,6 +75,38 @@ class EventMaster extends ClinicalAnnotationAppModel {
 		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
+	*/
+
+	 /**
+    * @author: Stephen Fung
+	* @since: 2017-01-06
+	* BB-192
+    **/
+    
+    // Upgraded the EventMaster allowDeletion method to check for neurology diagnosis 
+    function allowDeletion($event_master_id, $event_group=NULL, $event_master_data=NULL) {
+		
+        // If the event is a diagnosis coding event:
+        if($event_group == "coding") {
+            
+            $diagnosis_model = AppModel::getInstance('ClinicalAnnotation', 'DiagnosisMaster');
+            $diagnosis_item = $diagnosis_model->find('first', array('conditions' => array('DiagnosisMaster.id' => $event_master_data["EventMaster"]["diagnosis_master_id"])));
+
+            if($diagnosis_item['DiagnosisControl']['category'] == 'primary' && $diagnosis_item['DiagnosisControl']['controls_type'] == 'neurology') {
+                return array('allow_deletion' => false, 'msg' => 'manual deletion of neurology diagnosis code is not allowed');
+            }
+
+        }
+        
+        $collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
+		if($collection_model->find('first', array('conditions' => array('Collection.event_master_id' => $event_master_id)))){
+			return array('allow_deletion' => false, 'msg' => 'at least one collection is linked to that annotation');
+		}
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+
+
 	
 	function calculatedDetailFields(array &$data){
 		if(($data['EventControl']['detail_tablename'] == 'ed_all_lifestyle_smokings') && array_key_exists('started_on', $data['EventDetail']) && array_key_exists('stopped_on', $data['EventDetail'])){		

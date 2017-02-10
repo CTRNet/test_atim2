@@ -31,7 +31,8 @@ class ViewSample extends InventoryManagementAppModel {
 			'foreignKey'  => 'sample_master_id',
 			'dependent' => true)
 	);
-	
+
+	// BB-232
 	static $table_query = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,

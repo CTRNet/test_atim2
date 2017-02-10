@@ -23,7 +23,7 @@ class ViewCollection extends InventoryManagementAppModel {
 			'foreignKey' => 'consent_master_id'
 		)
 	);
-	
+	// Anytime new fields is added to collection, this query needs to be updated
 	static $table_query = '
 		SELECT 
 		Collection.id AS collection_id,
@@ -40,6 +40,10 @@ class ViewCollection extends InventoryManagementAppModel {
 		Collection.collection_datetime AS collection_datetime,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
+        Collection.sips AS sips,
+		Collection.visit_no AS visit_no,
+		Collection.visit_no_units AS visit_no_units,
+		Collection.visit_details AS visit_details,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created 
 		FROM collections AS Collection 
