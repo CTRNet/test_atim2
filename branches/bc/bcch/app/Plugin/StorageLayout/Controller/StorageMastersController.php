@@ -16,7 +16,9 @@ class StorageMastersController extends StorageLayoutAppController {
 		'InventoryManagement.AliquotMaster'
 	);
 	
-	var $paginate = array('StorageMaster' => array('limit' => pagination_amount, 'order' => 'StorageMaster.selection_label ASC'));
+	var $paginate = array('StorageMaster' => array('order' => 'StorageMaster.selection_label ASC'),
+		'ViewStorageMaster' => array('order' => 'ViewStorageMaster.selection_label ASC')
+	);
 
 	function search($search_id = 0, $from_layout_page = false){
 	    $model_to_use = $this->ViewStorageMaster;
@@ -121,12 +123,14 @@ class StorageMastersController extends StorageLayoutAppController {
 		if(!$is_from_tree_view_or_layout && $display_layout) {
 			if(empty($data['StorageControl']['coord_y_type'])) {
 				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => '')))
-				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x' => '')))) {
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x' => '')))
+				|| $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id, 'TmaSlide.storage_coord_x' => '')))) {
 					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
 				}
 			} else {
 				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'OR' => array('StorageMaster.parent_storage_coord_x' => '','StorageMaster.parent_storage_coord_y' => ''))))
-				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'OR' => array('AliquotMaster.storage_coord_x' => '', 'AliquotMaster.storage_coord_y' => ''))))) {
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'OR' => array('AliquotMaster.storage_coord_x' => '', 'AliquotMaster.storage_coord_y' => ''))))
+				|| $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id, 'OR' => array('TmaSlide.storage_coord_x' => '', 'TmaSlide.storage_coord_y' => ''))))) {
 					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
 				}
 			}
@@ -400,6 +404,11 @@ class StorageMastersController extends StorageLayoutAppController {
 				$atim_flash = false;
 			}
 			
+			$hook_link = $this->hook('postsave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate')), false);
 			if($atim_flash){
 				$this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/search/');
@@ -541,19 +550,19 @@ class StorageMastersController extends StorageLayoutAppController {
 	 * @since 2007-05-22
 	 */
 	 
-	function storageLayout($storage_master_id, $is_ajax = false){
+	function storageLayout($storage_master_id, $is_ajax = false, $csv_creation = false){
 		// MANAGE STORAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id); 
 
-		$coordinate_list = array();
+		$parent_coordinate_list = array();
 		if($storage_data['StorageControl']['coord_x_type'] == "list"){
 			$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
 			foreach($coordinate_tmp as $key => $value){
-				$coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
+				$parent_coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
 			} 
-			if(empty($coordinate_list)) {
+			if(empty($parent_coordinate_list)) {
 				if($is_ajax){
 					echo json_encode(array('valid' => 0));
 					exit;
@@ -563,7 +572,6 @@ class StorageMastersController extends StorageLayoutAppController {
 				}
 			}
 		}
-		
 		// Storage layout not allowed for this type of storage
 		if(empty($storage_data['StorageControl']['coord_x_type'])) {
 			if($is_ajax){
@@ -574,11 +582,111 @@ class StorageMastersController extends StorageLayoutAppController {
 				return;
 			} 
 		}
+
+		// BB-150
+		/**
+		* Hook for transforming user input barcode to storage data
+		* 
+		* @author Stephen Fung
+		* @since 2016-09-22
+	 	**/
+		
+    	if(!empty($this->request->data)) {
+
+			$json = (json_decode($this->request->data, true)); //Convert JSON to Associative Array
+
+			$ids = array(); // For storing ids of aliquots that is already stored in the box
+			foreach($json as $element) {
+
+				if (array_key_exists("id", $element)) {
+					array_push($ids, $element["id"]);
+				}
+
+			}
+
+            $barcodes = array(); // For holding barcodes to check for duplicates
+
+			// Check if every aliquot barcode exist in the database
+			foreach($json as $element) {
+
+				if (array_key_exists("barcode", $element)) {
+
+					// Skip any barcode that is empty
+					if(!empty($element['barcode'])) {
+						
+						// Find the id of the aliquot using the barcode from the database
+						$query = "SELECT id FROM aliquot_masters WHERE barcode='" . $element['barcode'] . "' AND deleted=0;";
+						$result = $this->StorageMaster->tryCatchQuery($query); // Get the id of the aliquot
+
+						if(in_array($result[0]['aliquot_masters']['id'], $ids)) {
+							// Check if the barcode input by the user is already assigned to the same box
+							$error_message = "The aliquot with barcode: " . trim($element['barcode']) . " is already assigned to a location of this box. Please move the aliquot instead.";
+							$this->flash(_($error_message), '/StorageLayout/StorageMasters/detail/'.$storage_master_id.'/');
+							return;
+						}
+		
+						if(empty($result)) {
+							// Return an error message if the barcode is not valid
+							$error_message = 'User Error: Barcode ' . trim($element['barcode']) . ' is not a valid aliquot';
+							//$this->atimFlash(__($error_message), '/StorageLayout/StorageMasters/detail/'.$storage_master_id.'/');
+							$this->flash(__($error_message), '/StorageLayout/StorageMasters/detail/'.$storage_master_id.'/');
+							return;
+						}
+						
+						array_push($barcodes, $element['barcode']); 
+
+					}
+				}
+			}
+
+			// Check for duplicate barcodes
+			$barcodes_without_duplicates = array_unique($barcodes);
+
+			if (count($barcodes_without_duplicates) != count($barcodes))  {
+				$this->flash(__('User Error: A barcode was assigned to multiple locations of the box'), '/StorageLayout/StorageMasters/detail/'.$storage_master_id.'/');
+				return;
+			}
+
+			foreach($json as $element) {
+				// if the array element has barcode
+				if (array_key_exists("barcode", $element)) {
+
+					// Skip any barcode that is empty
+					if(!empty($element['barcode'])) {
+
+						$query = "SELECT id FROM aliquot_masters WHERE barcode='" . $element['barcode'] . "' AND deleted=0;";
+						$result = $this->StorageMaster->tryCatchQuery($query); // Get the id of the aliquot
+
+						$aliquot_id = $result[0]['aliquot_masters']['id'];
+						$query = "UPDATE aliquot_masters SET storage_master_id=" . $element['s'] . ", storage_coord_x='" . $element['x'] . "', storage_coord_y='" . $element['y'] . "' WHERE id=" . $aliquot_id . " AND barcode='" . $element['barcode'] . "';";
+						$this->StorageMaster->tryCatchQuery($query); // Update the storage record in aliquot masters
+
+						$query = "INSERT INTO aliquot_masters_revs (`id`, `barcode`, `aliquot_label`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `sop_master_id`, `initial_volume`, `current_volume`, `in_stock`, `in_stock_detail`, `use_counter`, `study_summary_id`, `storage_datetime`, `storage_datetime_accuracy`, `storage_master_id`, `storage_coord_x`, `storage_coord_y`, `product_code`, `notes`, `modified_by`, `version_created`) 
+						SELECT `id`, `barcode`, `aliquot_label`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `sop_master_id`, `initial_volume`, `current_volume`, `in_stock`, `in_stock_detail`, `use_counter`, `study_summary_id`, `storage_datetime`, `storage_datetime_accuracy`, `storage_master_id`, `storage_coord_x`, `storage_coord_y`, `product_code`, `notes`, `modified_by`, `modified` FROM aliquot_masters ORDER BY `id` DESC LIMIT 1";
+						$this->StorageMaster->tryCatchQuery($query); // Update the aliquot_masters audit table
+
+						// Get the selection label of the storage;
+						$storage_selection_label = $storage_data['StorageMaster']['selection_label'];
+
+						$query = "UPDATE view_aliquots, aliquot_masters SET view_aliquots.storage_master_id=aliquot_masters.storage_master_id, view_aliquots.storage_coord_x = aliquot_masters.storage_coord_x, view_aliquots.storage_coord_y = aliquot_masters.storage_coord_y WHERE view_aliquots.aliquot_master_id = aliquot_masters.id;"; // Update the storage record in view aliquots
+						$this->StorageMaster->tryCatchQuery($query);
+
+					}
+
+					
+				}
+			}
+		}
+
 		if(!empty($this->request->data)){	
+			if($csv_creation) {
+
+				if(isset($this->request->data['Config']))$this->configureCsv($this->request->data['Config']);
+			
+			} else {
 		
 			$data = array();
 			$unclassified = array();
-			
 			$json = (json_decode($this->request->data));
 			
 			$second_storage_id = null;
@@ -599,19 +707,31 @@ class StorageMastersController extends StorageLayoutAppController {
 			}
 			$storage_data = AppController::defineArrayKey($storage_data, 'StorageMaster', 'id', true);
 			
+				$children_coordinate_list = array();
+				if(isset($storage_data[$second_storage_id]) && $storage_data[$second_storage_id]['StorageControl']['coord_x_type'] == "list"){
+					$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $second_storage_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
+					foreach($coordinate_tmp as $key => $value){
+						$children_coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
+					}
+					if(empty($children_coordinate_list)) {
+						// The 'Pick a storage to drag and drop to' action should limit selection to storage with layout
+						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
+				}
 			
 			//have cells with id as key
 			for($i = sizeof($json) - 1; $i >= 0; -- $i){
 				//builds a $cell[type][id] array
 				$data[$json[$i]->{'type'}][$json[$i]->{'id'}] = (array)$json[$i]; 
 			}
-
+				
+				$all_coordinate_list = $parent_coordinate_list + $children_coordinate_list;
 			foreach($storage_data as $storage_id => $storage_data_unit){
 				if($storage_data_unit['StorageControl']['coord_x_type'] == "list"){
 					foreach($data as &$data_model){
 						foreach($data_model as &$value){
-							if(is_numeric($value['x']) && $value['s'] = $storage_id){
-								$value['x'] = $coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
+								if(is_numeric($value['x']) && $value['s'] == $storage_id){
+									$value['x'] = $all_coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
 							}
 						}
 					}
@@ -642,7 +762,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			//Update TmaSlide
 			$this->TmaSlide->check_writable_fields = false;
 			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data);
-
+	
 			AppModel::releaseBatchViewsUpdateLock();
 			
 			if($conflicts_found){
@@ -653,6 +773,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				$this->atimFlash(__('your data has been saved'), '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
 				return;
 			}
+		}
 		}
 		$this->request->data = array();
 		
@@ -703,10 +824,10 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->Structures->set('storagemasters');
 	
 		$data['parent'] = $storage_data;
-		if(isset($coordinate_list)){
-			$data['parent']['list'] = $coordinate_list;
+		if(isset($parent_coordinate_list)){
+			$data['parent']['list'] = $parent_coordinate_list;
 			$rkey_coordinate_list = array();
-			foreach($coordinate_list as $values){
+			foreach($parent_coordinate_list as $values){
 				$rkey_coordinate_list[$values['StorageCoordinate']['coordinate_value']] = $values;
 			}
 		}else{
@@ -738,7 +859,11 @@ class StorageMastersController extends StorageLayoutAppController {
 		
 		$this->set('data', $data);
 		$this->Structures->set('empty', 'empty_structure');
-		if($is_ajax){
+		
+		if($csv_creation) {
+			$this->render('storage_layout_csv');
+			Configure::write('debug', 0);
+		} else if($is_ajax){
 			$this->render('storage_layout_html');
 		}
 	}

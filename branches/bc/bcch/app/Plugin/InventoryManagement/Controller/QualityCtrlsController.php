@@ -11,7 +11,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		'InventoryManagement.QualityCtrl'
 	);
 	
-	var $paginate = array('QualityCtrl' => array('limit' => pagination_amount, 'order' => 'QualityCtrl.date ASC'));
+	var $paginate = array('QualityCtrl' => array('order' => 'QualityCtrl.date ASC'));
 	
 	function listAll($collection_id, $sample_master_id) {
 		// MANAGE DATA
@@ -67,6 +67,14 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$this->setUrlToCancel();
 		$cancel_button = $this->request->data['url_to_cancel'];
 		unset($this->request->data['url_to_cancel']);
+		
+		$used_aliquot_data_to_apply_to_all = array();
+		if(isset($this->request->data['FunctionManagement'])) {
+			$used_aliquot_data_to_apply_to_all['FunctionManagement'] = $this->request->data['FunctionManagement'];
+			$used_aliquot_data_to_apply_to_all['AliquotMaster'] = $this->request->data['AliquotMaster'];
+			unset($this->request->data['FunctionManagement']);
+			unset($this->request->data['AliquotMaster']);
+		}
 		
 		if($sample_master_id != null){
 			// User click on add QC from collection
@@ -129,6 +137,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			)
 		);
 
+		$display_batch_process_aliq_storage_and_in_stock_details = false;
 		if(isset($this->request->data['ViewAliquot']) || isset($this->request->data['ViewSample'])){
 			if(empty($this->request->data['ViewAliquot']['aliquot_master_id']) && $sample_master_id != null){
 				$this->request->data['ViewSample']['sample_master_id'] = array($sample_master_id);
@@ -149,6 +158,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					'joins'			=> $joins)
 				);
 				$this->AliquotMaster->sortForDisplay($data, $aliquot_ids);
+				
+				$display_batch_process_aliq_storage_and_in_stock_details = sizeof($data) > 1; 
 			}else{
 				if(!is_array($this->request->data['ViewSample']['sample_master_id'])){
 					$this->request->data['ViewSample']['sample_master_id'] = array($this->request->data['ViewSample']['sample_master_id']);
@@ -178,13 +189,16 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				require($hook_link);
 			}
 		}else if(!empty($this->request->data)){
+			// Parse First Section To Apply To All
+			list($used_aliquot_data_to_apply_to_all, $errors_on_first_section_to_apply_to_all) = $this->AliquotMaster->getAliquotDataStorageAndStockToApplyToAll($used_aliquot_data_to_apply_to_all);
+			
 			//post
 			$display_data = array();
 			$sample_data = null;
 			$aliquot_data = null;
 			$remove_from_storage = null;
 			$record_counter = 0;
-			$errors = array();
+			$errors = $errors_on_first_section_to_apply_to_all;
 			$aliquot_data_to_save = array();
 			$qc_data_to_save = array();
 			
@@ -198,6 +212,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				
 				$aliquot_master_id = null;
 				if(isset($data_unit['AliquotMaster'])){
+					if($used_aliquot_data_to_apply_to_all) $data_unit = array_replace_recursive($data_unit, $used_aliquot_data_to_apply_to_all);
+					
 					$studied_sample_master_id = $data_unit['AliquotMaster']['sample_master_id'];
 					
 					$aliquot_master = $this->AliquotMaster->getOrRedirect($key);
@@ -276,6 +292,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	
 			$is_batch_process = ($record_counter > 1)? true : false;
 			
+			$display_batch_process_aliq_storage_and_in_stock_details = sizeof($aliquot_data_to_save) > 1;
+			if($used_aliquot_data_to_apply_to_all) {
+				AppController::addWarningMsg(__('fields values of the first section have been applied to all other sections'));
+			}
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -351,6 +372,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
 			return;
 		}
+		
+		$this->set('display_batch_process_aliq_storage_and_in_stock_details', $display_batch_process_aliq_storage_and_in_stock_details);
+		$this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
 	}
 	
 	function detail($collection_id, $sample_master_id, $quality_ctrl_id, $is_from_tree_view = false) {
@@ -526,6 +550,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			if($this->QualityCtrl->atimDelete($quality_ctrl_id)) {
 				if($qc_data['QualityCtrl']['aliquot_master_id'] != null){
 					$this->AliquotMaster->updateAliquotUseAndVolume($qc_data['QualityCtrl']['aliquot_master_id'], true, true, false);
+				}
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
 				}
 				$this->atimFlash(__('your data has been deleted'), 
 						'/InventoryManagement/QualityCtrls/listAll/'

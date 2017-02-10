@@ -42,23 +42,54 @@ class CodingIcdAppController extends AppController {
 		//debug = 0 to avoid printing debug queries that would break the javascript array
 		Configure::write('debug', 0);
 		
-		//query the database
-		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
-		$data = $model_to_use->find('all', array(
-			'conditions' => array(
-				$model_to_use->name.'.id LIKE' => $term.'%'),
-			'fields' => array($model_to_use->name.'.id'), 
-			'limit' => 10,
-			'recursive' => -1));
+		/* BB-119 
+		 "Final Diagnosis" field autocomplete for ICD-O-3 description
+		 @author: Stephen fung 
+		 @date: 2015-12-01
+		*/
+		// Check if the model is icd-o-3 coding
+		if($model_to_use->name == 'CodingIcdo3Morpho') {
+			
+			//query the database
+			$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+			$data = $model_to_use->find('all', array(
+				'conditions' => array(
+					$model_to_use->name.'.en_description LIKE' => $term.'%'),
+				'fields' => array($model_to_use->name.'.en_description'), 
+				'limit' => 10,
+				'recursive' => -1));
+			
+			//build javascript textual array
+			$result = "";
+			
+			foreach($data as $data_unit){
+				$result .= '"'.$data_unit[$model_to_use->name]['en_description'].'", ';
+			}
+			
+		} else {
+			
+			//query the database
+			$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+			$data = $model_to_use->find('all', array(
+				'conditions' => array(
+					$model_to_use->name.'.id LIKE' => $term.'%'),
+				'fields' => array($model_to_use->name.'.id'), 
+				'limit' => 10,
+				'recursive' => -1));
 		
-				//build javascript textual array
-		$result = "";
-		foreach($data as $data_unit){
-			$result .= '"'.$data_unit[$model_to_use->name]['id'].'", ';
+			//build javascript textual array
+			$result = "";
+			foreach($data as $data_unit){
+				$result .= '"'.$data_unit[$model_to_use->name]['id'].'", ';
+			}
+			
 		}
+		
+		
 		if(sizeof($result) > 0){
 			$result = substr($result, 0, -2);
 		}
+		
 		$this->set('result', "[".$result."]");
 	}
 }

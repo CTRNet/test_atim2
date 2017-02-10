@@ -65,7 +65,12 @@ class StudySummariesControllerCustom extends StudySummariesController {
   				'Order.OrderLine.study_summary_id', 
   				'/Order/Orders/detail/', 
   				'orders,orderlines',
-  				'/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%'));
+  				'/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%'),
+            'tma slides' => array(
+  				'StorageLayout.TmaSlide.study_summary_id', 
+  				'/StorageLayout/TmaSlides/detail/', 
+  				'tma_slides,tma_blocks_for_slide_creation',
+  				'/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%'));
   		
   		$hook_link = $this->hook('format_properties');
   		if( $hook_link ) {

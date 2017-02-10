@@ -21,6 +21,25 @@ class User extends AppModel {
 		throw new Exception('Insufficient data to determine parentNode');
 	}
 	
+	// BB-140
+	// Bug fix: Locking out one user will lock out all the users
+	
+	function getRemoteIPAddress() {
+		
+    	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+			
+        	return $_SERVER['HTTP_CLIENT_IP'];
+
+    	} else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { 
+			
+       		return $_SERVER['HTTP_X_FORWARDED_FOR'];
+    	}
+		
+    	return $_SERVER['REMOTE_ADDR'];
+		
+	}
+
+	
 	function summary( $variables=array() ) {
 		$return = false;
 		

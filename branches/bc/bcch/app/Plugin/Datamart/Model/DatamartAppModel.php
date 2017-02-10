@@ -25,7 +25,7 @@ class DatamartAppModel extends AppModel {
 		$add_to_batch_set_menu = array();
 		$compare_to_batch_set_menu = array();
 		foreach($compatible_batch_sets as $batch_set){
-			$batch_set_label = $batch_set_model->getBatchSetLabel($batch_set['BatchSet']);
+			$batch_set_label = str_replace( array('  ', "\t", "\n", "\r"), ' ', $batch_set_model->getBatchSetLabel($batch_set['BatchSet']));
 			$add_to_batch_set_menu[] = array(
 				'value' => '0',
 				'label' => $batch_set_label,

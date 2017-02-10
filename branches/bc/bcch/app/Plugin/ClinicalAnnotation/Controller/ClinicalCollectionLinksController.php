@@ -44,7 +44,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		}
 	}
 	
-	//var $paginate = array('Collection' => array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
+	//var $paginate = array('Collection' => array('order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
@@ -232,6 +232,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}else{
 				$this->request->data['Collection']['deleted'] = 1;
 				$fields[] = 'deleted';
+				$fields[] = 'created_by';
+				$fields[] = 'modified_by';
 			}
 			$this->request->data['Collection']['participant_id'] = $participant_id;
 			$this->Collection->id = $this->request->data['Collection']['id'] ?: null;

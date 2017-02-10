@@ -3,9 +3,9 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/TreatmentMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
-			//'delete'=>'/ClinicalAnnotation/TreatmentMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+			'delete'=>'/ClinicalAnnotation/TreatmentMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
 			'list'=>'/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/',
-			//'add precision' => '/ClinicalAnnotation/TreatmentExtendMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+			'add precision' => '/ClinicalAnnotation/TreatmentExtendMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
 		)
 	);
 	
@@ -20,7 +20,7 @@
 	
 	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings,'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 
-
+	
 	$hook_link = $this->Structures->hook();
 	if( $hook_link ) { 
 		require($hook_link); 
@@ -45,7 +45,7 @@
 			'edit'=>'/ClinicalAnnotation/TreatmentExtendMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtendMaster.id%%',
 			'delete'=>'/ClinicalAnnotation/TreatmentExtendMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtendMaster.id%%'
 		);
-
+		
 		$final_options = array('data' => $tx_extend_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
 		$final_atim_structure = $extend_form_alias;
 		

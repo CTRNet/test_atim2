@@ -25,6 +25,8 @@ if(isset($storage_types_from_id)) {
 	ksort($add_links);
 	$bottom['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);
 }
+$bottom['export as CSV file (comma-separated values)'] = sprintf("javascript:setCsvPopup('/StorageLayout/StorageMasters/storageLayout/".$atim_menu_variables['StorageMaster.id']."/0/1/');", 0);
+
 $this->Structures->build($empty_structure, array(
 	'type' => 'detail', 
 	'extras' => $content, 

@@ -27,18 +27,18 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
 		  id varchar(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
-		  use_definition varchar(50) NOT NULL DEFAULT '',
-		  use_code varchar(250) NOT NULL DEFAULT '',
-		  use_details VARchar(250) NOT NULL DEFAULT '',
+		  use_definition varchar(50) DEFAULT NULL,
+		  use_code varchar(250) DEFAULT NULL,
+		  use_details VARchar(250) DEFAULT NULL,
 		  used_volume decimal(10,5) DEFAULT NULL,
 		  aliquot_volume_unit varchar(20) DEFAULT NULL,
 		  use_datetime datetime DEFAULT NULL,
-		  use_datetime_accuracy char(1) NOT NULL DEFAULT '',
-		  duration VARCHAR(250) NOT NULL DEFAULT '',
-		  duration_unit VARCHAR(250) NOT NULL DEFAULT '',
+		  use_datetime_accuracy char(1) DEFAULT NULL,
+		  duration int(6) DEFAULT NULL,
+		  duration_unit VARCHAR(250) DEFAULT NULL,
 		  used_by VARCHAR(50) DEFAULT NULL,
-		  created datetime NOT NULL,
-		  detail_url varchar(250) NOT NULL DEFAULT '',
+		  created datetime DEFAULT NULL,
+		  detail_url varchar(250) DEFAULT NULL,
 		  sample_master_id int(11) NOT NULL,
 		  collection_id int(11) NOT NULL,
 		  study_summary_id int(11) DEFAULT NULL
@@ -79,7 +79,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		DerivativeDetail.creation_datetime AS use_datetime,
 		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
-		'' AS `duration`,
+		NULL AS `duration`,
 		'' AS `duration_unit`,
 		DerivativeDetail.creation_by AS used_by,
 		SourceAliquot.created AS created,
@@ -106,7 +106,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		Realiquoting.realiquoting_datetime AS use_datetime,
 		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		Realiquoting.realiquoted_by AS used_by,
 		Realiquoting.created AS created,
@@ -132,7 +132,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		QualityCtrl.date AS use_datetime,
 		QualityCtrl.date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		QualityCtrl.run_by AS used_by,
 		QualityCtrl.created AS created,
@@ -157,7 +157,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS aliquot_volume_unit,
 		Shipment.datetime_shipped AS use_datetime,
 		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		Shipment.shipped_by AS used_by,
 		Shipment.created AS created,
@@ -169,8 +169,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
-		JOIN `orders` AS `Order` ON  Order.id = OrderLine.order_id			
+		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id			
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -184,7 +184,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS aliquot_volume_unit,
 		SpecimenReviewMaster.review_date AS use_datetime,
 		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		'' AS used_by,
 		AliquotReviewMaster.created AS created,

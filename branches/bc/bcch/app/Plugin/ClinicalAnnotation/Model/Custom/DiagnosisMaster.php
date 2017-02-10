@@ -16,7 +16,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	);
 
 	function beforeSave($options = Array()) {
-
+ 
 		// Check $this->data has been populated from screen and not from Participant.beforeSave() function
 		if (!$this->data['DiagnosisMaster']['skip']) {
 

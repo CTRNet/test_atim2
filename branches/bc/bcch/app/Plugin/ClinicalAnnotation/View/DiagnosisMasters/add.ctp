@@ -8,6 +8,19 @@
 	
 	// 1- DIAGNOSTIC DATA
 	
+	//BB-192
+	/*
+	if($dx_ctrl['DiagnosisControl']['controls_type'] == 'neurology' || $dx_ctrl['DiagnosisControl']['controls_type'] == 'Neurology') {
+		echo $this->Html->script('jquery-1.7.2.min.js');
+		echo '<script> 
+		if (window.jQuery) {
+			alert("jQuery Loaded");
+		} else {
+			alert("Not Loaded");
+		}
+			</script>';
+	}
+	*/
 	$structure_settings = array(
 		'tabindex' => 100,
 		'header' => __('new '.$dx_ctrl['DiagnosisControl']['category']) . ' : ' . __($dx_ctrl['DiagnosisControl']['controls_type'], null)

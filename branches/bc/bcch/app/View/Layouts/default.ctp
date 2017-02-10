@@ -113,7 +113,8 @@ if(!headers_sent()){
 	echo $this->Html->script('jquery.cookie.js')."\n";
 	echo $this->Html->script('fg.menu.js')."\n";
 	echo $this->Html->script('default')."\n";
-	echo $this->Html->script('storage_layout')."\n";
+	//echo $this->Html->script('storage_layout')."\n";
+	echo $this->Html->script('storage_layout_v4')."\n";
 	echo $this->Html->script('copyControl')."\n";
 	echo $this->Html->script('ccl')."\n";
 	echo $this->Html->script('dropdownConfig')."\n";

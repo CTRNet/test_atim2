@@ -16,7 +16,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		'CodingIcd.CodingIcdo3Topo',//required by model
 		'CodingIcd.CodingIcdo3Morpho'//required by model
 	);
-	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date'));
+	var $paginate = array('DiagnosisMaster'=>array('order'=>'DiagnosisMaster.dx_date'));
 
 	function listall( $participant_id, $parent_dx_id = null, $is_ajax = 0 ) {
 		// MANAGE DATA
@@ -276,6 +276,11 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
+
+					$hook_link = $this->hook('postsave_process_neurology');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					
 					$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/' );
 				}
@@ -290,6 +295,12 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 		if(empty($dx_master_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
+		
+		// CUSTOM CODE: MANAGE REDEFINE PRIMARY
+		$hook_link = $this->hook('before_redefine_primary');
+		if( $hook_link ) {
+			require($hook_link);
 		}
 		
 		if(!is_null($redefined_primary_control_id)) {
@@ -352,6 +363,12 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
+
+					$hook_link = $this->hook('postsave_process_neurology');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+
 					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 				}
 			}
@@ -375,6 +392,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atimDelete( $diagnosis_master_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );

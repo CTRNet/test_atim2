@@ -250,7 +250,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		} else {
 			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 		}	
-	}
+		}
 	
 	function reuse($participant_id, $misc_identifier_ctrl_id, $submited = false){
 		$this->Participant->getOrRedirect($participant_id);

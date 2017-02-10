@@ -135,7 +135,138 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				//No Validation for UST1D
 				$value_validated = true;
 				break;
-											
+			
+			/**
+			* @author: Stephen Fung
+			* @since: 2015-09-24
+			*BB-115
+			* */
+
+            /*
+			case "CARDIO ID":
+				if (preg_match("^[a-zA-Z]{4}-[0-9]{2}^", $identifierValue)) {
+					$value_validated = true;
+				} else {
+					$this->validationErrors['MiscIdentifier']['identifier_value'] = "ccbr CARDIO ID validation error";
+					$value_validated = false;
+				}				
+				break;   
+            */
+
+            /**
+			* @author: Stephen Fung
+			* @since: 2016-03-07
+			* BB-164
+			**/	            
+            case "CARDIO ID":
+                // No Validations for CARDIO ID
+				$value_validated = true;	
+				break;  
+            
+            /**
+            * @author: Stephen Fung
+			*  
+			* BB-145
+            **/
+            case "SWAVE1 ID":
+				//No Validation for UST1D
+				$value_validated = true;
+				break;
+				
+			/**
+            * @author: Stephen Fung
+			* @since: 2016-05-30
+			* BB-191
+            **/
+            case "AKI ID":
+				//No Validation for UST1D
+				$value_validated = true;
+				break;	
+			/**
+            * @author: Stephen Fung
+			* @since: 2016-05-30
+			* BB-188
+            **/
+            case "Kingella ID":
+				//No Validation for UST1D
+				$value_validated = true;
+				break;	
+
+			case "EoE ID":
+				//No Validation for EoE
+				$value_validated = true;
+				break;
+
+			/**
+            * @author: Stephen Fung
+			* @since: 2016-09-12
+			* BB-231
+            **/
+            case "POG ID":
+				//No Validation for UST1D
+				$value_validated = true;
+				break;
+
+			case "PEDVAS Lab ID":
+				//No Validation for PEDVAS ID
+				$value_validated = true;
+				break;		
+
+			case "PEDVAS Brainworks ID":
+				//No Validation for PEDVAS ID
+				$value_validated = true;
+				break;	
+
+			case "PEDVAS Pediatric Prospective ID":
+				//No Validation for PEDVAS ID
+				$value_validated = true;
+				break;
+
+			case "PEDVAS Pediatric Restrospective ID":
+				//No Validation for PEDVAS ID
+				$value_validated = true;
+				break;
+
+			case "PEDVAS DCVAS Cohort 1 ID":
+				//No Validation for PEDVAS ID
+				$value_validated = true;
+				break;
+
+			case "PEDVAS DCVAS Cohort 2 ID":
+				//No Validation for PEDVAS ID
+				$value_validated = true;
+				break;
+
+			case "CANTBI ID":
+				// BB-236
+				//No Validation for CANTBI
+				$value_validated = true;
+				break;	
+
+			/**
+			* 
+			* @author Stephen Fung
+			* @since 2016-12-13
+			* 
+			*/  
+			case "BCSICR ID":
+				// BB-237
+				//No Validation for BCSICR
+				$value_validated = true;
+				break;
+
+			/**
+			* 
+			* @author Stephen Fung
+			* @since 2016-12-13
+			* 
+			*/  
+			case "BTIC ID":
+				// BB-238
+				//No Validation for BCSICR
+				$value_validated = true;
+				break;				
+															
 			default:
 				echo "No defined validation! See administrator!";
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);

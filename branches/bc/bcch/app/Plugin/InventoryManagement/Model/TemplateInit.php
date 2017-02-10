@@ -11,6 +11,9 @@ class TemplateInit extends InventoryManagementAppModel {
 		//Otherwise, on has to add it before setting the structures (which in turn sets the validation).
 		//eg.: AppController::getInstance()->AliquotMaster = AppModel::getInstance('InventoryManagement', 'AliquotMaster'); would make AliquotMaster ready to recieve validation rules
 		$models_names = array('SpecimenDetail', 'DerivativeDetail','SampleMaster', 'SampleDetail','AliquotMaster','AliquotDetail');
+		//Set a default control id to fix bug #3226 : Unable to use field with MasterModel in template_init_structure 
+		$this->data['TemplateInit']['SampleMaster']['sample_control_id'] = 1;
+		$this->data['TemplateInit']['AliquotMaster']['aliquot_control_id'] = 1;
 		foreach($models_names as $model_name){
 			if(array_key_exists($model_name, $this->data['TemplateInit'])) {
 				$model = AppModel::getInstance('InventoryManagement', $model_name);

@@ -67,6 +67,37 @@ if (!defined('APP_DIR')) {
  * Change at your own risk.
  *
  */
+
+
+/**
+ BB-217
+ @author: Stephen Fung
+ @Date: 2016-07-18
+**/
+
+function getRemoteIPAddress() {
+		
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+			
+        return $_SERVER['HTTP_CLIENT_IP'];
+
+    } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { 
+			
+       	return $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+	
+    	return $_SERVER['REMOTE_ADDR'];		
+}
+// Maintenance Mode Trigger
+require('./maintenance_config.php');
+define('MAINTENANCE', $maintenance_mode);
+
+// Check the maintenance trigger and the IP Address 
+if(MAINTENANCE > 0 && !in_array(getRemoteIPAddress(), $approved_ip_address)) {
+    require('./maintenance.php');
+    exit();
+}
+
 if (!defined('WEBROOT_DIR')) {
 	define('WEBROOT_DIR', basename(dirname(__FILE__)));
 }
