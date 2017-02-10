@@ -1616,7 +1616,7 @@ AND datamart_structure_id = @aliquot_datamart_structure_id
 AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'serum' AND aliquot_type = 'tube');
 
 UPDATE template_nodes
-SET quantity = '6'
+SET quantity = '5'
 WHERE template_id = @template_id 
 AND datamart_structure_id = @aliquot_datamart_structure_id 
 AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'plasma' AND aliquot_type = 'tube');
@@ -2085,7 +2085,7 @@ AND (EventDetail.type like 'clinical exam to define' OR EventDetail.progression_
 
 -- UPDATE structure_formats 
 -- SET `flag_add_readonly`=`flag_add`, `flag_edit_readonly`=`flag_edit`, `flag_addgrid_readonly`= `flag_addgrid`, `flag_editgrid_readonly`=`flag_editgrid`, 
---`flag_batchedit_readonly`=`flag_batchedit`='1'
+-- `flag_batchedit_readonly`=`flag_batchedit`='1'
 -- WHERE structure_field_id IN (SELECT id FROM structure_fields 
 -- WHERE `field` LIKE 'qc_nd_%' OR `field` LIKE 'procure_chuq_%' 
 -- OR `field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%' OR `field` LIKE 'procure_cusm_%' OR `field` LIKE 'cusm_%');
@@ -2109,6 +2109,10 @@ UPDATE structure_fields
 SET language_tag = CONCAT(language_tag, ' (#ChusField)')
 WHERE language_tag IS NOT NULL AND language_tag NOT LIKE '' AND language_tag NOT LIKE '%(#ChusField)' 
 AND (`field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%');
+
+--
+
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_laboratories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 --
 

@@ -133,7 +133,7 @@
 				foreach($new_sample_record['children'] AS &$new_aliquot) {
 					$counter++;
 					$new_aliquot['AliquotMaster']['barcode'] = $tmp_default_aliquot_data['AliquotMaster.barcode'].$counter;				
-					if($counter == '3' && $new_sample_record['parent']['ViewSample']['sample_type'] == 'pbmc') $new_aliquot['AliquotMaster']['initial_volume'] = '0.3';
+					if($counter == '2' && $new_sample_record['parent']['ViewSample']['sample_type'] == 'buffy coat') $new_aliquot['AliquotMaster']['initial_volume'] = '0.3';
 				}
 			}	
 			
