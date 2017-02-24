@@ -166,7 +166,7 @@ QualityCtrl.procure_created_by_bank AS procure_created_by_bank
 		SampleMaster.collection_id AS collection_id,
 		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
 		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title,
-'p' AS procure_created_by_bank
+OrderItem.procure_created_by_bank
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		LEFT JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
@@ -197,7 +197,7 @@ QualityCtrl.procure_created_by_bank AS procure_created_by_bank
 		SampleMaster.collection_id AS collection_id,
 		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
 		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title,
-'p' AS procure_created_by_bank
+OrderItem.procure_created_by_bank
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id

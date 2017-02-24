@@ -51,7 +51,7 @@
 					switch($sample_data['SampleDetail']['blood_type']) {
 						case 'paxgene':
 							$barcode_suffix = '-RNB';
-							$default_volume = '2.5';
+							$default_volume = '9';
 							break;
 						default:
 							$barcode_suffix = '-?';
@@ -85,6 +85,7 @@
 					break;				
 				case 'centrifuged urine-tube':
 					$barcode_suffix = '-URN';
+					$default_volume = '5';
 					break;
 				//--------------------------------------------------------------------------------
 				//  TISSUE
@@ -132,8 +133,11 @@
 				$counter = 0;
 				foreach($new_sample_record['children'] AS &$new_aliquot) {
 					$counter++;
-					$new_aliquot['AliquotMaster']['barcode'] = $tmp_default_aliquot_data['AliquotMaster.barcode'].$counter;				
-					if($counter == '2' && $new_sample_record['parent']['ViewSample']['sample_type'] == 'buffy coat') $new_aliquot['AliquotMaster']['initial_volume'] = '0.3';
+					if($counter == '2' && $new_sample_record['parent']['ViewSample']['sample_type'] == 'buffy coat') {
+						$counter++;
+						$new_aliquot['AliquotMaster']['initial_volume'] = '0.3';
+					}
+					$new_aliquot['AliquotMaster']['barcode'] = $tmp_default_aliquot_data['AliquotMaster.barcode'].$counter;	
 				}
 			}	
 			

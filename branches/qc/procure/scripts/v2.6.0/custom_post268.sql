@@ -125,6 +125,13 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 VALUES 
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types"), (SELECT id FROM structure_permissible_values WHERE value="biopsy" AND language_alias="biopsy"), "1", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types"), (SELECT id FROM structure_permissible_values WHERE value="clinical exam to define" AND language_alias="clinical exam to define"), "1000", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+('fdg','fdg');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('fdg', 'FDG', 'FDG');
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types"), (SELECT id FROM structure_permissible_values WHERE value="fdg" AND language_alias="fdg"), "1", "1");
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 VALUES 
 ("procure_followup_exam_type_precisions", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Clinical Exam Precisions\')");
@@ -135,9 +142,9 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
 ('abdomen / pelvis' ,'Abdomen/Pelvis', 'Abdomen/Bassin', '1', @control_id, NOW(), '1', NOW(), '1'),
+('bladder', 'Bladder', 'Vessie', '1', @control_id, NOW(), '1', NOW(), '1'),
 ('bone' ,'Bone', 'Os', '1', @control_id, NOW(), '1', NOW(), '1'),
 ('chest' ,'Chest', 'Poitrine', '1', @control_id, NOW(), '1', NOW(), '1'),
-('fdg' ,'FDG', '', '1', @control_id, NOW(), '1', NOW(), '1'),
 ('spine' ,'Spine', 'Colonne vertébrale', '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_followup_worksheet_clinical_events', 'type_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_type_precisions') , '0', '', '', '', '', 'precision');
@@ -334,7 +341,7 @@ AND EventMaster.id NOT IN (
 INSERT INTO procure_ed_prostate_cancer_clinical_exams (type, type_precision, results, event_master_id)
 (SELECT 'biopsy', 'prostate', 'positive', id FROM event_masters WHERE tmp_procure_migration = '2' AND created = @modified AND created_by = @modified_by);
 
-SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with 'Date' equals to the 'Biopsy Date', a site equals to 'Prostate' and a empty 'Result' value based on the 'Biopsy ( before pre-surgery biopsy): Date' field (not empty) in 'F1 -  Diagnostic Information Worksheet'") AS '###MESSAGE###'
+SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with 'Date' equals to the 'Biopsy Date', a site equals to 'Prostate' and an empty 'Result' value based on the 'Biopsy ( before pre-surgery biopsy): Date' field (not empty) in 'F1 -  Diagnostic Information Worksheet'") AS '###MESSAGE###'
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 WHERE EventMaster.deleted <> 1
@@ -577,7 +584,7 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Note Types');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
 VALUES 
-('hospitalization' ,'Hospitalization', 'Hospitalization', '1', @control_id, NOW(), '1', NOW(), '1');
+('hospitalization' ,'Hospitalization', 'Hospitalisation', '1', @control_id, NOW(), '1', NOW(), '1');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_prostate_cancer_clinical_notes', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_event_note_types') , '0', '', '', '', 'type', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -2112,7 +2119,247 @@ AND (`field` LIKE 'procure_chus_%' OR `field` LIKE 'chus_%');
 
 --
 
-UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_laboratories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='time_at_room_temp_mn' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+SET @template_id = (SELECT id FROM templates WHERE name = 'Blood/Sang');
+SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+UPDATE template_nodes
+SET quantity = '1'
+WHERE template_id = @template_id 
+AND datamart_structure_id = @aliquot_datamart_structure_id 
+AND control_id = (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube');
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('procure warning for storage of pbmc',
+'The storage information should be the storage at lower than a temperature lower than minus 150°C.',
+"L'information d'entreposage doit être l'entreposage à une température inférieure à moins 150°C."),
+('procure warning for date of pbmc initial storage',
+"The initial storage date is the date the PBMC tube has been stored at a temperature lower than minus 150°C (either into a freezer or a nitrogen container) for the first time.", 
+"La date initiale d'entreposage est la date à laquelle le tube de PBMC a été entreposé pour la première fois à une température inférieure à moins 150°C (dans un congélateur ou dans un récipient d'azote liquide).");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_date_at_minus_80', 'date',  NULL , '0', '', '', '', 'date at -80', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_pbmc_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_date_at_minus_80' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date at -80' AND `language_tag`=''), '1', '69', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='time (days)' WHERE model='AliquotDetail' AND tablename='ad_tubes' AND field='procure_time_at_minus_80_days' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+INSERT IGNORE i18n (id,en,fr)
+VALUES
+('time (days)', "Time (Days)", "Temps (jours)"),
+('date at -80', 'Date at -80°C', 'Date à -80°C');
+ALTER TABLE ad_tubes
+  ADD COLUMN `procure_date_at_minus_80` date DEFAULT NULL,
+  ADD COLUMN `procure_date_at_minus_80_accuracy` char(1) NOT NULL DEFAULT '';
+ALTER TABLE ad_tubes_revs
+  ADD COLUMN `procure_date_at_minus_80` date DEFAULT NULL,
+  ADD COLUMN `procure_date_at_minus_80_accuracy` char(1) NOT NULL DEFAULT '';
+
+ALTER TABLE ad_tissue_slides
+  ADD COLUMN `procure_stain` varchar(60) DEFAULT NULL;
+ALTER TABLE ad_tissue_slides_revs
+  ADD COLUMN `procure_stain` varchar(60) DEFAULT NULL;
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE ad_tissue_slides SET procure_stain = lower(immunochemistry);
+UPDATE ad_tissue_slides SET immunochemistry = '';
+UPDATE ad_tissue_slides_revs SET procure_stain = lower(immunochemistry);
+UPDATE ad_tissue_slides_revs SET immunochemistry = '';
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_tissue_slide_stains", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Slide Stains\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Tissue Slide Stains', 1, 60, 'inventory');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'procure_stain', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_tissue_slide_stains') , '0', '', '', '', 'stain', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='procure_stain' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_tissue_slide_stains')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stain' AND `language_tag`=''), '1', '71', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('stain', 'Stain', 'Marquage/Teinture');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Slide Stains');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+VALUES 
+('h&e' ,'H&E', 'H&E', '1', @control_id, NOW(), '1', NOW(), '1');
+UPDATE ad_tissue_slides SET procure_stain = 'h&e' WHERE procure_stain = 'h & e';
+UPDATE ad_tissue_slides_revs SET procure_stain = 'h&e' WHERE procure_stain = 'h & e';
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by)  
+(SELECT DISTINCT procure_stain, '', '', '1', @control_id, NOW(), '1', NOW(), '1' FROM ad_tissue_slides WHERE procure_stain != 'h&e');
+
+ALTER TABLE procure_ar_tissue_slides
+  ADD COLUMN tumor_size_length_mm decimal(6,1) NULL,
+  ADD COLUMN tumor_size_width_mm decimal(6,1) NULL,
+  DROP COLUMN tumor_size_mm;
+ALTER TABLE procure_ar_tissue_slides_revs
+  ADD COLUMN tumor_size_length_mm decimal(6,1) NULL,
+  ADD COLUMN tumor_size_width_mm decimal(6,1) NULL,
+  DROP COLUMN tumor_size_mm;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'procure_ar_tissue_slides', 'tumor_size_length_mm', 'float_positive',  NULL , '0', 'size=3', '', '', 'tumor size (mm)', 'length'), 
+('InventoryManagement', 'AliquotReviewDetail', 'procure_ar_tissue_slides', 'tumor_size_width_mm', 'float_positive',  NULL , '0', 'size=3', '', '', '', 'width');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tumor_size_length_mm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='tumor size (mm)' AND `language_tag`='length'), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tumor_size_width_mm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='width'), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ar_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tumor_size_mm' AND `language_label`='tumor size (mm)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tumor_size_mm' AND `language_label`='tumor size (mm)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotReviewDetail' AND `tablename`='procure_ar_tissue_slides' AND `field`='tumor_size_mm' AND `language_label`='tumor size (mm)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_treatments' AND `field`='treatment_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_types') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Participant Message Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+VALUES 
+('next hormonotherpay' ,'Next Hormonotherpay', 'Prochaine hormonothérapie', '1', @control_id, NOW(), '1', NOW(), '1'),
+('next chemotherapy' ,'Next Chemotherpay', 'Prochaine chimiothérapie', '1', @control_id, NOW(), '1', NOW(), '1');
+
+UPDATE misc_identifier_controls SET flag_active = 1 WHERE misc_identifier_name = 'participant study number';
+UPDATE menus SET flag_active = '1' WHERE id IN ('clin_CAN_33', 'tool_CAN_100', 'tool_CAN_104', 'tool_CAN_105.2');
+
+UPDATE menus SET flag_active = '1' WHERE use_link LIKE '/Order/%';
+
+ALTER TABLE order_items ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+ALTER TABLE order_items_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'OrderItem', 'order_items', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='orderitems'), (SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+ALTER TABLE orders ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+ALTER TABLE orders_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Order', 'orders', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='orders'), (SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+ALTER TABLE shipments ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+ALTER TABLE shipments_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Shipment', 'shipments', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+ALTER TABLE study_summaries ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+ALTER TABLE study_summaries_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '1', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+ALTER TABLE tma_slides ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+ALTER TABLE tma_slides_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'TmaSlide', 'tma_slides', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquots_description' AND `language_label`='aliquot description' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_transferred_aliquots_descriptions_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquots_description' AND `language_label`='aliquot description' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_transferred_aliquots_descriptions_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+DELETE FROM structures WHERE alias='procure_transferred_aliquots_details';
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_transferred_aliquots_details_file');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquots_details_file' AND `language_label`='list of transferred aliquots' AND `language_tag`='' AND `type`='file' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='procure_transferred_aliquots_details_file' AND `language_label`='list of transferred aliquots' AND `language_tag`='' AND `type`='file' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='0');
+DELETE FROM structures WHERE alias='procure_transferred_aliquots_details_file';
+
+DELETE FROM datamart_structure_functions WHERE label = 'create aliquots transfer file';
+DELETE FROM datamart_reports WHERE name = 'procure aliquots transfer file creation';
+
+SET @template_id = (SELECT id FROM templates WHERE name = 'Blood/Sang');
+SET @sample_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+SET @aliquot_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+UPDATE template_nodes SET parent_id = null WHERE template_id = @template_id ;
+DELETE FROM template_nodes WHERE template_id = @template_id ;
+-- Blood & Serum
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(null, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'blood' ), '1');
+SET @blood_template_node_id = (SELECT LAST_INSERT_ID());
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_template_node_id, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'serum'), '1');
+SET @blood_derivative_template_node_id = (SELECT LAST_INSERT_ID());
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_derivative_template_node_id, @template_id, @aliquot_datamart_structure_id, (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'serum' AND aliquot_type = 'tube'), '2');
+-- Blood (paxgene)
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(null, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'blood' ), '1');
+SET @blood_template_node_id = (SELECT LAST_INSERT_ID());
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_template_node_id, @template_id, @aliquot_datamart_structure_id, (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'blood' AND aliquot_type = 'tube'), '1');
+-- Blood plamsa / buffy coat / pbmc
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(null, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'blood' ), '1');
+SET @blood_template_node_id = (SELECT LAST_INSERT_ID());
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_template_node_id, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'plasma'), '1');
+SET @blood_derivative_template_node_id = (SELECT LAST_INSERT_ID());
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_derivative_template_node_id, @template_id, @aliquot_datamart_structure_id, (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'plasma' AND aliquot_type = 'tube'), '5');
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_template_node_id, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'buffy coat'), '1');
+SET @blood_derivative_template_node_id = (SELECT LAST_INSERT_ID());
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_derivative_template_node_id, @template_id, @aliquot_datamart_structure_id, (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'buffy coat' AND aliquot_type = 'tube'), '2');
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_template_node_id, @template_id, @sample_datamart_structure_id, (SELECT SpCt.id FROM sample_controls SpCt WHERE sample_type = 'pbmc'), '1');
+SET @blood_derivative_template_node_id = (SELECT LAST_INSERT_ID());
+INSERT INTO `template_nodes` (`parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`)
+VALUES
+(@blood_derivative_template_node_id, @template_id, @aliquot_datamart_structure_id, (SELECT AlCt.id FROM sample_controls SpCt INNER JOIN aliquot_controls AlCt ON AlCt.sample_control_id = SpCt.id WHERE sample_type = 'pbmc' AND aliquot_type = 'tube'), '3');
+
+ALTER TABLE tma_slides
+  ADD COLUMN `procure_stain` varchar(60) DEFAULT NULL;
+ALTER TABLE tma_slides_revs
+  ADD COLUMN `procure_stain` varchar(60) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_tma_slide_stains", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'TMA Slide Stains\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('TMA Slide Stains', 1, 60, 'storage');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'TMA Slide Stains');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+VALUES 
+('h&e' ,'H&E', 'H&E', '1', @control_id, NOW(), '1', NOW(), '1');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'TmaSlide', 'tma_slides', 'procure_stain', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_tma_slide_stains') , '0', '', '', '', 'stain', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_slides'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='procure_stain' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_tma_slide_stains')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stain' AND `language_tag`=''), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='tma_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('sent to muhc','Sent To MUHC','Envoyé au CUSM',  '1', @control_id, NOW(), NOW(), 1, 1),
+('received from muhc','Received From MUHC','Recu du CUSM',  '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('sent to chuq','Sent To CHUQ','Envoyé au CHUQ',  '1', @control_id, NOW(), NOW(), 1, 1),
+('received from chuq','Received From CHUQ','Recu du CHUQ',  '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('sent to chum','Sent To CHUM','Envoyé au CHUM',  '1', @control_id, NOW(), NOW(), 1, 1),
+('received from chum','Received From CHUM','Recu du CHUM',  '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('sent to chus','Sent To CHUS','Envoyé au CHUS',  '1', @control_id, NOW(), NOW(), 1, 1),
+('received from chus','Received From CHUS','Recu du CHUS',  '1', @control_id, NOW(), NOW(), 1, 1);
+
+-- TODO: Developp function to create path review data in batch: slides creation + results
+-- TODO: Merge data of the processing site with cusm
+-- TODO: Use IDC-O-3 Topo instead other lists.
 
 --
 
