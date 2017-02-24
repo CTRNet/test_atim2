@@ -75,7 +75,11 @@ class TreatmentMasterCustom extends TreatmentMaster {
 				'treatment_site' => array(
 					'site', 
 					array('antalgic radiotherapy', 'radiotherapy', 'brachytherapy', 'surgery'), 
-					__('antalgic radiotherapy').' & '.__('radiotherapy').' & '. __('brachytherapy').' & '. __('surgery')));
+					__('antalgic radiotherapy').' & '.__('radiotherapy').' & '. __('brachytherapy').' & '. __('surgery')),
+				'treatment_combination' => array(
+					'treatment combination', 
+					array('antalgic radiotherapy', 'radiotherapy', 'brachytherapy', 'chemotherapy', 'experimental treatment', 'hormonotherapy'), 
+					__('antalgic radiotherapy').' & '.__('radiotherapy').' & '. __('brachytherapy').' & '. __('chemotherapy').' & '. __('experimental treatment').' & '. __('hormonotherapy')));
 			foreach($field_controls as $fied => $fied_data) {;
 				list($field_label, $tx_types, $msg) = $fied_data;
 				if(array_key_exists($fied, $this->data['TreatmentDetail']) && $this->data['TreatmentDetail'][$fied]) {
