@@ -2357,12 +2357,43 @@ VALUES
 ('sent to chus','Sent To CHUS','Envoyé au CHUS',  '1', @control_id, NOW(), NOW(), 1, 1),
 ('received from chus','Received From CHUS','Recu du CHUS',  '1', @control_id, NOW(), NOW(), 1, 1);
 
--- TODO: Developp function to create path review data in batch: slides creation + results
--- TODO: Merge data of the processing site with cusm
--- TODO: Use IDC-O-3 Topo instead other lists.
+SELECT "Hidde value 'sent to {bank}' and 'received from {bank}' in the 'aliquot use and event types' cutsom list where {bank} is the name of the current {bank} you are migrating code" AS '### TODO ###';
 
+ALTER TABLE aliquot_review_masters ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+ALTER TABLE aliquot_review_masters_revs ADD COLUMN procure_created_by_bank CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewMaster', 'aliquot_review_masters', 'procure_created_by_bank', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_banks') , '0', '', '', '', 'created by bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_review_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='procure_created_by_bank' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created by bank' AND `language_tag`=''), '0', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+update aliquot_review_controls set aliquot_type_restriction = 'slide,block' WHERE review_type = 'procure tissue slide review';
+
+SELECT COUNT(*) AS '### TODO ### : Number of aliquot_review_masters records with procure_created_by_bank value to sert.' FROM aliquot_review_masters WHERE deleted <> 1 AND (procure_created_by_bank = '' OR procure_created_by_bank IS NULL);
+SELECT COUNT(*) AS '### TODO ### : Number of order_items records with procure_created_by_bank value to sert.' FROM order_items WHERE deleted <> 1 AND (procure_created_by_bank = '' OR procure_created_by_bank IS NULL);
+SELECT COUNT(*) AS '### TODO ### : Number of orders records with procure_created_by_bank value to sert.' FROM orders WHERE deleted <> 1 AND (procure_created_by_bank = '' OR procure_created_by_bank IS NULL);
+SELECT COUNT(*) AS '### TODO ### : Number of shipments records with procure_created_by_bank value to sert.' FROM shipments WHERE deleted <> 1 AND (procure_created_by_bank = '' OR procure_created_by_bank IS NULL);
+SELECT COUNT(*) AS '### TODO ### : Number of study_summaries records with procure_created_by_bank value to sert.' FROM study_summaries WHERE deleted <> 1 AND (procure_created_by_bank = '' OR procure_created_by_bank IS NULL);
+SELECT COUNT(*) AS '### TODO ### : Number of tma_slides records with procure_created_by_bank value to sert.' FROM tma_slides WHERE deleted <> 1 AND (procure_created_by_bank = '' OR procure_created_by_bank IS NULL);
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- TODO
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --
+-- -1- Path review batch entry
+--
+--   From an excel file, create a path review entry for many samples and many collections.
+--
+-- -2- Merge data of processing site and cusm
+--   
+--   Keep sample as processing site samples.
+--
+-- -3- Use ICD03 topo code for any value of tissue site
+--   
+--   See email sent to Valerie on 2017-02-24 with the list of values (ICD-O-3 Topo (International classification) && Clinical Exam - Sites (PROCURE Defintion)
+--     &&  Treatment Sites (PROCURE Defintion) && Other Tumor Site (PROCURE Defintion based on ICD-O-/ Topo))
+-- 
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6649' WHERE version_number = '2.6.8';
+UPDATE versions SET branch_build_number = '6659' WHERE version_number = '2.6.8';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;

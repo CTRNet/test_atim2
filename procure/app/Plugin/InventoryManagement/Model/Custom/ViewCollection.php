@@ -5,7 +5,7 @@ class ViewCollectionCustom extends ViewCollection {
 	var $name = 'ViewCollection';
 	
 	static $table_query = '
-		SELECT 
+		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -24,10 +24,10 @@ Participant.procure_participant_attribution_number,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.created AS created 
-		FROM collections AS Collection 
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
-		WHERE Collection.deleted <> 1 %%WHERE%%';
+		Collection.created AS created
+		FROM collections AS Collection
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+		WHERE Collection.deleted <> 1 %%WHERE%%';	
 	
 	function summary($variables=array()) {
 		$return = false;
