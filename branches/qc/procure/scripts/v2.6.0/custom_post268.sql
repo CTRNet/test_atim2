@@ -2418,6 +2418,12 @@ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id
 UPDATE datamart_browsing_controls 
 SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock');
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'Order') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
 
 UPDATE datamart_structure_functions, datamart_structures
 SET datamart_structure_functions.flag_active = 1
@@ -2469,6 +2475,6 @@ AND datamart_structure_functions.label = 'create tma slide';
 -- 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6660' WHERE version_number = '2.6.8';
+UPDATE versions SET branch_build_number = '6661' WHERE version_number = '2.6.8';
 UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
