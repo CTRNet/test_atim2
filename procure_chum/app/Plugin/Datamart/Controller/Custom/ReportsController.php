@@ -1448,58 +1448,6 @@ class ReportsControllerCustom extends ReportsController {
 		return substr($date, 0, $lengh);
 	}
 	
-	function procureCreateAliquotTransferFile($parameters) {
-		$header = null;
-		$conditions = array();
-		if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
-			//From databrowser
-			$aliquot_master_ids  = array_filter($parameters['ViewAliquot']['aliquot_master_id']);
-			if($aliquot_master_ids) $conditions['AliquotMaster.id'] = $aliquot_master_ids;
-		} else if(isset($parameters['AliquotMaster']['barcode'])) {
-			$aliquot_master_barcodes  = array_filter($parameters['AliquotMaster']['barcode']);
-			if($aliquot_master_barcodes) $conditions['AliquotMaster.barcode'] = $aliquot_master_barcodes;
-		} else {		
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-	
-		$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-		$aliquot_control_model = AppModel::getInstance("InventoryManagement", "AliquotControl", true);
-		
-		$tmp_res_count = $aliquot_master_model->find('count', array('conditions' => $conditions));
-		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
-			return array(
-				'header' => null,
-				'data' => null,
-				'columns_names' => null,
-				'error_msg' => 'the report contains too many results - please redefine search criteria');
-		}
-		
-		$data = array();
-		$not_in_stock_aliquot_counter = 0;
-		foreach($aliquot_master_model->find('all', array('conditions' => $conditions, 'recursive' => '0')) as $new_aliquot) {
-			if($new_aliquot['AliquotMaster']['in_stock'] == 'no') $not_in_stock_aliquot_counter++;
-			$control_ids_sequence = $aliquot_control_model->getSampleAliquotCtrlIdsSequence($new_aliquot);
-			$data[] = array(
-				'ViewAliquot' => array(
-					'collection_id' => $new_aliquot['AliquotMaster']['collection_id'],
-					'sample_master_id' => $new_aliquot['AliquotMaster']['sample_master_id'],
-					'aliquot_master_id' => $new_aliquot['AliquotMaster']['id']),
-				'AliquotMaster' => array('barcode' => $new_aliquot['AliquotMaster']['barcode'], 'aliquot_label' => $new_aliquot['AliquotMaster']['aliquot_label'], 'storage_coord_x' => $new_aliquot['AliquotMaster']['storage_coord_x'], 'storage_coord_y' => $new_aliquot['AliquotMaster']['storage_coord_y']),
-				'AliquotDetail' => array('concentration' => isset($new_aliquot['AliquotDetail']['concentration'])? $new_aliquot['AliquotDetail']['concentration'] : '', 'concentration_unit' => isset($new_aliquot['AliquotDetail']['concentration_unit'])? $new_aliquot['AliquotDetail']['concentration_unit'] : ''),
-				'StorageMaster' => array('short_label' => $new_aliquot['StorageMaster']['short_label']),
-				'FunctionManagement' => array('procure_transferred_aliquots_description' => $control_ids_sequence),
-				'Generated' => array('procure_sample_aliquot_ctrl_ids_sequence' => $control_ids_sequence));
-		}
-		
-		if($not_in_stock_aliquot_counter) AppController::addWarningMsg(str_replace('%s', $not_in_stock_aliquot_counter,__('you are going to transfer %s aliquots flagged as not in stock'))); 
-		
-		return array(
-				'header' => $header,
-				'data' => $data,
-				'columns_names' => null,
-				'error_msg' => null);
-	}
-	
 	function procureGetListOfBarcodeErrors($parameters) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
