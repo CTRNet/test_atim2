@@ -4,8 +4,11 @@ class ViewCollectionCustom extends ViewCollection {
 	
 	var $name = 'ViewCollection';
 	
+//*** PROCURE CHUM **************************************************************************	
+// Added qc_nd_no_labo
+
 	static $table_query = '
-		SELECT 
+		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -26,10 +29,10 @@ Participant.procure_participant_attribution_number,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 MiscIdentifier.identifier_value AS qc_nd_no_labo 
-		FROM collections AS Collection 
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
+		FROM collections AS Collection
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-		WHERE Collection.deleted <> 1 %%WHERE%%';
+		WHERE Collection.deleted <> 1 %%WHERE%%';	
 	
 	function summary($variables=array()) {
 		$return = false;
@@ -61,6 +64,12 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 				if($aliquot_count) {
 					AppController::addWarningMsg(__('at least one aliquot procure identification does not match the collection visit'));
 				}
+			}
+			//Check Aliquot Barcode
+			$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+			$aliquot_count = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_data['ViewCollection']['collection_id'], "AliquotMaster.barcode NOT LIKE '% ".$collection_data['ViewCollection']['procure_visit']." -%'"), 'recursive' => '-1'));
+			if($aliquot_count) {
+				AppController::addWarningMsg(__('at least one aliquot procure identification does not match the collection visit'));
 			}
 		}
 		
