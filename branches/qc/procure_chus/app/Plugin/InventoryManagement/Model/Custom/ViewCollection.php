@@ -4,8 +4,11 @@ class ViewCollectionCustom extends ViewCollection {
 	
 	var $name = 'ViewCollection';
 	
+	// PROCURE CHUS
+	//   Added procure_chus_collection_specimen_sample_control_id to view
+	
 	static $table_query = '
-		SELECT 
+		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -27,10 +30,10 @@ Participant.procure_participant_attribution_number,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.created AS created 
-		FROM collections AS Collection 
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
-		WHERE Collection.deleted <> 1 %%WHERE%%';
+		Collection.created AS created
+		FROM collections AS Collection
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+		WHERE Collection.deleted <> 1 %%WHERE%%';	
 	
 	function summary($variables=array()) {
 		$return = false;
@@ -62,6 +65,12 @@ Participant.procure_participant_attribution_number,
 				if($aliquot_count) {
 					AppController::addWarningMsg(__('at least one aliquot procure identification does not match the collection visit'));
 				}
+			}
+			//Check Aliquot Barcode
+			$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+			$aliquot_count = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_data['ViewCollection']['collection_id'], "AliquotMaster.barcode NOT LIKE '% ".$collection_data['ViewCollection']['procure_visit']." -%'"), 'recursive' => '-1'));
+			if($aliquot_count) {
+				AppController::addWarningMsg(__('at least one aliquot procure identification does not match the collection visit'));
 			}
 		}
 		

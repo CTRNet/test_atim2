@@ -504,9 +504,13 @@ Configure::write('order_item_to_order_objetcs_link_setting', 3);		// SampleMaste
  * 		2 => aliquot only
  * 		3 => tma slide only
  */
-Configure::write('order_item_type_config', 2);
+Configure::write('order_item_type_config', 1);
 
 unset($debug);
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// PROCURE
+//--------------------------------------------------------------------------------------------------------------------------------------------
 
 /**
  * PROCURE Bank ID: Part of the identifier PS[1-5]P0
@@ -520,12 +524,10 @@ Configure::write('procure_bank_id', '4');
  * 	Custom core variable defining the type of ATiM custom version installed.
  * 	Allowed value:
  *    - BANK: ATiM version installed in each procure bank that followed participants plus collect then store samples.
- *    - PROCESSING: ATiM version installed in the PROCURE laboratory that receive samples from banks for DNA/RNA analysis,
+ *    - PROCESSING: ATiM version installed in the PROCURE laboratory that received samples from banks for DNA/RNA analysis,
  *      path review, shipping to research groups, etc.
  *    - CENTRAL: ATiM version that gathering all the data of ATiM install to help the head office in the project management. 
  */
-//Configure::write('procure_atim_version', 'BANK');
-//Configure::write('procure_atim_version', 'PROCESSING');
 Configure::write('procure_atim_version', 'BANK');
 
 Configure::write('procure_banks_data_merge_output_file', 'atim_merge_process_summary.htm');
