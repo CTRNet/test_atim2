@@ -1,5 +1,10 @@
 <?php
 
+//=================================================================================================================
+// CLINICAL DATA UPDATE SCRIPT
+//		Both fro active surveillance and radical prostatectomy project
+//=================================================================================================================
+
 //First Line of any main.php file
 require_once 'system.php';
 
@@ -44,7 +49,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 		if(isset($excel_line_data['Bank'])) {
 			if($file_bank_name && $file_bank_name != $excel_line_data['Bank']) die("ERR_MANY_BANKS : $excel_file_name - [$file_bank_name] != [".$excel_line_data['Bank']."] at line $line_number");
 			$file_bank_name = $excel_line_data['Bank'];
-			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
+			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number / file '$excel_file_name''";
 			$atim_patient_data = getSelectQueryResult("SELECT p.* FROM participants p INNER JOIN banks b ON b.id = p.qc_tf_bank_id WHERE b.name = '".$excel_line_data['Bank']."' AND p.qc_tf_bank_participant_identifier = '".$excel_line_data['Patient # in biobank']."' AND p.deleted <>1;");
 			if(!empty($atim_patient_data)) {
 				$atim_patient_data = $atim_patient_data[0];
@@ -125,7 +130,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 	}
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
 		if(isset($excel_line_data['Patient # in biobank'])) {
-			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
+			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number' / file '$excel_file_name'";
 			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']])) {				
 				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']];
 				if(isset($atim_prostate_primary_diagnosis_data[$atim_participant_id])) {
@@ -279,7 +284,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 	}
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
 		if(isset($excel_line_data['Patient # in biobank'])) {
-			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
+			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number' / file '$excel_file_name'";
 			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']])) {				
 				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']];
 				if(isset($atim_prostate_primary_diagnosis_data[$atim_participant_id])) {
@@ -373,7 +378,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 									break;
 								case 'yes':
 									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The $excel_field value not supported", "See value [".$excel_line_data[$excel_field]."]. Treatment won't be parsed. $summary_details_add_in");
-									$excel_line_data[$excel_field] == '';
+									$excel_line_data[$excel_field] = '';
 									break;
 							}
 						}
@@ -515,7 +520,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 	
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
 		if(isset($excel_line_data['Patient # in Biobank Number (required)'])) {
-			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in Biobank Number (required)']."' / bank '$file_bank_name' / line '$line_number'";
+			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in Biobank Number (required)']."' / bank '$file_bank_name' / line '$line_number' / file '$excel_file_name'";
 			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in Biobank Number (required)']])) {
 				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in Biobank Number (required)']];
 				$excel_diagnosis_data = array();
@@ -523,7 +528,7 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 				list($excel_diagnosis_data['dx_date'], $excel_diagnosis_data['dx_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				$excel_diagnosis_data['dx_date_accuracy'] = updateWithExcelAccuracy($excel_diagnosis_data['dx_date_accuracy'], $excel_line_data["Date of diagnostics Accuracy"]);
 				$excel_field = "cancer type";
-				$excel_diagnosis_data['type'] = validateAndGetStructureDomainValue(str_replace('non - hodgkin', 'non-hodgkin', strtolower(str_replace('-',' - ', $excel_line_data[$excel_field]))), 'qc_tf_radiotherapy_type', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_diagnosis_data['type'] = validateAndGetStructureDomainValue(str_replace('non - hodgkin', 'non-hodgkin', strtolower(str_replace('-',' - ', $excel_line_data[$excel_field]))), 'ctrnet_submission_disease_site', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 				if($excel_diagnosis_data['type'] == 'prostate') die("ERR_PROSTATE_OTHER_DIAGNOSIS: ".$summary_details_add_in);
 				if($excel_diagnosis_data['type'] || $excel_diagnosis_data['dx_date']) {
 					if($excel_diagnosis_data['type'] == 'other - primary unknown') {
