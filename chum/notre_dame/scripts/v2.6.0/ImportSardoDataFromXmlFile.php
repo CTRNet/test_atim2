@@ -11,7 +11,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "tmpicmtest";
+$db_schema		= "chumonco";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -155,7 +155,7 @@ while( $reader->read() ) {
 	} else if ($reader->nodeType == XMLReader::END_ELEMENT) {
 		if($element_level == 2 && in_array($reader->localName, $data_types)) {	
 			$insert_record = true;
-			if($data['type'] == 'Labo' && isset($data['values']['NomLabo']) && !in_array($data['values']['NomLabo'], array('APS pré-op', 'APS', 'CA-125'))) {
+			if($data['type'] == 'Labo' && isset($data['values']['NomLabo']) && !in_array($data['values']['NomLabo'], array('APS pré-op', 'APS', 'CA-125', 'SCC'))) {
 				$insert_record = false;
 			}
 			if($insert_record) {
@@ -209,7 +209,7 @@ foreach($constraint_check_queries as $data_type => $query) {
 foreach($missing_rec_numbers_messages as $data_type => $messages_and_numbers) 
 	foreach($messages_and_numbers as $message => $rec_numbers) 
 		$import_summary[$data_type]['ERROR'][$message][$message] = "See RecNumbers : ".implode(', ', $rec_numbers);
-$sql_sardo_tables_creations = array(
+$sql_sardo_tables_updates = array(
 	"DELETE FROM sardo_diagnostic WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_patient)",
 	"ALTER TABLE sardo_diagnostic
 		ADD CONSTRAINT sardo_diagnostic_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_patient(RecNumber);",
@@ -225,7 +225,7 @@ $sql_sardo_tables_creations = array(
 	"DELETE FROM sardo_labo WHERE ParentRecNumber NOT IN (SELECT RecNumber FROM sardo_diagnostic)",
 	"ALTER TABLE sardo_labo
 	 	ADD CONSTRAINT sardo_labo_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);");
-foreach($sql_sardo_tables_creations as $new_query) customQuery($new_query, __LINE__);
+foreach($sql_sardo_tables_updates as $new_query) customQuery($new_query, __LINE__);
 
 //==============================================================================================
 // Table Clean Up & controls data record
@@ -403,20 +403,20 @@ function manageSardoNewPatient($sardo_patient_data) {
 			AND mi.identifier_value IN ($no_labos_string) AND mi.deleted <> 1;";
 		$query_res = customQuery($query, __LINE__);
 		if($query_res->num_rows == 0) {
-			$import_summary['Diagnosis']['ERROR']["SARDO patient(s) not linked to ATiM patients - Patient SARDO data won't be migrated"][] = "See NoLabos : $no_labos_string";
+			$import_summary['Diagnosis']['ERROR']["SARDO patient(s) not linked to ATiM patients - Patient SARDO data won't be migrated"][] = "See NoLabos : ".formatNoLabosForSummary($no_labos_string);
 		} else if($query_res->num_rows != sizeof($sardo_patient_data['no_labos'])) {
-			$import_summary['Diagnosis']['ERROR']["SARDO diagnosis NoLabo does not exist into ATiM (at least one) - Patient SARDO data won't be migrated"][] = "See NoLabos : $no_labos_string";
+			$import_summary['Diagnosis']['ERROR']["SARDO diagnosis NoLabo does not exist into ATiM (at least one) - Patient SARDO data won't be migrated"][] = "See NoLabos : ".formatNoLabosForSummary($no_labos_string);
 		} else {
 			$participant_ids = array();
 			while($res = mysqli_fetch_assoc($query_res)) {
 				$participant_ids[$res['participant_id']] = $res['participant_id'];
 			}			
 			if(sizeof($participant_ids) != 1) {
-				$import_summary['Diagnosis']['ERROR']["SARDO patient(s) linked to more than one ATiM patients - Patient SARDO data won't be migrated"][] = "See NoLabos : $no_labos_string";
+				$import_summary['Diagnosis']['ERROR']["SARDO patient(s) linked to more than one ATiM patients - Patient SARDO data won't be migrated"][] = "See NoLabos : ".formatNoLabosForSummary($no_labos_string);
 			} else {
 				$pariticpant_id = array_shift($participant_ids);
 				if(isset($participant_ids_already_synchronized[$pariticpant_id])) {
-					$import_summary['Diagnosis']['ERROR']["ATiM patient(s) linked to more than one SARDO patients - Part of patient SARDO data won't be migrated"][] = "See NoLabos: $no_labos_string, ".$participant_ids_already_synchronized[$pariticpant_id];
+					$import_summary['Diagnosis']['ERROR']["ATiM patient(s) linked to more than one SARDO patients - Part of patient SARDO data won't be migrated"][] = "See NoLabos: ".formatNoLabosForSummary($no_labos_string).", ".formatNoLabosForSummary($participant_ids_already_synchronized[$pariticpant_id]);
 				} else {
 					$participant_ids_already_synchronized[$pariticpant_id] = $no_labos_string;
 					if(updatePatientData($pariticpant_id, $sardo_patient_data, $no_labos_string)) {
@@ -533,7 +533,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 				$atim_patient_data_creation_update_summary[] = "Recorded $misc_identifier_control_name $hospital_nbr";
 			}
 		} else {
-			$import_summary['Patient']['WARNING']["Wrong SARDO hopsital number format"][] = "See [$hospital_nbr] for patient with NoLabo(s) : $no_labos_string";
+			$import_summary['Patient']['WARNING']["Wrong SARDO hopsital number format"][] = "See [$hospital_nbr] for patient with NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 		}		
 	}
 	
@@ -625,7 +625,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			} else if($atim_patient_data['vital_status'] == 'alive') {
 				$audited_atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
 				$atim_patient_data_creation_update_summary[] = "Changed vital_status from 'alive' to '$sardo_vital_status'";
-				$import_summary['Patient']['WARNING']["Vital status changed from 'alive' to 'deceased'"][] = "See NoLabo(s) : $no_labos_string";
+				$import_summary['Patient']['WARNING']["Vital status changed from 'alive' to 'deceased'"][] = "See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 			} else  if($sardo_vital_status != $atim_patient_data['vital_status']) {
 				$non_audited_sardo_patient_data_to_create['qc_nd_sardo_diff_vital_status'] = 'y';
 				//Not sure this case can exist.... :-)
@@ -701,9 +701,11 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		$atim_patient_data_to_update = array_merge($audited_atim_patient_data_to_update, $non_audited_sardo_patient_data_to_create);
 		if($audited_atim_patient_data_to_update) {
 			// To force record in participants_revs table
-			$atim_patient_data_to_update = array(
-				'modified' => $import_date,
-				'modified_by' => $import_by);
+			$atim_patient_data_to_update = array_merge(
+				$atim_patient_data_to_update, 
+				array(
+					'modified' => $import_date,
+					'modified_by' => $import_by));
 		}
 		if($atim_patient_data_to_update) {
 			$query = "UPDATE participants SET ";
@@ -720,12 +722,12 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		foreach($atim_patient_identifiers_to_create as $new_ids) customInsert($new_ids, 'misc_identifiers', __LINE__, false, true);
 		
 		// Add patient creation/update summary
-		if($atim_patient_data_creation_update_summary) $import_summary['Patient']['MESSAGE']["Profile & Reproductive History Creation/Update summary"][] = "NoLabo(s) ".str_replace(array("'", ','), array('',' & '), $no_labos_string)." : ".implode(' | ',$atim_patient_data_creation_update_summary);
+		if($atim_patient_data_creation_update_summary) $import_summary['Patient']['MESSAGE']["Profile & Reproductive History Creation/Update summary"][] = "NoLabo(s) ".formatNoLabosForSummary($no_labos_string)." : ".implode(' | ',$atim_patient_data_creation_update_summary);
 		
 		return true;
 
 	} else {
-		$import_summary['Patient']['WARNING']["Patient selection can not be validated based on identifiers (RAMQ, hospital Nbr) or names - No SARDO data will be imported"][] = "See NoLabo(s) : $no_labos_string";
+		$import_summary['Patient']['WARNING']["Patient selection can not be validated based on identifiers (RAMQ, hospital Nbr) or names - No SARDO data will be imported"][] = "See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 		return false;
 	}
 }
@@ -762,11 +764,18 @@ function finalizePatientUpdate($db_schema) {
 	customQuery($query, __LINE__);
 	
 	// Tracks patients matching SARDO patient in th epast but matching no sardo patient anymore
-	$query = "SELECT id, participant_identifier FROM participants WHERE deleted <> 1 AND (qc_nd_sardo_rec_number IS NOT NULL AND qc_nd_sardo_rec_number NOT LIKE '') AND qc_nd_sardo_last_import IS NULL;";
+	$query = "SELECT Participant.id, Participant.participant_identifier, GROUP_CONCAT(DISTINCT identifier_value  ORDER BY identifier_value DESC SEPARATOR ',') AS no_labos
+		FROM participants Participant
+		LEFT JOIN misc_identifiers MiscIdentifier ON Participant.id = MiscIdentifier.participant_id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id IN (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name LIKE '% bank no lab')
+		WHERE Participant.deleted <> 1
+		AND (Participant.qc_nd_sardo_rec_number IS NOT NULL AND Participant.qc_nd_sardo_rec_number NOT LIKE '')
+		AND Participant.qc_nd_sardo_last_import IS NULL
+		GROUP BY Participant.id";
 	$participant_ids_to_clean_up = array();
 	$query_res = customQuery($query, __LINE__);
 	while($res =  mysqli_fetch_assoc($query_res)) {
-		$import_summary['Patient']['WARNING']['ATiM patient (previously synchronized) not synchronized anymore'][] = "See patient with 'Participant System Code' : ".$res['participant_identifier'];
+		$no_labos_string = strlen($res['no_labos'])? "'".str_replace(",", "','",$res['no_labos'])."'" : "";
+		$import_summary['Patient']['WARNING']['ATiM patient (previously synchronized) not synchronized anymore'][] = "See patient with : 'Participant System Code' ".$res['participant_identifier']." / 'NoLabo(s)' : ".formatNoLabosForSummary($no_labos_string);
 		$participant_ids_to_clean_up[] = $res['id'];
 	}
 	if($participant_ids_to_clean_up) {
@@ -926,13 +935,13 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 				if(array_key_exists($sardo_gleason_data['sardo_traitement_RecNumber'], $sardo_treatment_rec_number_to_gleason)) {
 					list($recorded_gleason_sum, $recorded_gleason_grade) = $sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']];
 					if($recorded_gleason_sum != $gleason_sum || $recorded_gleason_grade != $gleason_grade) {
-						$import_summary['Report']['WARNING']["More than one gleason linked to the same ".$sardo_gleason_data['TypeTX']][] = "See NoLabo(s) { $no_labos_string } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
+						$import_summary['Report']['WARNING']["More than one gleason linked to the same ".$sardo_gleason_data['TypeTX']][] = "See NoLabo(s) { ".formatNoLabosForSummary($no_labos_string)." } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
 					}
 				} else {
 					$sardo_treatment_rec_number_to_gleason[$sardo_gleason_data['sardo_traitement_RecNumber']] = array($gleason_sum, $gleason_grade);
 				}
 			} else {
-				$import_summary['Report']['ERROR']["Wrong SARDO gleason format "][] = "See ".$sardo_gleason_data['TypeTX']." of NoLabo(s) { $no_labos_string } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
+				$import_summary['Report']['ERROR']["Wrong SARDO gleason format "][] = "See ".$sardo_gleason_data['TypeTX']." of NoLabo(s) { ".formatNoLabosForSummary($no_labos_string)." } and treatment RecNumber ".$sardo_gleason_data['sardo_traitement_RecNumber'].".";
 			}
 		}
 		//Work on treatment
@@ -946,9 +955,9 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 			$start_date_accuracy = null;
 			if(!isset($treatment_controls[$tx_method])) {
 				if($trt_type) {
-					$import_summary['Treatment']['ERROR']["SARDO treatment [$trt_type] is unknow"][] = "See NoLabo(s) : $no_labos_string";
+					$import_summary['Treatment']['ERROR']["SARDO treatment [$trt_type] is unknow"][] = "See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 				} else {
-					$import_summary['Treatment']['ERROR']["At least one SARDO treatment type is not defined"][] = "See NoLabo(s) : $no_labos_string";
+					$import_summary['Treatment']['ERROR']["At least one SARDO treatment type is not defined"][] = "See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 				}
 			} else {
 				//Create treatment data set
@@ -1112,7 +1121,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 						break;
 				}
 				if(!$sardo_formated_date) {
-					$import_summary['Labo']['WARNING']["At least one SARDO $atim_test date is not defined. $atim_test has not been studied"][] = "$atim_test = ".$sardo_labo_data['Resultat'].".See NoLabo(s) : $no_labos_string";
+					$import_summary['Labo']['WARNING']["At least one SARDO $atim_test date is not defined. $atim_test has not been studied"][] = "$atim_test = ".$sardo_labo_data['Resultat'].".See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 				} else {
 					if($sardo_labo_data['Resultat'] == '-99') $sardo_labo_data['Resultat'] = '';
 					if($atim_test == 'ca125') $sardo_labo_data['Resultat'] = round($sardo_labo_data['Resultat']);
@@ -1192,7 +1201,7 @@ function linkCollectionToSardoTreatment($db_schema) {
 		WHERE RES2.nbr_of_treatments > 1;";
 	$query_res = customQuery($query, __LINE__);
 	while($res = mysqli_fetch_assoc($query_res))
-		$import_summary['Collection']['WARNING']["Collection cannot be linked to more than one SARDO treatments - Only one treatment will be linked to the collection"][] = "See collection on ".$res['collection_datetime']." for the participant '".$res['identifier_value']."' (NoLabo of bank ".$res['bank_name'].").";
+		$import_summary['Collection']['WARNING']["Collection cannot be linked to more than one SARDO treatments - Only one treatment will be linked to the collection"][] = "See collection on ".$res['collection_datetime']." for the participant ".formatNoLabosForSummary($res['identifier_value'])." (NoLabo of bank ".$res['bank_name'].").";
 	//Set collections.treatment_master_id
 	customQuery("UPDATE collections SET treatment_master_id = null;", __LINE__);
 	customQuery("UPDATE collections_revs SET treatment_master_id = null;", __LINE__);	//Value can be set if user updated a collection already linked to a treatment
@@ -1339,6 +1348,12 @@ function customInsert($data, $table_name, $line, $is_detail_table = false, $inse
 	return $record_id;
 }
 
+function formatNoLabosForSummary($no_labos_string) {
+	if($no_labos_string) {
+		return "NoLabo#".str_replace(array("'",","), array("", "#, NoLabo#"), $no_labos_string)."#";
+	}
+	return $no_labos_string;
+}
 function recordImportSummary() {
 	global $import_summary;
 	
