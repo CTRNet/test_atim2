@@ -26,17 +26,7 @@ class DrugCustom extends Drug {
 				if(!isset($drug_data['Drug']['generic_name'])) {
 					$drug_data = $this->find('first', array('conditions' => array('Drug.id' => ($drug_data['Drug']['id']))));
 				}
-				
-				if(!self::$drug_types) {
-					App::uses('StructureValueDomain', 'Model');
-					$StructureValueDomain = new StructureValueDomain();
-					$types = $StructureValueDomain->find('first', array('conditions' => array('domain_name' => 'procure_drug_type'), 'recursive' => '2'));
-					foreach($types['StructurePermissibleValue'] as $new_type) {
-						if($new_type['flag_active']) {
-							self::$drug_types[$new_type['value']] = __($new_type['language_alias']);
-						}
-					}
-				}
+				$this->SetDrugTypes();
 				$type = array_key_exists($drug_data['Drug']['type'] , self::$drug_types)? self::$drug_types[$drug_data['Drug']['type']] : $drug_data['Drug']['type'];
 				$this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']] = $drug_data['Drug']['generic_name'] . " [$type - ". $drug_data['Drug']['id'] . ']';
 			}
@@ -62,12 +52,13 @@ class DrugCustom extends Drug {
 		if(!isset($this->drug_titles_already_checked[$drug_data_and_code])) {
 			$matches = array();
 			$selected_drugs = array();
-			if(preg_match("/(.+)\[[A-Za-z\ ]+\ \-\ ([0-9]+)\]$/", $drug_data_and_code, $matches) > 0){
+			$this->SetDrugTypes();
+			if(preg_match("/(.+)\[((".implode(')|(', self::$drug_types)."))\ \-\ ([0-9]+)\]$/", $drug_data_and_code, $matches) > 0){
 				if(preg_match("/(.+)(\(.+\))$/", trim($matches[1]), $matches_2) > 0){
 					$matches[1] = $matches_2[1];
 				}
 				// Auto complete tool has been used
-				$selected_drugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".trim($matches[1])."%'", 'Drug.id' => $matches[2])));
+				$selected_drugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".trim($matches[1])."%'", 'Drug.id' => $matches[9])));
 			} else {
 				// consider $drug_data_and_code contains just drug title
 				$term = str_replace('_', '\_', str_replace('%', '\%', $drug_data_and_code));
@@ -85,6 +76,19 @@ class DrugCustom extends Drug {
 			}
 		}
 		return $this->drug_titles_already_checked[$drug_data_and_code];
+	}
+	
+	function SetDrugTypes() {
+		if(!self::$drug_types) {
+			App::uses('StructureValueDomain', 'Model');
+			$StructureValueDomain = new StructureValueDomain();
+			$types = $StructureValueDomain->find('first', array('conditions' => array('domain_name' => 'procure_drug_type'), 'recursive' => '2'));
+			foreach($types['StructurePermissibleValue'] as $new_type) {
+				if($new_type['flag_active']) {
+					self::$drug_types[$new_type['value']] = __($new_type['language_alias']);
+				}
+			}
+		}
 	}
 	
 	function allowDeletion($drug_id){
