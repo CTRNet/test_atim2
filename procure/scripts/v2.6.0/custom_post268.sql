@@ -2456,6 +2456,18 @@ WHERE datamart_structure_id = datamart_structures.id
 AND datamart_structures.model IN ('TmaBlock')
 AND datamart_structure_functions.label = 'create tma slide';
 
+UPDATE versions SET branch_build_number = '6661' WHERE version_number = '2.6.8';
+UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-03-13
+-- Fixed bug on drug type and treatment type check
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE drugs SET type = CONCAT(type, ' medication') WHERE type in ('other diseases');
+UPDATE versions SET branch_build_number = '6666' WHERE version_number = '2.6.8';
+
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2475,6 +2487,4 @@ AND datamart_structure_functions.label = 'create tma slide';
 -- 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6661' WHERE version_number = '2.6.8';
-UPDATE versions SET site_branch_build_number = '?' WHERE version_number = '2.6.8';
-UPDATE versions SET permissions_regenerated = 0;
+
