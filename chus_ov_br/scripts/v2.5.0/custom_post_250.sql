@@ -113,6 +113,8 @@ ALTER TABLE chus_dxd_ovaries
 	MODIFY diagnosis_master_id INT NOT NULL,
 	DROP COLUMN id, 
 	DROP COLUMN deleted;
+
+SET FOREIGN_KEY_CHECKS=0;
 		
 ALTER TABLE chus_ed_clinical_ctscans 
 	MODIFY event_master_id INT NOT NULL,
@@ -180,6 +182,8 @@ ALTER TABLE `storage_masters`
 ALTER TABLE `storage_masters_revs` 
 	MODIFY `short_label` varchar(25) DEFAULT NULL,
 	MODIFY `selection_label` varchar(100) DEFAULT '';
+
+SET FOREIGN_KEY_CHECKS=1;
 	
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'dx_nature_precision', 'input',  NULL , '0', 'size=30', '', '', '', 'dx nature precision');
