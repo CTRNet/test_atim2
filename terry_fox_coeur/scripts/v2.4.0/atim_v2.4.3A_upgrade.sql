@@ -23,11 +23,13 @@ ALTER TABLE reproductive_histories
 ALTER TABLE reproductive_histories_revs
  MODIFY hrt_years_used FLOAT UNSIGNED DEFAULT NULL,
  MODIFY years_on_hormonal_contraceptives FLOAT UNSIGNED DEFAULT NULL;
- 
+
+SET FOREIGN_KEY_CHECKS=0;
 ALTER TABLE family_histories
  MODIFY participant_id INT NOT NULL;
 ALTER TABLE family_histories_revs
  MODIFY participant_id INT NOT NULL;
+SET FOREIGN_KEY_CHECKS=1;
 
 ALTER TABLE coding_icd_o_3_morphology
  ADD COLUMN source VARCHAR(20) NOT NULL DEFAULT '';

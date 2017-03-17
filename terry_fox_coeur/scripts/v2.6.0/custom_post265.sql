@@ -1,3 +1,5 @@
+SELECT 'Change permissions to read-only for the clinical module' AS '### TODO ###';
+
 -- --------------------------------------------------------------------------------------------------------
 -- SPENT TIME FIELDS REVIEW
 -- --------------------------------------------------------------------------------------------------------
@@ -41,7 +43,7 @@ ALTER TABLE qc_tf_ed_ct_scans ADD CONSTRAINT FK_qc_tf_ed_ct_scans_event_masters 
 ALTER TABLE qc_tf_ed_no_details MODIFY event_master_id int(11) NOT NULL;
 ALTER TABLE qc_tf_ed_no_details ADD CONSTRAINT FK_qc_tf_ed_no_details_event_masters FOREIGN KEY (event_master_id) REFERENCES event_masters (id);
 
-ALTER TABLE qc_tf_tx_empty DROP COLUMN deleted;
+DROP TABLE tmp_bogus_primary_dx;
 
 -- --------------------------------------------------------------------------------------------------------
 -- Report and batch actions
@@ -86,73 +88,3 @@ UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0' WHERE structure
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='rec_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0', `flag_search`='0'  WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` LIKE '%_to_%_spent_time_msg');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-tester samples
-regarder si on fait qq chose dans historique
-
-
-
-
-
-
-TODO: Test on profiled date accuracies
-----------------------------------------------------------------------------------------------------------------
-Please review participant profile dates accuracies for participants listed below (nothing to do if section below empty)
-Test is based to the issue #3026
-Please add reviewed fields if custom dates have been created in participant table
-----------------------------------------------------------------------------------------------------------------
-participant_id	participant_identifier	studied_field	date	date_accuracy	date_accuracy_in_revs
-42	42	date_of_death	2011-08-01	c	d
-END: Test on profiled date accuracies
-
-
-
-
-### MESSAGE ###
-Application Change: Added new code to create treatment in batch. To use this functionality, please review all of your treatment creation processes (including both structures and hooks call) and change trreatment_controls data.
-### MESSAGE ###
-Application Change: Added new code to display details of treatments in index form : Please review all of structures of your treatments, hooks and change control data if required
-
-
-
-revoir historique
-
