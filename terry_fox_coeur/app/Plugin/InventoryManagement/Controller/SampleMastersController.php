@@ -28,9 +28,9 @@ class SampleMastersController extends InventoryManagementAppController {
 		'ExternalLink');
 	
 	var $paginate = array(
-		'SampleMaster' => array('limit' => pagination_amount, 'order' => 'SampleMaster.sample_code DESC'),
-		'ViewSample' => array('limit' =>pagination_amount , 'order' => 'ViewSample.sample_code DESC'), 
-		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
+		'SampleMaster' => array('order' => 'SampleMaster.sample_code DESC'),
+		'ViewSample' => array('order' => 'ViewSample.sample_code DESC'), 
+		'AliquotMaster' => array('order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
@@ -94,7 +94,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			//aliquots that are not realiquots
 			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 			$aliquot_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
-			$aliquot_ids = array_diff($aliquot_ids, $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids), 'group' => array("Realiquoting.child_aliquot_master_id"))));
+			$aliquot_ids = array_diff($aliquot_ids, array_unique(array_filter($this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids))))));
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
 			
 			$aliquot_ids[] = 0;//counters Eventum 1353
@@ -106,7 +106,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			}
 			$this->request->data = array_merge($aliquots, $this->request->data);
 		}
-
+		
 		// Set menu variables
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
 		
@@ -662,12 +662,16 @@ class SampleMastersController extends InventoryManagementAppController {
 					if($is_specimen){
 						// SpecimenDetail
 						$this->SpecimenDetail->id = $sample_master_id;
+						$this->request->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
+						$this->SpecimenDetail->addWritableField(array('sample_master_id'));
 						if(!$this->SpecimenDetail->save($this->request->data['SpecimenDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 					} else {
 						// DerivativeDetail
 						$this->DerivativeDetail->id = $sample_master_id;
+						$this->request->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
+						$this->DerivativeDetail->addWritableField(array('sample_master_id'));
 						if(!$this->DerivativeDetail->save($this->request->data['DerivativeDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
@@ -989,6 +993,8 @@ class SampleMastersController extends InventoryManagementAppController {
 			)
 		);
 		
+		$display_batch_process_aliq_storage_and_in_stock_details = false;
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
@@ -1015,7 +1021,10 @@ class SampleMastersController extends InventoryManagementAppController {
 				foreach($aliquots as $aliquot){
 					$this->request->data[] = array('parent' => $aliquot, 'children' => array());
 					$parent_sample_data_for_display[] = $aliquot;	
-				}			
+				}
+				
+				$display_batch_process_aliq_storage_and_in_stock_details = sizeof($this->request->data) > 1;
+				
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
 				if(sizeof($samples) > $display_limit) {
@@ -1040,11 +1049,20 @@ class SampleMastersController extends InventoryManagementAppController {
 				
 			// 2- VALIDATE PROCESS
 			
+			// Parse First Section To Apply To All
+			list($used_aliquot_data_to_apply_to_all, $errors_on_first_section_to_apply_to_all) = $this->AliquotMaster->getAliquotDataStorageAndStockToApplyToAll($this->request->data);
+			
+			unset($this->request->data['FunctionManagement']);
+			unset($this->request->data['AliquotMaster']);
 			unset($this->request->data['SampleMaster']);
 			
-			$errors = array();
 			$prev_data = $this->request->data;
+			if(empty($prev_data)) {
+				$this->flash(__("at least one data has to be created"), "javascript:history.back();", 5);
+				return;
+			}
 			$this->request->data = array();
+			$errors = $errors_on_first_section_to_apply_to_all;
 			$record_counter = 0;
 			$aliquots_data = array();
 			$validation_iterations = array('SampleMaster', 'DerivativeDetail', 'SourceAliquot');
@@ -1054,6 +1072,8 @@ class SampleMastersController extends InventoryManagementAppController {
 				$parent = null;
 				$record_counter++;
 				if(isset($children['AliquotMaster'])){
+					if($used_aliquot_data_to_apply_to_all) $children = array_replace_recursive($children, $used_aliquot_data_to_apply_to_all);
+					
 					$set_source_aliquot = true;					
 					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 					$parent = $this->AliquotMaster->find('first', array(
@@ -1127,6 +1147,11 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data_for_display));
 			
 			$this->SourceAliquot->validationErrors = null;
+
+			$display_batch_process_aliq_storage_and_in_stock_details = sizeof($aliquots_data) > 1;
+			if($used_aliquot_data_to_apply_to_all) {
+				AppController::addWarningMsg(__('fields values of the first section have been applied to all other sections'));
+			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -1155,6 +1180,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					foreach($children as &$child_to_save){
 						// save sample master
 						$this->SampleMaster->id = null;
+						$this->SampleMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						if(!$this->SampleMaster->save($child_to_save, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 							
@@ -1166,6 +1192,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						$this->SampleMaster->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
 
 						// Save derivative detail
+						$this->DerivativeDetail->data = array(); // *** To guaranty no merge will be done with previous data ***
 						$this->DerivativeDetail->id = $child_id;
 						$child_to_save['DerivativeDetail']['sample_master_id'] = $child_id;
 						if(!$this->DerivativeDetail->save($child_to_save, false)){ 
@@ -1201,7 +1228,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					}								
 					$this->AliquotMaster->id = $aliquot['AliquotMaster']['id'];
 					$this->AliquotMaster->save($aliquot, false);
-					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot['AliquotMaster']['id'], true, true, false);
+					$this->AliquotMaster->updateAliquotVolume($aliquot['AliquotMaster']['id']);
 				}
 
 				$hook_link = $this->hook('postsave_process');
@@ -1242,6 +1269,9 @@ class SampleMastersController extends InventoryManagementAppController {
 				}
 			}
 		}
+		
+		$this->set('display_batch_process_aliq_storage_and_in_stock_details', $display_batch_process_aliq_storage_and_in_stock_details);
+		$this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
 	}
 }
 	

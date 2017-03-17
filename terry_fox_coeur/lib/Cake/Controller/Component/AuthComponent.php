@@ -403,7 +403,6 @@ class AuthComponent extends Component {
 		if ($this->unauthorizedRedirect === false) {
 			throw new ForbiddenException($this->authError);
 		}
-
 		$this->flash($this->authError);
 		if ($this->unauthorizedRedirect === true) {
 			$default = '/';
@@ -411,6 +410,18 @@ class AuthComponent extends Component {
 				$default = $this->loginRedirect;
 			}
 			$url = $controller->referer($default, true);
+
+			{
+                //ATiM start------
+                //ATIM patch - I'm not sure where the bug is "by design", but
+                //controller->referer returns the full prefix past hostname and
+                //later router::url reprepends it to the url. This causes
+                //erroneous redirection on unauthorized routes. This patch fixes
+                //that.
+                $baseUrl = Router::url('/');
+                $url = str_replace($baseUrl, '/', $url);
+				//ATiM end------
+			}
 		} else {
 			$url = $this->unauthorizedRedirect;
 		}
@@ -425,7 +436,7 @@ class AuthComponent extends Component {
  */
 	protected function _setDefaults() {
 		$defaults = array(
-			'logoutRedirect' => $this->loginAction,
+			'logoutRedirect' => array('controller' => 'Users', 'action' => 'login', 'plugin' => null),
 			'authError' => __d('cake', 'You are not authorized to access that location.')
 		);
 		foreach ($defaults as $key => $value) {

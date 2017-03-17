@@ -144,7 +144,14 @@ class MasterDetailBehavior extends ModelBehavior {
 	        $detail_name = $detail_class;
 	    }else{
 	        $model_name = $alternate_model_name;
-	        $detail_name = str_replace("Master", "Detail", $alternate_model_name);
+	    	//Use preg_match to fix issue #3287
+	    	if(preg_match('/Master/', $alternate_model_name)) {
+	    		$detail_name = str_replace("Master", "Detail", $alternate_model_name);
+	    	} else if(preg_match('/^([0-9]+_)/', $alternate_model_name, $matches)) {
+	    		$detail_name = $matches[1].$detail_class;
+	    	} else {
+	    		$detail_name = $alternate_model_name.'Detail';
+	    	}
 	    }
 	    $detail_control_name = $model->belongsTo[$default_class."Control"]['className'];
 	    $plugin = '';
@@ -174,9 +181,11 @@ class MasterDetailBehavior extends ModelBehavior {
 		        return;
 		    }
 			//this is a master/detail. See if the find is made on a specific control id. If so, join the detail table
-			$control_id = $model->getSingleControlIdCondition($query); 
-			if($control_id !== false && empty($query['joins'])){
-			    $query['joins'][] = $model->getDetailJoin($control_id);
+			$control_id = $model->getSingleControlIdCondition($query); 			
+			if($control_id !== false){
+				$detail_join = $model->getDetailJoin($control_id);
+				foreach($query['joins'] as $new_join_to_check) if($detail_join['alias'] == $new_join_to_check['alias']) $detail_join = null; 
+				if($detail_join) $query['joins'][] = $detail_join;
 			}
 		}
 		return $query;

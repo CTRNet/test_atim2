@@ -179,10 +179,10 @@ class PermissionsController extends AdministrateAppController {
 		
 		try{
 			$depth = $this->Aco->query('
-				SELECT node.id, (COUNT(parent.id) - 1) AS depth
+				SELECT node.id, node.lft, (COUNT(parent.id) - 1) AS depth
 				FROM acos AS node, acos AS parent
 				WHERE node.lft BETWEEN parent.lft AND parent.rght
-				GROUP BY node.id
+				GROUP BY node.id, node.lft
 				ORDER BY node.lft;
 			');
 		}catch(Exception $e){
