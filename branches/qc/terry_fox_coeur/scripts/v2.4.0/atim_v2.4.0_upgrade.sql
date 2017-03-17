@@ -405,7 +405,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='permission_save_preset'), (SELECT id FROM structure_fields WHERE `model`='PermissionsPreset' AND `tablename`='' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
 ((SELECT id FROM structures WHERE alias='permission_save_preset'), (SELECT id FROM structure_fields WHERE `model`='PermissionsPreset' AND `tablename`='' AND `field`='description' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='description' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
-
+SET FOREIGN_KEY_CHECKS=0;
 ALTER TABLE sample_masters
  MODIFY `collection_id` int(11) NOT NULL;
 ALTER TABLE sample_masters_revs
@@ -417,6 +417,7 @@ ALTER TABLE aliquot_masters
 ALTER TABLE aliquot_masters_revs
  MODIFY `collection_id` int(11) NOT NULL,
  MODIFY sample_master_id int(11) NOT NULL;
+SET FOREIGN_KEY_CHECKS=1; 
  
 CREATE TABLE permissions_presets(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -509,7 +510,7 @@ DELETE FROM structure_validations WHERE structure_field_id NOT IN (SELECT struct
 DELETE FROM structure_fields WHERE id NOT IN (SELECT structure_field_id FROM structure_formats);
  
 
-#DROP VIEW view_aliquots;
+DROP VIEW view_aliquots;
 CREATE VIEW view_aliquots AS 
 SELECT 
 al.id AS aliquot_master_id,
@@ -562,7 +563,7 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 WHERE al.deleted != 1;
 
-#DROP VIEW view_samples;
+DROP VIEW view_samples;
 CREATE VIEW view_samples AS 
 SELECT 
 samp.id AS sample_master_id,
@@ -601,7 +602,7 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 WHERE samp.deleted != 1;
 
 
-#DROP VIEW view_aliquot_uses;
+DROP VIEW view_aliquot_uses;
 CREATE VIEW view_aliquot_uses AS 
 
 SELECT 

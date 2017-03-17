@@ -478,6 +478,7 @@ SET c.participant_id=ccl.participant_id, c.diagnosis_master_id=ccl.diagnosis_mas
 INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, version_created)
 (SELECT id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, NOW() FROM collections);
 
+SET FOREIGN_KEY_CHECKS=0;
 ALTER TABLE specimen_details MODIFY sample_master_id INT NOT NULL;
 ALTER TABLE specimen_details_revs MODIFY sample_master_id INT NOT NULL;
 ALTER TABLE derivative_details MODIFY sample_master_id INT NOT NULL;
@@ -660,6 +661,7 @@ ALTER TABLE storage_coordinates MODIFY storage_master_id INT NOT NULL;
 ALTER TABLE storage_coordinates_revs MODIFY storage_master_id INT NOT NULL;
 ALTER TABLE txe_radiations MODIFY tx_master_id INT NOT NULL;
 ALTER TABLE txe_radiations_revs MODIFY tx_master_id INT NOT NULL;
+SET FOREIGN_KEY_CHECKS=1;
  
 CREATE TABLE system_vars(
  k VARCHAR(50) NOT NULL PRIMARY KEY,
