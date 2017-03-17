@@ -3,8 +3,7 @@
 		'top'=>NULL,
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/ConsentMasters/edit/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%/',
-			'delete'=>'/ClinicalAnnotation/ConsentMasters/delete/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%/',
-			'list'=>'/ClinicalAnnotation/ConsentMasters/listall/'.$atim_menu_variables['Participant.id'].'/'
+			'delete'=>'/ClinicalAnnotation/ConsentMasters/delete/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%/'
 		)
 	);
 	

@@ -41,7 +41,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 				case 'primary':
 					if($result['DiagnosisControl']['controls_type'] != 'primary diagnosis unknown') $structure_alias .= ',dx_primary';
 					break;
-				case 'secondary':
+				case 'secondary - distant':
 					$structure_alias = ',dx_secondary';
 					break;
 			}
@@ -147,20 +147,17 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 	function hasChild(array $diagnosis_master_ids){
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 		$event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-		return array_merge($this->find('list', array(
+			return array_unique(array_merge($this->find('list', array(
 				'fields'		=> array('DiagnosisMaster.parent_id'),
-				'conditions'	=> array('DiagnosisMaster.parent_id' => $diagnosis_master_ids),
-				'group'			=> array('DiagnosisMaster.parent_id')
+				'conditions'	=> array('DiagnosisMaster.parent_id' => $diagnosis_master_ids)
 			)), $tx_model->find('list', array(
 				'fields'		=> array('TreatmentMaster.diagnosis_master_id'),
-				'conditions'	=> array('TreatmentMaster.diagnosis_master_id' => $diagnosis_master_ids),
-				'group'			=> array('TreatmentMaster.diagnosis_master_id')
+				'conditions'	=> array('TreatmentMaster.diagnosis_master_id' => $diagnosis_master_ids)
 			)), $event_master_model->find('list', array(
 				'fields'		=> array('EventMaster.diagnosis_master_id'),
-				'conditions'	=> array('EventMaster.diagnosis_master_id' => $diagnosis_master_ids),
-				'group'			=> array('EventMaster.diagnosis_master_id')
+				'conditions'	=> array('EventMaster.diagnosis_master_id' => $diagnosis_master_ids)
 			))
-		);
+		));
 	}
 	
 	/**
@@ -212,5 +209,15 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 	static function joinOnDiagnosisDup($on_field){
 		return array('table' => 'diagnosis_masters', 'alias' => 'diagnosis_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = diagnosis_masters_dup.id'));
 	}
+	
+	function beforeSave($options = array()){
+		$ret_val = parent::beforeSave($options);
+		if(isset($this->data['DiagnosisMaster']['topography']) && preg_match('/^(C[0-9]{2})[0-9]$/', $this->data['DiagnosisMaster']['topography'], $matches)) {
+			$this->data['DiagnosisMaster']['icd_0_3_topography_category'] = $matches[1];
+			$this->addWritableField(array('icd_0_3_topography_category'));
+		}
+		return $ret_val;
+	}
+
 }
 ?>

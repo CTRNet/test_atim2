@@ -30,7 +30,7 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-	private static $missing_translations = array();
+    private static $missing_translations = array();
 	private static $me = NULL;
 	private static $acl = null;
 	public static $beignFlash = false;
@@ -45,7 +45,14 @@ class AppController extends Controller {
 	private static $cal_info_long_translated = false;
 	
 	static $highlight_missing_translations = true;
+
+    // Used as a set from the array keys
+    public $allowed_file_prefixes = array();
 	
+    /**
+     * This function is executed before every action in the controller. It’s a
+     * handy place to check for an active session or inspect user permissions.
+     **/
 	function beforeFilter() {
 		App::uses('Sanitize', 'Utility');
 		AppController::$me = $this;
@@ -64,7 +71,15 @@ class AppController extends Controller {
 		}
 		
 		$this->Auth->authorize = 'Actions';
-			
+
+		//Check password should be reset
+		$lower_url_here = strtolower($this->request->here);
+		if($this->Session->read('Auth.User.force_password_reset') && strpos($lower_url_here, '/users/logout') === false) {
+			if(strpos($lower_url_here, '/customize/passwords/index') === false) {
+				$this->redirect('/Customize/Passwords/index/');
+			}
+		}
+		
 		// record URL in logs
 		$log_activity_data['UserLog']['user_id']  = $this->Session->read('Auth.User.id');
 		$log_activity_data['UserLog']['url']  = $this->request->here;
@@ -101,6 +116,15 @@ class AppController extends Controller {
 		}
 		// get default STRUCTRES, used for forms, views, and validation
 		$this->Structures->set();
+		if(isset($this->request->query['file'])) {
+            pr($this->request->query['file']);
+		}
+
+            if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
+                AppController::addWarningMsg(
+                    __('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, '
+                       .'which will cause problems whenever you display more options than max_input_vars'));
+            }
 	}
 	
 	function hook( $hook_extension='' ) {
@@ -116,8 +140,52 @@ class AppController extends Controller {
 	
 		return $hook_file;
 	}
+
+    private function handleFileRequest() {
+        $file = $this->request->query['file'];
+
+        $redirect_invalid_file = function($case_type) use (&$file) {
+            CakeLog::error("User tried to download invalid file (".$case_type."): ".$file);
+            if ($case_type === 3) {
+                AppController::getInstance()->redirect("/Pages/err_file_not_auth?p[]=".$file);
+            } else {
+                AppController::getInstance()->redirect("/Pages/err_file_not_found?p[]=".$file);
+            }
+        };
+
+        $index = -1;
+        foreach (range(0, 1) as $_) {
+            $index = strpos($file, '.', $index + 1);
+        }
+        $prefix = substr($file, 0, $index);
+        if ($prefix && array_key_exists($prefix, $this->allowed_file_prefixes)) {
+		    $dir = Configure::read('uploadDirectory');
+            // NOTE: Cannot use flash for errors because file is still in the
+            // url and that would cause an infinite loop
+            if (strpos($file, '/') > -1 || strpos($file, '\\') > -1) {
+                $redirect_invalid_file(1);
+            }
+            $full_file = $dir.'/'.$file;
+            if (!file_exists($full_file)) {
+                $redirect_invalid_file(2);
+            }
+            $index = strpos($file, '.', $index + 1) + 1;
+            $this->response->file($full_file,
+                                  array('name' => substr($file, $index)));
+            return $this->response;
+        }
+        $redirect_invalid_file(3);
+    }
 	
+    /**
+     * Called after controller action logic, but before the view is rendered.
+     * This callback is not used often, but may be needed if you are calling
+     * render() manually before the end of a given action.
+     **/
 	function beforeRender(){
+        if (isset($this->request->query['file'])) {
+            return $this->handleFileRequest();
+        }
 		//Fix an issue where cakephp 2.0 puts the first loaded model with the key model in the registry.
 		//Causes issues on validation messages
 		ClassRegistry::removeObject('model');
@@ -662,9 +730,7 @@ class AppController extends Controller {
 	 * @return array Model query results
 	 */
 	public function paginate($object = null, $scope = array(), $whitelist = array()) {
-		//TODO Temporary fix linked to issue #3040: TreatmentMaster & EventMaster listall: var $paginate data won't be used 
-		if(!is_null($object) && !isset($this->passedArgs['sort']) && isset($this->paginate[$object->name]['order'])) $object->order = $this->paginate[$object->name]['order'];
-		
+		$this->setControlerPaginatorSettings($object);
 		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
 		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
 			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
@@ -713,9 +779,7 @@ class AppController extends Controller {
 			if($limit){
 				$this->request->data = $model->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit));
 			}else{
-			    if (isset($this->paginate[$model->name])) {
-			        $this->Paginator->settings = $this->paginate[$model->name];
-			    }
+				$this->setControlerPaginatorSettings($model);
 				$this->request->data = $this->Paginator->paginate(
 				    $model,
 				    $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
@@ -734,6 +798,17 @@ class AppController extends Controller {
 		if($this->request->is('ajax')) {
 			Configure::write ( 'debug', 0 );
 			$this->set ( 'is_ajax', true );
+		}
+	}
+	
+	/**
+	 * Set the Pagination settings based on user preferences and controller Pagination settings.
+	 * @param Object $model The model to search upon
+	 */
+	function setControlerPaginatorSettings($model) {
+		if(pagination_amount) $this->Paginator->settings = array_merge($this->Paginator->settings, array('limit' => pagination_amount));
+		if($model && isset($this->paginate[$model->name])) {
+			$this->Paginator->settings = array_merge($this->Paginator->settings, $this->paginate[$model->name]);
 		}
 	}
 	
@@ -930,12 +1005,20 @@ class AppController extends Controller {
 	function newVersionSetup(){
 		//new version installed!
 		
+		//------------------------------------------------------------------------------------------------------------------------------------------
+		
 		// *** 1 *** regen permissions
 		
 		$this->PermissionManager->buildAcl();
 		AppController::addWarningMsg(__('permissions have been regenerated'));
 			
 		// *** 2 *** update the i18n string for version
+		
+		$storage_control_model = AppModel::getInstance('StorageLayout', 'StorageControl', true);
+		$is_tma_block = $storage_control_model->find('count', array('condition' => array('StorageControl.flag_active' => '1', 'is_tma_block' => '1')));
+		$this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage layout management - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '".($is_tma_block? 'storage layout & tma blocks management' : 'storage layout management')."')");
+		$this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage layout management description - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '".($is_tma_block? 'storage layout & tma blocks management description' : 'storage layout management description')."')");
+		$this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage (non tma block) - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '".($is_tma_block? 'storage (non tma block)' : 'storage')."')");
 		
 		$i18n_model = new Model(array('table' => 'i18n', 'name' => 0));
 		$version_number = $this->Version->data['Version']['version_number'];
@@ -1052,7 +1135,7 @@ class AppController extends Controller {
 		
 		AppController::addWarningMsg(__('views have been rebuilt'));
 
-		// *** 6 *** Use Counter and Current Volume clean up
+		// *** 6 *** Current Volume clean up
 		
 		$ViewAliquot_model = AppModel::getInstance("InventoryManagement", "ViewAliquot", false);	//To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
 		$tmp_aliquot_model_cacheSources = $ViewAliquot_model->cacheSources;
@@ -1061,41 +1144,30 @@ class AppController extends Controller {
 		$AliquotMaster_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
 		$AliquotMaster_model->check_writable_fields = false;
 		AppModel::acquireBatchViewsUpdateLock();
-		//-A-Use counter
-		$use_counters_updated = array();
-		//Search all aliquots linked to at least one use and having use_counter = 0
-		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, us.use_counter 
-				FROM aliquot_masters am 
-				INNER JOIN (SELECT count(*) AS use_counter, aliquot_master_id FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON am.id = us.aliquot_master_id
-				WHERE am.deleted <> 1 AND (am.use_counter IS NULL OR am.use_counter = 0)";
-		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'use_counter' => $new_aliquot['us']['use_counter'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$use_counters_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
-		}	
-		//Search all unused aliquots having use_counter != 0
-		$tmp_sql = "SELECT id AS aliquot_master_id, barcode, aliquot_label FROM aliquot_masters WHERE deleted <> 1 AND use_counter != 0 AND id NOT IN (SELECT DISTINCT aliquot_master_id FROM view_aliquot_uses);";
-		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$AliquotMaster_model->id = $new_aliquot['aliquot_masters']['aliquot_master_id'];
-			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['aliquot_masters']['aliquot_master_id'], 'use_counter' => '0')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$use_counters_updated[$new_aliquot['aliquot_masters']['aliquot_master_id']] = $new_aliquot['aliquot_masters']['barcode'];
-		}
-		//Search all aliquots having use_counter != real use counter (from view_aliquot_uses)
-		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label,us.use_counter FROM aliquot_masters am INNER JOIN (SELECT aliquot_master_id, count(*) AS use_counter FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON us.aliquot_master_id = am.id WHERE am.deleted <> 1 AND us.use_counter != am.use_counter;";
-		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-		foreach($aliquots_to_clean_up as $new_aliquot) {
-			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'use_counter' => $new_aliquot['us']['use_counter'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-			$use_counters_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
-		}
-		if($use_counters_updated) AppController::addWarningMsg(__('aliquot use counter has been corrected for following aliquots : ').(implode(', ', $use_counters_updated)));
-		//-B-Current Volume
+		//Current Volume
 		$current_volumes_updated = array();
+		//Search all aliquots having initial_volume but no current_volume
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
+			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NOT NULL AND am.current_volume IS NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'current_volume' => $new_aliquot['am']['initial_volume'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}
+		//Search all aliquots having current_volume but no initial_volume
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
+			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NULL AND am.current_volume IS NOT NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'current_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}
 		//Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
 		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
 		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
@@ -1278,7 +1350,249 @@ class AppController extends Controller {
 		// *** 11 *** Disable unused treatment_extend_controls
 
 		$this->Version->query("UPDATE treatment_extend_controls SET flag_active = 0 WHERE id NOT IN (select distinct treatment_extend_control_id from treatment_controls WHERE flag_active = 1 AND treatment_extend_control_id IS NOT NULL)");
+
+
+		// *** 12 *** Check storage controls data
 		
+		$storage_ctrl_model = AppModel::getInstance('Administrate', 'StorageCtrl', true);
+		$storage_ctrl_model->validatesAllStorageControls();
+		
+		// *** 12 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
+		
+		$tmp_sql = "SELECT DISTINCT `flag_detail`
+			FROM structure_formats
+			WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters')
+			AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label')";
+		$flag_detail_result = $AliquotMaster_model->query($tmp_sql);
+		$aliquot_label_flag_detail = '1';
+		if($flag_detail_result) $aliquot_label_flag_detail = empty($flag_detail_result[0]['structure_formats']['flag_detail'])? '0' : '1';		
+		
+		$structure_formats_queries = array();
+		switch(Configure::read('order_item_type_config')) {
+			case '1':
+				// both tma slide and aliquot could be added to order
+				
+				$structure_formats_queries = array(
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Generated' AND `field`='type');",
+					
+					// 1 - 'shippeditems' structure
+					"UPDATE structure_formats SET `flag_addgrid`=$aliquot_label_flag_detail, `flag_addgrid_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `field`='aliquot_label');",
+					"UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
+			
+					// 2 - 'orderitems' structure
+					"UPDATE structure_formats SET `flag_search`='1' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode');",
+					"UPDATE structure_formats SET `flag_search`='1' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode');",
+					
+					"UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
+					
+					// 3 - 'orderitems_returned' structure
+					"UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
+					
+					// 4 - `orderlines` structure
+					"UPDATE structure_formats SET `flag_search`='1' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
+						AND structure_field_id IN (SELECT id FROM structure_fields 
+						WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');",					
+					"UPDATE structure_formats SET `flag_search`='1' 
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
+					
+					// 5 - `orderitems_plus` structure
+					"UPDATE structure_formats SET `flag_index`='1'
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
+					"UPDATE structure_formats SET `flag_index`='1'
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');");
+				
+				break;
+		
+			case '2':
+				//  aliquot only could be added to order
+				
+				$structure_formats_queries = array(
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
+						WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Generated' AND `field`='type');",
+					
+					// 1 - 'shippeditems' structure
+					"UPDATE structure_formats SET `flag_addgrid`=$aliquot_label_flag_detail, `flag_addgrid_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `field`='aliquot_label');",
+					"UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
+			
+					// 2 - 'orderitems' structure
+					"UPDATE structure_formats SET `flag_search`='1' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode');",
+					"UPDATE structure_formats SET `flag_search`='0' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode');",
+					
+					"UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
+					
+					// 3 - 'orderitems_returned' structure
+					"UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `field` NOT IN ('aliquot_label','barcode'));",
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
+					
+					// 4 - `orderlines` structure
+					"UPDATE structure_formats SET `flag_search`='0' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
+						AND structure_field_id IN (SELECT id FROM structure_fields 
+						WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');",
+					"UPDATE structure_formats SET `flag_search`='1' 
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
+					
+					// 5 - `orderitems_plus` structure
+					"UPDATE structure_formats SET `flag_index`='1'
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
+					"UPDATE structure_formats SET `flag_index`='1'
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus')
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');");
+				
+				break;
+		
+			case '3':
+				// tma slide only could be added to order
+				
+				$structure_formats_queries = array(
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
+						WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Generated' AND `field`='type');",
+					
+					// 1 - 'shippeditems' structure
+					"UPDATE structure_formats SET `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotMaster');",
+					"UPDATE structure_formats SET `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot');",
+					"UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
+			
+					// 2 - 'orderitems' structure
+					"UPDATE structure_formats SET `flag_search`='0' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode');",
+					"UPDATE structure_formats SET `flag_search`='1' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode');",
+					
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters');",
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot');",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
+					
+					// 3 - 'orderitems_returned' structure
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters');",
+					"UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='ViewAliquot');",
+					"UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
+						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
+					
+					// 4 - `orderlines` structure
+					"UPDATE structure_formats SET `flag_search`='0' 
+						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines') 
+						AND structure_field_id IN (SELECT id FROM structure_fields 
+						WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='is_tma_slide' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');",					
+					"UPDATE structure_formats SET `flag_search`='0' 
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') 
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id') AND `flag_confidential`='0');",
+				
+				
+					// 5 - `orderitems_plus` structure
+					"UPDATE structure_formats SET `flag_index`='0' 
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus') 
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `flag_confidential`='0');",
+					"UPDATE structure_formats SET `flag_index`='0' 
+						WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems_plus') 
+						AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');");
+				
+				break;
+		
+			default:	
+		}
+		foreach($structure_formats_queries as $tmp_sql) $AliquotMaster_model->query($tmp_sql);
+		AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
+				
+		//------------------------------------------------------------------------------------------------------------------------------------------
+				
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 		$this->Version->check_writable_fields = false;

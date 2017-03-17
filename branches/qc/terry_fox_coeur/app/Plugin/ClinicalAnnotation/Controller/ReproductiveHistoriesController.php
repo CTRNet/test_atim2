@@ -6,7 +6,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.ReproductiveHistory',
 		'ClinicalAnnotation.Participant'
 	);
-	var $paginate = array('ReproductiveHistory'=>array('limit' => pagination_amount,'order'=>'ReproductiveHistory.date_captured'));
+	var $paginate = array('ReproductiveHistory'=>array('order'=>'ReproductiveHistory.date_captured'));
 	
 	function listall( $participant_id ) {
 		// MANAGE DATA
@@ -69,11 +69,12 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->ReproductiveHistory->save($this->request->data) ) {
+					$url_to_flash = '/ClinicalAnnotation/ReproductiveHistories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id;
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/ReproductiveHistories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id );
+					$this->atimFlash(__('your data has been saved'), $url_to_flash);
 				}			
 			}
 		}
@@ -137,6 +138,10 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			// DELETE DATA
 			$flash_link = '/ClinicalAnnotation/ReproductiveHistories/listall/'.$participant_id;
 			if ($this->ReproductiveHistory->atimDelete($reproductive_history_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), $flash_link );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), $flash_link );

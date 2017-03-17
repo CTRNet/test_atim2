@@ -36,7 +36,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel {
 			
 			$conditions = array('AliquotMaster.sample_master_id' => $sample_master_id);
 			if(!empty($specific_aliquot_type)){
-				$conditions['AliquotControl.aliquot_type'] = $specific_aliquot_type;
+				$conditions['AliquotControl.aliquot_type'] = explode(',', $specific_aliquot_type);
 			}
 			
 			foreach($this->AliquotMaster->find('all', array('conditions' => $conditions, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0')) as $new_aliquot) {

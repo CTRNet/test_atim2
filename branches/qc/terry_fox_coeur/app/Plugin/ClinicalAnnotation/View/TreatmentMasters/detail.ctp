@@ -3,9 +3,7 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/TreatmentMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
-			'delete'=>'/ClinicalAnnotation/TreatmentMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
-			'list'=>'/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/',
-			'add precision' => '/ClinicalAnnotation/TreatmentExtendMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+			'delete'=>'/ClinicalAnnotation/TreatmentMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id']
 		)
 	);
 	
@@ -32,13 +30,16 @@
 		$structure_settings = array(
 			'pagination'	=> false,
 			'actions'		=> $is_ajax,
-			($is_ajax? 'language_heading' : 'header')		=> __('precision')
+			($is_ajax? 'language_heading' : 'header')		=> ($tx_extend_type? __($tx_extend_type) : __('precision'))
 		);
 		
+		$structure_links['bottom']['add'][($tx_extend_type? __($tx_extend_type) : __('add precision'))] = array(
+			'link' => '/ClinicalAnnotation/TreatmentExtendMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+			'icon' => 'treatment precision');
 		if(isset($extended_data_import_process)){
-			$structure_links['bottom']['import precisions from associated protocol'] = array(
+			$structure_links['bottom']['add'][($tx_extend_type? __($tx_extend_type).' ('.__('from associated protocol').')' : __('import precisions from associated protocol'))] = array(
 				'link' => '/ClinicalAnnotation/TreatmentExtendMasters/'.$extended_data_import_process.'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
-				'icon' => 'add');
+				'icon' => 'treatment precision');
 		}
 		
 		$structure_links['index'] = array(
@@ -61,12 +62,14 @@
 	
 	if(!$is_ajax){
 
+		$flag_use_for_ccl = $this->data['TreatmentControl']['flag_use_for_ccl'];
+		
 		// DIAGNOSTICS
 		
 		$structure_settings = array(
 			'form_inputs'	=> false,
 			'pagination'	=> false,
-			'actions'		=> false,
+			'actions'		=> $flag_use_for_ccl? false : true,
 			'form_bottom'	=> true,
 			'header' 		=> __('related diagnosis', null), 
 			'form_top' 		=> false
@@ -100,7 +103,7 @@
 		$final_options['settings']['actions'] = true;
 		$final_options['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:TreatmentMaster/filterId:'.$atim_menu_variables['TreatmentMaster.id']);
 		
-		$display_next_sub_form = true;
+		$display_next_sub_form = $flag_use_for_ccl? true : false;
 		
 		$hook_link = $this->Structures->hook('ccl');
 		if( $hook_link ) {

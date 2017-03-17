@@ -19,8 +19,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'SpecimenReviewMaster' => array('limit' => pagination_amount, 'order' => 'SpecimenReviewMaster.review_date ASC'),
-		'AliquotReviewMaster' => array('limit' => pagination_amount, 'order' => 'AliquotReviewMaster.review_code DESC')
+		'SpecimenReviewMaster' => array('order' => 'SpecimenReviewMaster.review_date ASC'),
+		'AliquotReviewMaster' => array('order' => 'AliquotReviewMaster.review_code DESC')
 	);
 	
 	function listAll($collection_id, $sample_master_id){
@@ -191,6 +191,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					foreach($aliquot_review_data as $new_aliquot_review_to_save) {
 						// Save aliquot review
 						$this->AliquotReviewMaster->id = null;
+						$this->AliquotReviewMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						unset($new_aliquot_review_to_save['AliquotReviewMaster']['id']);
 						$new_aliquot_review_to_save['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
 						if(!$this->AliquotReviewMaster->save($new_aliquot_review_to_save, false)) { 
@@ -203,13 +204,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						}						
 					}
 				}
-				
-				//Update aliquot use counter
-				foreach($studied_aliquot_master_ids as $new_id ) {
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($new_id, false, true)) { 
-						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
-					}
-				}	
 
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
@@ -459,6 +453,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							// 2- New aliquot review to create
 							//---------------------------------------------------------------------------
 							
+							$this->AliquotReviewMaster->data = array();
 							$this->AliquotReviewMaster->id = null;
 							unset($submitted_aliquot_review['AliquotReviewMaster']['id']);
 							$this->AliquotReviewMaster->addWritableField(array('aliquot_review_control_id', 'specimen_review_master_id'));
@@ -477,15 +472,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						$aliquot_review_id_to_delete = $initial_aliquot_review_to_delete['AliquotReviewMaster']['id'];
 						if(!$this->AliquotReviewMaster->atimDelete($aliquot_review_id_to_delete)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
-					}
-
-					//---------------------------------------------------------------------------
-					// 4- Update aliquot master data
-					//---------------------------------------------------------------------------
-					foreach($aliquot_ids_to_update as $aliq_id) {
-						if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { 
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 					}
 				}				
@@ -542,15 +528,15 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				$aliquot_review_id_to_delete = $new_linked_review['AliquotReviewMaster']['id'];
 				if(!$this->AliquotReviewMaster->atimDelete($aliquot_review_id_to_delete)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }	
 			}
-			
-			// 2- Update aliquot master
-			foreach($aliquot_ids_to_update as $aliq_id) {
-				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
-			}
 					
-			// 3- Delete sample review
+			// 2- Delete sample review
 			if(!$this->SpecimenReviewMaster->atimDelete($specimen_review_id)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-				
+
+			$hook_link = $this->hook('postsave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
 			$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/SpecimenReviews/listAll/' . $collection_id . '/' . $sample_master_id);
 		} else {
 			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);

@@ -85,8 +85,90 @@ class AppModel extends Model {
 			}
 		}
 		parent::__construct($id, $table, $ds);
-	}
+    }
+
+    /**
+     * Finds the uploaded files from the $data array. Update the $data array
+     * with the name the stored file will have and returns the $mode_files
+     * directive array to
+     **/
+    private function filter_move_files(&$data) {
+        $move_files = array();
+        if(!is_array($data)) {
+            return $move_files;
+        }
+        
+        //Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
+		$this_data_tmp_backup = $this->data;
+		
+        $prev_data = $this->id ? $this->read() : null;
+        $dir = Configure::read('uploadDirectory');
+        foreach($data as $model_name => $fields){
+            if (!is_array($fields)) {
+                continue;
+            }
+            foreach ($fields as $field_name => $value) {
+                if (is_array($value)) {
+                    if (isset($value['name'])) {
+                        if (!$value['size']) {
+                            // no file
+                            $data[$model_name][$field_name] = '';
+                            continue;
+                        }
+                        if (!file_exists($value['tmp_name'])) {
+                            die('Error with temporary file');
+                        }
+                        $target_name = $model_name.'.'.$field_name
+                                       .'.%%key_increment%%.'.$value['name'];
+                        
+                        if ($prev_data[$model_name][$field_name]) {
+                            // delete previous file
+                            unlink($dir.'/'.$prev_data[$model_name][$field_name]);
+                        }
+                        $target_name = $this->getKeyIncrement('atim_internal_file', $target_name);
+                        array_push($move_files, array('tmpName' => $value['tmp_name'],
+                                                 'targetName' => $target_name));
+                        $data[$model_name][$field_name] = $target_name;
+                    }
+                    else if (isset($value['option'])) {
+                        if ($value['option'] == 'delete'
+                            && $prev_data[$model_name][$field_name])
+                        {
+                            $data[$model_name][$field_name] = '';
+                            unlink($dir.'/'.$prev_data[$model_name][$field_name]);
+                        }
+                        else {
+                            unset($data[$model_name][$field_name]);
+                        }
+                    }
+                }
+            }
+        }
+		
+        //Reset data to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
+        $this->data = $this_data_tmp_backup;	
+        
+        return $move_files;
+    }
 	
+    /**
+     * Takes the move_files array returned by filter_move_files and moves the
+     * uploaded files to the configured directory with the set file name.
+     **/
+    private function move_files($move_files) {
+		if($move_files) {
+		    //make sure directory exists
+		    $dir = Configure::read('uploadDirectory');
+		    if(!is_dir($dir)) {
+		        mkdir($dir);
+		    }
+    		foreach($move_files as $move_file) {
+    		    $newName = $dir.'/'.$move_file['targetName'];
+    		    move_uploaded_file($move_file['tmpName'], $newName);
+    		}
+        }
+    }
+
 	/**
 	 * Override to prevent saving id directly with the array to avoid hacks
 	 * @see Model::save()
@@ -118,9 +200,13 @@ class AppModel extends Model {
 		    //properly because cake core flushes them out.
 		    //NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
 			$data[$this->name]['-'] = "foo";
-		} 
+		}
 		
-		return parent::save($data, $validate, $fieldList);
+		$move_files = $this->filter_move_files($data);
+		$result = parent::save($data, $validate, $fieldList);
+		$this->move_files($move_files);
+
+		return $result;
 	}
 	
 	/**
@@ -294,7 +380,8 @@ class AppModel extends Model {
 	                if($base_model == $curr['base_model']){
 	                    array_push($ids, $curr['pkey']);
 	                    $base_model = $curr['base_model'];
-	                    unset($registered_model['pkeys_to_check'][$i]);
+						//To support new design on OrderItem & ViewAliquotUse: See Issue #3310
+						//unset($registered_model['pkeys_to_check'][$i]);
 	                }
 	            }
 	            if($ids){
@@ -764,9 +851,12 @@ class AppModel extends Model {
 			}
 		}
 		if($instance === false && $error_view_on_null){
-			pr(AppController::getStackTrace());
-			die('died in AppModel::getInstance ['.$plugin_name.$class_name.'] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');//TODO: remove me!
-			AppController::getInstance()->redirect( '/Pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
+			if (Configure::read('debug') > 0) {
+				pr(AppController::getStackTrace());
+				die('died in AppModel::getInstance ['.$plugin_name.$class_name.'] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
+			} else {
+				AppController::getInstance()->redirect( '/Pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
+			}
 		}
 		
 		return $instance;
@@ -909,77 +999,69 @@ class AppModel extends Model {
 	 * Return the spent time between 2 dates. 
 	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
 	 * 
-	 * @param $start_date Start date
-	 * @param $end_date End date
+	 * @param $start_datetime Start date and time
+	 * @param $end_datetime End date and time
 	 * 
 	 * @return Return an array that contains the spent time
 	 * or an error message when the spent time can not be calculated.
 	 * The sturcture of the array is defined below:
 	 *	Array (
 	 * 		'message' => '',
+	 * 		'years' => '0',
+	 * 		'months' => '0',
 	 * 		'days' => '0',
 	 * 		'hours' => '0',
 	 * 		'minutes' => '0'
+	 * 		'total_days' => '0'
 	 * 	)
 	 * 
 	 * @author N. Luc
 	 * @since 2007-06-20
 	 */
 	 
-	static function getSpentTime($start_date, $end_date){
+	static function getSpentTime($start_datetime, $end_datetime){
 		$arr_spent_time = array(
-			'message'			=> null,
-			'years'				=> '0',
-			'days_mod_years'	=> '0',
-			'days'				=> '0',
-			'hours'				=> '0',
-			'minutes'			=> '0'
+			'message'	=> null,
+			'years'		=> '0',
+			'month'		=> '0',
+			'days'		=> '0',
+			'hours'		=> '0',
+			'minutes'	=> '0',
+			'total_days' => '0'
 		);
 		
-		$empty_date = '0000-00-00 00:00:00';
+		if(preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $start_datetime)) $start_datetime .= ' 00:00:00';
+		$start_datetime = str_replace('0000-00-00 00:00:00', '', $start_datetime);
+		if(preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $end_datetime)) $end_datetime .= ' 00:00:00';
+		$end_datetime = str_replace('0000-00-00 00:00:00', '', $end_datetime);
 		
+		$datetime_pattern = '/^((19)|(20))[0-9]{2}\-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[01]))\ ((0[0-9])|([1-5][0-9])|(60))(:((0[0-9])|([1-5][0-9])|(60))){2}$/';
 		// Verfiy date is not empty
-		if(empty($start_date) || empty($end_date)
-			|| (strcmp($start_date, $empty_date) == 0)
-			|| (strcmp($end_date, $empty_date) == 0)
-		){
+		if(empty($start_datetime) || empty($end_datetime)){
 			// At least one date is missing to continue
 			$arr_spent_time['message'] = 'missing date';	
+		} else if(!preg_match($datetime_pattern, $start_datetime) || !preg_match($datetime_pattern, $end_datetime)) {
+			// Error in the date
+			$arr_spent_time['message'] = 'error in the date definitions';
+		} else if($datetime_pattern == $end_datetime) {
+			// Nothing to change to $arr_spent_time
+			$arr_spent_time['message'] = '0';
 		} else {
-			$start = AppModel::getTimeStamp($start_date);
-			$end = AppModel::getTimeStamp($end_date);
-			$spent_time = $end - $start;
-			
-			if(($start === false)||($end === false)){
-				// Error in the date
-				$arr_spent_time['message'] = 'error: unable to define date';
-			} else if($spent_time < 0){
+			$start_datetime_ob = new DateTime($start_datetime);
+			$end_datetime_ob = new DateTime($end_datetime);
+			$interval = $start_datetime_ob->diff($end_datetime_ob);
+			if($interval->invert){
 				// Error in the date
 				$arr_spent_time['message'] = 'error in the date definitions';
-			} else if($spent_time == 0){
-				// Nothing to change to $arr_spent_time
-				$arr_spent_time['message'] = '0';
 			} else {
 				// Return spend time
-				$arr_spent_time['days'] = floor($spent_time / 86400);
-				$diff_spent_time = $spent_time % 86400;
-				$arr_spent_time['hours'] = floor($diff_spent_time / 3600);
-				$diff_spent_time = $diff_spent_time % 3600;
-				$arr_spent_time['minutes'] = floor($diff_spent_time / 60);
-				if($arr_spent_time['minutes']<10) {
-					$arr_spent_time['minutes'] = '0' . $arr_spent_time['minutes'];
-				}
-				
-				$arr_spent_time['years'] = substr($end_date, 0, 4)  - substr($start_date, 0, 4);
-				if(strtotime($end_date) < strtotime(substr($end_date, 0, 4).substr($start_date, 4))){
-					$arr_spent_time['years'] --;
-					$latest_year_mark = strtotime((substr($end_date, 0, 4) - 1).substr($start_date, 4));
-				}else{
-					$latest_year_mark = strtotime(substr($end_date, 0, 4).substr($start_date, 4));
-				}
-				$arr_spent_time['days_mod_years'] = floor(($end - $latest_year_mark) / 86400);
+				$arr_spent_time['years'] = $interval->y;
+				$arr_spent_time['months'] = $interval->m;
+				$arr_spent_time['days'] = $interval->d;
+				$arr_spent_time['hours'] = $interval->h;
+				$arr_spent_time['minutes'] = $interval->i;
+				$arr_spent_time['total_days'] = $interval->days;
 			}
-			
 		}
 		
 		return $arr_spent_time;
@@ -990,7 +1072,6 @@ class AppModel extends Model {
 	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
 	 * 
 	 * @param $date_string Date
-	 * @param $end_date End date
 	 * 
 	 * @return Return time stamp of the date.
 	 * 
@@ -1012,19 +1093,17 @@ class AppModel extends Model {
 			if(!is_null($spent_time_data['message'])) {
 				if($spent_time_data['message'] == '0') {
 					$spent_time_msg = $spent_time_data['message'];
-				} else if(strcmp('error in the date definitions', $spent_time_data['message']) == 0) {
-					$spent_time_msg = '<span class="red">'.__($spent_time_data['message']).'</span>';
 				} else {
 					$spent_time_msg = __($spent_time_data['message']);
 				}
 			} else {
 				if($with_time){
-					$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'days') 
+					$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'total_days') 
 						.AppModel::translateDateValueAndUnit($spent_time_data, 'hours') 
 						.AppModel::translateDateValueAndUnit($spent_time_data, 'minutes');
 				}else{
-					$spent_time_data['days'] = $spent_time_data['days_mod_years'];
 					$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'years')
+						.AppModel::translateDateValueAndUnit($spent_time_data, 'months')
 						.AppModel::translateDateValueAndUnit($spent_time_data, 'days');
 				}
 			} 	
@@ -1448,5 +1527,13 @@ class AppModel extends Model {
 		self::$cached_views_delete = array();
 		self::$cached_views_insert = array();
         self::$locked_views_update = false;
+	}
+	
+	static function getRemoteIPAddress(){
+		return (!empty($_SERVER['HTTP_CLIENT_IP']))? 
+			$_SERVER['HTTP_CLIENT_IP'] : 
+			((!empty($_SERVER['HTTP_X_FORWARDED_FOR']))? 
+				$_SERVER['HTTP_X_FORWARDED_FOR'] : 
+				$_SERVER['REMOTE_ADDR']);
 	}
 }
