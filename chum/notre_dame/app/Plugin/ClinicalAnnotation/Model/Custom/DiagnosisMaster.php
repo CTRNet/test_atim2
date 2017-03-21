@@ -9,13 +9,15 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		if($type == 'all' && isset($query['conditions'])) {
 			foreach($query['conditions'] as $key => $val) {				
 				if(is_string($val) && preg_match('/(qc_nd_sardo_morphology_key_words)|(qc_nd_sardo_topography_key_words)/', $val)) {
-					$val = str_replace(array_keys($arr_sardo_top_morpho_char_matches), $arr_sardo_top_morpho_char_matches, strtolower($val));
+					//Non Exact Search
+					$val = str_replace(array_keys($arr_sardo_top_morpho_char_matches), $arr_sardo_top_morpho_char_matches, strtolower($val));	
 					$val = preg_replace(
-						array('/qc_nd_sardo_morphology_key_words/','/qc_nd_sardo_topography_key_words/','/diagnosismaster/','/diagnosisdetail/'), 
-						array('qc_nd_sardo_morphology_desc','qc_nd_sardo_topography_desc','DiagnosisMaster','DiagnosisDetail'), 
+						array('/qc_nd_sardo_morphology_key_words([\ ]*like[\ ]*\'\%\/[0-3]\%\')/', '/qc_nd_sardo_morphology_key_words/','/qc_nd_sardo_topography_key_words/','/diagnosismaster/','/diagnosisdetail/'), 
+						array('morphology$1', 'qc_nd_sardo_morphology_desc','qc_nd_sardo_topography_desc','DiagnosisMaster','DiagnosisDetail'), 
 						$val);
 					$query['conditions'][$key] = $val;
 				} else if(preg_match('/(qc_nd_sardo_morphology_key_words)|(qc_nd_sardo_topography_key_words)/', $key)){
+					//Exact Search
 					$new_key = preg_replace(array('/qc_nd_sardo_morphology_key_words/','/qc_nd_sardo_topography_key_words/'), array('qc_nd_sardo_morphology_desc','qc_nd_sardo_topography_desc'), $key);
 					$query['conditions'][$new_key] = $query['conditions'][$key];
 					foreach($query['conditions'][$new_key] as $key2 => &$val2) $val2 = str_replace(array_keys($arr_sardo_top_morpho_char_matches), $arr_sardo_top_morpho_char_matches, strtolower($val2));

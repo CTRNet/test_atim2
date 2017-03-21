@@ -5,55 +5,70 @@ class StudySummaryCustom extends StudySummary
 	var $name = 'StudySummary';
 	var $useTable = 'study_summaries';
 	
-	private $study_complementary_information_for_autocomplete = array();
+	var $study_data_and_code_for_display_already_set = array();
+	var $study_investigators_from_id = array();
+	var $study_institutions_from_id = array();
 	
 	function beforeFind($queryData){
-		if(isset($queryData['conditions']) && isset($queryData['conditions']['StudyInvestigator.last_name'])) {
-	 		$queryData['joins'][] = array(
-	 				'table' => 'study_investigators',
-	 				'alias'	=> 'StudyInvestigator',
-	 				'type'	=> 'LEFT',
-	 				'conditions' => array('StudyInvestigator.study_summary_id = StudySummary.id')
-			);
-		}		
+		if(isset($queryData['conditions']) && isset($queryData['conditions']['StudySummary.qc_nd_generated_study_investigators'])) {
+			//Can not use joins model when user add an investigator twixe to a study else will generate 2 records
+			$StudyInvestigator = AppModel::getInstance("Study", "StudyInvestigator", true);
+			$linked_study_summary_ids = $StudyInvestigator->find('list', array('conditions' => array('StudyInvestigator.last_name' => $queryData['conditions']['StudySummary.qc_nd_generated_study_investigators']), 'fields' => 'StudyInvestigator.study_summary_id'));
+			if($linked_study_summary_ids) {
+				$queryData['conditions']['StudySummary.id'] = array_merge((isset($queryData['conditions']['StudySummary.id'])? $queryData['conditions']['StudySummary.id'] : array()), $linked_study_summary_ids);
+			}
+			unset($queryData['conditions']['StudySummary.qc_nd_generated_study_investigators']);
+		}
+		foreach($queryData['order'] as $tmp_key => $tmp_order) {
+			if(is_string($tmp_order) && preg_match("/StudySummary\.qc_nd_generated_study_investigators.((asc)|(desc)){0,1}/", $tmp_order, $matches)) {
+				//Sort on this field generate an error.
+				unset($queryData['order'][$tmp_key]);
+			}
+		}
 		return $queryData;
 	}
 	
-	function getStudyComplementaryInformationFromId($add_institution = false) {
-		$result = array();
-		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-		//Build id to isntitution array
-		$institutions = $StructurePermissibleValuesCustom->getCustomDropdown(array('Institutions & Laboratories'));
-		$institutions = array_replace($institutions['defined'], $institutions['previously_defined']);
-		foreach($this->find('all', array('conditions' => array(), 'fields' => 'StudySummary.id, StudySummary.qc_nd_institution')) as $new_study) {
-			$qc_nd_institution = strlen($new_study['StudySummary']['qc_nd_institution'])? 
-				(isset($institutions[$new_study['StudySummary']['qc_nd_institution']])? $institutions[$new_study['StudySummary']['qc_nd_institution']] : $new_study['StudySummary']['qc_nd_institution']): 
-				'';
-			$result[$new_study['StudySummary']['id']] = array('institution' => $qc_nd_institution, 'investigators' => array());
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		$tmp_results = array();
+		foreach($results as &$new_study) {
+			if(isset($new_study['StudySummary']['id'])) {
+				$new_study['StudySummary']['qc_nd_generated_study_investigators'] = $this->getStudyInvestigatorsFromId($new_study['StudySummary']['id']);
+			}
 		}
-		
-		//Add investigators to the list
-		if($result) {
+		return $results;
+	}
+	
+	function getStudyInvestigatorsFromId($study_summary_id) {
+		if(!$this->study_investigators_from_id) {	
+			$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
 			$investigators = $StructurePermissibleValuesCustom->getCustomDropdown(array('researchers'));
 			$investigators = array_replace($investigators['defined'], $investigators['previously_defined']);
 			$StudyInvestigator = AppModel::getInstance("Study", "StudyInvestigator", true);
-			foreach($StudyInvestigator->find('all', array('conditions' => array('StudyInvestigator.study_summary_id' => array_keys($result)), 'fields' => 'StudyInvestigator.study_summary_id, StudyInvestigator.last_name')) as $new_investigator) {
-				if(isset($result[$new_investigator['StudyInvestigator']['study_summary_id']]) && strlen($new_investigator['StudyInvestigator']['last_name'])) {
-					$investiagtor_last_name = isset($investigators[$new_investigator['StudyInvestigator']['last_name']])? 
-						$investigators[$new_investigator['StudyInvestigator']['last_name']] : 
-						$new_investigator['StudyInvestigator']['last_name'];
-					$result[$new_investigator['StudyInvestigator']['study_summary_id']]['investigators'][$investiagtor_last_name] = $investiagtor_last_name;
-				}
+			$this->study_investigators_from_id = array();
+			foreach($StudyInvestigator->find('all', array('conditions' => array(), 'fields' => 'StudyInvestigator.study_summary_id, StudyInvestigator.last_name')) as $new_investigator) {
+				$investiagtor_last_name = strlen($new_investigator['StudyInvestigator']['last_name'])? $investigators[$new_investigator['StudyInvestigator']['last_name']] : '';
+				$this->study_investigators_from_id[$new_investigator['StudyInvestigator']['study_summary_id']][$investiagtor_last_name] = $investiagtor_last_name;
+			}
+			foreach($this->study_investigators_from_id as &$new_study_investigators) {
+				ksort($new_study_investigators);
+				$new_study_investigators = array_filter($new_study_investigators);
+				$new_study_investigators = implode(' & ', $new_study_investigators);
 			}
 		}
-		//Build list
-		foreach($result as $key => $res) {
-			if(!$add_institution) unset($res['institution']);
-			$res['investigators'] = implode(' & ', $res['investigators']);
-			$res = array_filter($res);
-			$result[$key] = implode(' - ', $res);
-		}	
-		return $result;
+		return isset($this->study_investigators_from_id[$study_summary_id])? $this->study_investigators_from_id[$study_summary_id] : '';		
+	}
+	
+	function getStudyInstitutionsFromId($study_summary_id) {
+		if(!$this->study_institutions_from_id) {
+			$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+			$institutions = $StructurePermissibleValuesCustom->getCustomDropdown(array('Institutions & Laboratories'));
+			$institutions = array_replace($institutions['defined'], $institutions['previously_defined']);
+			foreach($this->find('all', array('conditions' => array(), 'fields' => 'StudySummary.id, StudySummary.qc_nd_institution')) as $new_study) {
+				$this->study_institutions_from_id[$new_study['StudySummary']['id']] = strlen($new_study['StudySummary']['qc_nd_institution'])? $institutions[$new_study['StudySummary']['qc_nd_institution']] : '';
+			}
+		}
+		return isset($this->study_institutions_from_id[$study_summary_id])? $this->study_institutions_from_id[$study_summary_id] : '';
 	}
 	
 	function getStudyDataAndCodeForDisplay($study_data) {
@@ -70,18 +85,17 @@ class StudySummaryCustom extends StudySummary
 		//
 		//------------------------------------------------------------------------
 		
-		if(!$this->study_complementary_information_for_autocomplete) {
-			$this->study_complementary_information_for_autocomplete = $this->getStudyComplementaryInformationFromId(true);
-		}		
 		$formatted_data = '';
 		if((!empty($study_data)) && isset($study_data['StudySummary']['id']) && (!empty($study_data['StudySummary']['id']))) {
 			if(!isset($this->study_data_and_code_for_display_already_set[$study_data['StudySummary']['id']])) {
 				if(!isset($study_data['StudySummary']['title'])) {
-					$study_data = $this->find('first', array('conditions' => array('StudySummary.id' => ($study_data['StudySummary']['id']))));
+					$study_data = $this->find('first', array('conditions' => array('StudySummary.id' => $study_data['StudySummary']['id'])));
 				}
-				$study_complementary_information = isset($this->study_complementary_information_for_autocomplete[$study_data['StudySummary']['id']])?
-					$this->study_complementary_information_for_autocomplete[$study_data['StudySummary']['id']] : 
-					'';
+				$study_complementary_information = array();
+				$study_complementary_information[] = $this->getStudyInvestigatorsFromId($study_data['StudySummary']['id']);
+				$study_complementary_information[] = $this->getStudyInstitutionsFromId($study_data['StudySummary']['id']);
+				$study_complementary_information = array_filter($study_complementary_information);
+				$study_complementary_information = implode(' - ', $study_complementary_information);
 				$this->study_data_and_code_for_display_already_set[$study_data['StudySummary']['id']] = 
 					$study_data['StudySummary']['title'] . 
 					(strlen($study_complementary_information)? ' ('.$study_complementary_information.')': '').
