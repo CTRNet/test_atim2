@@ -2004,3 +2004,60 @@ SELECT "Update 'Databrowser Relationship Diagram'." AS '### TODO ### Before migr
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE `versions` SET branch_build_number = '6586' WHERE version_number = '2.6.7';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-03-21
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Added 'participant_identifier' and 'qc_nd_sardo_last_import' field to participant search form
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_sardo_last_import' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Manage Study Search On Investigetor
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'FunctionManagement', '', 'qc_nd_generated_study_investigators', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers') , '0', '', '', '', 'study investigator', ''), 
+('Study', 'FunctionManagement', '', 'qc_nd_generated_study_investigators', 'input',  NULL , '0', '', '', '', 'study investigator', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='qc_nd_generated_study_investigators' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study investigator' AND `language_tag`=''), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='qc_nd_generated_study_investigators' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study investigator' AND `language_tag`=''), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Study' AND `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='last_name' AND `language_label`='' AND `language_tag`='study_last' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_researchers') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='id' AND `language_label`='study investigator' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_study_investigators') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='id' AND `language_label`='study investigator' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_study_investigators') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='id' AND `language_label`='study investigator' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_study_investigators') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_value_domains WHERE domain_name='qc_nd_study_investigators';
+UPDATE structure_fields SET model = 'StudySummary' WHERE field = 'qc_nd_generated_study_investigators';
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='' AND `field`='qc_nd_generated_study_investigators' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Remove duplicated field study in 'view_aliquot_joined_to_sample_and_collection'
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `tablename`='' AND `field`='study_summary_title' AND `language_label`='study / project' AND `language_tag`='' AND `type`='input' AND `setting`='size=40' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `tablename`='' AND `field`='study_summary_title' AND `language_label`='study / project' AND `language_tag`='' AND `type`='input' AND `setting`='size=40' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='ViewAliquot' AND `tablename`='' AND `field`='study_summary_title' AND `language_label`='study / project' AND `language_tag`='' AND `type`='input' AND `setting`='size=40' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+-- Ascite Cytology
+
+ALTER TABLE sd_spe_ascites
+  ADD COLUMN qc_nd_cytology VARCHAR(50) DEFAULT NULL;
+ALTER TABLE sd_spe_ascites_revs
+  ADD COLUMN qc_nd_cytology VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ascite_cytology', "StructurePermissibleValuesCustom::getCustomDropdown('Ascite Cytologies')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Ascite Cytologies', 1, 50, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Ascite Cytologies');
+INSERT INTO `structure_permissible_values_customs` (`value`, en,fr,`use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("positive", "Positive", "Positif", '1', @control_id, '9', NOW(),'9', NOW()),
+("negative", "Negative", "Negatif", '1', @control_id, '9', NOW(),'9', NOW()),
+("uncertain", "Uncertain", "Incertain", '1', @control_id, '9', NOW(),'9', NOW()),
+("unknown", "Unknown", "Inconnu", '1', @control_id, '9', NOW(),'9', NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'qc_nd_cytology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ascite_cytology') , '0', '', '', '', 'cytology', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_nd_cytology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ascite_cytology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cytology' AND `language_tag`=''), '1', '444', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE `versions` SET branch_build_number = '6672' WHERE version_number = '2.6.7';
