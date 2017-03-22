@@ -28,11 +28,17 @@ class Config{
 	//--------------------------------------------------------------------------------------------------------------------------
 	//TODO: To change anytime
 	static $relative_path = 'C:/_NicolasLuc/Server/www/tfri_cpcbn/dataImporterConfig/clinic/';
-	static $xls_file_path = 'C:/_NicolasLuc/Server/www/tfri_cpcbn/data/BristowADN-ARN_nl_revised.xls';
+	
 	//static $relative_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/';
 	//static $xls_file_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/data/';
-	static $active_surveillance_project = false;
-	static $use_windows_xls_offset = false;
+	
+	//static $xls_file_path = 'C:/_NicolasLuc/Server/www/tfri_cpcbn/data/V0_2016-11-25_151020_UHNRT_New patients RNA_DNA_For Veronique_nl_revised.xls';
+	//static $active_surveillance_project = false;
+	
+	static $xls_file_path = 'C:/_NicolasLuc/Server/www/tfri_cpcbn/data/VO_161214 clinical dataAS-CHUM_nl_revised.xls';
+	static $active_surveillance_project = true;
+	
+	static $use_windows_xls_offset = true;
 	//--------------------------------------------------------------------------------------------------------------------------
 	
 	static $xls_header_rows = 2;
@@ -637,6 +643,40 @@ function addonFunctionEnd(){
 		} else {
 			Config::$summary_msg['DFS Start Final Check']['@@ERROR@@']["A diagnosis is linked to more than one treatment flagged as 'DFS Start' (Patient Previously migrated)"][$row['participant_id']] ="See Patient Bank# ".$row['Bank#']." of bank '".$row['Bank']."'.";
 		}
+	}
+	
+	//Final test to check only one collection exists per participant
+	//-------------------------------------------------------------------------------------------------------------------------------
+	//NOTE
+	//-------------------------------------------------------------------------------------------------------------------------------
+	//Avec le dataimporter le system enregistrera deux collections si on a deux lignes pour le même patient.
+	//Or en théorie les deux tissues devraient venir du même block....
+	//À changer si on utilise cette procédure à nouveau
+	//Voire le load du 2014.10.27 pour Bank 'Sunnybrook-Klotz #7' & participant '18'
+	//-------------------------------------------------------------------------------------------------------------------------------
+	$query = "SELECT * FROM (
+			SELECT count(*) as nbr, Bank.name, Collection.qc_tf_collection_type, Collection.collection_site, Collection.collection_datetime, Participant.qc_tf_bank_participant_identifier
+			FROM banks Bank
+			INNER JOIN participants Participant ON Participant.qc_tf_bank_id = Bank.id
+			INNER JOIN collections Collection ON Participant.id = Collection.participant_id
+			WHERE Collection.deleted <> 1 AND Collection.participant_id IN ($str_created_participant_ids)
+			GROUP BY Bank.name, Collection.qc_tf_collection_type, Collection.collection_site, Collection.collection_datetime, Participant.qc_tf_bank_participant_identifier
+		) res where res.nbr > 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	while($row = $results->fetch_assoc()){
+		Config::$summary_msg['Tissue Blocks Final Check']['@@ERROR@@']["Blocks of the same tissue created by script into 2 different collections of ATiM. Please correct data into ATiM"][$row['qc_tf_bank_participant_identifier']] ="See ATiM Participant # ".$row['qc_tf_bank_participant_identifier'].".";
+	}
+	$query = "SELECT * FROM (
+	SELECT count(*) as nbr, Bank.name, Collection.qc_tf_collection_type, Collection.collection_site, Collection.collection_datetime, Participant.qc_tf_bank_participant_identifier
+	FROM banks Bank
+	INNER JOIN participants Participant ON Participant.qc_tf_bank_id = Bank.id
+	INNER JOIN collections Collection ON Participant.id = Collection.participant_id
+	WHERE Collection.deleted <> 1 AND Collection.participant_id NOT IN ($str_created_participant_ids)
+	GROUP BY Bank.name, Collection.qc_tf_collection_type, Collection.collection_site, Collection.collection_datetime, Participant.qc_tf_bank_participant_identifier
+	) res where res.nbr > 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	while($row = $results->fetch_assoc()){
+		Config::$summary_msg['Tissue Blocks Final Check']['@@ERROR@@']["Blocks of the same tissue that already exist into ATiM and linked to 2 different collections. Please correct data into ATiM"][$row['qc_tf_bank_participant_identifier']] ="See ATiM Participant # ".$row['qc_tf_bank_participant_identifier'].".";
 	}
 	
 	$query = "UPDATE versions SET permissions_regenerated = 0;";

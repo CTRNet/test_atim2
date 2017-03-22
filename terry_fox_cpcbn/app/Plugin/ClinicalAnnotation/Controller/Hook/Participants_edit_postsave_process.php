@@ -6,10 +6,10 @@
 	|| $participant_data['Participant']['qc_tf_last_contact'] != $new_participant_data['Participant']['qc_tf_last_contact']
 	|| $participant_data['Participant']['qc_tf_last_contact_accuracy'] != $new_participant_data['Participant']['qc_tf_last_contact_accuracy']) {
 		$conditions = array(
-				'DiagnosisMaster.participant_id' => $participant_id,
-				'DiagnosisMaster.deleted != 1',
-				'DiagnosisControl.category' => 'primary',
-				'DiagnosisControl.controls_type' => 'prostate');
+			'DiagnosisMaster.participant_id' => $participant_id,
+			'DiagnosisMaster.deleted != 1',
+			'DiagnosisControl.category' => 'primary',
+			'DiagnosisControl.controls_type' => 'prostate');
 		$all_prostat_primaries = $this->DiagnosisMaster->find('all', array('conditions'=>$conditions));	
 		foreach($all_prostat_primaries as $new_primary) $this->DiagnosisMaster->calculateSurvivalAndBcr($new_primary['DiagnosisMaster']['id']);
 	}
