@@ -16,11 +16,11 @@ $migration_user_id = 1;
 //-- EXCEL FILE NAMES ---------------------------------------------------------------------------------------------------------------------------
 
 $files_path = "C:/_NicolasLuc/Server/www/tfri_cpcbn/data/";
-//$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/UpdateClinicalData/data/";
+//$files_path = "/ATiM/atim-tfri/dataUpdate/cpcbn/blockCreation/data/";
 // Serial number $windows_xls_offset = 36526 & $mac_xls_offset = 35064;
 $excel_files_names = array(
-	array('160506_AS Manitoba_ATiM_revised_20160531.xls', 'Manitoba-Drachenberg #8', $windows_xls_offset, 'Feuil1'),
-	array('160516_AS_Sunnybrook_ATiM Inventory_revised_20160531.xls', 'Sunnybrook-Klotz #7', $windows_xls_offset, '160126_AS_Inventory_review.csv')
+	array('VO_AS CHUM blocks_nl_revised.xls', 'CHUM-Saad #1', $windows_xls_offset, 'Feuil1'),
+	array('VO_161124_ATiM_Manitoba_migration ID_nl_revised.xls', 'Manitoba-Drachenberg #8', $windows_xls_offset, 'with additional ID')
 );
 
 ?>

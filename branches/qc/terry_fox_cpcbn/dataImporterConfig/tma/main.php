@@ -207,6 +207,7 @@ foreach($excel_files as $excel_data) {
 							$aliquot_data = array(
 								'aliquot_masters' => array(
 									"barcode" => 'tmp_core_'.$aliquot_counter,
+									"aliquot_label" => substr(strtoupper(strlen($revised_nature)? $revised_nature : (strlen($site_nature)? $site_nature : 'U')), 0, 1),
 									"aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-core']['id'],
 									"collection_id" => $atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']]['collection_id'],
 									"sample_master_id" => $atim_patient[$excel_line_data['BANK']][$excel_line_data['ID Bank']]['sample_master_id'],
@@ -275,9 +276,11 @@ foreach($excel_files as $excel_data) {
 						if(strlen($excel_line_data['Core #']) && $excel_line_data['Core #'] != '.') $notes[] = 'Core # '.$excel_line_data['Core #'].'.';
 						if(strlen($excel_line_data['NotesReview1'.$review_field_extension]) && $excel_line_data['NotesReview1'.$review_field_extension] != '.') $notes[] = 'Review ccl : '.$excel_line_data['NotesReview1'.$review_field_extension].'.';
 						$aliquot_counter++;
+						$site_nature = '';
 						$aliquot_data = array(
 							'aliquot_masters' => array(
 								"barcode" => 'tmp_core_'.$aliquot_counter,
+								"aliquot_label" => substr(strtoupper(strlen($revised_nature)? $revised_nature : (strlen($site_nature)? $site_nature : 'U')), 0, 1),
 								"aliquot_control_id" => $atim_controls['aliquot_controls']['tissue-core']['id'],
 								"collection_id" => $controls_collections['collection_id'],
 								"sample_master_id" => $controls_collections['sample_master_ids'][$sample_key],
@@ -288,7 +291,7 @@ foreach($excel_files as $excel_data) {
 								'use_counter' => '0',
 								'notes' => implode(' ', $notes)),
 							$atim_controls['aliquot_controls']['tissue-core']['detail_tablename'] => array(
-								'qc_tf_core_nature_site' => '',
+								'qc_tf_core_nature_site' => $site_nature,
 								'qc_tf_core_nature_revised' => $revised_nature));
 						customInsertRecord($aliquot_data);
 					}

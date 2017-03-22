@@ -34,7 +34,7 @@ function txBiopsyPostRead(Model $m){
 	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Bx Specification' : 'Surgery/Biopsy Type of surgery');
 	switch($m->values[$type_field]) {
 		case 'Bx sent to CHUM':
-			$m->values['type'] = "CHUM Bx";
+			$m->values['type'] = "Bx CHUM";
 			break;
 		case 'Dx Bx':
 			$m->values['type'] = "Bx Dx";		

@@ -258,6 +258,9 @@ class ReportsControllerCustom extends ReportsController {
 				"SELECT DISTINCT
 					DiagnosisMaster.primary_id,
 					DiagnosisMaster.participant_id,
+					TreatmentMaster.start_date,
+					TreatmentMaster.start_date_accuracy,
+					TreatmentDetail.type,
 					TreatmentDetail.gleason_grade
 				FROM diagnosis_masters AS DiagnosisMaster
 				INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1
@@ -270,7 +273,35 @@ class ReportsControllerCustom extends ReportsController {
 				$studied_primary_id = $new_res['DiagnosisMaster']['primary_id'];
 				if($tmp_new_primary_id != $studied_primary_id) {
 					$tmp_new_primary_id = $studied_primary_id;
-					$bx_dx_gleason_grades_from_primary_id[$studied_primary_id] = array('Generated'=>array('qc_tf_gleason_grade_biopsy_turp' => $new_res['TreatmentDetail']['gleason_grade']));
+					$bx_dx_gleason_grades_from_primary_id[$studied_primary_id] = array(
+						'Generated'=>array(
+							'qc_tf_date_biopsy_turp' => $new_res['TreatmentMaster']['start_date'],	
+							'qc_tf_type_biopsy_turp' => $new_res['TreatmentDetail']['type'],								
+							'qc_tf_gleason_grade_biopsy_turp' => $new_res['TreatmentDetail']['gleason_grade'],
+							'qc_tf_date_confirmation_biopsy_turp' => '',
+							'qc_tf_type_confirmation_biopsy_turp' => ''	
+						));
+					if($new_res['TreatmentMaster']['start_date']) {
+						//Get confirmation Biopsy
+						$sql =
+							"SELECT DISTINCT
+								TreatmentMaster.start_date,
+								TreatmentMaster.start_date_accuracy,
+								TreatmentDetail.type
+							FROM diagnosis_masters AS DiagnosisMaster
+							INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1
+							INNER JOIN qc_tf_txd_biopsies_and_turps AS TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id AND TreatmentDetail.type NOT IN ('".implode("','", $TreatmentMasterModel->dx_biopsy_and_turp_types)."')
+							WHERE DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.primary_id = $studied_primary_id
+							AND TreatmentMaster.start_date IS NOT NULL
+							AND TreatmentMaster.start_date > '".$new_res['TreatmentMaster']['start_date']."'
+							ORDER BY TreatmentMaster.start_date ASC
+							LIMIT 0,1;";
+						$bx_confirmation = $this->Report->tryCatchQuery($sql);
+						if($bx_confirmation) {
+							$bx_dx_gleason_grades_from_primary_id[$studied_primary_id]['Generated']['qc_tf_date_confirmation_biopsy_turp'] = $bx_confirmation[0]['TreatmentMaster']['start_date'];
+							$bx_dx_gleason_grades_from_primary_id[$studied_primary_id]['Generated']['qc_tf_type_confirmation_biopsy_turp'] = $bx_confirmation[0]['TreatmentDetail']['type'];
+						}
+					}
 				} else {
 					die('ERR 1993434343');
 				}
@@ -428,16 +459,20 @@ class ReportsControllerCustom extends ReportsController {
 		$treatments_summary_template = array(
 			'Generated' => array(
 				'qc_tf_chemo_flag' => 'n',
+				'qc_tf_chemo_first_date' => '',
 				'qc_tf_radiation_flag' => 'n',
 				'qc_tf_radiation_details' => '',
-				'qc_tf_hormono_flag' => 'n'));
-		$sql = "SELECT distinct TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type
+				'qc_tf_radiation_first_date' => '',
+				'qc_tf_hormono_flag' => 'n',
+				'qc_tf_hormono_first_date' => ''));
+		$sql = "SELECT distinct TreatmentMaster.start_date, TreatmentMaster.start_date_accuracy, TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type
 			FROM treatment_masters TreatmentMaster 
 			INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
 			LEFT JOIN txd_radiations RadiationDetails ON RadiationDetails.treatment_master_id =  TreatmentMaster.id
 			WHERE TreatmentMaster.deleted <> 1
 			AND TreatmentControl.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
-			AND TreatmentMaster.participant_id IN (".implode(',',$participant_ids).")";
+			AND TreatmentMaster.participant_id IN (".implode(',',$participant_ids).")
+			ORDER BY TreatmentMaster.start_date ASC";
 		$treatment_results = $this->Report->tryCatchQuery($sql);
 		$treatments_summary = array();
 		foreach($treatment_results as $new_trt) {
@@ -446,6 +481,9 @@ class ReportsControllerCustom extends ReportsController {
 			switch($new_trt['TreatmentControl']['tx_method']) {
 				case 'hormonotherapy':
 					$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_flag'] = 'y';
+					if(strlen($new_trt['TreatmentMaster']['start_date']) && !$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_first_date']) {
+						$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_first_date'] = $new_trt['TreatmentMaster']['start_date'];
+					}
 					break;
 				case 'radiation':
 					$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_flag'] = 'y';
@@ -455,9 +493,15 @@ class ReportsControllerCustom extends ReportsController {
 							$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_details'] .= (empty($treatments_summary[$participant_id]['Generated']['qc_tf_radiation_details'])? '' : ', '). $radiation_type;
 						}
 					}
+					if(strlen($new_trt['TreatmentMaster']['start_date']) && !$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_first_date']) {
+						$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_first_date'] = $new_trt['TreatmentMaster']['start_date'];
+					}
 					break;
 				case 'chemotherapy':
 					$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_flag'] = 'y';
+					if(strlen($new_trt['TreatmentMaster']['start_date']) && !$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_first_date']) {
+						$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_first_date'] = $new_trt['TreatmentMaster']['start_date'];
+					}
 					break;
 			}
 		}
@@ -543,7 +587,14 @@ class ReportsControllerCustom extends ReportsController {
 			if(isset($bx_dx_gleason_grades_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
 				$new_participant = array_merge_recursive($new_participant, $bx_dx_gleason_grades_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
-				$new_participant = array_merge_recursive($new_participant, array('Generated'=>array('qc_tf_gleason_grade_biopsy_turp' => '')));
+				$new_participant = array_merge_recursive($new_participant, array(
+					'Generated'=>array(
+						'qc_tf_date_biopsy_turp' => '',
+						'qc_tf_type_biopsy_turp' => '',
+						'qc_tf_gleason_grade_biopsy_turp' => '',
+						'qc_tf_date_confirmation_biopsy_turp' => '',
+						'qc_tf_type_confirmation_biopsy_turp' => ''	
+					)));
 			}
 			$date_diff_def = array('Participant.qc_tf_last_contact' => 'Generated.qc_tf_rp_to_last_contact',
 				'Metastasis.qc_tf_first_bone_metastasis_date' => 'Generated.qc_tf_rp_to_bone_met',
