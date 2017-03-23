@@ -275,7 +275,8 @@ class ReportsControllerCustom extends ReportsController {
 					$tmp_new_primary_id = $studied_primary_id;
 					$bx_dx_gleason_grades_from_primary_id[$studied_primary_id] = array(
 						'Generated'=>array(
-							'qc_tf_date_biopsy_turp' => $new_res['TreatmentMaster']['start_date'],	
+							'qc_tf_date_biopsy_turp' => $this->formatReportDateForDisplay($new_res['TreatmentMaster']['start_date'], $new_res['TreatmentMaster']['start_date_accuracy']),
+							'qc_tf_date_biopsy_turp_accuracy' => $new_res['TreatmentMaster']['start_date_accuracy'],							
 							'qc_tf_type_biopsy_turp' => $new_res['TreatmentDetail']['type'],								
 							'qc_tf_gleason_grade_biopsy_turp' => $new_res['TreatmentDetail']['gleason_grade'],
 							'qc_tf_date_confirmation_biopsy_turp' => '',
@@ -298,7 +299,8 @@ class ReportsControllerCustom extends ReportsController {
 							LIMIT 0,1;";
 						$bx_confirmation = $this->Report->tryCatchQuery($sql);
 						if($bx_confirmation) {
-							$bx_dx_gleason_grades_from_primary_id[$studied_primary_id]['Generated']['qc_tf_date_confirmation_biopsy_turp'] = $bx_confirmation[0]['TreatmentMaster']['start_date'];
+							$bx_dx_gleason_grades_from_primary_id[$studied_primary_id]['Generated']['qc_tf_date_confirmation_biopsy_turp'] = $this->formatReportDateForDisplay($bx_confirmation[0]['TreatmentMaster']['start_date'], $bx_confirmation[0]['TreatmentMaster']['start_date_accuracy']);
+							$bx_dx_gleason_grades_from_primary_id[$studied_primary_id]['Generated']['qc_tf_date_confirmation_biopsy_turp_accuracy'] = $bx_confirmation[0]['TreatmentMaster']['start_date_accuracy'];
 							$bx_dx_gleason_grades_from_primary_id[$studied_primary_id]['Generated']['qc_tf_type_confirmation_biopsy_turp'] = $bx_confirmation[0]['TreatmentDetail']['type'];
 						}
 					}
@@ -333,6 +335,7 @@ class ReportsControllerCustom extends ReportsController {
 				if($tmp_new_primary_id != $studied_primary_id) {
 					$tmp_new_primary_id = $studied_primary_id;
 					unset($new_res['DiagnosisMaster']);
+					$new_res['FstBcrDiagnosisMaster']['first_bcr_date'] = $this->formatReportDateForDisplay($new_res['FstBcrDiagnosisMaster']['first_bcr_date'], $new_res['FstBcrDiagnosisMaster']['first_bcr_date_accuracy'] );
 					$fst_bcr_results_from_primary_id[$studied_primary_id] = $new_res;
 				} else {
 					die('ERR 19938939323');
@@ -374,13 +377,13 @@ class ReportsControllerCustom extends ReportsController {
 				
 				$studied_data = array(
 					'DfsTreatmentMaster' => array(
-						'dfs_start_date' => $new_res['TreatmentMaster']['dfs_start_date'],
+						'dfs_start_date' => $this->formatReportDateForDisplay($new_res['TreatmentMaster']['dfs_start_date'], $new_res['TreatmentMaster']['dfs_start_date_accuracy']),
 						'dfs_start_date_accuracy' => $new_res['TreatmentMaster']['dfs_start_date_accuracy']),
 					'DfsTreatmentControl' => array(
 						'dfs_tx_method' => $new_res['TreatmentControl']['dfs_tx_method'],
 						'dfs_disease_site' =>  $new_res['TreatmentControl']['dfs_disease_site']),
 					'PsaEventMaster' => array(
-						'psa_event_date' => $new_res['PsaEventMaster']['psa_event_date'],
+						'psa_event_date' => $this->formatReportDateForDisplay($new_res['PsaEventMaster']['psa_event_date'], $new_res['PsaEventMaster']['psa_event_date_accuracy']),
 						'psa_event_date_accuracy' => $new_res['PsaEventMaster']['psa_event_date_accuracy']),
 					'PsaEventDetail' => array(
 						'psa_ng_per_ml' => $new_res['PsaEventDetail']['psa_ng_per_ml']
@@ -437,14 +440,14 @@ class ReportsControllerCustom extends ReportsController {
 					) ;
 				}
 				if(empty($metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date']) && !empty($new_res['DiagnosisMaster']['dx_date'])) {
-					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date'] = $new_res['DiagnosisMaster']['dx_date'];
+					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date'] = $this->formatReportDateForDisplay($new_res['DiagnosisMaster']['dx_date'], $new_res['DiagnosisMaster']['dx_date_accuracy']);
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date_accuracy'] = $new_res['DiagnosisMaster']['dx_date_accuracy'];
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_type'] = $new_res['DiagnosisDetail']['site'];			
 				} else if(!empty($new_res['DiagnosisDetail']['site'])) {				
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['other_types'][] = __($new_res['DiagnosisDetail']['site']);
 				}
 				if($new_res['DiagnosisDetail']['site'] == 'bone' && empty($metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['qc_tf_first_bone_metastasis_date']) && !empty($new_res['DiagnosisMaster']['dx_date'])) {
-					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['qc_tf_first_bone_metastasis_date'] = $new_res['DiagnosisMaster']['dx_date'];
+					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['qc_tf_first_bone_metastasis_date'] = $this->formatReportDateForDisplay($new_res['DiagnosisMaster']['dx_date'], $new_res['DiagnosisMaster']['dx_date_accuracy']);
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['qc_tf_first_bone_metastasis_date_accuracy'] = $new_res['DiagnosisMaster']['dx_date_accuracy'];
 				}
 			}
@@ -482,7 +485,8 @@ class ReportsControllerCustom extends ReportsController {
 				case 'hormonotherapy':
 					$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_flag'] = 'y';
 					if(strlen($new_trt['TreatmentMaster']['start_date']) && !$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_first_date']) {
-						$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_first_date'] = $new_trt['TreatmentMaster']['start_date'];
+						$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_first_date'] = $this->formatReportDateForDisplay($new_trt['TreatmentMaster']['start_date'], $new_trt['TreatmentMaster']['start_date_accuracy']);
+						$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_first_date_accuracy'] = $new_trt['TreatmentMaster']['start_date_accuracy'];		
 					}
 					break;
 				case 'radiation':
@@ -494,13 +498,15 @@ class ReportsControllerCustom extends ReportsController {
 						}
 					}
 					if(strlen($new_trt['TreatmentMaster']['start_date']) && !$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_first_date']) {
-						$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_first_date'] = $new_trt['TreatmentMaster']['start_date'];
+						$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_first_date'] = $this->formatReportDateForDisplay($new_trt['TreatmentMaster']['start_date'], $new_trt['TreatmentMaster']['start_date_accuracy']);
+						$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_first_date_accuracy'] = $new_trt['TreatmentMaster']['start_date_accuracy'];	
 					}
 					break;
 				case 'chemotherapy':
 					$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_flag'] = 'y';
 					if(strlen($new_trt['TreatmentMaster']['start_date']) && !$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_first_date']) {
-						$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_first_date'] = $new_trt['TreatmentMaster']['start_date'];
+						$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_first_date'] = $this->formatReportDateForDisplay($new_trt['TreatmentMaster']['start_date'], $new_trt['TreatmentMaster']['start_date_accuracy']);
+						$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_first_date_accuracy'] = $new_trt['TreatmentMaster']['start_date_accuracy'];
 					}
 					break;
 			}
@@ -642,5 +648,23 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		return $months;
 	}
-
+	
+	function formatReportDateForDisplay($date, $accuracy) {
+		if(preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}(\ [0-9]{2}:[0-9]{2}){0,1}/', $date)) {
+			if($accuracy != 'c'){
+				if($accuracy == 'd'){
+					$date = substr($date, 0, 7);
+				}else if($accuracy == 'm'){
+					$date = substr($date, 0, 4);
+				}else if($accuracy == 'y'){
+					$date = '±'.substr($date, 0, 4);
+				}else if($accuracy == 'h'){
+					$date = substr($date, 0, 10);
+				}else if($accuracy == 'i'){
+					$date = substr($date, 0, 13);
+				}
+			}
+		}
+		return $date;
+	}
 }
