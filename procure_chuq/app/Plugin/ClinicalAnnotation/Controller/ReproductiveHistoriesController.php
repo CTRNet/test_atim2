@@ -69,11 +69,12 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->ReproductiveHistory->save($this->request->data) ) {
+					$url_to_flash = '/ClinicalAnnotation/ReproductiveHistories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id;
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/ReproductiveHistories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id );
+					$this->atimFlash(__('your data has been saved'), $url_to_flash);
 				}			
 			}
 		}

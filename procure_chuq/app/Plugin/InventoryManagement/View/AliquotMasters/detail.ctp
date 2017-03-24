@@ -13,21 +13,11 @@
 			'plugin storagelayout access to storage' => array("link" => '/StorageLayout/StorageMasters/detail/' . $aliquot_storage_data['StorageMaster']['id'], "icon" => "storage"),
 			'remove from storage' => array("link" => '/InventoryManagement/AliquotMasters/removeAliquotFromStorage/' . $col_id_samp_id_al_id, "icon" => "storage"));
 	}
-	
-	if(isset($order_line_id) && isset($order_id)){
-		$structure_links['bottom']['access to order'] = array("link" => '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/', "icon" => "order");
-	}else if(isset($order_id)){
-		$structure_links['bottom']['access to order'] = array("link" => '/Order/Orders/detail/'.$order_id, "icon" => "order");
-	}else {
-		$structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addAliquotsInBatch/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "order");
-	}		
-	
+	if (Configure::read('order_item_type_config') != '3') $structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addOrderItemsInBatch/AliquotMaster/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "add_to_order");
 	$structure_links['bottom']['add uses/events'] = array("link" => '/InventoryManagement/AliquotMasters/addAliquotInternalUse/'. $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
-	
 	$structure_links['bottom']['realiquoting'] = array(
 		'realiquot' =>  array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/creation/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
 		'define realiquoted children' => array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
-
 	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/InventoryManagement/SampleMasters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
 	
 	if($is_from_tree_view_or_layout == 1) {

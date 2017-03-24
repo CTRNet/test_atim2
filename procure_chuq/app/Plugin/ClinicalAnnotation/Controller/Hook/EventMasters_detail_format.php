@@ -2,18 +2,16 @@
 
 	$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
 	
-	if($this->request->data['EventControl']['event_type'] == 'procure follow-up worksheet') {
-		//Set Event Control Id for psa and clinical event
-		$events_types = array('procure follow-up worksheet - aps',
-			'procure follow-up worksheet - clinical event',
-			'procure follow-up worksheet - clinical note');
-		$this->set('linked_events_control_data', $this->EventControl->find('all', array('conditions'=>array('EventControl.event_type' => $events_types))));
-		$events_types = array('procure follow-up worksheet - other tumor dx');		
-		$this->set('other_dx_events_control_data', $this->EventControl->find('all', array('conditions'=>array('EventControl.event_type' => $events_types))));
-		//Set Treatment Control Id for treatments list
+	if($this->request->data['EventControl']['event_type'] == 'visit/contact') {
+		//Set Event Control Id of linked event data to display
+		$events_types = array('laboratory',
+			'clinical exam',
+			'clinical note',
+			'other tumor diagnosis');
+		$this->set('linked_events_control_data', $this->EventControl->find('all', array('conditions'=>array('EventControl.event_type' => $events_types, 'EventControl.flag_active' => '1'))));
+		//Set Treatment Control Id of linked treatment data to display
 		$this->TreatmentControl = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
-		$this->set('linked_tx_control_data', $this->TreatmentControl->find('all', array('conditions'=>array('TreatmentControl.tx_method' => array('procure follow-up worksheet - treatment')))));
-		$this->set('other_dx_tx_control_data', $this->TreatmentControl->find('all', array('conditions'=>array('TreatmentControl.tx_method' => array('procure follow-up worksheet - other tumor tx')))));
+		$this->set('linked_tx_control_data', $this->TreatmentControl->find('all', array('conditions'=>array('TreatmentControl.flag_active' => '1'))));
 		//Set Inteval Dates (previous Medication Worksheet date to studied Medication Worksheet date)
 		$interval_start_date = '-1';
 		$interval_start_date_accuracy = 'c';
@@ -49,7 +47,9 @@
 		} else {
 			$msg = "unable to limit clincial data to a dates interval";
 		}
-		AppController::addWarningMsg(str_replace(array('%start%', '%end%'), array($interval_start_date,$interval_finish_date),__($msg)));
-		
+		//Warning message
+		$warning_message = str_replace(array('%start%', '%end%'), array($interval_start_date,$interval_finish_date),__($msg));
+		if(($interval_finish_date_accuracy.$interval_start_date_accuracy) != 'cc') $warning_message .= ' '.__("at least one of the studied interval date is inaccurate");
+		AppController::addWarningMsg($warning_message);
 	}
 	
