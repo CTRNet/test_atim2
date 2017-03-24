@@ -8,7 +8,7 @@ if(!$is_main_form) {
 		'actions'	=> false
 	);
 	
-	$structure_links = array('index' => array('detail' => $detail_url));
+	$structure_links = array('index' => array('detail' => array('link' => $detail_url, 'icon' => $icon)));
 	
 
 	$final_atim_structure = $atim_structure;
@@ -31,13 +31,8 @@ if(!$is_main_form) {
 
 	// Main form to display one to many lists
 	
-	if(isset($storage_types_from_id)) {
-		$add_links = array();
-		foreach ($storage_types_from_id as $storage_control_id => $translated_storage_type) {
-			$add_links[$translated_storage_type] = '/StorageLayout/StorageMasters/add/' . $storage_control_id . '/' . $atim_menu_variables['StorageMaster.id'];
-		}
-		ksort($add_links);
-		$structure_links = array('bottom'=>array('add to storage' => (empty($add_links)? '/underdevelopment/': $add_links)));	
+	if(isset($add_links)) {
+		$structure_links = array('bottom'=>array('add to storage' => $add_links));	
 	} else {
 		$structure_links = array();
 	}

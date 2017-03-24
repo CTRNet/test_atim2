@@ -6,7 +6,9 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.MiscIdentifier',
 		'ClinicalAnnotation.Participant',
-		'ClinicalAnnotation.MiscIdentifierControl'
+		'ClinicalAnnotation.MiscIdentifierControl',
+			
+		'Study.StudySummary'
 	);
 	
 	var $paginate = array('MiscIdentifier'=>array('order'=>'MiscIdentifierControl.misc_identifier_name ASC, MiscIdentifier.identifier_value ASC'));
@@ -157,6 +159,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		}		
 		
 		if(empty($this->request->data)) {
+			$misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $misc_identifier_data['MiscIdentifier']['study_summary_id'])));
 			$this->request->data = $misc_identifier_data;	
 				
 		} else {

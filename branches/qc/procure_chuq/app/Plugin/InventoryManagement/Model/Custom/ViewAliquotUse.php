@@ -8,23 +8,24 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 	const PROCURE_CREATED_BY_BANK = 18;
 	
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
-		  id varchar(20) NOT NULL,
+		  id int(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
-		  use_definition varchar(50) NOT NULL DEFAULT '',
-		  use_code varchar(250) NOT NULL DEFAULT '',
-		  use_details VARchar(250) NOT NULL DEFAULT '',
+		  use_definition varchar(50) DEFAULT NULL,
+		  use_code varchar(250) DEFAULT NULL,
+		  use_details VARchar(250) DEFAULT NULL,
 		  used_volume decimal(10,5) DEFAULT NULL,
 		  aliquot_volume_unit varchar(20) DEFAULT NULL,
 		  use_datetime datetime DEFAULT NULL,
-		  use_datetime_accuracy char(1) NOT NULL DEFAULT '',
-		  duration VARCHAR(250) NOT NULL DEFAULT '',
-		  duration_unit VARCHAR(250) NOT NULL DEFAULT '',
+		  use_datetime_accuracy char(1) DEFAULT NULL,
+		  duration int(6) DEFAULT NULL,
+		  duration_unit VARCHAR(250) DEFAULT NULL,
 		  used_by VARCHAR(50) DEFAULT NULL,
-		  created datetime NOT NULL,
-		  detail_url varchar(250) NOT NULL DEFAULT '',
+		  created datetime DEFAULT NULL,
+		  detail_url varchar(250) DEFAULT NULL,
 		  sample_master_id int(11) NOT NULL,
 		  collection_id int(11) NOT NULL,
 		  study_summary_id int(11) DEFAULT NULL,
+		  study_summary_title varchar(45) DEFAULT NULL,
 procure_created_by_bank char(1) DEFAULT ''
 		)";
 	
@@ -45,12 +46,14 @@ procure_created_by_bank char(1) DEFAULT ''
 		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		AliquotInternalUse.study_summary_id AS study_summary_id,
+		StudySummary.id AS study_summary_id,
+		StudySummary.title AS study_title,
 AliquotInternalUse.procure_created_by_bank AS procure_created_by_bank
 		FROM aliquot_internal_uses AS AliquotInternalUse
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotInternalUse.study_summary_id AND StudySummary.deleted != 1
 		WHERE AliquotInternalUse.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -64,14 +67,15 @@ AliquotInternalUse.procure_created_by_bank AS procure_created_by_bank
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		DerivativeDetail.creation_datetime AS use_datetime,
 		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
-		'' AS `duration`,
+		NULL AS `duration`,
 		'' AS `duration_unit`,
 		DerivativeDetail.creation_by AS used_by,
 		SourceAliquot.created AS created,
 		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
 		SampleMaster2.id AS sample_master_id,
 		SampleMaster2.collection_id AS collection_id,
-		'-1' AS study_summary_id,
+		NULL AS study_summary_id,
+		'' AS study_title,
 SampleMaster.procure_created_by_bank AS procure_created_by_bank
 		FROM source_aliquots AS SourceAliquot
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
@@ -92,14 +96,15 @@ IF(Realiquoting.procure_central_is_transfer = '1', '###system_transfer_flag###',
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		Realiquoting.realiquoting_datetime AS use_datetime,
 		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		Realiquoting.realiquoted_by AS used_by,
 		Realiquoting.created AS created,
 		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id,
+		NULL AS study_summary_id,
+		'' AS study_title,
 AliquotMasterChild.procure_created_by_bank AS procure_created_by_bank
 		FROM realiquotings AS Realiquoting
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
@@ -119,14 +124,15 @@ AliquotMasterChild.procure_created_by_bank AS procure_created_by_bank
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		QualityCtrl.date AS use_datetime,
 		QualityCtrl.date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		QualityCtrl.run_by AS used_by,
 		QualityCtrl.created AS created,
 		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id,
+		NULL AS study_summary_id,
+		'' AS study_title,
 QualityCtrl.procure_created_by_bank AS procure_created_by_bank
 		FROM quality_ctrls AS QualityCtrl
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
@@ -136,52 +142,92 @@ QualityCtrl.procure_created_by_bank AS procure_created_by_bank
 	
 		UNION ALL
 	
-		SELECT CONCAT(OrderItem.id,4) AS id,
+		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
-		'aliquot shipment' AS use_definition,
-		Shipment.shipment_code AS use_code,	
+		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
+		IF(OrderItem.shipment_id, Shipment.shipment_code, Order.order_number) AS use_code,
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
-		Shipment.datetime_shipped AS use_datetime,
-		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped, OrderItem.date_added) AS use_datetime,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped_accuracy, IF(OrderItem.date_added_accuracy = 'c', 'h', OrderItem.date_added_accuracy)) AS use_datetime_accuracy,
+		NULL AS duration,
 		'' AS duration_unit,
-		Shipment.shipped_by AS used_by,
-		Shipment.created AS created,
-		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		IF(OrderItem.shipment_id, Shipment.shipped_by, OrderItem.added_by) AS used_by,
+		IF(OrderItem.shipment_id, Shipment.created, OrderItem.created) AS created,
+		IF(OrderItem.shipment_id,
+				CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id),
+				IF(OrderItem.order_line_id,
+						CONCAT('/Order/OrderLines/detail/',OrderItem.order_id,'/',OrderItem.order_line_id),
+						CONCAT('/Order/Orders/detail/',OrderItem.order_id))
+		) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
 		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
-'p' AS procure_created_by_bank
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title,
+OrderItem.procure_created_by_bank
+		FROM order_items OrderItem
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		LEFT JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
+		WHERE OrderItem.deleted <> 1 %%WHERE%%
+	
+		UNION ALL
+	
+		SELECT CONCAT(OrderItem.id, 7) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'shipped aliquot return' AS use_definition,
+		Shipment.shipment_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		OrderItem.date_returned AS use_datetime,
+		IF(OrderItem.date_returned_accuracy = 'c', 'h', OrderItem.date_returned_accuracy) AS use_datetime_accuracy,
+		NULL AS duration,
+		'' AS duration_unit,
+		OrderItem.reception_by AS used_by,
+		OrderItem.modified AS created,
+		CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title,
+OrderItem.procure_created_by_bank
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
-		WHERE OrderItem.deleted <> 1 %%WHERE%%
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
+		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
 	
 		UNION ALL
 	
 		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'specimen review' AS use_definition,
-		SpecimenReviewMaster.review_code AS use_code,	
+		SpecimenReviewMaster.review_code AS use_code,
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
 		SpecimenReviewMaster.review_date AS use_datetime,
 		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		'' AS used_by,
 		AliquotReviewMaster.created AS created,
 		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id,
-'' AS procure_created_by_bank
+		NULL AS study_summary_id,
+		'' AS study_title,
+AliquotReviewMaster.procure_created_by_bank
 		FROM aliquot_review_masters AS AliquotReviewMaster
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id

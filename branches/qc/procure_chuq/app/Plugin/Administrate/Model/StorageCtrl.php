@@ -49,7 +49,6 @@ class StorageCtrl extends AdministrateAppModel {
 	}
 	
 	function validates($options = array()){
-		parent::validates($options);	
 		if(isset($this->data['StorageCtrl']['coord_x_title']) && isset($this->data['StorageCtrl']['coord_y_title'])) {
 			// 2d storage
 			if(empty($this->data['StorageCtrl']['coord_x_size'])) $this->validationErrors['coord_x_size'][] = 'the coordinate x size has to be completed';
@@ -63,13 +62,67 @@ class StorageCtrl extends AdministrateAppModel {
 			if(!strlen($this->data['StorageCtrl']['coord_x_size']) && $this->data['StorageCtrl']['coord_x_type'] != 'list') $this->validationErrors['coord_x_size'][] = 'a coordinate x size has to be set';
 			if($this->data['StorageCtrl']['coord_x_type'] != 'list' && (($this->data['StorageCtrl']['display_x_size']*$this->data['StorageCtrl']['display_y_size']) != $this->data['StorageCtrl']['coord_x_size'])) $this->validationErrors['coord_x_size'][] = 'display y size * display y size should be equal to coord x size';
 		}
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	function getListArgs($passedArgs) {
 		$list_args = array();
 		foreach($passedArgs AS $key => $val) if($key && in_array($key, array('limit','sort','direction','page'))) $list_args[$key] = $val;
 		return $list_args;
+	}
+	
+	function validatesAllStorageControls() {
+		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+		$translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array('storage types'));
+		$translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
+		$query = "SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type IS NULL
+			AND (coord_x_size IS NOT NULL
+				OR display_x_size != '0'
+				OR coord_y_type IS NOT NULL
+				OR coord_y_size IS NOT NULL
+				OR display_y_size != '0')
+			UNION ALL
+			SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type = 'list'
+			AND (coord_x_size IS NOT NULL
+				OR display_x_size != '0'
+				OR coord_y_type IS NOT NULL
+				OR coord_y_size IS NOT NULL
+				OR display_y_size != '0')
+			UNION ALL
+			SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type IS NOT NULL AND coord_x_type != 'list'
+			AND coord_y_type IS NOT NULL
+			AND (coord_x_type NOT IN ('integer', 'alphabetical')
+				OR coord_x_size IS NULL
+				OR coord_x_size < 1
+				OR display_x_size != '0'
+				OR coord_y_type NOT IN ('integer', 'alphabetical')
+				OR coord_y_size IS NULL
+				OR coord_y_size < 1
+				OR display_y_size != '0')
+			UNION ALL
+			SELECT storage_type
+			FROM storage_controls
+			WHERE coord_x_type IS NOT NULL AND coord_x_type != 'list'
+			AND coord_y_type IS NULL
+			AND (coord_x_type NOT IN ('integer', 'alphabetical')
+				OR coord_x_size IS NULL
+				OR coord_x_size < 1
+				OR display_x_size = '0'
+				OR coord_y_size IS NOT NULL
+				OR display_y_size IS NULL
+				OR display_y_size = '0'
+				OR (coord_x_size != (display_x_size*display_y_size)));";
+		foreach($this->query($query) as $new_str_ctrl) {
+			$storage_type = $new_str_ctrl[0]['storage_type'];
+			$storage_type = isset($translated_storage_types[$storage_type])? $translated_storage_types[$storage_type] : $storage_type;
+			AppController::addWarningMsg(__('storage control data of the storage type [%s] are not correctly set - please contact your administartor', $storage_type));		
+		}
 	}
 	
 }	
