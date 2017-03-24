@@ -401,6 +401,47 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
+		// *********** Get Last PSA ***********
+		
+		$last_psa_from_primary_id = array();
+		if($primary_ids_condition) {
+			$sql = 
+				"SELECT DISTINCT
+					DiagnosisMaster.primary_id,
+					DiagnosisMaster.participant_id,
+				
+					PsaEventMaster.event_date AS psa_event_date,
+					PsaEventMaster.event_date_accuracy AS psa_event_date_accuracy,
+					PsaEventDetail.psa_ng_per_ml
+					
+				FROM diagnosis_masters AS DiagnosisMaster
+				INNER JOIN event_masters AS PsaEventMaster ON PsaEventMaster.diagnosis_master_id = DiagnosisMaster.id AND PsaEventMaster.deleted <> 1 AND PsaEventMaster.event_control_id = 52 AND PsaEventMaster.event_date IS NOT NULL
+				INNER JOIN qc_tf_ed_psa AS PsaEventDetail ON PsaEventDetail.event_master_id = PsaEventMaster.id
+				WHERE DiagnosisMaster.deleted <> 1 AND $primary_ids_condition 
+				ORDER BY DiagnosisMaster.primary_id ASC, PsaEventMaster.event_date DESC;";
+				
+			$last_psa_results = $this->Report->tryCatchQuery($sql);
+				
+			$tmp_new_primary_id = '';
+			foreach($last_psa_results as $new_res) {
+				$studied_primary_id = $new_res['DiagnosisMaster']['primary_id'];
+		
+				$studied_data = array(
+					'PsaEventMaster' => array(
+						'qc_tf_last_psa_event_date' => $this->formatReportDateForDisplay($new_res['PsaEventMaster']['psa_event_date'], $new_res['PsaEventMaster']['psa_event_date_accuracy']),
+						'qc_tf_last_psa_event_date_accuracy' => $new_res['PsaEventMaster']['psa_event_date_accuracy']),
+					'PsaEventDetail' => array(
+						'qc_tf_last_psa_ng_per_ml' => $new_res['PsaEventDetail']['psa_ng_per_ml']
+					)
+				);
+				
+				if($tmp_new_primary_id != $studied_primary_id) {
+					$tmp_new_primary_id = $studied_primary_id;
+					$last_psa_from_primary_id[$studied_primary_id] = $studied_data;
+				}
+			}
+		}
+		
 		// *********** Get Metastasis ***********
 		
 		$metastasis_results_from_primary_id = array();
@@ -548,7 +589,17 @@ class ReportsControllerCustom extends ReportsController {
 			'PsaEventDetail' => array(
 				'psa_ng_per_ml' => ''
 			)
-		);		
+		);
+		
+		$last_psa_template = array(
+			'PsaEventMaster' => array(
+				'qc_tf_last_psa_event_date' =>  '',
+				'qc_tf_last_psa_event_date_accuracy' => ''),
+			'PsaEventDetail' => array(
+				'qc_tf_last_psa_ng_per_ml' => ''
+			)
+		);
+		
 		$metastasis_template = array(
 			'Metastasis' => array(
 				'first_metastasis_dx_date' => '',
@@ -572,6 +623,11 @@ class ReportsControllerCustom extends ReportsController {
 				$new_participant = array_merge_recursive($new_participant, $dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
 				$new_participant = array_merge_recursive($new_participant, $dfs_psa_template);
+			}
+			if(isset($last_psa_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
+				$new_participant = array_merge_recursive($new_participant, $last_psa_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
+			} else {
+				$new_participant = array_merge_recursive($new_participant, $last_psa_template);
 			}
 			if(isset($metastasis_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
 				$other_types = $metastasis_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]['Metastasis']['other_types'];			
@@ -604,7 +660,8 @@ class ReportsControllerCustom extends ReportsController {
 			}
 			$date_diff_def = array('Participant.qc_tf_last_contact' => 'Generated.qc_tf_rp_to_last_contact',
 				'Metastasis.qc_tf_first_bone_metastasis_date' => 'Generated.qc_tf_rp_to_bone_met',
-				'FstBcrDiagnosisMaster.first_bcr_date' => 'Generated.qc_tf_rp_to_bcr');
+				'FstBcrDiagnosisMaster.first_bcr_date' => 'Generated.qc_tf_rp_to_bcr',
+				'PsaEventMaster.qc_tf_last_psa_event_date' => 'Generated.qc_tf_rp_to_last_psa');
 			foreach($date_diff_def as $model_field_data => $model_field_calculated) {
 				list($model_data,$field_data) = explode('.', $model_field_data);
 				list($model_calculated,$field_calculated) = explode('.', $model_field_calculated);
@@ -623,7 +680,7 @@ class ReportsControllerCustom extends ReportsController {
 				$new_participant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
 			}
 		}
-		
+pr($main_results);		
 		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
 		$array_to_return = array(
 			'header' => array(), 
