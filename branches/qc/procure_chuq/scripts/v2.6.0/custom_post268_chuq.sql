@@ -22,5 +22,8 @@ UPDATE versions SET branch_build_number = '6513' WHERE version_number = '2.6.7';
 
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster');
 
-UPDATE versions SET site_branch_build_number = '6677' WHERE version_number = '2.6.8';
+UPDATE users set username = 'system', first_name = '', flag_active = 0 WHERE username = 'manager';
+UPDATE groups set name = 'system' WHERE name = 'manager';
+
+UPDATE versions SET site_branch_build_number = '6678' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
