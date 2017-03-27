@@ -1,4 +1,9 @@
 <?php 
+	
+	//$aliquot_control
+	if($aliquot_control['AliquotControl']['aliquot_type'] == 'whatman paper') {
+		$errors['aliquot_type']['whatman paper can not be created anymore'][] = '';
+	}
 
 	//Validate match between barcode, participant_identifier and visit
 	$record_counter = 0;

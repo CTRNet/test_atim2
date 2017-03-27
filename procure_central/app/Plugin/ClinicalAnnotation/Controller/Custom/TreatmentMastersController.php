@@ -2,7 +2,7 @@
 
 class TreatmentMastersControllerCustom extends TreatmentMastersController {
 
-	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date ASC, TreatmentMaster.procure_form_identification ASC'));
+	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
 	
 	function listallBasedOnControlId($participant_id, $treatment_control_id, $interval_start_date = null, $interval_start_date_accuracy = '', $interval_finish_date = null, $interval_finish_date_accuracy = ''){
 		//*** Specific list display based on control_id
@@ -38,7 +38,6 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 					"TreatmentMaster.start_date IS NULL AND TreatmentMaster.finish_date IS NULL",
 					"TreatmentMaster.start_date IS NOT NULL AND TreatmentMaster.start_date <= '$interval_finish_date'");
 			}
-			if(($interval_finish_date_accuracy.$interval_start_date_accuracy) != 'cc') AppController::addWarningMsg(__("at least one of the studied interval date is inaccurate"));				
 			$this->request->data = $this->paginate($this->TreatmentMaster, $drugs_list_conditions);
 		}
 	}

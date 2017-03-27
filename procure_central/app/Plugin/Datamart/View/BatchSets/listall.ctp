@@ -43,8 +43,7 @@
 		'top'=>'#',
 		'bottom'=>array(
 			'edit'		=> '/Datamart/BatchSets/edit/'.$atim_menu_variables['BatchSet.id'],
-			'delete'	=> '/Datamart/BatchSets/delete/'.$atim_menu_variables['BatchSet.id'],
-			'list'		=> '/Datamart/BatchSets/index/'
+			'delete'	=> '/Datamart/BatchSets/delete/'.$atim_menu_variables['BatchSet.id']
 		)
 	);
 	if($display_unlock_button) $structure_links['bottom'] = array_merge(array('unlock' => '/Datamart/BatchSets/unlock/'.$atim_menu_variables['BatchSet.id']), $structure_links['bottom']);

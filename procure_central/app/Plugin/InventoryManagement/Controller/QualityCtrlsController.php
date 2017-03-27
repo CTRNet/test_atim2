@@ -319,7 +319,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
 					$this->AliquotMaster->pkey_safeguard = true;
 					foreach($aliquot_data_to_save as $aliquot_data){
-						$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_data['id'], true, true, false);
+						$this->AliquotMaster->updateAliquotVolume($aliquot_data['id']);
 					}
 				}
 				
@@ -510,10 +510,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$this->QualityCtrl->addWritableField(array('aliquot_master_id'));
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->request->data )) {
 				if($update_new_aliquot_id != null){
-					$this->AliquotMaster->updateAliquotUseAndVolume($update_new_aliquot_id, true, true, false);
+					$this->AliquotMaster->updateAliquotVolume($update_new_aliquot_id);
 				}
 				if($update_old_aliquot_id != null){
-					$this->AliquotMaster->updateAliquotUseAndVolume($update_old_aliquot_id, true, true, false);
+					$this->AliquotMaster->updateAliquotVolume($update_old_aliquot_id);
 				}
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
@@ -549,7 +549,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->QualityCtrl->atimDelete($quality_ctrl_id)) {
 				if($qc_data['QualityCtrl']['aliquot_master_id'] != null){
-					$this->AliquotMaster->updateAliquotUseAndVolume($qc_data['QualityCtrl']['aliquot_master_id'], true, true, false);
+					$this->AliquotMaster->updateAliquotVolume($qc_data['QualityCtrl']['aliquot_master_id']);
 				}
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 

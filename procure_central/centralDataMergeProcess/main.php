@@ -970,7 +970,7 @@ foreach($barcodes as $new_aliquot) {
 	$aliquot_ids[] = $new_aliquot['id'];
 	recordErrorAndMessage('Participants', 
 		'@@WARNING@@', 
-		"'Sent to Processing Site' information lined to an aliquot in bank database for an 'Un-transferred Aliquot'", 
+		"'Sent to Processing Site' information linked to an aliquot in bank database for an 'Un-transferred Aliquot'", 
 		"The aliquot is not recored as transferred from bank to processing (no barcodes match between the bank aliquot and a processing site aliquot flagged as transfered) but an interal use 'Sent to Processing Site' has been recorded and linked to the aliquot in the bank database. Please see 'Untransferred aliquot flagged as sent to p. site' batchset and correct in bank.", 
 		$new_aliquot['barcode']." in bank '".$sitecodes_to_sites[$new_aliquot['procure_created_by_bank']]."'");
 }

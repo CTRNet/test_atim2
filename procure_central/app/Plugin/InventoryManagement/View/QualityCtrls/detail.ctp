@@ -8,8 +8,6 @@
 			'delete'=>'/InventoryManagement/QualityCtrls/deleteTestedAliquot/'.$atim_menu_variables['QualityCtrl.id'].'/%%AliquotMaster.id%%/quality_controls_details/'
 		),
 		'bottom'=>array(
-			'list' => '/InventoryManagement/QualityCtrls/listAll/'
-				.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/',
 			'used aliquot' => '/InventoryManagement/AliquotMasters/detail/'
 				.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$quality_ctrl_data['QualityCtrl']['aliquot_master_id'],
 			'edit' => '/InventoryManagement/QualityCtrls/edit/'
@@ -25,7 +23,6 @@
 	
 	if($is_from_tree_view) {
 		$final_options['settings']['header'] =  __('quality control');
-		unset($final_options['links']['bottom']['list']);
 	}
 	
 	// CUSTOM CODE

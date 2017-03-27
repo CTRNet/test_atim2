@@ -10,7 +10,9 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		
 		'Protocol.ProtocolMaster',
 		'Protocol.ProtocolControl',
-		'Protocol.ProtocolExtendMaster');
+		'Protocol.ProtocolExtendMaster',
+			
+		'Drug.Drug');
 		
 	var $paginate = array();
 
@@ -25,6 +27,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		
 		$tx_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($tx_master_data['TreatmentControl']['treatment_extend_control_id']);
 	
+		$this->set('tx_extend_type',$tx_extend_control_data['TreatmentExtendControl']['type']);
+		
 		// Set form alias and menu
 		$this->Structures->set($tx_extend_control_data['TreatmentExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
@@ -52,7 +56,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				$line_counter++;
 				$new_row['TreatmentExtendMaster']['treatment_extend_control_id'] = $tx_master_data['TreatmentControl']['treatment_extend_control_id'];
 				$new_row['TreatmentExtendMaster']['treatment_master_id'] = $tx_master_id;
-				$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 				$this->TreatmentExtendMaster->set($new_row);
 				if(!$this->TreatmentExtendMaster->validates()){
 					foreach($this->TreatmentExtendMaster->validationErrors as $field => $msgs) {	
@@ -77,9 +81,11 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				
 				foreach($this->request->data as $new_data) {
 					$this->TreatmentExtendMaster->id = null;
-					$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					if(!$this->TreatmentExtendMaster->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
+				
+				$url_to_flash = '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id;
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
@@ -88,11 +94,11 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				
 				AppModel::releaseBatchViewsUpdateLock();
 				
-				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
+				$this->atimFlash(__('your data has been saved'), $url_to_flash);
 
 			} else  {
 				$this->TreatmentExtendMaster->validationErrors = array();
-				$this->TreatmentExtendDetail->validationErrors = array();
+				if(isset($this->TreatmentExtendDetail->validationErrors)) $this->TreatmentExtendDetail->validationErrors = array();
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
 						$msg = __($msg);
@@ -112,6 +118,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		$tx_extend_data = $this->TreatmentExtendMaster->getOrRedirect($tx_extend_id);
 		if($tx_extend_data['TreatmentMaster']['id'] != $tx_master_id) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		
+		$this->set('tx_extend_type',$tx_extend_data['TreatmentExtendControl']['type']);
+		
 		// Set form alias and menu data
 		$this->Structures->set($tx_extend_data['TreatmentExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id, 'TreatmentExtendMaster.id'=>$tx_extend_id));
@@ -122,7 +130,14 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if(empty($this->request->data)) {
+			$tx_extend_data['FunctionManagement']['autocomplete_treatment_drug_id'] = $this->Drug->getDrugDataAndCodeForDisplay(array('Drug' => array('id' => $tx_extend_data['TreatmentExtendMaster']['drug_id'])));
 			$this->request->data = $tx_extend_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		} else {
 			$submitted_data_validates = true;
 			
@@ -191,9 +206,10 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 					$data[] = array(
 						'TreatmentExtendMaster' => array(
 							'treatment_master_id' => $tx_master_id,
-							'treatment_extend_control_id' => $tx_master_data['TreatmentControl']['treatment_extend_control_id']),
+							'treatment_extend_control_id' => $tx_master_data['TreatmentControl']['treatment_extend_control_id'],
+							'drug_id' => $prot_extend['ProtocolExtendMaster']['drug_id'],
+						),
 						'TreatmentExtendDetail' => array(
-							'drug_id' => $prot_extend['ProtocolExtendDetail']['drug_id'],
 							'method' => $prot_extend['ProtocolExtendDetail']['method'],
 							'dose' => $prot_extend['ProtocolExtendDetail']['dose'])
 					);

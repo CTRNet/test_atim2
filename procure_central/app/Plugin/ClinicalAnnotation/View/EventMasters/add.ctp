@@ -2,6 +2,9 @@
 
 	$structure_links = array(
 		'top' => '/ClinicalAnnotation/EventMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventControl.id'].'/',
+		'bottom' => array(
+			'cancel'=>'/ClinicalAnnotation/EventMasters/listall/'.$atim_menu_variables['EventControl.event_group'].'/'.$atim_menu_variables['Participant.id']
+		)
 	);
 	
 	// 1- EVENT DATA
