@@ -94,7 +94,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			//aliquots that are not realiquots
 			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 			$aliquot_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
-			$aliquot_ids = array_diff($aliquot_ids, $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids), 'group' => array("Realiquoting.child_aliquot_master_id"))));
+			$aliquot_ids = array_diff($aliquot_ids, array_unique(array_filter($this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids))))));
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
 			
 			$aliquot_ids[] = 0;//counters Eventum 1353
@@ -106,7 +106,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			}
 			$this->request->data = array_merge($aliquots, $this->request->data);
 		}
-
+		
 		// Set menu variables
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
 		
@@ -1180,7 +1180,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					foreach($children as &$child_to_save){
 						// save sample master
 						$this->SampleMaster->id = null;
-						$this->SampleMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->SampleMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						if(!$this->SampleMaster->save($child_to_save, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 							
@@ -1192,7 +1192,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						$this->SampleMaster->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
 
 						// Save derivative detail
-						$this->DerivativeDetail->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->DerivativeDetail->data = array(); // *** To guaranty no merge will be done with previous data ***
 						$this->DerivativeDetail->id = $child_id;
 						$child_to_save['DerivativeDetail']['sample_master_id'] = $child_id;
 						if(!$this->DerivativeDetail->save($child_to_save, false)){ 
@@ -1228,7 +1228,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					}								
 					$this->AliquotMaster->id = $aliquot['AliquotMaster']['id'];
 					$this->AliquotMaster->save($aliquot, false);
-					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot['AliquotMaster']['id'], true, true, false);
+					$this->AliquotMaster->updateAliquotVolume($aliquot['AliquotMaster']['id']);
 				}
 
 				$hook_link = $this->hook('postsave_process');

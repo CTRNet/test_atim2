@@ -6,7 +6,9 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.ConsentMaster',
 		'ClinicalAnnotation.ConsentDetail',
 		'ClinicalAnnotation.ConsentControl',
-		'ClinicalAnnotation.Participant'
+		'ClinicalAnnotation.Participant',
+		
+		'Study.StudySummary'
 	);
 	
 	var $paginate = array('ConsentMaster'=>array('order'=>'ConsentMaster.date_first_contact ASC')); 
@@ -86,11 +88,12 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				$this->ConsentMaster->addWritableField(array('participant_id', 'consent_control_id'));
 				if ( $this->ConsentMaster->save($this->request->data) ) {
+					$url_to_flash = '/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$this->ConsentMaster->id;
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
+					$this->atimFlash(__('your data has been saved'), $url_to_flash );
 				}
 			}
 		} 
@@ -118,6 +121,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		}
 
 		if(empty($this->request->data)) {
+			$consent_master_data['FunctionManagement']['autocomplete_consent_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $consent_master_data['ConsentMaster']['study_summary_id'])));
 			$this->request->data = $consent_master_data;
 		} else {
 			$submitted_data_validates = true;
