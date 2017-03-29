@@ -18,7 +18,7 @@ class ViewAliquotCustom extends ViewAliquot {
 			Collection.acquisition_label,
 Collection.ovcare_collection_type, 
 Collection.ovcare_collection_voa_nbr,
-Collection.ovcare_study_summary_id,
+-- TODO Was previously developped for upgrade Collection.ovcare_study_summary_id,
 		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -31,9 +31,12 @@ Collection.ovcare_study_summary_id,
 			AliquotMaster.aliquot_label,
 			AliquotControl.aliquot_type,
 AliquotMaster.ovcare_clinical_aliquot,	
-AliquotMaster.study_summary_id,
+-- TODO Was previously developped for upgrade AliquotMaster.study_summary_id,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
+			AliquotMaster.in_stock_detail,
+			StudySummary.title AS study_summary_title,
+			StudySummary.id AS study_summary_id,
 		
 			StorageMaster.code,
 			StorageMaster.selection_label,
@@ -76,6 +79,7 @@ AliquotMaster.study_summary_id,
 			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
 	function addOvcareStudySummaryIdToParent(&$request_data) {

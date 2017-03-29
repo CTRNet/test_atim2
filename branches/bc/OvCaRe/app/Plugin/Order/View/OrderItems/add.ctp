@@ -1,7 +1,7 @@
 <?php 
 	AppController::addInfoMsg(__('add_order_items_info')); 
 	$structure_links = array(
-		'top'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
+		'top'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/'.$object_model_name,
 		'bottom'=>array('cancel'=> empty($atim_menu_variables['OrderLine.id'])? '/Order/Orders/detail/'.$atim_menu_variables['Order.id'].'/' : '/Order/OrderLines/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/')
 	);
 	
@@ -10,8 +10,8 @@
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'settings' => array(
-			'header' => __((empty($atim_menu_variables['OrderLine.id'])? 'add items to order' : 'add items to line'), null),
-			'paste_disabled_fields' => array('AliquotMaster.barcode'),
+			'header' => __((empty($atim_menu_variables['OrderLine.id'])? 'add items to order' : 'add items to line'), null).' : '.__(($object_model_name == 'AliquotMaster'? 'aliquot' : 'tma slide')),
+			'paste_disabled_fields' => array($object_model_name.'.barcode'),
 			'pagination' => false, 
 			'add_fields' => true, 
 			'del_fields' => true),
@@ -22,7 +22,7 @@
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
 	if( $hook_link ) { require($hook_link); }
-		
+	
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
 	

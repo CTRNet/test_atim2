@@ -23,12 +23,12 @@ Collection.ovcare_collection_voa_nbr,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 Collection.ovcare_collection_type,
-Collection.ovcare_study_summary_id,
+-- TODO Was previously developped for upgrade Collection.ovcare_study_summary_id,
 TreatmentDetail.path_num
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN txd_surgeries as TreatmentDetail ON TreatmentDetail.treatment_master_id = Collection.treatment_master_id
-		WHERE Collection.deleted <> 1 %%WHERE%%';	
+		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
 		$return = false;

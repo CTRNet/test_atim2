@@ -19,7 +19,7 @@ class ViewSampleCustom extends ViewSample {
 		Collection.acquisition_label,
 Collection.ovcare_collection_type,
 Collection.ovcare_collection_voa_nbr, 
-Collection.ovcare_study_summary_id,
+-- TODO Was previously developped for upgrade Collection.ovcare_study_summary_id,
 	
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -52,7 +52,5 @@ Collection.ovcare_study_summary_id,
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-		WHERE SampleMaster.deleted != 1 %%WHERE%%';
-	
-	
+		WHERE SampleMaster.deleted != 1 %%WHERE%%';	
 }
