@@ -18,7 +18,7 @@ class ReusableMiscIdentifiersController extends AdministrateAppController {
 			'fields'		=> array('MiscIdentifierControl.id', 'MiscIdentifierControl.misc_identifier_name', 'COUNT(MiscIdentifier.id) AS count'),
 			'joins'			=> $joins,
 			'conditions'	=> array('NOT' => array('MiscIdentifierControl.autoincrement_name' => '')),
-			'group'			=> array('MiscIdentifierControl.id'))
+			'group'			=> array('MiscIdentifierControl.id, MiscIdentifierControl.misc_identifier_name'))
 		);
 		
 		foreach($data as $unit){

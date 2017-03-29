@@ -143,14 +143,14 @@ class CollectionsController extends InventoryManagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
 		$this->set('copy_source', $copy_source);
 		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		
-		$need_to_save = !empty($this->request->data);
+		// Manage collection_property
 		if(!empty($this->request->data) && !array_key_exists('collection_property', $this->request->data['Collection'])) {
 			// Set collection property to 'participant collection' if field collection property is hidden in add form (default value)
 			$this->request->data['Collection']['collection_property'] = 'participant collection';
-			$this->Collection->addWritableField('collection_property');
+			$this->Collection->addWritableField('collection_property');	//Force collection_property record in case field display flag is set to read only in collections form (see issue#3312)
 		}
+		
+		$need_to_save = !empty($this->request->data);
 		if(empty($this->request->data) || isset($this->request->data['FunctionManagement']['col_copy_binding_opt'])){
 			if(!empty($copy_source)){
 				if(empty($this->request->data)){
@@ -163,12 +163,16 @@ class CollectionsController extends InventoryManagementAppController {
 			$this->request->data['Generated']['field1'] = (!empty($collection_data)) ? $collection_data['Participant']['participant_identifier'] : __('n/a');
 		}
 		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
 		
 		if($need_to_save){
+			
+			// Manage Copy
 			
 			$copy_src_data = null;
 			if($copy_source){
@@ -196,6 +200,7 @@ class CollectionsController extends InventoryManagementAppController {
 					}
 				}
 			}
+			
 			$this->request->data['Collection']['deleted'] = 0;
 			$this->Collection->addWritableField('deleted');
 			
@@ -217,6 +222,7 @@ class CollectionsController extends InventoryManagementAppController {
 					$this->Collection->id = 0;
 					$this->Collection->data = null;
 				}
+				
 				if($this->Collection->save($this->request->data)){
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {

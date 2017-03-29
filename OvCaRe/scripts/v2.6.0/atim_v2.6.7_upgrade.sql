@@ -98,7 +98,7 @@ INSERT INTO i18n (id,en,fr) VALUES ('tma blocks (storages sub-set)', 'Storages (
 UPDATE datamart_structure_functions SET datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock') WHERE label = 'create tma slide';
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("TmaBlock", "tma blocks");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="models"), (SELECT id FROM structure_permissible_values WHERE value="TmaBlock" AND language_alias="tma blocks"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="models"), (SELECT id FROM structure_permissible_values WHERE value="TmaBlock" AND language_alias="tma blocks"), "0", "1");
 
 INSERT INTO i18n (id,en,fr) VALUES ('tma blocks', 'TMA Blocks', "Blocs de TMA");
 
@@ -111,4 +111,4 @@ SELECT "Updated 'Databrowser Relationship Diagram' to add TMA blocks to TMA slid
 UPDATE versions SET permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES
-('2.6.7', NOW(),'6426','n/a');
+('2.6.7', NOW(),'6430','n/a');

@@ -191,7 +191,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					foreach($aliquot_review_data as $new_aliquot_review_to_save) {
 						// Save aliquot review
 						$this->AliquotReviewMaster->id = null;
-						$this->AliquotReviewMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->AliquotReviewMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 						unset($new_aliquot_review_to_save['AliquotReviewMaster']['id']);
 						$new_aliquot_review_to_save['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
 						if(!$this->AliquotReviewMaster->save($new_aliquot_review_to_save, false)) { 
@@ -204,13 +204,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						}						
 					}
 				}
-				
-				//Update aliquot use counter
-				foreach($studied_aliquot_master_ids as $new_id ) {
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($new_id, false, true)) { 
-						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
-					}
-				}	
 
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
@@ -481,15 +474,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 					}
-
-					//---------------------------------------------------------------------------
-					// 4- Update aliquot master data
-					//---------------------------------------------------------------------------
-					foreach($aliquot_ids_to_update as $aliq_id) {
-						if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { 
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
-					}
 				}				
 				
 				$hook_link = $this->hook('postsave_process');
@@ -544,13 +528,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				$aliquot_review_id_to_delete = $new_linked_review['AliquotReviewMaster']['id'];
 				if(!$this->AliquotReviewMaster->atimDelete($aliquot_review_id_to_delete)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }	
 			}
-			
-			// 2- Update aliquot master
-			foreach($aliquot_ids_to_update as $aliq_id) {
-				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
-			}
 					
-			// 3- Delete sample review
+			// 2- Delete sample review
 			if(!$this->SpecimenReviewMaster->atimDelete($specimen_review_id)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 			$hook_link = $this->hook('postsave_process');

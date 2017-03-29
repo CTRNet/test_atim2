@@ -26,19 +26,34 @@ class StorageControl extends StorageLayoutAppModel {
 		return $result;
 	}
 	
-	function getTmaBlockStorageTypePermissibleValues() {
-		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-		$translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array('storage types'));
-		$translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
-	
-		// Build tmp array to sort according to translated value
-		$result = array();
-		foreach($this->find('all', array('conditions' => array('flag_active = 1', 'is_tma_block = 1'))) as $storage_control) {
-			$result[$storage_control['StorageControl']['id']] = isset($translated_storage_types[$storage_control['StorageControl']['storage_type']])? $translated_storage_types[$storage_control['StorageControl']['storage_type']] : $storage_control['StorageControl']['storage_type'];
+	function getNonTmaBlockStorageTypePermissibleValues() {
+		$storage_types_from_id = $this->getStorageTypePermissibleValues();
+		foreach($this->find('all', array('conditions' => array('flag_active = 1', 'is_tma_block = 1', 'id' => array_keys($storage_types_from_id)), 'fields' => array('StorageControl.id'))) as $new_tma_block_storage_control_id) {
+			unset($storage_types_from_id[$new_tma_block_storage_control_id['StorageControl']['id']]);
 		}
-		natcasesort($result);
+		return $storage_types_from_id;		
+	}
 	
-		return $result;
+	function getTmaBlockStorageTypePermissibleValues() {
+		$storage_types_from_id = $this->getStorageTypePermissibleValues();
+		$tma_block_control_ids = array();
+		foreach($this->find('all', array('conditions' => array('flag_active = 1', 'is_tma_block = 1', 'id' => array_keys($storage_types_from_id)), 'fields' => array('StorageControl.id'))) as $new_tma_block_storage_control_id) $tma_block_control_ids[] = $new_tma_block_storage_control_id['StorageControl']['id'];
+		foreach($storage_types_from_id as $storage_control_id => $val) if(!in_array($storage_control_id, $tma_block_control_ids)) unset($storage_types_from_id[$storage_control_id]);
+		return $storage_types_from_id;
+	}
+	
+	function getAddStorageStructureLinks($storage_master_id = null) {
+		$storage_types_from_id = $this->getStorageTypePermissibleValues();
+		$tma_block_control_ids = array();
+		foreach($this->find('all', array('conditions' => array('flag_active = 1', 'is_tma_block = 1', 'id' => array_keys($storage_types_from_id)), 'fields' => array('StorageControl.id'))) as $new_tma_block_storage_control_id) $tma_block_control_ids[] = $new_tma_block_storage_control_id['StorageControl']['id'];
+		$add_links = array();
+		foreach($storage_types_from_id as $storage_control_id => $translated_storage_type) {
+			$add_links[$translated_storage_type] = array(
+				'link' => "/StorageLayout/StorageMasters/add/$storage_control_id/".($storage_master_id? $storage_master_id."/" : ''),
+				'icon' => in_array($storage_control_id, $tma_block_control_ids)? 'add_tma_block' : 'add_storage');
+		}
+		if(empty($add_links)) $add_links = '/underdevelopment/';
+		return $add_links;
 	}
 	
 	/**
