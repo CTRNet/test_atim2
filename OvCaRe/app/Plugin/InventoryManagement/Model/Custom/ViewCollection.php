@@ -3,6 +3,12 @@ class ViewCollectionCustom extends ViewCollection{
 	
 	var $name = 'ViewCollection';
 	
+//***********************************************************************************************************************
+//TODO Ying Request To Validate
+//***********************************************************************************************************************
+//	Collection.ovcare_study_summary_id
+//***********************************************************************************************************************
+
 	static $table_query = '
 		SELECT
 		Collection.id AS collection_id,
@@ -37,12 +43,20 @@ LEFT JOIN txd_surgeries as TreatmentDetail ON TreatmentDetail.treatment_master_i
 			$collection_data = $this->find('first', array('conditions'=> array('ViewCollection.collection_id' => $variables['Collection.id'])));
 			
 			$study_title = '';
-			if($collection_data['ViewCollection']['ovcare_study_summary_id']) {
-				$study_summary_model = AppModel::getInstance("Study", "StudySummary", true);
-				$collection_study = $study_summary_model->find('first', array('conditions' => array('StudySummary.id' => $collection_data['Collection']['ovcare_study_summary_id'])));		
-				if($collection_study) $study_title = ' | '.$collection_study['StudySummary']['title'].' ';
-			}
-			
+			//***********************************************************************************************************************
+			//TODO Ying Request To Validate
+			//***********************************************************************************************************************
+			//	Collection.ovcare_study_summary_id
+			//***********************************************************************************************************************
+// 			if($collection_data['ViewCollection']['ovcare_study_summary_id']) {
+// 				$study_summary_model = AppModel::getInstance("Study", "StudySummary", true);
+// 				$collection_study = $study_summary_model->find('first', array('conditions' => array('StudySummary.id' => $collection_data['Collection']['ovcare_study_summary_id'])));		
+// 				if($collection_study) $study_title = ' | '.$collection_study['StudySummary']['title'].' ';
+// 			}
+			//***********************************************************************************************************************
+			//TODO END Ying Request To Validate
+			//***********************************************************************************************************************
+					
 			$title = '';
 			if(empty($collection_data['ViewCollection']['participant_identifier'])) {
 				$title = __('VOA#').': - '.$study_title.'[-]';

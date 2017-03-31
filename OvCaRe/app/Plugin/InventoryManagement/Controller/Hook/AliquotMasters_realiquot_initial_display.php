@@ -18,7 +18,7 @@
 					$default_aliquot_data[$sample_master_id]['AliquotDetail.ovcare_storage_method'] = 'snap frozen';
 				}
 				break;
-			case 'blood cell':
+			case 'buffy coat':
 				$default_aliquot_data[$sample_master_id]['AliquotMaster.initial_volume'] = '1.0';
 				break;
 			case 'plasma':

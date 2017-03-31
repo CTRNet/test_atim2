@@ -12,7 +12,7 @@
 		$tmp_default_aliquot_data = array(
 			'AliquotMaster.aliquot_label' => 'VOA'.$view_sample['ViewSample']['ovcare_collection_voa_nbr'],
 			'AliquotMaster.ovcare_clinical_aliquot' => 'no');
-		if(in_array($view_sample['ViewSample']['sample_type'], array('blood cell', 'plasma', 'serum'))) {
+		if(in_array($view_sample['ViewSample']['sample_type'], array('buffy coat', 'plasma', 'serum'))) {
 			$tmp_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => 0));
 			$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $tmp_sample_data['DerivativeDetail']['creation_datetime'];
 			if($tmp_sample_data['DerivativeDetail']['creation_datetime_accuracy'] != 'c'){
@@ -30,7 +30,7 @@
 			}
 		}
 		switch($view_sample['ViewSample']['sample_type']) {
-			case 'blood cell':
+			case 'buffy coat':
 				$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] .= 'BC';
 				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.0';
 				$tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = $default_selection_label;

@@ -1,29 +1,29 @@
 <?php
+//***********************************************************************************************************************
+//TODO Ying Request To Validate
+//***********************************************************************************************************************
+//	Collection.ovcare_study_summary_id
+//***********************************************************************************************************************
+// $linked_records_properties['collections'] = array(
+// 	'InventoryManagement.ViewCollection.ovcare_study_summary_id',
+// 	'/InventoryManagement/Collections/detail/',
+// 	'view_collection',
+// 	'/InventoryManagement/Collections/detail/%%ViewCollection.collection_id%%/');
+//***********************************************************************************************************************
+//TODO END Ying Request To Validate
+//***********************************************************************************************************************
 
-$linked_records_properties['participants (based on file maker application)'] = array();
-$linked_records_properties['collections'] = array(
-		'InventoryManagement.ViewCollection.ovcare_study_summary_id',
-		'/InventoryManagement/Collections/detail/',
-		'view_collection',
-		'/InventoryManagement/Collections/detail/%%ViewCollection.collection_id%%/');
+$linked_records_properties['participants (based on file maker application)'] = array(
+  	'ClinicalAnnotation.EventMaster.ovcare_study_summary_id', 
+  	'/ClinicalAnnotation/EventMasters/listall/', 
+  	'eventmasters, ovcare_ed_study_inclusions',
+  	'/ClinicalAnnotation/EventMasters/detail/%%EventMaster.participant_id%%/%%EventMaster.id%%');
 
-$sub_list_sorted = array(
-	'consents',
-	'collections',
-	'aliquots',
-	'aliquot uses',
-	'orders',
-	'order lines');
-if($this->checkLinkPermission('/ClinicalAnnotation/Participants/profile/')) {
-	$sub_list_sorted = array_merge(array('participants', 'participants (based on file maker application)'), $sub_list_sorted);
+$tmp_ordered_linked_records_properties = array();		
+foreach(array('participants', 'participants (based on file maker application)', 'consents', 'aliquots', 'aliquot uses', 'orders', 'tma slides') as $tmp_key) {
+	$tmp_ordered_linked_records_properties[$tmp_key] = $linked_records_properties[$tmp_key];
+	
 }
-
-$tmp_list = array();
-foreach($sub_list_sorted as $sub_list_name) {
-	if(array_key_exists($sub_list_name, $linked_records_properties)) {
-		$tmp_list[$sub_list_name] = $linked_records_properties[$sub_list_name];
-	}
-}
-$linked_records_properties = $tmp_list;
+$linked_records_properties = $tmp_ordered_linked_records_properties;
 
 ?>
