@@ -4,6 +4,12 @@ class ViewAliquotCustom extends ViewAliquot {
 
 	var $name = 'ViewAliquot';
 	
+	//***********************************************************************************************************************
+	//TODO Ying Request To Validate
+	//***********************************************************************************************************************
+	//	Collection.ovcare_study_summary_id
+	//***********************************************************************************************************************
+	
 	static $table_query =
 		'SELECT
 			AliquotMaster.id AS aliquot_master_id,
@@ -82,11 +88,18 @@ AliquotMaster.ovcare_clinical_aliquot,
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
-	function addOvcareStudySummaryIdToParent(&$request_data) {
-		foreach($request_data as $key1 => $key1_data) {
-			$study_data = $this->find('first', array('conditions' => array('ViewAliquot.aliquot_master_id' => $key1_data['parent']['AliquotMaster']['id']), 'fields' => array('ViewAliquot.ovcare_study_summary_id'), 'recursive' => '-1'));
-			$request_data[$key1]['parent']['ViewAliquot']['ovcare_study_summary_id'] = $study_data['ViewAliquot']['ovcare_study_summary_id'];
-		}
-	}
-	
+	//***********************************************************************************************************************
+	//TODO Ying Request To Validate
+	//***********************************************************************************************************************
+	//	Collection.ovcare_study_summary_id
+	//***********************************************************************************************************************	
+// 	function addOvcareStudySummaryIdToParent(&$request_data) {
+// 		foreach($request_data as $key1 => $key1_data) {
+// 			$study_data = $this->find('first', array('conditions' => array('ViewAliquot.aliquot_master_id' => $key1_data['parent']['AliquotMaster']['id']), 'fields' => array('ViewAliquot.ovcare_study_summary_id'), 'recursive' => '-1'));
+// 			$request_data[$key1]['parent']['ViewAliquot']['ovcare_study_summary_id'] = $study_data['ViewAliquot']['ovcare_study_summary_id'];
+// 		}
+// 	}
+	//***********************************************************************************************************************
+	//TODO End Ying Request To Validate
+	//***********************************************************************************************************************
 }

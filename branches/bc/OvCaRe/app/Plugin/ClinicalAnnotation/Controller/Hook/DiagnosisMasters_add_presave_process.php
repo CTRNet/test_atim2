@@ -3,7 +3,7 @@
 	if($dx_ctrl['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown') {
 		$this->DiagnosisMaster->addWritableField(array('ovcare_tumor_site'));
 		$this->request->data['DiagnosisMaster']['ovcare_tumor_site'] = 'unknown';	
-	} else if(isset($this->request->data['DiagnosisMaster']['ovcare_tumor_site']) && $dx_ctrl['DiagnosisControl']['category'] != 'secondary') {
+	} else if(isset($this->request->data['DiagnosisMaster']['ovcare_tumor_site']) && $dx_ctrl['DiagnosisControl']['category'] != 'secondary - distant') {
 		if($dx_ctrl['DiagnosisControl']['controls_type'] == 'ovary or endometrium tumor') {
 			if(!in_array($this->request->data['DiagnosisMaster']['ovcare_tumor_site'], array('female genital-ovary','female genital-endometrium','female genital-ovary and endometrium'))) {
 				$submitted_data_validates = false;

@@ -1,5 +1,5 @@
 <?php
-
+/*
 if($template) {
 	$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
 	$collection_datetime = '';
@@ -47,5 +47,6 @@ if($template) {
 			break;
 	}
 }
+*/
 
 ?>

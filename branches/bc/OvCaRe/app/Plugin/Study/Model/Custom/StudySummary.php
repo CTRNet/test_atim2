@@ -9,20 +9,25 @@ class StudySummaryCustom extends StudySummary
 		
 		$ctrl_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
 		$ctrl_value = $ctrl_model->find('count', array(
-			'conditions' => array('EventDetail.study_summary_id' => $study_summary_id), 
-			'joins' => array(array('table' => 'ovcare_ed_study_inclusions', 'alias' => 'EventDetail', 'type' => 'INNER', 'conditions' => array('EventDetail.event_master_id = EventMaster.id'))),
+			'conditions' => array('EventMaster.ovcare_study_summary_id' => $study_summary_id), 
 			'recursive' => '-1'));
 		if($ctrl_value > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a participant'); 
 		}
 		
-		$ctrl_model = AppModel::getInstance("InventoryManagement", "Collection", true);
-		$ctrl_value = $ctrl_model->find('count', array(
-				'conditions' => array('Collection.ovcare_study_summary_id' => $study_summary_id),
-				'recursive' => '-1'));
-		if($ctrl_value > 0) {
-			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a collection');
-		}
+		//***********************************************************************************************************************
+		//TODO Ying Request To Validate
+		//***********************************************************************************************************************
+// 		$ctrl_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+// 		$ctrl_value = $ctrl_model->find('count', array(
+// 				'conditions' => array('Collection.ovcare_study_summary_id' => $study_summary_id),
+// 				'recursive' => '-1'));
+// 		if($ctrl_value > 0) {
+// 			return array('allow_deletion' => false, 'msg' => 'study/project is assigned to a collection');
+// 		}
+		//***********************************************************************************************************************
+		//TODO End Ying Request To Validate
+		//***********************************************************************************************************************
 		
 		return parent::allowDeletion($study_summary_id);
 	}
