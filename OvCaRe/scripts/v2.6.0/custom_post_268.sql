@@ -257,6 +257,18 @@ UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovcare_ischemia_time_mn_buffy_coat' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_plasma_serum' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_buffy_coat' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_plasma_serum' AND `language_label`='storage datetime (plasma serum)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_plasma_serum' AND `language_label`='storage datetime (plasma serum)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_plasma_serum' AND `language_label`='storage datetime (plasma serum)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', '0', '', 'ovcare_creation_datetime_buffy_coat', 'datetime',  NULL , '0', '', '', '', 'creation datetime (buffy coat)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovcare_creation_datetime_buffy_coat' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='creation datetime (buffy coat)' AND `language_tag`=''), '1', '52', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_buffy_coat' AND `language_label`='storage datetime (buffy coat)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_buffy_coat' AND `language_label`='storage datetime (buffy coat)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_buffy_coat' AND `language_label`='storage datetime (buffy coat)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('creation datetime (buffy coat)', 'Creation Datetime (Buffy Coat)', '');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovcare_creation_datetime_buffy_coat' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Tissue creation
 
@@ -276,6 +288,43 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ovcare_tissue_template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_master_study_summary_id' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='url=/Study/StudySummaries/autocompleteStudy' AND `default`='' AND `language_help`='' AND `language_label`='study / project' AND `language_tag`=''), '1', '800', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+UPDATE structure_formats SET `language_heading`='aliquot'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('template_init_structure', 'ovcare_blood_template_init_structure', 'ovcare_tissue_template_init_structure')) 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='autocomplete_aliquot_master_study_summary_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- Databrowser, etc...
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantMessage') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'OrderItem') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaSlide') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TmaBlock') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'NonTmaBlockStorage');
+
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'report_3_name';
+UPDATE datamart_reports SET flag_active = '0' WHERE name = 'report_5_name';
+
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'edit';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaSlide' AND label = 'add to order';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'TmaBlock' AND label = 'create tma slide';
+
+DELETE FROM datamart_structure_functions WHERE label = 'create lab id in batch';
+
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'EventMaster'), (SELECT id FROM datamart_structures WHERE model = 'StudySummary'), '1', '1', 'study_summary_id');
+
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6xxx' WHERE version_number = '2.6.8';
 
 
 
@@ -285,28 +334,19 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 
-xxxxx
+
+
+
+
 
 
 
 
 
 -- ***************************************************************************************************************************************
--- ../custom_post_266.sql
--- ***************************************************************************************************************************************
-
-
--- -------------------------------------------------------------------------------------------------------------------------------------
--- Datamart Configuration
--- -------------------------------------------------------------------------------------------------------------------------------------
-
-UPDATE datamart_structure_functions SET flag_active = 1
-WHERE datamart_structure_id IN (
-	SELECT id FROM datamart_structures 
-	WHERE model IN ('ParticipantMessage',
-		'ParticipantContact',
-		'ReproductiveHistory'))
-AND label IN ('number of elements per participant');
+Following sql statements are copied from custom_post_26x.sql script developped based on Yong's requests but never mirgated.
+To test and review.
+-- ***************************************************************************************************************************************f elements per participant');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------
 -- Middle Name
@@ -641,21 +681,6 @@ ovcare_tissue_section_thickness, ovcare_tissue_section_numbers, modified_by, ver
 (SELECT id, aliquot_master_id, type, use_code, use_details, used_volume, use_datetime, use_datetime_accuracy, duration, duration_unit, used_by, study_summary_id, 
 ovcare_tissue_section_thickness, ovcare_tissue_section_numbers, modified_by, modified FROM aliquot_internal_uses WHERE modified = @modified AND modified_by = @modified_by);
 
--- -------------------------------------------------------------------------------------------------------------------------------------
--- Blood creation default values
--- -------------------------------------------------------------------------------------------------------------------------------------
-
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_plasma_serum' AND `language_label`='storage datetime (plasma serum)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_plasma_serum' AND `language_label`='storage datetime (plasma serum)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
-DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_plasma_serum' AND `language_label`='storage datetime (plasma serum)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', '0', '', 'ovcare_creation_datetime_buffy_coat', 'datetime',  NULL , '0', '', '', '', 'creation datetime (buffy coat)', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovcare_creation_datetime_buffy_coat' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='creation datetime (buffy coat)' AND `language_tag`=''), '1', '52', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_blood_template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_buffy_coat' AND `language_label`='storage datetime (buffy coat)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_buffy_coat' AND `language_label`='storage datetime (buffy coat)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
-DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='0' AND `tablename`='' AND `field`='ovcare_storage_datetime_buffy_coat' AND `language_label`='storage datetime (buffy coat)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-INSERT INTO i18n (id,en,fr) VALUES ('creation datetime (buffy coat)', 'Creation Datetime (Buffy Coat)', '');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------
 -- Tissue Section thickness

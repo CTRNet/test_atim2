@@ -389,7 +389,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
@@ -480,7 +480,7 @@ Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotM
 Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
 	
 Configure::write('AddToOrder_processed_items_limit', 50);					// OrderItems.add() & OrderItems.addOrderItemsInBatch()
-Configure::write('AddToShipment_processed_items_limit', 50);				// Shipments.addToShipment()
+Configure::write('AddToShipment_processed_items_limit', 300);				// Shipments.addToShipment()
 Configure::write('defineOrderItemsReturned_processed_items_limit', 50);		// OrderItems.defineOrderItemsReturned()
 Configure::write('edit_processed_items_limit', 50);							// OrderItems.editInBatch()
 
@@ -496,7 +496,7 @@ Configure::write('TmaSlideCreation_processed_items_limit', 50);				// TmaSlides.
  * 		2 => link OrderItem to OrderLine only (order line submodule available) 
  * 		3 => link OrderItem to Order only (order line submodule not available) 
  */
-Configure::write('order_item_to_order_objetcs_link_setting', 1);		// SampleMasters.batchDerivative()
+Configure::write('order_item_to_order_objetcs_link_setting', 3);		// SampleMasters.batchDerivative()
 
 /**
  * Set the type(s) of item that could be added to order:

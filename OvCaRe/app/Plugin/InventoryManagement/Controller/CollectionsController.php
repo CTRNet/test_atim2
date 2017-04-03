@@ -428,7 +428,7 @@ class CollectionsController extends InventoryManagementAppController {
 		$this->set('template_init_id', $template_init_id);
 		
 		if($to_begin_msg){
-			AppController::addInfoMsg(__('to begin, click submit').'XXX');
+			AppController::addInfoMsg(__('to begin, click submit'));
 		}
 	}
 }
