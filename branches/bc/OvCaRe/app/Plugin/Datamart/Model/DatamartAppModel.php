@@ -57,6 +57,7 @@ class DatamartAppModel extends AppModel {
 		
 		$structure_functions = AppModel::getInstance("Datamart", "DatamartStructureFunction", true);
 		$functions = $structure_functions->find('all', array('conditions' => array('DatamartStructureFunction.datamart_structure_id' => $datamart_structure_id, 'DatamartStructureFunction.flag_active' => true)));
+pr($functions);
 		if(count($functions)){
 			$functions_menu = array();
 			foreach($functions as $function){
