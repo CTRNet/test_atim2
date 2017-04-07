@@ -2469,6 +2469,27 @@ UPDATE drugs SET type = CONCAT(type, ' medication') WHERE type in ('other diseas
 UPDATE versions SET branch_build_number = '6666' WHERE version_number = '2.6.8';
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-03-27
+-- Added message 'whatman paper should not be created anymore'
+-- Added tissue core
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET @aliquot_control_id = (SELECT ac.id FROM sample_controls sc INNER JOIN aliquot_controls ac ON ac.sample_control_id = sc.id WHERE sample_type = 'tissue' AND aliquot_type = 'core');
+UPDATE aliquot_controls SET flag_active=true WHERE id = @aliquot_control_id;
+UPDATE realiquoting_controls SET flag_active=true WHERE child_aliquot_control_id = @aliquot_control_id;
+
+ISNERT IGNORE INTO i18n (id,en,fr) VALUES ('whatman paper should not be created anymore', 'Whatman paper should not be created anymore', 'Le papier whatman ne devrait plus être créé');
+
+UPDATE drugs SET type = CONCAT(type, ' medication') WHERE type in ('other diseases');
+UPDATE versions SET branch_build_number = '6680' WHERE version_number = '2.6.8';
+
+
+
+
+
+
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --
