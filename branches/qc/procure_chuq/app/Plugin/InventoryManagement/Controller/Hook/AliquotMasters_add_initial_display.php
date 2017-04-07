@@ -1,5 +1,10 @@
 <?php 
-
+	
+	//$aliquot_control
+	if($aliquot_control['AliquotControl']['aliquot_type'] == 'whatman paper') {
+		AppController::addWarningMsg(__('whatman paper should not be created anymore'));
+	}
+	
 	$default_aliquot_data = array();
 	$processing_site_last_barcode = null;
 	foreach($this->request->data as &$new_sample_record) {
