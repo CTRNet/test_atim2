@@ -154,6 +154,7 @@ foreach($excel_files_names as $file_data) {
 						}
 						
 						$excel_field = 'Menopause';
+						if($excel_line_data[$excel_field] == 'u') $excel_line_data[$excel_field] = 'unknown';
 						$excel_participant_data['qbcf_menopause'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qbcf_yes_no_unk', $summary_section_title, $excel_field, "See $excel_data_references");
 						
 						// Cancer History
@@ -163,6 +164,7 @@ foreach($excel_files_names as $file_data) {
 							'Family History of Ovarian Cancer' => 'qbcf_ovarian_cancer_fam_hist',
 							'Family History of Other Cancer' => 'qbcf_other_cancer_fam_hist');
 						foreach($excel_to_atim_fields as $excel_field => $atim_field) {
+							if($excel_line_data[$excel_field] == 'u') $excel_line_data[$excel_field] = 'unknown';
 							$excel_participant_data[$atim_field] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qbcf_yes_no_unk', $summary_section_title, $excel_field, "See $excel_data_references");
 						}
 						
@@ -715,6 +717,7 @@ foreach($excel_files_names as $file_data) {
 								$excel_field = 'Radiation Completed';
 								$atim_field = 'completed';
 								$domain_name = 'qbcf_yes_no_unk';
+								if($excel_line_data[$excel_field] == 'u') $excel_line_data[$excel_field] = 'unknown';
 								$excel_treatment_data[$tx_detail_tablename][$atim_field] =
 									validateAndGetStructureDomainValue($excel_line_data[$excel_field], $domain_name, $specific_summary_section_title, $excel_field, "See $excel_data_references");
 								
@@ -816,6 +819,7 @@ foreach($excel_files_names as $file_data) {
 										recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "'$excel_field' defined into excel for a '".$excel_line_data['Treatment Type']."' (systemic breast treatment) - Value won't be mirgated. Please confirm.", "See '".$excel_line_data['Treatment Type']."' treatment for following participant : $excel_data_references.");
 									} else if($atim_treatment_control_data['tx_method'] != 'bone specific therapy') {
 										if($excel_field == 'Systemic treatement - Treatment completed') {
+											if($excel_line_data[$excel_field] == 'u') $excel_line_data[$excel_field] = 'unknown';
 											$excel_treatment_data[$tx_detail_tablename]['cycles_completed'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qbcf_yes_no_unk', $specific_summary_section_title, $excel_field, "See $excel_data_references");
 										} else {
 											if(strtolower($excel_line_data[$excel_field]) == 'u') {

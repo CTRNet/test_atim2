@@ -289,7 +289,7 @@ foreach($excel_files_names as $file_data) {
 								}
 								
 								$excel_field = "Tumour lymphocytes (TILs)";
-								$tils_pct = validateAndGetInteger($excel_line_data[$excel_field], 'Slide Review', "For field '$excel_field'", "See slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
+								$tils_pct = validateAndGetInteger(str_replace('%', '', $excel_line_data[$excel_field]), 'Slide Review', "For field '$excel_field'", "See slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
 								if(preg_match('/[a-zA-Z\-\<]/', $excel_line_data[$excel_field])) {
 									recordErrorAndMessage('Slide Review', '@@WARNING@@', "Check value of field 'Tumour lymphocytes (TILs)' does not mean value < 5 - Check box 'TILs <5' manually if required.", "See value '".$excel_line_data[$excel_field]."' of field '$excel_field' for slide of the tissue of the block '$excel_block_aliquot_label' for following participant : $excel_data_references.");
 								}

@@ -211,7 +211,8 @@ foreach($excel_files_names as $file_data) {
 									'storage_master_id' => $block_storage_master_id,
 									'storage_coord_x' => $storage_coord_x,
 									'storage_coord_y' => $storage_coord_y,
-									'in_stock' => 'yes - available'),
+									'in_stock' => 'yes - available',
+									'notes' => $excel_notes),
 								$atim_controls['aliquot_controls']['tissue-core']['detail_tablename'] => array());
 							$core_aliquot_master_id = customInsertRecord($aliquot_data);
 							addCreatedDataToSummary('Core', "Core creation : $patho_id", $excel_data_references);
