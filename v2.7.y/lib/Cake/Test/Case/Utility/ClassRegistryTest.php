@@ -13,8 +13,9 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Utility
  * @since         CakePHP(tm) v 1.2.0.5432
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 App::uses('ClassRegistry', 'Utility');
 
 /**
@@ -27,7 +28,7 @@ class ClassRegisterModel extends CakeTestModel {
 /**
  * useTable property
  *
- * @var boolean
+ * @var bool
  */
 	public $useTable = false;
 }
@@ -38,13 +39,6 @@ class ClassRegisterModel extends CakeTestModel {
  * @package       Cake.Test.Case.Utility
  */
 class RegisterArticle extends ClassRegisterModel {
-
-/**
- * name property
- *
- * @var string 'RegisterArticle'
- */
-	public $name = 'RegisterArticle';
 }
 
 /**
@@ -53,13 +47,6 @@ class RegisterArticle extends ClassRegisterModel {
  * @package       Cake.Test.Case.Utility
  */
 class RegisterArticleFeatured extends ClassRegisterModel {
-
-/**
- * name property
- *
- * @var string 'RegisterArticleFeatured'
- */
-	public $name = 'RegisterArticleFeatured';
 }
 
 /**
@@ -68,13 +55,6 @@ class RegisterArticleFeatured extends ClassRegisterModel {
  * @package       Cake.Test.Case.Utility
  */
 class RegisterArticleTag extends ClassRegisterModel {
-
-/**
- * name property
- *
- * @var string 'RegisterArticleTag'
- */
-	public $name = 'RegisterArticleTag';
 }
 
 /**
@@ -87,7 +67,7 @@ class RegistryPluginAppModel extends ClassRegisterModel {
 /**
  * tablePrefix property
  *
- * @var string 'something_'
+ * @var string
  */
 	public $tablePrefix = 'something_';
 }
@@ -98,13 +78,6 @@ class RegistryPluginAppModel extends ClassRegisterModel {
  * @package       Cake.Test.Case.Utility
  */
 class TestRegistryPluginModel extends RegistryPluginAppModel {
-
-/**
- * name property
- *
- * @var string 'TestRegistryPluginModel'
- */
-	public $name = 'TestRegistryPluginModel';
 }
 
 /**
@@ -113,13 +86,6 @@ class TestRegistryPluginModel extends RegistryPluginAppModel {
  * @package       Cake.Test.Case.Utility
  */
 class RegisterCategory extends ClassRegisterModel {
-
-/**
- * name property
- *
- * @var string 'RegisterCategory'
- */
-	public $name = 'RegisterCategory';
 }
 /**
  * RegisterPrefixedDs class
@@ -131,7 +97,7 @@ class RegisterPrefixedDs extends ClassRegisterModel {
 /**
  * useDbConfig property
  *
- * @var string 'doesnotexist'
+ * @var string
  */
 	public $useDbConfig = 'doesnotexist';
 }
@@ -181,7 +147,7 @@ class ClassRegistryTest extends CakeTestCase {
 		$this->assertSame($Tag, $TagCopy);
 
 		$NewTag = ClassRegistry::init(array('class' => 'RegisterArticleTag', 'alias' => 'NewTag'));
-		$this->assertInstanceOf('RegisterArticleTag', $Tag);
+		$this->assertInstanceOf('RegisterArticleTag', $NewTag);
 
 		$NewTagCopy = ClassRegistry::init(array('class' => 'RegisterArticleTag', 'alias' => 'NewTag'));
 
@@ -214,6 +180,35 @@ class ClassRegistryTest extends CakeTestCase {
 		$this->assertNotEquals($Category->alias, $ParentCategory->alias);
 		$this->assertEquals('RegisterCategory', $Category->alias);
 		$this->assertEquals('ParentCategory', $ParentCategory->alias);
+	}
+
+/**
+ * Test that init() can make models with alias set properly
+ *
+ * @return void
+ */
+	public function testAddModelWithAlias() {
+		$tag = ClassRegistry::init(array('class' => 'RegisterArticleTag', 'alias' => 'NewTag'));
+		$this->assertInstanceOf('RegisterArticleTag', $tag);
+		$this->assertSame('NewTag', $tag->alias);
+		$this->assertSame('RegisterArticleTag', $tag->name);
+
+		$newTag = ClassRegistry::init(array('class' => 'RegisterArticleTag', 'alias' => 'OtherTag'));
+		$this->assertInstanceOf('RegisterArticleTag', $tag);
+		$this->assertSame('OtherTag', $newTag->alias);
+		$this->assertSame('RegisterArticleTag', $newTag->name);
+	}
+
+/**
+ * Test that init() can make the Aco models with alias set properly
+ *
+ * @return void
+ */
+	public function testAddModelWithAliasAco() {
+		$aco = ClassRegistry::init(array('class' => 'Aco', 'alias' => 'CustomAco'));
+		$this->assertInstanceOf('Aco', $aco);
+		$this->assertSame('Aco', $aco->name);
+		$this->assertSame('CustomAco', $aco->alias);
 	}
 
 /**

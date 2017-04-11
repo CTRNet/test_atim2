@@ -13,9 +13,11 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.View.Elements
  * @since         CakePHP(tm) v 1.3
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 App::uses('Debugger', 'Utility');
+
 ?>
 <h3>Stack Trace</h3>
 <ul class="cake-stack-trace">
@@ -43,7 +45,7 @@ App::uses('Debugger', 'Utility');
 		if (!empty($stack['args'])):
 			foreach ((array)$stack['args'] as $arg):
 				$args[] = Debugger::getType($arg);
-				$params[] = Debugger::exportVar($arg, 2);
+				$params[] = Debugger::exportVar($arg, 4);
 			endforeach;
 		endif;
 
