@@ -348,6 +348,9 @@ class Mysql extends DboSource {
 				'null' => ($column->Null === 'YES' ? true : false),
 				'default' => $column->Default,
 				'length' => $this->length($column->Type)
+				//ATiM Start------------
+				, 'atim_type' => $column->Type 
+				//ATiM End------------
 			);
 			if (in_array($fields[$column->Field]['type'], $this->fieldParameters['unsigned']['types'], true)) {
 				$fields[$column->Field]['unsigned'] = $this->_unsigned($column->Type);

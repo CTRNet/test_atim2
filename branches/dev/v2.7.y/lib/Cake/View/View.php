@@ -1020,12 +1020,22 @@ class View extends CakeObject {
 			}
 		}
 		$paths = $this->_paths($plugin);
+		//ATiM start---------
+		$custom_name = str_replace(DS, DS . 'Custom' . DS, $name);
+		//ATiM end------------
 		$exts = $this->_getExtensions();
 		foreach ($exts as $ext) {
 			foreach ($paths as $path) {
-				if (file_exists($path . $name . $ext)) {
+				//ATiM start---------
+				if (file_exists($path . $custom_name . $ext)) {
+					return $path . $custom_name . $ext;
+				}else if (file_exists($path . $name . $ext)) {
 					return $path . $name . $ext;
 				}
+				//if (file_exists($path . $name . $ext)) {
+				//	return $path . $name . $ext;
+				//}
+				//ATiM end------------
 			}
 		}
 		throw new MissingViewException(array('file' => $name . $this->ext));

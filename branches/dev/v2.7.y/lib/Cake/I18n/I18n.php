@@ -286,6 +286,10 @@ class I18n {
 
 		if (!empty($plurals)) {
 			return $plural;
+			//ATIM start-----
+		}else if(empty($_this->__domains[$_this->category][$_this->_lang][$domain][$singular]) && class_exists("AppController")) {
+			AppController::missingTranslation($singular);
+			//ATIM end-------
 		}
 		return $singular;
 	}

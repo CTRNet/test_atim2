@@ -579,6 +579,12 @@ if (!function_exists('__')) {
  * @link http://book.cakephp.org/2.0/en/core-libraries/global-constants-and-functions.html#__
  */
 	function __($singular, $args = null) {
+		//ATIM start-----
+		if(is_numeric($singular)){
+			return $singular;
+		}
+	
+		//ATIM end-----
 		if (!$singular) {
 			return null;
 		}

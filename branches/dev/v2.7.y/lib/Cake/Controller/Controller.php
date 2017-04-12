@@ -318,7 +318,15 @@ class Controller extends CakeObject implements CakeEventListener {
  */
 	public function __construct($request = null, $response = null) {
 		if ($this->name === null) {
-			$this->name = substr(get_class($this), 0, -10);
+			//ATIM start-------
+			
+			//Pre ATIM line
+			//$this->name = substr(get_class($this), 0, -10);
+			
+			//New code
+			$class_name = get_class($this);
+			$this->name = substr($class_name, 0, strlen(get_class($this)) - (strpos($class_name, 'ControllerCustom') === false ? 10 : 16));
+			//ATIM end---------
 		}
 
 		if (!$this->viewPath) {

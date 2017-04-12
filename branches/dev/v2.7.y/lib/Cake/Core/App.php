@@ -560,6 +560,22 @@ class App {
 		}
 
 		$normalizedClassName = str_replace('\\', DS, $className);
+		
+		// ATIM start-----
+		// Load Custom Classes that are usually added during customizations
+		if($package === 'Model'){
+			foreach ($paths as $path) {
+				$file = $path . DS . $className . '.php';
+				$file_custom = $path . 'Custom' . DS . $normalizedClassName . '.php';
+				if (file_exists($file_custom) && file_exists($file)) {
+					self::_map($file_custom, $className);
+					include $file;
+					return include $file_custom;
+				}
+			}
+		}
+		// ATIM end-----
+		
 		foreach ($paths as $path) {
 			$file = $path . $normalizedClassName . '.php';
 			if (file_exists($file)) {
