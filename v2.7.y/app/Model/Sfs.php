@@ -5,7 +5,8 @@ class Sfs extends AppModel {
 	var $name = 'Sfs';
 	
 	var $hasMany = array(
-		'StructureValidation'//fetched manually in model/structure 
+		//fetched manually in model/structure
+		'StructureValidation' => array('foreignKey' => 'structure_field_id')
 	);
 	
 	var $belongsTo = array(
