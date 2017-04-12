@@ -383,7 +383,12 @@ class CakeRequest implements ArrayAccess {
 	protected function _processFileData($path, $data, $field) {
 		foreach ($data as $key => $fields) {
 			$newPath = $key;
-			if (strlen($path) > 0) {
+			//ATiM before-----
+			//if (!empty($path)) {
+			//makes files with model "0" work as expected
+			//if (strlen($path) > 0) {
+			if ($path === 0 || (strlen($path) > 0)) {
+			//ATiM end--------
 				$newPath = $path . '.' . $key;
 			}
 			if (is_array($fields)) {

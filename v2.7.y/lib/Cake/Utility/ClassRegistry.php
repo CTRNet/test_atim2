@@ -144,6 +144,16 @@ class ClassRegistry {
 				App::uses($class, $pluginPath . 'Model');
 
 				if (class_exists($class) || interface_exists($class)) {
+					//ATIM start----------
+					$class_custom = $class.'Custom';
+					$reflection = null;
+					if (class_exists($class_custom) || interface_exists($class_custom)){
+						$class = $class_custom;
+						$reflection = new ReflectionClass($class_custom);
+					}else{
+						$reflection = new ReflectionClass($class);
+					}
+					//ATIM end-------------
 					$reflection = new ReflectionClass($class);
 					if ($reflection->isAbstract() || $reflection->isInterface()) {
 						throw new CakeException(__d('cake_dev', 'Cannot create instance of %s, as it is abstract or is an interface', $class));

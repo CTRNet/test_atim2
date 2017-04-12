@@ -2966,18 +2966,33 @@ class FormHelper extends AppHelper {
 				break;
 			case 'month':
 				if ($options['monthNames'] === true) {
-					$data['01'] = __d('cake', 'January');
-					$data['02'] = __d('cake', 'February');
-					$data['03'] = __d('cake', 'March');
-					$data['04'] = __d('cake', 'April');
-					$data['05'] = __d('cake', 'May');
-					$data['06'] = __d('cake', 'June');
-					$data['07'] = __d('cake', 'July');
-					$data['08'] = __d('cake', 'August');
-					$data['09'] = __d('cake', 'September');
-					$data['10'] = __d('cake', 'October');
-					$data['11'] = __d('cake', 'November');
-					$data['12'] = __d('cake', 'December');
+					//ATIM start-----
+					//TODO: Check if custom code from v2.6 should be used
+					$data['01'] = __('January');
+					$data['02'] = __('February');
+					$data['03'] = __('March');
+					$data['04'] = __('April');
+					$data['05'] = __('May');
+					$data['06'] = __('June');
+					$data['07'] = __('July');
+					$data['08'] = __('August');
+					$data['09'] = __('September');
+					$data['10'] = __('October');
+					$data['11'] = __('November');
+					$data['12'] = __('December');
+// 					$data['01'] = __d('cake', 'January');
+// 					$data['02'] = __d('cake', 'February');
+// 					$data['03'] = __d('cake', 'March');
+// 					$data['04'] = __d('cake', 'April');
+// 					$data['05'] = __d('cake', 'May');
+// 					$data['06'] = __d('cake', 'June');
+// 					$data['07'] = __d('cake', 'July');
+// 					$data['08'] = __d('cake', 'August');
+// 					$data['09'] = __d('cake', 'September');
+// 					$data['10'] = __d('cake', 'October');
+// 					$data['11'] = __d('cake', 'November');
+// 					$data['12'] = __d('cake', 'December');
+					//ATIM end-------
 				} elseif (is_array($options['monthNames'])) {
 					$data = $options['monthNames'];
 				} else {

@@ -2794,7 +2794,7 @@ class Model extends CakeObject implements CakeEventListener {
  * @param string $id ID of record that was deleted
  * @return void
  */
-	protected function _deleteLinks($id) {
+	public function _deleteLinks($id) {//ATiM ----- made public to allow SoftDeletableBehavior to work
 		foreach ($this->hasAndBelongsToMany as $data) {
 			list(, $joinModel) = pluginSplit($data['with']);
 			$Model = $this->{$joinModel};

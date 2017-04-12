@@ -219,6 +219,15 @@ class TreeBehavior extends ModelBehavior {
 	public function beforeSave(Model $Model, $options = array()) {
 		extract($this->settings[$Model->alias]);
 
+		//ATiM start-------
+		//add writable fields + prevent hack
+		if(method_exists($Model, 'addWritableField')){
+			$Model->addWritableField(array('lft', 'rght'));
+			unset($Model->data[$Model->alias][$left]);
+			unset($Model->data[$Model->alias][$right]);
+		}
+		//ATiM end---------
+
 		$this->_addToWhitelist($Model, array($left, $right));
 		if ($level) {
 			$this->_addToWhitelist($Model, $level);
