@@ -67,4 +67,4 @@ UPDATE structure_validations SET rule='notBlank' WHERE rule='notEmpty';
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.0', NOW(),'5617','n/a');
+VALUES('2.7.0', NOW(),'5617','n/a');
