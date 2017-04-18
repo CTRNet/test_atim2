@@ -149,8 +149,7 @@ class StorageMaster extends StorageLayoutAppModel {
 			$this->validationErrors['temp_unit'][] = 'when defining a temperature, the temperature unit is required';
 		}
 		
-		parent::validates($options);
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	function isDuplicatedStorageBarCode($storage_data) {
@@ -489,13 +488,13 @@ class StorageMaster extends StorageLayoutAppModel {
 	 */
 	function hasChild(array $storage_master_ids){
 		//child can be a storage or an aliquot
-		$result = array_filter($this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids), 'group' => array('StorageMaster.parent_id'))));
+		$result = array_unique(array_filter($this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids)))));
 		$storage_master_ids = array_diff($storage_master_ids, $result);
 		$aliquot_master = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
 		$tma_slide = AppModel::getInstance("StorageLayout", "TmaSlide", true);
 		return array_merge($result, 
-			array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))),
-			array_filter($tma_slide->find('list', array('fields' => array('TmaSlide.storage_master_id'), 'conditions' => array('TmaSlide.storage_master_id' => $storage_master_ids), 'group' => array('TmaSlide.storage_master_id')))));
+			array_unique(array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids))))),
+			array_unique(array_filter($tma_slide->find('list', array('fields' => array('TmaSlide.storage_master_id'), 'conditions' => array('TmaSlide.storage_master_id' => $storage_master_ids))))));
 	}
 	
 	/**
@@ -853,6 +852,8 @@ class StorageMaster extends StorageLayoutAppModel {
 		}else{
 			$children_array['DisplayData']['x'] = "";
 		}
+		if(is_null($children_array['DisplayData']['x'])) $children_array['DisplayData']['x'] = '';
+		if(is_null($children_array['DisplayData']['y'])) $children_array['DisplayData']['y'] = '';
 		
 		$children_array['DisplayData']['label'] = $this->getLabel($children_array, $type_key, $label_key);
 		$children_array['DisplayData']['type'] = $type_key;

@@ -2,6 +2,9 @@
 
 	$structure_links = array(
 		'top'=>'/ClinicalAnnotation/TreatmentMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentControl.id'],
+		'bottom'=>array(
+				'cancel'=>'/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/'
+		)
 	);
 	
 	// 1- TRT

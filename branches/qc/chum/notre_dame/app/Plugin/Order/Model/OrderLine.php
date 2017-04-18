@@ -52,12 +52,10 @@ class OrderLine extends OrderAppModel {
 	function validates($options = array()){
 	
 		$this->validateAndUpdateOrderLineStudyData();
-	
-		parent::validates($options);
 		
 		$this->addWritableField(array('sample_control_id', 'aliquot_control_id', 'is_tma_slide'));
-	
-		return empty($this->validationErrors);
+		
+		return parent::validates($options);
 	}
 	
 	/**

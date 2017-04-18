@@ -28,6 +28,7 @@ class ViewAliquotCustom extends ViewAliquot{
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
+			AliquotMaster.in_stock_detail,
 			StudySummary.title AS study_summary_title,
 			StudySummary.id AS study_summary_id,
 		
@@ -63,7 +64,6 @@ MiscIdentifier.identifier_value AS identifier_value,
 Collection.visit_label AS visit_label,
 Collection.diagnosis_master_id AS diagnosis_master_id,
 Collection.consent_master_id AS consent_master_id,
-AliquotMaster.in_stock_detail,
 SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 		
 			FROM aliquot_masters AS AliquotMaster
@@ -85,7 +85,6 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
-
 	function find($type = 'first', $query = array()) {
 		if($type == 'all' && isset($query['conditions'])) {
 			$identifier_values = array();

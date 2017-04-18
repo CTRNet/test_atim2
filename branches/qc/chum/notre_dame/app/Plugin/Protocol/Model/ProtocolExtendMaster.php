@@ -14,10 +14,8 @@ class ProtocolExtendMaster extends ProtocolAppModel {
 	
 	function validates($options = array()){
 		$this->validateAndUpdateProtocolExtendDrugData();
-	
-		parent::validates($options);
 		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	function validateAndUpdateProtocolExtendDrugData() {
