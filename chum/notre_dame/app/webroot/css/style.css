@@ -1167,6 +1167,7 @@ span.help {
 .icon16.copy  { background-position: 0 -64px; }
 .icon16.csv_upload  { background-position: -80px -64px; }
 .icon16.create_shipment  { background-position: 0 -16px; }
+.icon16.customize {background-position: 0 -160px;}
 .icon16.diagnosis { background-position: -80px -80px; }
 .icon16.default { background-position: 0 0; }
 .icon16.delete { background-position: -48px 0; }

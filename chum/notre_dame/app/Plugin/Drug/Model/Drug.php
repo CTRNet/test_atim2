@@ -61,7 +61,7 @@ class Drug extends DrugAppModel {
 		}
 		
 		$ProtocolExtendMaster = AppModel::getInstance("Protocol", "ProtocolExtendMaster", true);
-		$returned_nbr = $ProtocolExtendMaster->find('count', array('conditions' => array('$ProtocolExtendMaster.drug_id' => $drug_id), 'recursive' => '1'));
+		$returned_nbr = $ProtocolExtendMaster->find('count', array('conditions' => array('ProtocolExtendMaster.drug_id' => $drug_id), 'recursive' => '1'));
 		if($returned_nbr > 0) {
 			return array('allow_deletion' => false, 'msg' => 'drug is defined as a component of at least one protocol');
 		}
@@ -113,7 +113,7 @@ class Drug extends DrugAppModel {
 		if(!isset($this->drug_titles_already_checked[$drug_data_and_code])) {
 			$matches = array();
 			$selected_drugs = array();
-			if(preg_match("/(.+)\[([0-9]+)\]/", $drug_data_and_code, $matches) > 0){
+			if(preg_match("/(.+)\[([0-9]+)\]$/", $drug_data_and_code, $matches) > 0){
 				// Auto complete tool has been used
 				$selected_drugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".trim($matches[1])."%'", 'Drug.id' => $matches[2])));
 			} else {

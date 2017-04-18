@@ -20,9 +20,7 @@ class AliquotInternalUse extends InventoryManagementAppModel {
 		
 		$this->validateAndUpdateAliquotInternalUseStudyData();
 		
-		parent::validates($options);
-		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	/**

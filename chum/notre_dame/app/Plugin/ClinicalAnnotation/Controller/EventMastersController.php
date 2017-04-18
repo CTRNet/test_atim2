@@ -173,11 +173,12 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				
 				$this->EventMaster->addWritableField(array('participant_id', 'event_control_id', 'diagnosis_master_id'));
 				if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
+					$url_to_flash = '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId();
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+					$this->atimFlash(__('your data has been updated'), $url_to_flash);
 				}
 					
 			} else {
@@ -228,12 +229,13 @@ class EventMastersController extends ClinicalAnnotationAppController {
 						$this->EventMaster->data = array();
 						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 					}
+					$url_to_flash = '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/';
 					$hook_link = $this->hook('postsave_process_batch');
 					if( $hook_link ) {
 						require($hook_link);
 					}
 					AppModel::releaseBatchViewsUpdateLock();
-					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
+					$this->atimFlash(__('your data has been updated'), $url_to_flash);
 				} else {
 					$this->EventMaster->validationErrors = array();
 					foreach($errors_tracking as $field => $msg_and_lines) {
