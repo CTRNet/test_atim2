@@ -2061,3 +2061,418 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='sd_spe_ascites'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_nd_cytology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ascite_cytology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cytology' AND `language_tag`=''), '1', '444', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 UPDATE `versions` SET branch_build_number = '6672' WHERE version_number = '2.6.7';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Customize Study
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES
+('mta data sharing', 'MTA Data Sharing', 'Partage de matériels/données (MTA)');
+
+ALTER TABLE study_summaries ADD COLUMN qc_nd_status VARCHAR(100) DEFAULT NULL;
+ALTER TABLE study_summaries_revs ADD COLUMN qc_nd_status VARCHAR(100) DEFAULT NULL;
+
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_study_status', "StructurePermissibleValuesCustom::getCustomDropdown('Study Status')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Study Status', 1, 100, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Study Status');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("pending", "Pending", 'En attente', '1', @control_id, '9', NOW(),'9', NOW()),
+("approved", "Approved", 'Approuvée', '1', @control_id, '9', NOW(),'9', NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'qc_nd_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_study_status') , '0', '', '', '', 'status', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_nd_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_study_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Replace \\ in file path field
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE consent_masters SET qc_nd_file_name = REPLACE(qc_nd_file_name, '\\\\', '\\');
+UPDATE consent_masters_revs SET qc_nd_file_name = REPLACE(qc_nd_file_name, '\\\\', '\\');
+UPDATE consent_masters SET qc_nd_file_name = REPLACE(qc_nd_file_name, '\\\\', '\\');
+UPDATE consent_masters_revs SET qc_nd_file_name = REPLACE(qc_nd_file_name, '\\\\', '\\');
+UPDATE consent_masters SET qc_nd_file_name = REPLACE(qc_nd_file_name, '\\\\', '\\');
+UPDATE consent_masters_revs SET qc_nd_file_name = REPLACE(qc_nd_file_name, '\\\\', '\\');
+
+UPDATE study_summaries SET path_to_file = REPLACE(path_to_file, '\\\\', '\\');
+UPDATE study_summaries_revs SET path_to_file = REPLACE(path_to_file, '\\\\', '\\');
+UPDATE study_summaries SET path_to_file = REPLACE(path_to_file, '\\\\', '\\');
+UPDATE study_summaries_revs SET path_to_file = REPLACE(path_to_file, '\\\\', '\\');
+UPDATE study_summaries SET path_to_file = REPLACE(path_to_file, '\\\\', '\\');
+UPDATE study_summaries_revs SET path_to_file = REPLACE(path_to_file, '\\\\', '\\');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Added field to identifeirs reports
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'autopsy_bank_no_lab', 'input',  NULL , '0', 'size=20', '', '', 'autopsy bank no lab', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='autopsy_bank_no_lab' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='autopsy bank no lab' AND `language_tag`=''), '0', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET sortable = '1' WHERE id IN (SELECT structure_field_id FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='report_participant_identifiers_result'));
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'qc_nd_pmt_participant', 'yes_no',  NULL , '0', '', '', '', 'PMT participant', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_nd_pmt_participant' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='PMT participant' AND `language_tag`=''), '0', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES 
+('PMT participant', 'PMT Participant', 'Participant PMT');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='participant_patho_identifier' AND `language_label`='participant patho identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='1' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='participant_patho_identifier' AND `language_label`='participant patho identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='1' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='participant_patho_identifier' AND `language_label`='participant patho identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='1' AND `sortable`='1');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Added warning before NoLabo creation
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr)
+VALUES
+('creation of a new no labo', 'Creation of a new', "Creation d'un nouveau ");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Added Study to MiscIdentifier Search From
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Annotation > Megaprofilling
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_carbohydrates' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_bread', 'integer_positive',  NULL , '0', 'size=2', '', '', 'bread', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_pastry', 'integer_positive',  NULL , '0', 'size=2', '', '', 'pastry', ''),
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'food_habit_pasta_rice_cereals', 'integer_positive',  NULL , '0', 'size=2', '', '', 'pasta rice cereals', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_bread' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='bread' AND `language_tag`=''), '1', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_pastry' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='pastry' AND `language_tag`=''), '1', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_pasta_rice_cereals' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='pasta rice cereals' AND `language_tag`=''), '1', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('bread', 'Bread', 'Pain'),
+('pastry', 'Pastry', 'Pâtisserie'),
+('pasta rice cereals', 'Pasta/Rice/Cereals', 'Pâtes/Riz/Céréales');
+ALTER TABLE qc_nd_ed_megaprofilings
+   ADD COLUMN food_habit_bread int(4) DEFAULT NULL,
+   ADD COLUMN food_habit_pastry int(4) DEFAULT NULL,
+   ADD COLUMN food_habit_pasta_rice_cereals int(4) DEFAULT NULL;
+ALTER TABLE qc_nd_ed_megaprofilings_revs
+   ADD COLUMN food_habit_bread int(4) DEFAULT NULL,
+   ADD COLUMN food_habit_pastry int(4) DEFAULT NULL,
+   ADD COLUMN food_habit_pasta_rice_cereals int(4) DEFAULT NULL;	
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_bread'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_pastry'), 'range,0,6', 'value from 1 to 5'),
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_megaprofilings' AND `field`='food_habit_pasta_rice_cereals'), 'range,0,6', 'value from 1 to 5');
+
+UPDATE structure_fields SET  `language_label`='antibiotics (last 6 months)' WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field='antibiotics' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr)
+VALUES
+('antibiotics (last 6 months)', 'Antibiotics (last 6 months)', 'Antibiotiques (6 derniers mois)');
+
+UPDATE structure_fields 
+SET  `language_help`='qc_nd_food_habit_help' 
+WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field LIKE 'food_habit%';
+INSERT INTO i18n (id,en,fr)
+VALUES
+('qc_nd_food_habit_help', 
+'1 - À chaque repas ou plusieurs fois par jour / 2 - À chaque jour / 3 - À chaque semaine / 4 – Rarement / 5 - Jamais', '1 - Every meal or several times per day / 2 - Daily / 3 - Weekly / 4 - Rarely / 5 - Never');
+
+ALTER TABLE qc_nd_ed_megaprofilings
+  ADD COLUMN bowel_movements_frequency_per_day varchar(10) DEFAULT NULL,
+  ADD COLUMN bowel_movements_frequency_per_week varchar(10) DEFAULT NULL,
+  ADD COLUMN time_since_previous_bowel_movement_h int(4) DEFAULT NULL;
+ALTER TABLE qc_nd_ed_megaprofilings_revs
+  ADD COLUMN bowel_movements_frequency_per_day varchar(10) DEFAULT NULL,
+  ADD COLUMN bowel_movements_frequency_per_week varchar(10) DEFAULT NULL,
+  ADD COLUMN time_since_previous_bowel_movement_h int(4) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_bowel_movements_frequency_per_day', "StructurePermissibleValuesCustom::getCustomDropdown('Bowel Movements Frequency Per Day')"),
+('qc_nd_bowel_movements_frequency_per_week', "StructurePermissibleValuesCustom::getCustomDropdown('Bowel Movements Frequency Per Week')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Bowel Movements Frequency Per Day', 1, 10, 'clinical - annotation'),
+('Bowel Movements Frequency Per Week', 1, 10, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Bowel Movements Frequency Per Day');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("1x", "", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("2x", "", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("3x or more", "3x or more", '3x ou plus', '1', @control_id, '9', NOW(),'9', NOW());
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Bowel Movements Frequency Per Week');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("1- 2x", "", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("3-4x", "", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("5x or more", "5x or more", '5x ou plus', '1', @control_id, '9', NOW(),'9', NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'bowel_movements_frequency_per_day', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_bowel_movements_frequency_per_day') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'bowel_movements_frequency_per_week', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_bowel_movements_frequency_per_week') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_megaprofilings', 'time_since_previous_bowel_movement_h', 'integer_positive',  NULL , '0', 'size=2', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='bowel_movements_frequency_per_day' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_bowel_movements_frequency_per_day')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='bowel_movements_frequency_per_week' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_bowel_movements_frequency_per_week')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '18', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='time_since_previous_bowel_movement_h' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=2' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='bowel movements frequency per day' WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field='bowel_movements_frequency_per_day' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_bowel_movements_frequency_per_day');
+UPDATE structure_fields SET  `language_label`='bowel movements frequency per week' WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field='bowel_movements_frequency_per_week' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_bowel_movements_frequency_per_week');
+UPDATE structure_fields SET  `language_label`='time since previous bowel movement h' WHERE model='EventDetail' AND tablename='qc_nd_ed_megaprofilings' AND field='time_since_previous_bowel_movement_h' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='bowel movements' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_megaprofilings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_megaprofilings' AND `field`='bowel_movements_frequency_per_day' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_bowel_movements_frequency_per_day') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('bowel movements' ,'Bowel Movements', 'Selles'),
+('bowel movements frequency per day' ,'Frequency Per Day', 'Fréquence par jour'),
+('bowel movements frequency per week' ,'Frequency Per Week', 'Fréquence par semaine'),
+('time since previous bowel movement h' ,'Time Since Previous One (h)', 'Temps depuis la dernière (h)');
+UPDATE event_controls SET flag_use_for_ccl = '1' WHERE event_type = 'megaprofiling';
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'EventMaster');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Path Review
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'SpecimenReviewMaster' AND label = 'number of elements per participant';
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = '1' WHERE fct.datamart_structure_id = str.id AND str.model = 'AliquotReviewMaster' AND label = 'number of elements per participant';
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = '1', flag_active_2_to_1 = '1' WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
+
+INSERT INTO aliquot_review_controls (review_type, flag_active, detail_form_alias, detail_tablename, aliquot_type_restriction, databrowser_label) VALUES
+('tissue slide/block general', 1, 'qc_nd_ar_tissues', 'qc_nd_ar_tissues', 'block,slide', 'tissue slide/block general');
+INSERT INTO specimen_review_controls (sample_control_id, aliquot_review_control_id, review_type, flag_active, detail_form_alias, detail_tablename, databrowser_label) VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'tissue'), (SELECT id FROM aliquot_review_controls WHERE review_type = 'tissue slide/block general'), 'general', 1, 'qc_nd_spr_tissues', 'qc_nd_spr_tissues', 'general');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='aliquot_master_id'), 'notEmpty', '');
+
+CREATE TABLE IF NOT EXISTS qc_nd_ar_tissues (
+  aliquot_review_master_id int(11) NOT NULL,
+  tumor char(1) DEFAULT '',
+  benign char(1) DEFAULT '',
+  idc char(1) DEFAULT '',
+  representative_block char(1) DEFAULT '',
+  KEY FK_qc_nd_ar_tissues_aliquot_review_masters (aliquot_review_master_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS qc_nd_ar_tissues_revs (
+  aliquot_review_master_id int(11) NOT NULL,
+  tumor char(1) DEFAULT '',
+  benign char(1) DEFAULT '',
+  idc char(1) DEFAULT '',
+  representative_block char(1) DEFAULT '',
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS qc_nd_spr_tissues (
+  specimen_review_master_id int(11) NOT NULL,
+  KEY FK_qc_nd_spr_tissues_specimen_review_masters (specimen_review_master_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS qc_nd_spr_tissues_revs (
+  specimen_review_master_id int(11) NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE qc_nd_ar_tissues
+  ADD CONSTRAINT FK_qc_nd_ar_tissues_aliquot_review_masters FOREIGN KEY (aliquot_review_master_id) REFERENCES aliquot_review_masters (id);
+
+ALTER TABLE qc_nd_spr_tissues
+  ADD CONSTRAINT FK_qc_nd_spr_tissues_specimen_review_masters FOREIGN KEY (specimen_review_master_id) REFERENCES specimen_review_masters (id);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ar_tissues');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'AliquotReviewDetail', 'qc_nd_ar_tissues', 'tumor', 'yes_no',  NULL , '0', '', '', '', 'tumor', ''), 
+('ClinicalAnnotation', 'AliquotReviewDetail', 'qc_nd_ar_tissues', 'benign', 'yes_no',  NULL , '0', '', '', '', 'benign', ''), 
+('ClinicalAnnotation', 'AliquotReviewDetail', 'qc_nd_ar_tissues', 'idc', 'yes_no',  NULL , '0', '', '', '', 'idc', ''), 
+('ClinicalAnnotation', 'AliquotReviewDetail', 'qc_nd_ar_tissues', 'representative_block', 'yes_no',  NULL , '0', '', '', '', 'representative block', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ar_tissues'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qc_nd_ar_tissues' AND `field`='tumor' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ar_tissues'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qc_nd_ar_tissues' AND `field`='benign' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='benign' AND `language_tag`=''), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ar_tissues'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qc_nd_ar_tissues' AND `field`='idc' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ar_tissues'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qc_nd_ar_tissues' AND `field`='representative_block' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='representative block' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('benign', 'Benign', 'Bénin'),
+('idc', 'IDC', 'IDC'),
+('representative block', 'Representative Block', 'Bloc représentatif');
+ 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Additional Lab Markers
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'lab', 'other marker', 1, 'qc_nd_ed_other_markers', 'qc_nd_ed_other_markers', 0, 'lab|other marker', 0, 1, 1);
+
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_other_markers` (
+  `type` varchar(30) DEFAULT NULL,
+  `value` decimal(8,2) DEFAULT NULL,
+  `unit` varchar(10) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_other_markers_revs` (
+  `type` varchar(30) DEFAULT NULL,
+  `value` decimal(8,2) DEFAULT NULL,
+  `unit` varchar(10) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=32614 ;
+ALTER TABLE `qc_nd_ed_other_markers`
+  ADD CONSTRAINT `qc_nd_ed_other_markers_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_other_markers');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_other_marker_types', "StructurePermissibleValuesCustom::getCustomDropdown('Other Lab Marker Types')"),
+('qc_nd_ed_other_marker_units', "StructurePermissibleValuesCustom::getCustomDropdown('Other Lab Marker Units')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Other Lab Marker Types', 1, 30, 'clinical - annotation'),
+('Other Lab Marker Units', 1, 10, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Other Lab Marker Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("ldh", "LDH", 'LDH', '1', @control_id, '9', NOW(),'9', NOW()),
+("alcaline phosphatase", "Alcaline Phosphatase", 'Phosphatase Alcaline', '1', @control_id, '9', NOW(),'9', NOW()),
+("hemoglobin", "Hemoglobin", 'Hemoglobine', '1', @control_id, '9', NOW(),'9', NOW()),
+("albumen", "Albumen", 'Albumine', '1', @control_id, '9', NOW(),'9', NOW()),
+("testosterone", "Testosterone", 'Testosterone', '1', @control_id, '9', NOW(),'9', NOW());
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Other Lab Marker Units');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("u/l", "", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("g/l", "", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("nmol/l", "", '', '1', @control_id, '9', NOW(),'9', NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_other_markers', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_other_marker_types') , '0', '', '', '', 'marker', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_other_markers', 'unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_other_marker_units') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_other_markers', 'value', 'float_positive',  NULL , '0', 'size=6', '', '', 'value', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_other_markers'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '2', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_other_markers'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_other_markers' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_other_marker_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='marker' AND `language_tag`=''), '2', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_other_markers'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_other_markers' AND `field`='unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_other_marker_units')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_other_markers'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_other_markers' AND `field`='value' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='value' AND `language_tag`=''), '2', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO i18n (id,en,fr)
+VALUES
+('marker', 'Marker', 'Marqueur'),
+('other marker', 'Other Marker', 'Autre marqueur');
+
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_other_markers' AND `field`='type'), 'notEmpty', ''),
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_other_markers' AND `field`='unit'), 'notEmpty', ''),
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_other_markers' AND `field`='value'), 'notEmpty', '');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Delete list 'procure slice origins'
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'procure slice origins');
+UPDATE `structure_permissible_values_customs` SET deleted = '1' WHERE control_id = @control_id;
+UPDATE `structure_permissible_values_custom_controls` SET flag_active = '0' WHERE id = @control_id;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Display Sardo Treatment Detail In Treatment Index View
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Generated', '', 'qc_nd_sardo_tx_detail_summary', 'input',  NULL , '0', '', '', '', 'treatment detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_tx_detail_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='treatment detail' AND `language_tag`=''), '2', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Removed wrong structure_value_domain from input field
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `structure_value_domain`= NULL  WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='result' AND `type`='input' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests');
+UPDATE structure_fields SET  `structure_value_domain`= NULL  WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='detail' AND `type`='input' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Verifier en prod qu'il n'y a aps de pb de recherche sur les identifiants par interval ex No Labo Ovaire 100 a 110
+Verifiez le search sur study dans databrower
+Lorsque je cherche un interval sur IDO, ça bug.
+
+
+
+

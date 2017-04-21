@@ -12,6 +12,7 @@ class EventControlCustom extends EventControl {
 		'ghadirian form', 
 		'immuncarta',
 		'megaprofiling',
+		'other marker',
 		'prostate nodule review', 
 		'prostate pathology review', 
 		'psa', 
