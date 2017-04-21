@@ -7,7 +7,7 @@ class SardoMigrationsController extends AdministrateAppController {
 		'SardoImportSummary'	=> array('limit' => pagination_amount, 'order' => 'SardoImportSummary.message_type ASC'));
 	
 	function listAll($message_type = 'all'){
-		if(!in_array($message_type, array('all', 'profile_reproductive', 'main'))) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(!in_array($message_type, array('all', 'csv', 'profile_reproductive', 'main'))) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$this->set('message_type', $message_type);
 		
 		if($message_type == 'all') {
@@ -35,6 +35,21 @@ class SardoMigrationsController extends AdministrateAppController {
 						break;
 				}
 			}
+			
+		} else if($message_type == 'csv') {
+			
+			// Export data in csv
+			$config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data)? $this->request->data[0] : array()));
+			unset($this->request->data[0]);
+			unset($this->request->data['Config']);
+			$this->configureCsv($config);
+		
+			$this->Structures->set('qc_nd_sardo_migrations_messages', 'atim_structure_messages');
+			
+			$this->request->data = $this->SardoImportSummary->find('all', array());
+			
+			Configure::write('debug', 0);
+			$this->layout = false;
 			
 		} else {
 			

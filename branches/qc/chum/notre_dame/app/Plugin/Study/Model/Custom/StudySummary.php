@@ -9,6 +9,14 @@ class StudySummaryCustom extends StudySummary
 	var $study_investigators_from_id = array();
 	var $study_institutions_from_id = array();
 	
+	function beforeSave($options = array()){
+		if(array_key_exists('StudySummary', $this->data) && array_key_exists('path_to_file', $this->data['StudySummary'])) {
+			$this->data['StudySummary']['path_to_file'] = preg_replace('/[\\\]+/', '/', $this->data['StudySummary']['path_to_file']);
+		}
+		$ret_val = parent::beforeSave($options);
+		return $ret_val;
+	}
+	
 	function beforeFind($queryData){
 		if(isset($queryData['conditions']) && isset($queryData['conditions']['StudySummary.qc_nd_generated_study_investigators'])) {
 			//Can not use joins model when user add an investigator twixe to a study else will generate 2 records

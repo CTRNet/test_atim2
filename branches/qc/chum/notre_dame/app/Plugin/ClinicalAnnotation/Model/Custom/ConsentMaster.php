@@ -20,4 +20,12 @@ class ConsentMasterCustom extends ConsentMaster {
 		}	
 		return $result;
 	}
+	
+	function beforeSave($options = array()){
+		if(array_key_exists('ConsentMaster', $this->data) && array_key_exists('qc_nd_file_name', $this->data['ConsentMaster'])) {
+			$this->data['ConsentMaster']['qc_nd_file_name'] = preg_replace('/[\\\]+/', '/', $this->data['ConsentMaster']['qc_nd_file_name']);
+		}
+		$ret_val = parent::beforeSave($options);
+		return $ret_val;
+	}
 }
