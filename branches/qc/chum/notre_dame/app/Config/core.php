@@ -389,7 +389,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');

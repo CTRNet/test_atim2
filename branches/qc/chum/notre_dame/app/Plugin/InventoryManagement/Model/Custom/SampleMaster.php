@@ -168,6 +168,7 @@ class SampleMasterCustom extends SampleMaster {
     		case 'other fluid supernatant':
     		case 'plasma':
 			case 'serum':
+			case 'xenograft':
 			case 'pleural fluid cell':
 			case 'pleural fluid supernatant':
 			case 'pericardial fluid cell':
