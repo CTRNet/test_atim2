@@ -2580,3 +2580,12 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamar
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE `versions` SET branch_build_number = '6704' WHERE version_number = '2.6.8';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE sample_controls SET qc_nd_sample_type_code = 'XEN' WHERE sample_type = 'xenograft';
+INSERT INTO lab_type_laterality_match (selected_type_code, sample_type_matching) VALUES ('XEN', 'xenograft');
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE `versions` SET branch_build_number = '6705' WHERE version_number = '2.6.8';
