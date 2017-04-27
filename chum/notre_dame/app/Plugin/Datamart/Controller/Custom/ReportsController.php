@@ -42,7 +42,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		$misc_identifiers = $misc_identifier_model->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $participant_ids), 'order' => array('MiscIdentifier.participant_id ASC')));
 		$data = array();
-	
+		
 		foreach($misc_identifiers as $new_ident){
 			$participant_id = $new_ident['Participant']['id'];
 			if(!isset($data[$participant_id])) {
@@ -55,22 +55,29 @@ class ReportsControllerCustom extends ReportsController {
 								'date_of_birth' => $new_ident['Participant']['date_of_birth'],
 								'date_of_birth_accuracy' => $new_ident['Participant']['date_of_birth_accuracy']),
 						'0' => array(
-								'breast_bank_no_lab' => null,
-								'code_barre' => null,
-								'head_and_neck_bank_no_lab' => null,
-								'hotel_dieu_id_nbr' => null,
-								'kidney_bank_no_lab' => null,
-								'notre_dame_id_nbr' => null,
-								'old_bank_no_lab' => null,
-								'other_center_id_nbr' => null,
 								'ovary_gyneco_bank_no_lab' => null,
-								'participant_patho_identifier' => null,
+								'breast_bank_no_lab' => null,
 								'prostate_bank_no_lab' => null,
+								'kidney_bank_no_lab' => null,
+								'head_and_neck_bank_no_lab' => null,
+								'autopsy_bank_no_lab' => null,
+								'melanoma_and_skin_bank_no_lab' => null,
 								'ramq_nbr' => null,
-								'saint_luc_id_nbr' => null)
+								'hotel_dieu_id_nbr' => null,
+								'notre_dame_id_nbr' => null,
+								'saint_luc_id_nbr' => null,
+								'other_center_id_nbr' => null,
+								'old_bank_no_lab' => null,
+								'code_barre' => null,
+								'qc_nd_study_misc_identifier_value' => '')
 				);
 			}
-			$data[$participant_id]['0'][str_replace(array(' ', '-', '/'), array('_','_','_'), $new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
+			$generated_key = str_replace(array(' ', '-', '/'), array('_','_','_'), $new_ident['MiscIdentifierControl']['misc_identifier_name']);
+			if(array_key_exists($generated_key, $data[$participant_id]['0'])) {
+				$data[$participant_id]['0'][$generated_key] = $new_ident['MiscIdentifier']['identifier_value'];
+			} else if($new_ident['MiscIdentifier']['study_summary_id']) {
+				$data[$participant_id]['0']['qc_nd_study_misc_identifier_value'] .= $new_ident['StudySummary']['title'].' ['.$new_ident['MiscIdentifier']['identifier_value']."] ";
+			}
 		}
 
 		return array(

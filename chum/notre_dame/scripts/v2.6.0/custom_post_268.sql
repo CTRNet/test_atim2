@@ -2062,44 +2062,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE `versions` SET branch_build_number = '6672' WHERE version_number = '2.6.7';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Customize Study
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2452,27 +2414,169 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_fields SET  `structure_value_domain`= NULL  WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='result' AND `type`='input' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests');
 UPDATE structure_fields SET  `structure_value_domain`= NULL  WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='detail' AND `type`='input' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Replaced PMT flag by study number
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', '0', '', 'qc_nd_study_misc_identifier_value', 'input',  NULL , '0', '', '', '', 'study nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_nd_study_misc_identifier_value' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study nbr' AND `language_tag`=''), '0', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_pmt_participant' AND `language_label`='PMT nbr' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_pmt_participant' AND `language_label`='PMT nbr' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_pmt_participant' AND `language_label`='PMT nbr' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Melanoma & Skin Bank
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO key_increments (key_name ,key_value) VALUES ('melanoma and skin bank no lab', '400000');
+INSERT INTO misc_identifier_controls (misc_identifier_name , flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_confidential, flag_unique, pad_to_length, reg_exp_validation, user_readable_format, flag_link_to_study)
+VALUES
+('melanoma and skin bank no lab','1','1','melanoma and skin bank no lab','%%key_increment%%','1','0','1','0','','','0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'melanoma_and_skin_bank_no_lab', 'input',  NULL , '0', 'size=20', '', '', 'melanoma and skin bank no lab', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='melanoma_and_skin_bank_no_lab' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='melanoma and skin bank no lab' AND `language_tag`=''), '0', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'chum - melanoma and skin', 1, 'qc_nd_cd_chum_melanoma_skins', 'qc_nd_cd_chum_melanoma_skins', 0, 'chum - melanoma and skin');
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('chum - melanoma and skin', 'CHUM -  Melanoma & Skin', 'CHUM - Mélanome & Peau'),
+('melanoma and skin bank no lab', "'No Labo' of Melanoma & Skin Bank","'No Labo' de la banque Mélanome & Peau");
 
+CREATE TABLE IF NOT EXISTS `qc_nd_cd_chum_melanoma_skins` (
+  `consent_master_id` int(11) NOT NULL,
+  `communicate_for_other_research` char(1) NOT NULL DEFAULT '',
+  `exams_or_treatments` char(1) NOT NULL DEFAULT '',
+  KEY `consent_master_id` (`consent_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_cd_chum_melanoma_skins_revs` (
+  `consent_master_id` int(11) NOT NULL,
+  `communicate_for_other_research` char(1) NOT NULL DEFAULT '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+ALTER TABLE `qc_nd_cd_chum_melanoma_skins`
+  ADD CONSTRAINT `qc_nd_cd_chum_melanoma_skins_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('communicate to participate in other research', 'Communicate to participate in other research', 'Communiquer pour participer à autres recherches');
+INSERT INTO structures(`alias`) VALUES ('qc_nd_cd_chum_melanoma_skins');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_melanoma_skins', 'communicate_for_other_research', 'yes_no',  NULL , '0', '', '', '', 'communicate to participate in other research', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_melanoma_skins'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_melanoma_skins' AND `field`='communicate_for_other_research' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='communicate to participate in other research' AND `language_tag`=''), '2', '1', 'agreements', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
+INSERT INTO `banks` (`name`, `description`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('Melanoma&Skin/Mélanome&Peau', '', NOW(),NOW(), 9, 9);
+INSERT INTO `banks_revs` (`name`, `description`, `modified_by`, `id`, `version_created`) 
+(SELECT `name`, `description`, `modified_by`, `id`, `created` FROM banks wHERE name = 'Melanoma&Skin/Mélanome&Peau');
+UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'melanoma and skin bank no lab') WHERE name = 'Melanoma&Skin/Mélanome&Peau';
+UPDATE banks_revs SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'melanoma and skin bank no lab') WHERE name = 'Melanoma&Skin/Mélanome&Peau';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Xenograft
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(194, 195);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(62, 64, 63, 61);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_xenografts', 'source_cell_passage_number', 'integer',  NULL , '0', 'size=5', '', '', 'source cell passage number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_xenografts' AND `field`='source_cell_passage_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='source cell passage number' AND `language_tag`=''), '1', '440', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
+ALTER TABLE sd_der_xenografts ADD COLUMN source_cell_passage_number INT(6) DEFAULT NULL;
+ALTER TABLE sd_der_xenografts_revs  ADD COLUMN source_cell_passage_number INT(6) DEFAULT NULL;
 
+ALTER TABLE sd_der_xenografts 
+  ADD COLUMN qc_nd_collection_datetime DATETIME DEFAULT NULL,
+  ADD COLUMN qc_nd_collection_datetime_accuracy CHAR(1) DEFAULT '';
+ALTER TABLE sd_der_xenografts_revs 
+  ADD COLUMN qc_nd_collection_datetime DATETIME DEFAULT NULL,
+  ADD COLUMN qc_nd_collection_datetime_accuracy CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_xenografts', 'qc_nd_collection_datetime', 'datetime',  NULL , '0', '', '', '', 'collection date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_xenografts' AND `field`='qc_nd_collection_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='collection date' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+DELETE FROM i18n WHERE id = 'collection date';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('collection date', 'Collection Date', 'Date de collection');
 
+ALTER TABLE sd_der_xenografts 
+  ADD COLUMN qc_nd_clones VARCHAR(250) DEFAULT NULL,
+  ADD COLUMN qc_nd_treatment VARCHAR(250) DEFAULT NULL;
+ALTER TABLE sd_der_xenografts_revs 
+  ADD COLUMN qc_nd_clones VARCHAR(250) DEFAULT NULL,
+  ADD COLUMN qc_nd_treatment VARCHAR(250) DEFAULT NULL;
 
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_xenograft_cell_treatments', "StructurePermissibleValuesCustom::getCustomDropdown('Xenograft Cell Treatments')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Xenograft Cell Treatments', 1, 250, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Xenograft Cell Treatments');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+("abt", "ABT", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("olap/abt", "Olap/ABT", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("ctrl dmso/epg", "ctrl dmso/EPG", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("olaparib", "Olaparib", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("ctrl dmso", "ctrl DMSO", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("ctrl epg", "ctrl EPG", '', '1', @control_id, '9', NOW(),'9', NOW()),
+("doxy (625 mg/kg)", "doxy (625 mg/kg)", '', '1', @control_id, '9', NOW(),'9', NOW());
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_xenografts', 'qc_nd_clones', 'input',  NULL , '0', '', '', '', 'clones', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_der_xenografts', 'qc_nd_treatment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_xenograft_cell_treatments') , '0', '', '', '', 'treatment', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_xenografts' AND `field`='qc_nd_clones' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clones' AND `language_tag`=''), '1', '441', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_xenografts' AND `field`='qc_nd_treatment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_xenograft_cell_treatments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='treatment' AND `language_tag`=''), '1', '442', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('clones', 'Clones', 'Clones');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Changed DNA RNA source_cell_passage_number
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+ALTER TABLE sd_der_dnas MODIFY source_cell_passage_number INT(6) DEFAULT NULL;
+ALTER TABLE sd_der_dnas_revs MODIFY source_cell_passage_number INT(6) DEFAULT NULL;
 
+ALTER TABLE sd_der_rnas MODIFY source_cell_passage_number INT(6) DEFAULT NULL;
+ALTER TABLE sd_der_rnas_revs MODIFY source_cell_passage_number INT(6) DEFAULT NULL;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Cell Culture Flaks Clean-up
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Verifier en prod qu'il n'y a aps de pb de recherche sur les identifiants par interval ex No Labo Ovaire 100 a 110
-Verifiez le search sur study dans databrower
-Lorsque je cherche un interval sur IDO, ça bug.
+UPDATE structures SET alias = 'qc_nd_ad_cell_culture_tubes' where alias = 'ad_cell_culture_tubes'; 
+UPDATE aliquot_controls SET flag_active= 1, detail_form_alias = 'qc_nd_ad_cell_culture_tubes' WHERE detail_form_alias = 'ad_cell_culture_tubes';
+DELETE FROM aliquot_controls WHERE aliquot_type = 'tube' AND sample_control_id = 11 AND detail_form_alias = 'ad_der_cell_tubes_incl_ml_vol' AND flag_active= 0;
 
+SET @flask_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = 11 AND databrowser_label = 'cell culture|flask');
+SET @tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = 11 AND databrowser_label = 'cell culture|tube');
+UPDATE aliquot_masters SET aliquot_control_id = @tube_aliquot_control_id WHERE aliquot_control_id = @flask_aliquot_control_id;
+UPDATE aliquot_masters_revs SET aliquot_control_id = @tube_aliquot_control_id WHERE aliquot_control_id = @flask_aliquot_control_id;
+UPDATE order_lines SET aliquot_control_id = @tube_aliquot_control_id WHERE aliquot_control_id = @flask_aliquot_control_id;
+UPDATE order_lines_revs SET aliquot_control_id = @tube_aliquot_control_id WHERE aliquot_control_id = @flask_aliquot_control_id;
+DELETE FROM aliquot_controls WHERE id = @flask_aliquot_control_id;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Other
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+ALTER TABLE `qc_nd_cd_chum_melanoma_skins_revs` 
+  ADD COLUMN `exams_or_treatments` char(1) NOT NULL DEFAULT '';
 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('study nbr', 'Study #', 'Etude #');
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_pmt_participant' AND `language_label`='PMT participant' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_pmt_participant' AND `language_label`='PMT participant' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Datamart' AND `model`='0' AND `tablename`='' AND `field`='qc_nd_pmt_participant' AND `language_label`='PMT participant' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE `versions` SET branch_build_number = '6704' WHERE version_number = '2.6.8';
