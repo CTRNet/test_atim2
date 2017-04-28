@@ -12,7 +12,7 @@ $db_schema		= "chumoncoaxis";
 $db_charset		= "utf8";
 
 $excel_files_paths = 'C:/_NicolasLuc/Server/www/FichierKim/';
-$excel_file_name = 'FFPE_migration atim(xeno souris)(bon3)_nl_revised_2.xls';
+$excel_file_name = 'FFPE_migration atim(xeno souris)(bon3)_nl_revised_3.xls';
 $migration_user_id = 9;
 
 ?>
