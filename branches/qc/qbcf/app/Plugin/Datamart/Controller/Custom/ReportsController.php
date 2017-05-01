@@ -251,8 +251,7 @@ class ReportsControllerCustom extends ReportsController {
 			TreatmentDetail.tnbc,
 			TreatmentDetail.time_to_last_contact_months,
 			TreatmentDetail.time_to_first_progression_months,
-			TreatmentDetail.time_to_next_breast_dx_event_months,	
-			IF(IFNULL(TissueBlockAliquotMaster.in_stock, 'n') = 'n', 'n', 'y') AS generated_blocks_in_stock";
+			TreatmentDetail.time_to_next_breast_dx_event_months";
 		$sql_core_fields = "ViewAliquot.aliquot_master_id,
 			ViewAliquot.sample_master_id,
 			ViewAliquot.collection_id,
@@ -269,14 +268,12 @@ class ReportsControllerCustom extends ReportsController {
 		$sql =
 			"SELECT DISTINCT
 				$sql_participant_fields,
-				Collection.id,
 				$sql_treatment_fields
 				".($include_tma_core? ",$sql_core_fields" : "")."
 				FROM participants AS Participant
 				INNER JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']." AND TreatmentMaster.deleted <> 1
 				INNER JOIN ".$tx_controls['breast diagnostic event']['detail_tablename']." AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 				INNER JOIN collections AS Collection ON Collection.participant_id = Participant.id AND Collection.treatment_master_id = TreatmentMaster.id AND Collection.deleted <> 1
-				LEFT JOIN aliquot_masters AS TissueBlockAliquotMaster ON TissueBlockAliquotMaster.collection_id = Collection.id AND TissueBlockAliquotMaster.deleted <> 1 AND TissueBlockAliquotMaster.aliquot_control_id = '$tissue_block_aliquot_control_id' AND TissueBlockAliquotMaster.in_stock != 'no' 
 				".($include_tma_core? 
 					"INNER JOIN view_aliquots AS ViewAliquot ON ViewAliquot.collection_id = Collection.id AND ViewAliquot.aliquot_type = 'core' $inner_join_on_storage" : 
 					"").
@@ -292,8 +289,12 @@ class ReportsControllerCustom extends ReportsController {
 			//Look for participants matching the participant criteria but not linked to a breast diagnosis event and/or an aliquot
 			$main_result_participant_ids = '-1';
 			if($main_results) {
-				$main_result_participant_ids = $this->Report->tryCatchQuery("SELECT GROUP_CONCAT(DISTINCT Participant.id SEPARATOR ',') AS participant_ids ".substr($sql, strpos($sql, 'FROM participants AS Participant'), (strpos($sql, 'ORDER BY') - strpos($sql, 'FROM participants AS Participant'))));
-				$main_result_participant_ids = $main_result_participant_ids[0][0]['participant_ids'];
+				$participant_id_query = "SELECT DISTINCT Participant.id ".substr($sql, strpos($sql, 'FROM participants AS Participant'), (strpos($sql, 'ORDER BY') - strpos($sql, 'FROM participants AS Participant')));
+				$main_result_participant_ids = $main_result_participant_ids = array();
+				foreach($this->Report->tryCatchQuery($participant_id_query) as $tmp_res) {
+					$main_result_participant_ids[] = $tmp_res['Participant']['id'];
+				}
+				$main_result_participant_ids = implode(',', $main_result_participant_ids);
 			}
 			$sql_for_unlinked =
 				"SELECT DISTINCT
@@ -308,7 +309,7 @@ class ReportsControllerCustom extends ReportsController {
 				$tx_empty_array = array();
 				foreach(explode(',', preg_replace("/[\n\r\s\s+]/","",$sql_treatment_fields)) as $new_field) {
 					list($model, $field) = explode('.', $new_field);
-					$tx_empty_array[$model][$field] = 'n/a';
+					$tx_empty_array[$model][$field] = '';
 				}
 				foreach($result_for_unlinked as $new_participant) {
 					$main_results[] =$new_participant+$tx_empty_array;
@@ -325,6 +326,9 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		foreach($main_results as &$new_participant) {
 			
+			//if($new_participant['TreatmentMaster']['start_date_accuracy'] != 'y') $new_participant['TreatmentMaster']['start_date_accuracy'] = 'm';
+			$empty_value = '';
+						
 			// ** 1 ** Set confidential data
 			
 			$confidential_record  = ($user_bank_id != 'all' && $new_participant['Participant']['qbcf_bank_id'] != $user_bank_id)? true : false;
@@ -336,12 +340,6 @@ class ReportsControllerCustom extends ReportsController {
 					$new_participant['ViewAliquot']['aliquot_label'] = CONFIDENTIAL_MARKER;
 				}			
 			}
-			
-			if($new_participant['TreatmentMaster']['start_date_accuracy'] != 'y') $new_participant['TreatmentMaster']['start_date_accuracy'] = 'm';
-			
-			$empty_value = $new_participant['TreatmentMaster']['id'] != 'n/a'? '' : 'n/a';
-			
-			$new_participant['GeneratedQbcfBrDxEv']['block_available'] = 'n';
 			
 			// ** 2 ** Pre/Post Breast Diagnosis Event
 			
@@ -587,12 +585,12 @@ class ReportsControllerCustom extends ReportsController {
 						$tx_merthod);
 					$new_participant['GeneratedQbcfBxTx'][$field_name] = 'y';				
 					$tx_detail = array(
-						str_replace(array('yes', 'no', 'unknown'), array(__('completed'), __('not completed'), ''), $new_tx['TreatmentDetail']['completed']),
+						str_replace(array('unknown', 'yes', 'no', ), array('', __('completed'), __('not completed')), $new_tx['TreatmentDetail']['completed']),
 						$new_tx['TreatmentMaster']['qbcf_clinical_trial_protocol_number'],
 						($new_tx['0']['drug_names']? '('.$new_tx['0']['drug_names'].')' : ''));
 					if(!$tx_detail) $tx_detail = __('completion unknown');
 					$tx_detail = array_filter($tx_detail);
-					if($tx_detail) {
+					if($tx_detail) {			
 						$new_participant['GeneratedQbcfBxTx'][$field_name.'_detail'] .= __($tx_merthod).' ['.implode(' ', $tx_detail).'] ';
 					}
 					}
@@ -679,7 +677,37 @@ class ReportsControllerCustom extends ReportsController {
 					AND TreatmentMaster.participant_id = ".$new_participant['Participant']['id'];
 			$other_tx = array();
 			foreach($this->Report->tryCatchQuery($sql) as $new_tx) $other_tx[] = $other_dx_treatments[$new_tx['TreatmentDetail']['type']];
-			$new_participant['GeneratedQbcfOtherTumor']['other_tumor_treatments'] = implode (' & ', $other_tx);			
+			$new_participant['GeneratedQbcfOtherTumor']['other_tumor_treatments'] = implode (' & ', $other_tx);	
+			
+			// ** 6 ** Check if participant blocks are available
+			
+			$sql =
+				"SELECT count(*) AS nbr_of_blocks
+				FROM collections Collection
+				INNER JOIN aliquot_masters AS TissueBlockAliquotMaster ON TissueBlockAliquotMaster.collection_id = Collection.id 
+				WHERE Collection.participant_id = ".$new_participant['Participant']['id']."
+				AND Collection.treatment_master_id = ".($new_participant['TreatmentMaster']['id']? $new_participant['TreatmentMaster']['id'] : '-1')."
+				AND TissueBlockAliquotMaster.deleted <> 1 
+				AND TissueBlockAliquotMaster.aliquot_control_id = '$tissue_block_aliquot_control_id' 
+				AND TissueBlockAliquotMaster.in_stock IN ('yes - available', 'yes - not available');";
+			$res_count = $this->Report->tryCatchQuery($sql);
+			$new_participant['GeneratedQbcfBrDxEv']['block_available'] = $res_count[0][0]['nbr_of_blocks']? 'y' : 'n';				
+			
+			// ** 7 ** Add Core fields plus values equal to n/a when cores are not part of the display
+			
+			if(!array_key_exists('ViewAliquot', $new_participant)) {
+				$new_participant['ViewAliquot'] = array('selection_label' => 'n/a', 'storage_coord_x' => 'n/a', 'storage_coord_y' => 'n/a');
+			}
+			
+			// ** 8 ** No Biopsy - Replace cTNM by data of Dx Tx
+			
+			if(!strlen($new_participant['GeneratedQbcfPreBrDxEv']['type_of_intervention'].$new_participant['GeneratedQbcfPreBrDxEv']['clinical_stage_summary'].$new_participant['GeneratedQbcfPreBrDxEv']['clinical_tstage'].
+			$new_participant['GeneratedQbcfPreBrDxEv']['clinical_nstage'].$new_participant['GeneratedQbcfPreBrDxEv']['clinical_mstage'])) {
+				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_stage_summary'] = $new_participant['TreatmentDetail']['clinical_stage_summary'];
+				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_tstage'] = $new_participant['TreatmentDetail']['clinical_tstage'];
+				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_nstage'] = $new_participant['TreatmentDetail']['clinical_nstage'];
+				$new_participant['GeneratedQbcfPreBrDxEv']['clinical_mstage'] = $new_participant['TreatmentDetail']['clinical_mstage'];
+			}
 		}
 		
 		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
