@@ -2090,3 +2090,98 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qbcf_summary_results'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='generated_blocks_in_stock' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='block in stock' AND `language_tag`=''), '1', '253', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 UPDATE versions SET branch_build_number = '6618' WHERE version_number = '2.6.8';
+
+-- -----------------------------------------------------------------------------------------------------------------------
+-- Added core to QBCF Summary
+-- -----------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qbcf_summary_results'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1000', 'core', '0', '1', 'tma block', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_results'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1003', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qbcf_summary_results'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=11' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '1004', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_summary_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='0' AND `tablename`='' AND `field`='generated_blocks_in_stock' AND `language_label`='block in stock' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='0' AND `tablename`='' AND `field`='generated_blocks_in_stock' AND `language_label`='block in stock' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='0' AND `tablename`='' AND `field`='generated_blocks_in_stock' AND `language_label`='block in stock' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='253' WHERE structure_id=(SELECT id FROM structures WHERE alias='qbcf_summary_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='GeneratedQbcfBrDxEv' AND `tablename`='' AND `field`='block_available' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `language_help`='qbcf_event_to_collection_months_help' WHERE model='GeneratedQbcfPreBrDxEv' AND tablename='' AND field='event_to_collection_months' AND `type`='input' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr)
+VALUES
+('qbcf_event_to_collection_months_help', "Time from 'Breast Diagnosis Event (Pre)' to 'Tissue Breast Diagnosis Event'", '');
+
+SET @modified = (SELECT NOW() FROM users where id = 1);
+SET @modified_by = (SELECT id FROM users where id = 1);
+
+UPDATE treatment_masters, qbcf_tx_breast_diagnostic_events
+SET her_2_status = her2_ihc, modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id
+AND deleted <> 1
+AND (her2_fish LIKE '' OR her2_fish IS NULL)
+AND (her_2_status LIKE '' OR her_2_status IS NULL)
+AND her2_ihc IN ('positive', 'negative');
+
+UPDATE treatment_masters, qbcf_tx_breast_diagnostic_events
+SET tnbc = 'yes', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id
+AND deleted <> 1
+AND (tnbc != 'yes' OR tnbc IS NULL)
+AND her_2_status = 'negative'
+AND er_overall = 'negative'
+AND pr_overall = 'negative';
+
+UPDATE treatment_masters, qbcf_tx_breast_diagnostic_events
+SET tnbc = 'no', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id
+AND deleted <> 1
+AND (tnbc != 'no' OR tnbc IS NULL)
+AND (her_2_status = 'positive'
+OR er_overall = 'positive'
+OR pr_overall = 'positive');
+
+UPDATE treatment_masters, qbcf_tx_breast_diagnostic_events
+SET tnbc = 'unknown', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id
+AND deleted <> 1
+AND (tnbc != 'unknown' OR tnbc IS NULL)
+AND ((her_2_status = 'unknown' AND er_overall != 'positive' AND pr_overall != 'positive')
+OR (her_2_status != 'positive' AND er_overall = 'unknown' AND pr_overall != 'positive')
+OR (her_2_status != 'positive' AND er_overall != 'positive' AND pr_overall = 'unknown'));
+
+UPDATE treatment_masters, qbcf_tx_breast_diagnostic_events
+SET tnbc = 'equivocal', modified = @modified, modified_by = @modified_by
+WHERE id = treatment_master_id
+AND deleted <> 1
+AND (tnbc != 'equivocal' OR tnbc IS NULL)
+AND her_2_status = 'equivocal'
+AND er_overall = 'negative'
+AND pr_overall = 'negative';
+
+INSERT INTO treatment_masters_revs (id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id, 
+participant_id, diagnosis_master_id, qbcf_clinical_trial_protocol_number, qbcf_suspected_finish_date, modified_by, version_created)
+(SELECT id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id, 
+participant_id, diagnosis_master_id, qbcf_clinical_trial_protocol_number, qbcf_suspected_finish_date, modified_by, modified 
+FROM treatment_masters
+INNER JOIN qbcf_tx_breast_diagnostic_events ON id = treatment_master_id
+WHERE modified = @modified AND  modified_by = @modified_by);
+
+INSERT INTO qbcf_tx_breast_diagnostic_events_revs (age_at_dx, morphology, clinical_tstage, clinical_nstage, clinical_mstage, clinical_stage_summary, path_tstage, path_nstage, path_mstage, path_stage_summary, 
+type_of_intervention, laterality, grade_notthingham_sbr_ee, glandular_acinar_tubular_differentiation, nuclear_pleomorphism, mitotic_rate, tumor_size, margin_status, 
+number_of_positive_regional_ln, number_of_positive_regional_ln_integer_unknown, total_number_of_regional_ln_analysed, total_number_of_regional_ln_analysed_integer_unknown, 
+number_of_positive_regional_ln_category, number_of_positive_sentinel_ln, number_of_positive_sentinel_ln_integer_unknown, total_number_of_sentinel_ln_analysed, 
+total_number_of_sentinel_ln_analysed_integer_unknown, er_overall, er_intensity, er_percent, pr_overall, pr_intensity, pr_percent, her2_ihc, her2_fish, her_2_status, tnbc, time_to_last_contact_months, 
+time_to_first_progression_months, treatment_master_id, specimen_sent_to_chum_in_excel, time_to_next_breast_dx_event_months, 
+version_created)
+(SELECT age_at_dx, morphology, clinical_tstage, clinical_nstage, clinical_mstage, clinical_stage_summary, path_tstage, path_nstage, path_mstage, path_stage_summary, 
+type_of_intervention, laterality, grade_notthingham_sbr_ee, glandular_acinar_tubular_differentiation, nuclear_pleomorphism, mitotic_rate, tumor_size, margin_status, 
+number_of_positive_regional_ln, number_of_positive_regional_ln_integer_unknown, total_number_of_regional_ln_analysed, total_number_of_regional_ln_analysed_integer_unknown, 
+number_of_positive_regional_ln_category, number_of_positive_sentinel_ln, number_of_positive_sentinel_ln_integer_unknown, total_number_of_sentinel_ln_analysed, 
+total_number_of_sentinel_ln_analysed_integer_unknown, er_overall, er_intensity, er_percent, pr_overall, pr_intensity, pr_percent, her2_ihc, her2_fish, her_2_status, tnbc, time_to_last_contact_months, 
+time_to_first_progression_months, treatment_master_id, specimen_sent_to_chum_in_excel, time_to_next_breast_dx_event_months, 
+modified
+FROM treatment_masters
+INNER JOIN qbcf_tx_breast_diagnostic_events ON id = treatment_master_id
+WHERE modified = @modified AND  modified_by = @modified_by);
+
+UPDATE versions SET branch_build_number = '6707' WHERE version_number = '2.6.8';

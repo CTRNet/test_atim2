@@ -61,6 +61,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 					if($her2_ihc == 'negative') $her_2_status = 'equivocal';
 					break;
 				case 'unknown':
+				case '':
 					if($her2_ihc == 'positive') $her_2_status = 'positive';
 					if($her2_ihc == 'negative') $her_2_status = 'negative';
 			}
