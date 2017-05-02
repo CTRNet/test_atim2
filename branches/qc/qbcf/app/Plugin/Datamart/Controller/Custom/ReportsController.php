@@ -396,7 +396,7 @@ class ReportsControllerCustom extends ReportsController {
 						AND GeneratedQbcfPreBrDxEvMaster.participant_id = ".$new_participant['Participant']['id']."
 						AND GeneratedQbcfPreBrDxEvMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']."
 						AND GeneratedQbcfPreBrDxEvMaster.deleted <> 1
-						AND GeneratedQbcfPreBrDxEvMaster.start_date <= '".$new_participant['TreatmentMaster']['start_date']."'
+						AND GeneratedQbcfPreBrDxEvMaster.start_date < '".$new_participant['TreatmentMaster']['start_date']."'
 						AND GeneratedQbcfPreBrDxEvMaster.start_date IS NOT NULL
 						AND (GeneratedQbcfPreBrDxEv.type_of_intervention LIKE 'fine needle aspiration%' OR GeneratedQbcfPreBrDxEv.type_of_intervention LIKE 'biopsy%')		
 						ORDER BY GeneratedQbcfPreBrDxEvMaster.start_date DESC";
@@ -421,7 +421,7 @@ class ReportsControllerCustom extends ReportsController {
 						AND GeneratedQbcfPostBrDxEvMaster.participant_id = ".$new_participant['Participant']['id']."
 						AND GeneratedQbcfPostBrDxEvMaster.treatment_control_id = ".$tx_controls['breast diagnostic event']['id']."
 						AND GeneratedQbcfPostBrDxEvMaster.deleted <> 1
-						AND GeneratedQbcfPostBrDxEvMaster.start_date >= '".$new_participant['TreatmentMaster']['start_date']."'
+						AND GeneratedQbcfPostBrDxEvMaster.start_date > '".$new_participant['TreatmentMaster']['start_date']."'
 						AND GeneratedQbcfPostBrDxEvMaster.start_date IS NOT NULL
 						ORDER BY GeneratedQbcfPostBrDxEvMaster.start_date ASC";			
 				$sub_results = $this->Report->tryCatchQuery($sql);
