@@ -2478,10 +2478,26 @@ SET @aliquot_control_id = (SELECT ac.id FROM sample_controls sc INNER JOIN aliqu
 UPDATE aliquot_controls SET flag_active=true WHERE id = @aliquot_control_id;
 UPDATE realiquoting_controls SET flag_active=true WHERE child_aliquot_control_id = @aliquot_control_id;
 
-ISNERT IGNORE INTO i18n (id,en,fr) VALUES ('whatman paper should not be created anymore', 'Whatman paper should not be created anymore', 'Le papier whatman ne devrait plus être créé');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('whatman paper should not be created anymore', 'Whatman paper should not be created anymore', 'Le papier whatman ne devrait plus être créé');
 
 UPDATE drugs SET type = CONCAT(type, ' medication') WHERE type in ('other diseases');
 UPDATE versions SET branch_build_number = '6680' WHERE version_number = '2.6.8';
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-??-??
+-- Update realiquoting_datetime to fix bug happened on procurecentral
+-- Query should be executed on all server
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE realiquotings SET realiquoting_datetime = null where realiquoting_datetime like '0000-%';
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '6710', site_branch_build_number = '?' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
+
+
 
 
 
@@ -2507,5 +2523,3 @@ UPDATE versions SET branch_build_number = '6680' WHERE version_number = '2.6.8';
 --     &&  Treatment Sites (PROCURE Defintion) && Other Tumor Site (PROCURE Defintion based on ICD-O-/ Topo))
 -- 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
