@@ -2494,7 +2494,7 @@ UPDATE realiquotings SET realiquoting_datetime = null where realiquoting_datetim
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET branch_build_number = '6680', site_branch_build_number = '?' WHERE version_number = '2.6.8';
+UPDATE versions SET branch_build_number = '6710', site_branch_build_number = '?' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
 
 
