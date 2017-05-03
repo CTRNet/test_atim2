@@ -12,7 +12,7 @@ $db_schema		= "procurechuq";
 $db_charset		= "utf8";
 
 $excel_files_paths = 'C:/_NicolasLuc/Server/www/procure_chuq/scripts/v2.6.0/ReloadPsaTesto/';
-$excel_file_name = 'CHUQ-psa et testo pour import ATIM mars 2017.xls';
+$excel_file_name = 'CHUQ-psa et testo pour import ATIM mai 2017_nl_revised.xls';
 $migration_user_id = 2;
 
 
