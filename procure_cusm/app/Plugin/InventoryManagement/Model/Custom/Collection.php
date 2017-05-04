@@ -4,8 +4,6 @@ class CollectionCustom extends Collection {
 	var $useTable = 'collections';
 	var $name = 'Collection';
 	
-	var $procure_transferred_aliquots_limit = 50;
-	
 	function allowLinkDeletion($collection_id) {
 		$res = parent::allowLinkDeletion($collection_id);
 		if($res['allow_deletion'] == false) return $res;
@@ -20,6 +18,19 @@ class CollectionCustom extends Collection {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
+	function validates($options = array()) {
+		$res = parent::validates($options);
+		if(isset($this->data['Collection']) && isset($this->data['Collection']['procure_visit'])) {
+			$procure_visit = trim($this->data['Collection']['procure_visit']);
+			if(preg_match('/^[Vv]{0,1}((0{0,1}[1-9])|([1-9][0-9]))([\.,]([1-9])){0,1}$/', $procure_visit, $matches)) {
+				$this->data['Collection']['procure_visit'] = 'V'.sprintf("%02s",$matches[1]).((isset($matches[5]) && $matches[5])? '.'.$matches[5] : '');
+			} else {
+				$res = false;
+				$this->validationErrors['procure_visit'][] = __('wrong procure collection visit format');
+			}
+		}
+		return $res;
+	}
 	
 }
 

@@ -7,7 +7,10 @@
 	
 	$structure_links = array(
 		'top'=>NULL,
-		'index'=>'/ClinicalAnnotation/ConsentMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%',
+		'index'=>array(
+			'detail'=> '/ClinicalAnnotation/ConsentMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%',
+			'edit'=> '/ClinicalAnnotation/ConsentMasters/edit/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%',
+			'delete'=> '/ClinicalAnnotation/ConsentMasters/delete/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%'),
 		'bottom'=>array(
 			'add'=> $add_links
 		)

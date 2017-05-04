@@ -1,11 +1,5 @@
 <?php
 
-	$add_links = array();
-	foreach ($storage_types_from_id as $storage_control_id => $translated_storage_type) {
-		$add_links[$translated_storage_type] = '/StorageLayout/StorageMasters/add/' . $storage_control_id ;
-	}
-	ksort($add_links);
-	
 	$settings = array('return' => true);
 	
 	if(isset($is_ajax) && !$from_layout_page){

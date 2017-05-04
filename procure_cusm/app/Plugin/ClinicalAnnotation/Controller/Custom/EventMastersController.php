@@ -2,7 +2,7 @@
 
 class EventMastersControllerCustom extends EventMastersController {
 	
-	var $paginate = array('EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date ASC, EventMaster.procure_form_identification ASC'));
+	var $paginate = array('EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date DESC'));
 	
 	function listallBasedOnControlId($participant_id, $event_control_id, $interval_start_date = null, $interval_start_date_accuracy = null, $interval_finish_date = null, $interval_finish_date_accuracy = null){
 		//*** Specific list display based on control_id
@@ -34,7 +34,6 @@ class EventMastersControllerCustom extends EventMastersController {
 						"EventMaster.event_date IS NULL",
 						"EventMaster.event_date IS NOT NULL AND EventMaster.event_date <= '$interval_finish_date'");
 			}
-			if(($interval_finish_date_accuracy.$interval_start_date_accuracy) != 'cc') AppController::addWarningMsg(__("at least one of the studied interval date is inaccurate"));
 			$this->request->data = $this->paginate($this->EventMaster, $events_list_conditions);
 		}
 	}

@@ -1,19 +1,19 @@
 <?php
-	
-	// 1- ALIQUOTS LIST	
+	// object_ids_to_add
+	// 1- ITEM LIST	
 	
 	$structure_override = array();
 		
 	$extras = array();
-	$final_atim_structure = $atim_structure_for_aliquots_list;
+	$final_atim_structure = $atim_structure_for_new_items_list;
 	$final_options = array(
 		'type' => 'index', 
-		'data' => $aliquots_data, 
-		'settings' => array('actions' => false, 'pagination' => false, 'header' => array('title' => __('add aliquots to order'), 'description' => __('studied aliquots'))), 
+		'data' => $new_items_data, 
+		'settings' => array('actions' => false, 'pagination' => false, 'header' => array('title' => __('add to order'), 'description' => ($object_model_name == 'AliquotMaster'? __('aliquots') : __('tma slides')))), 
 		'override' => $structure_override);
 	
 	// CUSTOM CODE
-	$hook_link = $this->Structures->hook('aliquots');
+	$hook_link = $this->Structures->hook('new_items');
 	if($hook_link){
 		require($hook_link);
 	}
@@ -24,7 +24,7 @@
 	
 	//2- ORDER ITEMS DATA ENTRY
 	
-	$extras = $this->Form->input('0.aliquot_ids_to_add', array('type' => 'hidden', 'value' => $aliquot_ids_to_add))
+	$extras = $this->Form->input('object_ids_to_add', array('type' => 'hidden', 'value' => $object_ids_to_add))
 		.$this->Form->input('url_to_cancel', array('type' => 'hidden', 'value' => $url_to_cancel));
 	
 	$final_atim_structure = $atim_structure_orderitems_data;
@@ -32,7 +32,7 @@
 		'type' => 'add', 
 		'extras' => $extras,
 		'data' => $this->request->data,
-		'links' => array('top' => '/Order/OrderItems/addAliquotsInBatch/'), 
+		'links' => array('top' => '/Order/OrderItems/addOrderItemsInBatch/'.$object_model_name), 
 		'settings' => array('actions' => false, 'header' =>'1 - '. __('order item data'), 'form_top' => true, 'form_bottom' => false));
 	
 	// CUSTOM CODE
@@ -50,7 +50,7 @@
 	$structure_links = array(
 		'radiolist'=>array('FunctionManagement.selected_order_and_order_line_ids'=>'%%Generated.order_and_order_line_ids%%'),
 		'bottom' => array('cancel' => $url_to_cancel),
-		'top' => '/Order/OrderItems/addAliquotsInBatch/'
+		'top' => '/Order/OrderItems/addOrderItemsInBatch/'.$object_model_name
 	);
 	
 	$linked_objects = array();

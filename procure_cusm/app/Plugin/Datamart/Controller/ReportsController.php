@@ -883,6 +883,7 @@ class ReportsController extends DatamartAppController {
 		
 		// **blood**
 		// **pbmc**
+		// **buffy coat**
 		// **blood cell**
 		// **plasma**
 		// **serum**
@@ -890,7 +891,7 @@ class ReportsController extends DatamartAppController {
 		// **dna**
 		// **cell culture**
 		
-		$sample_types = "'blood', 'pbmc', 'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
+		$sample_types = "'blood', 'pbmc', 'buffy coat',  'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
 		
 		$tmp_data = array();
 		$sql = "
@@ -1281,11 +1282,16 @@ class ReportsController extends DatamartAppController {
 			//From databrowser
 			$storage_master_ids  = array_filter($parameters['ViewStorageMaster']['id']);
 			if($storage_master_ids) $conditions['StorageMaster.id'] = $storage_master_ids;
+		} else if(isset($parameters['NonTmaBlockStorage']['id'])) {
+			//From databrowser
+			$storage_master_ids  = array_filter($parameters['NonTmaBlockStorage']['id']);
+			if($storage_master_ids) $conditions['StorageMaster.id'] = $storage_master_ids;
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		// Load Model
 		$storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+		$storage_control_model = AppModel::getInstance("StorageLayout", "StorageControl", true);
 		// Build Res
 		$tmp_res_count = $storage_master_model->find('count', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
 // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
@@ -1296,14 +1302,18 @@ class ReportsController extends DatamartAppController {
 					'columns_names' => null,
 					'error_msg' => __('the report contains too many results - please redefine search criteria')." [> $tmp_res_count ".__('lines').']');
 		}
+		$tma_storage_contol_ids = $storage_control_model->getTmaBlockStorageTypePermissibleValues();
+		$tma_storage_contol_ids = array_keys($tma_storage_contol_ids);
 		$studied_storages = $storage_master_model->find('all', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
 		$res = array();
 		foreach($studied_storages as $new_studied_storage) {
 			$children_storage_masters = $storage_master_model->children($new_studied_storage['StorageMaster']['id'], false, array('StorageMaster.*'));
 			if($children_storage_masters){
 				foreach($children_storage_masters as $new_child) {
-					if(array_key_exists('SelectedItemsForCsv', $parameters) && !in_array($new_child['StorageMaster']['id'], $parameters['SelectedItemsForCsv']['ViewStorageMaster']['id'])) continue;
-					$res[] = array_merge($new_studied_storage, array('ViewStorageMaster' => $new_child['StorageMaster']));
+					if(!in_array($new_child['StorageMaster']['storage_control_id'], $tma_storage_contol_ids)) {
+						if(array_key_exists('SelectedItemsForCsv', $parameters) && !in_array($new_child['StorageMaster']['id'], $parameters['SelectedItemsForCsv']['NonTmaBlockStorage']['id'])) continue;
+						$res[] = array_merge($new_studied_storage, array('ViewStorageMaster' => $new_child['StorageMaster'], 'NonTmaBlockStorage' => $new_child['StorageMaster']));
+					}
 				}
 			}
 		}

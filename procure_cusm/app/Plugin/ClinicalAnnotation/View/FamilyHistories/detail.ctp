@@ -3,8 +3,7 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/FamilyHistories/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['FamilyHistory.id'],
-			'delete'=>'/ClinicalAnnotation/FamilyHistories/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['FamilyHistory.id'],
-			'list'=>'/ClinicalAnnotation/FamilyHistories/listall/'.$atim_menu_variables['Participant.id'].'/'			
+			'delete'=>'/ClinicalAnnotation/FamilyHistories/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['FamilyHistory.id']
 		)
 	);
 	

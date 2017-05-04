@@ -110,12 +110,14 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				if ( $this->Participant->save($this->request->data) ) {
 					
+					$url_to_flash = '/ClinicalAnnotation/Participants/profile/'.$this->Participant->getLastInsertID();
+					
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
 					
-					$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/'.$this->Participant->getLastInsertID());
+					$this->atimFlash(__('your data has been saved'), $url_to_flash);
 				}
 			}
 		}
@@ -225,136 +227,160 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		
 		// 1-Participant
 		
-		$participant = $this->Participant->find('first', array('conditions' => array('Participant.id' => $participant_id)));
-		$chronolgy_data_participant_birth = array(
-			'date'			=> $participant['Participant']['date_of_birth'],
-			'date_accuracy'	=> $participant['Participant']['date_of_birth_accuracy'],
-			'event' 		=> __('date of birth'),
-			'chronology_details' => '',
-			'link'			=> '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/'
-		);
-		$chronolgy_data_participant_death = false;
-		if(strlen($participant['Participant']['date_of_death']) > 0){
-			$chronolgy_data_participant_death = array(
-				'date'			=> $participant['Participant']['date_of_death'],
-				'date_accuracy'	=> $participant['Participant']['date_of_death_accuracy'],
-				'event'			=> __('date of death'),
+		if(AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile/')){
+			$participant = $this->Participant->find('first', array('conditions' => array('Participant.id' => $participant_id)));
+			$chronolgy_data_participant_birth = array(
+				'date'			=> $participant['Participant']['date_of_birth'],
+				'date_accuracy'	=> $participant['Participant']['date_of_birth_accuracy'],
+				'event' 		=> __('date of birth'),
 				'chronology_details' => '',
 				'link'			=> '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/'
 			);
-		}
-		$hook_link = $this->hook('participant');
-		if( $hook_link ) {
-			require($hook_link);
-		}
-		if($chronolgy_data_participant_birth) $add_to_tmp_array($chronolgy_data_participant_birth);
-		if($chronolgy_data_participant_death) $add_to_tmp_array($chronolgy_data_participant_death);
-				
-		// 2-Consent
-		
-		$consent_status = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'consent_status'), 'recursive' => 2));
-		$consent_status_values = array();
-		if($consent_status) {
-			foreach($consent_status['StructurePermissibleValue'] as $new_value) {
-				$consent_status_values[$new_value['value']] = __($new_value['language_alias']);
+			$chronolgy_data_participant_death = false;
+			if(strlen($participant['Participant']['date_of_death']) > 0){
+				$chronolgy_data_participant_death = array(
+					'date'			=> $participant['Participant']['date_of_death'],
+					'date_accuracy'	=> $participant['Participant']['date_of_death_accuracy'],
+					'event'			=> __('date of death'),
+					'chronology_details' => '',
+					'link'			=> '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/'
+				);
 			}
-		}
-		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id)));
-		foreach($consents as $consent){
-			$chronolgy_data_consent = array(
-				'date'			=> $consent['ConsentMaster']['consent_signed_date'],
-				'date_accuracy'	=> isset($consent['ConsentMaster']['consent_signed_date_accuracy']) ? $consent['ConsentMaster']['consent_signed_date_accuracy'] : 'c',
-				'event'			=> __('consent').', '.__($consent['ConsentControl']['controls_type']),
-				'chronology_details' => isset($consent_status_values[$consent['ConsentMaster']['consent_status']])? $consent_status_values[$consent['ConsentMaster']['consent_status']] : $consent['ConsentMaster']['consent_status'],
-				'link'			=> '/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$consent['ConsentMaster']['id']
-			);
-			$hook_link = $this->hook('consent');
+			$hook_link = $this->hook('participant');
 			if( $hook_link ) {
 				require($hook_link);
 			}
-			if($chronolgy_data_consent) $add_to_tmp_array($chronolgy_data_consent);
+			if($chronolgy_data_participant_birth) $add_to_tmp_array($chronolgy_data_participant_birth);
+			if($chronolgy_data_participant_death) $add_to_tmp_array($chronolgy_data_participant_death);
+		}
+		
+		// 2-Consent
+		
+		if(AppController::checkLinkPermission('/ClinicalAnnotation/ConsentMasters/detail/')){
+			$consent_status = $this->StructureValueDomain->find('first', array('conditions' => array('StructureValueDomain.domain_name' => 'consent_status'), 'recursive' => 2));
+			$consent_status_values = array();
+			if($consent_status) {
+				foreach($consent_status['StructurePermissibleValue'] as $new_value) {
+					$consent_status_values[$new_value['value']] = __($new_value['language_alias']);
+				}
+			}
+			$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id)));
+			foreach($consents as $consent){
+				$chronolgy_data_consent = array(
+					'date'			=> $consent['ConsentMaster']['consent_signed_date'],
+					'date_accuracy'	=> isset($consent['ConsentMaster']['consent_signed_date_accuracy']) ? $consent['ConsentMaster']['consent_signed_date_accuracy'] : 'c',
+					'event'			=> __('consent').', '.__($consent['ConsentControl']['controls_type']),
+					'chronology_details' => isset($consent_status_values[$consent['ConsentMaster']['consent_status']])? $consent_status_values[$consent['ConsentMaster']['consent_status']] : $consent['ConsentMaster']['consent_status'],
+					'link'			=> '/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$consent['ConsentMaster']['id']
+				);
+				$hook_link = $this->hook('consent');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				if($chronolgy_data_consent) $add_to_tmp_array($chronolgy_data_consent);
+			}
 		}
 		
 		// 2-Diagnosis
 		
-		$dxs = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
-		foreach($dxs as $dx){
-			$chronolgy_data_diagnosis = array(
-				'date'			=> $dx['DiagnosisMaster']['dx_date'],
-				'date_accuracy'	=> $dx['DiagnosisMaster']['dx_date_accuracy'],
-				'event'			=> __('diagnosis').', '.__($dx['DiagnosisControl']['category']).' - '.__($dx['DiagnosisControl']['controls_type']),
-				'chronology_details' => '',
-				'link'			=> '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$dx['DiagnosisMaster']['id']
-			);
-			$hook_link = $this->hook('diagnosis');
-			if( $hook_link ) {
-				require($hook_link);
+		if(AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/detail/')){
+			$dxs = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
+			foreach($dxs as $dx){
+				$chronolgy_data_diagnosis = array(
+					'date'			=> $dx['DiagnosisMaster']['dx_date'],
+					'date_accuracy'	=> $dx['DiagnosisMaster']['dx_date_accuracy'],
+					'event'			=> __('diagnosis').', '.__($dx['DiagnosisControl']['category']).' - '.__($dx['DiagnosisControl']['controls_type']),
+					'chronology_details' => '',
+					'link'			=> '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$dx['DiagnosisMaster']['id']
+				);
+				$hook_link = $this->hook('diagnosis');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				if($chronolgy_data_diagnosis) $add_to_tmp_array($chronolgy_data_diagnosis);
 			}
-			if($chronolgy_data_diagnosis) $add_to_tmp_array($chronolgy_data_diagnosis);
 		}
 		
 		// 3-Event
 		
-		$annotations = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
-		foreach($annotations as $annotation){
-			$chronolgy_data_annotation = array(
-				'date'			=> $annotation['EventMaster']['event_date'],
-				'date_accuracy' => isset($annotation['EventMaster']['event_date_accuracy']) ? $annotation['EventMaster']['event_date_accuracy'] : 'c',
-				'event'			=> __($annotation['EventControl']['event_group']).', '.__($annotation['EventControl']['event_type']),
-				'chronology_details' => '',
-				'link'			=> '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$annotation['EventMaster']['id']
-			);
-			$hook_link = $this->hook('annotation');
-			if( $hook_link ) {
-				require($hook_link);
+		if(AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/detail/')){
+			$annotations = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
+			foreach($annotations as $annotation){
+				$chronolgy_data_annotation = array(
+					'date'			=> $annotation['EventMaster']['event_date'],
+					'date_accuracy' => isset($annotation['EventMaster']['event_date_accuracy']) ? $annotation['EventMaster']['event_date_accuracy'] : 'c',
+					'event'			=> __($annotation['EventControl']['event_group']).', '.__($annotation['EventControl']['event_type']),
+					'chronology_details' => '',
+					'link'			=> '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$annotation['EventMaster']['id']
+				);
+				$hook_link = $this->hook('annotation');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				if($chronolgy_data_annotation) $add_to_tmp_array($chronolgy_data_annotation);
 			}
-			if($chronolgy_data_annotation) $add_to_tmp_array($chronolgy_data_annotation);
 		}
 		
 		// 4-Treatment
 		
-		$txs = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id)));
-		foreach($txs as $tx){
-			$chronolgy_data_treatment_start = array(
-				'date'			=> $tx['TreatmentMaster']['start_date'],
-				'date_accuracy' => $tx['TreatmentMaster']['start_date_accuracy'],
-				'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method'])." (".__("start").")",
-				'chronology_details' => '',
-				'link'			=> '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id']
-			);
-			$chronolgy_data_treatment_finish = false;
-			if(!empty($tx['TreatmentMaster']['finish_date'])){
-				$chronolgy_data_treatment_finish = array(
-					'date'			=> $tx['TreatmentMaster']['finish_date'],
-					'date_accuracy' => $tx['TreatmentMaster']['finish_date_accuracy'],
-					'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method'])." (".__("end").")",
+		if(AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/detail/')){
+			$txs = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id)));
+			foreach($txs as $tx){
+				$start_suffix_msg = '';
+				$finish_suffix_msg = '';
+				if($tx['TreatmentMaster']['start_date'] || $tx['TreatmentMaster']['finish_date']) {
+					$start_suffix_msg = " (".__("start").")";
+					$finish_suffix_msg = empty($tx['TreatmentMaster']['finish_date'])? '' : " (".__("end").")";
+					if($tx['TreatmentMaster']['start_date'] == $tx['TreatmentMaster']['finish_date'] && $tx['TreatmentMaster']['start_date_accuracy'] == $tx['TreatmentMaster']['finish_date_accuracy']) {
+						$start_suffix_msg = " (".__("start")." & ".__("end").")";
+						$finish_suffix_msg = '';
+					}
+				}
+				$chronolgy_data_treatment_start = array(
+					'date'			=> $tx['TreatmentMaster']['start_date'],
+					'date_accuracy' => $tx['TreatmentMaster']['start_date_accuracy'],
+					'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method']).$start_suffix_msg,
 					'chronology_details' => '',
 					'link'			=> '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id']
 				);
+				$chronolgy_data_treatment_finish = false;
+				if($finish_suffix_msg){
+					$chronolgy_data_treatment_finish = array(
+						'date'			=> $tx['TreatmentMaster']['finish_date'],
+						'date_accuracy' => $tx['TreatmentMaster']['finish_date_accuracy'],
+						'event'			=> __('treatment').", ".__($tx['TreatmentControl']['tx_method']).$finish_suffix_msg,
+						'chronology_details' => '',
+						'link'			=> '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id']
+					);
+				}
+				$hook_link = $this->hook('treatment');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				if($chronolgy_data_treatment_start) $add_to_tmp_array($chronolgy_data_treatment_start);
+				if($chronolgy_data_treatment_finish) $add_to_tmp_array($chronolgy_data_treatment_finish);
 			}
-			$hook_link = $this->hook('treatment');
-			if( $hook_link ) {
-				require($hook_link);
-			}
-			if($chronolgy_data_treatment_start) $add_to_tmp_array($chronolgy_data_treatment_start);
-			if($chronolgy_data_treatment_finish) $add_to_tmp_array($chronolgy_data_treatment_finish);
 		}
 		
-		$collection_model = AppModel::getInstance('InventoryManagement', 'Collection', true);
-		$collections = $collection_model->find('all', array('conditions' => array('Collection.participant_id' => $participant_id), 'recursive' => -1));
-		foreach($collections as $collection){
-			$chronolgy_data_collection = array(
-				'date'			=> $collection['Collection']['collection_datetime'],
-				'date_accuracy' => $collection['Collection']['collection_datetime_accuracy'],
-				'event'			=> __('collection'),
-				'chronology_details' => $collection['Collection']['acquisition_label'],
-				'link'			=> '/InventoryManagement/Collections/detail/'.$collection['Collection']['id']
-			);
-			$hook_link = $this->hook('collection');
-			if( $hook_link ) {
-				require($hook_link);
+		// 4-Collection
+		
+		if(AppController::checkLinkPermission('/InventoryManagement/Collections/detail/')){
+			$collection_model = AppModel::getInstance('InventoryManagement', 'Collection', true);
+			$collections = $collection_model->find('all', array('conditions' => array('Collection.participant_id' => $participant_id), 'recursive' => -1));
+			foreach($collections as $collection){
+				$chronolgy_data_collection = array(
+					'date'			=> $collection['Collection']['collection_datetime'],
+					'date_accuracy' => $collection['Collection']['collection_datetime_accuracy'],
+					'event'			=> __('collection'),
+					'chronology_details' => $collection['Collection']['acquisition_label'],
+					'link'			=> '/InventoryManagement/Collections/detail/'.$collection['Collection']['id']
+				);
+				$hook_link = $this->hook('collection');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				if($chronolgy_data_collection) $add_to_tmp_array($chronolgy_data_collection);
 			}
-			if($chronolgy_data_collection) $add_to_tmp_array($chronolgy_data_collection);
 		}
 		
 		$hook_link = $this->hook('end');
