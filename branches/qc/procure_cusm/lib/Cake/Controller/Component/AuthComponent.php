@@ -436,7 +436,7 @@ class AuthComponent extends Component {
  */
 	protected function _setDefaults() {
 		$defaults = array(
-			'logoutRedirect' => $this->loginAction,
+			'logoutRedirect' => array('controller' => 'Users', 'action' => 'login', 'plugin' => null),
 			'authError' => __d('cake', 'You are not authorized to access that location.')
 		);
 		foreach ($defaults as $key => $value) {

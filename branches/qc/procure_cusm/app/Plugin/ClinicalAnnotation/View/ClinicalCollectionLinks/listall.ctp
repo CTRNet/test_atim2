@@ -5,6 +5,8 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$atim_menu_variables['Participant.id'].'/%%Collection.id%%/',
+			'edit' => '/ClinicalAnnotation/ClinicalCollectionLinks/edit/'.$atim_menu_variables['Participant.id'].'/%%Collection.id%%/',
+			'delete collection link' => '/ClinicalAnnotation/ClinicalCollectionLinks/delete/'.$atim_menu_variables['Participant.id'].'/%%Collection.id%%/',
 			'collection' => array(
 				'link' => '/InventoryManagement/Collections/detail/%%Collection.id%%/',
 				'icon' => 'collection'
