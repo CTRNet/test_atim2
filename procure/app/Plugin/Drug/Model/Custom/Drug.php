@@ -58,12 +58,12 @@ class DrugCustom extends Drug {
 					$matches[1] = $matches_2[1];
 				}
 				// Auto complete tool has been used
-				$selected_drugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".trim($matches[1])."%'", 'Drug.id' => $matches[9])));
+				$selected_drugs = $this->find('all', array('conditions' => array("Drug.generic_name LIKE '%".str_replace("'", "''", trim($matches[1]))."%'", 'Drug.id' => $matches[9])));
 			} else {
 				// consider $drug_data_and_code contains just drug title
 				$term = str_replace('_', '\_', str_replace('%', '\%', $drug_data_and_code));
 				$terms = array();
-				foreach(explode(' ', $term) as $key_word) $terms[] = "Drug.generic_name LIKE '%".$key_word."%'";
+				foreach(explode(' ', $term) as $key_word) $terms[] = "Drug.generic_name LIKE '%".str_replace("'", "''", $key_word)."%'";
 				$conditions = array('AND' => $terms);
 				$selected_drugs = $this->find('all', array('conditions' => $conditions));
 			}
