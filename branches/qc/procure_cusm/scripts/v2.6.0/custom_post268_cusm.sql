@@ -22,31 +22,31 @@ UPDATE versions SET branch_build_number = '6513' WHERE version_number = '2.6.7';
 -- ----------------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE procure_ed_lab_pathologies 
-  ADD COLUMN cusm_marg_ext_seminal_vesicles_right cusm_deprecated_marg_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_marg_ext_seminal_vesicles_left cusm_deprecated_marg_ext_seminal_vesicles_left tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_right_anterior cusm_deprecated_e_p_ext_apex_right_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_left_anterior cusm_deprecated_e_p_ext_apex_left_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_right_posterior cusm_deprecated_e_p_ext_apex_right_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_left_posterior cusm_deprecated_e_p_ext_apex_left_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_right_anterior cusm_deprecated_e_p_ext_base_right_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_left_anterior cusm_deprecated_e_p_ext_base_left_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_right_posterior cusm_deprecated_e_p_ext_base_right_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_left_posterior cusm_deprecated_e_p_ext_base_left_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_seminal_vesicles_right cusm_deprecated_e_p_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_seminal_vesicles_left cusm_deprecated_e_p_ext_seminal_vesicles_left tinyint(1) DEFAULT '0';
+  CHANGE cusm_marg_ext_seminal_vesicles_right cusm_deprecated_marg_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
+  CHANGE cusm_marg_ext_seminal_vesicles_left cusm_deprecated_marg_ext_seminal_vesicles_left tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_right_anterior cusm_deprecated_e_p_ext_apex_right_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_left_anterior cusm_deprecated_e_p_ext_apex_left_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_right_posterior cusm_deprecated_e_p_ext_apex_right_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_left_posterior cusm_deprecated_e_p_ext_apex_left_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_right_anterior cusm_deprecated_e_p_ext_base_right_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_left_anterior cusm_deprecated_e_p_ext_base_left_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_right_posterior cusm_deprecated_e_p_ext_base_right_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_left_posterior cusm_deprecated_e_p_ext_base_left_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_seminal_vesicles_right cusm_deprecated_e_p_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_seminal_vesicles_left cusm_deprecated_e_p_ext_seminal_vesicles_left tinyint(1) DEFAULT '0';
 ALTER TABLE procure_ed_lab_pathologies_revs
-  ADD COLUMN cusm_marg_ext_seminal_vesicles_right cusm_deprecated_marg_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_marg_ext_seminal_vesicles_left cusm_deprecated_marg_ext_seminal_vesicles_left tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_right_anterior cusm_deprecated_e_p_ext_apex_right_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_left_anterior cusm_deprecated_e_p_ext_apex_left_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_right_posterior cusm_deprecated_e_p_ext_apex_right_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_apex_left_posterior cusm_deprecated_e_p_ext_apex_left_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_right_anterior cusm_deprecated_e_p_ext_base_right_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_left_anterior cusm_deprecated_e_p_ext_base_left_anterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_right_posterior cusm_deprecated_e_p_ext_base_right_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_base_left_posterior cusm_deprecated_e_p_ext_base_left_posterior tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_seminal_vesicles_right cusm_deprecated_e_p_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
-  ADD COLUMN cusm_e_p_ext_seminal_vesicles_left cusm_deprecated_e_p_ext_seminal_vesicles_left tinyint(1) DEFAULT '0';
+  CHANGE cusm_marg_ext_seminal_vesicles_right cusm_deprecated_marg_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
+  CHANGE cusm_marg_ext_seminal_vesicles_left cusm_deprecated_marg_ext_seminal_vesicles_left tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_right_anterior cusm_deprecated_e_p_ext_apex_right_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_left_anterior cusm_deprecated_e_p_ext_apex_left_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_right_posterior cusm_deprecated_e_p_ext_apex_right_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_apex_left_posterior cusm_deprecated_e_p_ext_apex_left_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_right_anterior cusm_deprecated_e_p_ext_base_right_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_left_anterior cusm_deprecated_e_p_ext_base_left_anterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_right_posterior cusm_deprecated_e_p_ext_base_right_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_base_left_posterior cusm_deprecated_e_p_ext_base_left_posterior tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_seminal_vesicles_right cusm_deprecated_e_p_ext_seminal_vesicles_right tinyint(1) DEFAULT '0',
+  CHANGE cusm_e_p_ext_seminal_vesicles_left cusm_deprecated_e_p_ext_seminal_vesicles_left tinyint(1) DEFAULT '0';
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='cusm_e_p_ext_apex_left_anterior' AND `language_label`='apex anterior' AND `language_tag`='left' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='cusm_e_p_ext_apex_right_anterior' AND `language_label`='' AND `language_tag`='right' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='cusm_e_p_ext_apex_left_posterior' AND `language_label`='apex posterior' AND `language_tag`='left' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
