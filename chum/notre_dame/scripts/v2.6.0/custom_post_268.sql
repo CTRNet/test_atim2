@@ -2589,3 +2589,214 @@ INSERT INTO lab_type_laterality_match (selected_type_code, sample_type_matching)
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE `versions` SET branch_build_number = '6705' WHERE version_number = '2.6.8';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Breated collection patho nbr clean up
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET @breast_bank_id = (SELECT id FROM banks WHERE name = 'Breast/Sein');
+SET @patho_collection_created_by = (SELECT DISTINCT created_by FROM collections WHERE acquisition_label LIKE "Created by system to keep 'Patho Identifier'");
+SET @modified = (SELECT NOW());
+SET @modified_by = (SELECT id FROM users WHERE username = 'Migration');
+
+-- Check all collections created by system to track patho # don't have samples
+
+SELECT id AS "### ERROR ### : Collections created by migration script to keep patho that contain samples. Process failed. Don't execute following lines." 
+FROM collections 
+WHERE id IN (SELECT collection_id FROM sample_masters WHERE deleted <> 1)
+AND acquisition_label LIKE "Created by system to keep 'Patho Identifier'" 
+AND created_by = @patho_collection_created_by 
+AND deleted <> 1;
+
+-- Delete collections created by system to track patho # still linked to participants with a collection having this nbr
+
+SELECT DISTINCT SystemCollection.participant_id "### ERROR ### : Participant having 2 collections with the same Patho #, one of this collection being created by mirgation script to keep Patho #. Delete these collections first. Don't execute following lines." 
+FROM collections SystemCollection, collections UserCollection
+WHERE SystemCollection.acquisition_label LIKE "Created by system to keep 'Patho Identifier'" 
+AND SystemCollection.created_by = @patho_collection_created_by 
+AND SystemCollection.deleted <> 1
+AND UserCollection.acquisition_label NOT LIKE "%Created by system to keep 'Patho Identifier'%" 
+AND UserCollection.deleted <> 1
+AND UserCollection.participant_id = SystemCollection.participant_id
+AND UserCollection.qc_nd_pathology_nbr = SystemCollection.qc_nd_pathology_nbr;
+
+-- Gathers all collections created into the system to keep patho numbers recorded into misc_identifiers table
+
+DROP TABLE IF EXISTS tmp_collections_created_to_track_patho_nbr;
+CREATE TABLE tmp_collections_created_to_track_patho_nbr (
+  collection_id int(11) DEFAULT NULL,
+  qc_nd_pathology_nbr VARCHAR(50) DEFAULT NULL,
+  participant_id int(11) DEFAULT NULL,
+  collection_to_delete tinyint(1) DEFAULT '0'
+);
+
+-- Create a list of collections created by process to track patho nbr
+
+INSERT INTO tmp_collections_created_to_track_patho_nbr (collection_id, qc_nd_pathology_nbr, participant_id)
+(SELECT id, qc_nd_pathology_nbr, participant_id FROM collections 
+WHERE acquisition_label LIKE "Created by system to keep 'Patho Identifier'" 
+AND created_by = @patho_collection_created_by 
+AND deleted <> 1);
+
+-- Delete collections of this list linked to participants having no breast collection
+
+DELETE FROM tmp_collections_created_to_track_patho_nbr WHERE participant_id NOT IN (SELECT participant_id FROM collections WHERE bank_id = @breast_bank_id AND deleted <> 1);
+
+-- Create a list of breast collections with either no sample or tissue sample only and no patho number
+
+DROP TABLE IF EXISTS tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr;
+CREATE TABLE tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr (
+  collection_id int(11) DEFAULT NULL,
+  participant_id int(11) DEFAULT NULL,
+  has_tissue_specimens tinyint(1) DEFAULT '0'
+);
+
+INSERT INTO tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr (collection_id, participant_id)
+(SELECT id, participant_id 
+FROM collections 
+WHERE bank_id = @breast_bank_id AND deleted <> 1
+AND (qc_nd_pathology_nbr IS NULL OR qc_nd_pathology_nbr LIKE ''));
+
+UPDATE tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr
+SET has_tissue_specimens = '1'
+WHERE collection_id IN (
+SELECT SampleMaster.collection_id
+FROM sample_controls SampleControl
+INNER JOIN sample_masters SampleMaster ON SampleControl.id = SampleMaster.sample_control_id
+WHERE SampleControl.sample_category = 'specimen' 
+AND SampleControl.sample_type = 'tissue'
+AND SampleMaster.deleted <> 1
+);
+
+DELETE FROM tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr 
+WHERE collection_id IN (
+SELECT SampleMaster.collection_id
+FROM sample_controls SampleControl
+INNER JOIN sample_masters SampleMaster ON SampleControl.id = SampleMaster.sample_control_id
+WHERE SampleControl.sample_category = 'specimen'
+AND SampleControl.sample_type != 'tissue'
+AND SampleMaster.deleted <> 1
+) 
+AND has_tissue_specimens = '0';
+
+-- Remove collections from tmp_collections_created_to_track_patho_nbr for participants not in tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr
+
+DELETE FROM tmp_collections_created_to_track_patho_nbr 
+WHERE participant_id NOT IN (SELECT participant_id FROM tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr);
+
+-- Remove collections that could be managed but linked to participants having more than one collection included into this process
+
+SELECT Res.participant_id AS 'Participant id with collections and Patho # to clean up manually'
+FROM (
+SELECT UserCollection.participant_id, COUNT(*) AS nbr_of_collections_updated 
+FROM tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr AS UserCollection, tmp_collections_created_to_track_patho_nbr AS SystCollection
+WHERE UserCollection.participant_id = SystCollection.participant_id
+GROUP BY UserCollection.participant_id
+ORDER BY participant_id
+) Res
+WHERE Res.nbr_of_collections_updated > 1;
+
+DELETE FROM tmp_collections_created_to_track_patho_nbr
+WHERE participant_id IN (
+SELECT Res.participant_id
+FROM (
+SELECT UserCollection.participant_id, COUNT(*) AS nbr_of_collections_updated 
+FROM tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr AS UserCollection, tmp_collections_created_to_track_patho_nbr AS SystCollection
+WHERE UserCollection.participant_id = SystCollection.participant_id
+GROUP BY UserCollection.participant_id
+ORDER BY participant_id
+) Res
+WHERE Res.nbr_of_collections_updated > 1
+);
+
+-- Last Check before clean up
+
+SELECT collection_id AS 'Error - Stop the process (1)'
+FROM sample_masters
+WHERE collection_id IN (
+SELECT SystCollection.collection_id
+FROM tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr AS UserCollection, tmp_collections_created_to_track_patho_nbr AS SystCollection
+WHERE UserCollection.participant_id = SystCollection.participant_id
+);
+
+SELECT id AS 'Error - Stop the process (2)' 
+FROM collections
+WHERE id IN (
+SELECT UserCollection.collection_id
+FROM tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr AS UserCollection, tmp_collections_created_to_track_patho_nbr AS SystCollection
+WHERE UserCollection.participant_id = SystCollection.participant_id
+) AND qc_nd_pathology_nbr IS NOT NULL AND qc_nd_pathology_nbr NOT LIKE '';
+
+SELECT UserCollection.participant_id AS 'Error - Stop the process (3)' 
+FROM tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr AS UserCollection, tmp_collections_created_to_track_patho_nbr AS SystCollection, collections AS AtimCollection
+WHERE UserCollection.participant_id = SystCollection.participant_id
+AND AtimCollection.id = UserCollection.collection_id
+AND AtimCollection.collection_notes IS NULL
+ORDER BY UserCollection.participant_id;
+
+-- Clean Up
+
+UPDATE tmp_breast_coll_with_no_sample_or_tissue_sample_and_no_patho_nbr AS UserCollection, tmp_collections_created_to_track_patho_nbr AS SystCollection, collections AS AtimCollection
+SET SystCollection.collection_to_delete = '1', 
+AtimCollection.qc_nd_pathology_nbr = SystCollection.qc_nd_pathology_nbr,
+AtimCollection.collection_notes = CONCAT(AtimCollection.collection_notes, ' ATiM patho # has been created by v2.6.7 script from Participant Patho Identifier (identifier type deleted) and script v2.6.8.'),
+AtimCollection.modified = @modified,
+AtimCollection.modified_by = @modified_by
+WHERE UserCollection.participant_id = SystCollection.participant_id
+AND AtimCollection.id = UserCollection.collection_id;
+
+UPDATE collections AtimCollection
+SET AtimCollection.deleted = 1,
+AtimCollection.modified = @modified,
+AtimCollection.modified_by = @modified_by
+WHERE AtimCollection.id IN (
+SELECT collection_id FROM tmp_collections_created_to_track_patho_nbr WHERE collection_to_delete = 1
+);
+
+DELETE FROM view_collections WHERE collection_id IN (SELECT id FROM collections WHERE deleted = 1 AND modified = @modified AND modified_by = @modified_by);
+
+REPLACE INTO view_collections (
+   SELECT
+   Collection.id AS collection_id,
+   Collection.bank_id AS bank_id,
+   Collection.sop_master_id AS sop_master_id,
+   Collection.participant_id AS participant_id,
+   Collection.diagnosis_master_id AS diagnosis_master_id,
+   Collection.consent_master_id AS consent_master_id,
+   Collection.treatment_master_id AS treatment_master_id,
+   Collection.event_master_id AS event_master_id,
+   Participant.participant_identifier AS participant_identifier,
+   Collection.acquisition_label AS acquisition_label,
+   Collection.collection_site AS collection_site,
+   Collection.collection_datetime AS collection_datetime,
+   Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
+   Collection.collection_property AS collection_property,
+   Collection.collection_notes AS collection_notes,
+   Collection.created AS created,
+Bank.name AS bank_name,
+MiscIdentifier.identifier_value AS identifier_value,
+MiscIdentifierControl.misc_identifier_name AS identifier_name,
+Collection.visit_label AS visit_label,
+Collection.qc_nd_pathology_nbr,
+TreatmentDetail.patho_nbr as qc_nd_pathology_nbr_from_sardo
+   FROM collections AS Collection
+   LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
+LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
+LEFT JOIN qc_nd_txd_sardos AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+  WHERE Collection.deleted <> 1 
+  AND Collection.modified = @modified AND Collection.modified_by = @modified_by
+);
+
+INSERT INTO collections_revs (id, acquisition_label, bank_id, visit_label, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property,
+collection_notes, participant_id, diagnosis_master_id, consent_master_id, treatment_master_id, event_master_id, qc_nd_pathology_nbr, 
+modified_by, version_created)
+(SELECT id, acquisition_label, bank_id, visit_label, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property,
+collection_notes, participant_id, diagnosis_master_id, consent_master_id, treatment_master_id, event_master_id, qc_nd_pathology_nbr, 
+modified_by, modified
+FROM collections 
+WHERE modified = @modified AND modified_by = @modified_by);
+
+UPDATE `versions` SET branch_build_number = '6715' WHERE version_number = '2.6.8';
