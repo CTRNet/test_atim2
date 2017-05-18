@@ -20,7 +20,7 @@ if(!testExcelFile(array($excel_file_name))) {
 }
 
 //TODO REMOVE
-truncate();
+//truncate();
 //TODO END REMOVE
 
 $atim_bank_data = getSelectQueryResult("SELECT id FROM banks WHERE name = 'Ovarian/Ovaire'");
@@ -464,13 +464,14 @@ $final_queries = array(
 		"UPDATE sample_masters SET sample_code = id WHERE sample_code LIKE 'tmp_%';",
 		"UPDATE aliquot_masters SET barcode = id WHERE barcode LIKE 'tmp__%';",
 		"UPDATE storage_masters SET code = id WHERE code LIKE 'tmp_%';",
-//TODO REMOVE		"UPDATE versions SET permissions_regenerated = 0;"
+//TODO REMOVE		
+		"UPDATE versions SET permissions_regenerated = 0;"
 );
 
 foreach($final_queries as $new_query) customQuery($new_query);
 
 //TODO REMOVE
-viewUpdate();
+//TODO viewUpdate();
 //TODO END REMOVE
 
 insertIntoRevsBasedOnModifiedValues();

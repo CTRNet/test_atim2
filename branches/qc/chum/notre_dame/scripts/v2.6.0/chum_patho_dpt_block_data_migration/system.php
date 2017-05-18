@@ -737,6 +737,8 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 	$date = str_replace(' ', '', $date);
 	if(empty($date) || in_array(strtolower($date), $empty_date_time_values)) {
 		return array('', '');
+	} else if(preg_match('/^((19[1-9]{2})|(20[0-1][0-9]))$/', $date, $matches)) {
+		return array($date.'-01-01', 'm');
 	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {
 		//format excel date integer representation
 		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
@@ -746,7 +748,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 		return array($date, 'c');
 	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/',$date,$matches)) {
 		return array($date.'-01', 'd');
-	} else if(preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-unk$/',$date,$matches)) {
+	} else if(preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-((unk)-([a-z]{2}))$/',$date,$matches)) {
 		return array($matches[1].'-01', 'd');
 	} else if(preg_match('/^(19|20)([0-9]{2})$/',$date,$matches)) {
 		return array($date.'-01-01', 'm');
@@ -969,12 +971,12 @@ function getNextExcelLineData($excel_file_name, $worksheet_name, $header_lines_n
 		$studied_excel_file_name_properties = array('file_name' => $excel_file_name, 'file_worksheets' => array());
 		foreach($XlsReader->boundsheets as $key => $tmp) $studied_excel_file_name_properties['file_worksheets'][$tmp['name']] = $key;
 	}
-
+	
 	// ** SET NEW WOKRSHEET DATA **
 
 	if(!array_key_exists('worksheet_name', $studied_excel_file_name_properties) || $studied_excel_file_name_properties['worksheet_name'] != $worksheet_name) {
 		if(!array_key_exists($worksheet_name, $studied_excel_file_name_properties['file_worksheets'])) {
-			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Non-Existent Worksheet", "Worksheet '$worksheet_name' is not a worksheet of file '$excel_file_name'. Worksheet won't be parsed.");
+			recordErrorAndMessage('Excel Data Reading', '@@ERROR@@', "Non-Existent Worksheet", "Worksheet '$worksheet_name' is not a worksheet of file '$excel_file_name'. Worksheet won't be parsed.".($studied_excel_file_name_properties['file_worksheets']? ' Worksheets of the file : ['.implode('], [', array_keys($studied_excel_file_name_properties['file_worksheets'])).'].' : ' No worksheets found int the file.'));
 			return false;
 		} else if(!isset($XlsReader->sheets[$studied_excel_file_name_properties['file_worksheets'][$worksheet_name]]['cells']) || empty($XlsReader->sheets[$studied_excel_file_name_properties['file_worksheets'][$worksheet_name]]['cells'])) {
 			//Empty worksheet

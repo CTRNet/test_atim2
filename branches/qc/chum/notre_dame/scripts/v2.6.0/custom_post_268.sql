@@ -2800,3 +2800,25 @@ FROM collections
 WHERE modified = @modified AND modified_by = @modified_by);
 
 UPDATE `versions` SET branch_build_number = '6715' WHERE version_number = '2.6.8';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Added class=file to setting of viewcolelction patho number and aliquot label 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `setting`='size=20,class=file' WHERE model='ViewCollection' AND tablename='' AND field='qc_nd_pathology_nbr' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='size=20,class=file' WHERE model='ViewCollection' AND tablename='' AND field='qc_nd_pathology_nbr_from_sardo' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=file' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qc_nd_pathology_nbr_from_sardo' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'qc_nd_pathology_nbr_from_sardo', 'input',  NULL , '0', 'size=20,class=file', '', '', 'pathology nbr', 'sardo');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qc_nd_pathology_nbr_from_sardo' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,class=file' AND `default`='' AND `language_help`='' AND `language_label`='pathology nbr' AND `language_tag`='sardo'), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+UPDATE `versions` SET branch_build_number = '6717' WHERE version_number = '2.6.8';
+
+
+
+
+
+
