@@ -1,7 +1,9 @@
 <?php
 
-class TreatmentDetail extends ClinicalAnnotationAppModel {
-	var $useTable = false;
+class TreatmentDetail extends ClinicalAnnotationAppModel
+{
+
+    var $useTable = false;
 }
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 
-class Diagnosis extends ClinicalAnnotationAppModel {
-	
+class Diagnosis extends ClinicalAnnotationAppModel
+{
 }
 
 ?>

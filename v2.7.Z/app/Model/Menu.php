@@ -1,9 +1,9 @@
 <?php
 
-class Menu extends AppModel {
+class Menu extends AppModel
+{
 
-	var $name = 'Menu';
-
+    var $name = 'Menu';
 }
 
 ?>

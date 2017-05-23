@@ -1,7 +1,7 @@
 <?php
 
-class DrugAppModel extends AppModel {
-
+class DrugAppModel extends AppModel
+{
 }
 
 ?>

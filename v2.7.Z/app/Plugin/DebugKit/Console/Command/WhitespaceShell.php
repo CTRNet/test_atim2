@@ -21,49 +21,53 @@
  */
 App::uses('Folder', 'Utility');
 
-class WhitespaceShell extends Shell {
+class WhitespaceShell extends Shell
+{
 
-/**
- * Will check files for whitespace and notify you
- * of any files containing leading or trailing whitespace.
- *
- * @return void
- */
-	public function main() {
-		$siteRoot = new Folder(ROOT);
-
-		$r = $siteRoot->findRecursive('.*\.php');
-		$this->out("Checking *.php in ".ROOT);
-		foreach($r as $file) {
-			$c = file_get_contents($file);
-			if (preg_match('/^[\n\r|\n\r|\n|\r|\s]+\<\?php/',$c)) {
-				$this->out('!!!contains leading whitespaces: '.$this->shortPath($file));
-			}
-			if (preg_match('/\?\>[\n\r|\n\r|\n|\r|\s]+$/',$c)) {
-				$this->out('!!!contains trailing whitespaces: '.$this->shortPath($file));
-			}
-		}
-	}
-
-/**
- * Much like main() except files are modified.  Be sure to have 
- * backups or use version control.
- *
- * @return void
- */
-	public function trim() {
-		$siteRoot = new Folder(ROOT);
-
-		$r = $siteRoot->findRecursive('.*\.php');
-		$this->out("Checking *.php in ".ROOT);
-		foreach($r as $file) {
-			$c = file_get_contents($file);
-			if (preg_match('/^[\n\r|\n\r|\n|\r|\s]+\<\?php/', $c) || preg_match('/\?\>[\n\r|\n\r|\n|\r|\s]+$/', $c)) {
-				$this->out('trimming' . $this->shortPath($file));
-				$c = preg_replace('/^[\n\r|\n\r|\n|\r|\s]+\<\?php/', '<?php', $c);
-				$c = preg_replace('/\?\>[\n\r|\n\r|\n|\r|\s]+$/', '?>', $c);
-				file_put_contents($file, $c);
-			}
+    /**
+     * Will check files for whitespace and notify you
+     * of any files containing leading or trailing whitespace.
+     *
+     * @return void
+     */
+    public function main()
+    {
+        $siteRoot = new Folder(ROOT);
+        
+        $r = $siteRoot->findRecursive('.*\.php');
+        $this->out("Checking *.php in " . ROOT);
+        foreach ($r as $file) {
+            $c = file_get_contents($file);
+            if (preg_match('/^[\n\r|\n\r|\n|\r|\s]+\<\?php/', $c)) {
+                $this->out('!!!contains leading whitespaces: ' . $this->shortPath($file));
+            }
+            if (preg_match('/\?\>[\n\r|\n\r|\n|\r|\s]+$/', $c)) {
+                $this->out('!!!contains trailing whitespaces: ' . $this->shortPath($file));
+            }
         }
-	}
+    }
+
+    /**
+     * Much like main() except files are modified.
+     * Be sure to have
+     * backups or use version control.
+     *
+     * @return void
+     */
+    public function trim()
+    {
+        $siteRoot = new Folder(ROOT);
+        
+        $r = $siteRoot->findRecursive('.*\.php');
+        $this->out("Checking *.php in " . ROOT);
+        foreach ($r as $file) {
+            $c = file_get_contents($file);
+            if (preg_match('/^[\n\r|\n\r|\n|\r|\s]+\<\?php/', $c) || preg_match('/\?\>[\n\r|\n\r|\n|\r|\s]+$/', $c)) {
+                $this->out('trimming' . $this->shortPath($file));
+                $c = preg_replace('/^[\n\r|\n\r|\n|\r|\s]+\<\?php/', '<?php', $c);
+                $c = preg_replace('/\?\>[\n\r|\n\r|\n|\r|\s]+$/', '?>', $c);
+                file_put_contents($file, $c);
+            }
+        }
+    }
 }

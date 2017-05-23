@@ -28,70 +28,79 @@ App::uses('DebugMemory', 'DebugKit.Lib');
  *
  * @package debug_kit.views
  */
-class DebugView extends DoppelGangerView {
-/**
- * Overload _render to capture filenames and time actual rendering of each view file
- *
- * @param string $___viewFn Filename of the view
- * @param array $___dataForView Data to include in rendered view
- * @return string Rendered output
- */
-	protected function _render($___viewFn, $___dataForView = array()) {
-		if (!isset($___dataForView['disableTimer'])) {
-			DebugTimer::start('render_' . basename($___viewFn), __d('debug_kit', 'Rendering %s', Debugger::trimPath($___viewFn)));
-		}
-		$out = parent::_render($___viewFn, $___dataForView);
+class DebugView extends DoppelGangerView
+{
 
-		if (!isset($___dataForView['disableTimer'])) {
-			DebugTimer::stop('render_' . basename($___viewFn));
-		}
-		return $out;
-	}
+    /**
+     * Overload _render to capture filenames and time actual rendering of each view file
+     *
+     * @param string $___viewFn
+     *            Filename of the view
+     * @param array $___dataForView
+     *            Data to include in rendered view
+     * @return string Rendered output
+     */
+    protected function _render($___viewFn, $___dataForView = array())
+    {
+        if (! isset($___dataForView['disableTimer'])) {
+            DebugTimer::start('render_' . basename($___viewFn), __d('debug_kit', 'Rendering %s', Debugger::trimPath($___viewFn)));
+        }
+        $out = parent::_render($___viewFn, $___dataForView);
+        
+        if (! isset($___dataForView['disableTimer'])) {
+            DebugTimer::stop('render_' . basename($___viewFn));
+        }
+        return $out;
+    }
 
-/**
- * Element method, adds comment injection to the features View offers.
- *
- * @return void
- */
-	public function element($name, $data = array(), $options = array()) {
-		$out = '';
-		$isHtml = (!isset($this->request->params['ext']) || $this->request->params['ext'] === 'html');
-		if ($isHtml) {
-			$out .= sprintf("<!-- %s - %s -->\n", __d('debug_kit', 'Starting to render'), $name); 
-		}
+    /**
+     * Element method, adds comment injection to the features View offers.
+     *
+     * @return void
+     */
+    public function element($name, $data = array(), $options = array())
+    {
+        $out = '';
+        $isHtml = (! isset($this->request->params['ext']) || $this->request->params['ext'] === 'html');
+        if ($isHtml) {
+            $out .= sprintf("<!-- %s - %s -->\n", __d('debug_kit', 'Starting to render'), $name);
+        }
+        
+        $out .= parent::element($name, $data, $options);
+        
+        if ($isHtml) {
+            $out .= sprintf("\n<!-- %s - %s -->\n", __d('debug_kit', 'Finished'), $name);
+        }
+        return $out;
+    }
 
-		$out .= parent::element($name, $data, $options);
-
-		if ($isHtml) {
-			$out .= sprintf("\n<!-- %s - %s -->\n", __d('debug_kit', 'Finished'), $name);
-		}
-		return $out;
-	}
-
-/**
- * Renders view for given action and layout.
- * Adds timers, for all subsequent rendering, and injects the debugKit toolbar.
- *
- * @param string $action Name of action to render for
- * @param string $layout Layout to use
- * @return string Rendered Element
- */
-	public function render($action = null, $layout = null) {
-		DebugTimer::start('viewRender', __d('debug_kit', 'Rendering View'));
-
-		$out = parent::render($action, $layout);
-
-		DebugTimer::stop('viewRender');
-		DebugTimer::stop('controllerRender');
-		DebugMemory::record(__d('debug_kit', 'View render complete'));
-
-		if (empty($this->request->params['requested']) && $this->Helpers && $this->Helpers->attached('Toolbar')) {
-			$backend = $this->Helpers->Toolbar->getName();
-			$this->Helpers->Toolbar->{$backend}->send();
-		}
-		if (empty($this->output)) {
-			return $out;
-		}
-		return $this->output;
-	}
+    /**
+     * Renders view for given action and layout.
+     * Adds timers, for all subsequent rendering, and injects the debugKit toolbar.
+     *
+     * @param string $action
+     *            Name of action to render for
+     * @param string $layout
+     *            Layout to use
+     * @return string Rendered Element
+     */
+    public function render($action = null, $layout = null)
+    {
+        DebugTimer::start('viewRender', __d('debug_kit', 'Rendering View'));
+        
+        $out = parent::render($action, $layout);
+        
+        DebugTimer::stop('viewRender');
+        DebugTimer::stop('controllerRender');
+        DebugMemory::record(__d('debug_kit', 'View render complete'));
+        
+        if (empty($this->request->params['requested']) && $this->Helpers && $this->Helpers->attached('Toolbar')) {
+            $backend = $this->Helpers->Toolbar->getName();
+            $this->Helpers->Toolbar->{$backend}->send();
+        }
+        if (empty($this->output)) {
+            return $out;
+        }
+        return $this->output;
+    }
 }

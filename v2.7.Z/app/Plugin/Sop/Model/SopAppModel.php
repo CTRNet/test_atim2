@@ -1,7 +1,7 @@
 <?php
 
-class SopAppModel extends AppModel {
-	
+class SopAppModel extends AppModel
+{
 }
 
 ?>

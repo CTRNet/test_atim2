@@ -14,7 +14,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 App::uses('Shell', 'Console');
 
 /**
@@ -23,8 +22,8 @@ App::uses('Shell', 'Console');
  * Add your application-wide methods in the class below, your shells
  * will inherit them.
  *
- * @package       app.Console.Command
+ * @package app.Console.Command
  */
-class AppShell extends Shell {
-
+class AppShell extends Shell
+{
 }

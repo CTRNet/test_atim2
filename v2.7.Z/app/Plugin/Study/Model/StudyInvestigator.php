@@ -2,10 +2,12 @@
 
 class StudyInvestigator extends StudyAppModel
 {
-	var $name = 'StudyInvestigator';
-	var $useTable = 'study_investigators';
-	
-	var $validate = array();
+
+    var $name = 'StudyInvestigator';
+
+    var $useTable = 'study_investigators';
+
+    var $validate = array();
 }
 
 ?>

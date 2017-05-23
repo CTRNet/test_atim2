@@ -17,8 +17,8 @@
  * @since         DebugKit 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  **/
-
 App::uses('AppModel', 'Model');
-class DebugKitAppModel extends AppModel {
-	
+
+class DebugKitAppModel extends AppModel
+{
 }

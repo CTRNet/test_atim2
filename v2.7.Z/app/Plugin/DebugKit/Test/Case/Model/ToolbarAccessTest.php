@@ -18,49 +18,60 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  **/
 App::uses('ToolbarAccess', 'DebugKit.Model');
+
 /**
  * Test case for ToolbarAccess model
  *
  * @package debug_kit
  */
-class ToolbarAccessTestCase extends CakeTestCase {
-/**
- * Included fixtures
- *
- * @var array
- */
-	public $fixtures = array('core.post');
+class ToolbarAccessTestCase extends CakeTestCase
+{
 
-/**
- * startTest method
- *
- * @return void
- */
-	public function startTest() {
-		$this->Model = new ToolbarAccess();
-	}
+    /**
+     * Included fixtures
+     *
+     * @var array
+     */
+    public $fixtures = array(
+        'core.post'
+    );
 
-/**
- * endTest
- *
- * @return void
- */
-	public function endTest() {
-		unset($this->Model);
-	}
+    /**
+     * startTest method
+     *
+     * @return void
+     */
+    public function startTest()
+    {
+        $this->Model = new ToolbarAccess();
+    }
 
-/**
- * test that explain query returns arrays of query information.
- *
- * @return void
- */
-	public function testExplainQuery() {
-		$Post = new CakeTestModel(array('table' => 'posts', 'alias' => 'Post'));
-		$db = $Post->getDataSource();
-		$sql = 'SELECT * FROM ' . $db->fullTableName('posts') . ';';
-		$result = $this->Model->explainQuery($Post->useDbConfig, $sql);
+    /**
+     * endTest
+     *
+     * @return void
+     */
+    public function endTest()
+    {
+        unset($this->Model);
+    }
 
-		$this->assertTrue(is_array($result));
-		$this->assertFalse(empty($result));
-	}
+    /**
+     * test that explain query returns arrays of query information.
+     *
+     * @return void
+     */
+    public function testExplainQuery()
+    {
+        $Post = new CakeTestModel(array(
+            'table' => 'posts',
+            'alias' => 'Post'
+        ));
+        $db = $Post->getDataSource();
+        $sql = 'SELECT * FROM ' . $db->fullTableName('posts') . ';';
+        $result = $this->Model->explainQuery($Post->useDbConfig, $sql);
+        
+        $this->assertTrue(is_array($result));
+        $this->assertFalse(empty($result));
+    }
 }
