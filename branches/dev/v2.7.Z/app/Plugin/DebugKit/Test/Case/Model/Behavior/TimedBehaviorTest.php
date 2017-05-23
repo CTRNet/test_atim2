@@ -19,59 +19,71 @@
  */
 App::uses('DebugKitDebugger', 'DebugKit.Lib');
 
-class TimedBehaviorTestCase extends CakeTestCase {
+class TimedBehaviorTestCase extends CakeTestCase
+{
 
-	public $fixtures = array('core.article');
-/**
- * startTest callback
- *
- * @return void
- */
-	public function startTest() {
-		$this->Article = ClassRegistry::init('Article');
-		$this->Article->Behaviors->attach('DebugKit.Timed');
-	}
+    public $fixtures = array(
+        'core.article'
+    );
 
-/**
- * end a test
- *
- * @return void
- */
-	public function endTest() {
-		unset($this->Article);
-		ClassRegistry::flush();
-		DebugKitDebugger::clearTimers();
-	}
+    /**
+     * startTest callback
+     *
+     * @return void
+     */
+    public function startTest()
+    {
+        $this->Article = ClassRegistry::init('Article');
+        $this->Article->Behaviors->attach('DebugKit.Timed');
+    }
 
-/**
- * test find timers
- *
- * @return void
- */
-	public function testFindTimers() {
-		$timers = DebugKitDebugger::getTimers(false);
-		$this->assertEqual(count($timers), 1);
+    /**
+     * end a test
+     *
+     * @return void
+     */
+    public function endTest()
+    {
+        unset($this->Article);
+        ClassRegistry::flush();
+        DebugKitDebugger::clearTimers();
+    }
 
-		$this->Article->find('all');
-		$result = DebugKitDebugger::getTimers(false);
-		$this->assertEqual(count($result), 2);
-		
-		$this->Article->find('all');
-		$result = DebugKitDebugger::getTimers(false);
-		$this->assertEqual(count($result), 3);
-	}
+    /**
+     * test find timers
+     *
+     * @return void
+     */
+    public function testFindTimers()
+    {
+        $timers = DebugKitDebugger::getTimers(false);
+        $this->assertEqual(count($timers), 1);
+        
+        $this->Article->find('all');
+        $result = DebugKitDebugger::getTimers(false);
+        $this->assertEqual(count($result), 2);
+        
+        $this->Article->find('all');
+        $result = DebugKitDebugger::getTimers(false);
+        $this->assertEqual(count($result), 3);
+    }
 
-/**
- * test save timers
- *
- * @return void
- */
-	public function testSaveTimers() {
-		$timers = DebugKitDebugger::getTimers(false);
-		$this->assertEqual(count($timers), 1);
-
-		$this->Article->save(array('user_id' => 1, 'title' => 'test', 'body' => 'test'));
-		$result = DebugKitDebugger::getTimers(false);
-		$this->assertEqual(count($result), 2);
-	}
+    /**
+     * test save timers
+     *
+     * @return void
+     */
+    public function testSaveTimers()
+    {
+        $timers = DebugKitDebugger::getTimers(false);
+        $this->assertEqual(count($timers), 1);
+        
+        $this->Article->save(array(
+            'user_id' => 1,
+            'title' => 'test',
+            'body' => 'test'
+        ));
+        $result = DebugKitDebugger::getTimers(false);
+        $this->assertEqual(count($result), 2);
+    }
 }

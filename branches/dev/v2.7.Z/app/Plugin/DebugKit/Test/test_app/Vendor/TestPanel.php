@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test Panel 
  *
@@ -17,8 +18,11 @@
  * @since         DebugKit 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  **/
-class TestPanel extends DebugPanel {
-	public function startup(&$controller) {
-		$controller->testPanel = true;
-	}
+class TestPanel extends DebugPanel
+{
+
+    public function startup(&$controller)
+    {
+        $controller->testPanel = true;
+    }
 }

@@ -2,8 +2,8 @@
 
 class SopDetail extends SopAppModel
 {
-	var $useTable = false;
-	
+
+    var $useTable = false;
 }
 
 ?>

@@ -1,9 +1,9 @@
 <?php
 
-class StructureValidation extends AppModel {
+class StructureValidation extends AppModel
+{
 
-	var $name = 'StructureValidation';
-	
+    var $name = 'StructureValidation';
 }
 
 ?>

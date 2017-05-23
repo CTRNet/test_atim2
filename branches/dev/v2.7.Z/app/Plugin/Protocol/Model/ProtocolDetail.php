@@ -1,8 +1,9 @@
 <?php
 
-class ProtocolDetail extends ProtocolAppModel {
+class ProtocolDetail extends ProtocolAppModel
+{
 
-	var $useTable = false;
+    var $useTable = false;
 }
 
 ?>

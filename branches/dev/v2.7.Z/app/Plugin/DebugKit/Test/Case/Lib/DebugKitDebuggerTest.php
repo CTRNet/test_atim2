@@ -23,53 +23,60 @@ require_once CakePlugin::path('DebugKit') . 'Test' . DS . 'Case' . DS . 'TestFir
 /**
  * Test case for the DebugKitDebugger
  *
- * @package       debug_kit.tests
- * @subpackage    debug_kit.tests.cases.vendors
+ * @package debug_kit.tests
+ * @subpackage debug_kit.tests.cases.vendors
  */
-class DebugKitDebuggerTest extends CakeTestCase {
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() {
-		parent::setUp();
-		Configure::write('log', false);
-	}
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() {
-		parent::tearDown();
-		Configure::write('log', true);
-		DebugKitDebugger::clearTimers();
-	}
-/**
- * test output switch to firePHP
- *
- * @return void
- */
-	public function testOutput() {
+class DebugKitDebuggerTest extends CakeTestCase
+{
 
-		$firecake = FireCake::getInstance('TestFireCake');
-		Debugger::getInstance('DebugKitDebugger');
-		Debugger::addFormat('fb', array('callback' => 'DebugKitDebugger::fireError'));
-		Debugger::output('fb');
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        Configure::write('log', false);
+    }
 
-		set_error_handler('ErrorHandler::handleError');
-		$foo .= '';
-		restore_error_handler();
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown()
+    {
+        parent::tearDown();
+        Configure::write('log', true);
+        DebugKitDebugger::clearTimers();
+    }
 
-		$result = $firecake->sentHeaders;
-
-		$this->assertPattern('/GROUP_START/', $result['X-Wf-1-1-1-1']);
-		$this->assertPattern('/ERROR/', $result['X-Wf-1-1-1-2']);
-		$this->assertPattern('/GROUP_END/', $result['X-Wf-1-1-1-4']);
-
-		Debugger::getInstance('Debugger');
-		Debugger::output();
-	}
-
+    /**
+     * test output switch to firePHP
+     *
+     * @return void
+     */
+    public function testOutput()
+    {
+        $firecake = FireCake::getInstance('TestFireCake');
+        Debugger::getInstance('DebugKitDebugger');
+        Debugger::addFormat('fb', array(
+            'callback' => 'DebugKitDebugger::fireError'
+        ));
+        Debugger::output('fb');
+        
+        set_error_handler('ErrorHandler::handleError');
+        $foo .= '';
+        restore_error_handler();
+        
+        $result = $firecake->sentHeaders;
+        
+        $this->assertPattern('/GROUP_START/', $result['X-Wf-1-1-1-1']);
+        $this->assertPattern('/ERROR/', $result['X-Wf-1-1-1-2']);
+        $this->assertPattern('/GROUP_END/', $result['X-Wf-1-1-1-4']);
+        
+        Debugger::getInstance('Debugger');
+        Debugger::output();
+    }
 }

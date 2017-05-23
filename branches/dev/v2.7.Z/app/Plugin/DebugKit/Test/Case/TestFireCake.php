@@ -22,34 +22,41 @@
  *
  * @package debug_kit.tests.
  */
-
 App::uses('FireCake', 'DebugKit.Lib');
 
-class TestFireCake extends FireCake {
-	public $sentHeaders = array();
+class TestFireCake extends FireCake
+{
 
-	protected function _sendHeader($name, $value) {
-		$_this = FireCake::getInstance();
-		$_this->sentHeaders[$name] = $value;
-	}
-/**
- * skip client detection as headers are not being sent.
- *
- * @return void
- */	
-	public function detectClientExtension() {
-		return true;
-	}
-/**
- * Reset the fireCake
- *
- * @return void
- **/
-	public function reset() {
-		$_this = FireCake::getInstance();
-		$_this->sentHeaders = array();
-		$_this->_messageIndex = 1;
-	}
+    public $sentHeaders = array();
+
+    protected function _sendHeader($name, $value)
+    {
+        $_this = FireCake::getInstance();
+        $_this->sentHeaders[$name] = $value;
+    }
+
+    /**
+     * skip client detection as headers are not being sent.
+     *
+     * @return void
+     */
+    public function detectClientExtension()
+    {
+        return true;
+    }
+
+    /**
+     * Reset the fireCake
+     *
+     * @return void
+     *
+     */
+    public function reset()
+    {
+        $_this = FireCake::getInstance();
+        $_this->sentHeaders = array();
+        $_this->_messageIndex = 1;
+    }
 }
 
 

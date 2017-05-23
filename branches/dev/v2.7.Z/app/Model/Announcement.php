@@ -1,6 +1,7 @@
 <?php
 
-class Announcement extends AppModel {
+class Announcement extends AppModel
+{
 }
 
 ?>

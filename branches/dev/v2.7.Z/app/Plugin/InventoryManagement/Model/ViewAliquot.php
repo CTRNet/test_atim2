@@ -1,38 +1,52 @@
 <?php
 
-class ViewAliquot extends InventoryManagementAppModel {
-	var $primaryKey = 'aliquot_master_id';
-	var $base_model = "AliquotMaster";
-	var $base_plugin = 'InventoryManagement';
-	
-	var $actsAs = array(
-		'MinMax',
-		'OrderByTranslate' => array('initial_specimen_sample_type', 'parent_sample_type', 'sample_type', 'aliquot_type'));
-	
-	var $belongsTo = array(
-		'AliquotControl' => array(
-			'className'    => 'InventoryManagement.AliquotControl',
-			'foreignKey'    => 'aliquot_control_id',
-			'type'			=> 'INNER'),
-		'AliquotMaster'	=> array(
-			'className'    => 'InventoryManagement.AliquotMaster',
-			'foreignKey'    => 'aliquot_master_id',
-			'type'			=> 'INNER'),
-		'Collection' => array(
-			'className'    => 'InventoryManagement.Collection',
-			'foreignKey'    => 'collection_id',
-			'type'			=> 'INNER'),
-		'SampleMaster' => array(
-			'className'    => 'InventoryManagement.SampleMaster',
-			'foreignKey'    => 'sample_master_id',
-			'type'			=> 'INNER'),
-		'StorageMaster' => array(
-			'className'    => 'StorageLayout.StorageMaster',
-			'foreignKey'    => 'storage_master_id')
-	);
-	
-	static $table_query = 
-			'SELECT 
+class ViewAliquot extends InventoryManagementAppModel
+{
+
+    var $primaryKey = 'aliquot_master_id';
+
+    var $base_model = "AliquotMaster";
+
+    var $base_plugin = 'InventoryManagement';
+
+    var $actsAs = array(
+        'MinMax',
+        'OrderByTranslate' => array(
+            'initial_specimen_sample_type',
+            'parent_sample_type',
+            'sample_type',
+            'aliquot_type'
+        )
+    );
+
+    var $belongsTo = array(
+        'AliquotControl' => array(
+            'className' => 'InventoryManagement.AliquotControl',
+            'foreignKey' => 'aliquot_control_id',
+            'type' => 'INNER'
+        ),
+        'AliquotMaster' => array(
+            'className' => 'InventoryManagement.AliquotMaster',
+            'foreignKey' => 'aliquot_master_id',
+            'type' => 'INNER'
+        ),
+        'Collection' => array(
+            'className' => 'InventoryManagement.Collection',
+            'foreignKey' => 'collection_id',
+            'type' => 'INNER'
+        ),
+        'SampleMaster' => array(
+            'className' => 'InventoryManagement.SampleMaster',
+            'foreignKey' => 'sample_master_id',
+            'type' => 'INNER'
+        ),
+        'StorageMaster' => array(
+            'className' => 'StorageLayout.StorageMaster',
+            'foreignKey' => 'storage_master_id'
+        )
+    );
+
+    static $table_query = 'SELECT 
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id, 
@@ -103,37 +117,43 @@ class ViewAliquot extends InventoryManagementAppModel {
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
-	
-	static $min_value_fields = array('coll_to_stor_spent_time_msg', 'rec_to_stor_spent_time_msg', 'creat_to_stor_spent_time_msg');
-	
-	function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null) {
-		if($this->fields_replace == null){
-			$this->fields_replace = array(
-				'coll_to_stor_spent_time_msg' => array(
-						'msg' => array(
-								-1 => __('collection date missing'),
-								-2 => __('spent time cannot be calculated on inaccurate dates'),
-								-3 => __('the collection date is after the storage date')
-						), 'type' => 'spentTime'
-				),
-				'rec_to_stor_spent_time_msg' => array(
-						'msg' => array(
-								-1 => __('reception date missing'),
-								-2 => __('spent time cannot be calculated on inaccurate dates'),
-								-3 => __('the reception date is after the storage date')
-						), 'type' => 'spentTime'
-				),
-				'creat_to_stor_spent_time_msg' => array(
-						'msg' => array(
-								-1 => __('creation date missing'),
-								-2 => __('spent time cannot be calculated on inaccurate dates'),
-								-3 => __('the creation date is after the storage date')
-						), 'type' => 'spentTime'
-				)
-			);
-		}
-		return parent::__construct($id, $table, $ds, $base_model_name, $detail_table, $previous_model);
-	}
-	
-	
+
+    static $min_value_fields = array(
+        'coll_to_stor_spent_time_msg',
+        'rec_to_stor_spent_time_msg',
+        'creat_to_stor_spent_time_msg'
+    );
+
+    function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null)
+    {
+        if ($this->fields_replace == null) {
+            $this->fields_replace = array(
+                'coll_to_stor_spent_time_msg' => array(
+                    'msg' => array(
+                        - 1 => __('collection date missing'),
+                        - 2 => __('spent time cannot be calculated on inaccurate dates'),
+                        - 3 => __('the collection date is after the storage date')
+                    ),
+                    'type' => 'spentTime'
+                ),
+                'rec_to_stor_spent_time_msg' => array(
+                    'msg' => array(
+                        - 1 => __('reception date missing'),
+                        - 2 => __('spent time cannot be calculated on inaccurate dates'),
+                        - 3 => __('the reception date is after the storage date')
+                    ),
+                    'type' => 'spentTime'
+                ),
+                'creat_to_stor_spent_time_msg' => array(
+                    'msg' => array(
+                        - 1 => __('creation date missing'),
+                        - 2 => __('spent time cannot be calculated on inaccurate dates'),
+                        - 3 => __('the creation date is after the storage date')
+                    ),
+                    'type' => 'spentTime'
+                )
+            );
+        }
+        return parent::__construct($id, $table, $ds, $base_model_name, $detail_table, $previous_model);
+    }
 }
