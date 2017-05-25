@@ -36,18 +36,18 @@ class AppModel extends Model
         'SoftDeletable',
         'MasterDetail'
     );
- // It's important that MasterDetail be after Revision
+    // It's important that MasterDetail be after Revision
     public static $auto_validation = null;
- // Validation for all models based on the table field length for char/varchar
+    // Validation for all models based on the table field length for char/varchar
     public static $accuracy_config = array();
- // tablename -> accuracy fields
+    // tablename -> accuracy fields
     public static $writable_fields = array();
- // tablename -> flag suffix -> fields
+    // tablename -> flag suffix -> fields
     public $check_writable_fields = true;
- // whether to check writable fields or not (security check)
+    // whether to check writable fields or not (security check)
     public $writable_fields_mode = null;
- // add, edit, addgrid, editgrid, batchedit
-                                         
+    // add, edit, addgrid, editgrid, batchedit
+    
     // The values in this array can trigger magic actions when applied to a field settings
     private static $magic_coding_icd_trigger_array = array(
         "CodingIcd10Who" => "/CodingIcd/CodingIcd10s/tool/who",
@@ -57,13 +57,13 @@ class AppModel extends Model
     );
 
     public $pkey_safeguard = true;
- // whether to prevent data to be saved if the data array contains a pkey different than model->id
+    // whether to prevent data to be saved if the data array contains a pkey different than model->id
     private $registered_models;
- // use related to views
+    // use related to views
     
     /**
      * Used to store the previous model when a model is recreated for detail search
-     * 
+     *
      * @var SampleMaster
      */
     var $previous_model = null;
@@ -77,13 +77,13 @@ class AppModel extends Model
     private static $cached_views_insert = array();
 
     private static $cached_views_model = null;
- // some model, only provides accc
+    // some model, only provides accc
     const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
 
     /**
      * If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
      * This is convenient for search based on master/detail detail table.
-     * 
+     *
      * @param unknown_type $id
      *            (see parent::__construct)
      * @param unknown_type $table
@@ -198,7 +198,7 @@ class AppModel extends Model
 
     /**
      * Override to prevent saving id directly with the array to avoid hacks
-     * 
+     *
      * @see Model::save()
      */
     function save($data = null, $validate = true, $fieldList = array())
@@ -663,7 +663,7 @@ class AppModel extends Model
 
     /**
      * Replace the %%key_increment%% part of a string with the key increment value
-     * 
+     *
      * @param string $key
      *            - The key to seek in the database
      * @param string $str
@@ -821,6 +821,8 @@ class AppModel extends Model
         }
         if (! isset(self::$auto_validation[$this->name]) && isset($this->Behaviors->MasterDetail) && (strpos($this->name, 'Detail') === false || ! array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->__settings))) {
             // build master validation (detail validation are built within the validation function)
+            // debug($this->_schema);
+            // die();
             self::buildAutoValidation($this->name, $this);
             if (array_key_exists($this->name, self::$auto_validation)) {
                 $this->validate = array_merge_recursive($this->validate, self::$auto_validation[$this->name]);
@@ -959,7 +961,7 @@ class AppModel extends Model
      * Use this function to instantiate extend models.
      * It loads it based on the
      * table_name and and configures the shadow model
-     * 
+     *
      * @param class $class
      *            The class to instantiate
      * @param string $table_name
@@ -976,7 +978,7 @@ class AppModel extends Model
 
     /**
      * Builds automatic string length and float validations based on the field type
-     * 
+     *
      * @param string $use_name
      *            The name under which to record the validations
      * @param Model $model
@@ -990,6 +992,7 @@ class AppModel extends Model
         if (is_array($model->_schema)) {
             $auto_validation = array();
             foreach ($model->_schema as $field_name => $field_data) {
+                // debug($field_data);
                 switch ($field_data['type']) {
                     case 'string':
                         $auto_validation[$field_name][] = array(
@@ -1122,7 +1125,7 @@ class AppModel extends Model
 
     /**
      * Searches recursively for field in CakePHP SQL conditions
-     * 
+     *
      * @param string $field
      *            The field to look for
      * @param array $conditions
@@ -1285,7 +1288,7 @@ class AppModel extends Model
 
     /**
      * Uses the same url sorting options as cakephp paginator uses to sort a data array
-     * 
+     *
      * @param array $data
      *            The data to sort
      * @param array $passed_args
@@ -1317,7 +1320,7 @@ class AppModel extends Model
 
     /**
      * Generic function made to be overriden in model/custom models.
-     * 
+     *
      * @param int $id
      *            The db id of the element to allow the deletion of
      * @return array with two keys, one being allow_detion, a boolean telling
@@ -1334,7 +1337,7 @@ class AppModel extends Model
 
     /**
      * Redirects to the missing data page if a model id cannot be fetched
-     * 
+     *
      * @param int $id            
      * @param string $method
      *            The method name to display in the error message
@@ -1361,7 +1364,7 @@ class AppModel extends Model
     /**
      * Tries to fetch model data.
      * If it doesn't exists, redirects to an error page.
-     * 
+     *
      * @param string $id
      *            The model primary key to fetch
      * @return The model data if it succeeds
@@ -1406,7 +1409,7 @@ class AppModel extends Model
 
     /**
      * Add fields to the current model table Writable fields array.
-     * 
+     *
      * @param mixed $field
      *            A single field or an array of fields.
      * @param string $tablename
@@ -1424,7 +1427,7 @@ class AppModel extends Model
 
     /**
      * Called by structure builder to get the browsing filter dropdowns
-     * 
+     *
      * @return array (array formated for dropdown)
      */
     function getBrowsingFilter()
@@ -1442,7 +1445,7 @@ class AppModel extends Model
      * Gets the model browsing_search_dropdown_info[field_name].
      * Searches into
      * base model when called from a view.
-     * 
+     *
      * @param string $field_name            
      * @return array if the field config is found, null otherwise
      */
@@ -1460,7 +1463,7 @@ class AppModel extends Model
 
     /**
      * Called by structure builder to get the browsing advanced search fields.
-     * 
+     *
      * @param array $field_name            
      * @return array An array formated for dropdown use
      */
@@ -1681,7 +1684,7 @@ class AppModel extends Model
 
     /**
      * Will sort data based on the given primary key order.
-     * 
+     *
      * @param array $data
      *            The data to sort.
      * @param array|string $order

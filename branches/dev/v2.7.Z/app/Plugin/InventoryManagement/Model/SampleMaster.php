@@ -214,7 +214,7 @@ class SampleMaster extends InventoryManagementAppModel
     /**
      * Validates a lab book.
      * Update the lab_book_master_id if it's ok.
-     * 
+     *
      * @param array $data
      *            The data to work with
      * @param LabBookMaster $lab_book

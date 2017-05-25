@@ -43,7 +43,7 @@ class DatamartStructure extends DatamartAppModel
 
     /**
      * Retrieves the model associated to the id
-     * 
+     *
      * @param int $id            
      * @param string $model_name
      *            If null, the model defined in the db will be used. If not, $model_name will be.

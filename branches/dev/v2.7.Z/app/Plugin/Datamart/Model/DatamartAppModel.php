@@ -5,7 +5,7 @@ class DatamartAppModel extends AppModel
 
     /**
      * Builds the action dropdown actions
-     * 
+     *
      * @param string $plugin            
      * @param string $model_name
      *            The model to use to fetch the data

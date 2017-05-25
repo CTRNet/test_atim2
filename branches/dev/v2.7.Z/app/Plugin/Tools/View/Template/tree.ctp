@@ -1,6 +1,5 @@
 <?php
-$tree_html = 
-'<table class="structure">
+$tree_html = '<table class="structure">
 	<tbody>
 		<tr>
 			<td>
@@ -18,51 +17,60 @@ $tree_html =
 	</tbody>
 </table>';
 $final_options = array();
-if($controls){
-	$final_options = array(
-		'type' => 'edit',
-		'links' => array(
-			'top' => '/Tools/Template/edit/'.$template_id,
-			'bottom' => array(
-				'reset' => array('link' => 'javascript:confirmReset();', 'icon' => 'redo')
-			)
-		), 'settings' => array('return' => true, 'form_bottom' => true),
-		'extras' => $tree_html
-	);
-	if($edit_properties) {
-		$final_options['links']['bottom']['edit properties'] = '/Tools/Template/editProperties/'.$template_id;
-		$final_options['links']['bottom']['delete'] = '/Tools/Template/delete/'.$template_id;
-	}
-	if(isset($is_ajax)){
-		$final_options['settings']['actions'] = false;
-	}
-}else{
-	$final_options = array(
-		'type' => 'detail',
-		'extras' => 
-			"<div style='padding-left: 10px;'><label>". __('auto submit') ."</label><input type='checkbox' name='autosubmit'/></div>"
-			.$tree_html
-			."<div class='ajaxContent'></div>",
-		'settings' => array('return' => true)
-	);
-	if(isset($structure_header)) {
-		$final_options['settings']['header'] = $structure_header;
-	}
+if ($controls) {
+    $final_options = array(
+        'type' => 'edit',
+        'links' => array(
+            'top' => '/Tools/Template/edit/' . $template_id,
+            'bottom' => array(
+                'reset' => array(
+                    'link' => 'javascript:confirmReset();',
+                    'icon' => 'redo'
+                )
+            )
+        ),
+        'settings' => array(
+            'return' => true,
+            'form_bottom' => true
+        ),
+        'extras' => $tree_html
+    );
+    if ($edit_properties) {
+        $final_options['links']['bottom']['edit properties'] = '/Tools/Template/editProperties/' . $template_id;
+        $final_options['links']['bottom']['delete'] = '/Tools/Template/delete/' . $template_id;
+    }
+    if (isset($is_ajax)) {
+        $final_options['settings']['actions'] = false;
+    }
+} else {
+    $final_options = array(
+        'type' => 'detail',
+        'extras' => "<div style='padding-left: 10px;'><label>" . __('auto submit') . "</label><input type='checkbox' name='autosubmit'/></div>" . $tree_html . "<div class='ajaxContent'></div>",
+        'settings' => array(
+            'return' => true
+        )
+    );
+    if (isset($structure_header)) {
+        $final_options['settings']['header'] = $structure_header;
+    }
 }
 
 $final_atim_structure = $atim_structure;
-$page = $this->Structures->build( $final_atim_structure, $final_options );
+$page = $this->Structures->build($final_atim_structure, $final_options);
 
-if(isset($is_ajax)){
-	$page = $this->Shell->validationHtml().$page;
-	$tmp = $this->Shell->validationErrors();
-	$has_errors = !empty($tmp);
-	$this->validationErrors = array();
-	$this->layout = 'json';
-	$this->json = array('page' => $page, 'has_errors' => $has_errors);
-	return;
-}else{
-	echo $page;
+if (isset($is_ajax)) {
+    $page = $this->Shell->validationHtml() . $page;
+    $tmp = $this->Shell->validationErrors();
+    $has_errors = ! empty($tmp);
+    $this->validationErrors = array();
+    $this->layout = 'json';
+    $this->json = array(
+        'page' => $page,
+        'has_errors' => $has_errors
+    );
+    return;
+} else {
+    echo $page;
 }
 
 ?>

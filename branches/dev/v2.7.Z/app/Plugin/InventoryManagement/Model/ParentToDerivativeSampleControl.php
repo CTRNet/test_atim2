@@ -58,7 +58,7 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
 
     /**
      * Gets the lab book control id that can be use by a derivative
-     * 
+     *
      * @param int $parent_sample_ctrl_id            
      * @param int $children_sample_ctrl_id
      *            return int lab book control id on success, false if it's not found

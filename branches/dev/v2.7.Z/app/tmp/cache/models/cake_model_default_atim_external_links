@@ -1,0 +1,2 @@
+1495729062
+a:3:{s:2:"id";a:7:{s:4:"type";s:7:"integer";s:4:"null";b:0;s:7:"default";N;s:6:"length";i:10;s:9:"atim_type";s:16:"int(10) unsigned";s:8:"unsigned";b:1;s:3:"key";s:7:"primary";}s:4:"name";a:8:{s:4:"type";s:6:"string";s:4:"null";b:0;s:7:"default";N;s:6:"length";i:50;s:9:"atim_type";s:11:"varchar(50)";s:3:"key";s:6:"unique";s:7:"collate";s:17:"latin1_swedish_ci";s:7:"charset";s:6:"latin1";}s:4:"link";a:7:{s:4:"type";s:4:"text";s:4:"null";b:1;s:7:"default";N;s:6:"length";N;s:9:"atim_type";s:4:"text";s:7:"collate";s:17:"latin1_swedish_ci";s:7:"charset";s:6:"latin1";}}

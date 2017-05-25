@@ -1,13 +1,24 @@
 <div id="me">
-<?php 
-$this->Structures->build($atim_structure, array('type' => 'search', 'links' => array('top' => '/'), 
-	'settings' => array('header' => __('search for an icd10 code'), 'actions' => false)));
+<?php
+$this->Structures->build($atim_structure, array(
+    'type' => 'search',
+    'links' => array(
+        'top' => '/'
+    ),
+    'settings' => array(
+        'header' => __('search for an icd10 code'),
+        'actions' => false
+    )
+));
 ?>
-<div id="results">
-
-</div>
-<?php 
-$this->Structures->build($empty, array('type' => 'search', 'settings' => array('form_top' => false)));
+<div id="results"></div>
+<?php
+$this->Structures->build($empty, array(
+    'type' => 'search',
+    'settings' => array(
+        'form_top' => false
+    )
+));
 ?>
 </div>
 <script type="text/javascript">

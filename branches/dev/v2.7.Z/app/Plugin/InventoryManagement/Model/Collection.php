@@ -168,7 +168,7 @@ class Collection extends InventoryManagementAppModel
 
     /**
      * Checks if a collection link (to a participant) can be deleted.
-     * 
+     *
      * @param int $collection_id            
      * @return Return results as array:
      *         ['allow_deletion'] = true/false

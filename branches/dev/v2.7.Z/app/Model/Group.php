@@ -75,7 +75,7 @@ class Group extends AppModel
 
     /**
      * Checks if at least one permission for that group is granted
-     * 
+     *
      * @param
      *            $group_id
      */

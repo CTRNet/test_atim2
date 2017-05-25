@@ -150,7 +150,7 @@ class Structure extends AppModel
                         } else 
                             if (count($rule) == 0) {
                                 if (Configure::read('debug') > 0) {
-                                    AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']), true);
+                                    AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']));
                                 }
                                 continue;
                             }

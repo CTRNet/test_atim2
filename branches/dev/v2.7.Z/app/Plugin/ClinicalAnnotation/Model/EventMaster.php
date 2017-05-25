@@ -62,7 +62,7 @@ class EventMaster extends ClinicalAnnotationAppModel
     /**
      * Compares dx data with a cap report and generates warning when there are
      * mismatches.
-     * 
+     *
      * @param array $diagnosis_data            
      * @param array $event_data            
      */

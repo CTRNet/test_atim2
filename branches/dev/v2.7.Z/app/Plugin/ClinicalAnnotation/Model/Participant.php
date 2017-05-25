@@ -49,7 +49,7 @@ class Participant extends ClinicalAnnotationAppModel
 
     /**
      * Replaces icd10 empty string to null values to respect foreign keys constraints
-     * 
+     *
      * @param array $participantArray            
      */
     function patchIcd10NullValues(array &$participant)

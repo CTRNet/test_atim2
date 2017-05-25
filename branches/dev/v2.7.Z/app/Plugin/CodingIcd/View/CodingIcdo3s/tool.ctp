@@ -1,14 +1,25 @@
 <div id="me">
-<?php 
+<?php
 $type = $use_icd_type == "topo" ? "topography" : "morphology";
-$this->Structures->build($atim_structure, array('type' => 'search', 'links' => array('top' => 'foo'), 
-	'settings' => array('header' => __('search for an icdo3 '.$type.' code'), 'actions' => false)));
+$this->Structures->build($atim_structure, array(
+    'type' => 'search',
+    'links' => array(
+        'top' => 'foo'
+    ),
+    'settings' => array(
+        'header' => __('search for an icdo3 ' . $type . ' code'),
+        'actions' => false
+    )
+));
 ?>
-<div id="results">
-
-</div>
-<?php 
-$this->Structures->build($empty, array('type' => 'search', 'settings' => array('form_top' => false)));
+<div id="results"></div>
+<?php
+$this->Structures->build($empty, array(
+    'type' => 'search',
+    'settings' => array(
+        'form_top' => false
+    )
+));
 ?>
 </div>
 

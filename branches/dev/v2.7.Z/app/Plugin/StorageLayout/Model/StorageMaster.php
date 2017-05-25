@@ -31,11 +31,11 @@ class StorageMaster extends StorageLayoutAppModel
     var $storage_label_and_code_for_display_already_set = array();
 
     const POSITION_FREE = 1;
- // the position is free
+    // the position is free
     const POSITION_OCCUPIED = 2;
- // the position is already occupied (in the db)
+    // the position is already occupied (in the db)
     const POSITION_DOUBLE_SET = 3;
- // the position is being defined more than once
+    // the position is being defined more than once
     const CONFLICTS_IGNORE = 0;
 
     const CONFLICTS_WARN = 1;
@@ -423,7 +423,7 @@ class StorageMaster extends StorageLayoutAppModel
 
     /**
      * Finds the storage id
-     * 
+     *
      * @param String $storage_label_and_code
      *            a single string with the format "label [code]"
      * @return storage data (array('StorageMaster' => array(), 'StorageControl' => array()) when found, array('error' => message) otherwise
@@ -584,7 +584,7 @@ class StorageMaster extends StorageLayoutAppModel
     /**
      *
      * Enter description here ...
-     * 
+     *
      * @param array $children_array            
      * @param unknown_type $type_key            
      * @param unknown_type $label_key            
@@ -904,7 +904,7 @@ class StorageMaster extends StorageLayoutAppModel
      * Parses the data_array and updates it with the rcv_data array.
      * Saves the modifications into the database and
      * cleans it of the no longer related data.
-     * 
+     *
      * @param
      *            data_array The data read from the database
      * @param
@@ -1044,7 +1044,7 @@ class StorageMaster extends StorageLayoutAppModel
      * Checks wheter a storage position is already occupied or not.
      * This is a
      * quick check up that will not behave properly on bogus positions.
-     * 
+     *
      * @param int $storage_master_id            
      * @param array $position
      *            ("x" => int [, "y" => int])

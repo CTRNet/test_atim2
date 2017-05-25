@@ -31,7 +31,7 @@ class ShellHelper extends Helper
             // set HEADER root menu links
             
             $root_menu_for_header .= '<ul class="root_menu_for_header">';
-            $online_wiki_str = __('online wiki', true);
+            $online_wiki_str = __('online wiki');
             $root_menu_for_header .= '
 				<li>
 					' . $this->Html->link("", "http://ctrnet.ca/mediawiki/index.php/", array(
@@ -44,7 +44,7 @@ class ShellHelper extends Helper
             foreach ($menu_array[1] as $key => $menu_item) {
                 $html_attributes = array();
                 $html_attributes['class'] = 'menu icon32 ' . $this->Structures->generateLinkClass('plugin ' . $menu_item['Menu']['use_link']);
-                $html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+                $html_attributes['title'] = __($menu_item['Menu']['language_title']);
                 
                 if ($menu_item['Menu']['allowed']) {
                     $root_menu_for_header .= '
@@ -57,7 +57,7 @@ class ShellHelper extends Helper
                     $root_menu_for_header .= '
 							<!-- ' . $menu_item['Menu']['id'] . ' -->
 							<li class="not_allowed">
-								<a class="icon32 not_allowed" title="' . __($menu_item['Menu']['language_title'], true) . '"></a>
+								<a class="icon32 not_allowed" title="' . __($menu_item['Menu']['language_title']) . '"></a>
 							</li>
 					';
                 }
@@ -70,7 +70,7 @@ class ShellHelper extends Helper
             foreach ($menu_array[2] as $key => $menu_item) {
                 $html_attributes = array();
                 $html_attributes['class'] = 'menu icon32 ' . $this->Structures->generateLinkClass('plugin ' . $menu_item['Menu']['use_link']);
-                $html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+                $html_attributes['title'] = __($menu_item['Menu']['language_title']);
                 
                 if ($menu_item['Menu']['allowed']) {
                     $root_menu_for_header .= '
@@ -84,7 +84,7 @@ class ShellHelper extends Helper
                             if ($sub_menu_item['Menu']['flag_active']) {
                                 $html_attributes = array();
                                 $html_attributes['class'] = 'icon32 ' . $this->Structures->generateLinkClass('plugin ' . $sub_menu_item['Menu']['use_link']);
-                                $html_attributes['title'] = __($sub_menu_item['Menu']['language_title'], true);
+                                $html_attributes['title'] = __($sub_menu_item['Menu']['language_title']);
                                 if (AppController::checkLinkPermission($sub_menu_item['Menu']['use_link'])) {
                                     $sub_menu .= '<li class="sub_menu">' . $this->Html->link("", $sub_menu_item['Menu']['use_link'], $html_attributes) . "</li>";
                                 }
@@ -102,7 +102,7 @@ class ShellHelper extends Helper
                     $root_menu_for_header .= '
 							<!-- ' . $menu_item['Menu']['id'] . ' -->
 							<li>
-								<a class="icon32 not_allowed" title="' . __($menu_item['Menu']['language_title'], true) . '"></a>
+								<a class="icon32 not_allowed" title="' . __($menu_item['Menu']['language_title']) . '"></a>
 							</li>
 					';
                 }
@@ -115,8 +115,8 @@ class ShellHelper extends Helper
         $return .= '
 			<!-- start #header -->
 			<div id="header"><div>
-				<h1>' . __('core_appname', true) . '</h1>
-				<h2>' . __('core_installname', true) . '</h2>
+				<h1>' . __('core_appname') . '</h1>
+				<h2>' . __('core_installname') . '</h2>
 				' . $root_menu_for_header . '
 			</div></div>
 			<!-- end #header -->
@@ -139,8 +139,8 @@ class ShellHelper extends Helper
 						
 					<div class="menu level_0">
 						<ul class="total_count_1">
-							<li class="at count_0 root">' . $this->Html->link('<span class="icon32 rm5px login"></span>' . __('Login', true), '/', array(
-                'title' => __('Login', true),
+							<li class="at count_0 root">' . $this->Html->link('<span class="icon32 rm5px login"></span>' . __('Login'), '/', array(
+                'title' => __('Login'),
                 'escape' => false,
                 'class' => 'MainTitle'
             )) . '</li>
@@ -157,7 +157,7 @@ class ShellHelper extends Helper
         $return .= '<div class="validationWrapper">' . $this->validationHtml() . '</div>	
 			<!-- start #wrapper -->
 			<div class="outerWrapper">
-				<div id="wrapper" class="wrapper plugin_' . (isset($this->params['plugin']) ? $this->params['plugin'] : 'none') . ' controller_' . $this->params['controller'] . ' action_' . $this->params['action'] . '">
+				<div id="wrapper" class="wrapper plugin_' . (isset($this->request->params['plugin']) ? $this->request->params['plugin'] : 'none') . ' controller_' . $this->request->params['controller'] . ' action_' . $this->request->params['action'] . '">
 		';
         
         return $return;
@@ -260,9 +260,9 @@ class ShellHelper extends Helper
 			
 			<!-- start #footer -->
 			<div id="footer">
-						' . $this->Html->link(__('core_footer_about', true), '/Pages/about/') . ' | ' . $this->Html->link(__('core_footer_installation', true), '/Pages/installation/') . ' | ' . $this->Html->link(__('core_footer_credits', true), '/Pages/credits/') . '<br/>
-						' . __('core_copyright', true) . ' &copy; ' . date('Y') . ' ' . $this->Html->link(__('core_ctrnet', true), 'https://www.ctrnet.ca/') . '<br/>
-						' . __('core_app_version', true) . '
+						' . $this->Html->link(__('core_footer_about'), '/Pages/about/') . ' | ' . $this->Html->link(__('core_footer_installation'), '/Pages/installation/') . ' | ' . $this->Html->link(__('core_footer_credits'), '/Pages/credits/') . '<br/>
+						' . __('core_copyright') . ' &copy; ' . date('Y') . ' ' . $this->Html->link(__('core_ctrnet'), 'https://www.ctrnet.ca/') . '<br/>
+						' . __('core_app_version') . '
 			</div>
 			<!-- end #footer -->
 			</fieldset>
@@ -333,7 +333,7 @@ class ShellHelper extends Helper
                                 );
                                 
                                 if ($menu_item['Menu']['use_summary']) {
-                                    $word = __(trim($menu_item['Menu']['language_title']), true);
+                                    $word = __(trim($menu_item['Menu']['language_title']));
                                     $untranslated = strpos($word, "<span class='untranslated'>") === 0;
                                     if ($untranslated) {
                                         $word = substr(trim($word), 27, - 7);
@@ -362,9 +362,9 @@ class ShellHelper extends Helper
                                 } else {
                                     
                                     if ($is_root) {
-                                        $title = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
+                                        $title = html_entity_decode(__($menu_item['Menu']['language_title']), ENT_QUOTES, "UTF-8");
                                         
-                                        // $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
+                                        // $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title']), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title']);
                                         
                                         if (! $menu_item['Menu']['allowed']) {
                                             $active_item = '<a class="icon32 mr5px not_allowed" title="' . __($menu_item['Menu']['language_title']) . '">' . __($menu_item['Menu']['language_title']) . '</a>';
@@ -378,14 +378,14 @@ class ShellHelper extends Helper
                                             ));
                                         }
                                     } else {
-                                        $active_item = '<span class="mainTitle">' . __($menu_item['Menu']['language_title'], true) . '</span>';
+                                        $active_item = '<span class="mainTitle">' . __($menu_item['Menu']['language_title']) . '</span>';
                                     }
                                     
-                                    $page_title[] = __($menu_item['Menu']['language_title'], true);
+                                    $page_title[] = __($menu_item['Menu']['language_title']);
                                 }
                             }
                             
-                            $title = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
+                            $title = html_entity_decode(__($menu_item['Menu']['language_title']), ENT_QUOTES, "UTF-8");
                             if (! $menu_item['Menu']['is_root'] && $menu_item['Menu']['flag_submenu']) {
                                 if ($menu_item['Menu']['allowed']) {
                                     $append_menu .= '
@@ -507,7 +507,7 @@ class ShellHelper extends Helper
 
     /**
      * Builds 2 summaries, one for the menu tabs (short) and one for the summary button (long)
-     * 
+     *
      * @param unknown_type $summary            
      * @param unknown_type $options            
      * @return array('short' => short summary, 'long' => long summary)
@@ -580,7 +580,7 @@ class ShellHelper extends Helper
                     $summary_long = "";
                     if (isset($summary_result['title']) && is_array($summary_result['title'])) {
                         $summary_long = '
-							' . __($summary_result['title'][0], true) . '
+							' . __($summary_result['title'][0]) . '
 							<span class="list_header">' . $summary_result['title'][1] . '</span>
 						';
                     }
@@ -611,7 +611,7 @@ class ShellHelper extends Helper
                                 }
                                 
                                 $summary_long .= '
-									<dt>' . __($k, true) . '</dt>
+									<dt>' . __($k) . '</dt>
 									<dd>' . ($v ? $v : '-') . '</dd>
 							';
                             }

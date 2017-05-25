@@ -1,27 +1,24 @@
 <?php
 /**
- * FirePHP Toolbar Helper
- *
- * Injects the toolbar elements into non-HTML layouts via FireCake.
- *
- * PHP versions 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org
- * @package       debug_kit
- * @subpackage    debug_kit.views.helpers
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @since         DebugKit 0.1
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- **/
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
 App::uses('ToolbarHelper', 'DebugKit.View/Helper');
 App::uses('FireCake', 'DebugKit.Lib');
 
+/**
+ * FirePHP Toolbar Helper
+ *
+ * Injects the toolbar elements into non-HTML layouts via FireCake.
+ */
 class FirePhpToolbarHelper extends ToolbarHelper
 {
 
@@ -51,11 +48,12 @@ class FirePhpToolbarHelper extends ToolbarHelper
     }
 
     /**
-     * makeNeatArray.
+     * Make neat array
      *
-     * wraps FireCake::dump() allowing panel elements to continue functioning
+     * Wraps FireCake::dump() allowing panel elements to continue functioning.
      *
-     * @param string $values            
+     * @param string $values
+     *            The values.
      * @return void
      */
     public function makeNeatArray($values)
@@ -104,8 +102,11 @@ class FirePhpToolbarHelper extends ToolbarHelper
     /**
      * Start a panel which is a 'Group' in FirePHP
      *
+     * @param string $title
+     *            The panel tile.
+     * @param string $anchor
+     *            The panel anchor (unused).
      * @return void
-     *
      */
     public function panelStart($title, $anchor)
     {
@@ -116,7 +117,6 @@ class FirePhpToolbarHelper extends ToolbarHelper
      * End a panel (Group)
      *
      * @return void
-     *
      */
     public function panelEnd()
     {

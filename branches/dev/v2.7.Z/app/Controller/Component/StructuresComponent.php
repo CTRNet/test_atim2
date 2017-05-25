@@ -7,6 +7,9 @@ class StructuresComponent extends Component
 
     static $singleton;
 
+    private $structureAlias;
+
+
     public static $range_types = array(
         "date",
         "datetime",
@@ -42,8 +45,8 @@ class StructuresComponent extends Component
         $parameters = array_merge(array(
             'set_validation' => true, // wheter to set model validations or not
             'model_table_assoc' => array()
-        ) // bind a tablename to a model for writable fields
-, $parameters);
+        ), // bind a tablename to a model for writable fields
+$parameters);
         
         $structure = array(
             'Structure' => array(),
@@ -108,14 +111,18 @@ class StructuresComponent extends Component
             if (count($structure['Structure']) == 1) {
                 $structure['Structure'] = $structure['Structure'][0];
             }
-        
+
         $this->controller->set($structure_name, $structure);
+        //debug($structure['Structure'][0]['alias']);
+        $this->structureAlias .=$structure['Structure'][0]['alias'];
+        $this->controller->set('structureAlias', $this->structureAlias);
+
     }
 
     /**
      * Stores data into model accuracy_config.
      * Will be used for validation. Stores the same data into the structure.
-     * 
+     *
      * @param array $structure            
      */
     private function updateAccuracyChecks(&$structure)
@@ -267,11 +274,12 @@ class StructuresComponent extends Component
 
     /**
      * Sorts a structure based on display_column and display_order.
-     * 
+     *
      * @param array $atim_structure            
      */
     public static function sortStructure(&$atim_structure)
     {
+        
         if (count($atim_structure['Sfs'])) {
             // Sort the data with ORDER descending, FIELD ascending
             foreach ($atim_structure['Sfs'] as $key => $row) {
@@ -289,6 +297,7 @@ class StructuresComponent extends Component
     function parseSearchConditions($atim_structure = NULL, $auto_accuracy = true)
     {
         // conditions to ultimately return
+
         $conditions = array();
         
         // general search format, after parsing STRUCTURE
@@ -572,7 +581,7 @@ class StructuresComponent extends Component
                 if (is_numeric($str_to_replace)) {
                     unset($conditions[$str_to_replace]);
                     $condition = substr($condition, 1, - 1); // remove the opening ( and closing )
-                                                            // case 3, remove the parenthesis
+                                                             // case 3, remove the parenthesis
                     $matches = array();
                     list ($str_to_replace, ) = explode(" ", $condition, 2);
                     // 3A
@@ -698,7 +707,7 @@ class StructuresComponent extends Component
     /**
      * Retrieves pulldown values from a specified source.
      * The source needs to have translated already
-     * 
+     *
      * @param unknown_type $source            
      */
     static function getPulldownFromSource($source)

@@ -1,16 +1,26 @@
-<?php 
-	$links = array(
-		'top' => '/Administrate/Dropdowns/configure/'.$atim_menu_variables['StructurePermissibleValuesCustom.control_id'].'/',
-		'radiolist' => array(
-			'StructurePermissibleValuesCustom.id'=>'%%StructurePermissibleValuesCustom.id%%'
-		),
-		'bottom' => array(
-			'cancel' => '/Administrate/Dropdowns/view/'.$atim_menu_variables['StructurePermissibleValuesCustom.control_id'].'/'
-		)
-	);
-	
-	$desc = __('dropdown_config_desc');
-	$this->Structures->build($atim_structure, array('type' => 'editgrid', 'settings' => array('header' => array('title' => '', 'description' => $desc), 'pagination' => false), 'links' => $links));
+<?php
+$links = array(
+    'top' => '/Administrate/Dropdowns/configure/' . $atim_menu_variables['StructurePermissibleValuesCustom.control_id'] . '/',
+    'radiolist' => array(
+        'StructurePermissibleValuesCustom.id' => '%%StructurePermissibleValuesCustom.id%%'
+    ),
+    'bottom' => array(
+        'cancel' => '/Administrate/Dropdowns/view/' . $atim_menu_variables['StructurePermissibleValuesCustom.control_id'] . '/'
+    )
+);
+
+$desc = __('dropdown_config_desc');
+$this->Structures->build($atim_structure, array(
+    'type' => 'editgrid',
+    'settings' => array(
+        'header' => array(
+            'title' => '',
+            'description' => $desc
+        ),
+        'pagination' => false
+    ),
+    'links' => $links
+));
 
 ?>
 <script>
