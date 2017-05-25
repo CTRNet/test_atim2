@@ -31,7 +31,7 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller
 {
-
+   
     private static $missing_translations = array();
 
     private static $me = NULL;
@@ -54,7 +54,9 @@ class AppController extends Controller
         'RequestHandler',
         'Structures',
         'PermissionManager',
-        'Paginator', /*'DebugKit.Toolbar'*/ );
+        'Paginator',
+        'DebugKit.Toolbar'
+    );
 
     public $helpers = array(
         'Session',
@@ -188,6 +190,7 @@ class AppController extends Controller
         }
         // get default STRUCTRES, used for forms, views, and validation
         $this->Structures->set();
+
         if (isset($this->request->query['file'])) {
             pr($this->request->query['file']);
         }
@@ -501,7 +504,7 @@ class AppController extends Controller
     /**
      *
      * Enter description here ...
-     * 
+     *
      * @param $datetime_string String
      *            with format yyyy[-MM[-dd[ hh[:mm:ss]]]] (missing parts represent the accuracy
      * @param boolean $nbsp_spaces
@@ -629,7 +632,7 @@ class AppController extends Controller
 
     /**
      * Clones the first level of an array
-     * 
+     *
      * @param array $arr
      *            The array to clone
      */
@@ -683,7 +686,7 @@ class AppController extends Controller
 
     /**
      * Builds the value definition array for an updateAll call
-     * 
+     *
      * @param
      *            array They data array to build the values with
      */
@@ -706,7 +709,8 @@ class AppController extends Controller
     }
 
     /**
-     * cookie manipulation to counter cake problems. see eventum #1032
+     * cookie manipulation to counter cake problems.
+     * see eventum #1032
      */
     static function atimSetCookie($skip_expiration_cookie)
     {
@@ -723,8 +727,9 @@ class AppController extends Controller
     }
 
     /**
-     * Global function to initialize a batch action. Redirect/flashes on error.
-     * 
+     * Global function to initialize a batch action.
+     * Redirect/flashes on error.
+     *
      * @param AppModek $model
      *            The model to work on
      * @param string $data_model_name
@@ -808,7 +813,7 @@ class AppController extends Controller
 
     /**
      * Replaces the array key (generally of a find) with an inner value
-     * 
+     *
      * @param array $in_array            
      * @param string $model
      *            The model ($in_array[$model])
@@ -840,7 +845,7 @@ class AppController extends Controller
 
     /**
      * Recursively removes entries returning true on empty($value).
-     * 
+     *
      * @param
      *            array &$data
      */
@@ -895,7 +900,7 @@ class AppController extends Controller
     /**
      * Handles automatic pagination of model records Adding
      * the necessary bind on the model to fetch detail level, if there is a unique ctrl id
-     * 
+     *
      * @param Model|string $object
      *            Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
      * @param string|array $scope
@@ -926,7 +931,7 @@ class AppController extends Controller
      * Defines/updates the result structure.
      * Sets 'result_are_unique_ctrl' as true if the results are based on a unique ctrl id,
      * false otherwise. (Non master/detail models will return false)
-     * 
+     *
      * @param int $search_id
      *            The search id used by the pagination
      * @param Object $model
@@ -992,7 +997,7 @@ class AppController extends Controller
 
     /**
      * Set the Pagination settings based on user preferences and controller Pagination settings.
-     * 
+     *
      * @param Object $model
      *            The model to search upon
      */
@@ -1009,7 +1014,7 @@ class AppController extends Controller
 
     /**
      * Adds the necessary bind on the model to fetch detail level, if there is a unique ctrl id
-     * 
+     *
      * @param
      *            AppModel &$model
      * @param array $conditions
@@ -1123,7 +1128,7 @@ class AppController extends Controller
 
     /**
      * Builds menu options based on 1-display_order and 2-translation
-     * 
+     *
      * @param array $menu_options
      *            An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
      *            The label must be translated already.
@@ -1190,7 +1195,7 @@ class AppController extends Controller
     /**
      * Builds a cancel link based on the passed data.
      * Works for data send by batch sets and browsing.
-     * 
+     *
      * @param
      *            strint or null $data
      */
@@ -1961,7 +1966,7 @@ function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null)
 
 /**
  * Returns the date in a classic format (usefull for SQL)
- * 
+ *
  * @throws Exception
  */
 function now()

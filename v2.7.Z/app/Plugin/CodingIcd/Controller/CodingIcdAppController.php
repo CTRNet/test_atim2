@@ -12,7 +12,7 @@ class CodingIcdAppController extends AppController
 
     /**
      * Search through an icd coding model
-     * 
+     *
      * @param boolean $is_tool
      *            Is the search made from a popup tool
      * @param AppModel $model_to_use

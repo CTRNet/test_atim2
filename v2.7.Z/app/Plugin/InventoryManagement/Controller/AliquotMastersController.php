@@ -3488,7 +3488,7 @@ class AliquotMastersController extends InventoryManagementAppController
 
     /**
      * List all aliquot uses
-     * 
+     *
      * @param int $collection_id            
      * @param int $sample_master_id            
      * @param int $aliquot_master_id            

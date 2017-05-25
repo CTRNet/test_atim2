@@ -20,7 +20,7 @@ class Browser extends DatamartAppModel
     public $merged_ids = null;
 
     public $valid_permission = null;
- // set when initDataLoad is called.
+    // set when initDataLoad is called.
     private static $browsing_control_model = null;
 
     private static $browsing_result_model = null;
@@ -59,21 +59,21 @@ class Browser extends DatamartAppModel
 
     /**
      * The action dropdown under browse will be hierarchical or not
-     * 
+     *
      * @var boolean
      */
     static $hierarchical_dropdown = false;
 
     /**
      * The character used to separate model ids in the url
-     * 
+     *
      * @var string
      */
     static $model_separator_str = "_";
 
     /**
      * The character used to separate sub model id in the url
-     * 
+     *
      * @var string
      */
     static $sub_model_separator_str = "-";
@@ -267,7 +267,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Builds the browsable part of the array for action menu
-     * 
+     *
      * @param array $from_to
      *            An array containing the possible destinations for each keys
      * @param Int $current_id
@@ -435,7 +435,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Recursively builds a tree node by node.
-     * 
+     *
      * @param Int $node_id
      *            The node id to fetch
      * @param Int $active_node
@@ -523,7 +523,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Builds a representation of the tree within an array
-     * 
+     *
      * @param array $tree_node
      *            A node and its informations
      * @param
@@ -619,7 +619,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Update the line to print it in blue between the given position and the parent node
-     * 
+     *
      * @param array $tree            
      * @param int $active_x
      *            The current active node x position
@@ -745,7 +745,7 @@ class Browser extends DatamartAppModel
                     }
                     $count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
                     $title = self::getBaseTitle($cell);
-                    $info = __($cell['BrowsingResult']['browsing_type']) . ' - ' . AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
+                    $info = __($cell['BrowsingResult']['browsing_type']) . ' - ' . AppController::getFormatedDatetimeString($cell['BrowsingResult']['created']);
                     $cache_key = 'node_' . $lang . $cell['BrowsingResult']['id'];
                     if (! $content = Cache::read($cache_key, 'browser')) {
                         if ($cell['BrowsingResult']['raw']) {
@@ -838,7 +838,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Formats the search params array and returns it into a table
-     * 
+     *
      * @param array $params
      *            Both search parameters with both structures
      * @param boolean $html_format
@@ -1043,7 +1043,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Updates an index link
-     * 
+     *
      * @param string $link            
      * @param string $prev_model            
      * @param string $new_model            
@@ -1056,9 +1056,10 @@ class Browser extends DatamartAppModel
     }
 
     /**
-     * Filters the required sub models controls ids based on the current sub control id. NOTE: This
+     * Filters the required sub models controls ids based on the current sub control id.
+     * NOTE: This
      * function is hardcoded for Storage and Aliquots using some specific db id.</p>
-     * 
+     *
      * @param array $browsing
      *            The DatamartStructure and BrowsingResult data to base the filtering on.
      * @return An array with the ControlModel => array(ids to filter with)
@@ -1163,8 +1164,9 @@ class Browser extends DatamartAppModel
     }
 
     /**
-     * Databrowser lables are string that can be separated by |. Translation will occur on each subsection and replace the pipes by " - "
-     * 
+     * Databrowser lables are string that can be separated by |.
+     * Translation will occur on each subsection and replace the pipes by " - "
+     *
      * @param string $label
      *            The label to translate
      * @return string The translated label
@@ -1204,7 +1206,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Builds an ordered array of the nodes to merge
-     * 
+     *
      * @param array $browsing
      *            The browsing data of the first node
      * @param int $merge_to
@@ -1327,7 +1329,7 @@ class Browser extends DatamartAppModel
 
     /**
      * Init the browser model on the current required data display
-     * 
+     *
      * @param array $browsing
      *            Browsing data of the first node
      * @param int $merge_to
@@ -1559,7 +1561,7 @@ class Browser extends DatamartAppModel
     /**
      * When defining advanced search parameters (parameters based on previous nodes),
      * updates the joins and conditions arrays.
-     * 
+     *
      * @param array $params            
      * @return null on success, a model display_name string if a parent node has not a 1:1 relation with it's descendant
      */

@@ -112,7 +112,7 @@ class BrowserController extends DatamartAppController
     /**
      * Core of the databrowser, handles all browsing requests.
      * Searches, normal display, merged display and overflow display.
-     * 
+     *
      * @param int $node_id
      *            0 if it's a new browsing, the node id to display or the parent node id when in a search form
      * @param string $control_id
@@ -396,7 +396,7 @@ $check_list) // this is a checklist
 
     /**
      * Used to generate the databrowser csv
-     * 
+     *
      * @param int $parent_id            
      * @param int $merge_to            
      */
@@ -545,7 +545,7 @@ $check_list) // this is a checklist
      * If the model is found, creates a batchset based based on it and displays the first node.
      * The ids must be in
      * $this->request->data[$model][id]
-     * 
+     *
      * @param String $model            
      */
     function batchToDatabrowser($model, $source = 'batchset')
@@ -640,7 +640,7 @@ $check_list) // this is a checklist
      * Creates a drilldown of the parent node based on the non matched parent
      * row of the current set.
      * Echoes the new node id, if any.
-     * 
+     *
      * @param int $node_id            
      */
     function unusedParent($node_id)

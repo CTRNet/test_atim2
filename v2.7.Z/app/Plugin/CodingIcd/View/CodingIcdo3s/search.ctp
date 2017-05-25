@@ -1,18 +1,33 @@
-<?php 
-if(isset($overflow)){
-	?>
-	<ul class="error">
-		<li><?php echo(__("the query returned too many results").". ".__("try refining the search parameters")); ?>.</li>
-	</ul>
-	<?php 
+<?php
+if (isset($overflow)) {
+    ?>
+<ul class="error">
+	<li><?php echo(__("the query returned too many results").". ".__("try refining the search parameters")); ?>.</li>
+</ul>
+<?php
 }
 $type = $use_icd_type == "topo" ? "topography" : "morphology";
-$header = array('title' => __('icdo3 '.$type.' code picker'), 'description' => __('select an icdo3 '.$type.' code'));
+$header = array(
+    'title' => __('icdo3 ' . $type . ' code picker'),
+    'description' => __('select an icdo3 ' . $type . ' code')
+);
 $index_link_prefix = "/CodingIcd/CodingIcdo3s/search/";
 $links = array(
-	'index' => array('detail' => $index_link_prefix.'%%CodingIcd.id%%'),
-	'bottom' => array('back' => '/CodingIcd/CodingIcdo3s/tool/'.$use_icd_type));
-$this->Structures->build($atim_structure, array('type' => 'index', 'settings' => array('pagination' => false, 'header' => $header), 'links' => $links));
+    'index' => array(
+        'detail' => $index_link_prefix . '%%CodingIcd.id%%'
+    ),
+    'bottom' => array(
+        'back' => '/CodingIcd/CodingIcdo3s/tool/' . $use_icd_type
+    )
+);
+$this->Structures->build($atim_structure, array(
+    'type' => 'index',
+    'settings' => array(
+        'pagination' => false,
+        'header' => $header
+    ),
+    'links' => $links
+));
 ?>
 <script type="text/javascript">
 $(function(){

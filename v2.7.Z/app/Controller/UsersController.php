@@ -31,7 +31,6 @@ class UsersController extends AppController
                 )
             )
         );
-        
         $this->set('atim_structure', $this->Structures->get('form', 'login'));
     }
 

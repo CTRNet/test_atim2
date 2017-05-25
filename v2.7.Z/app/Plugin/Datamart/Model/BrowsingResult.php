@@ -33,7 +33,7 @@ class BrowsingResult extends DatamartAppModel
 
     /**
      * Return a model associated to a node (takes the detail model if the result set allows it)
-     * 
+     *
      * @param mixed $node
      *            Either a browsing result id or the data array related to it
      */

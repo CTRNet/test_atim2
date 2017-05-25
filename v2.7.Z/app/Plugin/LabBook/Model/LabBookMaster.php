@@ -61,7 +61,7 @@ class LabBookMaster extends LabBookAppModel
 
     /**
      * Sync data with a lab book.
-     * 
+     *
      * @param array $data
      *            The data to synchronize. Direct data and data array both supported
      * @param array $models

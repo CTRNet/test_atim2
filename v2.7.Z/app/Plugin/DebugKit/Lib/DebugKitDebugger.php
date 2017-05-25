@@ -1,34 +1,29 @@
 <?php
 /**
- * DebugKit Debugger class. Extends and enhances core
- * debugger. Adds benchmarking and timing functionality.
- *
- * PHP versions 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org
- * @package       debug_kit
- * @subpackage    debug_kit.vendors
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @since         DebugKit 0.1
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- **/
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
 App::uses('Debugger', 'Utility');
 App::uses('FireCake', 'DebugKit.Lib');
 App::uses('DebugTimer', 'DebugKit.Lib');
 App::uses('DebugMemory', 'DebugKit.Lib');
 
 /**
- * Debug Kit Temporary Debugger Class
+ * DebugKit Temporary Debugger Class
  *
  * Provides the future features that are planned. Yet not implemented in the 1.2 code base
  *
  * This file will not be needed in future version of CakePHP.
+ *
+ * @since DebugKit 0.1
  */
 class DebugKitDebugger extends Debugger
 {
@@ -94,7 +89,7 @@ class DebugKitDebugger extends Debugger
      *
      * @param string $name
      *            The name of the timer to end.
-     * @return boolean true if timer was ended, false if timer was not started.
+     * @return bool true if timer was ended, false if timer was not started.
      * @deprecated use DebugTimer::stop()
      */
     public static function stopTimer($name = null)
@@ -130,10 +125,10 @@ class DebugKitDebugger extends Debugger
     /**
      * Get the difference in time between the timer start and timer end.
      *
-     * @param $name string
-     *            the name of the timer you want elapsed time for.
-     * @param $precision int
-     *            the number of decimal places to return, defaults to 5.
+     * @param string $name
+     *            The name of the timer you want elapsed time for.
+     * @param int $precision
+     *            The number of decimal places to return, defaults to 5.
      * @return float number of seconds elapsed for timer name, 0 on missing key
      * @deprecated use DebugTimer::elapsedTime()
      */
@@ -167,9 +162,8 @@ class DebugKitDebugger extends Debugger
     /**
      * get current memory usage
      *
-     * @return integer number of bytes ram currently in use. 0 if memory_get_usage() is not available.
+     * @return int number of bytes ram currently in use. 0 if memory_get_usage() is not available.
      * @deprecated Use DebugMemory::getCurrent() instead.
-     *            
      */
     public static function getMemoryUse()
     {
@@ -179,7 +173,7 @@ class DebugKitDebugger extends Debugger
     /**
      * Get peak memory use
      *
-     * @return integer peak memory use (in bytes). Returns 0 if memory_get_peak_usage() is not available
+     * @return int peak memory use (in bytes). Returns 0 if memory_get_peak_usage() is not available
      * @deprecated Use DebugMemory::getPeak() instead.
      */
     public static function getPeakMemoryUse()
@@ -195,7 +189,7 @@ class DebugKitDebugger extends Debugger
      *
      * @param string $message
      *            Message to identify this memory point.
-     * @return boolean
+     * @return bool
      * @deprecated Use DebugMemory::getAll() instead.
      */
     public static function setMemoryPoint($message = null)
@@ -206,7 +200,7 @@ class DebugKitDebugger extends Debugger
     /**
      * Get all the stored memory points
      *
-     * @param boolean $clear
+     * @param bool $clear
      *            Whether you want to clear the memory points as well. Defaults to false.
      * @return array Array of memory marks stored so far.
      * @deprecated Use DebugMemory::getAll() instead.
@@ -224,19 +218,19 @@ class DebugKitDebugger extends Debugger
      */
     public static function clearMemoryPoints()
     {
-        return DebugMemory::clear();
+        DebugMemory::clear();
     }
 
     /**
      * Create a FirePHP error message
      *
      * @param array $data
-     *            Data of the error
+     *            Data of the error.
      * @param array $links
-     *            Links for the error
+     *            Links for the error (unused).
      * @return void
      */
-    public function fireError($data, $links)
+    public static function fireError($data, $links)
     {
         $name = $data['error'] . ' - ' . $data['description'];
         $message = "{$data['error']} {$data['code']} {$data['description']} on line: {$data['line']} in file: {$data['file']}";
@@ -246,7 +240,7 @@ class DebugKitDebugger extends Debugger
             FireCake::log($data['context'], 'Context');
         }
         if (isset($data['trace'])) {
-            FireCake::log($data['trace'], 'Trace');
+            FireCake::log(preg_split('/[\r\n]+/', $data['trace']), 'Trace');
         }
         FireCake::groupEnd();
     }

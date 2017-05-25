@@ -2,33 +2,45 @@
 /**
  * Toolbar facade tests.
  *
- * PHP versions 5
+ * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org
- * @package       debug_kit
- * @subpackage    debug_kit.tests.views.helpers
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @since         DebugKit 0.1
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- **/
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
 App::uses('View', 'View');
 App::uses('Controller', 'Controller');
 App::uses('Helper', 'View');
 App::uses('ToolbarHelper', 'DebugKit.View/Helper');
+App::uses('ConnectionManager', 'Manager');
 
+/**
+ * Class MockBackendHelper
+ *
+ * @since DebugKit 0.1
+ */
 class MockBackendHelper extends Helper
 {
 }
 
+/**
+ * Class ToolbarHelperTestCase
+ */
 class ToolbarHelperTestCase extends CakeTestCase
 {
 
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
     public $fixtures = array(
         'core.post'
     );
@@ -37,10 +49,13 @@ class ToolbarHelperTestCase extends CakeTestCase
      * setUp
      *
      * @return void
-     *
      */
     public function setUp()
     {
+        parent::setUp();
+        $db = ConnectionManager::getDatasource('test');
+        $db->fullDebug = true;
+        
         Configure::write('Cache.disable', false);
         Router::connect('/', array(
             'controller' => 'pages',
@@ -62,19 +77,6 @@ class ToolbarHelperTestCase extends CakeTestCase
             $this->View
         ));
         
-        if (isset($this->_debug)) {
-            Configure::write('debug', $this->_debug);
-        }
-    }
-
-    /**
-     * start Case - switch view paths
-     *
-     * @return void
-     *
-     */
-    public function startTest()
-    {
         $this->_viewPaths = App::path('views');
         App::build(array(
             'View' => array(
@@ -83,14 +85,24 @@ class ToolbarHelperTestCase extends CakeTestCase
                 CAKE_CORE_INCLUDE_PATH . DS . 'Cake' . DS . 'View' . DS
             )
         ), true);
-        $this->_debug = Configure::read('debug');
+    }
+
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown()
+    {
+        parent::tearDown();
+        Cache::delete('debug_kit_toolbar_test_case', 'default');
+        unset($this->Toolbar, $this->Controller);
     }
 
     /**
      * test cache writing for views.
      *
      * @return void
-     *
      */
     public function testCacheWrite()
     {
@@ -108,7 +120,6 @@ class ToolbarHelperTestCase extends CakeTestCase
      * As this is where the current request is stored.
      *
      * @return void
-     *
      */
     public function testOnlyWritingToFirstElement()
     {
@@ -137,13 +148,13 @@ class ToolbarHelperTestCase extends CakeTestCase
         ));
         
         $result = $this->Toolbar->readCache('test');
-        $this->assertEqual($result, array(
+        $this->assertEquals($result, array(
             'new',
             'values'
         ));
         
         $result = $this->Toolbar->readCache('test', 1);
-        $this->assertEqual($result, array(
+        $this->assertEquals($result, array(
             'second',
             'values'
         ));
@@ -153,7 +164,6 @@ class ToolbarHelperTestCase extends CakeTestCase
      * test cache reading for views
      *
      * @return void
-     *
      */
     public function testCacheRead()
     {
@@ -165,7 +175,7 @@ class ToolbarHelperTestCase extends CakeTestCase
         $this->assertTrue($result, 'Cache write failed %s');
         
         $result = $this->Toolbar->readCache('test');
-        $this->assertEqual($result, array(
+        $this->assertEquals($result, array(
             'stuff',
             'to',
             'cache'
@@ -178,7 +188,7 @@ class ToolbarHelperTestCase extends CakeTestCase
         $this->assertTrue($result, 'Cache write failed %s');
         
         $result = $this->Toolbar->readCache('test');
-        $this->assertEqual($result, array(
+        $this->assertEquals($result, array(
             'new',
             'stuff'
         ), 'Cache value is wrong %s');
@@ -188,7 +198,6 @@ class ToolbarHelperTestCase extends CakeTestCase
      * Test that reading/writing doesn't work with no cache config.
      *
      * @return void
-     *
      */
     public function testNoCacheConfigPresent()
     {
@@ -237,31 +246,6 @@ class ToolbarHelperTestCase extends CakeTestCase
         
         $cached = $this->Toolbar->readCache('sql_log');
         $this->assertTrue(isset($cached[$model->useDbConfig]));
-        $this->assertEqual($cached[$model->useDbConfig]['queries'][0], $result['queries'][0]);
-    }
-
-    /**
-     * reset the view paths
-     *
-     * @return void
-     *
-     */
-    public function endTest()
-    {
-        App::build(array(
-            'views' => $this->_viewPaths
-        ), true);
-        Cache::delete('debug_kit_toolbar_test_case', 'default');
-        ClassRegistry::flush();
-    }
-
-    /**
-     * tearDown
-     *
-     * @return void
-     */
-    public function tearDown()
-    {
-        unset($this->Toolbar, $this->Controller);
+        $this->assertEquals($cached[$model->useDbConfig]['queries'][0], $result['queries'][0]);
     }
 }

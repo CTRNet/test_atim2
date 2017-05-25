@@ -157,9 +157,10 @@ class BatchSet extends DatamartAppModel
     }
 
     /**
-     * Verifies if a user can read/write a batchset. If it fails, the browser
+     * Verifies if a user can read/write a batchset.
+     * If it fails, the browser
      * will be redirected to a flash screen.
-     * 
+     *
      * @param array $batchset
      *            The batchset data
      * @param boolean $must_be_unlocked
@@ -285,7 +286,7 @@ class BatchSet extends DatamartAppModel
 
     /**
      * Builds a label to help user to identify a batch set
-     * 
+     *
      * @param array $batch_set_data
      *            data of the batch set
      * @return string The label

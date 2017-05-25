@@ -27,7 +27,7 @@ class TmaSlide extends StorageLayoutAppModel
     public static $study_model = null;
 
     private $barcodes = array();
- // barcode validation, key = barcode, value = id
+    // barcode validation, key = barcode, value = id
     function validates($options = array())
     {
         if (isset($this->data['TmaSlide']['in_stock']) && $this->data['TmaSlide']['in_stock'] == 'no' && (! empty($this->data['TmaSlide']['storage_master_id']) || ! empty($this->data['FunctionManagement']['recorded_storage_selection_label']))) {

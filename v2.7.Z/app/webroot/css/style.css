@@ -130,12 +130,32 @@ fieldset.mainFieldset {
 	margin-top: 10px;
 }
 
-div.wrapper div:not (.browsable .info ) {
-	margin: 0;
-	padding: 0;
-	border: 0;
+div
+.wrapper
+ 
+div
+:not
+ 
+(
+.browsable
+ 
+.info
+ 
+)
+{
+margin
+:
+ 
+0;
+padding
+:
+ 
+0;
+border
+:
+ 
+0;
 }
-
 p {
 	margin: 1em 0;
 }
@@ -238,7 +258,7 @@ div.bottom_button a:focus {
 }
 
 div.bottom_button:not (.not_allowed ):hover, div.bottom_button:not (.not_allowed
-	):focus {
+	 ):focus {
 	border-color: #000;
 	background-image: url("../img/btnBackSel.png");
 }
@@ -488,7 +508,7 @@ ul.root_menu_for_header li a, ul.main_menu_for_header li a {
 	background-color: #628cae;
 	width: 203px;
 	top: 40px;
-	right: -15px;
+	right: -10px;
 	padding-top: 3px;
 	background: -webkit-gradient(linear, left top, left bottom, from(#628cae),
 		color-stop(50%, #7aaed8), to(#628cae)); /* for webkit browsers */
@@ -674,11 +694,36 @@ div.menu.level_1 li:hover {
 	color: #fff;
 }
 
-div.menu.level_1 li:hover a:not (.not_allowed ) {
-	text-decoration: underline;
-	color: #fff;
-}
+div
+.menu
+.level_1
+ 
+li
+:hover
+ 
+a
+:not
+ 
+(
+.not_allowed
+ 
+)
+{
+text-decoration
+:
+ 
+underline
+;
 
+	
+color
+:
+ 
+#fff
+;
+
+
+}
 div.menu.level_1 li.not_allowed:hover {
 	background-color: #41515f;
 	border-top: 1px solid #ccc;
@@ -2636,10 +2681,23 @@ select {
 	max-width: 250px;
 }
 
-div.descriptive_heading:not (:first-child ){
-	margin-top: 20px;
-}
+div
+.descriptive_heading
+:not
+ 
+(
+:first-child
+ 
+){
+margin-top
+:
+ 
+20
+px
+;
 
+
+}
 .testScroll, .floatingCells {
 	z-index: 1;
 	position: relative;

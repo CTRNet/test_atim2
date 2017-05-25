@@ -123,7 +123,7 @@ class CodingIcdAppModel extends AppModel
 
     /**
      * Convert CodingIcd* data arrays to have them use the generic CodingIcd model so that we only have 2 CodingIcd structures
-     * 
+     *
      * @param array $data_array
      *            The CodingIcd* data array to convert
      * @return The converted array

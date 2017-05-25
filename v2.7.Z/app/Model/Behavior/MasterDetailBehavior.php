@@ -140,7 +140,7 @@ class MasterDetailBehavior extends ModelBehavior
     /**
      * If there is a single control id condition, returns the id, otherwise
      * false
-     * 
+     *
      * @param Model $model            
      * @param unknown $query            
      * @return mixed
@@ -324,7 +324,7 @@ class MasterDetailBehavior extends ModelBehavior
      * Meant to counter the fact that behavior afterFind is NOT called for non primary models
      * and to manually add the form_alias since virutalFields do not work for associated
      * models.
-     * 
+     *
      * @param Model $model            
      * @param unknown_type $results            
      * @param unknown_type $primary            

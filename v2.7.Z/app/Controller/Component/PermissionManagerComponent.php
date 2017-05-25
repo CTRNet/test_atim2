@@ -299,6 +299,7 @@ class PermissionManagerComponent extends Component
 
     /**
      * Get the names of the plugin controllers .
+     *
      * ..
      *
      * This function will get an array of the plugin controller names, and

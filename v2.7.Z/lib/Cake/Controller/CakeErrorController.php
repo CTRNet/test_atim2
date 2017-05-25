@@ -15,7 +15,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Controller
  * @since         CakePHP(tm) v 2.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('AppController', 'Controller');
@@ -39,8 +39,8 @@ class CakeErrorController extends AppController {
 /**
  * Constructor
  *
- * @param CakeRequest $request
- * @param CakeResponse $response
+ * @param CakeRequest $request Request instance.
+ * @param CakeResponse $response Response instance.
  */
 	public function __construct($request = null, $response = null) {
 		parent::__construct($request, $response);

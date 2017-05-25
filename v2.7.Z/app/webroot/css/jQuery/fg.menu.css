@@ -51,7 +51,7 @@ Date:		September 2008
 	width: 8px;
 	text-indent: -9999px;
 }
-	/* solo icon buttons must have block properties for the text-indent to work */
+/* solo icon buttons must have block properties for the text-indent to work */
 .fg-button.ui-state-loading .ui-icon {
 	background: url(spinner_bar.gif) no-repeat 0 0;
 }
@@ -239,9 +239,32 @@ Date:		September 2008
 	font-weight: normal;
 }
 
-.fg-menu a span:not (.hidden ) {
-	display: block;
-	cursor: pointer;
+.fg-menu
+ 
+a
+ 
+span
+:not
+ 
+(
+.hidden
+ 
+)
+{
+display
+:
+ 
+block
+;
+
+	
+cursor
+:
+ 
+pointer
+;
+
+
 }
 
 /* SUGGESTED STYLES - for use with jQuery UI Themeroller CSS */

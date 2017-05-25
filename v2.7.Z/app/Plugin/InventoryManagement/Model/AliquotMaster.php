@@ -47,7 +47,7 @@ class AliquotMaster extends InventoryManagementAppModel
     );
 
     private static $warning_field = "barcode";
- // can be overriden into a custom model
+    // can be overriden into a custom model
     public static $aliquot_type_dropdown = array();
 
     public static $storage_model = null;
@@ -55,7 +55,7 @@ class AliquotMaster extends InventoryManagementAppModel
     public static $study_model = null;
 
     private $barcodes = array();
- // barcode validation, key = barcode, value = id
+    // barcode validation, key = barcode, value = id
     public static $volume_condition = array(
         'OR' => array(
             array(
@@ -175,7 +175,7 @@ class AliquotMaster extends InventoryManagementAppModel
 
     /**
      * **
-     * 
+     *
      * @deprecated
      *
      */
@@ -296,7 +296,7 @@ class AliquotMaster extends InventoryManagementAppModel
 
     /**
      * Additional validation rule to validate stock status and storage.
-     * 
+     *
      * @see Model::validates()
      */
     function validates($options = array())

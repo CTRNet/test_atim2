@@ -18,7 +18,7 @@ class ReportsController extends DatamartAppController
     );
     
     // -------------------------------------------------------------------------------------------------------------------
-    // SELECT ELEMENTS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
+    // SELECT APP . 'View' . DS . 'Elements' . DS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
     // -------------------------------------------------------------------------------------------------------------------
     function compareToBatchSetOrNode($type_of_object_to_compare, $batch_set_or_node_id_to_compare, $csv_creation = false, $previous_current_node_id = null)
     {
