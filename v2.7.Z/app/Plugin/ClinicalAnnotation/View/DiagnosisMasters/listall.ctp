@@ -21,8 +21,7 @@ $structure_links = array(
                 'link' => '/ClinicalAnnotation/TreatmentMasters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/',
                 'icon' => 'detail'
             )
-        )
-        ,
+        ),
         'EventMaster' => array(
             'see event summary' => array(
                 'link' => '/ClinicalAnnotation/EventMasters/detail/%%EventMaster.participant_id%%/%%EventMaster.id%%/1',

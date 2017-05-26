@@ -79,7 +79,14 @@ if (isset($debugKitInHistoryMode)) {
 	</div>
 <?php endforeach; ?>
 
+ 
+ 
+ 
+ 
  <?php
-else :
+ else :
+    
     echo $this->Toolbar->message('Warning', __d('debug_kit', 'No active database connections'));
+
+
 endif;

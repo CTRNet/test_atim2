@@ -52,7 +52,7 @@ if ($type == "checklist") {
 <ul class="warning">
 	<li><span class="icon16 warning mr5px"></span><?php
         
-echo (__("the query returned too many results") . ". " . __("try refining the search parameters") . ". " . __("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", __('browse'), __('batchset')));
+        echo (__("the query returned too many results") . ". " . __("try refining the search parameters") . ". " . __("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", __('browse'), __('batchset')));
         ?>.</li>
 </ul>
 <?php

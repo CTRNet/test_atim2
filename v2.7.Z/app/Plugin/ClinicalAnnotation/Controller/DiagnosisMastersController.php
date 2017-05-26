@@ -16,9 +16,8 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         'CodingIcd.CodingIcd10Ca',
         'CodingIcd.CodingIcdo3Topo', // required by model
         'CodingIcd.CodingIcdo3Morpho'
-    ); // required by model
-
-
+    );
+    // required by model
     var $paginate = array(
         'DiagnosisMaster' => array(
             'order' => 'DiagnosisMaster.dx_date'

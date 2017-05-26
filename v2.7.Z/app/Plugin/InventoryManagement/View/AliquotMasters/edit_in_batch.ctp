@@ -32,5 +32,4 @@ $this->Structures->build($atim_structure, array(
         "id" => false,
         "value" => $cancel_link
     ))
-)
-);
+));

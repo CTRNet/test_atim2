@@ -9,7 +9,6 @@ class StructuresComponent extends Component
 
     private $structureAlias;
 
-
     public static $range_types = array(
         "date",
         "datetime",
@@ -111,12 +110,8 @@ $parameters);
             if (count($structure['Structure']) == 1) {
                 $structure['Structure'] = $structure['Structure'][0];
             }
-
+        
         $this->controller->set($structure_name, $structure);
-        //debug($structure['Structure'][0]['alias']);
-        $this->structureAlias .=$structure['Structure'][0]['alias'];
-        $this->controller->set('structureAlias', $this->structureAlias);
-
     }
 
     /**
@@ -279,7 +274,6 @@ $parameters);
      */
     public static function sortStructure(&$atim_structure)
     {
-        
         if (count($atim_structure['Sfs'])) {
             // Sort the data with ORDER descending, FIELD ascending
             foreach ($atim_structure['Sfs'] as $key => $row) {
@@ -297,7 +291,6 @@ $parameters);
     function parseSearchConditions($atim_structure = NULL, $auto_accuracy = true)
     {
         // conditions to ultimately return
-
         $conditions = array();
         
         // general search format, after parsing STRUCTURE

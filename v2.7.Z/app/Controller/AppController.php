@@ -31,7 +31,7 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller
 {
-   
+
     private static $missing_translations = array();
 
     private static $me = NULL;
@@ -190,7 +190,7 @@ class AppController extends Controller
         }
         // get default STRUCTRES, used for forms, views, and validation
         $this->Structures->set();
-
+        
         if (isset($this->request->query['file'])) {
             pr($this->request->query['file']);
         }

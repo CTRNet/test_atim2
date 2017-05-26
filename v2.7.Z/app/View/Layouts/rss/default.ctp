@@ -2,9 +2,15 @@
 if (! isset($channel)) :
     $channel = array();
 
+
+
+
 endif;
 if (! isset($channel['title'])) :
     $channel['title'] = $title_for_layout;
+
+
+
 
 endif;
 

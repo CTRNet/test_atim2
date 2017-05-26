@@ -28,6 +28,14 @@ if (! isset($debugKitInHistoryMode)) :
     if (is_array($content)) :
         extract($content);
     
+    
+    
+    
+    
+    
+    
+    
+    
 	endif;
 endif;
 ?>
@@ -106,6 +114,14 @@ if (strtolower($this->Toolbar->getName()) === 'firephptoolbar') :
     ;
     unset($headers[2]);
 
+
+
+
+
+
+
+
+
 endif;
 
 echo $this->Toolbar->table($rows, $headers, array(
@@ -114,6 +130,14 @@ echo $this->Toolbar->table($rows, $headers, array(
 
 if (! isset($debugKitInHistoryMode)) :
     $this->Toolbar->writeCache('timer', compact('timers', 'currentMemory', 'peakMemory', 'requestTime'));
+
+
+
+
+
+
+
+
 
 endif;
 ?>
