@@ -9,6 +9,9 @@
 if (! Configure::read('debug')) :
     throw new NotFoundException();
 
+
+
+
 endif;
 
 App::uses('Debugger', 'Utility');
@@ -21,6 +24,9 @@ App::uses('Debugger', 'Utility');
 <?php
 if (Configure::read('debug') > 0) :
     Debugger::checkSecurityKeys();
+
+
+
 
 endif;
 ?>
@@ -37,6 +43,9 @@ if (file_exists(WWW_ROOT . 'css' . DS . 'cake.generic.css')) :
 		href="http://book.cakephp.org/2.0/en/development/configuration.html#cakephp-core-configuration"
 		style="color: #fff;">I don't / can't use URL rewriting</a>
 </p>
+
+
+
 
 <?php
 endif;
@@ -111,7 +120,13 @@ if (isset($filePresent)) :
             if (isset($errorMsg['message'])) :
                 $errorMsg .= '<br />' . $attributes['message'];
             
+            
+            
+            
 			endif;
+        
+        
+        
         
 		endif;
     }
@@ -141,6 +156,9 @@ if (! Validation::alphaNumeric('cakephp')) :
     echo '<br/>';
     echo __d('cake_dev', 'Recompile PCRE with Unicode support by adding <code>--enable-unicode-properties</code> when configuring');
     echo '</span></p>';
+
+
+
 
 	endif;
 ?>

@@ -34,7 +34,7 @@ $this->Structures->build($final_atim_structure, $final_options);
 
 /**
  * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
- * 
+ *
  * @param unknown_type $var
  *            The variable to loop on, must be null on the first iteration
  * @param unknown_type $reverseOrder

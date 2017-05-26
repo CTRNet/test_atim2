@@ -51,8 +51,7 @@ $final_options = array(
             'DiagnosisMaster' => 'DiagnosisMaster'
         ),
         'form_inputs' => false
-    )
-    ,
+    ),
     'extras' => array(
         'start' => '<input type="radio" name="data[EventMaster][diagnosis_master_id]" value="" ' . ($radio_checked ? 'checked="checked"' : '') . '/>' . __('n/a', null)
     ),

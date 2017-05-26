@@ -24,7 +24,7 @@
 <ul class="history-list">
 	<li><?php
     
-echo $this->Html->link(__d('debug_kit', 'Restore to current request'), '#', array(
+    echo $this->Html->link(__d('debug_kit', 'Restore to current request'), '#', array(
         'class' => 'history-link',
         'id' => 'history-restore-current'
     ));
@@ -37,3 +37,4 @@ echo $this->Html->link(__d('debug_kit', 'Restore to current request'), '#', arra
 
 <?php
 endif;
+?>

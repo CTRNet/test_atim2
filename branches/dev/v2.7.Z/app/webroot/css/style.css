@@ -1,12 +1,12 @@
 /*
 style.css for ATiM2
 
-	written by:
-	* julian at visuallizard dot com
-	* ross at visuallizard dot com
-	* wil at visuallizard dot com 
-	
-	(c) 2010  - visuallizard.com and CTRNET
+        written by:
+        * julian at visuallizard dot com
+        * ross at visuallizard dot com
+        * wil at visuallizard dot com 
+        
+        (c) 2010  - visuallizard.com and CTRNET
 */
 
 /* reset everyting so we can proceed as needed */
@@ -131,29 +131,125 @@ fieldset.mainFieldset {
 }
 
 div
+
+
+
+
+
+
+
+
 .wrapper
- 
+
+
+
+
+
+
+
+
+
 div
+
+
+
+
+
+
+
+
 :not
- 
+
+
+
+
+
+
+
+
+
 (
 .browsable
- 
+
+
+
+
+
+
+
+
+
 .info
- 
+
+
+
+
+
+
+
+
+
 )
 {
 margin
+
+
+
+
+    
+
+
+
 :
- 
+
+
+
+
+
+        
+
+
+
 0;
 padding
+
+
+
+
+    
+
+
+
 :
- 
+
+
+
+
+
+        
+
+
+
 0;
 border
+
+
+
+
+    
+
+
+
 :
- 
+
+
+
+
+
+        
+
+
+
 0;
 }
 p {
@@ -258,7 +354,7 @@ div.bottom_button a:focus {
 }
 
 div.bottom_button:not (.not_allowed ):hover, div.bottom_button:not (.not_allowed
-	 ):focus {
+ ):focus {
 	border-color: #000;
 	background-image: url("../img/btnBackSel.png");
 }
@@ -283,7 +379,7 @@ a.not_allowed.treeButton {
 	margin: 0 2px 0 2px;
 }
 /*===========================================================*
-	-= popup filter menu 
+        -= popup filter menu 
 *===========================================================*/
 div.filter_menu {
 	display: none;
@@ -453,7 +549,7 @@ div.actions a.not_allowed {
 	cursor: not-allowed;
 }
 /*===========================================================*
-	-=header menu/user 
+        -=header menu/user 
 *===========================================================*/
 ul.root_menu_for_header, ul.main_menu_for_header {
 	position: absolute;
@@ -465,7 +561,7 @@ ul.root_menu_for_header, ul.main_menu_for_header {
 }
 
 /*===========================================================*
-	-=position for toolbox rows 
+        -=position for toolbox rows 
 *===========================================================*/
 ul.root_menu_for_header {
 	top: 0;
@@ -476,7 +572,7 @@ ul.main_menu_for_header {
 }
 
 /*===========================================================*
-	-=paired / shared selectors for toolbox 
+        -=paired / shared selectors for toolbox 
 *===========================================================*/
 ul.root_menu_for_header li, ul.main_menu_for_header li {
 	display: inline-block;
@@ -551,7 +647,7 @@ p#user_for_header span {
 }
 
 /*===========================================================*
-	-=menus
+        -=menus
 *===========================================================*/
 div#menu {
 	background: none;
@@ -695,34 +791,142 @@ div.menu.level_1 li:hover {
 }
 
 div
+
+
+
+
+
+
+
+
 .menu
+
+
+
+
+
+
+
+
 .level_1
- 
+
+
+
+
+
+
+
+
+
 li
+
+
+
+
+
+
+
+
 :hover
- 
+
+
+
+
+
+
+
+
+
 a
+
+
+
+
+
+
+
+
 :not
- 
+
+
+
+
+
+
+
+
+
 (
 .not_allowed
- 
+
+
+
+
+
+
+
+
+
 )
 {
 text-decoration
+
+
+
+
+    
+
+
+
 :
- 
+
+
+
+
+
+        
+
+
+
 underline
-;
 
-	
+
+
+
+        
+
+
+
+;
 color
+
+
+
+
+    
+
+
+
 :
- 
+
+
+
+
+
+        
+
+
+
 #fff
+
+
+
+
+        
+
+
+
 ;
-
-
 }
 div.menu.level_1 li.not_allowed:hover {
 	background-color: #41515f;
@@ -730,7 +934,7 @@ div.menu.level_1 li.not_allowed:hover {
 }
 
 /*===========================================================*
-	-= summary styles
+        -= summary styles
 *===========================================================*/
 div.menu ul#summary {
 	position: absolute;
@@ -839,7 +1043,7 @@ div.menu ul#summary ul dl dd {
 	border-top: 1px solid #374D61;
 }
 /*===========================================================*
-	-= tables and forms
+        -= tables and forms
 *===========================================================*/
 span.tag {
 	font-size: 100%;
@@ -1249,7 +1453,7 @@ a.form {
 }
 
 /*===========================================================*
-	-= ICONS
+        -= ICONS
 *===========================================================*/
 .icon16.reveal.fetching, .icon16.fetching {
 	background: url("../img/wait16.gif");
@@ -2049,7 +2253,7 @@ li.selected {
 /** end of CakePHP auto complete **/
 
 /*===========================================================*
-	-=flash
+        -=flash
 *===========================================================*/
 body.flash {
 	background: rgb(72, 102, 128);
@@ -2682,21 +2886,75 @@ select {
 }
 
 div
+
+
+
+
+
+
+
+
 .descriptive_heading
+
+
+
+
+
+
+
+
 :not
- 
+
+
+
+
+
+
+
+
+
 (
 :first-child
- 
+
+
+
+
+
+
+
+
+
 ){
 margin-top
+
+
+
+
+    
+
+
+
 :
- 
+
+
+
+
+
+        
+
+
+
 20
 px
+
+
+
+
+        
+
+
+
 ;
-
-
 }
 .testScroll, .floatingCells {
 	z-index: 1;
@@ -2713,4 +2971,23 @@ input[type=number].year {
 
 input[type=number].month, input[type=number].day {
 	width: 3em;
+}
+
+.debugkit_structure_table {
+	border-collapse: collapse !important;
+}
+
+.debugkit_structure_table td {
+	border-style: solid !important;
+	color: black !important;
+	border-width: 1px !important;
+	border-color: black !important;
+}
+
+.debugkit_structure_table th {
+	border-style: solid !important;
+	color: black !important;
+	border-width: 1px !important;
+	border-color: black !important;
+	text-align: center !important;
 }

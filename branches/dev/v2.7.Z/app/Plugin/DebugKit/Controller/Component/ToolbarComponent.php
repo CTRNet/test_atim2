@@ -77,7 +77,7 @@ class ToolbarComponent extends Component implements CakeEventListener
         'DebugKit.Environment',
         'DebugKit.Include'
     );
-    
+
     /**
      * Loaded panel objects.
      *

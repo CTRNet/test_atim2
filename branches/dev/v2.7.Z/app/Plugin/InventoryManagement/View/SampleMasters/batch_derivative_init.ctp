@@ -16,8 +16,7 @@ $final_options = array(
 					<input type="hidden" name="data[AliquotMaster][ids]" value="' . (isset($aliquot_ids) ? $aliquot_ids : "") . '"/>
 					<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="' . $parent_sample_control_id . '"/>
 					<input type="hidden" name="data[url_to_cancel]" value="' . $url_to_cancel . '"/>'
-)
-;
+);
 
 // CUSTOM CODE
 $hook_link = $this->Structures->hook();

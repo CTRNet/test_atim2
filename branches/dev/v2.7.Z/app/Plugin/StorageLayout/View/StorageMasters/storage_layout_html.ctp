@@ -181,5 +181,6 @@ echo json_encode(array(
     'valid' => 1,
     'content' => $content,
     'positions' => $children_display,
-    'check_conflicts' => $data['parent']['StorageControl']['check_conflicts']));
+    'check_conflicts' => $data['parent']['StorageControl']['check_conflicts']
+));
 
