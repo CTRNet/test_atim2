@@ -10,8 +10,8 @@ $import_summary = array();
 $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "";
-$db_schema		= "chumonco";
+$db_pwd			= "am3-y-4606";
+$db_schema		= "atimoncologyaxistest";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -947,9 +947,11 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 		//Work on treatment
 		$query_res = customQuery("SELECT * FROM sardo_traitement WHERE ParentRecNumber IN ('".implode("','", array_keys($diagnosis_rec_nbrs_to_ids))."');", __LINE__);
 		$atim_treatments_data_to_create = array();
-		while($sardo_treatments_data = mysqli_fetch_assoc($query_res)) {
+		$tmp_treatment_summaries = array();
+		while($sardo_treatments_data = mysqli_fetch_assoc($query_res)) {	    
 			//Set treatment data
 			$trt_type = $sardo_treatments_data['TypeTX'];
+			if(in_array($trt_type, array('CHIR','BIOP'))) $trt_type = 'CHIR/BIOP';
 			$tx_method = 'sardo treatment - '.strtolower($trt_type);
 			$start_date = null;
 			$start_date_accuracy = null;
@@ -959,7 +961,7 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 				} else {
 					$import_summary['Treatment']['ERROR']["At least one SARDO treatment type is not defined"][] = "See NoLabo(s) : ".formatNoLabosForSummary($no_labos_string);
 				}
-			} else {
+			} else {			    
 				//Create treatment data set
 				$start_date = $sardo_treatments_data['DateDebutTraitement'];
 				$start_date_accuracy = $sardo_treatments_data['DateDebutTraitement_accuracy'];
@@ -974,7 +976,7 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 					list($gleason_sum, $gleason_grade) = $sardo_treatment_rec_number_to_gleason[$sardo_treatments_data['RecNumber']];
 				}
 				//Build the treatment key
-				$treatment_key = md5($trt_type.$start_date.$finish_date.$NoPatho.$results.$objectifs.$gleason_sum.$gleason_grade);
+                $treatment_key = md5($trt_type.$start_date.$finish_date);
 				if(!isset($atim_treatments_data_to_create[$treatment_key])) {
 					$atim_treatments_data_to_create[$treatment_key] = array(
 						'TreatmentMaster' => array(
@@ -985,25 +987,31 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
 							'start_date_accuracy' => $start_date_accuracy,
 							'finish_date' => $finish_date,
 							'finish_date_accuracy' => $finish_date_accuracy),
-						'TreatmentDetail' => array(
-							'patho_nbr' => $NoPatho,
-							'results' => $results,
-							'objectifs' => $objectifs,
-							'gleason_sum' => $gleason_sum, 
-							'gleason_grade' => $gleason_grade),
-						'TreatmentExtends' => array());			
+						'TreatmentDetail' => array(),
+						'TreatmentExtends' => array());	
+					$tmp_treatment_summaries[$treatment_key] = array('qc_nd_sardo_tx_all_patho_nbrs' => array(), 'qc_nd_sardo_tx_detail_summary' => array());
 				}
 				$treatment_extend_data = addValuesToCustomList("SARDO : $trt_type Treatments", $sardo_treatments_data['Traitement']);
-				if(strlen($treatment_extend_data)) {		
+				if(strlen($treatment_extend_data.$NoPatho.$results.$objectifs.$gleason_sum.$gleason_grade)) {		
 					$atim_treatments_data_to_create[$treatment_key]['TreatmentExtends'][] = array(
 						'TreatmentExtendMaster' => array('treatment_extend_control_id' => $treatment_controls[$tx_method]['treatment_extend_control_id']),
-						'TreatmentExtendDetail' => array('treatment' => $treatment_extend_data));
+						'TreatmentExtendDetail' => array(
+						    'treatment' => $treatment_extend_data,
+            				'patho_nbr' => $NoPatho,
+            				'results' => $results,
+            				'objectifs' => $objectifs,
+            				'gleason_sum' => $gleason_sum,
+            				'gleason_grade' => $gleason_grade));
+            		if(strlen($NoPatho)) $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_all_patho_nbrs'][] = $NoPatho;
+            		if(strlen($sardo_treatments_data['Traitement'])) $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_detail_summary'][] = $sardo_treatments_data['Traitement'];
 				}
 			}
 		}	
 		//Record treatment
-		foreach($atim_treatments_data_to_create as $new_treatment_to_create) {
-			$treatment_master_id = customInsert($new_treatment_to_create['TreatmentMaster'], 'treatment_masters', __LINE__);
+		foreach($atim_treatments_data_to_create as $treatment_key => $new_treatment_to_create) {
+		    $new_treatment_to_create['TreatmentMaster']['qc_nd_sardo_tx_all_patho_nbrs'] = implode(' & ', $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_all_patho_nbrs']);
+		    $new_treatment_to_create['TreatmentMaster']['qc_nd_sardo_tx_detail_summary'] = implode(' & ', $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_detail_summary']);
+		   $treatment_master_id = customInsert($new_treatment_to_create['TreatmentMaster'], 'treatment_masters', __LINE__);
 			$new_treatment_to_create['TreatmentDetail']['treatment_master_id'] = $treatment_master_id;
 			customInsert($new_treatment_to_create['TreatmentDetail'], 'qc_nd_txd_sardos', __LINE__, true);
 			foreach($new_treatment_to_create['TreatmentExtends'] as $new_extend) {
@@ -1195,7 +1203,7 @@ function linkCollectionToSardoTreatment($db_schema) {
 				AND TreatmentMaster.start_date NOT LIKE ''
 				AND TreatmentMaster.participant_id = Collection.participant_id
 				AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
-				AND TreatmentMaster.treatment_control_id IN (SELECT id FROM treatment_controls WHERE flag_active = 1 AND tx_method IN ('sardo treatment - chir','sardo treatment - biop'))
+				AND TreatmentMaster.treatment_control_id IN (SELECT id FROM treatment_controls WHERE flag_active = 1 AND tx_method = 'sardo treatment - chir/biop')
 			) RES1 GROUP BY collection_id
 		) RES2 INNER JOIN view_collections ON RES2.collection_id = view_collections.collection_id
 		WHERE RES2.nbr_of_treatments > 1;";
@@ -1205,16 +1213,10 @@ function linkCollectionToSardoTreatment($db_schema) {
 	//Set collections.treatment_master_id
 	customQuery("UPDATE collections SET treatment_master_id = null;", __LINE__);
 	customQuery("UPDATE collections_revs SET treatment_master_id = null;", __LINE__);	//Value can be set if user updated a collection already linked to a treatment
-	$update_conditions = array(
-			array('sardo treatment - chir', 'TreatmentDetail.patho_nbr IS NOT NULL'),	//Best Match so first try
-			array('sardo treatment - chir', 'TRUE'),
-			array('sardo treatment - biop', 'TreatmentDetail.patho_nbr IS NOT NULL'),
-			array('sardo treatment - biop', 'TRUE'));									//Worse match so last try
-	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, qc_nd_txd_sardos TreatmentDetail, sample_masters SampleMaster, sample_controls SampleControl
+	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl, sample_masters SampleMaster, sample_controls SampleControl
 		SET Collection.treatment_master_id = TreatmentMaster.id
 		WHERE Collection.deleted <> 1
 		AND Collection.collection_datetime IS NOT NULL
-		AND Collection.collection_datetime NOT LIKE ''
 		AND Collection.treatment_master_id IS NULL
 		AND SampleMaster.deleted <> 1
 		AND SampleMaster.collection_id = Collection.id
@@ -1222,54 +1224,49 @@ function linkCollectionToSardoTreatment($db_schema) {
 		AND SampleControl.sample_type = 'tissue'
 		AND TreatmentMaster.deleted <> 1
 		AND TreatmentMaster.start_date IS NOT NULL
-		AND TreatmentMaster.start_date NOT LIKE ''
 		AND TreatmentMaster.participant_id = Collection.participant_id
 		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
-		AND TreatmentMaster.treatment_control_id = (SELECT id FROM treatment_controls WHERE flag_active = 1 AND tx_method = ('%%tx_method%%'))
-		AND TreatmentDetail.treatment_master_id = TreatmentMaster.id
-		AND %%no_patho_condition%%;";
-	foreach($update_conditions as $new_conditions) {
-		list($tx_method, $no_patho_condition) = $new_conditions;
-		customQuery(str_replace(array('%%tx_method%%', '%%no_patho_condition%%'), array($tx_method, $no_patho_condition), $query), __LINE__);
-	}
+		AND TreatmentMaster.treatment_control_id = TreatmentControl.id 
+	    AND TreatmentControl.flag_active = 1 
+	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop';";
+	customQuery($query, __LINE__);
 	//Update view_collections
 	$query = "SELECT COUNT(*) AS field_exists
-	FROM information_schema.COLUMNS
-	WHERE TABLE_SCHEMA='$db_schema' AND TABLE_NAME LIKE 'view_collections' AND COLUMN_NAME = 'qc_nd_pathology_nbr_from_sardo';";
+	   FROM information_schema.COLUMNS
+	   WHERE TABLE_SCHEMA='$db_schema' AND TABLE_NAME LIKE 'view_collections' AND COLUMN_NAME = 'qc_nd_pathology_nbr_from_sardo';";
 	$update_view = customQuery($query, __LINE__);
 	$update_view =  mysqli_fetch_assoc($update_view);
 	if($update_view['field_exists']) {
 		$query = "REPLACE INTO view_collections (
 			SELECT
-			Collection.id AS collection_id,
-			Collection.bank_id AS bank_id,
-			Collection.sop_master_id AS sop_master_id,
-			Collection.participant_id AS participant_id,
-			Collection.diagnosis_master_id AS diagnosis_master_id,
-			Collection.consent_master_id AS consent_master_id,
-			Collection.treatment_master_id AS treatment_master_id,
-			Collection.event_master_id AS event_master_id,
-			Participant.participant_identifier AS participant_identifier,
-			Collection.acquisition_label AS acquisition_label,
-			Collection.collection_site AS collection_site,
-			Collection.collection_datetime AS collection_datetime,
-			Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
-			Collection.collection_property AS collection_property,
-			Collection.collection_notes AS collection_notes,
-			Collection.created AS created,
-	Bank.name AS bank_name,
-	MiscIdentifier.identifier_value AS identifier_value,
-	MiscIdentifierControl.misc_identifier_name AS identifier_name,
-	Collection.visit_label AS visit_label,
-	Collection.qc_nd_pathology_nbr,
-	TreatmentDetail.patho_nbr as qc_nd_pathology_nbr_from_sardo
-			FROM collections AS Collection
-			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-	LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
-	LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-	LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
-	LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
-	LEFT JOIN qc_nd_txd_sardos AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+		Collection.id AS collection_id,
+		Collection.bank_id AS bank_id,
+		Collection.sop_master_id AS sop_master_id,
+		Collection.participant_id AS participant_id,
+		Collection.diagnosis_master_id AS diagnosis_master_id,
+		Collection.consent_master_id AS consent_master_id,
+		Collection.treatment_master_id AS treatment_master_id,
+		Collection.event_master_id AS event_master_id,
+		Participant.participant_identifier AS participant_identifier,
+		Collection.acquisition_label AS acquisition_label,
+		Collection.collection_site AS collection_site,
+		Collection.collection_datetime AS collection_datetime,
+		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
+		Collection.collection_property AS collection_property,
+		Collection.collection_notes AS collection_notes,
+		Collection.created AS created,
+Bank.name AS bank_name,
+MiscIdentifier.identifier_value AS identifier_value,
+MiscIdentifierControl.misc_identifier_name AS identifier_name,
+Collection.visit_label AS visit_label,
+Collection.qc_nd_pathology_nbr,
+TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs as qc_nd_pathology_nbr_from_sardo
+		FROM collections AS Collection
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
+LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
 			WHERE Collection.deleted <> 1);";
 		customQuery($query, __LINE__);
 	} else {

@@ -52,7 +52,7 @@ class ParticipantCustom extends Participant {
 	}
 	
 	function getSardoValues($type_of_list) {
-		$query = "SELECT value, fr FROM qc_nd_sardo_drop_down_lists WHERE type = '".$type_of_list[0]."'";
+		$query = "SELECT value, fr FROM qc_nd_sardo_drop_down_lists WHERE type = '".$type_of_list[0]."' ORDER BY value ASC";
 		try {
 			$res = $this->query($query);
 			$sardo_values = array();

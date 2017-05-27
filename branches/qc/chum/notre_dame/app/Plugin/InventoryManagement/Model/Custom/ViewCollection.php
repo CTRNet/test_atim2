@@ -26,14 +26,13 @@ MiscIdentifier.identifier_value AS identifier_value,
 MiscIdentifierControl.misc_identifier_name AS identifier_name,
 Collection.visit_label AS visit_label,
 Collection.qc_nd_pathology_nbr,
-TreatmentDetail.patho_nbr as qc_nd_pathology_nbr_from_sardo
+TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs as qc_nd_pathology_nbr_from_sardo
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
-LEFT JOIN qc_nd_txd_sardos AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 			WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function find($type = 'first', $query = array()) {
