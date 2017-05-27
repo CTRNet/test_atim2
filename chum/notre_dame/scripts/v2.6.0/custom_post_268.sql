@@ -2817,8 +2817,133 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE `versions` SET branch_build_number = '6717' WHERE version_number = '2.6.8';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Tissue Surgery/biopy details
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qc_nd_surgery_biopsy_details', 'input',  NULL , '0', '', '', '', 'surgery/biopsy details', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_nd_surgery_biopsy_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surgery/biopsy details' AND `language_tag`=''), '1', '441', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE sd_spe_tissues ADD COLUMN qc_nd_surgery_biopsy_details VARCHAR(255) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN qc_nd_surgery_biopsy_details VARCHAR(255) DEFAULT NULL;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('surgery/biopsy details', 'Surgery/Biopsy Details', 'Chirurgie/Biopsie Détails');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Sardo Treatment Upgrade
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_radio') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_radio');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_chir') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_chir');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_image') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_image');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_biop') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_biop');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_horm') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_horm');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_chimio') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_chimio');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_pal') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_pal');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_autre') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_autre');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_cyto') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_cyto');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_protoc') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_protoc');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_bilan') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_bilan');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_revision') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_revision');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_immuno') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_immuno');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_medic') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_medic');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_exam') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_exam');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_obs') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_obs');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_visite') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_visite');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_sympt') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_sympt');
+UPDATE structure_formats SET structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_resume') WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_nd_txd_sardos_resume');
 
+UPDATE structure_fields SET `tablename`='qc_nd_txe_sardos' WHERE `tablename`='qc_nd_txd_sardos';
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qc_nd_txe_sardos' AND `field`='patho_nbr' AND `language_label`='patho nbr' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='1' AND `sortable`='1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatment_extend_masters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txe_sardos' AND `field`='patho_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='patho nbr' AND `language_tag`=''), '2', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET model = 'TreatmentExtendDetail' WHERE `tablename`='qc_nd_txe_sardos';
 
+ALTER TABLE qc_nd_txd_sardos 
+  DROP COLUMN `patho_nbr`,
+  DROP COLUMN `results`,
+  DROP COLUMN `objectifs`,
+  DROP COLUMN `gleason_grade`,
+  DROP COLUMN `gleason_sum`;
+ALTER TABLE qc_nd_txd_sardos_revs
+  DROP COLUMN `patho_nbr`,
+  DROP COLUMN `results`,
+  DROP COLUMN `objectifs`,
+  DROP COLUMN `gleason_grade`,
+  DROP COLUMN `gleason_sum`;
+ALTER TABLE qc_nd_txe_sardos
+  ADD COLUMN `patho_nbr` varchar(100) DEFAULT NULL,
+  ADD COLUMN `results` varchar(250) DEFAULT NULL,
+  ADD COLUMN `objectifs` varchar(250) DEFAULT NULL,
+  ADD COLUMN `gleason_grade` varchar(10) DEFAULT NULL,
+  ADD COLUMN `gleason_sum` int(3) DEFAULT NULL;
+ALTER TABLE qc_nd_txe_sardos_revs
+  ADD COLUMN `patho_nbr` varchar(100) DEFAULT NULL,
+  ADD COLUMN `results` varchar(250) DEFAULT NULL,
+  ADD COLUMN `objectifs` varchar(250) DEFAULT NULL,
+  ADD COLUMN `gleason_grade` varchar(10) DEFAULT NULL,
+  ADD COLUMN `gleason_sum` int(3) DEFAULT NULL;
+
+UPDATE treatment_controls SET detail_form_alias = '' WHERE detail_form_alias LIKE 'qc_nd_txd_sardos_%';
+DELETE FROM structures WHERE alias like 'qc_nd_txd_sardos_%';
+
+UPDATE treatment_masters SET treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'sardo treatment - chir') WHERE treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'sardo treatment - biop');
+UPDATE treatment_masters_revs SET treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'sardo treatment - chir') WHERE treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'sardo treatment - biop');
+UPDATE treatment_extend_masters SET treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE type = 'sardo treatment extend - chir') WHERE treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE type = 'sardo treatment extend - biop');
+UPDATE treatment_extend_masters_revs SET treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE type = 'sardo treatment extend - chir') WHERE treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE type = 'sardo treatment extend - biop');
+DELETE FROM treatment_controls WHERE tx_method = 'sardo treatment - biop';
+DELETE FROM treatment_extend_controls WHERE type = 'sardo treatment extend - biop';
+
+UPDATE treatment_extend_controls SET detail_form_alias = 'qc_nd_txe_sardos_chir_biop' WHERE detail_form_alias = 'qc_nd_txe_sardos_chir';
+UPDATE treatment_extend_controls SET type = 'sardo treatment extend - chir/biop' WHERE type = 'sardo treatment extend - chir';
+UPDATE treatment_extend_controls SET  databrowser_label = 'sardo treatment extend - chir/biop' WHERE  databrowser_label = 'sardo treatment extend - chir';
+
+UPDATE treatment_controls SET databrowser_label = 'sardo treatment - chir/biop', tx_method = 'sardo treatment - chir/biop' WHERE  databrowser_label = 'sardo treatment - chir';
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('sardo treatment - chir/biop',  'SURG/BIOP', 'CHIR/BIOP'),
+('sardo treatment extend - chir/biop', 'SURG/BIOP', 'CHIR/BIOP');
+
+UPDATE structures SET alias = 'qc_nd_txe_sardos_chir_biop' WHERE alias = 'qc_nd_txe_sardos_chir';
+
+UPDATE structure_value_domains SET domain_name = 'qc_nd_sardo_chir_biop_objectifs', source = "ClinicalAnnotation.Participant::getSardoValues('SARDO : CHIR/BIOP Objectifs')" WHERE domain_name = 'qc_nd_sardo_chir_objectifs';
+UPDATE structure_value_domains SET domain_name = 'qc_nd_sardo_chir_biop_results', source = "ClinicalAnnotation.Participant::getSardoValues('SARDO : CHIR/BIOP Results')" WHERE domain_name = 'qc_nd_sardo_chir_results';
+UPDATE structure_value_domains SET domain_name = 'qc_nd_sardo_chir_biop_treatments', source = "ClinicalAnnotation.Participant::getSardoValues('SARDO : CHIR/BIOP Treatments')" WHERE domain_name = 'qc_nd_sardo_chir_treatments';
+
+UPDATE structure_fields SET  `model`='TreatmentDetail',  `tablename`='qc_nd_txd_sardos' WHERE model='Generated' AND tablename='' AND field='qc_nd_sardo_tx_detail_summary' AND `type`='input' AND structure_value_domain  IS NULL ;
+ALTER TABLE treatment_masters
+  ADD COLUMN `qc_nd_sardo_tx_detail_summary` varchar(1000) DEFAULT NULL;
+ALTER TABLE treatment_masters_revs
+  ADD COLUMN `qc_nd_sardo_tx_detail_summary` varchar(1000) DEFAULT NULL;
+UPDATE structure_fields SET  `model`='TreatmentMaster',  `tablename`='treatment_masters' WHERE model='TreatmentDetail' AND tablename='qc_nd_txd_sardos' AND field='qc_nd_sardo_tx_detail_summary' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='summary' WHERE model='TreatmentMaster' AND tablename='treatment_masters' AND field='qc_nd_sardo_tx_detail_summary' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_nd_sardo_tx_detail_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE treatment_masters
+  ADD COLUMN `qc_nd_sardo_tx_all_patho_nbrs` varchar(250) DEFAULT NULL;
+ALTER TABLE treatment_masters_revs
+  ADD COLUMN `qc_nd_sardo_tx_all_patho_nbrs` varchar(250) DEFAULT NULL;
+INSERT INTO i18n (id,en,fr)
+VALUES
+('patho#s', 'Patho#(s)', 'Patho#(s)'); 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'qc_nd_sardo_tx_all_patho_nbrs', 'input',  NULL , '1', '', '', '', 'patho#s', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_nd_sardo_tx_all_patho_nbrs' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='patho#s' AND `language_tag`=''), '2', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+UPDATE qc_nd_sardo_drop_down_list_properties
+SET type = REPLACE(type, 'SARDO : CHIR' ,'SARDO : CHIR/BIOP');
+DELETE FROM qc_nd_sardo_drop_down_list_properties WHERE type LIKE 'SARDO : BIOP%';
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_nd_sardo_tx_all_patho_nbrs' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='patho#s' AND `language_tag`=''), '1', '303', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentExtendDetail' AND `tablename`='qc_nd_txe_sardos' AND `field`='patho_nbr' AND `language_label`='patho nbr' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='1' AND `sortable`='1');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_nd_sardo_tx_detail_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '304', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+UPDATE `versions` SET branch_build_number = '6723' WHERE version_number = '2.6.8';
