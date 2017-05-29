@@ -3,9 +3,9 @@
 class SpecimenDetail extends InventoryManagementAppModel
 {
 
-    var $primaryKey = 'sample_master_id';
+    public $primaryKey = 'sample_master_id';
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewSample' => array(
             'SampleMaster.id',
             'ParentSampleMaster.id',

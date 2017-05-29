@@ -3,7 +3,7 @@
 class SpecimenReviewMaster extends InventoryManagementAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'SpecimenReviewControl' => array(
             'className' => 'InventoryManagement.SpecimenReviewControl',
             'foreignKey' => 'specimen_review_control_id',
@@ -11,7 +11,7 @@ class SpecimenReviewMaster extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'SpecimenReviewMaster.id'
         )
@@ -25,5 +25,3 @@ class SpecimenReviewMaster extends InventoryManagementAppModel
         );
     }
 }
-
-?>

@@ -3,9 +3,9 @@
 class SpecimenReviewControl extends InventoryManagementAppModel
 {
 
-    var $master_form_alias = 'specimen_review_masters';
+    public $master_form_alias = 'specimen_review_masters';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'AliquotReviewControl' => array(
             'className' => 'InventoryManagement.AliquotReviewControl',
             'foreignKey' => 'aliquot_review_control_id'
@@ -60,5 +60,3 @@ class SpecimenReviewControl extends InventoryManagementAppModel
         return $result;
     }
 }
-
-?>

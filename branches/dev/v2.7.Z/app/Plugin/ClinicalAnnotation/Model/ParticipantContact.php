@@ -11,5 +11,3 @@ class ParticipantContact extends ClinicalAnnotationAppModel
         return $queryData;
     }
 }
-
-?>

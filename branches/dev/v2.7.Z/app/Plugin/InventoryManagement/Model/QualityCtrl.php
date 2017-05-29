@@ -3,7 +3,7 @@
 class QualityCtrl extends InventoryManagementAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'SampleMaster' => array(
             'className' => 'InventoryManagement.SampleMaster',
             'foreignKey' => 'sample_master_id'
@@ -14,7 +14,7 @@ class QualityCtrl extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'QualityCtrl.id'
         )
@@ -125,5 +125,3 @@ class QualityCtrl extends InventoryManagementAppModel
         }
     }
 }
-
-?>

@@ -3,7 +3,7 @@
 class StorageCoordinate extends StorageLayoutAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StorageMaster' => array(
             'className' => 'StorageLayout.StorageMaster',
             'foreignKey' => 'storage_master_id'
@@ -134,5 +134,3 @@ class StorageCoordinate extends StorageLayoutAppModel
         return true;
     }
 }
-
-?>

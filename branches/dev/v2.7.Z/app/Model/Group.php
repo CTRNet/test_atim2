@@ -3,13 +3,13 @@
 class Group extends AppModel
 {
 
-    var $actsAs = array(
+    public $actsAs = array(
         'Acl' => array(
             'requester'
         )
     );
 
-    var $hasMany = array(
+    public $hasMany = array(
         'User'
     );
 

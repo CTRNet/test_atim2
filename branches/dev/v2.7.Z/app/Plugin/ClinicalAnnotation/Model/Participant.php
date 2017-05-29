@@ -7,7 +7,7 @@ class Participant extends ClinicalAnnotationAppModel
         'age' => 'IF(date_of_birth IS NULL, NULL, YEAR(NOW()) - YEAR(date_of_birth) - (DAYOFYEAR(NOW()) < DAYOFYEAR(date_of_birth)))'
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewCollection' => array(
             'Participant.id'
         ),

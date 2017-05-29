@@ -3,9 +3,9 @@
 class StorageMastersController extends StorageLayoutAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'StorageLayout.StorageMaster',
         'StorageLayout.ViewStorageMaster',
         'StorageLayout.StorageTreeView',
@@ -18,7 +18,7 @@ class StorageMastersController extends StorageLayoutAppController
         'InventoryManagement.AliquotMaster'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StorageMaster' => array(
             'order' => 'StorageMaster.selection_label ASC'
         ),

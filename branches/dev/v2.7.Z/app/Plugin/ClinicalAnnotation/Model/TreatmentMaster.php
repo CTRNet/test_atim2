@@ -3,14 +3,14 @@
 class TreatmentMaster extends ClinicalAnnotationAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'TreatmentControl' => array(
             'className' => 'ClinicalAnnotation.TreatmentControl',
             'foreignKey' => 'treatment_control_id'
         )
     );
 
-    var $browsing_search_dropdown_info = array(
+    public $browsing_search_dropdown_info = array(
         'browsing_filter' => array(
             1 => array(
                 'lang' => 'keep entries with the most recent start date per participant',
@@ -115,5 +115,3 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
         );
     }
 }
-
-?>

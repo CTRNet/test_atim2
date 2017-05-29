@@ -3,9 +3,9 @@
 class StructureField extends AppModel
 {
 
-    var $name = 'StructureField';
+    public $name = 'StructureField';
 
-    var $hasMany = array(
+    public $hasMany = array(
         'StructureValidation'
     );
 
@@ -27,7 +27,7 @@ class StructureField extends AppModel
      * )
      * );
      */
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StructureValueDomain' => array(
             'className' => 'StructureValueDomain',
             'foreignKey' => 'structure_value_domain'
@@ -85,5 +85,3 @@ class StructureField extends AppModel
         return $return;
     }
 }
-
-?>

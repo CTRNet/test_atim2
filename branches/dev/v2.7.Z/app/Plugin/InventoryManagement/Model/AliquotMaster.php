@@ -3,12 +3,12 @@
 class AliquotMaster extends InventoryManagementAppModel
 {
 
-    var $actsAs = array(
+    public $actsAs = array(
         'MinMax',
         'StoredItem'
     );
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'AliquotControl' => array(
             'className' => 'InventoryManagement.AliquotControl',
             'foreignKey' => 'aliquot_control_id',
@@ -34,7 +34,7 @@ class AliquotMaster extends InventoryManagementAppModel
         )
     );
 
-    var $hasOne = array(
+    public $hasOne = array(
         'ViewAliquot' => array(
             'className' => 'InventoryManagement.ViewAliquot',
             'foreignKey' => 'aliquot_master_id',
@@ -42,7 +42,7 @@ class AliquotMaster extends InventoryManagementAppModel
         )
     );
 
-    var $virtualFields = array(
+    public $virtualFields = array(
         'in_stock_order' => 'IF(AliquotMaster.in_stock = "yes - available", 1, IF(AliquotMaster.in_stock = "yes - not available", 2, 3))'
     );
 
@@ -76,7 +76,7 @@ class AliquotMaster extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquot' => array(
             'AliquotMaster.id'
         ),

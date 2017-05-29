@@ -3,5 +3,3 @@
 class StudyAppController extends AppController
 {
 }
-
-?>

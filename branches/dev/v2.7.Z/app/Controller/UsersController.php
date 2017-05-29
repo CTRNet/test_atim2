@@ -17,7 +17,6 @@ class UsersController extends AppController
     function beforeFilter()
     {
         parent::beforeFilter();
-        
         if (Configure::read('reset_forgotten_password_feature')) {
             $this->Auth->allow('login', 'logout', 'resetForgottenPassword');
         } else {
@@ -298,5 +297,3 @@ class UsersController extends AppController
         }
     }
 }
-
-?>

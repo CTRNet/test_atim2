@@ -3,5 +3,3 @@
 class Diagnosis extends ClinicalAnnotationAppModel
 {
 }
-
-?>

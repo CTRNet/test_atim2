@@ -41,5 +41,3 @@ class DatamartAppController extends AppController
         }
     }
 }
-
-?>

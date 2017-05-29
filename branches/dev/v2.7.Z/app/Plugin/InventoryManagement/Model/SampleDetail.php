@@ -3,12 +3,10 @@
 class SampleDetail extends InventoryManagementAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 
     function getTissueSourcePermissibleValues()
     {
         return array();
     }
 }
-
-?>

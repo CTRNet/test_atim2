@@ -12,9 +12,9 @@
 class StorageCtrl extends AdministrateAppModel
 {
     //
-    var $name = 'StorageCtrl';
+    public $name = 'StorageCtrl';
 
-    var $useTable = 'storage_controls';
+    public $useTable = 'storage_controls';
 
     function getStorageCategory($data)
     {

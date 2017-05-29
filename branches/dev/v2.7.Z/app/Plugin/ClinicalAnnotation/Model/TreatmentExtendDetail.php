@@ -3,7 +3,5 @@
 class TreatmentExtendDetail extends ClinicalAnnotationAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 }
-
-?>

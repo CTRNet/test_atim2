@@ -3,7 +3,7 @@
 class ReportsController extends DatamartAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         "Datamart.Report",
         "Datamart.DatamartStructure",
         "Datamart.BrowsingResult",
@@ -11,7 +11,7 @@ class ReportsController extends DatamartAppController
         "Structure"
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Report' => array(
             'order' => 'Report.name ASC'
         )

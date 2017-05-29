@@ -3,13 +3,13 @@
 class ViewAliquot extends InventoryManagementAppModel
 {
 
-    var $primaryKey = 'aliquot_master_id';
+    public $primaryKey = 'aliquot_master_id';
 
-    var $base_model = "AliquotMaster";
+    public $base_model = "AliquotMaster";
 
-    var $base_plugin = 'InventoryManagement';
+    public $base_plugin = 'InventoryManagement';
 
-    var $actsAs = array(
+    public $actsAs = array(
         'MinMax',
         'OrderByTranslate' => array(
             'initial_specimen_sample_type',
@@ -19,7 +19,7 @@ class ViewAliquot extends InventoryManagementAppModel
         )
     );
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'AliquotControl' => array(
             'className' => 'InventoryManagement.AliquotControl',
             'foreignKey' => 'aliquot_control_id',

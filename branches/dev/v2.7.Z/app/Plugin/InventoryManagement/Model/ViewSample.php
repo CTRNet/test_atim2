@@ -3,13 +3,13 @@
 class ViewSample extends InventoryManagementAppModel
 {
 
-    var $primaryKey = 'sample_master_id';
+    public $primaryKey = 'sample_master_id';
 
-    var $base_model = "SampleMaster";
+    public $base_model = "SampleMaster";
 
-    var $base_plugin = 'InventoryManagement';
+    public $base_plugin = 'InventoryManagement';
 
-    var $actsAs = array(
+    public $actsAs = array(
         'MinMax',
         'OrderByTranslate' => array(
             'sample_type',
@@ -19,7 +19,7 @@ class ViewSample extends InventoryManagementAppModel
         )
     );
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'SampleControl' => array(
             'className' => 'InventoryManagement.SampleControl',
             'foreignKey' => 'sample_control_id',
@@ -32,7 +32,7 @@ class ViewSample extends InventoryManagementAppModel
         )
     );
 
-    var $hasOne = array(
+    public $hasOne = array(
         'SpecimenDetail' => array(
             'className' => 'InventoryManagement.SpecimenDetail',
             'foreignKey' => 'sample_master_id',
@@ -92,7 +92,7 @@ class ViewSample extends InventoryManagementAppModel
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 
-    var $fields_replace = null;
+    public $fields_replace = null;
 
     static $min_value_fields = array(
         'coll_to_creation_spent_time_msg',

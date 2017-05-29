@@ -3,14 +3,14 @@
 class SopExtendsController extends SopAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Sop.SopExtend',
         'Sop.SopMaster',
         'Sop.SopControl',
         'Material.Material'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'SopMaster' => array(
             'order' => 'SopMaster.id DESC'
         )
@@ -189,5 +189,3 @@ class SopExtendsController extends SopAppController
         $this->atimFlash(__('your data has been deleted'), '/Sop/SopExtends/listall/' . $sop_master_id);
     }
 }
-
-?>

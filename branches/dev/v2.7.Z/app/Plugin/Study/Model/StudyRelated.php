@@ -3,10 +3,9 @@
 class StudyRelated extends StudyAppModel
 {
 
-    var $name = 'StudyRelated';
+    public $name = 'StudyRelated';
 
-    var $useTable = 'study_related';
+    public $useTable = 'study_related';
 
-    var $validate = array();
+    public $validate = array();
 }
-?>

@@ -3,9 +3,9 @@
 class CollectionsController extends InventoryManagementAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'InventoryManagement.Collection',
         'InventoryManagement.ViewCollection',
         'InventoryManagement.SampleMaster',
@@ -19,7 +19,7 @@ class CollectionsController extends InventoryManagementAppController
         'ExternalLink'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Collection' => array(
             'order' => 'Collection.acquisition_label ASC'
         ),
@@ -504,5 +504,3 @@ class CollectionsController extends InventoryManagementAppController
         }
     }
 }
-
-?>

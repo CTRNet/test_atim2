@@ -3,5 +3,5 @@
 class DatamartStructureFunction extends DatamartAppModel
 {
 
-    var $useTable = 'datamart_structure_functions';
+    public $useTable = 'datamart_structure_functions';
 }

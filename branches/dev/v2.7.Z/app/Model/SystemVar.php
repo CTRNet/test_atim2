@@ -3,7 +3,7 @@
 class SystemVar extends Model
 {
 
-    var $primaryKey = 'k';
+    public $primaryKey = 'k';
 
     private static $cache = array();
 

@@ -3,5 +3,3 @@
 class SopAppModel extends AppModel
 {
 }
-
-?>

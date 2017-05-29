@@ -3,7 +3,7 @@
 class Browser extends DatamartAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 
     public $checklist_header = array();
 

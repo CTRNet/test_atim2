@@ -3,5 +3,3 @@
 class OrderAppModel extends AppModel
 {
 }
-
-?>

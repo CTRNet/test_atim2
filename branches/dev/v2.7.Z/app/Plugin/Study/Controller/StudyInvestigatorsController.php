@@ -3,12 +3,12 @@
 class StudyInvestigatorsController extends StudyAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Study.StudyInvestigator',
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StudyInvestigator' => array(
             'limit' => 5,
             'order' => 'StudyInvestigator.last_name'
@@ -182,5 +182,3 @@ class StudyInvestigatorsController extends StudyAppController
         }
     }
 }
-
-?>

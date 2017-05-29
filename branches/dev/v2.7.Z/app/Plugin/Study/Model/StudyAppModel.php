@@ -3,5 +3,3 @@
 class StudyAppModel extends AppModel
 {
 }
-
-?>

@@ -3,7 +3,7 @@
 class StudySummariesController extends StudyAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Study.StudySummary',
         
         'ClinicalAnnotation.MiscIdentifier',
@@ -14,7 +14,7 @@ class StudySummariesController extends StudyAppController
         'Order.OrderLine'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StudySummary' => array(
             'limit' => 5,
             'order' => 'StudySummary.title'
@@ -359,5 +359,3 @@ class StudySummariesController extends StudyAppController
         $this->set('result', "[" . $result . "]");
     }
 }
-
-?>

@@ -3,5 +3,3 @@
 class MaterialAppController extends AppController
 {
 }
-
-?>

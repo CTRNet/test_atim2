@@ -3,9 +3,9 @@
 class ParticipantsController extends ClinicalAnnotationAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.Participant',
         'ClinicalAnnotation.ConsentMaster',
         'ClinicalAnnotation.ParticipantContact',
@@ -21,7 +21,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         'Codingicd.CodingIcd10Ca'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Participant' => array(
             'order' => 'Participant.last_name ASC, Participant.first_name ASC'
         ),
@@ -586,5 +586,3 @@ class ParticipantsController extends ClinicalAnnotationAppController
             }
     }
 }
-
-?>

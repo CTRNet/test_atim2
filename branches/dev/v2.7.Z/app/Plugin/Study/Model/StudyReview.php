@@ -3,10 +3,9 @@
 class StudyReview extends StudyAppModel
 {
 
-    var $name = 'StudyReview';
+    public $name = 'StudyReview';
 
-    var $useTable = 'study_reviews';
+    public $useTable = 'study_reviews';
 
-    var $validate = array();
+    public $validate = array();
 }
-?>

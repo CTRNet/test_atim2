@@ -3,7 +3,7 @@
 class OrderLinesController extends OrderAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Order.Order',
         'Order.OrderLine',
         'Order.OrderItem',
@@ -12,7 +12,7 @@ class OrderLinesController extends OrderAppController
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'OrderLine' => array(
             'order' => 'OrderLine.date_required DESC'
         )
@@ -292,5 +292,3 @@ class OrderLinesController extends OrderAppController
         }
     }
 }
-
-?>

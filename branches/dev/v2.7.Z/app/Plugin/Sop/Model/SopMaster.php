@@ -3,11 +3,11 @@
 class SopMaster extends SopAppModel
 {
 
-    var $name = 'SopMaster';
+    public $name = 'SopMaster';
 
-    var $useTable = 'sop_masters';
+    public $useTable = 'sop_masters';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'SopControl' => array(
             'className' => 'Sop.SopControl',
             'foreignKey' => 'sop_control_id'
@@ -202,5 +202,3 @@ class SopMaster extends SopAppModel
         );
     }
 }
-
-?>

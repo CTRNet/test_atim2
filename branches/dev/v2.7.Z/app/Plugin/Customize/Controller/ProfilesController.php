@@ -3,9 +3,9 @@
 class ProfilesController extends CustomizeAppController
 {
 
-    var $name = 'Profiles';
+    public $name = 'Profiles';
 
-    var $uses = array(
+    public $uses = array(
         'User'
     );
 
@@ -142,5 +142,3 @@ class ProfilesController extends CustomizeAppController
         }
     }
 }
-
-?>

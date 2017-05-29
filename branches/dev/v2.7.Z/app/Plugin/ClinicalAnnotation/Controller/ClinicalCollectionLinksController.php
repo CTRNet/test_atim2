@@ -3,9 +3,9 @@
 class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.Participant',
         'ClinicalAnnotation.ConsentMaster',
         'ClinicalAnnotation.DiagnosisMaster',

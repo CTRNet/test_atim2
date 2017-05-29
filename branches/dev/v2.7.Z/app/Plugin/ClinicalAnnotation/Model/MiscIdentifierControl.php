@@ -72,5 +72,3 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
         return $this->confidential_ids;
     }
 }
-
-?>

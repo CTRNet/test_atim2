@@ -3,12 +3,12 @@
 class MenusController extends AppController
 {
 
-    var $components = array(
+    public $components = array(
         'Session',
         'SessionAcl'
     );
 
-    var $uses = array(
+    public $uses = array(
         'Menu',
         'Announcement'
     );
@@ -176,5 +176,3 @@ class MenusController extends AppController
         $this->set('ajax_menu_variables', $ajax_menu_variables);
     }
 }
-
-?>

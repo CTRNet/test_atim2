@@ -3,16 +3,16 @@
 class BrowsingResult extends DatamartAppModel
 {
 
-    var $useTable = 'datamart_browsing_results';
+    public $useTable = 'datamart_browsing_results';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'DatamartStructure' => array(
             'className' => 'Datamart.DatamartStructure',
             'foreignKey' => 'browsing_structures_id'
         )
     );
 
-    var $actsAs = array(
+    public $actsAs = array(
         'Tree'
     );
 

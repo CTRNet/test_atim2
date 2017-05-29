@@ -3,11 +3,11 @@
 class AnnouncementsController extends CustomizeAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Announcement'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Announcement' => array(
             'order' => 'Announcement.date DESC'
         )
@@ -87,5 +87,3 @@ class AnnouncementsController extends CustomizeAppController
         }
     }
 }
-
-?>

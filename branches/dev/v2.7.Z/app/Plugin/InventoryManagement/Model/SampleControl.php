@@ -3,7 +3,7 @@
 class SampleControl extends InventoryManagementAppModel
 {
 
-    var $master_form_alias = 'sample_masters';
+    public $master_form_alias = 'sample_masters';
 
     public $actsAs = array(
         'OrderByTranslate' => array(

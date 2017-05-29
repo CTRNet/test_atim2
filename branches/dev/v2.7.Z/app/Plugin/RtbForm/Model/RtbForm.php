@@ -3,9 +3,9 @@
 class Rtbform extends RtbFormAppModel
 {
 
-    var $name = 'Rtbform';
+    public $name = 'Rtbform';
 
-    var $useTable = 'rtbforms';
+    public $useTable = 'rtbforms';
 
     function summary($variables = array())
     {
@@ -36,5 +36,3 @@ class Rtbform extends RtbFormAppModel
         return $return;
     }
 }
-
-?>

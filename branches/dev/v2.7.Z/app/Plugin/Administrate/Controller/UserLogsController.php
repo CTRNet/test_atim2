@@ -3,11 +3,11 @@
 class UserLogsController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'UserLog'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'UserLog' => array(
             'order' => 'UserLog.visited DESC'
         )
@@ -27,4 +27,3 @@ class UserLogsController extends AdministrateAppController
         ));
     }
 }
-?>

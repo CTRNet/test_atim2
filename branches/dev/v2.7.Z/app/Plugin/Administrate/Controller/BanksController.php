@@ -3,11 +3,11 @@
 class BanksController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Administrate.Bank'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Bank' => array(
             'order' => 'Bank.name ASC'
         )
@@ -96,5 +96,3 @@ class BanksController extends AdministrateAppController
         }
     }
 }
-
-?>

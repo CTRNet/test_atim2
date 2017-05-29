@@ -3,5 +3,3 @@
 class DrugAppModel extends AppModel
 {
 }
-
-?>

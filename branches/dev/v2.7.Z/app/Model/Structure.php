@@ -3,13 +3,13 @@
 class Structure extends AppModel
 {
 
-    var $name = 'Structure';
+    public $name = 'Structure';
 
-    var $actsAs = array(
+    public $actsAs = array(
         'Containable'
     );
 
-    var $hasMany = array(
+    public $hasMany = array(
         'StructureFormat' => array(
             'order' => array(
                 'StructureFormat.flag_float DESC',
@@ -142,7 +142,7 @@ class Structure extends AppModel
                             $rule[0] = $validation['rule'];
                         } else 
                             if (strlen($validation['rule']) > 0) {
-                                $rule = split(',', $validation['rule']);
+                                $rule = explode(',', $validation['rule']);
                             }
                         
                         if (count($rule) == 1) {
@@ -155,7 +155,7 @@ class Structure extends AppModel
                                 continue;
                             }
                         
-                        $not_empty = $rule == 'notEmpty';
+                        $not_empty = $rule == 'notBlank';
                         $rule_array = array(
                             'rule' => $rule,
                             'allowEmpty' => ! $not_empty
@@ -175,7 +175,7 @@ class Structure extends AppModel
                         if ($validation['language_message']) {
                             $rule_array['message'] = __($validation['language_message']);
                         } else 
-                            if ($rule_array['rule'] == 'notEmpty') {
+                            if ($rule_array['rule'] == 'notBlank') {
                                 $rule_array['message'] = __("this field is required");
                             } else 
                                 if ($rule_array['rule'] == 'isUnique') {
@@ -214,5 +214,3 @@ class Structure extends AppModel
         );
     }
 }
-
-?>

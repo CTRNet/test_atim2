@@ -3,14 +3,14 @@
 class GroupsController extends AppController
 {
 
-    var $name = 'Groups';
+    public $name = 'Groups';
 
-    var $helpers = array(
+    public $helpers = array(
         'Html',
         'Form'
     );
 
-    var $uses = array(
+    public $uses = array(
         'Group',
         'Aro'
     );
@@ -140,4 +140,3 @@ class GroupsController extends AppController
         }
     }
 }
-?>

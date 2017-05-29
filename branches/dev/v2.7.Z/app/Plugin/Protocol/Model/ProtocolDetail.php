@@ -3,7 +3,5 @@
 class ProtocolDetail extends ProtocolAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 }
-
-?>

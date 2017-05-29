@@ -3,11 +3,11 @@
 class RtbformsController extends RtbformAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Rtbform.Rtbform'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Rtbform' => array(
             'order' => 'Rtbform.frmTitle'
         )
@@ -104,5 +104,3 @@ class RtbformsController extends RtbformAppController
         }
     }
 }
-
-?>

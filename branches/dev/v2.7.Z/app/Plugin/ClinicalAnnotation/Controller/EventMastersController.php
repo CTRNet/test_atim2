@@ -3,14 +3,14 @@
 class EventMastersController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.Participant',
         'ClinicalAnnotation.EventMaster',
         'ClinicalAnnotation.EventControl',
         'ClinicalAnnotation.DiagnosisMaster'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'EventMaster' => array(
             'order' => 'EventMaster.event_date ASC'
         )
@@ -419,5 +419,3 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 }
-
-?>

@@ -3,15 +3,15 @@
 class ProtocolMaster extends ProtocolAppModel
 {
 
-    var $name = 'ProtocolMaster';
+    public $name = 'ProtocolMaster';
 
-    var $useTable = 'protocol_masters';
+    public $useTable = 'protocol_masters';
 
     public static $protocol_dropdown = array();
 
     private static $protocol_dropdown_set = false;
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'ProtocolControl' => array(
             'className' => 'Protocol.ProtocolControl',
             'foreignKey' => 'protocol_control_id'
@@ -150,5 +150,3 @@ class ProtocolMaster extends ProtocolAppModel
         );
     }
 }
-
-?>

@@ -3,5 +3,3 @@
 class SopAppController extends AppController
 {
 }
-
-?>

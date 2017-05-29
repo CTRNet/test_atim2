@@ -3,9 +3,9 @@
 class TmaSlidesController extends StorageLayoutAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'StorageLayout.StorageMaster',
         'StorageLayout.TmaSlide',
         'StorageLayout.TmaSlideUse',
@@ -15,7 +15,7 @@ class TmaSlidesController extends StorageLayoutAppController
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'TmaSlide' => array(
             'order' => 'TmaSlide.barcode DESC'
         )
@@ -827,5 +827,3 @@ class TmaSlidesController extends StorageLayoutAppController
         $this->set('result', "[" . $result . "]");
     }
 }
-
-?>

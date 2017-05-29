@@ -3,7 +3,7 @@
 class StructuresHelper extends Helper
 {
 
-    var $helpers = array(
+    public $helpers = array(
         'Csv',
         'Html',
         'Form',
@@ -372,7 +372,7 @@ class StructuresHelper extends Helper
             } elseif (isset($atim_structure['Structure'])) {
                 $tmp[$atim_structure['Structure']['alias']] = $atim_structure['Sfs'];
                 $this->remove($tmp[$atim_structure['Structure']['alias']], $unimportantFields);
-            } else {
+            } elseif(isset($atim_structure['Structure']) &&isset($atim_structure['Sfs'])) {
                 $possible = [
                     "Collection",
                     "DiagnosisMaster",
@@ -426,6 +426,7 @@ class StructuresHelper extends Helper
      */
     function build(array $atim_structure = array(), array $options = array())
     {
+//        $this->Flash->set('This is a message');
         if (Configure::read('debug')) {
             $tmp = array();
             if (isset($atim_structure['Structure'][0])) {
@@ -2384,7 +2385,7 @@ class StructuresHelper extends Helper
                         if (count($sfs['StructureValidation']) > 0 && $options['type'] != "search") {
                             
                             foreach ($sfs['StructureValidation'] as $validation) {
-                                if ($validation['rule'] == 'notEmpty') {
+                                if ($validation['rule'] == 'notBlank') {
                                     if ($options['type'] != 'batchedit') {
                                         $settings["class"] .= " required";
                                         $settings["required"] = "required";
@@ -2513,7 +2514,7 @@ class StructuresHelper extends Helper
                             )))) {
                                 // check if the field can be empty or not
                                 foreach ($sfs['StructureValidation'] as $validation) {
-                                    if ($validation['rule'] == 'notEmpty') {
+                                    if ($validation['rule'] == 'notBlank') {
                                         if (in_array($options['type'], array(
                                             'edit',
                                             'editgrid'
@@ -3229,7 +3230,7 @@ $confirmation_msg); // confirmation message
         $default_settings_wo_class = self::$default_settings_arr;
         unset($default_settings_wo_class['class']);
         foreach ($raw_radiolist as $radiobutton_name => $radiobutton_value) {
-            list ($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
+            list ($tmp_model, $tmp_field) = explode("\.", $radiobutton_name);
             $radiobutton_value = $this->strReplaceLink($radiobutton_value, $data);
             $tmp_attributes = array(
                 'legend' => false,

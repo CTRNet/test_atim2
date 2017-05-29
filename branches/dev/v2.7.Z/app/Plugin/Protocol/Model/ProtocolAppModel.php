@@ -3,5 +3,3 @@
 class ProtocolAppModel extends AppModel
 {
 }
-
-?>

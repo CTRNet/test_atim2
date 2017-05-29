@@ -3,7 +3,5 @@
 class AliquotDetail extends InventoryManagementAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 }
-
-?>

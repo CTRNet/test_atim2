@@ -3,14 +3,14 @@
 class OrderLine extends OrderAppModel
 {
 
-    var $hasMany = array(
+    public $hasMany = array(
         'OrderItem' => array(
             'className' => 'Order.OrderItem',
             'foreignKey' => 'order_line_id'
         )
     );
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'Order' => array(
             'className' => 'Order.Order',
             'foreignKey' => 'order_id'
@@ -21,7 +21,7 @@ class OrderLine extends OrderAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'OrderLine.id'
         )
@@ -252,5 +252,3 @@ class OrderLine extends OrderAppModel
         return $producte_types;
     }
 }
-
-?>

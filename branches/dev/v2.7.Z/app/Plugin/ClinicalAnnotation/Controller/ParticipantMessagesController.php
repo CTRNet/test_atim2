@@ -3,12 +3,12 @@
 class ParticipantMessagesController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.ParticipantMessage',
         'ClinicalAnnotation.Participant'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'ParticipantMessage' => array(
             'order' => 'ParticipantMessage.date_requested'
         )
@@ -314,4 +314,3 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 }
-?>

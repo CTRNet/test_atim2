@@ -3,7 +3,7 @@
 class ProtocolExtendMaster extends ProtocolAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'ProtocolExtendControl' => array(
             'className' => 'Protocol.ProtocolExtendControl',
             'foreignKey' => 'protocol_extend_control_id'
@@ -61,5 +61,3 @@ class ProtocolExtendMaster extends ProtocolAppModel
         }
     }
 }
-
-?>

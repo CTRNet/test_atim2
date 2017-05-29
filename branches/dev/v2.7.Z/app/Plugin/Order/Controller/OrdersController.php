@@ -3,9 +3,9 @@
 class OrdersController extends OrderAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'Order.Order',
         'Order.OrderLine',
         'Order.Shipment',
@@ -13,7 +13,7 @@ class OrdersController extends OrderAppController
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Order' => array(
             'order' => 'Order.date_order_placed DESC'
         ),
@@ -199,4 +199,3 @@ class OrdersController extends OrderAppController
         }
     }
 }
-?>

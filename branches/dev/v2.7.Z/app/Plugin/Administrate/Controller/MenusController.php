@@ -3,7 +3,7 @@
 class MenusController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Menu'
     );
     
@@ -65,5 +65,3 @@ class MenusController extends AdministrateAppController
         }
     }
 }
-
-?>

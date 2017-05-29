@@ -3,12 +3,12 @@
 class SopMastersController extends SopAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Sop.SopControl',
         'Sop.SopMaster'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'SopMaster' => array(
             'order' => 'SopMaster.title DESC'
         )
@@ -184,5 +184,3 @@ class SopMastersController extends SopAppController
         }
     }
 }
-
-?>

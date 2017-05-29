@@ -3,5 +3,3 @@
 class LabBookAppController extends AppController
 {
 }
-
-?>

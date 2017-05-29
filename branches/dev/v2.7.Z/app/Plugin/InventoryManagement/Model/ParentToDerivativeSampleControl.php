@@ -3,7 +3,7 @@
 class ParentToDerivativeSampleControl extends InventoryManagementAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'ParentSampleControl' => array(
             'className' => 'InventoryManagement.SampleControl',
             'foreignKey' => 'parent_sample_control_id'
@@ -77,5 +77,3 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
         return empty($lab_book_ctrl_id[0]) ? false : $lab_book_ctrl_id[0];
     }
 }
-
-?>

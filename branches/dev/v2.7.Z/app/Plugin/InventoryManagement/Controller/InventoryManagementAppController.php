@@ -81,5 +81,3 @@ class InventoryManagementAppController extends AppController
         ));
     }
 }
-
-?>

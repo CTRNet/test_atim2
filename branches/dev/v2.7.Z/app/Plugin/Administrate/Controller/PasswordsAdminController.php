@@ -3,9 +3,9 @@
 class PasswordsAdminController extends AdministrateAppController
 {
 
-    var $name = 'Passwords';
+    public $name = 'Passwords';
 
-    var $uses = array(
+    public $uses = array(
         'User'
     );
 

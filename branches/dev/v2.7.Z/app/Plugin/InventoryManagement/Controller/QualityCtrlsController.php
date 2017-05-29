@@ -3,16 +3,16 @@
 class QualityCtrlsController extends InventoryManagementAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'InventoryManagement.Collection',
         'InventoryManagement.SampleMaster',
         'InventoryManagement.AliquotMaster',
         'InventoryManagement.QualityCtrl'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'QualityCtrl' => array(
             'order' => 'QualityCtrl.date ASC'
         )
@@ -695,4 +695,3 @@ class QualityCtrlsController extends InventoryManagementAppController
         }
     }
 }
-?>

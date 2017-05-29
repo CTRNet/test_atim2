@@ -3,7 +3,7 @@
 class ProtocolExtendMastersController extends ProtocolAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Protocol.ProtocolExtendMaster',
         'Protocol.ProtocolExtendControl',
         
@@ -13,7 +13,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         'Drug.Drug'
     );
 
-    var $paginate = array();
+    public $paginate = array();
 
     function listall($protocol_master_id)
     {
@@ -247,5 +247,3 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 }
-
-?>

@@ -3,14 +3,12 @@
 class StructureValueDomainsPermissibleValue extends AppModel
 {
 
-    var $name = 'StructureValueDomainsPermissibleValue';
+    public $name = 'StructureValueDomainsPermissibleValue';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StructurePermissibleValue' => array(
             'className' => 'StructurePermissibleValue',
             'foreignKey' => 'structure_permissible_value_id'
         )
     );
 }
-
-?>

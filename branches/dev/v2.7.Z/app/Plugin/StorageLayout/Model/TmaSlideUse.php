@@ -3,7 +3,7 @@
 class TmaSlideUse extends StorageLayoutAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'TmaSlide' => array(
             'className' => 'StorageLayout.TmaSlide',
             'foreignKey' => 'tma_slide_id'
@@ -61,4 +61,3 @@ class TmaSlideUse extends StorageLayoutAppModel
         }
     }
 }
-?>

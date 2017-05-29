@@ -5,11 +5,11 @@ class SampleMaster extends InventoryManagementAppModel
 
     public static $derivatives_dropdown = array();
 
-    var $actsAs = array(
+    public $actsAs = array(
         'MinMax'
     );
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'SampleControl' => array(
             'className' => 'InventoryManagement.SampleControl',
             'foreignKey' => 'sample_control_id',
@@ -22,7 +22,7 @@ class SampleMaster extends InventoryManagementAppModel
         )
     );
 
-    var $hasOne = array(
+    public $hasOne = array(
         'SpecimenDetail' => array(
             'className' => 'InventoryManagement.SpecimenDetail',
             'foreignKey' => 'sample_master_id',
@@ -40,7 +40,7 @@ class SampleMaster extends InventoryManagementAppModel
         )
     );
 
-    var $hasMany = array(
+    public $hasMany = array(
         'AliquotMaster' => array(
             'className' => 'InventoryManagement.AliquotMaster',
             'foreignKey' => 'sample_master_id'
@@ -58,7 +58,7 @@ class SampleMaster extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewSample' => array(
             'SampleMaster.id',
             'ParentSampleMaster.id',

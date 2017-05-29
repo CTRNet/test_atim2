@@ -3,9 +3,9 @@
 class PreferencesAdminController extends AdministrateAppController
 {
 
-    var $name = 'PreferencesAdmin';
+    public $name = 'PreferencesAdmin';
 
-    var $uses = array(
+    public $uses = array(
         'User',
         'Config'
     );
@@ -56,5 +56,3 @@ class PreferencesAdminController extends AdministrateAppController
         }
     }
 }
-
-?>

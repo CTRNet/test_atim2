@@ -3,14 +3,14 @@
 class MenusComponent extends Component
 {
 
-    var $controller;
+    public $controller;
 
-    var $components = array(
+    public $components = array(
         'Session',
         'SessionAcl'
     );
 
-    var $uses = array(
+    public $uses = array(
         'Aco'
     );
 
@@ -155,5 +155,3 @@ class MenusComponent extends Component
         return $return;
     }
 }
-
-?>

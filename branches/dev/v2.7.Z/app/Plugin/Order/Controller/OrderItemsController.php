@@ -3,9 +3,9 @@
 class OrderItemsController extends OrderAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'InventoryManagement.AliquotMaster',
         'InventoryManagement.ViewAliquot',
         
@@ -18,7 +18,7 @@ class OrderItemsController extends OrderAppController
         'Order.Shipment'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'OrderItem' => array(
             'order' => 'AliquotMaster.barcode'
         ),
@@ -1587,4 +1587,3 @@ class OrderItemsController extends OrderAppController
         }
     }
 }
-?>

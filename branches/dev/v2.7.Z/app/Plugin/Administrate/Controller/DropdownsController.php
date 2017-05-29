@@ -3,12 +3,12 @@
 class DropdownsController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'StructurePermissibleValuesCustom',
         'StructurePermissibleValuesCustomControl'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StructurePermissibleValuesCustomControl' => array(
             'order' => 'StructurePermissibleValuesCustomControl.category ASC, StructurePermissibleValuesCustomControl.name ASC'
         )

@@ -3,9 +3,9 @@
 class StorageCoordinatesController extends StorageLayoutAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'StorageLayout.StorageControl',
         'StorageLayout.StorageCoordinate',
         'StorageLayout.StorageMaster',
@@ -13,7 +13,7 @@ class StorageCoordinatesController extends StorageLayoutAppController
         'InventoryManagement.AliquotMaster'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StorageCoordinate' => array(
             'order' => 'StorageCoordinate.order ASC'
         )
@@ -188,5 +188,3 @@ class StorageCoordinatesController extends StorageLayoutAppController
         }
     }
 }
-
-?>

@@ -3,7 +3,7 @@
 class CodingIcd10sController extends CodingIcdAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         "CodingIcd.CodingIcd10Who",
         "CodingIcd.CodingIcd10Ca"
     );
@@ -44,5 +44,3 @@ class CodingIcd10sController extends CodingIcdAppController
         return $model_to_use;
     }
 }
-
-?>

@@ -3,7 +3,7 @@
 class ConsentMaster extends ClinicalAnnotationAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'ConsentControl' => array(
             'className' => 'ClinicalAnnotation.ConsentControl',
             'foreignKey' => 'consent_control_id'
@@ -14,7 +14,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    var $hasMany = array(
+    public $hasMany = array(
         'Collection' => array(
             'className' => 'InventoryManagement.Collection',
             'foreignKey' => 'consent_master_id'
@@ -125,5 +125,3 @@ class ConsentMaster extends ClinicalAnnotationAppModel
         );
     }
 }
-
-?>

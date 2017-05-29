@@ -3,5 +3,5 @@
 class StructurePermissibleValuesCustomControl extends AppModel
 {
 
-    var $name = 'StructurePermissibleValuesCustomControl';
+    public $name = 'StructurePermissibleValuesCustomControl';
 }

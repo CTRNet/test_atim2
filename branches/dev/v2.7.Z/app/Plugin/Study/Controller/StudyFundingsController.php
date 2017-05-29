@@ -3,12 +3,12 @@
 class StudyFundingsController extends StudyAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Study.StudyFunding',
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StudyFunding' => array(
             'limit' => 5,
             'order' => 'StudyFunding.study_sponsor'
@@ -182,5 +182,3 @@ class StudyFundingsController extends StudyAppController
         }
     }
 }
-
-?>

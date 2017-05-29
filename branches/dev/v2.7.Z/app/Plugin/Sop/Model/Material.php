@@ -26,5 +26,3 @@ class Material extends AppModel
         return $return;
     }
 }
-
-?>

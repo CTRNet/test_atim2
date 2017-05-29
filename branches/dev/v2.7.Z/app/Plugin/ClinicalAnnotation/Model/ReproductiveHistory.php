@@ -20,5 +20,3 @@ class ReproductiveHistory extends ClinicalAnnotationAppModel
         return $return;
     }
 }
-
-?>

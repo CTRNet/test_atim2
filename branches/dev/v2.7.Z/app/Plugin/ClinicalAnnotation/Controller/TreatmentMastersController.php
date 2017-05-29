@@ -3,7 +3,7 @@
 class TreatmentMastersController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.Participant',
         'ClinicalAnnotation.TreatmentMaster',
         'ClinicalAnnotation.TreatmentExtendMaster',
@@ -13,7 +13,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         'Protocol.ProtocolMaster'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'TreatmentMaster' => array(
             'order' => 'TreatmentMaster.start_date ASC'
         )
@@ -454,5 +454,3 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 }
-
-?>

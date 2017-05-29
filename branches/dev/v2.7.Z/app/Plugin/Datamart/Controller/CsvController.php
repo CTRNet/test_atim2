@@ -3,7 +3,7 @@
 class CsvController extends DatamartAppController
 {
 
-    var $uses = array();
+    public $uses = array();
 
     /**
      * Fetches data and returns it in a CSV

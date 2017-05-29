@@ -18,5 +18,3 @@ class OrderAppController extends AppController
         )
     );
 }
-
-?>

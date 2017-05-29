@@ -3,7 +3,7 @@
 class TemplateInit extends InventoryManagementAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 
     function validates($options = array())
     {

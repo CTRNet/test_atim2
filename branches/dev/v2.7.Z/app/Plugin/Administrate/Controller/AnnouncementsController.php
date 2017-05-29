@@ -3,13 +3,13 @@
 class AnnouncementsController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'User',
         'Administrate.Announcement',
         'Administrate.Bank'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Announcement' => array(
             'order' => 'Announcement.date_start DESC'
         )
@@ -258,5 +258,3 @@ class AnnouncementsController extends AdministrateAppController
         }
     }
 }
-
-?>

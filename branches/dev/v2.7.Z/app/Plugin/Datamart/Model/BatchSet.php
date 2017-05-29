@@ -3,16 +3,16 @@
 class BatchSet extends DatamartAppModel
 {
 
-    var $useTable = 'datamart_batch_sets';
+    public $useTable = 'datamart_batch_sets';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'DatamartStructure' => array(
             'className' => 'Datamart.DatamartStructure',
             'foreignKey' => 'datamart_structure_id'
         )
     );
 
-    var $hasMany = array(
+    public $hasMany = array(
         'BatchId' => array(
             'className' => 'Datamart.BatchId',
             'conditions' => '',
@@ -296,5 +296,3 @@ class BatchSet extends DatamartAppModel
         return $batch_set_data['title'];
     }
 }
-
-?>

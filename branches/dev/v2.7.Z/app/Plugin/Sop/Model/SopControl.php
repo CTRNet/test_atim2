@@ -3,9 +3,9 @@
 class SopControl extends SopAppModel
 {
 
-    var $useTable = 'sop_controls';
+    public $useTable = 'sop_controls';
 
-    var $master_form_alias = 'sopmasters';
+    public $master_form_alias = 'sopmasters';
 
     function getTypePermissibleValues()
     {

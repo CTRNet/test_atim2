@@ -3,7 +3,7 @@
 class ConsentControl extends ClinicalAnnotationAppModel
 {
 
-    var $master_form_alias = 'consent_masters';
+    public $master_form_alias = 'consent_masters';
 
     /**
      * Get permissible values array gathering all existing consent types.

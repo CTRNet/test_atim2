@@ -3,14 +3,14 @@
 class Collection extends InventoryManagementAppModel
 {
 
-    var $hasMany = array(
+    public $hasMany = array(
         'SampleMaster' => array(
             'className' => 'InventoryManagement.SampleMaster',
             'foreignKey' => 'collection_id'
         )
     );
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'Participant' => array(
             'className' => 'ClinicalAnnotation.Participant',
             'foreignKey' => 'participant_id'
@@ -33,7 +33,7 @@ class Collection extends InventoryManagementAppModel
         )
     );
 
-    var $browsing_search_dropdown_info = array(
+    public $browsing_search_dropdown_info = array(
         'browsing_filter' => array(
             1 => array(
                 'lang' => 'keep entries with the most recent date per participant',
@@ -82,7 +82,7 @@ class Collection extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewCollection' => array(
             'Collection.id'
         ),
@@ -212,5 +212,3 @@ class Collection extends InventoryManagementAppModel
         return parent::validates($options);
     }
 }
-
-?>

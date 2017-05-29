@@ -3,7 +3,7 @@
 class ShellHelper extends Helper
 {
 
-    var $helpers = array(
+    public $helpers = array(
         'Html',
         'Session',
         'Structures',
@@ -523,7 +523,7 @@ class ShellHelper extends Helper
             App::uses('StructureField', 'Model');
             $structure_fields_model = new StructureField();
             
-            list ($model, $function) = split('::', $summary);
+            list ($model, $function) = explode('::', $summary);
             
             if (! $function) {
                 $function = 'summary';
@@ -627,5 +627,3 @@ class ShellHelper extends Helper
         return $result;
     }
 }
-
-?>

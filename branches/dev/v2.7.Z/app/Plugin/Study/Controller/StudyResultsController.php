@@ -3,12 +3,12 @@
 class StudyResultsController extends StudyAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Study.StudyResult',
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StudyResult' => array(
             'order' => 'StudyResult.abstract'
         )
@@ -269,5 +269,3 @@ class StudyResultsController extends StudyAppController
         }
     }
 }
-
-?>

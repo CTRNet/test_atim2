@@ -3,10 +3,9 @@
 class StudyResult extends StudyAppModel
 {
 
-    var $name = 'StudyResult';
+    public $name = 'StudyResult';
 
-    var $useTable = 'study_results';
+    public $useTable = 'study_results';
 
-    var $validate = array();
+    public $validate = array();
 }
-?>

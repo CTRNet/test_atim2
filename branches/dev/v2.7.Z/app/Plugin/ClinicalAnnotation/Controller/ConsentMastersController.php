@@ -3,7 +3,7 @@
 class ConsentMastersController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.ConsentMaster',
         'ClinicalAnnotation.ConsentDetail',
         'ClinicalAnnotation.ConsentControl',
@@ -12,7 +12,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'ConsentMaster' => array(
             'order' => 'ConsentMaster.date_first_contact ASC'
         )
@@ -237,5 +237,3 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 }
-
-?>

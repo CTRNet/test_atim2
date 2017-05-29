@@ -3,7 +3,7 @@
 class DiagnosisMastersController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.DiagnosisMaster',
         'ClinicalAnnotation.DiagnosisDetail',
         'ClinicalAnnotation.DiagnosisControl',
@@ -18,7 +18,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         'CodingIcd.CodingIcdo3Morpho'
     );
     // required by model
-    var $paginate = array(
+    public $paginate = array(
         'DiagnosisMaster' => array(
             'order' => 'DiagnosisMaster.dx_date'
         )
@@ -570,5 +570,3 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         ), $additional_menu_variables));
     }
 }
-
-?>

@@ -3,7 +3,7 @@
 class MasterDetailBehavior extends ModelBehavior
 {
 
-    var $__settings = array();
+    public $__settings = array();
 
     public function setup(Model $model, $config = array())
     {

@@ -3,12 +3,12 @@
 class ProtocolMastersController extends ProtocolAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Protocol.ProtocolControl',
         'Protocol.ProtocolMaster'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'ProtocolMaster' => array(
             'order' => 'ProtocolMaster.code DESC'
         )
@@ -174,5 +174,3 @@ class ProtocolMastersController extends ProtocolAppController
         }
     }
 }
-
-?>

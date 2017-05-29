@@ -3,5 +3,3 @@
 class MaterialAppModel extends AppModel
 {
 }
-
-?>

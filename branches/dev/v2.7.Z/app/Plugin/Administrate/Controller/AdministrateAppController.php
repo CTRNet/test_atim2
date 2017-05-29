@@ -3,5 +3,3 @@
 class AdministrateAppController extends AppController
 {
 }
-
-?>

@@ -10,11 +10,11 @@ class CodingIcdo3Topo extends CodingIcdAppModel
     // ---------------------------------------------------------------------------------------------------------------
     protected static $singleton = null;
 
-    var $name = 'CodingIcdo3Topo';
+    public $name = 'CodingIcdo3Topo';
 
-    var $useTable = 'coding_icd_o_3_topography';
+    public $useTable = 'coding_icd_o_3_topography';
 
-    var $icd_description_table_fields = array(
+    public $icd_description_table_fields = array(
         'search_format' => array(/*'title': All values are equal to 'Malignant neoplasms' */ 'sub_title',
             'description'
         ),
@@ -23,7 +23,7 @@ class CodingIcdo3Topo extends CodingIcdAppModel
         )
     );
 
-    var $validate = array();
+    public $validate = array();
 
     function __construct()
     {

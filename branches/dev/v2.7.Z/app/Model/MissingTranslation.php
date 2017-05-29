@@ -3,9 +3,9 @@
 class MissingTranslation extends AppModel
 {
 
-    var $name = 'MissingTranslation';
+    public $name = 'MissingTranslation';
 
-    var $validate = array(
+    public $validate = array(
         'id' => array(
             'rule' => 'isUnique',
             'message' => ''
@@ -14,4 +14,3 @@ class MissingTranslation extends AppModel
 
     public $check_writable_fields = false;
 }
-?>

@@ -3,13 +3,13 @@
 class ViewCollection extends InventoryManagementAppModel
 {
 
-    var $base_model = "Collection";
+    public $base_model = "Collection";
 
-    var $base_plugin = 'InventoryManagement';
+    public $base_plugin = 'InventoryManagement';
 
-    var $primaryKey = 'collection_id';
+    public $primaryKey = 'collection_id';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'Collection' => array(
             'className' => 'InventoryManagement.Collection',
             'foreignKey' => 'collection_id',
