@@ -3,7 +3,7 @@
 class RealiquotingControl extends InventoryManagementAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'ParentAliquotControl' => array(
             'className' => 'InventoryManagement.AliquotControl',
             'foreignKey' => 'parent_aliquot_control_id'
@@ -70,5 +70,3 @@ class RealiquotingControl extends InventoryManagementAppModel
         return $realiquoting_control_data['RealiquotingControl']['lab_book_control_id'];
     }
 }
-
-?>

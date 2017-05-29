@@ -3,9 +3,9 @@
 class Material extends AppModel
 {
 
-    var $name = 'Material';
+    public $name = 'Material';
 
-    var $useTable = 'materials';
+    public $useTable = 'materials';
 
     function summary($variables = array())
     {
@@ -36,5 +36,3 @@ class Material extends AppModel
         return $return;
     }
 }
-
-?>

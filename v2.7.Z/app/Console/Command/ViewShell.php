@@ -3,11 +3,11 @@
 class ViewShell extends AppShell
 {
 
-    var $uses = array(
+    public $uses = array(
         'User'
     );
 
-    var $commands = array();
+    public $commands = array();
 
     public function main()
     {

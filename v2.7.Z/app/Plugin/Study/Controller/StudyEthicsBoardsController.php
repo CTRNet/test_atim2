@@ -3,12 +3,12 @@
 class StudyEthicsBoardsController extends StudyAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Study.StudyEthicsBoard',
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StudyEthicsBoard' => array(
             'order' => 'StudyEthicsBoard.ethics_board'
         )
@@ -270,5 +270,3 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 }
-
-?>

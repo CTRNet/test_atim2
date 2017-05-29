@@ -3,7 +3,7 @@
 class TreatmentExtendMaster extends ClinicalAnnotationAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'TreatmentMaster' => array(
             'className' => 'ClinicalAnnotation.TreatmentMaster',
             'foreignKey' => 'treatment_master_id'
@@ -65,5 +65,3 @@ class TreatmentExtendMaster extends ClinicalAnnotationAppModel
         }
     }
 }
-
-?>

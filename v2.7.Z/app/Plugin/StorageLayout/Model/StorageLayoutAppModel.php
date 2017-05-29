@@ -3,5 +3,3 @@
 class StorageLayoutAppModel extends AppModel
 {
 }
-
-?>

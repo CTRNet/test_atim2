@@ -3,9 +3,9 @@
 class ShipmentsController extends OrderAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'Order.Shipment',
         'Order.Order',
         'Order.OrderItem',
@@ -15,7 +15,7 @@ class ShipmentsController extends OrderAppController
         'StorageLayout.TmaSlide'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Shipment' => array(
             'order' => 'Shipment.datetime_shipped DESC'
         )
@@ -697,5 +697,3 @@ class ShipmentsController extends OrderAppController
         exit();
     }
 }
-
-?>

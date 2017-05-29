@@ -33,5 +33,3 @@ class LabBookAppModel extends AppModel
         return false;
     }
 }
-
-?>

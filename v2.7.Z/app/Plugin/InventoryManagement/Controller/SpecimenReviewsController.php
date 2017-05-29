@@ -3,9 +3,9 @@
 class SpecimenReviewsController extends InventoryManagementAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'InventoryManagement.Collection',
         'InventoryManagement.SampleMaster',
         
@@ -19,7 +19,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         'InventoryManagement.AliquotReviewDetail'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'SpecimenReviewMaster' => array(
             'order' => 'SpecimenReviewMaster.review_date ASC'
         ),
@@ -653,5 +653,3 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 }
-
-?>

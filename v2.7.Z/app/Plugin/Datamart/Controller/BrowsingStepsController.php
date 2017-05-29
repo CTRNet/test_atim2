@@ -3,7 +3,7 @@
 class BrowsingStepsController extends DatamartAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Datamart.SavedBrowsingIndex',
         'Datamart.DatamartStructure',
         'Datamart.Browser'

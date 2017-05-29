@@ -3,11 +3,9 @@
 class StructureFormat extends AppModel
 {
 
-    var $name = 'StructureFormat';
+    public $name = 'StructureFormat';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StructureField'
     );
 }
-
-?>

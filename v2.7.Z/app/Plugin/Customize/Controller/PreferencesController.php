@@ -3,9 +3,9 @@
 class PreferencesController extends CustomizeAppController
 {
 
-    var $name = 'Preferences';
+    public $name = 'Preferences';
 
-    var $uses = array(
+    public $uses = array(
         'User',
         'Config'
     );

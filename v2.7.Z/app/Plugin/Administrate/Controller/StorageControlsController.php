@@ -3,9 +3,9 @@
 class StorageControlsController extends AdministrateAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'StorageLayout.StorageMaster',
         // 'StorageLayout.StorageControl', //Not able to use this one because save process call afterSave() function of MasterDetailBehavior
         'Administrate.StorageCtrl',
@@ -13,7 +13,7 @@ class StorageControlsController extends AdministrateAppController
         'StructurePermissibleValuesCustomControl'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StorageCtrl' => array(
             'order' => 'StorageCtrl.storage_type ASC'
         )

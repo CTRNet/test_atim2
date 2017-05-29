@@ -3,7 +3,7 @@
 class TreatmentExtendControl extends ClinicalAnnotationAppModel
 {
 
-    var $master_form_alias = 'treatment_extend_masters';
+    public $master_form_alias = 'treatment_extend_masters';
 
     function getPrecisionTypeValues()
     {

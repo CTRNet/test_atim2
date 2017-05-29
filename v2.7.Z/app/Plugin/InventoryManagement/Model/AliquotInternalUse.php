@@ -3,7 +3,7 @@
 class AliquotInternalUse extends InventoryManagementAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'AliquotMaster' => array(
             'className' => 'InventoryManagement.AliquotMaster',
             'foreignKey' => 'aliquot_master_id'
@@ -14,7 +14,7 @@ class AliquotInternalUse extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'AliquotInternalUse.id'
         )
@@ -67,5 +67,3 @@ class AliquotInternalUse extends InventoryManagementAppModel
         }
     }
 }
-
-?>

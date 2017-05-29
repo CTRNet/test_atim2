@@ -3,12 +3,12 @@
 class ParticipantContactsController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.ParticipantContact',
         'ClinicalAnnotation.Participant'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'ParticipantContact' => array(
             'order' => 'ParticipantContact.contact_type ASC'
         )
@@ -220,5 +220,3 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 }
-
-?>

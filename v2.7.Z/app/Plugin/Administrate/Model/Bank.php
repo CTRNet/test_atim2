@@ -3,7 +3,7 @@
 class Bank extends AdministrateAppModel
 {
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewCollection' => array(
             'Collection.bank_id'
         ),
@@ -93,5 +93,3 @@ class Bank extends AdministrateAppModel
         );
     }
 }
-
-?>

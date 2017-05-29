@@ -3,9 +3,9 @@
 class SampleMastersController extends InventoryManagementAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'InventoryManagement.Collection',
         
         'InventoryManagement.SampleControl',
@@ -30,7 +30,7 @@ class SampleMastersController extends InventoryManagementAppController
         'ExternalLink'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'SampleMaster' => array(
             'order' => 'SampleMaster.sample_code DESC'
         ),

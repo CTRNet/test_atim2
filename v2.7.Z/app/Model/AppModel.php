@@ -31,7 +31,7 @@ App::uses('Model', 'Model');
 class AppModel extends Model
 {
 
-    var $actsAs = array(
+    public $actsAs = array(
         'Revision',
         'SoftDeletable',
         'MasterDetail'
@@ -66,7 +66,7 @@ class AppModel extends Model
      *
      * @var SampleMaster
      */
-    var $previous_model = null;
+    public $previous_model = null;
 
     private static $locked_views_update = false;
 

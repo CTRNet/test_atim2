@@ -3,5 +3,3 @@
 class AdministrateAppModel extends AppModel
 {
 }
-
-?>

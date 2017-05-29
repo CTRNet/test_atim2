@@ -41,9 +41,9 @@ class ViewAliquotUse extends InventoryManagementAppModel
 
     const STUDY_TITLE = 18;
 
-    var $base_model = "AliquotInternalUse";
+    public $base_model = "AliquotInternalUse";
 
-    var $base_plugin = 'InventoryManagement';
+    public $base_plugin = 'InventoryManagement';
     
     // Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
     static $table_create_query = "CREATE TABLE view_aliquot_uses (

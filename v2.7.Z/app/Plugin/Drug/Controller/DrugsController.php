@@ -3,11 +3,11 @@
 class DrugsController extends DrugAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Drug.Drug'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Drug' => array(
             'order' => 'Drug.generic_name ASC'
         )
@@ -248,5 +248,3 @@ class DrugsController extends DrugAppController
         $this->set('result', "[" . $result . "]");
     }
 }
-
-?>

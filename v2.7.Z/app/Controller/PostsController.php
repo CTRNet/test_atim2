@@ -3,9 +3,9 @@
 class PostsController extends AppController
 {
 
-    var $name = 'Posts';
+    public $name = 'Posts';
 
-    var $helpers = array(
+    public $helpers = array(
         'Html',
         'Form'
     );
@@ -90,4 +90,3 @@ class PostsController extends AppController
         }
     }
 }
-?>

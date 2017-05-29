@@ -1130,4 +1130,3 @@ class RevisionBehavior extends ModelBehavior
         return true;
     }
 }
-?>

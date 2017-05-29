@@ -3,7 +3,7 @@
 class Realiquoting extends InventoryManagementAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'AliquotMaster' => array(
             'className' => 'InventoryManagement.AliquotMaster',
             'foreignKey' => 'parent_aliquot_master_id'
@@ -14,11 +14,9 @@ class Realiquoting extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'Realiquoting.id'
         )
     );
 }
-
-?>

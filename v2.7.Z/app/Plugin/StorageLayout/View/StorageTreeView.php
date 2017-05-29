@@ -11,9 +11,9 @@
 class StorageTreeView extends StorageLayoutAppModel
 {
 
-    var $useTable = 'storage_masters';
+    public $useTable = 'storage_masters';
 
-    var $hasMany = array(
+    public $hasMany = array(
         'AliquotMaster' => array(
             'className' => 'InventoryManagement.AliquotMaster',
             'foreignKey' => 'storage_master_id',
@@ -26,7 +26,7 @@ class StorageTreeView extends StorageLayoutAppModel
         )
     );
 
-    var $actsAs = array(
+    public $actsAs = array(
         'Tree'
     );
 }

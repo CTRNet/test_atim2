@@ -5,7 +5,7 @@ class BatchSetsController extends DatamartAppController
 
     static $tmp_batch_set_limit = 5;
 
-    var $uses = array(
+    public $uses = array(
         'Datamart.BatchSet',
         'Datamart.BatchId',
         'Datamart.BrowsingResult',
@@ -14,7 +14,7 @@ class BatchSetsController extends DatamartAppController
         'InventoryManagement.RealiquotingControl'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'BatchSet' => array(
             'limit' => 5,
             'order' => 'BatchSet.created DESC'
@@ -583,5 +583,3 @@ class BatchSetsController extends DatamartAppController
         }
     }
 }
-
-?>

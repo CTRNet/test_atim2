@@ -8,5 +8,3 @@ class MiscIdentifiersComponent extends Object
         $this->controller = & $controller;
     }
 }
-
-?>

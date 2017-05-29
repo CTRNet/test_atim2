@@ -3,7 +3,7 @@
 class AliquotReviewMaster extends InventoryManagementAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'AliquotMaster' => array(
             'className' => 'InventoryManagement.AliquotMaster',
             'foreignKey' => 'aliquot_master_id'
@@ -18,7 +18,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'AliquotReviewMaster.id'
         )
@@ -81,5 +81,3 @@ class AliquotReviewMaster extends InventoryManagementAppModel
         return $results;
     }
 }
-
-?>

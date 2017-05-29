@@ -3,12 +3,12 @@
 class CodingIcdo3sController extends CodingIcdAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         "CodingIcd.CodingIcdo3Topo",
         "CodingIcd.CodingIcdo3Morpho"
     );
 
-    var $icd_description_table_fields = array(
+    public $icd_description_table_fields = array(
         'description'
     );
 
@@ -49,5 +49,3 @@ class CodingIcdo3sController extends CodingIcdAppController
         return $model_to_use;
     }
 }
-
-?>

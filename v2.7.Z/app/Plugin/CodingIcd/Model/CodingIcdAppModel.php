@@ -3,7 +3,7 @@
 class CodingIcdAppModel extends AppModel
 {
 
-    var $icd_description_table_fields = array();
+    public $icd_description_table_fields = array();
 
     /**
      *

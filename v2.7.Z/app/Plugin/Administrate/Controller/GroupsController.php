@@ -3,14 +3,14 @@
 class GroupsController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Group',
         'Aco',
         'Aro',
         'User'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Group' => array(
             'order' => 'Group.name ASC'
         )
@@ -173,5 +173,3 @@ class GroupsController extends AdministrateAppController
         }
     }
 }
-
-?>

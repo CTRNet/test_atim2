@@ -3,7 +3,7 @@
 class MiscIdentifier extends ClinicalAnnotationAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'Participant' => array(
             'className' => 'ClinicalAnnotation.Participant',
             'foreignKey' => 'participant_id'

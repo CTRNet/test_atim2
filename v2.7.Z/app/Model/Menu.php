@@ -3,7 +3,5 @@
 class Menu extends AppModel
 {
 
-    var $name = 'Menu';
+    public $name = 'Menu';
 }
-
-?>

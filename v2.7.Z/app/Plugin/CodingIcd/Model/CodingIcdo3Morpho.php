@@ -9,11 +9,11 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
     // ---------------------------------------------------------------------------------------------------------------
     protected static $singleton = null;
 
-    var $name = 'CodingIcdo3Morpho';
+    public $name = 'CodingIcdo3Morpho';
 
-    var $useTable = 'coding_icd_o_3_morphology';
+    public $useTable = 'coding_icd_o_3_morphology';
 
-    var $icd_description_table_fields = array(
+    public $icd_description_table_fields = array(
         'search_format' => array(
             'description'
         ),
@@ -22,7 +22,7 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
         )
     );
 
-    var $validate = array();
+    public $validate = array();
 
     function __construct()
     {

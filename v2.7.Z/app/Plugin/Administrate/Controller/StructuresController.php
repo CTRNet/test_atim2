@@ -3,11 +3,11 @@
 class StructuresController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Structure'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Structure' => array(
             'order' => 'Structure.alias ASC'
         )
@@ -55,5 +55,3 @@ class StructuresController extends AdministrateAppController
         }
     }
 }
-
-?>

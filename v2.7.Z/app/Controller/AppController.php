@@ -40,12 +40,12 @@ class AppController extends Controller
 
     public static $beignFlash = false;
 
-    var $uses = array(
+    public $uses = array(
         'Config',
         'SystemVar'
     );
 
-    var $components = array(
+    public $components = array(
         'Acl',
         'Session',
         'SessionAcl',
@@ -55,6 +55,7 @@ class AppController extends Controller
         'Structures',
         'PermissionManager',
         'Paginator',
+        'Flash',
         'DebugKit.Toolbar'
     );
 
@@ -324,7 +325,7 @@ class AppController extends Controller
     function atimFlash($message, $url)
     {
         if (Configure::read('debug') > 0) {
-            $this->flash($message, $url);
+            $this->Flash->set($message, $url);
         } else {
             $_SESSION['ctrapp_core']['confirm_msg'] = $message;
             $this->redirect($url);

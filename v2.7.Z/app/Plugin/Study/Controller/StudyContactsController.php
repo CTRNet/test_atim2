@@ -3,12 +3,12 @@
 class StudyContactsController extends StudyAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Study.StudyContact',
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StudyContact' => array(
             'order' => 'StudyContact.last_name'
         )
@@ -269,5 +269,3 @@ class StudyContactsController extends StudyAppController
         }
     }
 }
-
-?>

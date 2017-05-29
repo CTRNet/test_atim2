@@ -3,7 +3,7 @@
 class TreatmentExtendMastersController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.TreatmentExtendMaster',
         'ClinicalAnnotation.TreatmentExtendControl',
         'ClinicalAnnotation.TreatmentMaster',
@@ -16,7 +16,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         'Drug.Drug'
     );
 
-    var $paginate = array();
+    public $paginate = array();
 
     function add($participant_id, $tx_master_id)
     {
@@ -259,5 +259,3 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         }
     }
 }
-
-?>

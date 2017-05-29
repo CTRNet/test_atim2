@@ -115,5 +115,3 @@ class DatamartAppModel extends AppModel
         return $result;
     }
 }
-
-?>

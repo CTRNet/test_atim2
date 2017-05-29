@@ -3,9 +3,9 @@
 class MiscIdentifiersController extends ClinicalAnnotationAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.MiscIdentifier',
         'ClinicalAnnotation.Participant',
         'ClinicalAnnotation.MiscIdentifierControl',
@@ -13,7 +13,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         'Study.StudySummary'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'MiscIdentifier' => array(
             'order' => 'MiscIdentifierControl.misc_identifier_name ASC, MiscIdentifier.identifier_value ASC'
         )
@@ -428,5 +428,3 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         // it's useless to have an ajax callback aftewards
     }
 }
-
-?>

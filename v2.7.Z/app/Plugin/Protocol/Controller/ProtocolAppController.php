@@ -3,5 +3,3 @@
 class ProtocolAppController extends AppController
 {
 }
-
-?>

@@ -180,4 +180,3 @@ class SessionAclComponent extends AclComponent
         return $can;
     }
 }
-?>

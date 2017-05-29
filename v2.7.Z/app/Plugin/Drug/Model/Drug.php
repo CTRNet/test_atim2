@@ -3,13 +3,13 @@
 class Drug extends DrugAppModel
 {
 
-    var $name = 'Drug';
+    public $name = 'Drug';
 
-    var $useTable = 'drugs';
+    public $useTable = 'drugs';
 
-    var $drug_titles_already_checked = array();
+    public $drug_titles_already_checked = array();
 
-    var $drug_data_and_code_for_display_already_set = array();
+    public $drug_data_and_code_for_display_already_set = array();
 
     function summary($variables = array())
     {
@@ -196,5 +196,3 @@ class Drug extends DrugAppModel
         return $this->drug_titles_already_checked[$drug_data_and_code];
     }
 }
-
-?>

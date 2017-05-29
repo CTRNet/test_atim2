@@ -3,10 +3,9 @@
 class StudyEthicsBoard extends StudyAppModel
 {
 
-    var $name = 'StudyEthicsBoard';
+    public $name = 'StudyEthicsBoard';
 
-    var $useTable = 'study_ethics_boards';
+    public $useTable = 'study_ethics_boards';
 
-    var $validate = array();
+    public $validate = array();
 }
-?>

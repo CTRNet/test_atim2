@@ -3,7 +3,7 @@
 class TemplateController extends AppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Tools.Template',
         'Tools.TemplateNode',
         'Group'

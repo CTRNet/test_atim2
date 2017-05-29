@@ -3,11 +3,11 @@
 class StructureFormatsController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'StructureFormat'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'StructureFormat' => array(
             'order' => 'StructureFormat.id ASC'
         )
@@ -66,5 +66,3 @@ class StructureFormatsController extends AdministrateAppController
         }
     }
 }
-
-?>

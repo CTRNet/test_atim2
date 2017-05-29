@@ -3,7 +3,7 @@
 class EventControl extends ClinicalAnnotationAppModel
 {
 
-    var $master_form_alias = 'eventmasters';
+    public $master_form_alias = 'eventmasters';
 
     /**
      * Get permissible values array gathering all existing event disease sites.

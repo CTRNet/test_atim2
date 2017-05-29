@@ -3,7 +3,7 @@
 class StorageControl extends StorageLayoutAppModel
 {
 
-    var $master_form_alias = 'storagemasters';
+    public $master_form_alias = 'storagemasters';
 
     /**
      * Get permissible values array gathering all existing storage types.

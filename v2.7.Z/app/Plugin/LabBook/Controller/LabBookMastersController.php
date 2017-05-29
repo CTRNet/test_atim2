@@ -3,9 +3,9 @@
 class LabBookMastersController extends LabBookAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'Labbook.LabBookMaster',
         'Labbook.LabBookControl',
         
@@ -14,7 +14,7 @@ class LabBookMastersController extends LabBookAppController
         'InventoryManagement.DerivativeDetail'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'LabBookMaster' => array(
             'order' => 'LabBookMaster.created ASC'
         )
@@ -376,4 +376,3 @@ class LabBookMastersController extends LabBookAppController
         )));
     }
 }
-?>

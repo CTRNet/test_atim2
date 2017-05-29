@@ -3,5 +3,3 @@
 class Announcement extends AppModel
 {
 }
-
-?>

@@ -3,7 +3,7 @@
 class BrowserController extends DatamartAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Datamart.Browser',
         'Datamart.DatamartStructure',
         'Datamart.BrowsingResult',

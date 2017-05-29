@@ -3,14 +3,14 @@
 class DiagnosisMaster extends ClinicalAnnotationAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'DiagnosisControl' => array(
             'className' => 'ClinicalAnnotation.DiagnosisControl',
             'foreignKey' => 'diagnosis_control_id'
         )
     );
 
-    var $hasMany = array(
+    public $hasMany = array(
         'Collection' => array(
             'className' => 'InventoryManagement.Collection',
             'foreignKey' => 'diagnosis_master_id'
@@ -26,7 +26,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    var $browsing_search_dropdown_info = array(
+    public $browsing_search_dropdown_info = array(
         'browsing_filter' => array(
             1 => array(
                 'lang' => 'keep entries with the most recent date per participant',
@@ -335,4 +335,3 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $ret_val;
     }
 }
-?>

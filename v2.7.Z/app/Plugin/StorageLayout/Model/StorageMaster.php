@@ -3,19 +3,19 @@
 class StorageMaster extends StorageLayoutAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StorageControl' => array(
             'className' => 'StorageLayout.StorageControl',
             'foreignKey' => 'storage_control_id'
         )
     );
 
-    var $actsAs = array(
+    public $actsAs = array(
         'Tree',
         'StoredItem'
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquot' => array(
             'StorageMaster.id'
         ),
@@ -24,11 +24,11 @@ class StorageMaster extends StorageLayoutAppModel
         )
     );
 
-    var $used_storage_pos = array();
+    public $used_storage_pos = array();
 
-    var $storage_selection_labels_already_checked = array();
+    public $storage_selection_labels_already_checked = array();
 
-    var $storage_label_and_code_for_display_already_set = array();
+    public $storage_label_and_code_for_display_already_set = array();
 
     const POSITION_FREE = 1;
     // the position is free
@@ -1205,5 +1205,3 @@ class StorageMaster extends StorageLayoutAppModel
         return $sorted_contents;
     }
 }
-
-?>

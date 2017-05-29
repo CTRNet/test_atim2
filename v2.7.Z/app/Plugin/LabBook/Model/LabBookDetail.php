@@ -3,7 +3,5 @@
 class LabBookDetail extends LabBookAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 }
-
-?>

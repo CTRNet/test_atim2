@@ -9,11 +9,11 @@ class CodingIcd10Who extends CodingIcdAppModel
     // ---------------------------------------------------------------------------------------------------------------
     protected static $singleton = null;
 
-    var $name = 'CodingIcd10Who';
+    public $name = 'CodingIcd10Who';
 
-    var $useTable = 'coding_icd10_who';
+    public $useTable = 'coding_icd10_who';
 
-    var $icd_description_table_fields = array(
+    public $icd_description_table_fields = array(
         'search_format' => array(
             'title',
             'sub_title',
@@ -24,7 +24,7 @@ class CodingIcd10Who extends CodingIcdAppModel
         )
     );
 
-    var $validate = array();
+    public $validate = array();
 
     function __construct()
     {

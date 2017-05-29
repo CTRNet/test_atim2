@@ -21,5 +21,3 @@ class ParticipantMessage extends ClinicalAnnotationAppModel
         return $return;
     }
 }
-
-?>

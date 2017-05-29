@@ -3,7 +3,7 @@
 class PermissionsController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Aco',
         'Aro',
         'ExternalLink',
@@ -45,7 +45,7 @@ class PermissionsController extends AdministrateAppController
         ));
         $this->updatePermission($aro_id, $aco_id, $state);
         
-        list ($type, $id) = split('::', $aro['Aro']['alias']);
+        list ($type, $id) = explode('::', $aro['Aro']['alias']);
         switch ($type) {
             case 'Group':
                 $this->redirect('/Administrate/Permissions/tree/' . $id);
@@ -56,7 +56,7 @@ class PermissionsController extends AdministrateAppController
                     'order' => 'alias ASC',
                     'recursive' => - 1
                 ));
-                list ($type, $gid) = split('::', $parent['Aro']['alias']);
+                list ($type, $gid) = explode('::', $parent['Aro']['alias']);
                 $this->redirect('/Administrate/Permissions/tree/' . $gid . '/' . $id);
                 break;
         }
@@ -367,5 +367,3 @@ class PermissionsController extends AdministrateAppController
         $this->PermissionsPreset->atimDelete($preset_id);
     }
 }
-
-?>

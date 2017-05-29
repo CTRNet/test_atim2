@@ -8,5 +8,3 @@ class AdministratesComponent extends Object
         $this->controller = & $controller;
     }
 }
-
-?>

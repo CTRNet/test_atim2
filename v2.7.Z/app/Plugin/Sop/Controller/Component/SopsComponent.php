@@ -8,5 +8,3 @@ class SopsComponent extends Object
         $this->controller = & $controller;
     }
 }
-
-?>

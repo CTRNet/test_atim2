@@ -3,9 +3,9 @@
 class AliquotMastersController extends InventoryManagementAppController
 {
 
-    var $components = array();
+    public $components = array();
 
-    var $uses = array(
+    public $uses = array(
         'InventoryManagement.Collection',
         
         'InventoryManagement.SampleMaster',
@@ -37,7 +37,7 @@ class AliquotMastersController extends InventoryManagementAppController
         'ExternalLink'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'AliquotMaster' => array(
             'order' => 'AliquotMaster.barcode DESC'
         ),

@@ -3,9 +3,9 @@
 class Template extends AppModel
 {
 
-    var $useTable = 'templates';
+    public $useTable = 'templates';
 
-    var $tree = null;
+    public $tree = null;
 
     static $sharing = array(
         'user' => 0,

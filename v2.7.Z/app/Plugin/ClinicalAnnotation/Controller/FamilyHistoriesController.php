@@ -3,14 +3,14 @@
 class FamilyHistoriesController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.FamilyHistory',
         'ClinicalAnnotation.Participant',
         'CodingIcd.CodingIcd10Who',
         'CodingIcd.CodingIcd10Ca'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'FamilyHistory' => array(
             'order' => 'FamilyHistory.relation'
         )
@@ -296,5 +296,3 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 }
-
-?>

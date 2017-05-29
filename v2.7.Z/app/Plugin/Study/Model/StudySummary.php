@@ -3,13 +3,13 @@
 class StudySummary extends StudyAppModel
 {
 
-    var $name = 'StudySummary';
+    public $name = 'StudySummary';
 
-    var $useTable = 'study_summaries';
+    public $useTable = 'study_summaries';
 
-    var $study_titles_already_checked = array();
+    public $study_titles_already_checked = array();
 
-    var $study_data_and_code_for_display_already_set = array();
+    public $study_data_and_code_for_display_already_set = array();
 
     function summary($variables = array())
     {
@@ -291,4 +291,3 @@ class StudySummary extends StudyAppModel
         );
     }
 }
-?>

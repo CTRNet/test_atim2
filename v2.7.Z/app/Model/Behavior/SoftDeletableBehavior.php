@@ -33,7 +33,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @var array
      * @access private
      */
-    var $__settings = array();
+    public $__settings = array();
 
     /**
      * Initiate behaviour for the model using settings.
@@ -431,4 +431,3 @@ class SoftDeletableBehavior extends ModelBehavior
         }
     }
 }
-?>

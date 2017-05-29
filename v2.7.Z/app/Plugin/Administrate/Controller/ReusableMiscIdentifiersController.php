@@ -3,7 +3,7 @@
 class ReusableMiscIdentifiersController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.MiscIdentifier',
         'ClinicalAnnotation.MiscIdentifierControl'
     );

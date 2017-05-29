@@ -3,7 +3,7 @@
 class DatamartStructure extends DatamartAppModel
 {
 
-    var $useTable = 'datamart_structures';
+    public $useTable = 'datamart_structures';
 
     function getIdByModelName($model_name)
     {

@@ -3,5 +3,5 @@
 class TemplateNode extends AppModel
 {
 
-    var $useTable = 'template_nodes';
+    public $useTable = 'template_nodes';
 }

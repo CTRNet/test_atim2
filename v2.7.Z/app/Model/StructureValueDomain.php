@@ -3,9 +3,9 @@
 class StructureValueDomain extends AppModel
 {
 
-    var $name = 'StructureValueDomain';
+    public $name = 'StructureValueDomain';
 
-    var $hasMany = array(
+    public $hasMany = array(
         'StructureValueDomainsPermissibleValue' => array(
             'className' => 'StructureValueDomainsPermissibleValue',
             'foreignKey' => 'structure_value_domain_id'
@@ -95,5 +95,3 @@ class StructureValueDomain extends AppModel
         }
     }
 }
-
-?>

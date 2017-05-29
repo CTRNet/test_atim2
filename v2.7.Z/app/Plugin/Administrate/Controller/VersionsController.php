@@ -3,11 +3,11 @@
 class VersionsController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Version'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Version' => array(
             'order' => 'Version.version_number'
         )
@@ -102,4 +102,3 @@ class VersionsController extends AdministrateAppController
     function latencyTest()
     {}
 }
-?>

@@ -3,11 +3,11 @@
 class MaterialsController extends MaterialAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'Material.Material'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'Material' => array(
             'order' => 'Material.item_name'
         )
@@ -143,5 +143,3 @@ class MaterialsController extends MaterialAppController
         }
     }
 }
-
-?>

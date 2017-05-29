@@ -3,11 +3,11 @@
 class Shipment extends OrderAppModel
 {
 
-    var $name = 'Shipment';
+    public $name = 'Shipment';
 
-    var $useTable = 'shipments';
+    public $useTable = 'shipments';
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'Shipment.id'
         )
@@ -128,5 +128,3 @@ class Shipment extends OrderAppModel
         );
     }
 }
-
-?>

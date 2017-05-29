@@ -3,9 +3,9 @@
 class StructurePermissibleValuesCustom extends AppModel
 {
 
-    var $name = 'StructurePermissibleValuesCustom';
+    public $name = 'StructurePermissibleValuesCustom';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StructurePermissibleValuesCustomControl' => array(
             'className' => 'StructurePermissibleValuesCustomControl',
             'foreignKey' => 'control_id'

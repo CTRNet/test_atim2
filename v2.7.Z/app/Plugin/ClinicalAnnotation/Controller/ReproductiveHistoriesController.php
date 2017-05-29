@@ -3,12 +3,12 @@
 class ReproductiveHistoriesController extends ClinicalAnnotationAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'ClinicalAnnotation.ReproductiveHistory',
         'ClinicalAnnotation.Participant'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'ReproductiveHistory' => array(
             'order' => 'ReproductiveHistory.date_captured'
         )
@@ -214,5 +214,3 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 }
-
-?>

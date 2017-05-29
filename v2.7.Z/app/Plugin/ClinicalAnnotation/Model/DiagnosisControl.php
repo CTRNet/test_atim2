@@ -3,7 +3,7 @@
 class DiagnosisControl extends ClinicalAnnotationAppModel
 {
 
-    var $master_form_alias = 'diagnosismasters';
+    public $master_form_alias = 'diagnosismasters';
 
     /**
      * Get permissible values array gathering all existing diagnosis types.

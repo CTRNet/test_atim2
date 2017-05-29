@@ -3,7 +3,7 @@
 class Order extends OrderAppModel
 {
 
-    var $hasMany = array(
+    public $hasMany = array(
         'OrderLine' => array(
             'className' => 'Order.OrderLine',
             'foreignKey' => 'order_id'
@@ -14,14 +14,14 @@ class Order extends OrderAppModel
         )
     );
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StudySummary' => array(
             'className' => 'Study.StudySummary',
             'foreignKey' => 'default_study_summary_id'
         )
     );
 
-    var $registered_view = array(
+    public $registered_view = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'Order.id'
         )
@@ -207,5 +207,3 @@ class Order extends OrderAppModel
         }
     }
 }
-
-?>

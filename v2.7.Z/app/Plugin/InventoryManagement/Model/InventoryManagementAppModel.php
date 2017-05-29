@@ -3,5 +3,3 @@
 class InventoryManagementAppModel extends AppModel
 {
 }
-
-?>

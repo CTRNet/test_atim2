@@ -3,7 +3,7 @@
 class ProtocolControl extends ProtocolAppModel
 {
 
-    var $master_form_alias = 'protocolmasters';
+    public $master_form_alias = 'protocolmasters';
 
     /**
      * Get permissible values array gathering all existing protocol types.
@@ -58,5 +58,3 @@ class ProtocolControl extends ProtocolAppModel
         return $this->applyMasterFormAlias($results, $primary);
     }
 }
-
-?>

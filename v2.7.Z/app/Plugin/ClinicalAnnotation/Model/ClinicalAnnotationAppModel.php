@@ -103,5 +103,3 @@ class ClinicalAnnotationAppModel extends AppModel
         parent::afterSave($created);
     }
 }
-
-?>

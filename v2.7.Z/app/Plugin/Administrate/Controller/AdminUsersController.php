@@ -3,12 +3,12 @@
 class AdminUsersController extends AdministrateAppController
 {
 
-    var $uses = array(
+    public $uses = array(
         'User',
         'Group'
     );
 
-    var $paginate = array(
+    public $paginate = array(
         'User' => array(
             'order' => 'User.username ASC'
         )

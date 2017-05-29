@@ -3,7 +3,7 @@
 class LabBookMaster extends LabBookAppModel
 {
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'LabBookControl' => array(
             'className' => 'Labbook.LabBookControl',
             'foreignKey' => 'lab_book_control_id'
@@ -335,5 +335,3 @@ class LabBookMaster extends LabBookAppModel
         }
     }
 }
-
-?>

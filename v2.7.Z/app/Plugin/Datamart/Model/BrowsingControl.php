@@ -3,7 +3,7 @@
 class BrowsingControl extends DatamartAppModel
 {
 
-    var $useTable = 'datamart_browsing_controls';
+    public $useTable = 'datamart_browsing_controls';
 
     function find1ToN($elem_1_id, $elem_n_id = null)
     {

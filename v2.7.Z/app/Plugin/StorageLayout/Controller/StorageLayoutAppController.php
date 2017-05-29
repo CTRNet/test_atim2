@@ -53,5 +53,3 @@ class StorageLayoutAppController extends AppController
         return $atim_menu;
     }
 }
-
-?>

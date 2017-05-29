@@ -3,7 +3,5 @@
 class StorageDetail extends StorageLayoutAppModel
 {
 
-    var $useTable = false;
+    public $useTable = false;
 }
-
-?>

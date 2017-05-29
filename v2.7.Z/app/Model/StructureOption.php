@@ -3,7 +3,5 @@
 class StructureOption extends AppModel
 {
 
-    var $name = 'StructureOption';
+    public $name = 'StructureOption';
 }
-
-?>

@@ -3,13 +3,13 @@
 class ViewStorageMaster extends StorageLayoutAppModel
 {
 
-    var $primaryKey = 'id';
+    public $primaryKey = 'id';
 
-    var $base_model = "StorageMaster";
+    public $base_model = "StorageMaster";
 
-    var $base_plugin = 'StorageLayout';
+    public $base_plugin = 'StorageLayout';
 
-    var $belongsTo = array(
+    public $belongsTo = array(
         'StorageControl' => array(
             'className' => 'StorageLayout.StorageControl',
             'foreignKey' => 'storage_control_id'
@@ -21,7 +21,7 @@ class ViewStorageMaster extends StorageLayoutAppModel
         )
     );
 
-    var $alias = 'ViewStorageMaster';
+    public $alias = 'ViewStorageMaster';
 
     static $table_query = '
 		SELECT StorageMaster.*, 
@@ -57,5 +57,3 @@ class ViewStorageMaster extends StorageLayoutAppModel
 		StorageControl.coord_x_size,
 		StorageControl.coord_y_size';
 }
-
-?>

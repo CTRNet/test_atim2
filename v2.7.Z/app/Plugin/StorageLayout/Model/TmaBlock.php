@@ -9,7 +9,7 @@
 class TmaBlock extends StorageLayoutAppModel
 {
 
-    var $useTable = 'view_storage_masters';
+    public $useTable = 'view_storage_masters';
 
     function beforeFind($queryData)
     {
@@ -21,5 +21,3 @@ class TmaBlock extends StorageLayoutAppModel
         return $queryData;
     }
 }
-
-?>

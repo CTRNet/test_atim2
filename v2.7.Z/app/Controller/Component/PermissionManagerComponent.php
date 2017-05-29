@@ -3,9 +3,9 @@
 class PermissionManagerComponent extends Component
 {
 
-    var $controller;
+    public $controller;
 
-    var $log = array();
+    public $log = array();
 
     /*
      * Specify the default permissions here
@@ -13,7 +13,7 @@ class PermissionManagerComponent extends Component
      *
      * NOTE: Don't allow the acos tables to be emptied or this will fail.
      */
-    var $defaults = array(
+    public $defaults = array(
         'controllers' => array(
             'allow' => array(
                 'Group::1',
@@ -65,7 +65,7 @@ class PermissionManagerComponent extends Component
             
             if (isset($perms['allow']) && count($perms['allow'])) {
                 foreach ($perms['allow'] as $user_alias) {
-                    list ($type, $id) = split('::', $user_alias);
+                    list ($type, $id) = explode('::', $user_alias);
                     
                     switch ($type) {
                         case 'Group':
@@ -81,7 +81,7 @@ class PermissionManagerComponent extends Component
             }
             if (isset($perms['deny']) && count($perms['deny'])) {
                 foreach ($perms['deny'] as $user_alias) {
-                    list ($type, $id) = split('::', $user_alias);
+                    list ($type, $id) = explode('::', $user_alias);
                     
                     switch ($type) {
                         case 'Group':
@@ -344,4 +344,3 @@ class PermissionManagerComponent extends Component
         return $files;
     }
 }
-?>

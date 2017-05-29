@@ -3,7 +3,7 @@
 class Report extends DatamartAppModel
 {
 
-    var $useTable = 'datamart_reports';
+    public $useTable = 'datamart_reports';
 
     function summary($variables = array())
     {
