@@ -2947,3 +2947,195 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_nd_sardo_tx_detail_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '304', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 UPDATE `versions` SET branch_build_number = '6723' WHERE version_number = '2.6.8';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Manage Fields Of Genetic Test
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_value_domains (domain_name) VALUES ("qc_nd_genetic_test_results");
+INSERT IGNORE INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_genetic_test_results"), (SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_genetic_test_results"), (SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_genetic_test_results"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_genetic_test_results"), (SELECT id FROM structure_permissible_values WHERE value="not done" AND language_alias="not done"), "4", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_genetic_tests', 'simplified_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_test_results') , '1', '', '', '', 'result', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='simplified_result' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_test_results')  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='result' AND `language_tag`=''), '2', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='' WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='result' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='test' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_tests') AND `flag_confidential`='1');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_genetic_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='site' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_genetic_tests' AND `field`='simplified_result'), 'notEmpty', '');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_test_results') ,  `default`='positive' WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='simplified_result' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_genetic_test_results');
+ALTER TABLE qc_nd_ed_genetic_tests ADD COLUMN simplified_result VARCHAR(20) DEFAULT NULL;
+ALTER TABLE qc_nd_ed_genetic_tests_revs ADD COLUMN simplified_result VARCHAR(20) DEFAULT NULL;
+UPDATE qc_nd_ed_genetic_tests SET simplified_result = 'positive' WHERE result LIKE '%+%';
+UPDATE qc_nd_ed_genetic_tests SET simplified_result = 'positive' WHERE result LIKE '%Positi%';
+UPDATE qc_nd_ed_genetic_tests SET simplified_result = 'negative' WHERE result LIKE '%Négatv%';
+UPDATE qc_nd_ed_genetic_tests SET simplified_result = 'negative' WHERE result LIKE '%Negati%';
+UPDATE qc_nd_ed_genetic_tests SET simplified_result = 'positive' WHERE result LIKE '%BRCA%' OR result LIKE '%CHECK2%' OR result LIKE '%PALB2%' OR result LIKE '%PRKARIA%';
+UPDATE qc_nd_ed_genetic_tests SET simplified_result = 'negative' WHERE result LIKE '%No mutation found%';
+UPDATE qc_nd_ed_genetic_tests SET simplified_result = 'unknown' WHERE simplified_result IS NULL;
+UPDATE qc_nd_ed_genetic_tests_revs SET simplified_result = 'positive' WHERE result LIKE '%+%';
+UPDATE qc_nd_ed_genetic_tests_revs SET simplified_result = 'positive' WHERE result LIKE '%Positi%';
+UPDATE qc_nd_ed_genetic_tests_revs SET simplified_result = 'negative' WHERE result LIKE '%Négatv%';
+UPDATE qc_nd_ed_genetic_tests_revs SET simplified_result = 'negative' WHERE result LIKE '%Negati%';
+UPDATE qc_nd_ed_genetic_tests_revs SET simplified_result = 'positive' WHERE result LIKE '%BRCA%' OR result LIKE '%CHECK2%' OR result LIKE '%PALB2%' OR result LIKE '%PRKARIA%';
+UPDATE qc_nd_ed_genetic_tests_revs SET simplified_result = 'negative' WHERE result LIKE '%No mutation found%';
+UPDATE qc_nd_ed_genetic_tests_revs SET simplified_result = 'unknown' WHERE simplified_result IS NULL;
+UPDATE structure_fields SET  `language_tag`='-' WHERE model='EventDetail' AND tablename='qc_nd_ed_genetic_tests' AND field='result' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Investigators & Fundings for study
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studyinvestigators') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='email' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studyinvestigators') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudyInvestigator' AND `tablename`='study_investigators' AND `field`='mail_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudyFunding', 'study_fundings', 'qc_nd_start', 'date',  NULL , '0', '', '', '', 'start date', ''), 
+('Study', 'StudyFunding', 'study_fundings', 'qc_nd_finish', 'date',  NULL , '0', '', '', '', 'finish date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studyfundings'), (SELECT id FROM structure_fields WHERE `model`='StudyFunding' AND `tablename`='study_fundings' AND `field`='qc_nd_start'), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='studyfundings'), (SELECT id FROM structure_fields WHERE `model`='StudyFunding' AND `tablename`='study_fundings' AND `field`='qc_nd_finish'), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE study_fundings
+	ADD COLUMN qc_nd_start date DEFAULT NULL,
+	ADD COLUMN qc_nd_start_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN qc_nd_finish date DEFAULT NULL,
+	ADD COLUMN qc_nd_finish_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE study_fundings_revs
+	ADD COLUMN qc_nd_start date DEFAULT NULL,
+	ADD COLUMN qc_nd_start_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN qc_nd_finish date DEFAULT NULL,
+	ADD COLUMN qc_nd_finish_accuracy char(1) NOT NULL DEFAULT '';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- CCF
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES ('untested', 'untested');
+INSERT IGNORE INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ccl_mutations"), (SELECT id FROM structure_permissible_values WHERE value="untested" AND language_alias="untested"), "10", "1");
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('untested', 'Untested', 'Non testé'),
+('ongoing', 'Ongoing', 'En cours');
+
+UPDATE structure_fields SET  `type`='input' WHERE model='EventDetail' AND tablename='qc_nd_ed_ccf_followups' AND field='morphology' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- New prostate consent
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_icm_generics', 'contact_for_other_research', 'yes_no',  NULL , '0', '', '', '', 'contact to participate to other research', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_icm_prostates'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='contact_for_other_research' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='contact to participate to other research' AND `language_tag`=''), '2', '46', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('contact to participate to other research', 'Contact to participate to other research', "Contacter pour participer à d'autres recherches");
+ALTER TABLE cd_icm_generics ADD COLUMN contact_for_other_research char(1) DEFAULT '';
+ALTER TABLE cd_icm_generics_revs ADD COLUMN contact_for_other_research char(1) DEFAULT '';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Collection Date Clean Up
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET @modified_by = (SELECT id FROM users where id = 9);
+SET @modified = (SELECT NOW() FROM users where id = 9);
+
+UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl
+SET Collection.collection_datetime = TreatmentMaster.start_date,
+Collection.collection_datetime_accuracy = REPLACE(TreatmentMaster.start_date_accuracy, 'c', 'h'),
+Collection.modified = @modified,
+Collection.modified_by = @modified_by,
+Collection.collection_notes = CONCAT('Collection date set initialy to ', TreatmentMaster.start_date,' by 2.6.8 migration script based on SARDO Surg/biop.') 
+WHERE Collection.deleted <> 1
+AND TreatmentMaster.deleted <> 1
+AND TreatmentMaster.participant_id = Collection.participant_id
+AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+AND TreatmentControl.flag_active = 1
+AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+AND Collection.collection_datetime IS NULL
+AND LENGTH(Collection.qc_nd_pathology_nbr) >= 7
+AND (TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs = Collection.qc_nd_pathology_nbr OR TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs LIKE CONCAT('%', Collection.qc_nd_pathology_nbr, '%'))
+AND Collection.collection_notes IS NULL;
+	
+UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl
+SET Collection.collection_datetime = TreatmentMaster.start_date,
+Collection.collection_datetime_accuracy = REPLACE(TreatmentMaster.start_date_accuracy, 'c', 'h'),
+Collection.modified = @modified,
+Collection.modified_by = @modified_by,
+Collection.collection_notes = CONCAT('Collection date set initialy to ', TreatmentMaster.start_date,' by 2.6.8 migration script based on SARDO Surg/biop. ', Collection.collection_notes) 
+WHERE Collection.deleted <> 1
+AND TreatmentMaster.deleted <> 1
+AND TreatmentMaster.participant_id = Collection.participant_id
+AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+AND TreatmentControl.flag_active = 1
+AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+AND Collection.collection_datetime IS NULL
+AND LENGTH(Collection.qc_nd_pathology_nbr) >= 7
+AND (TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs = Collection.qc_nd_pathology_nbr OR TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs LIKE CONCAT("%", Collection.qc_nd_pathology_nbr, "%"))
+AND Collection.collection_notes IS NOT NULL;	
+
+INSERT INTO collections_revs (id, acquisition_label, bank_id, visit_label, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, 
+consent_master_id, treatment_master_id, event_master_id, qc_nd_pathology_nbr,
+modified_by, version_created)
+(SELECT id, acquisition_label, bank_id, visit_label, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, 
+consent_master_id, treatment_master_id, event_master_id, qc_nd_pathology_nbr,
+modified_by, modified 
+FROM collections WHERE modified = @modified AND modified_by = @modified_by);
+
+UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl
+		SET Collection.treatment_master_id = TreatmentMaster.id
+		WHERE Collection.deleted <> 1
+		AND Collection.treatment_master_id IS NULL
+		AND TreatmentMaster.deleted <> 1
+		AND TreatmentMaster.participant_id = Collection.participant_id
+		AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+	    AND TreatmentControl.flag_active = 1
+	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+		AND Collection.collection_datetime IS NOT NULL
+		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+        AND (TreatmentMaster.start_date_accuracy = Collection.collection_datetime_accuracy OR (TreatmentMaster.start_date_accuracy = 'c' AND Collection.collection_datetime_accuracy = 'h'))
+	    AND TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs LIKE CONCAT('%', Collection.qc_nd_pathology_nbr, '%')
+        AND LENGTH(Collection.qc_nd_pathology_nbr) >= 7
+        AND Collection.modified = @modified 
+        AND Collection.modified_by = @modified_by;
+
+REPLACE INTO view_collections
+(SELECT
+		Collection.id AS collection_id,
+		Collection.bank_id AS bank_id,
+		Collection.sop_master_id AS sop_master_id,
+		Collection.participant_id AS participant_id,
+		Collection.diagnosis_master_id AS diagnosis_master_id,
+		Collection.consent_master_id AS consent_master_id,
+		Collection.treatment_master_id AS treatment_master_id,
+		Collection.event_master_id AS event_master_id,
+		Participant.participant_identifier AS participant_identifier,
+		Collection.acquisition_label AS acquisition_label,
+		Collection.collection_site AS collection_site,
+		Collection.collection_datetime AS collection_datetime,
+		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
+		Collection.collection_property AS collection_property,
+		Collection.collection_notes AS collection_notes,
+		Collection.created AS created,
+Bank.name AS bank_name,
+MiscIdentifier.identifier_value AS identifier_value,
+MiscIdentifierControl.misc_identifier_name AS identifier_name,
+Collection.visit_label AS visit_label,
+Collection.qc_nd_pathology_nbr,
+TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs as qc_nd_pathology_nbr_from_sardo
+		FROM collections AS Collection
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
+LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
+			WHERE Collection.deleted <> 1 AND Collection.modified = @modified AND Collection.modified_by = @modified_by);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE `versions` SET branch_build_number = '6725' WHERE version_number = '2.6.8';

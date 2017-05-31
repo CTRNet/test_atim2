@@ -82,7 +82,40 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
 					AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $all_values)));
 				}
 			}
+		} 	
+		if(isset($query['conditions']) && empty($query['fields'])) {
+		    $gt_key = array_key_exists('ViewSample.identifier_value >=', $query['conditions']);
+		    $lt_key = array_key_exists('ViewSample.identifier_value <=', $query['conditions']);
+		    if($gt_key || $lt_key) {
+		        $inf_value = $gt_key ? str_replace(',', '.', $query['conditions']['ViewSample.identifier_value >=']) : '';
+		        $sup_value = $lt_key ? str_replace(',', '.', $query['conditions']['ViewSample.identifier_value <=']) : '';
+		        if(strlen($inf_value.$sup_value) && (is_numeric($inf_value) || !strlen($inf_value)) && (is_numeric($sup_value) || !strlen($sup_value))) {
+		            // Return just numeric
+		            $query['conditions']['ViewSample.identifier_value REGEXP'] =  "^[0-9]+([\,\.][0-9]+){0,1}$";
+		            // Define range
+		            if($gt_key) {
+		                $query['conditions']["(REPLACE(ViewSample.identifier_value, ',','.') * 1) >="] = $inf_value;
+		                unset($query['conditions']['ViewSample.identifier_value >=']);
+		            }
+		            if($lt_key) {
+		                $query['conditions']["(REPLACE(ViewSample.identifier_value, ',','.') * 1) <="] = $sup_value;
+		                unset($query['conditions']['ViewSample.identifier_value <=']);
+		            }
+		            //Manage Order
+		            if(!isset($query['order'])){
+		                //supperfluou?s
+		                $query['order']['ViewSample.identifier_value'] = 'ASC';
+		            }
+		        }
+		    }
 		}
+		if(isset($query['order']) && is_array($query['order']) && array_key_exists('ViewSample.identifier_value', $query['order'])) { 
+            $order_by = $query['order']['ViewSample.identifier_value'];
+            $query['order']["IF(concat('',REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '0', '1') $order_by, ViewSample.identifier_value*IF(concat('',REPLACE(ViewSample.identifier_value, ',', '.') * 1) = REPLACE(ViewSample.identifier_value, ',', '.'), '1', '') $order_by, ViewSample.identifier_value $order_by"] = '';
+            pr($query['order']);
+            pr($query['order']['ViewSample.identifier_value']);
+            unset($query['order']['ViewSample.identifier_value']);
+		}	
 		return parent::find($type, $query);
 	}
 }

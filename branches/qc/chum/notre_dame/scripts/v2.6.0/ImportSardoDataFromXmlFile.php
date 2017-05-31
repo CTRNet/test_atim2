@@ -11,7 +11,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "am3-y-4606";
-$db_schema		= "atimoncologyaxistest";
+$db_schema		= "atimoncologyaxisprod268";
 $db_charset		= "utf8";
 
 global $db_connection;
@@ -1216,19 +1216,34 @@ function linkCollectionToSardoTreatment($db_schema) {
 	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl, sample_masters SampleMaster, sample_controls SampleControl
 		SET Collection.treatment_master_id = TreatmentMaster.id
 		WHERE Collection.deleted <> 1
-		AND Collection.collection_datetime IS NOT NULL
 		AND Collection.treatment_master_id IS NULL
+		AND TreatmentMaster.deleted <> 1
+		AND TreatmentMaster.participant_id = Collection.participant_id
+		AND TreatmentMaster.treatment_control_id = TreatmentControl.id 
+	    AND TreatmentControl.flag_active = 1 
+	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
 		AND SampleMaster.deleted <> 1
 		AND SampleMaster.collection_id = Collection.id
 		AND SampleMaster.sample_control_id = SampleControl.id
 		AND SampleControl.sample_type = 'tissue'
-		AND TreatmentMaster.deleted <> 1
-		AND TreatmentMaster.start_date IS NOT NULL
-		AND TreatmentMaster.participant_id = Collection.participant_id
+		AND Collection.collection_datetime IS NOT NULL
 		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
-		AND TreatmentMaster.treatment_control_id = TreatmentControl.id 
-	    AND TreatmentControl.flag_active = 1 
-	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop';";
+        AND (TreatmentMaster.start_date_accuracy = Collection.collection_datetime_accuracy OR (TreatmentMaster.start_date_accuracy = 'c' AND Collection.collection_datetime_accuracy = 'h'));";
+	customQuery($query, __LINE__);
+	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl
+		SET Collection.treatment_master_id = TreatmentMaster.id
+		WHERE Collection.deleted <> 1
+		AND Collection.treatment_master_id IS NULL
+		AND TreatmentMaster.deleted <> 1
+		AND TreatmentMaster.participant_id = Collection.participant_id
+		AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+	    AND TreatmentControl.flag_active = 1
+	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+		AND Collection.collection_datetime IS NOT NULL
+		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+        AND (TreatmentMaster.start_date_accuracy = Collection.collection_datetime_accuracy OR (TreatmentMaster.start_date_accuracy = 'c' AND Collection.collection_datetime_accuracy = 'h'))
+	    AND TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs LIKE CONCAT('%', Collection.qc_nd_pathology_nbr, '%')
+        AND LENGTH(Collection.qc_nd_pathology_nbr) >= 7;";
 	customQuery($query, __LINE__);
 	//Update view_collections
 	$query = "SELECT COUNT(*) AS field_exists
