@@ -282,12 +282,12 @@ class ShipmentsController extends OrderAppController
             'limit' => $limit
         ));
         if (empty($available_order_items)) {
-            $this->atimFlashWarning__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id);
+            $this->atimFlashWarning(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id);
         }
         
         $order_items_limit = Configure::read('AddToShipment_processed_items_limit');
         if (sizeof($available_order_items) > $order_items_limit) {
-            $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$order_items_limit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$order_items_limit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id, 5);
             return;
         }
         

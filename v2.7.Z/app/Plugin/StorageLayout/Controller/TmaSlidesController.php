@@ -129,12 +129,12 @@ class TmaSlidesController extends StorageLayoutAppController
                 $real_storage_selected = true;
         }
         if ($real_storage_selected) {
-            $this->atimFlashWarning(__('at least one selected item is not a tma block')), $url_to_cancel, 5);
+            $this->atimFlashWarning(__('at least one selected item is not a tma block'), $url_to_cancel, 5);
             return;
         }
         $display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
         if (sizeof($tma_blocks_from_id) > $display_limit) {
-            $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
             return;
         }
         if (sizeof($tma_blocks_from_id) != sizeof($tma_block_ids))
@@ -491,14 +491,14 @@ class TmaSlidesController extends StorageLayoutAppController
                 'order' => 'TmaSlide.barcode ASC'
             ));
             if (empty($initial_slide_data)) {
-                $this->atimFlashWarning__('no slide to update'), $url_to_cancel);
+                $this->atimFlashWarning(__('no slide to update'), $url_to_cancel);
                 return;
             }
             if ($tma_slide_ids)
                 $this->TmaSlide->sortForDisplay($initial_slide_data, $tma_slide_ids);
             $display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
             if (sizeof($initial_slide_data) > $display_limit) {
-                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
                 return;
             }
         }

@@ -19,7 +19,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     {
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -45,7 +45,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -86,7 +86,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -138,7 +138,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -209,7 +209,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         

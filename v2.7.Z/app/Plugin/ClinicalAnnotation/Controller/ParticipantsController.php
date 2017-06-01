@@ -32,7 +32,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
 
     function search($search_id = '')
     {
-        $this->atimFlashWarning'test', '/ClinicalAnnotation/Participants/add', 1);
+        $this->atimFlashWarning('test', '/ClinicalAnnotation/Participants/add', 1);
         $this->searchHandler($search_id, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hook_link = $this->hook('format');

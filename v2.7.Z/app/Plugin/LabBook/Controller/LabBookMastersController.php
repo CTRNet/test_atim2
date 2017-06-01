@@ -55,7 +55,7 @@ class LabBookMastersController extends LabBookAppController
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } else 
             if ($lab_book_master_id == '-1') {
-                $this->atimFlashWarning__('no lab book is linked to this record'), "javascript:history.back()", 5);
+                $this->atimFlashWarning(__('no lab book is linked to this record'), "javascript:history.back()", 5);
                 return;
             }
         

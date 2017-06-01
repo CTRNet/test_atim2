@@ -25,7 +25,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         if ($tx_master_data['TreatmentMaster']['participant_id'] != $participant_id)
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! $tx_master_data['TreatmentControl']['treatment_extend_control_id']) {
-            $this->atimFlashWarning__('no additional data has to be defined for this type of treatment'), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
+            $this->atimFlashWarning(__('no additional data has to be defined for this type of treatment'), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
             return;
         }
         
@@ -232,7 +232,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
             ));
             $data = array();
             if (empty($prot_extend_data)) {
-                $this->atimFlashWarning__('there is no drug defined in the associated protocol'), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
+                $this->atimFlashWarning(__('there is no drug defined in the associated protocol'), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
             } else {
                 foreach ($prot_extend_data as $prot_extend) {
                     $data[] = array(
@@ -255,7 +255,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
                 }
             }
         } else {
-            $this->atimFlashWarning__('there is no protocol associated with this treatment'), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
+            $this->atimFlashWarning(__('there is no protocol associated with this treatment'), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
         }
     }
 }
