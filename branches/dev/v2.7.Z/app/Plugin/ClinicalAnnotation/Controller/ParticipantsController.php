@@ -32,8 +32,8 @@ class ParticipantsController extends ClinicalAnnotationAppController
 
     function search($search_id = '')
     {
+        $this->atimFlashWarning'test', '/ClinicalAnnotation/Participants/add', 1);
         $this->searchHandler($search_id, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
-        
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hook_link = $this->hook('format');
         if ($hook_link) {
@@ -217,10 +217,10 @@ class ParticipantsController extends ClinicalAnnotationAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/search/');
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
         }
     }
 

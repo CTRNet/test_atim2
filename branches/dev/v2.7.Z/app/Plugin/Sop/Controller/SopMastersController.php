@@ -177,10 +177,10 @@ class SopMastersController extends SopAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Sop/SopMasters/listall/');
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/Sop/SopMasters/listall/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/Sop/SopMasters/listall/');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/Sop/SopMasters/detail/' . $sop_master_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Sop/SopMasters/detail/' . $sop_master_id);
         }
     }
 }

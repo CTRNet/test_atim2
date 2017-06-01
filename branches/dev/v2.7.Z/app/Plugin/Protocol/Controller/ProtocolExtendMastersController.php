@@ -19,7 +19,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     {
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -45,7 +45,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -86,7 +86,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -138,7 +138,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -209,7 +209,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         // Get treatment master row for extended data
         $protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
         if (! $protocol_master_data['ProtocolControl']['protocol_extend_control_id']) {
-            $this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             return;
         }
         
@@ -240,10 +240,10 @@ class ProtocolExtendMastersController extends ProtocolAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/Protocol/ProtocolExtendMaster/detail/' . $protocol_master_id . '/' . $protocol_extend_master_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Protocol/ProtocolExtendMaster/detail/' . $protocol_master_id . '/' . $protocol_extend_master_id);
         }
     }
 }

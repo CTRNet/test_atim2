@@ -144,7 +144,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     function add($participant_id, $event_control_id, $diagnosis_master_id = null)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
-            $this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
         }
         
         // MANAGE DATA
@@ -311,7 +311,7 @@ class EventMastersController extends ClinicalAnnotationAppController
     function edit($participant_id, $event_master_id)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
-            $this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
         }
         
         // MANAGE DATA
@@ -412,10 +412,10 @@ class EventMastersController extends ClinicalAnnotationAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/EventMasters/listall/' . $event_group . '/' . $participant_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/' . $event_group . '/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/' . $event_group . '/' . $participant_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/EventMasters/detail/' . $participant_id . '/' . $event_master_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/EventMasters/detail/' . $participant_id . '/' . $event_master_id);
         }
     }
 }

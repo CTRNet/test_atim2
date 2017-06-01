@@ -84,7 +84,7 @@ class BrowserController extends DatamartAppController
             $this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
             $this->atimFlash(__('your data has been deleted'), '/Datamart/Browser/index/');
         } else {
-            $this->flash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
+            $this->atimFlashError(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
         }
     }
 
@@ -204,12 +204,15 @@ $check_list) // this is a checklist
             
             // all nodes saved, now load the proper form
             if ($check_list) {
+                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Datamart/Browser/browse/' . $node_id . '/');
             }
             
             if ($sub_structure_id) {
+                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Datamart/Browser/browse/' . $node_id . '/' . $last_control_id . $parent_child . Browser::$sub_model_separator_str . $sub_structure_id);
             }
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
             $this->redirect('/Datamart/Browser/browse/' . $node_id . '/' . $last_control_id . $parent_child);
         } else {
             if ($node_id == 0) {
@@ -253,7 +256,7 @@ $check_list) // this is a checklist
             $this->Browser->initDataLoad($browsing, $merge_to, explode(",", $browsing['BrowsingResult']['id_csv']), $order);
             
             if (! $this->Browser->valid_permission) {
-                $this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             }
             
             $browsing_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -304,7 +307,7 @@ $check_list) // this is a checklist
         } else 
             if ($browsing) {
                 if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-                    $this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+                    $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 }
                 // search screen
                 $tmp_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -411,7 +414,7 @@ $check_list) // this is a checklist
         $browsing = $this->BrowsingResult->findById($node_id);
         
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-            $this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+            $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return;
         }
         
@@ -468,7 +471,7 @@ $check_list) // this is a checklist
             foreach ($browsing_results as $browsing_result) {
                 // permissions
                 if (! AppController::checkLinkPermission($browsing_result['DatamartStructure']['index_link'])) {
-                    $this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+                    $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                     return;
                 }
                 
@@ -525,7 +528,7 @@ $check_list) // this is a checklist
             $this->Browser->InitDataLoad($browsing, $config['redundancy'] == 'same' ? 0 : $merge_to, $ids);
             
             if (! $this->Browser->valid_permission) {
-                $this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                 return;
             }
             
@@ -612,7 +615,7 @@ $check_list) // this is a checklist
             // current set already exists, use it
             $node_id = $tmp['BrowsingResult']['id'];
         }
-        
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         $this->redirect('/Datamart/Browser/browse/' . $node_id);
     }
 
@@ -749,9 +752,11 @@ $check_list) // this is a checklist
         }
         
         if ($return_id) {
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
             $this->redirect('/Datamart/Browser/browse/' . $return_id);
         } else {
             AppController::addWarningMsg(__('there are no unused parent items'));
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
             $this->redirect('/Datamart/Browser/browse/' . $node_id);
         }
         exit();
@@ -793,6 +798,7 @@ $check_list) // this is a checklist
         }
         
         // done, render the proper node.
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         $this->redirect('/Datamart/Browser/browse/' . $node_id . '/');
     }
 }

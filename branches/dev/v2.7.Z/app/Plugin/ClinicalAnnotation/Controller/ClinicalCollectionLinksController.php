@@ -38,7 +38,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
             if ($this->request->is('ajax')) {
                 die(__('You are not authorized to access that location.'));
             }
-            $this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
         }
     }
     
@@ -363,6 +363,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 }
                 
                 if (isset($this->request->data['Collection']['deleted'])) {
+                    $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                     $this->redirect('/InventoryManagement/Collections/add/' . $this->Collection->getLastInsertId());
                 } else {
                     $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participant_id . '/' . $this->Collection->id);
@@ -551,10 +552,10 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 
                 $this->atimFlash(__('your data has been deleted') . '<br>' . __('use inventory management module to delete the entire collection'), '/ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $participant_id . '/');
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participant_id . '/' . $collection_id . '/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participant_id . '/' . $collection_id . '/');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participant_id . '/' . $collection_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participant_id . '/' . $collection_id);
         }
     }
 }

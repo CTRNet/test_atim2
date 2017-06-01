@@ -54,7 +54,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                 )
             ));
             if ($already_exist) {
-                $this->flash(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlashWarning__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
                 return;
             }
         }
@@ -305,10 +305,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
         }
     }
 
@@ -348,7 +348,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                 'recursive' => - 1
             ));
             if ($count > 0) {
-                $this->flash(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlashWarning__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
                 return;
             }
         }

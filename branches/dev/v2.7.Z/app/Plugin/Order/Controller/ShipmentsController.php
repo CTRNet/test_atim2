@@ -251,10 +251,10 @@ class ShipmentsController extends OrderAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/' . $order_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/' . $order_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/Order/Orders/detail/' . $order_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
         }
     }
 
@@ -282,12 +282,12 @@ class ShipmentsController extends OrderAppController
             'limit' => $limit
         ));
         if (empty($available_order_items)) {
-            $this->flash(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id);
+            $this->atimFlashWarning__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id);
         }
         
         $order_items_limit = Configure::read('AddToShipment_processed_items_limit');
         if (sizeof($available_order_items) > $order_items_limit) {
-            $this->flash(__("batch init - number of submitted records too big") . " (>$order_items_limit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id, 5);
+            $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$order_items_limit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id, 5);
             return;
         }
         
@@ -642,10 +642,10 @@ class ShipmentsController extends OrderAppController
             if ($remove_done) {
                 $this->atimFlash(__('your data has been removed - update the aliquot in stock data'), $redirect_url);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), $redirect_url);
+                $this->atimFlashError(__('error deleting data - contact administrator'), $redirect_url);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), $redirect_url);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), $redirect_url);
         }
     }
 

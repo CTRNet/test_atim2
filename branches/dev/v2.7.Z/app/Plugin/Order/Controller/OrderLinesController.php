@@ -285,10 +285,10 @@ class OrderLinesController extends OrderAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/' . $order_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), 'javascript:history.go(-1)');
+                $this->atimFlashError(__('error deleting data - contact administrator'), 'javascript:history.go(-1)');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
         }
     }
 }

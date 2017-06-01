@@ -46,5 +46,5 @@ class StructurePanel extends DebugPanel
     {}
 
     public function startup(Controller $controller)
-    {}    
+    {}
 }

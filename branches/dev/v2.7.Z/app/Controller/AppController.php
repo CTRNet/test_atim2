@@ -40,6 +40,14 @@ class AppController extends Controller
 
     public static $beignFlash = false;
 
+    const CONFIRM = 1;
+
+    const ERROR = 2;
+
+    const WARNING = 3;
+
+    const INFORMATION = 4;
+
     public $uses = array(
         'Config',
         'SystemVar'
@@ -100,6 +108,8 @@ class AppController extends Controller
         'November',
         'December'
     );
+
+    public static $query;
 
     private static $cal_info_short_translated = false;
 
@@ -273,7 +283,7 @@ class AppController extends Controller
             $data = $this->viewVars[$this->passedArgs['batchsetVar']];
             if (empty($data)) {
                 unset($this->passedArgs['batchsetVar']);
-                $this->flash(__('there is no data to add to a temporary batchset'), 'javascript:history.back()');
+                $this->atimFlashWarning(__('there is no data to add to a temporary batchset'), 'javascript:history.back()');
                 return false;
             }
             if (isset($this->passedArgs['batchsetCtrl'])) {
@@ -322,14 +332,41 @@ class AppController extends Controller
         }
     }
 
-    function atimFlash($message, $url)
+    function atimFlash($message, $url, $type = self::CONFIRM)
     {
-        if (Configure::read('debug') > 0) {
-            $this->Flash->set($message, $url);
-        } else {
+        if ($type == self::CONFIRM) {
             $_SESSION['ctrapp_core']['confirm_msg'] = $message;
-            $this->redirect($url);
-        }
+        } else 
+            if ($type == self::INFORMATION) {
+                $_SESSION['ctrapp_core']['info_msg'][] = $message;
+            } else 
+                if ($type == self::WARNING) {
+                    $_SESSION['ctrapp_core']['warning_trace_msg'][] = $message;
+                } else 
+                    if ($type == self::ERROR) {
+                        $_SESSION['ctrapp_core']['error_msg'][] = $message;
+                    }
+        $this->redirect($url);
+    }
+
+    function atimFlashError($message, $url)
+    {
+        $this->atimFlash($message, $url, self::ERROR);
+    }
+
+    function atimFlashInfo($message, $url)
+    {
+        $this->atimFlash($message, $url, self::INFORMATION);
+    }
+
+    function atimFlashConfirm($message, $url)
+    {
+        $this->atimFlash($message, $url, self::CONFIRM);
+    }
+
+    function atimFlashWarning($message, $url)
+    {
+        $this->atimFlash($message, $url, self::WARNING);
     }
 
     static function getInstance()
@@ -1935,6 +1972,27 @@ class AppController extends Controller
     {
         $this->csv_config = $config;
         $this->Session->write('Config.language', $config['config_language']);
+    }
+
+    public function getQueryLogs($connection, $options = array())
+    {
+        $db = ConnectionManager::getDataSource($connection);
+        $log = $db->getLog();
+        if ($log['count'] == 0) {
+            $out = "";
+        } else {
+            $out = '<span class="untranslated">Total Time: ' . $log['time'] . '<br>Total Queries: ' . $log['count'] . '<br></span>';
+            $out .= '<table class="debug-table">' . '<thead>' . '<tr>' . '<th>Query</th>' . '<th>Affected</th>' . '<th>Num. rows</th>' . '<th>Took (ms)</th>' . 
+            // '<th>Actions</th>'.
+            '</tr>';
+            $class = 'odd';
+            foreach ($log['log'] as $i => $value) {
+                $out .= '<tr class="' . $class . '">' . '<td>' . $value['query'] . '</td>' . '<td>' . $value['affected'] . '</td>' . '<td>' . $value['numRows'] . '</td>' . '<td>' . $value['took'] . '</td>' . '</tr>';
+                $class = ($class == 'even' ? 'odd' : 'even');
+            }
+            $out .= "</thead>" . "</table>";
+        }
+        return $out;
     }
 }
 

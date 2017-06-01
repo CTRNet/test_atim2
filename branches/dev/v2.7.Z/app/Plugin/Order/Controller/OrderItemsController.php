@@ -260,7 +260,7 @@ class OrderItemsController extends OrderAppController
             
             $display_limit = Configure::read('AddToOrder_processed_items_limit');
             if (sizeof($this->request->data) > $display_limit) {
-                $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", ($order_line_id ? '/Order/OrderLines/detail/' . $order_id . '/' . $order_line_id . '/' : '/Order/Orders/detail/' . $order_id), 5);
+                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", ($order_line_id ? '/Order/OrderLines/detail/' . $order_id . '/' . $order_line_id . '/' : '/Order/Orders/detail/' . $order_id), 5);
                 return;
             }
             
@@ -478,7 +478,7 @@ class OrderItemsController extends OrderAppController
                     $object_ids_to_add = explode(',', $this->request->data['object_ids_to_add']);
                     unset($this->request->data['object_ids_to_add']);
                 } else {
-                    $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
                     return;
                 }
         
@@ -490,11 +490,11 @@ class OrderItemsController extends OrderAppController
         ));
         $display_limit = Configure::read('AliquotInternalUseCreation_processed_items_limit');
         if (empty($new_items_data)) {
-            $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
             return;
         } else 
             if (sizeof($new_items_data) > $display_limit) {
-                $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
                 return;
             }
         if (sizeof($new_items_data) != sizeof($object_ids_to_add)) {
@@ -505,12 +505,12 @@ class OrderItemsController extends OrderAppController
         foreach ($new_items_data as $new_item) {
             if ($object_model_name == 'AliquotMaster') {
                 if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('aliquot_master_id', $new_item['AliquotMaster']['id'])) {
-                    $this->flash(__("an aliquot cannot be added twice to orders as long as this one has not been first returned"), $url_to_cancel, 5);
+                    $this->atimFlashWarning__("an aliquot cannot be added twice to orders as long as this one has not been first returned"), $url_to_cancel, 5);
                     return;
                 }
             } else {
                 if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('tma_slide_id', $new_item['TmaSlide']['id'])) {
-                    $this->flash(__("a tma slide cannot be added twice to orders as long as this one has not been first returned"), $url_to_cancel, 5);
+                    $this->atimFlashWarning__("a tma slide cannot be added twice to orders as long as this one has not been first returned"), $url_to_cancel, 5);
                     return;
                 }
             }
@@ -552,7 +552,7 @@ class OrderItemsController extends OrderAppController
             'order' => 'Order.order_number ASC'
         ));
         if (! $order_data_tmp) {
-            $this->flash(__('no order to complete is actually defined'), $url_to_cancel);
+            $this->atimFlashWarning__('no order to complete is actually defined'), $url_to_cancel);
             return;
         }
         foreach ($order_data_tmp as $new_order) {
@@ -580,7 +580,7 @@ class OrderItemsController extends OrderAppController
             'order' => 'OrderLine.date_required ASC'
         ));
         if (! $order_line_data_tmp && (Configure::read('order_item_to_order_objetcs_link_setting') == 2)) {
-            $this->flash(__('no order to complete is actually defined'), $url_to_cancel);
+            $this->atimFlashWarning__('no order to complete is actually defined'), $url_to_cancel);
             return;
         }
         foreach ($order_line_data_tmp as $new_line) {
@@ -862,7 +862,7 @@ class OrderItemsController extends OrderAppController
                     'OrderItem.id' => $order_item_ids
                 );
             } else {
-                $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
                 return;
             }
         unset($this->request->data['order_item_ids']);
@@ -873,14 +873,14 @@ class OrderItemsController extends OrderAppController
                 'recursive' => '0'
             ));
             if (empty($intial_order_items_data)) {
-                $this->flash(__('no item to update'), $url_to_cancel);
+                $this->atimFlashWarning__('no item to update'), $url_to_cancel);
                 return;
             }
             if ($order_item_ids)
                 $this->OrderItem->sortForDisplay($intial_order_items_data, $order_item_ids);
             $display_limit = Configure::read('edit_processed_items_limit');
             if (sizeof($intial_order_items_data) > $display_limit) {
-                $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
                 return;
             }
         }
@@ -897,11 +897,11 @@ class OrderItemsController extends OrderAppController
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } else 
             if (sizeof($statuses) != 1) {
-                $this->flash(__('items should have the same status to be updated in batch'), $url_to_cancel);
+                $this->atimFlashWarning__('items should have the same status to be updated in batch'), $url_to_cancel);
                 return;
             } else 
                 if ($statuses[0]['OrderItem']['status'] == 'shipped') {
-                    $this->flash(__('items should have a status different than shipped to be updated in batch'), $url_to_cancel);
+                    $this->atimFlashWarning__('items should have a status different than shipped to be updated in batch'), $url_to_cancel);
                     return;
                 }
         $status = $statuses[0]['OrderItem']['status'];
@@ -1151,10 +1151,10 @@ class OrderItemsController extends OrderAppController
                 // Redirect
                 $this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), $redirect_url);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), $redirect_url);
+                $this->atimFlashError(__('error deleting data - contact administrator'), $redirect_url);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), $redirect_url);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), $redirect_url);
         }
     }
 
@@ -1215,7 +1215,7 @@ class OrderItemsController extends OrderAppController
                     if (empty($this->request->data))
                         $initial_display = true;
                 } else {
-                    $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
                     return;
                 }
         unset($this->request->data['order_item_ids']);
@@ -1229,12 +1229,12 @@ class OrderItemsController extends OrderAppController
                 )
             ));
             if (empty($initial_order_items_data)) {
-                $this->flash(__('no order items can be defined as returned'), $url_to_cancel);
+                $this->atimFlashWarning__('no order items can be defined as returned'), $url_to_cancel);
                 return;
             }
             $display_limit = Configure::read('defineOrderItemsReturned_processed_items_limit');
             if (sizeof($initial_order_items_data) > $display_limit) {
-                $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit). " . __('use databrowser to submit a sub set of data'), $url_to_cancel, 5);
+                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit). " . __('use databrowser to submit a sub set of data'), $url_to_cancel, 5);
                 return;
             }
             if ($order_item_ids) {
@@ -1251,7 +1251,7 @@ class OrderItemsController extends OrderAppController
                 "OrderItem.status != 'shipped'"
             )
         ))) {
-            $this->flash(__('only shipped items can be defined as returned'), $url_to_cancel);
+            $this->atimFlashWarning__('only shipped items can be defined as returned'), $url_to_cancel);
             return;
         }
         
@@ -1583,7 +1583,7 @@ class OrderItemsController extends OrderAppController
             // Redirect
             $this->atimFlash(__('your data has been saved'), $redirect_url);
         } else {
-            $this->flash(__($error), $redirect_url);
+            $this->atimFlashWarning__($error), $redirect_url);
         }
     }
 }

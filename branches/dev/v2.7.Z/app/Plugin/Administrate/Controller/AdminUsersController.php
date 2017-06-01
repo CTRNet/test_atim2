@@ -110,7 +110,7 @@ class AdminUsersController extends AdministrateAppController
                 $this->request->data['Generated']['field1'] = "";
             }
         } else {
-            $this->flash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $group_id . "/");
+            $this->atimFlash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $group_id . "/", AppController::ERROR);
         }
     }
 
@@ -197,7 +197,7 @@ class AdminUsersController extends AdministrateAppController
             $this->User->atimDelete($user_id);
             $this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/" . $group_id);
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), 'javascript:history.back()');
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), 'javascript:history.back()');
         }
     }
 

@@ -187,10 +187,10 @@ class StudySummariesController extends StudyAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Study/StudySummaries/search/');
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/Study/StudySummaries/search/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/Study/StudySummaries/search/');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/Study/StudySummaries/detail/' . $study_summary_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Study/StudySummaries/detail/' . $study_summary_id);
         }
     }
 

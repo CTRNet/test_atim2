@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 0;
+$debug = 2;
 /**
  * CakePHP Debug Level:
  *
@@ -90,6 +90,8 @@ Configure::write('App.encoding', 'UTF-8');
 /**
  * To configure CakePHP *not* to use mod_rewrite and to
  * use CakePHP pretty URLs, remove these .
+ *
+ *
  *
  *
  *
