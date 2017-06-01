@@ -697,7 +697,7 @@ class StorageMastersController extends StorageLayoutAppController
             ));
             $tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['InitialStorageMaster'], $tree_data);
             if (sizeof($tree_data) > $storages_nbr_limit) {
-                $this->atimFlashWarning__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
+                $this->atimFlashWarning(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
                 return;
             }
             // TMA blocks
@@ -822,7 +822,7 @@ class StorageMastersController extends StorageLayoutAppController
                     ));
                     exit();
                 } else {
-                    $this->atimFlashWarning__('no layout exists - add coordinates first'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+                    $this->atimFlashWarning(__('no layout exists - add coordinates first'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
                     return;
                 }
             }
@@ -836,7 +836,7 @@ class StorageMastersController extends StorageLayoutAppController
                 ));
                 exit();
             } else {
-                $this->atimFlashWarning__('no storage layout is defined for this storage type'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+                $this->atimFlashWarning(__('no storage layout is defined for this storage type'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
                 return;
             }
         }

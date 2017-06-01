@@ -113,10 +113,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             'recursive' => '0'
         ));
         if (! $participants)
-            $this->atimFlashWarning(__('at least one participant should be selected'));
+            $this->atimFlashWarning(__('at least one participant should be selected'), $url_to_cancel, 5);
         $display_limit = Configure::read('ParticipantMessageCreation_processed_participants_limit');
         if (sizeof($participants) > $display_limit)
-            $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)";
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
         $this->set('participant_ids', implode(',', $participant_ids));
         
         if ($participant_id)

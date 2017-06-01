@@ -92,7 +92,7 @@ class BanksController extends AdministrateAppController
                 $this->atimFlashError(__('error deleting data - contact administrator'), '/Administrate/Banks/index');
             }
         } else {
-            $this->atimFlashWarning__('this bank is being used and cannot be deleted') . ': ' . __($arr_allow_deletion['msg']), '/Administrate/Banks/detail/' . $bank_id . "/");
+            $this->atimFlashWarning(__('this bank is being used and cannot be deleted') . ': ' . __($arr_allow_deletion['msg']), '/Administrate/Banks/detail/' . $bank_id . "/");
         }
     }
 }

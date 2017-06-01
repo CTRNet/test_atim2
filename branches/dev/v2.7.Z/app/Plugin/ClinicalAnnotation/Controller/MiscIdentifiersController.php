@@ -54,7 +54,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                 )
             ));
             if ($already_exist) {
-                $this->atimFlashWarning__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlashWarning(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
                 return;
             }
         }
@@ -348,7 +348,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                 'recursive' => - 1
             ));
             if ($count > 0) {
-                $this->atimFlashWarning__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlashWarning(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
                 return;
             }
         }

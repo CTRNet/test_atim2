@@ -1020,7 +1020,7 @@ class SampleMastersController extends InventoryManagementAppController
                         $aliquot_ids = array_filter($this->request->data[$alq_model][$alq_key]);
                         
                         if (empty($aliquot_ids)) {
-                            $this->atimFlashWarning__("batch init no data"), $url_to_cancel, 5);
+                            $this->atimFlashWarning(__("batch init no data"), $url_to_cancel, 5);
                         }
                         $aliquot_data = $this->AliquotMaster->find('all', array(
                             'fields' => array(
@@ -1040,7 +1040,7 @@ class SampleMastersController extends InventoryManagementAppController
                         $expected_ctrl_id = $aliquot_data[0]['AliquotMaster']['aliquot_control_id'];
                         foreach ($aliquot_data as $aliquot_unit) {
                             if ($aliquot_unit['AliquotMaster']['aliquot_control_id'] != $expected_ctrl_id) {
-                                $this->atimFlashWarning__("you must select elements with a common type"), $url_to_cancel, 5);
+                                $this->atimFlashWarning(__("you must select elements with a common type"), $url_to_cancel, 5);
                             }
                             $ids[] = $aliquot_unit['AliquotMaster']['sample_master_id'];
                         }
@@ -1070,7 +1070,7 @@ class SampleMastersController extends InventoryManagementAppController
         // Manage data
         $init_data = $this->batchInit($this->SampleMaster, $model, $key, "sample_control_id", $this->ParentToDerivativeSampleControl, "parent_sample_control_id", "you cannot create derivatives for this sample type");
         if (array_key_exists('error', $init_data)) {
-            $this->atimFlashWarning__($init_data['error']), $url_to_cancel, 5);
+            $this->atimFlashWarning(__($init_data['error']), $url_to_cancel, 5);
             return;
         }
         
@@ -1103,7 +1103,7 @@ class SampleMastersController extends InventoryManagementAppController
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } else 
             if ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-                $this->atimFlashWarning__("you must select a derivative type"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();", 5);
                 return;
             }
         
@@ -1174,7 +1174,7 @@ class SampleMastersController extends InventoryManagementAppController
             return;
         } else 
             if ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-                $this->atimFlashWarning__("you must select a derivative type"), $url_to_cancel, 5);
+                $this->atimFlashWarning(__("you must select a derivative type"), $url_to_cancel, 5);
                 return;
             }
         
@@ -1197,7 +1197,7 @@ class SampleMastersController extends InventoryManagementAppController
             if (is_numeric($result)) {
                 $lab_book_id = $result;
             } else {
-                $this->atimFlashWarning__($result), $url_to_cancel, 5);
+                $this->atimFlashWarning(__($result), $url_to_cancel, 5);
                 return;
             }
             $lab_book_data = $lab_book->findById($lab_book_id);
@@ -1279,7 +1279,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'joins' => $joins
                 ));
                 if (sizeof($aliquots) > $display_limit) {
-                    $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
                     return;
                 }
                 $this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
@@ -1301,7 +1301,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'recursive' => - 1
                 ));
                 if (sizeof($samples) > $display_limit) {
-                    $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+                    $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
                     return;
                 }
                 $this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
@@ -1333,7 +1333,7 @@ class SampleMastersController extends InventoryManagementAppController
             
             $prev_data = $this->request->data;
             if (empty($prev_data)) {
-                $this->atimFlashWarning__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
                 return;
             }
             $this->request->data = array();

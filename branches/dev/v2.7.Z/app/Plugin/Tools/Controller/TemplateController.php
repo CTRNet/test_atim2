@@ -75,7 +75,7 @@ class TemplateController extends AppController
         // validate access
         $tmp_template = $this->Template->getTemplates('template edition', $template_id);
         if (empty($tmp_template)) {
-            $this->atimFlashWarning__('you do not own that template'), '/Tools/Template/index/');
+            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/index/');
             return;
         }
         
@@ -226,7 +226,7 @@ class TemplateController extends AppController
         if (empty($template_data))
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! $template_data['Template']['allow_properties_edition']) {
-            $this->atimFlashWarning__('you do not own that template'), '/Tools/Template/index/');
+            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/index/');
             return;
         }
         
@@ -271,7 +271,7 @@ class TemplateController extends AppController
         if (empty($template_data))
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! $template_data['Template']['allow_properties_edition']) {
-            $this->atimFlashWarning__('you do not own that template'), '/Tools/Template/index/');
+            $this->atimFlashWarning(__('you do not own that template'), '/Tools/Template/index/');
             return;
         }
         

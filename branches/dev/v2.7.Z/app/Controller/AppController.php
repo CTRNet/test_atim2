@@ -349,22 +349,22 @@ class AppController extends Controller
         $this->redirect($url);
     }
 
-    function atimFlashError($message, $url)
+    function atimFlashError($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::ERROR);
     }
 
-    function atimFlashInfo($message, $url)
+    function atimFlashInfo($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::INFORMATION);
     }
 
-    function atimFlashConfirm($message, $url)
+    function atimFlashConfirm($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::CONFIRM);
     }
 
-    function atimFlashWarning($message, $url)
+    function atimFlashWarning($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::WARNING);
     }
