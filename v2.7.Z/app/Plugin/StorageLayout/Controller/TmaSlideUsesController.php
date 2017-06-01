@@ -59,7 +59,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
                     // User submit data of the TmaSlide.add() form
                     $tma_slide_ids = array_keys($this->request->data);
                 } else {
-                    $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
                     return;
                 }
         
@@ -80,7 +80,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
         
         $display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
         if (sizeof($tma_slides_from_id) > $display_limit) {
-            $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+            $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
             return;
         }
         if (sizeof($tma_slides_from_id) != sizeof($tma_slide_ids))
@@ -374,7 +374,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 // User submit data of the TmaSlideUse.editInBatch() form
                 $tma_slide_use_ids = explode(',', $this->request->data['tma_slide_use_ids']);
             } else {
-                $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
                 return;
             }
         unset($this->request->data['tma_slide_use_ids']);
@@ -386,14 +386,14 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 'recursive' => '2'
             ));
             if (empty($initial_slide_uses_data)) {
-                $this->flash(__('no slide use to update'), $url_to_cancel);
+                $this->atimFlashWarning__('no slide use to update'), $url_to_cancel);
                 return;
             }
             if ($tma_slide_use_ids)
                 $this->TmaSlideUse->sortForDisplay($initial_slide_uses_data, $tma_slide_use_ids);
             $display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
             if (sizeof($initial_slide_uses_data) > $display_limit) {
-                $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
                 return;
             }
             foreach ($initial_slide_uses_data as &$tmp_data)
@@ -566,10 +566,10 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/StorageLayout/TmaSlides/detail/' . $tma_slide_use_data['TmaSlide']['tma_block_storage_master_id'] . '/' . $tma_slide_use_data['TmaSlide']['id']);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_slide_use_data['TmaSlide']['tma_block_storage_master_id'] . '/' . $tma_slide_use_data['TmaSlide']['id']);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_slide_use_data['TmaSlide']['tma_block_storage_master_id'] . '/' . $tma_slide_use_data['TmaSlide']['id']);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_slide_use_data['TmaSlide']['tma_block_storage_master_id'] . '/' . $tma_slide_use_data['TmaSlide']['id']);
+            $this->atimFlashWarning__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_slide_use_data['TmaSlide']['tma_block_storage_master_id'] . '/' . $tma_slide_use_data['TmaSlide']['id']);
         }
     }
 }

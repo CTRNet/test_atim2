@@ -171,7 +171,7 @@ class QualityCtrlsController extends InventoryManagementAppController
                             }
                         }
                     } else {
-                        $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $cancel_button, 5);
+                        $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $cancel_button, 5);
                         return;
                     }
         $this->setBatchMenu(array(
@@ -244,7 +244,7 @@ class QualityCtrlsController extends InventoryManagementAppController
             
             $display_limit = Configure::read('QualityCtrlsCreation_processed_items_limit');
             if (sizeof($data) > $display_limit) {
-                $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", $cancel_button, 5);
+                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $cancel_button, 5);
                 return;
             }
             
@@ -467,7 +467,7 @@ class QualityCtrlsController extends InventoryManagementAppController
                     $this->request->data = $display_data;
                 }
             } else {
-                $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
                 return;
             }
         
@@ -688,10 +688,10 @@ class QualityCtrlsController extends InventoryManagementAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/InventoryManagement/QualityCtrls/listAll/' . $qc_data['SampleMaster']['collection_id'] . '/' . $qc_data['QualityCtrl']['sample_master_id'] . '/');
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/QualityCtrls/listAll/' . $collection_id . '/' . $sample_master_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/InventoryManagement/QualityCtrls/listAll/' . $collection_id . '/' . $sample_master_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/QualityCtrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/InventoryManagement/QualityCtrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
         }
     }
 }

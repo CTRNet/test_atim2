@@ -230,10 +230,10 @@ class ConsentMastersController extends ClinicalAnnotationAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ConsentMasters/listall/' . $participant_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ConsentMasters/listall/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ConsentMasters/listall/' . $participant_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ConsentMasters/detail/' . $participant_id . '/' . $consent_master_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ConsentMasters/detail/' . $participant_id . '/' . $consent_master_id);
         }
     }
 }

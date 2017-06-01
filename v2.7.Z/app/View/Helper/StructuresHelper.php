@@ -372,7 +372,7 @@ class StructuresHelper extends Helper
             } elseif (isset($atim_structure['Structure'])) {
                 $tmp[$atim_structure['Structure']['alias']] = $atim_structure['Sfs'];
                 $this->remove($tmp[$atim_structure['Structure']['alias']], $unimportantFields);
-            } elseif(isset($atim_structure['Structure']) &&isset($atim_structure['Sfs'])) {
+            } elseif (isset($atim_structure['Structure']) && isset($atim_structure['Sfs'])) {
                 $possible = [
                     "Collection",
                     "DiagnosisMaster",
@@ -426,7 +426,7 @@ class StructuresHelper extends Helper
      */
     function build(array $atim_structure = array(), array $options = array())
     {
-//        $this->Flash->set('This is a message');
+        // $this->Flash->set('This is a message');
         if (Configure::read('debug')) {
             $tmp = array();
             if (isset($atim_structure['Structure'][0])) {

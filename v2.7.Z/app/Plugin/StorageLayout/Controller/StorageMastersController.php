@@ -553,10 +553,10 @@ class StorageMastersController extends StorageLayoutAppController
             if ($atim_flash) {
                 $this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/search/');
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/StorageLayout/StorageMasters/search/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/StorageLayout/StorageMasters/search/');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
         }
     }
 
@@ -697,7 +697,7 @@ class StorageMastersController extends StorageLayoutAppController
             ));
             $tree_data = $this->StorageMaster->contentNatCaseSort($fields_to_sort_on['InitialStorageMaster'], $tree_data);
             if (sizeof($tree_data) > $storages_nbr_limit) {
-                $this->flash(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
+                $this->atimFlashWarning__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
                 return;
             }
             // TMA blocks
@@ -822,7 +822,7 @@ class StorageMastersController extends StorageLayoutAppController
                     ));
                     exit();
                 } else {
-                    $this->flash(__('no layout exists - add coordinates first'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+                    $this->atimFlashWarning__('no layout exists - add coordinates first'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
                     return;
                 }
             }
@@ -836,7 +836,7 @@ class StorageMastersController extends StorageLayoutAppController
                 ));
                 exit();
             } else {
-                $this->flash(__('no storage layout is defined for this storage type'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+                $this->atimFlashWarning__('no storage layout is defined for this storage type'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
                 return;
             }
         }

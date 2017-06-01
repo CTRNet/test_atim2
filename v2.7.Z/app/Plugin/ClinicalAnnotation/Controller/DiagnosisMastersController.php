@@ -297,7 +297,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         if ($parent_id == 0) {
             if ($dx_ctrl['DiagnosisControl']['category'] != 'primary') {
                 // is not a primary but has no parent
-                $this->flash(__('invalid control id'), 'javascript:history.back();');
+                $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
             }
         } else {
             $parent_dx = $this->DiagnosisMaster->find('first', array(
@@ -310,7 +310,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
                 $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
             }
             if (($dx_ctrl['DiagnosisControl']['category'] == 'primary') || ($dx_ctrl['DiagnosisControl']['category'] == 'secondary - distant') && ($parent_dx['DiagnosisControl']['category'] == 'secondary - distant')) {
-                $this->flash(__('invalid control id'), 'javascript:history.back();');
+                $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
             }
         }
         
@@ -525,10 +525,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/DiagnosisMasters/listall/' . $participant_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/DiagnosisMasters/listall/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/DiagnosisMasters/listall/' . $participant_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participant_id . '/' . $diagnosis_master_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participant_id . '/' . $diagnosis_master_id);
         }
     }
 

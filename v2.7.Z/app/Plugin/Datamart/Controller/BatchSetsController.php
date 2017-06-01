@@ -96,7 +96,7 @@ class BatchSetsController extends DatamartAppController
         // check permissions
         $datamart_structure_data = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
         if (! AppController::checkLinkPermission($datamart_structure_data['DatamartStructure']['index_link'])) {
-            $this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+            $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return;
         }
         
@@ -318,6 +318,7 @@ class BatchSetsController extends DatamartAppController
                                 $this->BatchId->saveAll($save_array);
                                 
                                 // done
+                                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                                 $this->redirect('/Datamart/BatchSets/listall/' . $target_batch_set_id);
                             } else {
                                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -427,6 +428,7 @@ class BatchSetsController extends DatamartAppController
         // clear SESSION after done...
         $_SESSION['ctrapp_core']['datamart']['process'] = array();
         
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         $this->redirect('/Datamart/BatchSets/listall/' . $this->request->data['BatchSet']['id']);
         
         exit();
@@ -549,6 +551,7 @@ class BatchSetsController extends DatamartAppController
         }
         
         // redirect back to list Batch SET
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         $this->redirect('/Datamart/BatchSets/listall/' . $batch_set_id);
         exit();
     }
@@ -579,7 +582,7 @@ class BatchSetsController extends DatamartAppController
             ));
             $this->atimFlash(__('your data has been updated'), "/Datamart/BatchSets/listall/$batch_set_id");
         } else {
-            $this->flash(__('you are not allowed to unlock this batchset'), "/Datamart/BatchSets/index/user");
+            $this->atimFlashError(__('you are not allowed to unlock this batchset'), "/Datamart/BatchSets/index/user");
         }
     }
 }

@@ -262,10 +262,10 @@ class StudyResultsController extends StudyAppController
             if ($this->StudyResult->atimDelete($study_results_id)) {
                 $this->atimFlash(__('your data has been deleted'), '/Study/StudyResults/listall/' . $study_summary_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator.'), '/Study/StudyResults/listall/' . $study_summary_id);
+                $this->atimFlashError(__('error deleting data - contact administrator.'), '/Study/StudyResults/listall/' . $study_summary_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/Study/StudyResults/detail/' . $study_summary_id . '/' . $study_results_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Study/StudyResults/detail/' . $study_summary_id . '/' . $study_results_id);
         }
     }
 }

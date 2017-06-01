@@ -289,10 +289,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), $flash_link);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), $flash_link);
+                $this->atimFlashError(__('error deleting data - contact administrator'), $flash_link);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/FamilyHistories/detail/' . $participant_id . '/' . $family_history_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/FamilyHistories/detail/' . $participant_id . '/' . $family_history_id);
         }
     }
 }

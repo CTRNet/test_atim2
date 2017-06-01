@@ -222,7 +222,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
     function add($participant_id, $tx_control_id, $diagnosis_master_id = null)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
-            $this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+            $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
         }
         
         // MANAGE DATA
@@ -447,10 +447,10 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/TreatmentMasters/listall/' . $participant_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/TreatmentMasters/listall/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/TreatmentMasters/listall/' . $participant_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx_master_id);
         }
     }
 }

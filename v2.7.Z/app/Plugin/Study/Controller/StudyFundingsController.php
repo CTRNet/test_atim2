@@ -175,10 +175,10 @@ class StudyFundingsController extends StudyAppController
             if ($this->StudyFunding->atimDelete($study_funding_id)) {
                 $this->atimFlash(__('your data has been deleted'), '/Study/StudySummaries/detail/' . $study_summary_id . '/');
             } else {
-                $this->flash(__('error deleting data - contact administrator.'), '/Study/StudySummaries/detail/' . $study_summary_id . '/');
+                $this->atimFlashError(__('error deleting data - contact administrator.'), '/Study/StudySummaries/detail/' . $study_summary_id . '/');
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/Study/StudyFundings/detail/' . $study_summary_id . '/' . $study_funding_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Study/StudyFundings/detail/' . $study_summary_id . '/' . $study_funding_id);
         }
     }
 }

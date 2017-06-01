@@ -185,16 +185,29 @@ class ShellHelper extends Helper
         if (isset($_SESSION['ctrapp_core']['warning_trace_msg']) && count($_SESSION['ctrapp_core']['warning_trace_msg'])) {
             $confirm_msg_html .= '<ul class="warning">';
             foreach ($_SESSION['ctrapp_core']['warning_trace_msg'] as $trace_msg) {
-                $confirm_msg_html .= $this->getValidationLine('warning', $trace_msg['msg'], $trace_msg['trace']);
+                if (isset($trace_msg['msg']) && isset($trace_msg['trace'])) {
+                    $confirm_msg_html .= $this->getValidationLine('warning', $trace_msg['msg'], $trace_msg['trace']);
+                } else {
+                    $confirm_msg_html .= '<li><span class="icon16 warning mr5px"></span>' . $trace_msg;
+                }
             }
             $confirm_msg_html .= '</ul>';
             $_SESSION['ctrapp_core']['warning_trace_msg'] = array();
         }
         
+        if (isset($_SESSION['ctrapp_core']['error_msg']) && count($_SESSION['ctrapp_core']['error_msg'])) {
+            $confirm_msg_html .= '<ul class="error">';
+            foreach ($_SESSION['ctrapp_core']['error_msg'] as $trace_msg) {
+                $confirm_msg_html .= '<li><span class="icon16 delete mr5px"></span>' . $trace_msg;
+            }
+            $confirm_msg_html .= '</ul>';
+            $_SESSION['ctrapp_core']['error_msg'] = array();
+        }
         foreach (array(
             'confirm' => 'confirm',
             'warning_no_trace' => 'warning',
-            'info' => 'info'
+            'info' => 'info',
+            'error' => 'delete'
         ) as $type => $class) {
             if (isset($_SESSION['ctrapp_core'][$type . '_msg']) && count($_SESSION['ctrapp_core'][$type . '_msg']) > 0) {
                 $confirm_msg_html .= '<ul class="' . $class . '">';

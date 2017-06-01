@@ -22,15 +22,26 @@ $headers = array(
     'Took (ms)',
     'Actions'
 );
+
 if (isset($debugKitInHistoryMode)) {
     $content = $this->Toolbar->readCache('sql_log', $this->request->params['pass'][0]);
 }
 ?>
 <h2><?php echo __d('debug_kit', 'Sql Logs')?></h2>
+
+<?php
+if (count($_SESSION['query']['previous'])!=0){
+    foreach ($_SESSION['query']['previous'] as $query){
+        echo($query);
+        echo"<hr>";
+    }
+    $_SESSION['query']['previous']=[];
+}
+?>
 <?php if (!empty($content)) : ?>
 	<?php foreach ($content['connections'] as $dbName => $explain): ?>
+        <h4><?php echo $dbName ?></h4>
 <div class="sql-log-panel-query-log">
-	<h4><?php echo $dbName ?></h4>
 		<?php
         if (! isset($debugKitInHistoryMode)) :
             $queryLog = $this->Toolbar->getQueryLogs($dbName, array(

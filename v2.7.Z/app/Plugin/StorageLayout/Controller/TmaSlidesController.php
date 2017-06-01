@@ -104,7 +104,7 @@ class TmaSlidesController extends StorageLayoutAppController
                     // User submit data of the TmaSlide.add() form
                     $tma_block_ids = array_keys($this->request->data);
                 } else {
-                    $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
                     return;
                 }
         
@@ -129,12 +129,12 @@ class TmaSlidesController extends StorageLayoutAppController
                 $real_storage_selected = true;
         }
         if ($real_storage_selected) {
-            $this->flash((__('at least one selected item is not a tma block')), $url_to_cancel, 5);
+            $this->atimFlashWarning(__('at least one selected item is not a tma block')), $url_to_cancel, 5);
             return;
         }
         $display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
         if (sizeof($tma_blocks_from_id) > $display_limit) {
-            $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+            $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
             return;
         }
         if (sizeof($tma_blocks_from_id) != sizeof($tma_block_ids))
@@ -480,7 +480,7 @@ class TmaSlidesController extends StorageLayoutAppController
                 // User submit data of the TmaSlide.editInBatch() form
                 $tma_slide_ids = explode(',', $this->request->data['tma_slide_ids']);
             } else {
-                $this->flash((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
                 return;
             }
         unset($this->request->data['tma_slide_ids']);
@@ -491,14 +491,14 @@ class TmaSlidesController extends StorageLayoutAppController
                 'order' => 'TmaSlide.barcode ASC'
             ));
             if (empty($initial_slide_data)) {
-                $this->flash(__('no slide to update'), $url_to_cancel);
+                $this->atimFlashWarning__('no slide to update'), $url_to_cancel);
                 return;
             }
             if ($tma_slide_ids)
                 $this->TmaSlide->sortForDisplay($initial_slide_data, $tma_slide_ids);
             $display_limit = Configure::read('TmaSlideCreation_processed_items_limit');
             if (sizeof($initial_slide_data) > $display_limit) {
-                $this->flash(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+                $this->atimFlashWarning__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
                 return;
             }
         }
@@ -683,10 +683,10 @@ class TmaSlidesController extends StorageLayoutAppController
                 }
                 $this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/detail/' . $tma_block_storage_master_id);
             } else {
-                $this->flash(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
             }
         } else {
-            $this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
+            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
         }
     }
 

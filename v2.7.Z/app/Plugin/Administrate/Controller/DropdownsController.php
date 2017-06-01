@@ -329,7 +329,7 @@ class DropdownsController extends AdministrateAppController
                 )
             ));
             if (empty($this->request->data)) {
-                $this->flash(__("you cannot configure an empty list"), "javascript:history.back();", 5);
+                $this->atimFlashWarning__("you cannot configure an empty list"), "javascript:history.back();", 5);
             }
             $this->set('alpha_order', $this->request->data[0]['StructurePermissibleValuesCustom']['display_order'] == 0);
         } else {

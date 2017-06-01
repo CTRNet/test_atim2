@@ -16,9 +16,11 @@ class CsvHelper extends AppHelper
     static $nodes_info = null;
 
     static $structures = null;
-
-    function CsvHelper()
+    
+    // function CsvHelper() : This methode of calling constructor is deprecated in PHP 7.0
+    function __construct(View $view)
     {
+        parent::__construct($view);
         $this->clear();
     }
 

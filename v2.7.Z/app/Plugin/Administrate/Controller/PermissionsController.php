@@ -48,6 +48,7 @@ class PermissionsController extends AdministrateAppController
         list ($type, $id) = explode('::', $aro['Aro']['alias']);
         switch ($type) {
             case 'Group':
+                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Administrate/Permissions/tree/' . $id);
                 break;
             case 'User':
@@ -57,6 +58,7 @@ class PermissionsController extends AdministrateAppController
                     'recursive' => - 1
                 ));
                 list ($type, $gid) = explode('::', $parent['Aro']['alias']);
+                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Administrate/Permissions/tree/' . $gid . '/' . $id);
                 break;
         }
@@ -205,7 +207,7 @@ class PermissionsController extends AdministrateAppController
             $this->SystemVar->setVar('permission_timestamp', time());
             Cache::clear(false, "menus");
             // straight flash because we redirect to the edit screen
-            $this->flash(__('your data has been updated'), '/Administrate/Permissions/tree/' . $group_id . '/' . $user_id);
+            $this->atimFlash(__('your data has been updated'), '/Administrate/Permissions/tree/' . $group_id . '/' . $user_id);
             return;
         }
         
