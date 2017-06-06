@@ -33,18 +33,17 @@ class AnnouncementsController extends AdministrateAppController
                 'Group.id' => $user['Group']['id'],
                 'User.id' => $user_id
             ));
-        } else 
-            if ($linked_model == 'bank') {
-                
-                // MANAGE FORM, MENU AND ACTION BUTTONS
-                
-                $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
-                $this->set('atim_menu_variables', array(
-                    'Bank.id' => $bank_or_group_id
-                ));
-            } else {
-                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+        } elseif ($linked_model == 'bank') {
+            
+            // MANAGE FORM, MENU AND ACTION BUTTONS
+            
+            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atim_menu_variables', array(
+                'Bank.id' => $bank_or_group_id
+            ));
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         
         $this->set('linked_model', $linked_model);
         
@@ -119,24 +118,23 @@ class AnnouncementsController extends AdministrateAppController
                 'Group.id' => $user['Group']['id'],
                 'User.id' => $user_id
             ));
-        } else 
-            if ($linked_model == 'bank') {
-                
-                // Set conditions
-                
-                $conditions = array(
-                    'Announcement.bank_id' => $bank_or_group_id
-                );
-                
-                // MANAGE FORM, MENU AND ACTION BUTTONS
-                
-                $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
-                $this->set('atim_menu_variables', array(
-                    'Bank.id' => $bank_or_group_id
-                ));
-            } else {
-                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+        } elseif ($linked_model == 'bank') {
+            
+            // Set conditions
+            
+            $conditions = array(
+                'Announcement.bank_id' => $bank_or_group_id
+            );
+            
+            // MANAGE FORM, MENU AND ACTION BUTTONS
+            
+            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atim_menu_variables', array(
+                'Bank.id' => $bank_or_group_id
+            ));
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         
         $this->set('linked_model', $linked_model);
         

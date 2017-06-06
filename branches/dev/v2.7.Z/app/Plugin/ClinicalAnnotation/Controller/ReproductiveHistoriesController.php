@@ -38,7 +38,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     function detail($participant_id, $reproductive_history_id)
     {
         if (! $participant_id && ! $reproductive_history_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -75,7 +75,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     function add($participant_id = null)
     {
         if (! $participant_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -121,7 +121,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     function edit($participant_id, $reproductive_history_id)
     {
         if ((! $participant_id) && (! $reproductive_history_id)) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -175,7 +175,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
     function delete($participant_id, $reproductive_history_id)
     {
         if ((! $participant_id) && (! $reproductive_history_id)) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA

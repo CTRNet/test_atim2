@@ -104,7 +104,7 @@ class MaterialsController extends MaterialAppController
     function detail($material_id = null)
     {
         if (! $material_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         $this->set('atim_menu_variables', array(
@@ -127,7 +127,7 @@ class MaterialsController extends MaterialAppController
     function delete($material_id = null)
     {
         if (! $material_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA

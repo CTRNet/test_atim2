@@ -81,11 +81,10 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                     if (! isset($query['order'])) {
                         // supperfluou?s
                         $query['order'][] = "(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1)";
-                    } else 
-                        if (isset($query['order']['MiscIdentifier.identifier_value'])) {
-                            $query['order']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1)"] = $query['order']['MiscIdentifier.identifier_value'];
-                            unset($query['order']['MiscIdentifier.identifier_value']);
-                        }
+                    } elseif (isset($query['order']['MiscIdentifier.identifier_value'])) {
+                        $query['order']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1)"] = $query['order']['MiscIdentifier.identifier_value'];
+                        unset($query['order']['MiscIdentifier.identifier_value']);
+                    }
                 }
             }
         }
@@ -106,16 +105,15 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                                 $result['MiscIdentifier']['identifier_value'] = CONFIDENTIAL_MARKER;
                             }
                         }
-                    } else 
-                        if (isset($results[0]['MiscIdentifier'][0]) && isset($results[0]['MiscIdentifier'][0]['misc_identifier_control_id'])) {
-                            foreach ($results[0]['MiscIdentifier'] as &$result) {
-                                if (in_array($result['misc_identifier_control_id'], $confidential_control_ids)) {
-                                    $result['identifier_value'] = CONFIDENTIAL_MARKER;
-                                }
+                    } elseif (isset($results[0]['MiscIdentifier'][0]) && isset($results[0]['MiscIdentifier'][0]['misc_identifier_control_id'])) {
+                        foreach ($results[0]['MiscIdentifier'] as &$result) {
+                            if (in_array($result['misc_identifier_control_id'], $confidential_control_ids)) {
+                                $result['identifier_value'] = CONFIDENTIAL_MARKER;
                             }
-                        } else {
-                            $warn = true;
                         }
+                    } else {
+                        $warn = true;
+                    }
                 } else {
                     $warn = true;
                 }

@@ -258,71 +258,67 @@ class BatchSetsController extends DatamartAppController
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 $this->request->data['BatchSet']['datamart_structure_id'] = $browsing_result['DatamartStructure']['id'];
-            } else 
-                if (array_key_exists('BatchSet', $this->request->data) && isset($this->request->data['BatchSet']['datamart_structure_id'])) {
-                    $this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['BatchSet']['datamart_structure_id'];
-                } else 
-                    if (array_key_exists('Report', $this->request->data) && isset($this->request->data['Report']['datamart_structure_id'])) {
-                        $this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['Report']['datamart_structure_id'];
-                    } else 
-                        if (array_key_exists('BatchSet', $this->request->data)) {
-                            $batch_set_tmp = $this->BatchSet->find('first', array(
-                                'conditions' => array(
-                                    'BatchSet.id' => $this->request->data['BatchSet']['id']
-                                ),
-                                'recursive' => 0
-                            ));
-                            unset($this->request->data['BatchSet']['id']);
-                            // create a generic from a generic
-                            $this->request->data['BatchSet']['datamart_structure_id'] = $batch_set_tmp['BatchSet']['datamart_structure_id'];
-                        } else 
-                            if (isset($this->request->params['_data'])) {
-                                // creation via the "add to tmp batchset button"
-                                $data = $this->request->params['_data'];
-                                $model_name = key($data[0]);
-                                $datamart_structure_id = $this->DatamartStructure->getIdByModelName($model_name);
-                                $model = $this->DatamartStructure->getModel($datamart_structure_id, $model_name);
-                                $data = AppController::defineArrayKey($data, $model->name, $model->primaryKey, true);
-                                $ids = array_keys($data);
-                                
-                                $this->request->data['BatchSet']['flag_tmp'] = true;
-                                $this->request->data['BatchSet']['datamart_structure_id'] = $datamart_structure_id;
-                                $this->request->data['BatchSet']['user_id'] = $this->Session->read('Auth.User.id');
-                                $this->request->data['BatchSet']['group_id'] = $this->Session->read('Auth.User.group_id');
-                                $this->request->data['BatchSet']['sharing_status'] = 'user';
-                                $this->BatchSet->addWritableField(array(
-                                    'title',
-                                    'user_id',
-                                    'group_id',
-                                    'sharing_status',
-                                    'datamart_structure_id',
-                                    'flag_tmp'
-                                ));
-                                $this->BatchSet->save($this->request->data['BatchSet']);
-                                
-                                // get new SET id, and save
-                                $target_batch_set_id = $this->BatchSet->getLastInsertId();
-                                $ids = array_unique($ids);
-                                $ids = array_filter($ids);
-                                
-                                foreach ($ids as $id) {
-                                    // setup ARRAY for ADDING/SAVING
-                                    $save_array[] = array(
-                                        'set_id' => $target_batch_set_id,
-                                        'lookup_id' => $id
-                                    );
-                                }
-                                
-                                // saving
-                                $this->BatchId->check_writable_fields = false;
-                                $this->BatchId->saveAll($save_array);
-                                
-                                // done
-                                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
-                                $this->redirect('/Datamart/BatchSets/listall/' . $target_batch_set_id);
-                            } else {
-                                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                            }
+            } elseif (array_key_exists('BatchSet', $this->request->data) && isset($this->request->data['BatchSet']['datamart_structure_id'])) {
+                $this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['BatchSet']['datamart_structure_id'];
+            } elseif (array_key_exists('Report', $this->request->data) && isset($this->request->data['Report']['datamart_structure_id'])) {
+                $this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['Report']['datamart_structure_id'];
+            } elseif (array_key_exists('BatchSet', $this->request->data)) {
+                $batch_set_tmp = $this->BatchSet->find('first', array(
+                    'conditions' => array(
+                        'BatchSet.id' => $this->request->data['BatchSet']['id']
+                    ),
+                    'recursive' => 0
+                ));
+                unset($this->request->data['BatchSet']['id']);
+                // create a generic from a generic
+                $this->request->data['BatchSet']['datamart_structure_id'] = $batch_set_tmp['BatchSet']['datamart_structure_id'];
+            } elseif (isset($this->request->params['_data'])) {
+                // creation via the "add to tmp batchset button"
+                $data = $this->request->params['_data'];
+                $model_name = key($data[0]);
+                $datamart_structure_id = $this->DatamartStructure->getIdByModelName($model_name);
+                $model = $this->DatamartStructure->getModel($datamart_structure_id, $model_name);
+                $data = AppController::defineArrayKey($data, $model->name, $model->primaryKey, true);
+                $ids = array_keys($data);
+                
+                $this->request->data['BatchSet']['flag_tmp'] = true;
+                $this->request->data['BatchSet']['datamart_structure_id'] = $datamart_structure_id;
+                $this->request->data['BatchSet']['user_id'] = $this->Session->read('Auth.User.id');
+                $this->request->data['BatchSet']['group_id'] = $this->Session->read('Auth.User.group_id');
+                $this->request->data['BatchSet']['sharing_status'] = 'user';
+                $this->BatchSet->addWritableField(array(
+                    'title',
+                    'user_id',
+                    'group_id',
+                    'sharing_status',
+                    'datamart_structure_id',
+                    'flag_tmp'
+                ));
+                $this->BatchSet->save($this->request->data['BatchSet']);
+                
+                // get new SET id, and save
+                $target_batch_set_id = $this->BatchSet->getLastInsertId();
+                $ids = array_unique($ids);
+                $ids = array_filter($ids);
+                
+                foreach ($ids as $id) {
+                    // setup ARRAY for ADDING/SAVING
+                    $save_array[] = array(
+                        'set_id' => $target_batch_set_id,
+                        'lookup_id' => $id
+                    );
+                }
+                
+                // saving
+                $this->BatchId->check_writable_fields = false;
+                $this->BatchId->saveAll($save_array);
+                
+                // done
+                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+                $this->redirect('/Datamart/BatchSets/listall/' . $target_batch_set_id);
+            } else {
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            }
             
             // generate TEMP description for this SET
             if (empty($this->request->data['BatchSet']['title'])) {
@@ -393,19 +389,18 @@ class BatchSetsController extends DatamartAppController
             // merging with the new ones
             if (is_array($this->request->data[$model][$lookup_key_name])) {
                 $batch_set_ids = array_merge($this->request->data[$model][$lookup_key_name], $batch_set_ids);
-            } else 
-                if ($this->request->data[$model][$lookup_key_name] == 'all' && array_key_exists('node', $this->request->data)) {
-                    if (! $browsing_result) {
-                        $browsing_result = $this->BrowsingResult->find('first', array(
-                            'conditions' => array(
-                                'BrowsingResult.id' => $this->request->data['node']['id']
-                            )
-                        ));
-                    }
-                    $batch_set_ids = array_merge(explode(",", $browsing_result['BrowsingResult']['id_csv']), $batch_set_ids);
-                } else {
-                    $batch_set_ids = array_merge(explode(",", $this->request->data[$model][$lookup_key_name]), $batch_set_ids);
+            } elseif ($this->request->data[$model][$lookup_key_name] == 'all' && array_key_exists('node', $this->request->data)) {
+                if (! $browsing_result) {
+                    $browsing_result = $this->BrowsingResult->find('first', array(
+                        'conditions' => array(
+                            'BrowsingResult.id' => $this->request->data['node']['id']
+                        )
+                    ));
                 }
+                $batch_set_ids = array_merge(explode(",", $browsing_result['BrowsingResult']['id_csv']), $batch_set_ids);
+            } else {
+                $batch_set_ids = array_merge(explode(",", $this->request->data[$model][$lookup_key_name]), $batch_set_ids);
+            }
             
             // clean up IDS, removing blanks and duplicates...
             $batch_set_ids = array_unique($batch_set_ids);
@@ -567,7 +562,7 @@ class BatchSetsController extends DatamartAppController
             ));
             $this->atimFlash(__('your data has been updated'), "/Datamart/BatchSets/index");
         } else {
-            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
     }
 

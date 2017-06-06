@@ -80,29 +80,27 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             );
             if (empty($this->request->data))
                 $initial_display = true;
-        } else 
-            if (isset($this->request->data['Participant']['id'])) {
-                // User launched an action from the DataBrowser or a Report Form
-                if ($this->request->data['Participant']['id'] == 'all' && isset($this->request->data['node'])) {
-                    // The displayed elements number was higher than the databrowser_and_report_results_display_limit
-                    $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-                    $browsing_result = $this->BrowsingResult->find('first', array(
-                        'conditions' => array(
-                            'BrowsingResult.id' => $this->request->data['node']['id']
-                        )
-                    ));
-                    $this->request->data['Participant']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
-                }
-                $participant_ids = array_filter($this->request->data['Participant']['id']);
-                $initial_display = true;
-            } else 
-                if (isset($this->request->data['participant_ids'])) {
-                    $participant_ids = explode(',', $this->request->data['participant_ids']);
-                    unset($this->request->data['participant_ids']);
-                } else {
-                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
-                    return;
-                }
+        } elseif (isset($this->request->data['Participant']['id'])) {
+            // User launched an action from the DataBrowser or a Report Form
+            if ($this->request->data['Participant']['id'] == 'all' && isset($this->request->data['node'])) {
+                // The displayed elements number was higher than the databrowser_and_report_results_display_limit
+                $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+                $browsing_result = $this->BrowsingResult->find('first', array(
+                    'conditions' => array(
+                        'BrowsingResult.id' => $this->request->data['node']['id']
+                    )
+                ));
+                $this->request->data['Participant']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+            }
+            $participant_ids = array_filter($this->request->data['Participant']['id']);
+            $initial_display = true;
+        } elseif (isset($this->request->data['participant_ids'])) {
+            $participant_ids = explode(',', $this->request->data['participant_ids']);
+            unset($this->request->data['participant_ids']);
+        } else {
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            return;
+        }
         
         // Get participants data
         
@@ -213,7 +211,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     function edit($participant_id, $participant_message_id)
     {
         if (! $participant_id && ! $participant_message_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA

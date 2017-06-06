@@ -110,23 +110,22 @@ class MasterDetailBehavior extends ModelBehavior
                         $results[$id_to_index[$detail_unit[$detail_data_alias][$master_foreign]]][$detail_class] = $detail_unit[$detail_data_alias];
                     }
                 }
-            } else 
-                if (isset($results[$control_class][$detail_field]) && ! isset($results[$detail_class])) {
-                    // set DETAIL if ONLY one result
-                    $associated = array();
-                    
-                    $detail_model = new AppModel(array(
-                        'table' => $results[$control_class][$detail_field],
-                        'name' => $detail_class,
-                        'alias' => $detail_class,
-                        'alias' => $detail_class
-                    ));
-                    
-                    $associated = $detail_model->find(array(
-                        $master_foreign => $results[0][$model->alias]['id']
-                    ), null, null, - 1);
-                    $results[$detail_class] = $associated[$detail_class];
-                }
+            } elseif (isset($results[$control_class][$detail_field]) && ! isset($results[$detail_class])) {
+                // set DETAIL if ONLY one result
+                $associated = array();
+                
+                $detail_model = new AppModel(array(
+                    'table' => $results[$control_class][$detail_field],
+                    'name' => $detail_class,
+                    'alias' => $detail_class,
+                    'alias' => $detail_class
+                ));
+                
+                $associated = $detail_model->find(array(
+                    $master_foreign => $results[0][$model->alias]['id']
+                ), null, null, - 1);
+                $results[$detail_class] = $associated[$detail_class];
+            }
             
             if ($model->previous_model != null) {
                 // a detailed search occured, restore the original model in case it contained some variables that were not copied in the
@@ -166,12 +165,11 @@ class MasterDetailBehavior extends ModelBehavior
             // Use preg_match to fix issue #3287
             if (preg_match('/Master/', $alternate_model_name)) {
                 $detail_name = str_replace("Master", "Detail", $alternate_model_name);
-            } else 
-                if (preg_match('/^([0-9]+_)/', $alternate_model_name, $matches)) {
-                    $detail_name = $matches[1] . $detail_class;
-                } else {
-                    $detail_name = $alternate_model_name . 'Detail';
-                }
+            } elseif (preg_match('/^([0-9]+_)/', $alternate_model_name, $matches)) {
+                $detail_name = $matches[1] . $detail_class;
+            } else {
+                $detail_name = $alternate_model_name . 'Detail';
+            }
         }
         $detail_control_name = $model->belongsTo[$default_class . "Control"]['className'];
         $plugin = '';

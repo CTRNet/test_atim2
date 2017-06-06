@@ -34,13 +34,12 @@ class CodingIcd10sController extends CodingIcdAppController
         $model_to_use = null;
         if ($icd_type_name == "who") {
             $model_to_use = $this->CodingIcd10Who;
-        } else 
-            if ($icd_type_name == "ca") {
-                $model_to_use = $this->CodingIcd10Ca;
-            } else {
-                $this->CodingIcd10->validationErrors[][] = __("invalid model for icd10 search [" . $icd_type_name . "]");
-                $model_to_use = $this->CodingIcd10Who;
-            }
+        } elseif ($icd_type_name == "ca") {
+            $model_to_use = $this->CodingIcd10Ca;
+        } else {
+            $this->CodingIcd10->validationErrors[][] = __("invalid model for icd10 search [" . $icd_type_name . "]");
+            $model_to_use = $this->CodingIcd10Who;
+        }
         return $model_to_use;
     }
 }

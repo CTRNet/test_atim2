@@ -413,7 +413,6 @@ class User extends AppModel
                 }
             }
         }
-        
         return false;
     }
 

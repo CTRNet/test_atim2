@@ -53,7 +53,7 @@ class OrderItemsController extends OrderAppController
     {
         // MANAGE DATA
         if ($order_line_id && $shipment_id)
-            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         
         if ($order_line_id) {
             // List all items of an order line
@@ -67,31 +67,30 @@ class OrderItemsController extends OrderAppController
             if (empty($order_line_data)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-        } else 
-            if ($shipment_id) {
-                // List all items linked to a shipment
-                $shipment_data = $this->Shipment->find('first', array(
-                    'conditions' => array(
-                        'Shipment.id' => $shipment_id,
-                        'Shipment.order_id' => $order_id
-                    ),
-                    'recursive' => '-1'
-                ));
-                if (empty($shipment_data)) {
-                    $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                }
-            } else {
-                // List all items of an order
-                $order_data = $this->Order->find('first', array(
-                    'conditions' => array(
-                        'Order.id' => $order_id
-                    ),
-                    'recursive' => '-1'
-                ));
-                if (empty($order_data)) {
-                    $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                }
+        } elseif ($shipment_id) {
+            // List all items linked to a shipment
+            $shipment_data = $this->Shipment->find('first', array(
+                'conditions' => array(
+                    'Shipment.id' => $shipment_id,
+                    'Shipment.order_id' => $order_id
+                ),
+                'recursive' => '-1'
+            ));
+            if (empty($shipment_data)) {
+                $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
+        } else {
+            // List all items of an order
+            $order_data = $this->Order->find('first', array(
+                'conditions' => array(
+                    'Order.id' => $order_id
+                ),
+                'recursive' => '-1'
+            ));
+            if (empty($order_data)) {
+                $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            }
+        }
         
         // Set data
         $conditions = array(
@@ -99,10 +98,9 @@ class OrderItemsController extends OrderAppController
         );
         if ($order_line_id) {
             $conditions['OrderItem.order_line_id'] = $order_line_id;
-        } else 
-            if ($shipment_id) {
-                $conditions['OrderItem.shipment_id'] = $shipment_id;
-            }
+        } elseif ($shipment_id) {
+            $conditions['OrderItem.shipment_id'] = $shipment_id;
+        }
         if (in_array($status, array(
             'pending',
             'shipped',
@@ -366,7 +364,7 @@ class OrderItemsController extends OrderAppController
                     $this->OrderItem->id = null;
                     $this->OrderItem->data = array();
                     if (! $this->OrderItem->save($new_data_to_save, false))
-                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
                     if ($object_model_name == 'AliquotMaster') {
                         // Update aliquot master status
                         $new_aliquot_master_data = array();
@@ -453,34 +451,32 @@ class OrderItemsController extends OrderAppController
             // Just clicked on 'add to order' button of the aliquot or tma slide form
             $object_ids_to_add[] = $object_id;
             $initial_display = true;
-        } else 
-            if (isset($this->request->data[$object_model_name]) || isset($this->request->data['ViewAliquot'])) {
-                // Just launched process from batchset
-                if (isset($this->request->data[$object_model_name])) {
-                    $object_ids_to_add = $this->request->data[$object_model_name]['id'];
-                } else {
-                    $object_ids_to_add = $this->request->data['ViewAliquot']['aliquot_master_id'];
-                }
-                if ($object_ids_to_add == 'all' && isset($this->request->data['node'])) {
-                    $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-                    $browsing_result = $this->BrowsingResult->find('first', array(
-                        'conditions' => array(
-                            'BrowsingResult.id' => $this->request->data['node']['id']
-                        )
-                    ));
-                    $object_ids_to_add = explode(",", $browsing_result['BrowsingResult']['id_csv']);
-                }
-                $object_ids_to_add = array_filter($object_ids_to_add);
-                $initial_display = true;
-            } else 
-                if (isset($this->request->data['object_ids_to_add'])) {
-                    // User just clicked on submit button
-                    $object_ids_to_add = explode(',', $this->request->data['object_ids_to_add']);
-                    unset($this->request->data['object_ids_to_add']);
-                } else {
-                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
-                    return;
-                }
+        } elseif (isset($this->request->data[$object_model_name]) || isset($this->request->data['ViewAliquot'])) {
+            // Just launched process from batchset
+            if (isset($this->request->data[$object_model_name])) {
+                $object_ids_to_add = $this->request->data[$object_model_name]['id'];
+            } else {
+                $object_ids_to_add = $this->request->data['ViewAliquot']['aliquot_master_id'];
+            }
+            if ($object_ids_to_add == 'all' && isset($this->request->data['node'])) {
+                $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+                $browsing_result = $this->BrowsingResult->find('first', array(
+                    'conditions' => array(
+                        'BrowsingResult.id' => $this->request->data['node']['id']
+                    )
+                ));
+                $object_ids_to_add = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+            }
+            $object_ids_to_add = array_filter($object_ids_to_add);
+            $initial_display = true;
+        } elseif (isset($this->request->data['object_ids_to_add'])) {
+            // User just clicked on submit button
+            $object_ids_to_add = explode(',', $this->request->data['object_ids_to_add']);
+            unset($this->request->data['object_ids_to_add']);
+        } else {
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            return;
+        }
         
         // Get Aliquot or TMA Slide data
         $new_items_data = $this->{$object_model_name}->find('all', array(
@@ -492,11 +488,10 @@ class OrderItemsController extends OrderAppController
         if (empty($new_items_data)) {
             $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
             return;
-        } else 
-            if (sizeof($new_items_data) > $display_limit) {
-                $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
-                return;
-            }
+        } elseif (sizeof($new_items_data) > $display_limit) {
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
+            return;
+        }
         if (sizeof($new_items_data) != sizeof($object_ids_to_add)) {
             // In case an order item has just been deleted by another user before we submitted updated data
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -631,37 +626,36 @@ class OrderItemsController extends OrderAppController
             if (empty($this->request->data['FunctionManagement']['selected_order_and_order_line_ids'])) {
                 $submitted_data_validates = false;
                 $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
-            } else 
-                if (preg_match('/^([0-9]+)\|([0-9]*)$/', $this->request->data['FunctionManagement']['selected_order_and_order_line_ids'], $order_and_order_line_ids)) {
-                    $order_id = $order_and_order_line_ids[1];
-                    $order_line_id = $order_and_order_line_ids[2];
-                    if ($order_line_id) {
-                        if (! $this->OrderLine->find('count', array(
-                            'conditions' => array(
-                                'OrderLine.order_id' => $order_id,
-                                'OrderLine.id' => $order_line_id
-                            ),
-                            'recursive' => '-1'
-                        ))) {
-                            $submitted_data_validates = false;
-                            $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
-                        }
-                    } else {
-                        if (! $this->Order->find('count', array(
-                            'conditions' => array(
-                                'Order.id' => $order_id
-                            ),
-                            'recursive' => '-1'
-                        ))) {
-                            $submitted_data_validates = false;
-                            $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
-                        }
+            } elseif (preg_match('/^([0-9]+)\|([0-9]*)$/', $this->request->data['FunctionManagement']['selected_order_and_order_line_ids'], $order_and_order_line_ids)) {
+                $order_id = $order_and_order_line_ids[1];
+                $order_line_id = $order_and_order_line_ids[2];
+                if ($order_line_id) {
+                    if (! $this->OrderLine->find('count', array(
+                        'conditions' => array(
+                            'OrderLine.order_id' => $order_id,
+                            'OrderLine.id' => $order_line_id
+                        ),
+                        'recursive' => '-1'
+                    ))) {
+                        $submitted_data_validates = false;
+                        $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
                     }
-                    $this->request->data['OrderItem']['order_id'] = $order_id;
-                    $this->request->data['OrderItem']['order_line_id'] = $order_line_id;
                 } else {
-                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                    if (! $this->Order->find('count', array(
+                        'conditions' => array(
+                            'Order.id' => $order_id
+                        ),
+                        'recursive' => '-1'
+                    ))) {
+                        $submitted_data_validates = false;
+                        $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
+                    }
                 }
+                $this->request->data['OrderItem']['order_id'] = $order_id;
+                $this->request->data['OrderItem']['order_line_id'] = $order_line_id;
+            } else {
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            }
             // Launch validation on order item data
             $this->OrderItem->set($this->request->data);
             $submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;
@@ -854,17 +848,16 @@ class OrderItemsController extends OrderAppController
                 'OrderItem.id' => $order_item_ids
             );
             $initial_display = true;
-        } else 
-            if (! empty($this->request->data)) {
-                // User submit data of the OrderItem.editInBatch() form
-                $order_item_ids = explode(',', $this->request->data['order_item_ids']);
-                $criteria = array(
-                    'OrderItem.id' => $order_item_ids
-                );
-            } else {
-                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
-                return;
-            }
+        } elseif (! empty($this->request->data)) {
+            // User submit data of the OrderItem.editInBatch() form
+            $order_item_ids = explode(',', $this->request->data['order_item_ids']);
+            $criteria = array(
+                'OrderItem.id' => $order_item_ids
+            );
+        } else {
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            return;
+        }
         unset($this->request->data['order_item_ids']);
         
         if ($initial_display) {
@@ -895,15 +888,13 @@ class OrderItemsController extends OrderAppController
         if (empty($statuses)) {
             // All order items have probably been deleted by another user before we submitted updated data
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } else 
-            if (sizeof($statuses) != 1) {
-                $this->atimFlashWarning(__('items should have the same status to be updated in batch'), $url_to_cancel);
-                return;
-            } else 
-                if ($statuses[0]['OrderItem']['status'] == 'shipped') {
-                    $this->atimFlashWarning(__('items should have a status different than shipped to be updated in batch'), $url_to_cancel);
-                    return;
-                }
+        } elseif (sizeof($statuses) != 1) {
+            $this->atimFlashWarning(__('items should have the same status to be updated in batch'), $url_to_cancel);
+            return;
+        } elseif ($statuses[0]['OrderItem']['status'] == 'shipped') {
+            $this->atimFlashWarning(__('items should have a status different than shipped to be updated in batch'), $url_to_cancel);
+            return;
+        }
         $status = $statuses[0]['OrderItem']['status'];
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
@@ -1189,35 +1180,33 @@ class OrderItemsController extends OrderAppController
                 'OrderItem.id' => $order_item_ids
             );
             $initial_display = true;
-        } else 
-            if (! empty($this->request->data)) {
-                // User submit data of the OrderItem.defineOrderItemsReturned() form
-                $order_item_ids = explode(',', $this->request->data['order_item_ids']);
-                $criteria = array(
-                    'OrderItem.id' => $order_item_ids
-                );
-            } else 
-                if ($order_id) {
-                    // User is working on an order
-                    $this->Order->getOrRedirect($order_id);
-                    $criteria = array(
-                        'OrderItem.order_id' => $order_id
-                    );
-                    $criteria[] = array(
-                        'OrderItem.status' => 'shipped'
-                    );
-                    if ($order_line_id)
-                        $criteria['OrderItem.order_line_id'] = $order_line_id;
-                    if ($shipment_id)
-                        $criteria['OrderItem.shipment_id'] = $shipment_id;
-                    if ($order_item_id)
-                        $criteria['OrderItem.id'] = $order_item_id;
-                    if (empty($this->request->data))
-                        $initial_display = true;
-                } else {
-                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
-                    return;
-                }
+        } elseif (! empty($this->request->data)) {
+            // User submit data of the OrderItem.defineOrderItemsReturned() form
+            $order_item_ids = explode(',', $this->request->data['order_item_ids']);
+            $criteria = array(
+                'OrderItem.id' => $order_item_ids
+            );
+        } elseif ($order_id) {
+            // User is working on an order
+            $this->Order->getOrRedirect($order_id);
+            $criteria = array(
+                'OrderItem.order_id' => $order_id
+            );
+            $criteria[] = array(
+                'OrderItem.status' => 'shipped'
+            );
+            if ($order_line_id)
+                $criteria['OrderItem.order_line_id'] = $order_line_id;
+            if ($shipment_id)
+                $criteria['OrderItem.shipment_id'] = $shipment_id;
+            if ($order_item_id)
+                $criteria['OrderItem.id'] = $order_item_id;
+            if (empty($this->request->data))
+                $initial_display = true;
+        } else {
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            return;
+        }
         unset($this->request->data['order_item_ids']);
         
         if ($initial_display) {
@@ -1273,27 +1262,25 @@ class OrderItemsController extends OrderAppController
                 'Order.id' => $order_id,
                 'Shipment.id' => $shipment_id
             ));
-        } else 
-            if ($order_line_id) {
-                // Get the current menu object
-                $this->set('atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%OrderLine.id%%/'));
-                // Variables
-                $this->set('atim_menu_variables', array(
-                    'Order.id' => $order_id,
-                    'OrderLine.id' => $order_line_id
-                ));
-            } else 
-                if ($order_id) {
-                    // Get the current menu object
-                    $this->set('atim_menu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
-                    // Variables
-                    $this->set('atim_menu_variables', array(
-                        'Order.id' => $order_id
-                    ));
-                } else {
-                    $this->set('atim_menu', $this->Menus->get('/Order/Orders/search/'));
-                    $this->set('atim_menu_variables', array());
-                }
+        } elseif ($order_line_id) {
+            // Get the current menu object
+            $this->set('atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%OrderLine.id%%/'));
+            // Variables
+            $this->set('atim_menu_variables', array(
+                'Order.id' => $order_id,
+                'OrderLine.id' => $order_line_id
+            ));
+        } elseif ($order_id) {
+            // Get the current menu object
+            $this->set('atim_menu', $this->Menus->get('/Order/Orders/detail/%%Order.id%%/'));
+            // Variables
+            $this->set('atim_menu_variables', array(
+                'Order.id' => $order_id
+            ));
+        } else {
+            $this->set('atim_menu', $this->Menus->get('/Order/Orders/search/'));
+            $this->set('atim_menu_variables', array());
+        }
         
         // Set structure
         $this->Structures->set('orderitems_returned,orderitems_returned_flag');
@@ -1436,27 +1423,25 @@ class OrderItemsController extends OrderAppController
                 
                 if ($shipment_id) {
                     $this->atimFlash(__('your data has been saved'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id);
-                } else 
-                    if ($order_line_id) {
-                        $this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/' . $order_id . '/' . $order_line_id);
-                    } else 
-                        if ($order_id) {
-                            $this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/' . $order_id);
-                        } else {
-                            // batch
-                            $batch_ids = $order_item_ids;
-                            $datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
-                            $batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
-                            $batch_set_data = array(
-                                'BatchSet' => array(
-                                    'datamart_structure_id' => $datamart_structure->getIdByModelName('OrderItem'),
-                                    'flag_tmp' => true
-                                )
-                            );
-                            $batch_set_model->check_writable_fields = false;
-                            $batch_set_model->saveWithIds($batch_set_data, $batch_ids);
-                            $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batch_set_model->getLastInsertId());
-                        }
+                } elseif ($order_line_id) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/' . $order_id . '/' . $order_line_id);
+                } elseif ($order_id) {
+                    $this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/' . $order_id);
+                } else {
+                    // batch
+                    $batch_ids = $order_item_ids;
+                    $datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+                    $batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+                    $batch_set_data = array(
+                        'BatchSet' => array(
+                            'datamart_structure_id' => $datamart_structure->getIdByModelName('OrderItem'),
+                            'flag_tmp' => true
+                        )
+                    );
+                    $batch_set_model->check_writable_fields = false;
+                    $batch_set_model->saveWithIds($batch_set_data, $batch_ids);
+                    $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batch_set_model->getLastInsertId());
+                }
             } else {
                 // Set error message
                 foreach ($errors as $model => $field_messages) {

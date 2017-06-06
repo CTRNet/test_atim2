@@ -15,13 +15,12 @@ class OrderByTranslateBehavior extends ModelBehavior
             $s = explode(".", $value);
             if (count($s) == 1) {
                 $current[] = $model->name . "." . $value;
-            } else 
-                if (count($s) == 2) {
-                    assert($s[0] == $model->name) or die("Left side should be model name in " . $value);
-                    $current[] = $value;
-                } else {
-                    die("Invalid field " . $value);
-                }
+            } elseif (count($s) == 2) {
+                assert($s[0] == $model->name) or die("Left side should be model name in " . $value);
+                $current[] = $value;
+            } else {
+                die("Invalid field " . $value);
+            }
         }
         $this->modelsFieldsAssoc[$model->name] = $current;
     }

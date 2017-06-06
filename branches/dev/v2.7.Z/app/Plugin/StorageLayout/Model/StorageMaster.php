@@ -111,55 +111,53 @@ class StorageMaster extends StorageLayoutAppModel
         
         if (array_key_exists('id', $this->data['StorageMaster']) && $this->insideItself()) {
             $this->validationErrors['recorded_storage_selection_label'][] = 'you can not store your storage inside itself';
-        } else 
-            if (! empty($parent_storage_data) && ($parent_storage_data['StorageControl']['is_tma_block'])) {
-                $this->validationErrors['recorded_storage_selection_label'][] = 'you can not define a tma block as a parent storage';
-            } else {
-                if ($parent_storage_selection_results['change_position_x_to_uppercase']) {
-                    $this->data['StorageMaster']['parent_storage_coord_x'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_x']);
-                }
-                if ($parent_storage_selection_results['change_position_y_to_uppercase']) {
-                    $this->data['StorageMaster']['parent_storage_coord_y'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_y']);
+        } elseif (! empty($parent_storage_data) && ($parent_storage_data['StorageControl']['is_tma_block'])) {
+            $this->validationErrors['recorded_storage_selection_label'][] = 'you can not define a tma block as a parent storage';
+        } else {
+            if ($parent_storage_selection_results['change_position_x_to_uppercase']) {
+                $this->data['StorageMaster']['parent_storage_coord_x'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_x']);
+            }
+            if ($parent_storage_selection_results['change_position_y_to_uppercase']) {
+                $this->data['StorageMaster']['parent_storage_coord_y'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_y']);
+            }
+            
+            // Set error
+            if (! empty($parent_storage_selection_results['storage_definition_error'])) {
+                $this->validationErrors['recorded_storage_selection_label'][] = $parent_storage_selection_results['storage_definition_error'];
+            }
+            if (! empty($parent_storage_selection_results['position_x_error'])) {
+                $this->validationErrors['parent_storage_coord_x'][] = $parent_storage_selection_results['position_x_error'];
+            }
+            if (! empty($parent_storage_selection_results['position_y_error'])) {
+                $this->validationErrors['parent_storage_coord_y'][] = $parent_storage_selection_results['position_y_error'];
+            }
+            
+            if (empty($this->validationErrors['recorded_storage_selection_label']) && empty($this->validationErrors['parent_storage_coord_x']) && empty($this->validationErrors['parent_storage_coord_y']) && isset($parent_storage_selection_results['storage_data']['StorageControl']) && $parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] && (strlen($this->data['StorageMaster']['parent_storage_coord_x']) > 0 || strlen($this->data['StorageMaster']['parent_storage_coord_y']) > 0)) {
+                $exception = $this->id ? array(
+                    "StorageMaster" => $this->id
+                ) : array();
+                $position_status = $this->positionStatusQuick($parent_storage_selection_results['storage_data']['StorageMaster']['id'], array(
+                    'x' => $this->data['StorageMaster']['parent_storage_coord_x'],
+                    'y' => $this->data['StorageMaster']['parent_storage_coord_y']
+                ), $exception);
+                
+                $msg = null;
+                if ($position_status == StorageMaster::POSITION_OCCUPIED) {
+                    $msg = __('the storage [%s] already contained something at position [%s, %s]');
+                } elseif ($position_status == StorageMaster::POSITION_DOUBLE_SET) {
+                    $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
                 }
                 
-                // Set error
-                if (! empty($parent_storage_selection_results['storage_definition_error'])) {
-                    $this->validationErrors['recorded_storage_selection_label'][] = $parent_storage_selection_results['storage_definition_error'];
-                }
-                if (! empty($parent_storage_selection_results['position_x_error'])) {
-                    $this->validationErrors['parent_storage_coord_x'][] = $parent_storage_selection_results['position_x_error'];
-                }
-                if (! empty($parent_storage_selection_results['position_y_error'])) {
-                    $this->validationErrors['parent_storage_coord_y'][] = $parent_storage_selection_results['position_y_error'];
-                }
-                
-                if (empty($this->validationErrors['recorded_storage_selection_label']) && empty($this->validationErrors['parent_storage_coord_x']) && empty($this->validationErrors['parent_storage_coord_y']) && isset($parent_storage_selection_results['storage_data']['StorageControl']) && $parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] && (strlen($this->data['StorageMaster']['parent_storage_coord_x']) > 0 || strlen($this->data['StorageMaster']['parent_storage_coord_y']) > 0)) {
-                    $exception = $this->id ? array(
-                        "StorageMaster" => $this->id
-                    ) : array();
-                    $position_status = $this->positionStatusQuick($parent_storage_selection_results['storage_data']['StorageMaster']['id'], array(
-                        'x' => $this->data['StorageMaster']['parent_storage_coord_x'],
-                        'y' => $this->data['StorageMaster']['parent_storage_coord_y']
-                    ), $exception);
-                    
-                    $msg = null;
-                    if ($position_status == StorageMaster::POSITION_OCCUPIED) {
-                        $msg = __('the storage [%s] already contained something at position [%s, %s]');
-                    } else 
-                        if ($position_status == StorageMaster::POSITION_DOUBLE_SET) {
-                            $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
-                        }
-                    
-                    if ($msg != null) {
-                        $msg = sprintf($msg, $parent_storage_selection_results['storage_data']['StorageMaster']['selection_label'], $this->data['StorageMaster']['parent_storage_coord_x'], $this->data['StorageMaster']['parent_storage_coord_y']);
-                        if ($parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == self::CONFLICTS_WARN) {
-                            AppController::addWarningMsg($msg);
-                        } else {
-                            $this->validationErrors['parent_storage_coord_x'][] = $msg;
-                        }
+                if ($msg != null) {
+                    $msg = sprintf($msg, $parent_storage_selection_results['storage_data']['StorageMaster']['selection_label'], $this->data['StorageMaster']['parent_storage_coord_x'], $this->data['StorageMaster']['parent_storage_coord_y']);
+                    if ($parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == self::CONFLICTS_WARN) {
+                        AppController::addWarningMsg($msg);
+                    } else {
+                        $this->validationErrors['parent_storage_coord_x'][] = $msg;
                     }
                 }
             }
+        }
         
         $this->isDuplicatedStorageBarCode($this->data);
         
@@ -228,24 +226,20 @@ class StorageMaster extends StorageLayoutAppModel
                     // Manage position x
                     if (! $position_x_validation['validated']) {
                         $position_x_error = 'an x coordinate does not match format';
-                    } else 
-                        if ($position_y_validation['validated'] && $storage_data['StorageControl']['coord_x_size'] > 0 && strlen($position_x) == 0 && strlen($position_y) > 0) {
-                            $position_x_error = 'an x coordinate needs to be defined';
-                        } else 
-                            if ($position_x_validation['change_position_to_uppercase']) {
-                                $change_position_x_to_uppercase = true;
-                            }
+                    } elseif ($position_y_validation['validated'] && $storage_data['StorageControl']['coord_x_size'] > 0 && strlen($position_x) == 0 && strlen($position_y) > 0) {
+                        $position_x_error = 'an x coordinate needs to be defined';
+                    } elseif ($position_x_validation['change_position_to_uppercase']) {
+                        $change_position_x_to_uppercase = true;
+                    }
                     
                     // Manage position y
                     if (! $position_y_validation['validated']) {
                         $position_y_error = 'an y coordinate does not match format';
-                    } else 
-                        if ($position_x_validation['validated'] && $storage_data['StorageControl']['coord_y_size'] > 0 && strlen($position_y) == 0 && strlen($position_x) > 0) {
-                            $position_y_error = 'a y coordinate needs to be defined';
-                        } else 
-                            if ($position_y_validation['change_position_to_uppercase']) {
-                                $change_position_y_to_uppercase = true;
-                            }
+                    } elseif ($position_x_validation['validated'] && $storage_data['StorageControl']['coord_y_size'] > 0 && strlen($position_y) == 0 && strlen($position_x) > 0) {
+                        $position_y_error = 'a y coordinate needs to be defined';
+                    } elseif ($position_y_validation['change_position_to_uppercase']) {
+                        $change_position_y_to_uppercase = true;
+                    }
                 }
             } else {
                 // An error has been detected
@@ -381,13 +375,12 @@ class StorageMaster extends StorageLayoutAppModel
                 if (strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'alphabetical') == 0) {
                     // Alphabetical drop down list
                     $array_to_order = array_slice(range('A', 'Z'), 0, $size);
-                } else 
-                    if (strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'integer') == 0) {
-                        // Integer drop down list
-                        $array_to_order = range('1', $size);
-                    } else {
-                        AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    }
+                } elseif (strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'integer') == 0) {
+                    // Integer drop down list
+                    $array_to_order = range('1', $size);
+                } else {
+                    AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                }
             } else {
                 // Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.
                 if ((strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
@@ -466,16 +459,15 @@ class StorageMaster extends StorageLayoutAppModel
                     'StorageMaster' => $selected_storages[0]['StorageMaster'],
                     'StorageControl' => $selected_storages[0]['StorageControl']
                 );
-            } else 
-                if (sizeof($selected_storages) > 1) {
-                    $this->storage_selection_labels_already_checked[$storage_label_and_code] = array(
-                        'error' => str_replace('%s', $storage_label_and_code, __('more than one storages matche the selection label [%s]'))
-                    );
-                } else {
-                    $this->storage_selection_labels_already_checked[$storage_label_and_code] = array(
-                        'error' => str_replace('%s', $storage_label_and_code, __('no storage matches the selection label [%s]'))
-                    );
-                }
+            } elseif (sizeof($selected_storages) > 1) {
+                $this->storage_selection_labels_already_checked[$storage_label_and_code] = array(
+                    'error' => str_replace('%s', $storage_label_and_code, __('more than one storages matche the selection label [%s]'))
+                );
+            } else {
+                $this->storage_selection_labels_already_checked[$storage_label_and_code] = array(
+                    'error' => str_replace('%s', $storage_label_and_code, __('no storage matches the selection label [%s]'))
+                );
+            }
         }
         
         return $this->storage_selection_labels_already_checked[$storage_label_and_code];
@@ -948,20 +940,19 @@ class StorageMaster extends StorageLayoutAppModel
                     $init_data_unit[$type][$x_key] = '';
                     $init_data_unit[$type][$y_key] = '';
                     $init_data_unit[$type][$storage_parent_key] = null;
-                } else 
-                    if ($rcv_data[$type][$init_data_id]['x'] == 'u') {
-                        // unclassified
-                        $init_data_unit[$type][$x_key] = '';
-                        $init_data_unit[$type][$y_key] = '';
-                        $init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
-                    } else {
-                        // positioned
-                        if (! $storage_control)
-                            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                        $init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['x']);
-                        $init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['y']);
-                        $init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
-                    }
+                } elseif ($rcv_data[$type][$init_data_id]['x'] == 'u') {
+                    // unclassified
+                    $init_data_unit[$type][$x_key] = '';
+                    $init_data_unit[$type][$y_key] = '';
+                    $init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
+                } else {
+                    // positioned
+                    if (! $storage_control)
+                        AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                    $init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['x']);
+                    $init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['y']);
+                    $init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
+                }
                 
                 $save_new_postion = true;
                 if ($type == "StorageMaster") {
@@ -1022,13 +1013,12 @@ class StorageMaster extends StorageLayoutAppModel
         $children_array['DisplayData']['y'] = strlen($children_array[$type_key][$y_key]) > 0 ? $children_array[$type_key][$y_key] : 1;
         if ($coordinate_list == null) {
             $children_array['DisplayData']['x'] = $children_array[$type_key][$x_key];
-        } else 
-            if (isset($coordinate_list[$children_array[$type_key][$x_key]])) {
-                $children_array['DisplayData']['x'] = $coordinate_list[$children_array[$type_key][$x_key]]['StorageCoordinate']['id'];
-                $children_array['DisplayData']['y'] = 1;
-            } else {
-                $children_array['DisplayData']['x'] = "";
-            }
+        } elseif (isset($coordinate_list[$children_array[$type_key][$x_key]])) {
+            $children_array['DisplayData']['x'] = $coordinate_list[$children_array[$type_key][$x_key]]['StorageCoordinate']['id'];
+            $children_array['DisplayData']['y'] = 1;
+        } else {
+            $children_array['DisplayData']['x'] = "";
+        }
         if (is_null($children_array['DisplayData']['x']))
             $children_array['DisplayData']['x'] = '';
         if (is_null($children_array['DisplayData']['y']))
@@ -1118,10 +1108,9 @@ class StorageMaster extends StorageLayoutAppModel
             if (isset($this->used_storage_pos[$storage_master_id][$position['x']][$position['y']])) {
                 return StorageMaster::POSITION_DOUBLE_SET;
             }
-        } else 
-            if (isset($this->used_storage_pos[$storage_master_id][$position['x']])) {
-                return StorageMaster::POSITION_DOUBLE_SET;
-            }
+        } elseif (isset($this->used_storage_pos[$storage_master_id][$position['x']])) {
+            return StorageMaster::POSITION_DOUBLE_SET;
+        }
         $this->used_storage_pos[$storage_master_id][$position['x']][$position['y']] = 'used';
         
         return StorageMaster::POSITION_FREE;
@@ -1151,13 +1140,12 @@ class StorageMaster extends StorageLayoutAppModel
                     if ($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_WARN) {
                         AppController::addWarningMsg($msg);
                         $conflicts_found = true;
-                    } else 
-                        if ($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_ERR) {
-                            $this->validationErrors[][] = ($msg . ' ' . __('unclassifying additional items'));
-                            $model_data['x'] = '';
-                            $model_data['y'] = '';
-                            $conflicts_found = true;
-                        }
+                    } elseif ($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_ERR) {
+                        $this->validationErrors[][] = ($msg . ' ' . __('unclassifying additional items'));
+                        $model_data['x'] = '';
+                        $model_data['y'] = '';
+                        $conflicts_found = true;
+                    }
                 } else {
                     // save the item label
                     $model = AppModel::getInstance(null, $model_name, true);

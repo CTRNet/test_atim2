@@ -26,11 +26,10 @@ class ViewShell extends AppShell
         if (empty($user)) {
             $this->error('Invalid username/password');
             exit();
-        } else 
-            if ($user['User']['group_id'] != 1) {
-                $this->error('This user is not part of the administration group.');
-                exit();
-            }
+        } elseif ($user['User']['group_id'] != 1) {
+            $this->error('This user is not part of the administration group.');
+            exit();
+        }
         
         $this->commands['exit'] = function ($self) {
             exit();

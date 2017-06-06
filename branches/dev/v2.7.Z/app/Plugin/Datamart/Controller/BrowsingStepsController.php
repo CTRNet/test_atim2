@@ -36,10 +36,9 @@ class BrowsingStepsController extends DatamartAppController
                 $step_title = "** $step_counter ** " . __($new_step_datamart_structure['display_name']);
                 if ($new_step['parent_children'] == 'c') {
                     $step_title .= ' ' . __('children');
-                } else 
-                    if ($new_step['parent_children'] == 'p') {
-                        $step_title .= ' ' . __('parent');
-                    }
+                } elseif ($new_step['parent_children'] == 'p') {
+                    $step_title .= ' ' . __('parent');
+                }
                 $step_search_details = '';
                 $search = $new_step['serialized_search_params'] ? unserialize($new_step['serialized_search_params']) : array();
                 $adv_search = isset($search['adv_search_conditions']) ? $search['adv_search_conditions'] : array();

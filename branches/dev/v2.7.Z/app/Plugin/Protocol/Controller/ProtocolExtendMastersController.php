@@ -80,7 +80,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     function add($protocol_master_id)
     {
         if (! $protocol_master_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // Get treatment master row for extended data
@@ -132,7 +132,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     function edit($protocol_master_id, $protocol_extend_master_id)
     {
         if ((! $protocol_master_id) || (! $protocol_extend_master_id)) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // Get treatment master row for extended data
@@ -203,7 +203,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
     function delete($protocol_master_id, $protocol_extend_master_id)
     {
         if ((! $protocol_master_id) || (! $protocol_extend_master_id)) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // Get treatment master row for extended data

@@ -47,10 +47,9 @@ class OrderLinesController extends OrderAppController
     {
         if (! $order_id) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } else 
-            if (Configure::read('order_item_to_order_objetcs_link_setting') == 3) {
-                $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+        } elseif (Configure::read('order_item_to_order_objetcs_link_setting') == 3) {
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         
         // MANAGE DATA
         
@@ -137,7 +136,7 @@ class OrderLinesController extends OrderAppController
                     $this->OrderLine->id = null;
                     $this->OrderLine->data = array();
                     if (! $this->OrderLine->save($new_data_to_save, false))
-                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
                 }
                 $hook_link = $this->hook('postsave_process');
                 if ($hook_link) {

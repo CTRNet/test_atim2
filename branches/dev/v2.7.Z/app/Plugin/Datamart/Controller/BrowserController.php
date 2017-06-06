@@ -151,13 +151,12 @@ class BrowserController extends DatamartAppController
                     $control_id = $this->request->data['Browser']['search_for'];
                     $check_list = false;
                 }
-            } else 
-                if ($control_id == 0) {
-                    // error, the control_id should't be 0
-                    $this->redirect('/Pages/err_internal?p[]=control_id', NULL, TRUE);
-                } else {
-                    $check_list = true;
-                }
+            } elseif ($control_id == 0) {
+                // error, the control_id should't be 0
+                $this->redirect('/Pages/err_internal?p[]=control_id', NULL, true);
+            } else {
+                $check_list = true;
+            }
             list ($control_id, $sub_structure_id, $parent_child) = $this->getIdsAndParentChild($control_id);
             // direct access array (if the user goes from 1 to 4 by going throuhg 2 and 3, the direct access are 2 and 3
             $direct_id_arr = explode(Browser::$model_separator_str, $control_id);
@@ -304,96 +303,95 @@ $check_list) // this is a checklist
             
             $csv_merge_data = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);
             $this->set('csv_merge_data', $csv_merge_data);
-        } else 
-            if ($browsing) {
-                if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
-                    $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
-                }
-                // search screen
-                $tmp_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
-                if (isset($sub_structure_id) && $ctrl_name = $tmp_model->getControlName()) {
-                    $alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $ctrl_name, $sub_structure_id);
-                    $alternate_alias = $alternate_info['form_alias'];
-                    
-                    // get the structure and remove fields from the control table
-                    $structure = $this->Structures->get('form', $alternate_alias);
-                    foreach ($structure['Sfs'] as $key => $field) {
-                        if ($field['model'] == $ctrl_name) {
-                            unset($structure['Sfs'][$key]);
-                        }
-                    }
-                    $this->set('atim_structure', $structure);
-                    $last_control_id .= "-" . $sub_structure_id;
-                    $this->set("header", array(
-                        "title" => __("search"),
-                        "description" => __($browsing['DatamartStructure']['display_name']) . " > " . Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])
-                    ));
-                } else {
-                    $this->set("atim_structure", $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']));
-                    $this->set("header", array(
-                        "title" => __("search"),
-                        "description" => __($browsing['DatamartStructure']['display_name'])
-                    ));
-                }
-                $this->set('top', "/Datamart/Browser/browse/" . $node_id . "/" . $last_control_id . "/");
-                $this->set('node_id', $node_id);
-                if ($browsing['DatamartStructure']['adv_search_structure_alias']) {
-                    Browser::$cache['current_node_id'] = $node_id;
-                    $advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
-                    $this->set('advanced_structure', $advanced_structure);
-                }
-                
-                // determine which search counter to display
-                $path = $this->BrowsingResult->getPath($node_id);
-                $current_structure_id = $browsing['DatamartStructure']['id'];
-                $counters_structure_fields = array();
-                if ($path) {
-                    while ($parent_node = array_pop($path)) {
-                        if ($this->BrowsingControl->find1ToN($current_structure_id, $parent_node['BrowsingResult']['browsing_structures_id'])) {
-                            // valid parent
-                            $browsing_result = $this->BrowsingResult->findById($parent_node['BrowsingResult']['id']);
-                            if (false) {
-                                // Disabled: Adds a counter field to search forms when going from
-                                // 1 to N. Unclear if useful.
-                                $counters_structure_fields[] = array(
-                                    'model' => '0',
-                                    'field' => 'counter_' . $parent_node['BrowsingResult']['id'],
-                                    'type' => 'integer_positive',
-                                    'flag_search' => 1,
-                                    'flag_search_readonly' => 0,
-                                    'display_column' => 1,
-                                    'display_order' => 1,
-                                    'language_label' => $browsing_result['DatamartStructure']['display_name'],
-                                    'language_heading' => '',
-                                    'tablename' => '',
-                                    'language_tag' => '',
-                                    'language_help' => '',
-                                    'setting' => '',
-                                    'default' => '',
-                                    'flag_confidential' => '',
-                                    'flag_float' => '',
-                                    'margin' => '',
-                                    'StructureValidation' => array()
-                                );
-                            }
-                            $current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                
-                if ($counters_structure_fields) {
-                    $this->set('counters_structure_fields', array(
-                        'Structure' => array(
-                            'alias' => 'custom'
-                        ),
-                        'Sfs' => $counters_structure_fields
-                    ));
-                }
-                
-                $render = 'browse_search';
+        } elseif ($browsing) {
+            if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
+                $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             }
+            // search screen
+            $tmp_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
+            if (isset($sub_structure_id) && $ctrl_name = $tmp_model->getControlName()) {
+                $alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $ctrl_name, $sub_structure_id);
+                $alternate_alias = $alternate_info['form_alias'];
+                
+                // get the structure and remove fields from the control table
+                $structure = $this->Structures->get('form', $alternate_alias);
+                foreach ($structure['Sfs'] as $key => $field) {
+                    if ($field['model'] == $ctrl_name) {
+                        unset($structure['Sfs'][$key]);
+                    }
+                }
+                $this->set('atim_structure', $structure);
+                $last_control_id .= "-" . $sub_structure_id;
+                $this->set("header", array(
+                    "title" => __("search"),
+                    "description" => __($browsing['DatamartStructure']['display_name']) . " > " . Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])
+                ));
+            } else {
+                $this->set("atim_structure", $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']));
+                $this->set("header", array(
+                    "title" => __("search"),
+                    "description" => __($browsing['DatamartStructure']['display_name'])
+                ));
+            }
+            $this->set('top', "/Datamart/Browser/browse/" . $node_id . "/" . $last_control_id . "/");
+            $this->set('node_id', $node_id);
+            if ($browsing['DatamartStructure']['adv_search_structure_alias']) {
+                Browser::$cache['current_node_id'] = $node_id;
+                $advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
+                $this->set('advanced_structure', $advanced_structure);
+            }
+            
+            // determine which search counter to display
+            $path = $this->BrowsingResult->getPath($node_id);
+            $current_structure_id = $browsing['DatamartStructure']['id'];
+            $counters_structure_fields = array();
+            if ($path) {
+                while ($parent_node = array_pop($path)) {
+                    if ($this->BrowsingControl->find1ToN($current_structure_id, $parent_node['BrowsingResult']['browsing_structures_id'])) {
+                        // valid parent
+                        $browsing_result = $this->BrowsingResult->findById($parent_node['BrowsingResult']['id']);
+                        if (false) {
+                            // Disabled: Adds a counter field to search forms when going from
+                            // 1 to N. Unclear if useful.
+                            $counters_structure_fields[] = array(
+                                'model' => '0',
+                                'field' => 'counter_' . $parent_node['BrowsingResult']['id'],
+                                'type' => 'integer_positive',
+                                'flag_search' => 1,
+                                'flag_search_readonly' => 0,
+                                'display_column' => 1,
+                                'display_order' => 1,
+                                'language_label' => $browsing_result['DatamartStructure']['display_name'],
+                                'language_heading' => '',
+                                'tablename' => '',
+                                'language_tag' => '',
+                                'language_help' => '',
+                                'setting' => '',
+                                'default' => '',
+                                'flag_confidential' => '',
+                                'flag_float' => '',
+                                'margin' => '',
+                                'StructureValidation' => array()
+                            );
+                        }
+                        $current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];
+                    } else {
+                        break;
+                    }
+                }
+            }
+            
+            if ($counters_structure_fields) {
+                $this->set('counters_structure_fields', array(
+                    'Structure' => array(
+                        'alias' => 'custom'
+                    ),
+                    'Sfs' => $counters_structure_fields
+                ));
+            }
+            
+            $render = 'browse_search';
+        }
         $this->render($render);
     }
 
@@ -564,23 +562,22 @@ $check_list) // this is a checklist
         ));
         
         if ($dm_structure == null) {
-            $this->redirect('/Pages/err_internal?p[]=model+not+found', NULL, TRUE);
+            $this->redirect('/Pages/err_internal?p[]=model+not+found', NULL, true);
         }
         
         $model = null;
         if (array_key_exists($dm_structure['DatamartStructure']['model'], $this->request->data)) {
             $model = AppModel::getInstance($dm_structure['DatamartStructure']['plugin'], $dm_structure['DatamartStructure']['model'], true);
-        } else 
-            if (array_key_exists($dm_structure['DatamartStructure']['control_master_model'], $this->request->data)) {
-                $model = AppModel::getInstance($dm_structure['DatamartStructure']['plugin'], $dm_structure['DatamartStructure']['control_master_model'], true);
-            } else {
-                $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
-            }
+        } elseif (array_key_exists($dm_structure['DatamartStructure']['control_master_model'], $this->request->data)) {
+            $model = AppModel::getInstance($dm_structure['DatamartStructure']['plugin'], $dm_structure['DatamartStructure']['control_master_model'], true);
+        } else {
+            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+        }
         $ids = $this->request->data[$model->name][$model->primaryKey];
         $ids = array_filter($ids);
         
         if (empty($ids)) {
-            $this->redirect('/Pages/err_internal?p[]=no+ids', NULL, TRUE);
+            $this->redirect('/Pages/err_internal?p[]=no+ids', NULL, true);
         }
         
         sort($ids);
@@ -629,7 +626,7 @@ $check_list) // this is a checklist
             )
         ));
         if (empty($this->request->data)) {
-            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         } else {
             $this->request->data['BrowsingIndex']['temporary'] = false;
             $this->BrowsingIndex->pkey_safeguard = false;

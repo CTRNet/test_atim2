@@ -38,27 +38,26 @@ class BatchSet extends DatamartAppModel
                     null,
                     __('temporary batch set')
                 );
-            } else 
-                if (! empty($variables['BatchSet.id'])) {
-                    $batchset_data = $this->find('first', array(
-                        'conditions' => array(
-                            'BatchSet.id' => $variables['BatchSet.id']
-                        )
-                    ));
-                    $batchset_data['BatchSet']['model'] = $batchset_data['DatamartStructure']['model'];
-                    if (! empty($batchset_data)) {
-                        $return['title'] = array(
-                            null,
-                            __('batchset information', null)
-                        );
-                        $return['menu'] = array(
-                            null,
-                            $batchset_data['BatchSet']['title']
-                        );
-                        $return['structure alias'] = 'querytool_batch_set';
-                        $return['data'] = $batchset_data;
-                    }
+            } elseif (! empty($variables['BatchSet.id'])) {
+                $batchset_data = $this->find('first', array(
+                    'conditions' => array(
+                        'BatchSet.id' => $variables['BatchSet.id']
+                    )
+                ));
+                $batchset_data['BatchSet']['model'] = $batchset_data['DatamartStructure']['model'];
+                if (! empty($batchset_data)) {
+                    $return['title'] = array(
+                        null,
+                        __('batchset information', null)
+                    );
+                    $return['menu'] = array(
+                        null,
+                        $batchset_data['BatchSet']['title']
+                    );
+                    $return['structure alias'] = 'querytool_batch_set';
+                    $return['data'] = $batchset_data;
                 }
+            }
         }
         
         return $return;
@@ -103,13 +102,12 @@ class BatchSet extends DatamartAppModel
                     $model,
                     $data['DatamartStructure']['model']
                 );
-            } else 
-                if ($model == $data['DatamartStructure']['model'] && strlen($data['DatamartStructure']['control_master_model']) > 0) {
-                    $model = array(
-                        $model,
-                        $data['DatamartStructure']['control_master_model']
-                    );
-                }
+            } elseif ($model == $data['DatamartStructure']['model'] && strlen($data['DatamartStructure']['control_master_model']) > 0) {
+                $model = array(
+                    $model,
+                    $data['DatamartStructure']['control_master_model']
+                );
+            }
         } else {
             $data = $datamart_structure->find('first', array(
                 'conditions' => array(
@@ -126,13 +124,12 @@ class BatchSet extends DatamartAppModel
                         $model,
                         $data['DatamartStructure']['model']
                     );
-                } else 
-                    if ($model == $data['DatamartStructure']['model'] && strlen($data['DatamartStructure']['control_master_model']) > 0) {
-                        $model = array(
-                            $model,
-                            $data['DatamartStructure']['control_master_model']
-                        );
-                    }
+                } elseif ($model == $data['DatamartStructure']['model'] && strlen($data['DatamartStructure']['control_master_model']) > 0) {
+                    $model = array(
+                        $model,
+                        $data['DatamartStructure']['control_master_model']
+                    );
+                }
             }
         }
         $available_batchsets_conditions = array(

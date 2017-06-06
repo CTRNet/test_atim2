@@ -82,16 +82,15 @@ class ViewCollection extends InventoryManagementAppModel
             if (! empty($consent_status)) {
                 if (! $collection_data['ViewCollection']['participant_id']) {
                     AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-                } else 
-                    if ($consent_status[$variables['Collection.id']] == null) {
-                        $link = '';
-                        if (AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')) {
-                            $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collection_data['ViewCollection']['participant_id'], $collection_data['ViewCollection']['collection_id'], __('click here to access it'));
-                        }
-                        AppController::addWarningMsg(__('no consent is linked to the current participant collection') . '.' . $link);
-                    } else {
-                        AppController::addWarningMsg(__('the linked consent status is [%s]', __($consent_status[$variables['Collection.id']])));
+                } elseif ($consent_status[$variables['Collection.id']] == null) {
+                    $link = '';
+                    if (AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')) {
+                        $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collection_data['ViewCollection']['participant_id'], $collection_data['ViewCollection']['collection_id'], __('click here to access it'));
                     }
+                    AppController::addWarningMsg(__('no consent is linked to the current participant collection') . '.' . $link);
+                } else {
+                    AppController::addWarningMsg(__('the linked consent status is [%s]', __($consent_status[$variables['Collection.id']])));
+                }
             }
         }
         
@@ -129,14 +128,13 @@ class ViewCollection extends InventoryManagementAppModel
             if ($data_unit['ViewCollection']['collection_property'] != 'participant collection') {
                 // filter non participant collections
                 unset($data[$index]);
-            } else 
-                if (empty($data_unit['ViewCollection']['consent_master_id'])) {
-                    // removing missing consents
-                    $results[$data_unit['ViewCollection']['collection_id']] = null;
-                    unset($data[$index]);
-                } else {
-                    $consents_to_fetch[] = $data_unit['ViewCollection']['consent_master_id'];
-                }
+            } elseif (empty($data_unit['ViewCollection']['consent_master_id'])) {
+                // removing missing consents
+                $results[$data_unit['ViewCollection']['collection_id']] = null;
+                unset($data[$index]);
+            } else {
+                $consents_to_fetch[] = $data_unit['ViewCollection']['consent_master_id'];
+            }
         }
         
         if (! empty($consents_to_fetch)) {

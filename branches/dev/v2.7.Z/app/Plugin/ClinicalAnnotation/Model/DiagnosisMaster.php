@@ -83,11 +83,11 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
             $return = array(
                 'menu' => array(
                     NULL,
-                    __($result['DiagnosisControl']['category'], TRUE) . ' - ' . __($result['DiagnosisControl']['controls_type'], TRUE)
+                    __($result['DiagnosisControl']['category'], true) . ' - ' . __($result['DiagnosisControl']['controls_type'], true)
                 ),
                 'title' => array(
                     NULL,
-                    __($result['DiagnosisControl']['category'], TRUE)
+                    __($result['DiagnosisControl']['category'], true)
                 ),
                 'data' => $result,
                 'structure alias' => $structure_alias

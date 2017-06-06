@@ -24,7 +24,7 @@
 
 // Setup a 'default' cache configuration for use in the application.
 Cache::config('default', array(
-    'engine' => 'File'
+    'engine' => $engine
 ));
 
 /**
@@ -97,7 +97,7 @@ Configure::write('Dispatcher.filters', array(
  */
 App::uses('CakeLog', 'Log');
 CakeLog::config('debug', array(
-    'engine' => 'File',
+    'engine' => $engine,
     'types' => array(
         'notice',
         'info',
@@ -106,7 +106,7 @@ CakeLog::config('debug', array(
     'file' => 'debug'
 ));
 CakeLog::config('error', array(
-    'engine' => 'File',
+    'engine' => $engine,
     'types' => array(
         'warning',
         'error',

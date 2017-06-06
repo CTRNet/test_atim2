@@ -473,7 +473,7 @@ class RevisionBehavior extends ModelBehavior
             return false;
         }
         if (empty($options) || ! isset($options['date'])) {
-            return FALSE;
+            return false;
         }
         if (! isset($options['conditions'])) {
             $options['conditions'] = array();

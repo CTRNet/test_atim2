@@ -29,11 +29,11 @@ class SopMaster extends SopAppModel
             $return = array(
                 'menu' => array(
                     NULL,
-                    __($result['SopMaster']['code'], TRUE)
+                    __($result['SopMaster']['code'], true)
                 ),
                 'title' => array(
                     NULL,
-                    __($result['SopMaster']['code'], TRUE)
+                    __($result['SopMaster']['code'], true)
                 ),
                 'data' => $result,
                 'structure alias' => 'sopmasters'

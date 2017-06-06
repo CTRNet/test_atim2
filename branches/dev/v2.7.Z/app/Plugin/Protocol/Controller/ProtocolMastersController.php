@@ -43,7 +43,7 @@ class ProtocolMastersController extends ProtocolAppController
             )
         ));
         if (empty($protocol_control_data)) {
-            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         $this->set('atim_menu_variables', array(

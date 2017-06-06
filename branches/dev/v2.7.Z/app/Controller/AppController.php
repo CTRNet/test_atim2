@@ -336,16 +336,13 @@ class AppController extends Controller
     {
         if ($type == self::CONFIRM) {
             $_SESSION['ctrapp_core']['confirm_msg'] = $message;
-        } else 
-            if ($type == self::INFORMATION) {
-                $_SESSION['ctrapp_core']['info_msg'][] = $message;
-            } else 
-                if ($type == self::WARNING) {
-                    $_SESSION['ctrapp_core']['warning_trace_msg'][] = $message;
-                } else 
-                    if ($type == self::ERROR) {
-                        $_SESSION['ctrapp_core']['error_msg'][] = $message;
-                    }
+        } elseif ($type == self::INFORMATION) {
+            $_SESSION['ctrapp_core']['info_msg'][] = $message;
+        } elseif ($type == self::WARNING) {
+            $_SESSION['ctrapp_core']['warning_trace_msg'][] = $message;
+        } elseif ($type == self::ERROR) {
+            $_SESSION['ctrapp_core']['error_msg'][] = $message;
+        }
         $this->redirect($url);
     }
 
@@ -449,10 +446,9 @@ class AppController extends Controller
                         }
                         
                         define($config_key, $config_data);
-                    } else 
-                        if ($config_format == 'config') {
-                            Configure::write($config_key, $config_data);
-                        }
+                    } elseif ($config_format == 'config') {
+                        Configure::write($config_key, $config_data);
+                    }
                 }
             }
         }
@@ -512,12 +508,11 @@ class AppController extends Controller
             }
             if (date_format == 'MDY') {
                 $result = $month . (empty($month) ? "" : $divider) . $day . (empty($day) ? "" : $divider) . $year;
-            } else 
-                if (date_format == 'YMD') {
-                    $result = $year . (empty($month) ? "" : $divider) . $month . (empty($day) ? "" : $divider) . $day;
-                } else { // default of DATE_FORMAT=='DMY'
-                    $result = $day . (empty($day) ? "" : $divider) . $month . (empty($month) ? "" : $divider) . $year;
-                }
+            } elseif (date_format == 'YMD') {
+                $result = $year . (empty($month) ? "" : $divider) . $month . (empty($day) ? "" : $divider) . $day;
+            } else { // default of DATE_FORMAT=='DMY'
+                $result = $day . (empty($day) ? "" : $divider) . $month . (empty($month) ? "" : $divider) . $year;
+            }
         }
         return $result;
     }
@@ -531,12 +526,11 @@ class AppController extends Controller
                 $hour = 12;
             }
             return $hour . (empty($minutes) ? '' : ":" . $minutes . ($nbsp_spaces ? "&nbsp;" : " ")) . $meridiem;
-        } else 
-            if (empty($minutes)) {
-                return $hour . __('hour_sign');
-            } else {
-                return $hour . ":" . $minutes;
-            }
+        } elseif (empty($minutes)) {
+            return $hour . __('hour_sign');
+        } else {
+            return $hour . ":" . $minutes;
+        }
     }
 
     /**
@@ -737,10 +731,9 @@ class AppController extends Controller
                     if (strlen($value['year'])) {
                         $result[$model . "." . $name] = "'" . AppController::getFormatedDatetimeSQL($value) . "'";
                     }
-                } else 
-                    if (strlen($value)) {
-                        $result[$model . "." . $name] = "'" . $value . "'";
-                    }
+                } elseif (strlen($value)) {
+                    $result[$model . "." . $name] = "'" . $value . "'";
+                }
             }
         }
         return $result;
@@ -786,12 +779,11 @@ class AppController extends Controller
     {
         if (empty($this->request->data)) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } else 
-            if (! is_array($this->request->data[$data_model_name][$data_key]) && strpos($this->request->data[$data_model_name][$data_key], ',')) {
-                return array(
-                    'error' => "batch init - number of submitted records too big"
-                );
-            }
+        } elseif (! is_array($this->request->data[$data_model_name][$data_key]) && strpos($this->request->data[$data_model_name][$data_key], ',')) {
+            return array(
+                'error' => "batch init - number of submitted records too big"
+            );
+        }
         // extract valid ids
         $ids = $model->find('all', array(
             'conditions' => array(
@@ -994,12 +986,11 @@ class AppController extends Controller
             if ($this->request->data) {
                 // newly submitted search, parse conditions and store in session
                 $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($structure);
-            } else 
-                if (! isset($_SESSION['ctrapp_core']['search'][$search_id]['criteria'])) {
-                    self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
-                    $this->redirect('/menus');
-                    exit();
-                }
+            } elseif (! isset($_SESSION['ctrapp_core']['search'][$search_id]['criteria'])) {
+                self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
+                $this->redirect('/menus');
+                exit();
+            }
             
             // check if the current model is a master/detail one or a similar view
             if (! $ignore_detail) {
@@ -1156,11 +1147,10 @@ class AppController extends Controller
                 }
                 
                 ClassRegistry::removeObject($detail_class); // flush the new model to make sure the default one is loaded if needed
-            } else 
-                if (count($ctrl_ids) > 0) {
-                    // more than one
-                    AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));
-                }
+            } elseif (count($ctrl_ids) > 0) {
+                // more than one
+                AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));
+            }
         }
     }
 
@@ -1242,13 +1232,11 @@ class AppController extends Controller
         $result = null;
         if (isset($data['node']['id'])) {
             $result = '/Datamart/Browser/browse/' . $data['node']['id'];
-        } else 
-            if (isset($data['BatchSet']['id'])) {
-                $result = '/Datamart/BatchSets/listall/' . $data['BatchSet']['id'];
-            } else 
-                if (isset($data['cancel_link'])) {
-                    $result = $data['cancel_link'];
-                }
+        } elseif (isset($data['BatchSet']['id'])) {
+            $result = '/Datamart/BatchSets/listall/' . $data['BatchSet']['id'];
+        } elseif (isset($data['cancel_link'])) {
+            $result = $data['cancel_link'];
+        }
         
         return $result;
     }

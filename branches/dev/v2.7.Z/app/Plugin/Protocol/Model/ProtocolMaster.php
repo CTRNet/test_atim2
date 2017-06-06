@@ -33,7 +33,7 @@ class ProtocolMaster extends ProtocolAppModel
             $return = array(
                 'menu' => array(
                     NULL,
-                    __($result['ProtocolControl']['type'], TRUE) . ' - ' . $result['ProtocolMaster']['code']
+                    __($result['ProtocolControl']['type'], true) . ' - ' . $result['ProtocolMaster']['code']
                 ),
                 'title' => array(
                     NULL,

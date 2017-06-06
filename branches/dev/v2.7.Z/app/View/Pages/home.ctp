@@ -257,6 +257,12 @@ echo $this->Html->link(__d('cake_dev', 'The 15 min Blog Tutorial'), 'http://book
 		<ul>
 			<li><?php echo __d('cake_dev', 'Community mailing list'); ?></li>
 		</ul></li>
+        <li><a href="http://discourse.cakephp.org/"><?php echo __d('cake_dev', 'CakePHP Official Forum'); ?> </a>
+                <ul>
+                    <li><?php echo __d('cake_dev', 'CakePHP discussion forum'); ?></li>
+                </ul>
+        </li>
+
 	<li><a href="irc://irc.freenode.net/cakephp">irc.freenode.net #cakephp</a>
 		<ul>
 			<li><?php echo __d('cake_dev', 'Live chat about CakePHP'); ?></li>

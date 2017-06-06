@@ -46,20 +46,18 @@ class StorageMastersController extends StorageLayoutAppController
                     if ($data['StorageControl']['coord_x_type'] == null) {
                         unset($this->request->data[$key]);
                         $warn = true;
-                    } else 
-                        if ($data['StorageControl']['coord_x_type'] == 'list' && ! $this->StorageCoordinate->find('count', array(
-                            'conditions' => array(
-                                'StorageCoordinate.storage_master_id' => $data['StorageMaster']['id']
-                            ),
-                            'recursive' => '-1'
-                        ))) {
-                            unset($this->request->data[$key]);
-                            $warn = true;
-                        } else 
-                            if ($data['StorageMaster']['id'] == $top_row_storage_id) {
-                                unset($this->request->data[$key]);
-                                AppController::addInfoMsg(__('the storage you are already working on has been removed from the results'));
-                            }
+                    } elseif ($data['StorageControl']['coord_x_type'] == 'list' && ! $this->StorageCoordinate->find('count', array(
+                        'conditions' => array(
+                            'StorageCoordinate.storage_master_id' => $data['StorageMaster']['id']
+                        ),
+                        'recursive' => '-1'
+                    ))) {
+                        unset($this->request->data[$key]);
+                        $warn = true;
+                    } elseif ($data['StorageMaster']['id'] == $top_row_storage_id) {
+                        unset($this->request->data[$key]);
+                        AppController::addInfoMsg(__('the storage you are already working on has been removed from the results'));
+                    }
                 }
                 if ($warn) {
                     AppController::addInfoMsg(__('storages without layout have been removed from the results'));
@@ -727,19 +725,17 @@ class StorageMastersController extends StorageLayoutAppController
         foreach ($tree_data as $data_unit) {
             if (isset($data_unit['StorageMaster'])) {
                 $ids[] = $data_unit['StorageMaster']['id'];
-            } else 
-                if (isset($data_unit['TmaBlock'])) {
-                    $ids[] = $data_unit['TmaBlock']['id'];
-                }
+            } elseif (isset($data_unit['TmaBlock'])) {
+                $ids[] = $data_unit['TmaBlock']['id'];
+            }
         }
         $ids = array_flip($this->StorageMaster->hasChild($ids)); // array_key_exists is faster than in_array
         foreach ($tree_data as &$data_unit) {
             if (isset($data_unit['StorageMaster']) && ! isset($data_unit['TmaBlock']) && ! isset($data_unit['TmaSlide']) && ! isset($data_unit['AliquotMaster'])) {
                 $data_unit['children'] = array_key_exists($data_unit['StorageMaster']['id'], $ids);
-            } else 
-                if (isset($data_unit['TmaBlock']) && ! isset($data_unit['StorageMaster']) && ! isset($data_unit['TmaSlide']) && ! isset($data_unit['AliquotMaster'])) {
-                    $data_unit['children'] = array_key_exists($data_unit['TmaBlock']['id'], $ids);
-                }
+            } elseif (isset($data_unit['TmaBlock']) && ! isset($data_unit['StorageMaster']) && ! isset($data_unit['TmaSlide']) && ! isset($data_unit['AliquotMaster'])) {
+                $data_unit['children'] = array_key_exists($data_unit['TmaBlock']['id'], $ids);
+            }
         }
         
         $this->request->data = $tree_data;
@@ -858,11 +854,10 @@ class StorageMastersController extends StorageLayoutAppController
                     if ((int) $element->s && $element->s != $storage_master_id) {
                         if ($second_storage_id == null) {
                             $second_storage_id = $element->s;
-                        } else 
-                            if ($second_storage_id != $element->s) {
-                                // more than 2 storages
-                                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                            }
+                        } elseif ($second_storage_id != $element->s) {
+                            // more than 2 storages
+                            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                        }
                     }
                 }
                 
@@ -1054,15 +1049,13 @@ class StorageMastersController extends StorageLayoutAppController
             if (isset($children_array['StorageMaster'])) {
                 $link = $this->request->webroot . "StorageLayout/StorageMasters/detail/" . $children_array["StorageMaster"]['id'] . "/2";
                 $this->StorageMaster->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list, $link, $children_array['StorageControl']['is_tma_block'] ? 'tma block' : 'storage');
-            } else 
-                if (isset($children_array['AliquotMaster'])) {
-                    $link = $this->request->webroot . "InventoryManagement/AliquotMasters/detail/" . $children_array["AliquotMaster"]["collection_id"] . "/" . $children_array["AliquotMaster"]["sample_master_id"] . "/" . $children_array["AliquotMaster"]["id"] . "/2";
-                    $this->StorageMaster->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "aliquot");
-                } else 
-                    if (isset($children_array['TmaSlide'])) {
-                        $link = $this->request->webroot . "StorageLayout/TmaSlides/detail/" . $children_array["TmaSlide"]['tma_block_storage_master_id'] . "/" . $children_array["TmaSlide"]['id'] . "/2";
-                        $this->StorageMaster->buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "slide");
-                    }
+            } elseif (isset($children_array['AliquotMaster'])) {
+                $link = $this->request->webroot . "InventoryManagement/AliquotMasters/detail/" . $children_array["AliquotMaster"]["collection_id"] . "/" . $children_array["AliquotMaster"]["sample_master_id"] . "/" . $children_array["AliquotMaster"]["id"] . "/2";
+                $this->StorageMaster->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "aliquot");
+            } elseif (isset($children_array['TmaSlide'])) {
+                $link = $this->request->webroot . "StorageLayout/TmaSlides/detail/" . $children_array["TmaSlide"]['tma_block_storage_master_id'] . "/" . $children_array["TmaSlide"]['id'] . "/2";
+                $this->StorageMaster->buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "slide");
+            }
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
@@ -1078,10 +1071,9 @@ class StorageMastersController extends StorageLayoutAppController
         if ($csv_creation) {
             $this->render('storage_layout_csv');
             Configure::write('debug', 0);
-        } else 
-            if ($is_ajax) {
-                $this->render('storage_layout_html');
-            }
+        } elseif ($is_ajax) {
+            $this->render('storage_layout_html');
+        }
     }
 
     function autocompleteLabel()

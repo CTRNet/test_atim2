@@ -112,27 +112,25 @@ class MenusController extends AppController
                 }
                 $this->set('missing_forgotten_password_reset_answers', $missing_forgotten_password_reset_answers);
             }
-        } else 
-            if ($set_of_menus == "tools") {
-                $this->set('atim_menu', $this->Menus->get('/menus/tools'));
-                $menu_data = $this->Menu->find('all', array(
-                    'conditions' => array(
-                        "Menu.parent_id" => "core_CAN_33",
-                        "Menu.flag_active" => 1
-                    ),
-                    'order' => 'Menu.display_order ASC'
-                ));
-            } else 
-                if ($set_of_menus == "datamart") {
-                    $menu_data = $this->Menu->find('all', array(
-                        'conditions' => array(
-                            "Menu.parent_id" => "qry-CAN-1",
-                            "Menu.flag_active" => 1
-                        ),
-                        'order' => 'Menu.display_order ASC'
-                    ));
-                    $this->set('atim_menu', $this->Menus->get('/menus/Datamart/'));
-                }
+        } elseif ($set_of_menus == "tools") {
+            $this->set('atim_menu', $this->Menus->get('/menus/tools'));
+            $menu_data = $this->Menu->find('all', array(
+                'conditions' => array(
+                    "Menu.parent_id" => "core_CAN_33",
+                    "Menu.flag_active" => 1
+                ),
+                'order' => 'Menu.display_order ASC'
+            ));
+        } elseif ($set_of_menus == "datamart") {
+            $menu_data = $this->Menu->find('all', array(
+                'conditions' => array(
+                    "Menu.parent_id" => "qry-CAN-1",
+                    "Menu.flag_active" => 1
+                ),
+                'order' => 'Menu.display_order ASC'
+            ));
+            $this->set('atim_menu', $this->Menus->get('/menus/Datamart/'));
+        }
         
         foreach ($menu_data as &$current_item) {
             $current_item['Menu']['at'] = false;

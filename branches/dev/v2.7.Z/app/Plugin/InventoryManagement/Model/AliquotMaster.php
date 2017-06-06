@@ -142,30 +142,28 @@ class AliquotMaster extends InventoryManagementAppModel
                     'date' => $current['am']['version_created'],
                     'event' => __('new storage') . " " . __('from') . ": [" . (strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label'] . ", " . __('position') . ": (" . $previous['am']['storage_coord_x'] . ", " . $previous['am']['storage_coord_y'] . "), " . __('temperature') . ": " . $previous['sm']['temperature'] . __($previous['sm']['temp_unit']) : __('no storage')) . "] " . __('to') . ": [" . (strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label'] . ", " . __('position') . ": (" . $current['am']['storage_coord_x'] . ", " . $current['am']['storage_coord_y'] . "), " . __('temperature') . ": " . $current['sm']['temperature'] . __($current['sm']['temp_unit']) : __('no storage')) . "]"
                 );
-            } else 
-                if ($previous['sm']['temperature'] != $current['sm']['temperature'] || $previous['sm']['selection_label'] != $current['sm']['selection_label']) {
-                    // filter 2, storage changes (temperature, label)
-                    $event = "";
-                    if ($previous['sm']['temperature'] != $current['sm']['temperature']) {
-                        $event .= __('storage temperature changed') . ". " . __('from') . ": " . (strlen($previous['sm']['temperature']) > 0 ? $previous['sm']['temperature'] : "?") . __($previous['sm']['temp_unit']) . " " . __('to') . ": " . (strlen($current['sm']['temperature']) > 0 ? $current['sm']['temperature'] : "?") . __($current['sm']['temp_unit']) . ". ";
-                    }
-                    if ($previous['sm']['selection_label'] != $current['sm']['selection_label']) {
-                        $event .= __("selection label updated") . ". " . __("from") . ": " . $previous['sm']['selection_label'] . " " . __("to") . ": " . $current['sm']['selection_label'] . ". ";
-                    }
-                    $storage_data[]['custom'] = array(
-                        'date' => $current['sm']['version_created'],
-                        'event' => $event
-                    );
-                } else 
-                    if ($previous['am']['storage_coord_x'] != $current['am']['storage_coord_x'] || $previous['am']['storage_coord_y'] != $current['am']['storage_coord_y']) {
-                        // filter 3, aliquot position change
-                        $coord_from = $previous['am']['storage_coord_x'] . ", " . $previous['am']['storage_coord_y'];
-                        $coord_to = $current['am']['storage_coord_x'] . ", " . $current['am']['storage_coord_y'];
-                        $storage_data[]['custom'] = array(
-                            'date' => $current['am']['version_created'],
-                            'event' => __('moved within storage') . " " . __('from') . ": [" . $coord_from . "] " . __('to') . ": [" . $coord_to . "]. "
-                        );
-                    }
+            } elseif ($previous['sm']['temperature'] != $current['sm']['temperature'] || $previous['sm']['selection_label'] != $current['sm']['selection_label']) {
+                // filter 2, storage changes (temperature, label)
+                $event = "";
+                if ($previous['sm']['temperature'] != $current['sm']['temperature']) {
+                    $event .= __('storage temperature changed') . ". " . __('from') . ": " . (strlen($previous['sm']['temperature']) > 0 ? $previous['sm']['temperature'] : "?") . __($previous['sm']['temp_unit']) . " " . __('to') . ": " . (strlen($current['sm']['temperature']) > 0 ? $current['sm']['temperature'] : "?") . __($current['sm']['temp_unit']) . ". ";
+                }
+                if ($previous['sm']['selection_label'] != $current['sm']['selection_label']) {
+                    $event .= __("selection label updated") . ". " . __("from") . ": " . $previous['sm']['selection_label'] . " " . __("to") . ": " . $current['sm']['selection_label'] . ". ";
+                }
+                $storage_data[]['custom'] = array(
+                    'date' => $current['sm']['version_created'],
+                    'event' => $event
+                );
+            } elseif ($previous['am']['storage_coord_x'] != $current['am']['storage_coord_x'] || $previous['am']['storage_coord_y'] != $current['am']['storage_coord_y']) {
+                // filter 3, aliquot position change
+                $coord_from = $previous['am']['storage_coord_x'] . ", " . $previous['am']['storage_coord_y'];
+                $coord_to = $current['am']['storage_coord_x'] . ", " . $current['am']['storage_coord_y'];
+                $storage_data[]['custom'] = array(
+                    'date' => $current['am']['version_created'],
+                    'event' => __('moved within storage') . " " . __('from') . ": [" . $coord_from . "] " . __('to') . ": [" . $coord_to . "]. "
+                );
+            }
             
             $previous = $current;
         }
@@ -391,10 +389,9 @@ class AliquotMaster extends InventoryManagementAppModel
                     $msg = null;
                     if ($position_status == StorageMaster::POSITION_OCCUPIED) {
                         $msg = __('the storage [%s] already contained something at position [%s, %s]');
-                    } else 
-                        if ($position_status == StorageMaster::POSITION_DOUBLE_SET) {
-                            $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
-                        }
+                    } elseif ($position_status == StorageMaster::POSITION_DOUBLE_SET) {
+                        $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
+                    }
                     if ($msg != null) {
                         $msg = sprintf($msg, $arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y']);
                         if ($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1) {
@@ -407,10 +404,9 @@ class AliquotMaster extends InventoryManagementAppModel
             } else {
                 $aliquot_data['AliquotMaster']['storage_master_id'] = null;
             }
-        } else 
-            if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster']) && ! empty($aliquot_data['AliquotMaster']['storage_coord_x'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']) && ! empty($aliquot_data['AliquotMaster']['storage_coord_y']))) {
-                AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+        } elseif ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster']) && ! empty($aliquot_data['AliquotMaster']['storage_coord_x'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']) && ! empty($aliquot_data['AliquotMaster']['storage_coord_y']))) {
+            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
     }
 
     /**
@@ -487,12 +483,11 @@ class AliquotMaster extends InventoryManagementAppModel
         // Check duplicated barcode into submited record
         if (! strlen($barcode)) {
             // Not studied
-        } else 
-            if (isset($this->barcodes[$barcode])) {
-                $this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
-            } else {
-                $this->barcodes[$barcode] = '';
-            }
+        } elseif (isset($this->barcodes[$barcode])) {
+            $this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
+        } else {
+            $this->barcodes[$barcode] = '';
+        }
         
         // Check duplicated barcode into db
         $criteria = array(
@@ -516,7 +511,7 @@ class AliquotMaster extends InventoryManagementAppModel
 
     function hasChild(array $aliquot_master_ids)
     {
-        $ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", TRUE);
+        $ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
         return array_unique(array_filter($ViewAliquotUse->find('list', array(
             'fields' => array(
                 'ViewAliquotUse.aliquot_master_id'
@@ -923,31 +918,29 @@ class AliquotMaster extends InventoryManagementAppModel
                         $this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value');
                     }
                 }
-            } else 
-                if (($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no')) {
-                    // Aliquots not in stcok anymore : Erase storage data
-                    $aliquot_master_data_to_update['AliquotMaster']['storage_master_id'] = null;
-                    $aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
-                    $aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
-                    $this->addWritableField(array(
-                        'storage_master_id',
-                        'storage_coord_x',
-                        'storage_coord_y'
-                    ));
-                }
+            } elseif (($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no')) {
+                // Aliquots not in stcok anymore : Erase storage data
+                $aliquot_master_data_to_update['AliquotMaster']['storage_master_id'] = null;
+                $aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
+                $aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
+                $this->addWritableField(array(
+                    'storage_master_id',
+                    'storage_coord_x',
+                    'storage_coord_y'
+                ));
+            }
             // Work on study
             if (isset($function_management_data['autocomplete_aliquot_master_study_summary_id']) && $function_management_data['autocomplete_aliquot_master_study_summary_id']) {
                 $aliquot_master_data_to_update['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = $function_management_data['autocomplete_aliquot_master_study_summary_id'];
                 $this->addWritableField(array(
                     'study_summary_id'
                 ));
-            } else 
-                if (isset($function_management_data['remove_study_summary_id']) && ($function_management_data['remove_study_summary_id'] == '1')) {
-                    $aliquot_master_data_to_update['AliquotMaster']['study_summary_id'] = null;
-                    $this->addWritableField(array(
-                        'study_summary_id'
-                    ));
-                }
+            } elseif (isset($function_management_data['remove_study_summary_id']) && ($function_management_data['remove_study_summary_id'] == '1')) {
+                $aliquot_master_data_to_update['AliquotMaster']['study_summary_id'] = null;
+                $this->addWritableField(array(
+                    'study_summary_id'
+                ));
+            }
             // Work on other data
             foreach ($submitted_aliquot_master_data as $key => $value) {
                 if (array_key_exists('remove_' . $key, $function_management_data) && $function_management_data['remove_' . $key] == '1') {
@@ -1003,12 +996,11 @@ class AliquotMaster extends InventoryManagementAppModel
                         if (! empty($data[$tmp_model][$tmp_field])) {
                             if ($tmp_model . '.' . $tmp_field == 'FunctionManagement.in_stock') {
                                 $used_aliquot_data_to_apply_to_all['AliquotMaster'][$tmp_field] = $data[$tmp_model][$tmp_field];
-                            } else 
-                                if ($tmp_model . '.' . $tmp_field == 'FunctionManagement.remove_in_stock_detail') {
-                                    $used_aliquot_data_to_apply_to_all['AliquotMaster']['in_stock_detail'] = '';
-                                } else {
-                                    $used_aliquot_data_to_apply_to_all[$tmp_model][$tmp_field] = $data[$tmp_model][$tmp_field];
-                                }
+                            } elseif ($tmp_model . '.' . $tmp_field == 'FunctionManagement.remove_in_stock_detail') {
+                                $used_aliquot_data_to_apply_to_all['AliquotMaster']['in_stock_detail'] = '';
+                            } else {
+                                $used_aliquot_data_to_apply_to_all[$tmp_model][$tmp_field] = $data[$tmp_model][$tmp_field];
+                            }
                         }
                     }
                 }

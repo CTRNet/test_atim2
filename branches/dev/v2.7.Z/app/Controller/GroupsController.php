@@ -70,17 +70,16 @@ class GroupsController extends AppController
                 foreach ($this->request->data['Aro']['Permission'] as $permission) {
                     if ($permission['remove'] && $permission['id']) {
                         $this->Permission->delete($permission['id']);
-                    } else 
-                        if (! $permission['remove']) {
-                            $this->Permission->id = isset($permission['id']) ? $permission['id'] : NULL;
-                            $permission['_read'] = $permission['_create'];
-                            $permission['_update'] = $permission['_create'];
-                            $permission['_delete'] = $permission['_create'];
-                            $this->Permission->save(array(
-                                'Permission' => $permission
-                            ));
-                            $this->Permission->id = NULL;
-                        }
+                    } elseif (! $permission['remove']) {
+                        $this->Permission->id = isset($permission['id']) ? $permission['id'] : NULL;
+                        $permission['_read'] = $permission['_create'];
+                        $permission['_update'] = $permission['_create'];
+                        $permission['_delete'] = $permission['_create'];
+                        $this->Permission->save(array(
+                            'Permission' => $permission
+                        ));
+                        $this->Permission->id = NULL;
+                    }
                 }
                 $this->Session->setFlash(__('The Group has been saved'));
                 $this->redirect(array(

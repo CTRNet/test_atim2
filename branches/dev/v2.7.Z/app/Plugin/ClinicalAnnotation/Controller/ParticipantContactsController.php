@@ -38,7 +38,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     function detail($participant_id, $participant_contact_id)
     {
         if (! $participant_id && ! $participant_contact_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -74,7 +74,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     function add($participant_id)
     {
         if (! $participant_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -122,7 +122,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     function edit($participant_id, $participant_contact_id)
     {
         if (! $participant_id && ! $participant_contact_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -140,10 +140,9 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         if ($participant_contact_data['ParticipantContact']['confidential'] && ! $this->Session->read('flag_show_confidential')) {
             // Should not happens but in case
             $this->redirect("/Pages/err_confidential");
-        } else 
-            if ($this->Session->read('flag_show_confidential')) {
-                $this->Structures->set('participantcontacts,participantcontacts_confidential');
-            }
+        } elseif ($this->Session->read('flag_show_confidential')) {
+            $this->Structures->set('participantcontacts,participantcontacts_confidential');
+        }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atim_menu_variables', array(
@@ -185,7 +184,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     function delete($participant_id, $participant_contact_id)
     {
         if (! $participant_id && ! $participant_contact_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA

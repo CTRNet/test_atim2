@@ -34,7 +34,7 @@ class CsvController extends DatamartAppController
             $this->ModelToSearch = AppModel::getInstance($plugin, $model_name, true);
             
             if (! isset($this->request->data[$data_model]) || ! isset($this->request->data[$data_model][$data_pkey])) {
-                $this->redirect('/Pages/err_internal?p[]=failed to find values', NULL, TRUE);
+                $this->redirect('/Pages/err_internal?p[]=failed to find values', NULL, true);
                 exit();
             }
             

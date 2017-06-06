@@ -182,16 +182,15 @@ class Drug extends DrugAppModel
                 $this->drug_titles_already_checked[$drug_data_and_code] = array(
                     'Drug' => $selected_drugs[0]['Drug']
                 );
-            } else 
-                if (sizeof($selected_drugs) > 1) {
-                    $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                        'error' => str_replace('%s', $drug_data_and_code, __('more than one drug matches the following data [%s]'))
-                    );
-                } else {
-                    $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                        'error' => str_replace('%s', $drug_data_and_code, __('no drug matches the following data [%s]'))
-                    );
-                }
+            } elseif (sizeof($selected_drugs) > 1) {
+                $this->drug_titles_already_checked[$drug_data_and_code] = array(
+                    'error' => str_replace('%s', $drug_data_and_code, __('more than one drug matches the following data [%s]'))
+                );
+            } else {
+                $this->drug_titles_already_checked[$drug_data_and_code] = array(
+                    'error' => str_replace('%s', $drug_data_and_code, __('no drug matches the following data [%s]'))
+                );
+            }
         }
         return $this->drug_titles_already_checked[$drug_data_and_code];
     }

@@ -52,21 +52,20 @@ class BrowsingResult extends DatamartAppModel
         if ($browsing_result['BrowsingResult']['browsing_structures_sub_id']) {
             // specific
             $control_id = $browsing_result['BrowsingResult']['browsing_structures_sub_id'];
-        } else 
-            if ($browsing_result['DatamartStructure']['control_master_model']) {
-                $control_foreign = $model->getControlForeign();
-                $data = array_unique(array_filter($model->find('list', array(
-                    'fields' => array(
-                        $model->name . '.' . $control_foreign
-                    ),
-                    'conditions' => array(
-                        $model->name . '.' . $model->primaryKey . ' IN(' . $browsing_result['BrowsingResult']['id_csv'] . ')'
-                    )
-                ))));
-                if (count($data) == 1) {
-                    $control_id = array_shift($data);
-                }
+        } elseif ($browsing_result['DatamartStructure']['control_master_model']) {
+            $control_foreign = $model->getControlForeign();
+            $data = array_unique(array_filter($model->find('list', array(
+                'fields' => array(
+                    $model->name . '.' . $control_foreign
+                ),
+                'conditions' => array(
+                    $model->name . '.' . $model->primaryKey . ' IN(' . $browsing_result['BrowsingResult']['id_csv'] . ')'
+                )
+            ))));
+            if (count($data) == 1) {
+                $control_id = array_shift($data);
             }
+        }
         
         if ($control_id) {
             $model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['control_master_model']);
@@ -136,15 +135,14 @@ class BrowsingResult extends DatamartAppModel
                 $filtered_parents[] = $parent;
                 $current_ctrl_id = $parent['BrowsingResult']['browsing_structures_id'];
                 $encountered_ctrls[] = $current_ctrl_id;
-            } else 
-                if ($datamart_controls_model->find1ToN($current_ctrl_id, $parent['BrowsingResult']['browsing_structures_id'])) {
-                    // compatible node found on a terminating node
-                    $filtered_parents[] = $parent;
-                    break;
-                } else {
-                    // incompatible node found, no need to go further up the tree
-                    break;
-                }
+            } elseif ($datamart_controls_model->find1ToN($current_ctrl_id, $parent['BrowsingResult']['browsing_structures_id'])) {
+                // compatible node found on a terminating node
+                $filtered_parents[] = $parent;
+                break;
+            } else {
+                // incompatible node found, no need to go further up the tree
+                break;
+            }
         }
         unset($parents_nodes);
         
@@ -174,35 +172,33 @@ class BrowsingResult extends DatamartAppModel
                     if ($node['BrowsingResult']['browsing_type'] == 'drilldown') {
                         // drilldown are automatically rejected
                         unset($child_node['nodes'][$k]);
-                    } else 
-                        if (! in_array($node['BrowsingResult']['browsing_structures_id'], $encountered_ctrls)) {
-                            if ($datamart_controls_model->findNTo1($current_ctrl_id, $node['BrowsingResult']['browsing_structures_id'])) {
-                                // compatible node found, leave it in the tree
-                                $flat_children_nodes[$node['BrowsingResult']['id']] = $node;
-                                // add children to the next level to check
-                                if (isset($node['BrowsingResult']['children'])) {
-                                    $next_level_children[] = array(
-                                        'current_ctrl_id' => $node['BrowsingResult']['browsing_structures_id'],
-                                        'nodes' => &$node['BrowsingResult']['children'],
-                                        'encountered_ctrls' => array_merge($encountered_ctrls, array(
-                                            $current_ctrl_id
-                                        ))
-                                    );
-                                }
-                            } else 
-                                if ($datamart_controls_model->find1ToN($current_ctrl_id, $node['BrowsingResult']['browsing_structures_id'])) {
-                                    // compatible node found, leave it in the tree
-                                    $flat_children_nodes[$node['BrowsingResult']['id']] = $node;
-                                    // terminating 1 - n relationship
-                                    unset($node['BrowsingResult']['children']);
-                                } else {
-                                    // incompatible node found, remove it from the tree
-                                    unset($child_node['nodes'][$k]);
-                                }
+                    } elseif (! in_array($node['BrowsingResult']['browsing_structures_id'], $encountered_ctrls)) {
+                        if ($datamart_controls_model->findNTo1($current_ctrl_id, $node['BrowsingResult']['browsing_structures_id'])) {
+                            // compatible node found, leave it in the tree
+                            $flat_children_nodes[$node['BrowsingResult']['id']] = $node;
+                            // add children to the next level to check
+                            if (isset($node['BrowsingResult']['children'])) {
+                                $next_level_children[] = array(
+                                    'current_ctrl_id' => $node['BrowsingResult']['browsing_structures_id'],
+                                    'nodes' => &$node['BrowsingResult']['children'],
+                                    'encountered_ctrls' => array_merge($encountered_ctrls, array(
+                                        $current_ctrl_id
+                                    ))
+                                );
+                            }
+                        } elseif ($datamart_controls_model->find1ToN($current_ctrl_id, $node['BrowsingResult']['browsing_structures_id'])) {
+                            // compatible node found, leave it in the tree
+                            $flat_children_nodes[$node['BrowsingResult']['id']] = $node;
+                            // terminating 1 - n relationship
+                            unset($node['BrowsingResult']['children']);
                         } else {
                             // incompatible node found, remove it from the tree
                             unset($child_node['nodes'][$k]);
                         }
+                    } else {
+                        // incompatible node found, remove it from the tree
+                        unset($child_node['nodes'][$k]);
+                    }
                 }
             }
         }

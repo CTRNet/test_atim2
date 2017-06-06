@@ -158,15 +158,14 @@ class AppModel extends Model
                             'targetName' => $target_name
                         ));
                         $data[$model_name][$field_name] = $target_name;
-                    } else 
-                        if (isset($value['option'])) {
-                            if ($value['option'] == 'delete' && $prev_data[$model_name][$field_name]) {
-                                $data[$model_name][$field_name] = '';
-                                unlink($dir . '/' . $prev_data[$model_name][$field_name]);
-                            } else {
-                                unset($data[$model_name][$field_name]);
-                            }
+                    } elseif (isset($value['option'])) {
+                        if ($value['option'] == 'delete' && $prev_data[$model_name][$field_name]) {
+                            $data[$model_name][$field_name] = '';
+                            unlink($dir . '/' . $prev_data[$model_name][$field_name]);
+                        } else {
+                            unset($data[$model_name][$field_name]);
                         }
+                    }
                 }
             }
         }
@@ -257,12 +256,11 @@ class AppModel extends Model
             $writable_fields = null;
             if ($this->writable_fields_mode) {
                 $writable_fields = isset(AppModel::$writable_fields[$this->table][$this->writable_fields_mode]) ? AppModel::$writable_fields[$this->table][$this->writable_fields_mode] : array();
-            } else 
-                if ($this->id) {
-                    $writable_fields = isset(AppModel::$writable_fields[$this->table]['edit']) ? AppModel::$writable_fields[$this->table]['edit'] : array();
-                } else {
-                    $writable_fields = isset(AppModel::$writable_fields[$this->table]['add']) ? AppModel::$writable_fields[$this->table]['add'] : array();
-                }
+            } elseif ($this->id) {
+                $writable_fields = isset(AppModel::$writable_fields[$this->table]['edit']) ? AppModel::$writable_fields[$this->table]['edit'] : array();
+            } else {
+                $writable_fields = isset(AppModel::$writable_fields[$this->table]['add']) ? AppModel::$writable_fields[$this->table]['add'] : array();
+            }
             $writable_fields[] = 'modified';
             if ($this->id) {
                 $writable_fields[] = $this->primaryKey;
@@ -287,11 +285,10 @@ class AppModel extends Model
                     AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. (' . implode(',', $invalid_fields) . ')', true);
                 }
             }
-        } else 
-            if (Configure::read('debug') > 0 && isset($this->data[$this->name]) && ! empty($this->data[$this->name])) {
-                AppController::addWarningMsg('No Writable fields defined for model ' . $this->name . '.', true);
-                $this->data[$this->name] = array();
-            }
+        } elseif (Configure::read('debug') > 0 && isset($this->data[$this->name]) && ! empty($this->data[$this->name])) {
+            AppController::addWarningMsg('No Writable fields defined for model ' . $this->name . '.', true);
+            $this->data[$this->name] = array();
+        }
     }
 
     /**
@@ -309,21 +306,19 @@ class AppModel extends Model
             // editing an existing entry with an existing session
             unset($this->data[$this->name]['created_by']);
             $this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-        } else 
-            if ($this->Session) {
-                // creating a new entry with an existing session
-                $this->data[$this->name]['created_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-                $this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-            } else 
-                if ($this->id) {
-                    // editing an existing entry with no session
-                    unset($this->data[$this->name]['created_by']);
-                    $this->data[$this->name]['modified_by'] = 0;
-                } else {
-                    // creating a new entry with no session
-                    $this->data[$this->name]['created_by'] = 0;
-                    $this->data[$this->name]['modified_by'] = 0;
-                }
+        } elseif ($this->Session) {
+            // creating a new entry with an existing session
+            $this->data[$this->name]['created_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
+            $this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
+        } elseif ($this->id) {
+            // editing an existing entry with no session
+            unset($this->data[$this->name]['created_by']);
+            $this->data[$this->name]['modified_by'] = 0;
+        } else {
+            // creating a new entry with no session
+            $this->data[$this->name]['created_by'] = 0;
+            $this->data[$this->name]['modified_by'] = 0;
+        }
         $this->data[$this->name]['modified'] = now(); // CakePHP should do it... doens't work.
     }
 
@@ -647,12 +642,11 @@ class AppModel extends Model
                 $result = null;
                 if ($got_date && $got_time) {
                     $result = sprintf("%s-%s-%s %s:%s:%s", $data['year'], $data['month'], $data['day'], $data['hour'], $data['min'], $data['sec']);
-                } else 
-                    if ($got_date) {
-                        $result = sprintf("%s-%s-%s", $data['year'], $data['month'], $data['day']);
-                    } else {
-                        $result = sprintf("%s:%s:%s", $data['hour'], $data['min'], $data['sec']);
-                    }
+                } elseif ($got_date) {
+                    $result = sprintf("%s-%s-%s", $data['year'], $data['month'], $data['day']);
+                } else {
+                    $result = sprintf("%s:%s:%s", $data['hour'], $data['min'], $data['sec']);
+                }
                 return $result;
             }
             return "";
@@ -762,12 +756,11 @@ class AppModel extends Model
                     }
                     if (strlen($field) == 0) {
                         $empty_found = true;
-                    } else 
-                        if ($empty_found) {
-                            // example: Entered 2010--02 -> Invalid date is skiped here and get caught at validation level
-                            $go_to_next_field = true;
-                            break;
-                        }
+                    } elseif ($empty_found) {
+                        // example: Entered 2010--02 -> Invalid date is skiped here and get caught at validation level
+                        $go_to_next_field = true;
+                        break;
+                    }
                 }
                 if ($go_to_next_field) {
                     continue; // if one of them is not empty AND not numeric
@@ -784,27 +777,23 @@ class AppModel extends Model
                         } else {
                             $this->data[$this->name][$accuracy_field] = 'm';
                         }
-                    } else 
-                        if (empty($day) && empty($hour) && empty($minute)) {
-                            $day = '01';
-                            $hour = '00';
-                            $minute = '00';
-                            $this->data[$this->name][$accuracy_field] = 'd';
-                        } else 
-                            if (empty($time)) {
-                                $this->data[$this->name][$accuracy_field] = 'c';
-                            } else 
-                                if (! strlen($hour) && ! strlen($minute)) {
-                                    $hour = '00';
-                                    $minute = '00';
-                                    $this->data[$this->name][$accuracy_field] = 'h';
-                                } else 
-                                    if (! strlen($minute)) {
-                                        $minute = '00';
-                                        $this->data[$this->name][$accuracy_field] = 'i';
-                                    } else {
-                                        $this->data[$this->name][$accuracy_field] = 'c';
-                                    }
+                    } elseif (empty($day) && empty($hour) && empty($minute)) {
+                        $day = '01';
+                        $hour = '00';
+                        $minute = '00';
+                        $this->data[$this->name][$accuracy_field] = 'd';
+                    } elseif (empty($time)) {
+                        $this->data[$this->name][$accuracy_field] = 'c';
+                    } elseif (! strlen($hour) && ! strlen($minute)) {
+                        $hour = '00';
+                        $minute = '00';
+                        $this->data[$this->name][$accuracy_field] = 'h';
+                    } elseif (! strlen($minute)) {
+                        $minute = '00';
+                        $this->data[$this->name][$accuracy_field] = 'i';
+                    } else {
+                        $this->data[$this->name][$accuracy_field] = 'c';
+                    }
                     $current = sprintf("%s-%02s-%02s", $year, $month, $day);
                     if (! empty($time)) {
                         $current .= sprintf(" %02s:%02s:00", $hour, $minute);
@@ -848,27 +837,25 @@ class AppModel extends Model
                         $control_class . '.id' => $this->data[$master_class][$control_foreign]
                     )
                 ));
-            } else 
-                if (isset($this->id) && is_numeric($this->id)) {
-                    // else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
-                    $associated = $this->find('first', array(
-                        'conditions' => array(
-                            $master_class . '.id' => $this->id
-                        )
-                    ));
-                } else 
-                    if (isset($this->data[$master_class]['id']) && is_numeric($this->data[$master_class]['id'])) {
-                        // else, (still EDIT), use use data[master_model][id] to get row and find CONTROL_ID that way...
-                        $associated = $this->find('first', array(
-                            'conditions' => array(
-                                $master_class . '.id' => $model->data[$this]['id']
-                            )
-                        ));
-                    }
+            } elseif (isset($this->id) && is_numeric($this->id)) {
+                // else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
+                $associated = $this->find('first', array(
+                    'conditions' => array(
+                        $master_class . '.id' => $this->id
+                    )
+                ));
+            } elseif (isset($this->data[$master_class]['id']) && is_numeric($this->data[$master_class]['id'])) {
+                // else, (still EDIT), use use data[master_model][id] to get row and find CONTROL_ID that way...
+                $associated = $this->find('first', array(
+                    'conditions' => array(
+                        $master_class . '.id' => $model->data[$this]['id']
+                    )
+                ));
+            }
             
             if ($associated == NULL || empty($associated)) {
                 // FAIL!, we ABSOLUTELY WANT validations
-                AppController::getInstance()->redirect('/Pages/err_internal?p[]=' . __CLASS__ . " @ line " . __LINE__ . " (the detail control id was not found for " . $master_class . ")", NULL, TRUE);
+                AppController::getInstance()->redirect('/Pages/err_internal?p[]=' . __CLASS__ . " @ line " . __LINE__ . " (the detail control id was not found for " . $master_class . ")", NULL, true);
                 exit();
             }
             
@@ -879,12 +866,11 @@ class AppModel extends Model
                 $detail_class_instance = AppModel::getInstance($plugin_name, $detail_class);
                 if ($detail_class_instance->useTable == false) {
                     $detail_class_instance->useTable = $use_table_name;
-                } else 
-                    if ($detail_class_instance->useTable != $use_table_name) {
-                        ClassRegistry::removeObject($detail_class_instance->alias);
-                        $detail_class_instance = AppModel::getInstance($plugin_name, $detail_class);
-                        $detail_class_instance->useTable = $use_table_name;
-                    }
+                } elseif ($detail_class_instance->useTable != $use_table_name) {
+                    ClassRegistry::removeObject($detail_class_instance->alias);
+                    $detail_class_instance = AppModel::getInstance($plugin_name, $detail_class);
+                    $detail_class_instance->useTable = $use_table_name;
+                }
                 assert($detail_class_instance->useTable == $use_table_name);
                 if (isset(AppController::getInstance()->{$detail_class}) && (! isset($params['validate']) || $params['validate'])) {
                     // attach auto validation
@@ -950,7 +936,7 @@ class AppModel extends Model
                 pr(AppController::getStackTrace());
                 die('died in AppModel::getInstance [' . $plugin_name . $class_name . '] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
             } else {
-                AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $class_name, NULL, TRUE);
+                AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $class_name, NULL, true);
             }
         }
         
@@ -1012,10 +998,9 @@ class AppModel extends Model
                             list ($m, $d) = explode(',', $field_data['length']);
                             $max = str_repeat('9', $m - $d) . "." . str_repeat('9', $d);
                             $min = - 1 * $max;
-                        } else 
-                            if ($field_data['atim_type'] == 'float unsigned') {
-                                $min = "0";
-                            }
+                        } elseif ($field_data['atim_type'] == 'float unsigned') {
+                            $min = "0";
+                        }
                         $auto_validation[$field_name][] = array(
                             'rule' => array(
                                 'range',
@@ -1043,69 +1028,65 @@ class AppModel extends Model
                                     4294967295
                                 );
                             }
-                        } else 
-                            if (strpos($field_data['atim_type'], 'tinyint') === 0) {
-                                if (strpos($field_data['atim_type'], 'unsigned') === false) {
-                                    $rule = array(
-                                        'range',
-                                        - 129,
-                                        128
-                                    );
-                                } else {
-                                    $rule = array(
-                                        'range',
-                                        - 1,
-                                        256
-                                    );
-                                }
-                            } else 
-                                if (strpos($field_data['atim_type'], 'smallint') === 0) {
-                                    if (strpos($field_data['atim_type'], 'unsigned') === false) {
-                                        $rule = array(
-                                            'range',
-                                            - 32769,
-                                            32768
-                                        );
-                                    } else {
-                                        $rule = array(
-                                            'range',
-                                            - 1,
-                                            65536
-                                        );
-                                    }
-                                } else 
-                                    if (strpos($field_data['atim_type'], 'mediumint') === 0) {
-                                        if (strpos($field_data['atim_type'], 'unsigned') === false) {
-                                            $rule = array(
-                                                'range',
-                                                - 8388609,
-                                                8388608
-                                            );
-                                        } else {
-                                            $rule = array(
-                                                'range',
-                                                - 1,
-                                                16777216
-                                            );
-                                        }
-                                    } else 
-                                        if (strpos($field_data['atim_type'], 'bigint') === 0) {
-                                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
-                                                $rule = array(
-                                                    'range',
-                                                    - 9223372036854775809,
-                                                    9223372036854775808
-                                                );
-                                            } else {
-                                                $rule = array(
-                                                    'range',
-                                                    - 1,
-                                                    18446744073709551615
-                                                );
-                                            }
-                                        } else {
-                                            AppController::addWarningMsg('Unknown integer type for field [' . $model->name . '.' . $field_name, true);
-                                        }
+                        } elseif (strpos($field_data['atim_type'], 'tinyint') === 0) {
+                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                                $rule = array(
+                                    'range',
+                                    - 129,
+                                    128
+                                );
+                            } else {
+                                $rule = array(
+                                    'range',
+                                    - 1,
+                                    256
+                                );
+                            }
+                        } elseif (strpos($field_data['atim_type'], 'smallint') === 0) {
+                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                                $rule = array(
+                                    'range',
+                                    - 32769,
+                                    32768
+                                );
+                            } else {
+                                $rule = array(
+                                    'range',
+                                    - 1,
+                                    65536
+                                );
+                            }
+                        } elseif (strpos($field_data['atim_type'], 'mediumint') === 0) {
+                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                                $rule = array(
+                                    'range',
+                                    - 8388609,
+                                    8388608
+                                );
+                            } else {
+                                $rule = array(
+                                    'range',
+                                    - 1,
+                                    16777216
+                                );
+                            }
+                        } elseif (strpos($field_data['atim_type'], 'bigint') === 0) {
+                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                                $rule = array(
+                                    'range',
+                                    - 9223372036854775809,
+                                    9223372036854775808
+                                );
+                            } else {
+                                $rule = array(
+                                    'range',
+                                    - 1,
+                                    18446744073709551615
+                                );
+                            }
+                        } else {
+                            AppController::addWarningMsg('Unknown integer type for field [' . $model->name . '.' . $field_name, true);
+                        }
                         if ($rule) {
                             $auto_validation[$field_name][] = array(
                                 'rule' => $rule,
@@ -1206,31 +1187,29 @@ class AppModel extends Model
         if (empty($start_datetime) || empty($end_datetime)) {
             // At least one date is missing to continue
             $arr_spent_time['message'] = 'missing date';
-        } else 
-            if (! preg_match($datetime_pattern, $start_datetime) || ! preg_match($datetime_pattern, $end_datetime)) {
+        } elseif (! preg_match($datetime_pattern, $start_datetime) || ! preg_match($datetime_pattern, $end_datetime)) {
+            // Error in the date
+            $arr_spent_time['message'] = 'error in the date definitions';
+        } elseif ($datetime_pattern == $end_datetime) {
+            // Nothing to change to $arr_spent_time
+            $arr_spent_time['message'] = '0';
+        } else {
+            $start_datetime_ob = new DateTime($start_datetime);
+            $end_datetime_ob = new DateTime($end_datetime);
+            $interval = $start_datetime_ob->diff($end_datetime_ob);
+            if ($interval->invert) {
                 // Error in the date
                 $arr_spent_time['message'] = 'error in the date definitions';
-            } else 
-                if ($datetime_pattern == $end_datetime) {
-                    // Nothing to change to $arr_spent_time
-                    $arr_spent_time['message'] = '0';
-                } else {
-                    $start_datetime_ob = new DateTime($start_datetime);
-                    $end_datetime_ob = new DateTime($end_datetime);
-                    $interval = $start_datetime_ob->diff($end_datetime_ob);
-                    if ($interval->invert) {
-                        // Error in the date
-                        $arr_spent_time['message'] = 'error in the date definitions';
-                    } else {
-                        // Return spend time
-                        $arr_spent_time['years'] = $interval->y;
-                        $arr_spent_time['months'] = $interval->m;
-                        $arr_spent_time['days'] = $interval->d;
-                        $arr_spent_time['hours'] = $interval->h;
-                        $arr_spent_time['minutes'] = $interval->i;
-                        $arr_spent_time['total_days'] = $interval->days;
-                    }
-                }
+            } else {
+                // Return spend time
+                $arr_spent_time['years'] = $interval->y;
+                $arr_spent_time['months'] = $interval->m;
+                $arr_spent_time['days'] = $interval->d;
+                $arr_spent_time['hours'] = $interval->h;
+                $arr_spent_time['minutes'] = $interval->i;
+                $arr_spent_time['total_days'] = $interval->days;
+            }
+        }
         
         return $arr_spent_time;
     }
@@ -1544,16 +1523,15 @@ class AppModel extends Model
                 foreach ($current_fields_replace as $field_name => $options) {
                     if (isset($options['msg'][$result[$this->name][$field_name]])) {
                         $result[$this->name][$field_name] = $options['msg'][$result[$this->name][$field_name]];
-                    } else 
-                        if ($options['type'] == 'spentTime') {
-                            $remainder = $result[$this->name][$field_name];
-                            $time['minutes'] = $remainder % 60;
-                            $remainder = ($remainder - $time['minutes']) / 60;
-                            $time['hours'] = $remainder % 24;
-                            $time['days'] = ($remainder - $time['hours']) / 24;
-                            $spent_time = AppModel::translateDateValueAndUnit($time, 'days') . '' . AppModel::translateDateValueAndUnit($time, 'hours') . AppModel::translateDateValueAndUnit($time, 'minutes');
-                            $result[$this->name][$field_name] = $spent_time ?: 0;
-                        }
+                    } elseif ($options['type'] == 'spentTime') {
+                        $remainder = $result[$this->name][$field_name];
+                        $time['minutes'] = $remainder % 60;
+                        $remainder = ($remainder - $time['minutes']) / 60;
+                        $time['hours'] = $remainder % 24;
+                        $time['days'] = ($remainder - $time['hours']) / 24;
+                        $spent_time = AppModel::translateDateValueAndUnit($time, 'days') . '' . AppModel::translateDateValueAndUnit($time, 'hours') . AppModel::translateDateValueAndUnit($time, 'minutes');
+                        $result[$this->name][$field_name] = $spent_time ?: 0;
+                    }
                 }
             }
         }

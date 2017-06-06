@@ -170,20 +170,18 @@ class Browser extends DatamartAppModel
                         $first_step_title = __($first_step_datamart_structure['display_name']);
                         if ($first_browsing_step['parent_children'] == 'c') {
                             $first_step_title .= ' ' . __('children');
-                        } else 
-                            if ($first_browsing_step['parent_children'] == 'p') {
-                                $first_step_title .= ' ' . __('parent');
-                            }
+                        } elseif ($first_browsing_step['parent_children'] == 'p') {
+                            $first_step_title .= ' ' . __('parent');
+                        }
                         $last_browsing_step = $data_unit['SavedBrowsingStep'][(sizeof($data_unit['SavedBrowsingStep']) - 1)];
                         $last_step_datamart_structure = $browsing_structures[$last_browsing_step['datamart_structure_id']];
                         $last_step_model = AppModel::getInstance($last_step_datamart_structure['plugin'], $last_step_datamart_structure['model'], true);
                         $last_step_title = __($last_step_datamart_structure['display_name']);
                         if ($last_browsing_step['parent_children'] == 'c') {
                             $last_step_title .= ' ' . __('children');
-                        } else 
-                            if ($last_browsing_step['parent_children'] == 'p') {
-                                $last_step_title .= ' ' . __('parent');
-                            }
+                        } elseif ($last_browsing_step['parent_children'] == 'p') {
+                            $last_step_title .= ' ' . __('parent');
+                        }
                         $sub_menu[] = array(
                             'value' => 'Datamart/Browser/applyBrowsingSteps/' . $node_id . '/' . $data_unit['SavedBrowsingIndex']['id'],
                             'label' => $data_unit['SavedBrowsingIndex']['name'] . " [$first_step_title => $last_step_title]"
@@ -312,11 +310,10 @@ class Browser extends DatamartAppModel
                         // already treated that, the count is there to allow reentrant
                         // mode to pass by
                         continue;
-                    } else 
-                        if (! isset($browsing_structures[$to_val])) {
-                            // permissions denied
-                            continue;
-                        }
+                    } elseif (! isset($browsing_structures[$to_val])) {
+                        // permissions denied
+                        continue;
+                    }
                     $stack[$to_val] = null;
                     $tmp_result = array(
                         'label' => __($browsing_structures[$to_val]['display_name']),
@@ -578,20 +575,17 @@ class Browser extends DatamartAppModel
                 if ($tree[$last_arrow_y][$last_arrow_x] == "arrow") {
                     $tree[$last_arrow_y][$last_arrow_x] = "corner";
                     $check_up_merge = true;
-                } else 
-                    if ($tree[$last_arrow_y][$last_arrow_x] == "arrow merged") {
-                        $tree[$last_arrow_y][$last_arrow_x] = "corner merged";
-                        $check_up_merge = true;
-                        $apply_merge = true;
-                    } else 
-                        if ($tree[$last_arrow_y][$last_arrow_x] == "arrow active") {
-                            $tree[$last_arrow_y][$last_arrow_x] = "corner active";
-                        } else 
-                            if ($tree[$last_arrow_y][$last_arrow_x] == "arrow merged active") {
-                                $tree[$last_arrow_y][$last_arrow_x] = "corner merged active";
-                                $check_up_merge = true;
-                                $apply_merge = true;
-                            }
+                } elseif ($tree[$last_arrow_y][$last_arrow_x] == "arrow merged") {
+                    $tree[$last_arrow_y][$last_arrow_x] = "corner merged";
+                    $check_up_merge = true;
+                    $apply_merge = true;
+                } elseif ($tree[$last_arrow_y][$last_arrow_x] == "arrow active") {
+                    $tree[$last_arrow_y][$last_arrow_x] = "corner active";
+                } elseif ($tree[$last_arrow_y][$last_arrow_x] == "arrow merged active") {
+                    $tree[$last_arrow_y][$last_arrow_x] = "corner merged active";
+                    $check_up_merge = true;
+                    $apply_merge = true;
+                }
                 
                 if ($check_up_merge) {
                     -- $last_arrow_y;
@@ -599,17 +593,14 @@ class Browser extends DatamartAppModel
                         if ($apply_merge) {
                             if ($tree[$last_arrow_y][$last_arrow_x] == "arrow") {
                                 $tree[$last_arrow_y][$last_arrow_x] .= " merged_straight";
-                            } else 
-                                if ($tree[$last_arrow_y][$last_arrow_x] == "v-line" || $tree[$last_arrow_y][$last_arrow_x] == "v-line active") {
-                                    $tree[$last_arrow_y][$last_arrow_x] .= " merged";
-                                } else 
-                                    if ($tree[$last_arrow_y][$last_arrow_x] == "arrow active_straight") {
-                                        $tree[$last_arrow_y][$last_arrow_x] = "arrow active_straight merged";
-                                    }
-                        } else 
-                            if ($tree[$last_arrow_y][$last_arrow_x] == "arrow merged" || $tree[$last_arrow_y][$last_arrow_x] == "arrow merged active") {
-                                $apply_merge = true;
+                            } elseif ($tree[$last_arrow_y][$last_arrow_x] == "v-line" || $tree[$last_arrow_y][$last_arrow_x] == "v-line active") {
+                                $tree[$last_arrow_y][$last_arrow_x] .= " merged";
+                            } elseif ($tree[$last_arrow_y][$last_arrow_x] == "arrow active_straight") {
+                                $tree[$last_arrow_y][$last_arrow_x] = "arrow active_straight merged";
                             }
+                        } elseif ($tree[$last_arrow_y][$last_arrow_x] == "arrow merged" || $tree[$last_arrow_y][$last_arrow_x] == "arrow merged active") {
+                            $apply_merge = true;
+                        }
                         -- $last_arrow_y;
                     }
                 }
@@ -648,24 +639,21 @@ class Browser extends DatamartAppModel
                     // else it's a node
                     break;
                 }
-            } else 
-                if (isset($tree[$active_y - 1][$active_x])) {
-                    if ($tree[$active_y - 1][$active_x] == "v-line" || $tree[$active_y - 1][$active_x] == "v-line merged") {
-                        $tree[$active_y - 1][$active_x] .= " active";
-                    } else 
-                        if ($tree[$active_y - 1][$active_x] == "arrow") {
-                            $tree[$active_y - 1][$active_x] .= " active_straight";
-                        } else 
-                            if ($tree[$active_y - 1][$active_x] == "arrow merged_straight") {
-                                $tree[$active_y - 1][$active_x] = "arrow active_straight merged";
-                            } else {
-                                // it's a node
-                                break;
-                            }
-                    -- $active_y;
+            } elseif (isset($tree[$active_y - 1][$active_x])) {
+                if ($tree[$active_y - 1][$active_x] == "v-line" || $tree[$active_y - 1][$active_x] == "v-line merged") {
+                    $tree[$active_y - 1][$active_x] .= " active";
+                } elseif ($tree[$active_y - 1][$active_x] == "arrow") {
+                    $tree[$active_y - 1][$active_x] .= " active_straight";
+                } elseif ($tree[$active_y - 1][$active_x] == "arrow merged_straight") {
+                    $tree[$active_y - 1][$active_x] = "arrow active_straight merged";
                 } else {
+                    // it's a node
                     break;
                 }
+                -- $active_y;
+            } else {
+                break;
+            }
             ++ $counter;
             assert($counter < 100) or die("invalid loop");
         }
@@ -677,10 +665,9 @@ class Browser extends DatamartAppModel
         $word = null;
         if ($cell['BrowsingResult']['parent_children'] == 'c') {
             $word = __('children');
-        } else 
-            if ($cell['BrowsingResult']['parent_children'] == 'p') {
-                $word = __('parent');
-            }
+        } elseif ($cell['BrowsingResult']['parent_children'] == 'p') {
+            $word = __('parent');
+        }
         if ($word) {
             $title .= ' ' . $word;
         }
@@ -809,12 +796,11 @@ class Browser extends DatamartAppModel
                     $link = $webroot_url . "Datamart/Browser/browse/";
                     if (isset($cell['merge']) && $cell['merge'] && ! isset($cell['hide_merge_icon'])) {
                         $controls = sprintf($controls, "<a class='icon16 link' href='" . $link . $current_node . "/0/" . $cell['BrowsingResult']['id'] . "' title='" . __("link to current view") . "'/>&nbsp;</a>");
-                    } else 
-                        if ($current_node_datamart_structure_id == $cell['DatamartStructure']['id'] && $cell['BrowsingResult']['id'] != $current_node) {
-                            $controls = sprintf($controls, "<a class='icon16 data_diff' href='" . $webroot_url . "Datamart/Reports/compareToBatchSetOrNode/node/" . $cell['BrowsingResult']['id'] . "/0/$current_node' title='" . __("compare contents") . "'/>&nbsp;</a>");
-                        } else {
-                            $controls = sprintf($controls, "");
-                        }
+                    } elseif ($current_node_datamart_structure_id == $cell['DatamartStructure']['id'] && $cell['BrowsingResult']['id'] != $current_node) {
+                        $controls = sprintf($controls, "<a class='icon16 data_diff' href='" . $webroot_url . "Datamart/Reports/compareToBatchSetOrNode/node/" . $cell['BrowsingResult']['id'] . "/0/$current_node' title='" . __("compare contents") . "'/>&nbsp;</a>");
+                    } else {
+                        $controls = sprintf($controls, "");
+                    }
                     $box = "<div class='info %s'>%s%s</div>";
                     if ($x < 16) {
                         // right
@@ -893,26 +879,25 @@ class Browser extends DatamartAppModel
                     list ($model, $field) = explode(".", $model_field);
                     $values[] = substr($value, 2, - 2);
                 }
-            } else 
-                if (is_array($value_element)) {
-                    // it's coming from a dropdown
-                    $values = $value_element;
-                    list ($model, $field) = explode(".", $key);
+            } elseif (is_array($value_element)) {
+                // it's coming from a dropdown
+                $values = $value_element;
+                list ($model, $field) = explode(".", $key);
+            } else {
+                // it's a range
+                // key = field with possibly a comparison (field >=, field <=), if no comparison, it's =
+                // value = value_str
+                if (strpos($value_element, "-")) {
+                    list ($year, $month, $day) = explode("-", $value_element);
+                    $values[] = AppController::getFormatedDateString($year, $month, $day);
                 } else {
-                    // it's a range
-                    // key = field with possibly a comparison (field >=, field <=), if no comparison, it's =
-                    // value = value_str
-                    if (strpos($value_element, "-")) {
-                        list ($year, $month, $day) = explode("-", $value_element);
-                        $values[] = AppController::getFormatedDateString($year, $month, $day);
-                    } else {
-                        $values[] = $value_element;
-                    }
-                    if (strpos($key, " ") !== false) {
-                        list ($key, $name_suffix) = explode(" ", $key);
-                    }
-                    list ($model, $field) = explode(".", $key);
+                    $values[] = $value_element;
                 }
+                if (strpos($key, " ") !== false) {
+                    list ($key, $name_suffix) = explode(" ", $key);
+                }
+                list ($model, $field) = explode(".", $key);
+            }
             $structure_value_domain_model = null;
             $last_label = '';
             foreach ($params['structure']['Sfs'] as &$sf_unit) {
@@ -1105,60 +1090,59 @@ class Browser extends DatamartAppModel
             } else {
                 $sub_models_id_filter['AliquotControl'][] = 0;
             }
-        } else 
-            if ($browsing['DatamartStructure']['id'] == 1) {
-                // aliquot->sample hardcoded part
-                assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster"); // will print a warning if the id and field doesnt match anymore
-                $am = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-                $am_data = $am->find('all', array(
-                    'fields' => array(
-                        'AliquotMaster.aliquot_control_id'
-                    ),
-                    'conditions' => array(
-                        'AliquotMaster.id' => explode(",", $browsing['BrowsingResult']['id_csv'])
-                    ),
-                    'group' => array(
-                        'AliquotMaster.aliquot_control_id'
-                    ),
-                    'recursive' => - 1
-                ));
-                $ctrl_ids = array();
-                foreach ($am_data as $data_part) {
-                    $ctrl_ids[] = $data_part['AliquotMaster']['aliquot_control_id'];
-                }
-                $ac = AppModel::getInstance("InventoryManagement", "AliquotControl", true);
-                $data = $ac->find('all', array(
-                    'conditions' => array(
-                        "AliquotControl.id" => $ctrl_ids,
-                        "AliquotControl.flag_active" => 1
-                    ),
-                    'recursive' => - 1
-                ));
-                $ids = array();
-                foreach ($data as $unit) {
-                    $ids[] = $unit['AliquotControl']['sample_control_id'];
-                }
-                $sub_models_id_filter['SampleControl'] = $ids;
-            } else {
-                /*
-                 * $sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
-                 * $sample_controls = $sample_control_model->getPermissibleSamplesArray(null);
-                 * $sample_controls = AppController::defineArrayKey($sample_controls, 'SampleControl', 'id', true);
-                 * $aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
-                 * $aliquot_controls = $aliquot_control_model->find('all', array(
-                 * 'fields' => array('*'),
-                 * 'conditions' => array('AliquotControl.flag_active' => 1, 'AliquotControl.sample_control_id' => array_keys($sample_controls)),
-                 * 'joins' => array(
-                 * array(
-                 * 'table' => 'sample_controls',
-                 * 'alias' => 'SampleControl',
-                 * 'type' => 'INNER',
-                 * 'conditions' => 'AliquotControl.sample_control_id = SampleControl.id'
-                 * )
-                 * )));
-                 * $sub_models_id_filter['AliquotControl'] = array_keys(AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true));
-                 */
+        } elseif ($browsing['DatamartStructure']['id'] == 1) {
+            // aliquot->sample hardcoded part
+            assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster"); // will print a warning if the id and field doesnt match anymore
+            $am = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+            $am_data = $am->find('all', array(
+                'fields' => array(
+                    'AliquotMaster.aliquot_control_id'
+                ),
+                'conditions' => array(
+                    'AliquotMaster.id' => explode(",", $browsing['BrowsingResult']['id_csv'])
+                ),
+                'group' => array(
+                    'AliquotMaster.aliquot_control_id'
+                ),
+                'recursive' => - 1
+            ));
+            $ctrl_ids = array();
+            foreach ($am_data as $data_part) {
+                $ctrl_ids[] = $data_part['AliquotMaster']['aliquot_control_id'];
             }
+            $ac = AppModel::getInstance("InventoryManagement", "AliquotControl", true);
+            $data = $ac->find('all', array(
+                'conditions' => array(
+                    "AliquotControl.id" => $ctrl_ids,
+                    "AliquotControl.flag_active" => 1
+                ),
+                'recursive' => - 1
+            ));
+            $ids = array();
+            foreach ($data as $unit) {
+                $ids[] = $unit['AliquotControl']['sample_control_id'];
+            }
+            $sub_models_id_filter['SampleControl'] = $ids;
+        } else {
+            /*
+             * $sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
+             * $sample_controls = $sample_control_model->getPermissibleSamplesArray(null);
+             * $sample_controls = AppController::defineArrayKey($sample_controls, 'SampleControl', 'id', true);
+             * $aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
+             * $aliquot_controls = $aliquot_control_model->find('all', array(
+             * 'fields' => array('*'),
+             * 'conditions' => array('AliquotControl.flag_active' => 1, 'AliquotControl.sample_control_id' => array_keys($sample_controls)),
+             * 'joins' => array(
+             * array(
+             * 'table' => 'sample_controls',
+             * 'alias' => 'SampleControl',
+             * 'type' => 'INNER',
+             * 'conditions' => 'AliquotControl.sample_control_id = SampleControl.id'
+             * )
+             * )));
+             * $sub_models_id_filter['AliquotControl'] = array_keys(AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true));
+             */
+        }
         
         return $sub_models_id_filter;
     }
@@ -1596,7 +1580,7 @@ class Browser extends DatamartAppModel
                             
                             if ($parent_browsing_model->name == $adv_field['model'] && ! $parent_browsing_model->schema($adv_field['field'])) {
                                 // error, the field doesn't exist
-                                AppController::getInstance()->redirect('/Pages/err_internal?p[]=model+field+not+found', NULL, TRUE);
+                                AppController::getInstance()->redirect('/Pages/err_internal?p[]=model+field+not+found', NULL, true);
                             }
                             
                             $conditions = array();
@@ -2119,14 +2103,13 @@ $browsing_filter['attribute']);
             if (! empty($tmp)) {
                 // current set already exists, use it
                 $node_id = $tmp['BrowsingResult']['id'];
-            } else 
-                if ($parent['BrowsingResult']['id_csv'] != $id_csv) {
-                    // current set does not exists and no identical parent exists, save!
-                    $browsing_result_model->id = null;
-                    $browsing_result_model->save($save);
-                    $node_id = $browsing_result_model->id;
-                    $browsing_result_model->id = null;
-                }
+            } elseif ($parent['BrowsingResult']['id_csv'] != $id_csv) {
+                // current set does not exists and no identical parent exists, save!
+                $browsing_result_model->id = null;
+                $browsing_result_model->save($save);
+                $node_id = $browsing_result_model->id;
+                $browsing_result_model->id = null;
+            }
         }
     }
 }

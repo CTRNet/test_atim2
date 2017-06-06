@@ -21,13 +21,11 @@ class StorageCtrl extends AdministrateAppModel
         $storage_category = 'no_d';
         if ($data['StorageCtrl']['is_tma_block']) {
             $storage_category = 'tma';
-        } else 
-            if ($data['StorageCtrl']['coord_y_title']) {
-                $storage_category = '2d';
-            } else 
-                if ($data['StorageCtrl']['coord_x_title']) {
-                    $storage_category = '1d';
-                }
+        } elseif ($data['StorageCtrl']['coord_y_title']) {
+            $storage_category = '2d';
+        } elseif ($data['StorageCtrl']['coord_x_title']) {
+            $storage_category = '1d';
+        }
         return $storage_category;
     }
 
@@ -67,16 +65,15 @@ class StorageCtrl extends AdministrateAppModel
                 $this->validationErrors['coord_x_size'][] = 'a size of an alphabetical coordinate has to be less than 25 values';
             if ($this->data['StorageCtrl']['coord_y_type'] == 'alphabetical' && $this->data['StorageCtrl']['coord_y_size'] > 24)
                 $this->validationErrors['coord_y_size'][] = 'a size of an alphabetical coordinate has to be less than 25 values';
-        } else 
-            if (isset($this->data['StorageCtrl']['coord_x_title'])) {
-                // 1d storage
-                if (strlen($this->data['StorageCtrl']['coord_x_size']) && $this->data['StorageCtrl']['coord_x_type'] == 'list')
-                    $this->validationErrors['coord_x_size'][] = 'no coordinate x size has to be set for list';
-                if (! strlen($this->data['StorageCtrl']['coord_x_size']) && $this->data['StorageCtrl']['coord_x_type'] != 'list')
-                    $this->validationErrors['coord_x_size'][] = 'a coordinate x size has to be set';
-                if ($this->data['StorageCtrl']['coord_x_type'] != 'list' && (($this->data['StorageCtrl']['display_x_size'] * $this->data['StorageCtrl']['display_y_size']) != $this->data['StorageCtrl']['coord_x_size']))
-                    $this->validationErrors['coord_x_size'][] = 'display y size * display y size should be equal to coord x size';
-            }
+        } elseif (isset($this->data['StorageCtrl']['coord_x_title'])) {
+            // 1d storage
+            if (strlen($this->data['StorageCtrl']['coord_x_size']) && $this->data['StorageCtrl']['coord_x_type'] == 'list')
+                $this->validationErrors['coord_x_size'][] = 'no coordinate x size has to be set for list';
+            if (! strlen($this->data['StorageCtrl']['coord_x_size']) && $this->data['StorageCtrl']['coord_x_type'] != 'list')
+                $this->validationErrors['coord_x_size'][] = 'a coordinate x size has to be set';
+            if ($this->data['StorageCtrl']['coord_x_type'] != 'list' && (($this->data['StorageCtrl']['display_x_size'] * $this->data['StorageCtrl']['display_y_size']) != $this->data['StorageCtrl']['coord_x_size']))
+                $this->validationErrors['coord_x_size'][] = 'display y size * display y size should be equal to coord x size';
+        }
         return parent::validates($options);
     }
 

@@ -242,10 +242,9 @@ class SampleMaster extends InventoryManagementAppModel
                 // error
                 $msg = $result;
             }
-        } else 
-            if ((array_key_exists('sync_with_lab_book', $data['DerivativeDetail']) && $this->data['DerivativeDetail']['sync_with_lab_book']) || (isset($data[0]['sync_with_lab_book_now']) && $data[0]['sync_with_lab_book_now'])) {
-                $msg = __('to synchronize with a lab book, you need to define a lab book to use');
-            }
+        } elseif ((array_key_exists('sync_with_lab_book', $data['DerivativeDetail']) && $this->data['DerivativeDetail']['sync_with_lab_book']) || (isset($data[0]['sync_with_lab_book_now']) && $data[0]['sync_with_lab_book_now'])) {
+            $msg = __('to synchronize with a lab book, you need to define a lab book to use');
+        }
         
         return $msg;
     }
@@ -385,13 +384,12 @@ class SampleMaster extends InventoryManagementAppModel
         $formatted_data = array();
         if (! empty($parent_sample_data)) {
             if (isset($parent_sample_data['SampleMaster'])) {
-                $formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
-            } else 
-                if (isset($parent_sample_data[0]['ViewSample'])) {
-                    foreach ($parent_sample_data as $new_parent) {
-                        $formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['sample_code'] . ' [' . __($new_parent['ViewSample']['sample_type'], TRUE) . ']';
-                    }
+                $formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], true) . ']';
+            } elseif (isset($parent_sample_data[0]['ViewSample'])) {
+                foreach ($parent_sample_data as $new_parent) {
+                    $formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['sample_code'] . ' [' . __($new_parent['ViewSample']['sample_type'], true) . ']';
                 }
+            }
         }
         return $formatted_data;
     }

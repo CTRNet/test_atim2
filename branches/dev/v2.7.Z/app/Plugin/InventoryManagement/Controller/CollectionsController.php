@@ -49,28 +49,27 @@ class CollectionsController extends InventoryManagementAppController
                 unset($this->request->data[$limit]);
                 $this->set("overflow", true);
             }
-        } else 
-            if (isset($this->passedArgs['unlinkedParticipants'])) {
-                $group_model = AppModel::getInstance('', 'Group');
-                $group = $group_model->find('first', array(
-                    'conditions' => array(
-                        'Group.id' => $this->Session->read('Auth.User.group_id')
-                    )
-                ));
-                $collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
-                $conditions = array(
-                    'ViewCollection.collection_property' => 'participant collection',
-                    'ViewCollection.participant_id' => null
-                );
-                if ($group['Group']['bank_id']) {
-                    $this->set('bank_filter', true);
-                    $conditions['ViewCollection.bank_id'] = $group['Group']['bank_id'];
-                }
-                $this->Structures->set('view_collection');
-                $this->request->data = $this->paginate($this->ViewCollection, $conditions);
-            } else {
-                $this->searchHandler($search_id, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
+        } elseif (isset($this->passedArgs['unlinkedParticipants'])) {
+            $group_model = AppModel::getInstance('', 'Group');
+            $group = $group_model->find('first', array(
+                'conditions' => array(
+                    'Group.id' => $this->Session->read('Auth.User.group_id')
+                )
+            ));
+            $collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
+            $conditions = array(
+                'ViewCollection.collection_property' => 'participant collection',
+                'ViewCollection.participant_id' => null
+            );
+            if ($group['Group']['bank_id']) {
+                $this->set('bank_filter', true);
+                $conditions['ViewCollection.bank_id'] = $group['Group']['bank_id'];
             }
+            $this->Structures->set('view_collection');
+            $this->request->data = $this->paginate($this->ViewCollection, $conditions);
+        } else {
+            $this->searchHandler($search_id, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
+        }
         
         $help_url = $this->ExternalLink->find('first', array(
             'conditions' => array(
@@ -226,26 +225,25 @@ class CollectionsController extends InventoryManagementAppController
             if ($copy_source) {
                 if ($copy_links_option > 0 && $this->request->data['Collection']['collection_property'] == 'independent collection') {
                     AppController::addWarningMsg(__('links were not copied since the destination is an independant collection'));
-                } else 
-                    if ($copy_links_option > 1) {
-                        $classic_ccl_insert = false;
-                        $this->request->data['Collection']['participant_id'] = $copy_src_data['Collection']['participant_id'];
-                        $this->Collection->addWritableField('participant_id');
-                        if ($copy_links_option == 6) {
-                            $this->Collection->addWritableField(array(
-                                'consent_master_id',
-                                'diagnosis_master_id',
-                                'treatment_master_id',
-                                'event_master_id'
-                            ));
-                            $this->request->data['Collection'] = array_merge($this->request->data['Collection'], array(
-                                'consent_master_id' => $copy_src_data['Collection']['consent_master_id'],
-                                'diagnosis_master_id' => $copy_src_data['Collection']['diagnosis_master_id'],
-                                'treatment_master_id' => $copy_src_data['Collection']['treatment_master_id'],
-                                'event_master_id' => $copy_src_data['Collection']['event_master_id']
-                            ));
-                        }
+                } elseif ($copy_links_option > 1) {
+                    $classic_ccl_insert = false;
+                    $this->request->data['Collection']['participant_id'] = $copy_src_data['Collection']['participant_id'];
+                    $this->Collection->addWritableField('participant_id');
+                    if ($copy_links_option == 6) {
+                        $this->Collection->addWritableField(array(
+                            'consent_master_id',
+                            'diagnosis_master_id',
+                            'treatment_master_id',
+                            'event_master_id'
+                        ));
+                        $this->request->data['Collection'] = array_merge($this->request->data['Collection'], array(
+                            'consent_master_id' => $copy_src_data['Collection']['consent_master_id'],
+                            'diagnosis_master_id' => $copy_src_data['Collection']['diagnosis_master_id'],
+                            'treatment_master_id' => $copy_src_data['Collection']['treatment_master_id'],
+                            'event_master_id' => $copy_src_data['Collection']['event_master_id']
+                        ));
                     }
+                }
             }
             
             $this->request->data['Collection']['deleted'] = 0;

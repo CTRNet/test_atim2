@@ -307,7 +307,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
                 )
             ));
             if (empty($parent_dx)) {
-                $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+                $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
             }
             if (($dx_ctrl['DiagnosisControl']['category'] == 'primary') || ($dx_ctrl['DiagnosisControl']['category'] == 'secondary - distant') && ($parent_dx['DiagnosisControl']['category'] == 'secondary - distant')) {
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
@@ -545,19 +545,18 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             // Primary Display
             $primary_id = $dx_master_data['DiagnosisMaster']['id'];
             $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.primary_id%%';
-        } else 
-            if ($dx_master_data['DiagnosisMaster']['primary_id'] == $dx_master_data['DiagnosisMaster']['parent_id']) {
-                // Secondary or primary progression display
-                $primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
-                $progression_1_id = $dx_master_data['DiagnosisMaster']['id'];
-                $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_1_id%%';
-            } else {
-                // Secondary progression display
-                $primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
-                $progression_1_id = $dx_master_data['DiagnosisMaster']['parent_id'];
-                $progression_2_id = $dx_master_data['DiagnosisMaster']['id'];
-                $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_2_id%%';
-            }
+        } elseif ($dx_master_data['DiagnosisMaster']['primary_id'] == $dx_master_data['DiagnosisMaster']['parent_id']) {
+            // Secondary or primary progression display
+            $primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
+            $progression_1_id = $dx_master_data['DiagnosisMaster']['id'];
+            $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_1_id%%';
+        } else {
+            // Secondary progression display
+            $primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
+            $progression_1_id = $dx_master_data['DiagnosisMaster']['parent_id'];
+            $progression_2_id = $dx_master_data['DiagnosisMaster']['id'];
+            $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_2_id%%';
+        }
         
         $this->set('atim_menu', $this->Menus->get($menu_link));
         $this->set('atim_menu_variables', array_merge(array(
