@@ -39,13 +39,12 @@ class CodingIcdo3sController extends CodingIcdAppController
         $model_to_use = null;
         if ($icd_type_name == "topo") {
             $model_to_use = $this->CodingIcdo3Topo;
-        } else 
-            if ($icd_type_name == "morpho") {
-                $model_to_use = $this->CodingIcdo3Morpho;
-            } else {
-                $this->CodingIcdo3Topos->validationErrors[][] = __("invalid model for icdo3 search [" . $icd_type_name . "]");
-                $model_to_use = $this->CodingIcdo3Topo;
-            }
+        } elseif ($icd_type_name == "morpho") {
+            $model_to_use = $this->CodingIcdo3Morpho;
+        } else {
+            $this->CodingIcdo3Topos->validationErrors[][] = __("invalid model for icdo3 search [" . $icd_type_name . "]");
+            $model_to_use = $this->CodingIcdo3Topo;
+        }
         return $model_to_use;
     }
 }

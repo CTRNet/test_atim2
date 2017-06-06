@@ -61,25 +61,24 @@ class EventMastersController extends ClinicalAnnotationAppController
             $this->set('add_links', $add_links);
             // Set structure
             $this->Structures->set('eventmasters');
-        } else 
-            if ($event_control_id == '-1') {
-                // 2 - DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
-                // Set search criteria
-                $search_criteria['EventMaster.participant_id'] = $participant_id;
-                $search_criteria['EventControl.event_group'] = $event_group;
-                $search_criteria['EventControl.use_detail_form_for_index'] = '0';
-                // Set structure
-                $this->Structures->set('eventmasters');
-            } else {
-                // 3 - DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
-                // Set search criteria
-                $search_criteria['EventMaster.participant_id'] = $participant_id;
-                $search_criteria['EventControl.id'] = $event_control_id;
-                // Set structure
-                $control_data = $this->EventControl->getOrRedirect($event_control_id);
-                $this->Structures->set($control_data['EventControl']['form_alias']);
-                self::buildDetailBinding($this->EventMaster, $search_criteria, $control_data['EventControl']['form_alias']);
-            }
+        } elseif ($event_control_id == '-1') {
+            // 2 - DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
+            // Set search criteria
+            $search_criteria['EventMaster.participant_id'] = $participant_id;
+            $search_criteria['EventControl.event_group'] = $event_group;
+            $search_criteria['EventControl.use_detail_form_for_index'] = '0';
+            // Set structure
+            $this->Structures->set('eventmasters');
+        } else {
+            // 3 - DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
+            // Set search criteria
+            $search_criteria['EventMaster.participant_id'] = $participant_id;
+            $search_criteria['EventControl.id'] = $event_control_id;
+            // Set structure
+            $control_data = $this->EventControl->getOrRedirect($event_control_id);
+            $this->Structures->set($control_data['EventControl']['form_alias']);
+            self::buildDetailBinding($this->EventMaster, $search_criteria, $control_data['EventControl']['form_alias']);
+        }
         
         // MANAGE DATA
         $this->request->data = $event_control_id ? $this->paginate($this->EventMaster, $search_criteria) : array();
@@ -163,10 +162,9 @@ class EventMastersController extends ClinicalAnnotationAppController
         ));
         if (! empty($this->request->data) && isset($this->request->data['EventMaster']['diagnosis_master_id'])) {
             $this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $this->request->data['EventMaster']['diagnosis_master_id'], 'EventMaster');
-        } else 
-            if ($diagnosis_master_id) {
-                $this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $diagnosis_master_id, 'EventMaster');
-            }
+        } elseif ($diagnosis_master_id) {
+            $this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $diagnosis_master_id, 'EventMaster');
+        }
         $this->set('data_for_checklist', $dx_data);
         
         $this->set('initial_display', (empty($this->request->data)));
@@ -273,37 +271,36 @@ class EventMastersController extends ClinicalAnnotationAppController
                 // Launch Save Process
                 if (empty($this->request->data)) {
                     $this->EventMaster->validationErrors[][] = 'at least one record has to be created';
-                } else 
-                    if (empty($errors_tracking)) {
-                        AppModel::acquireBatchViewsUpdateLock();
-                        // save all
-                        $this->EventMaster->addWritableField(array(
-                            'event_control_id',
-                            'participant_id',
-                            'diagnosis_master_id'
-                        ));
-                        $this->EventMaster->writable_fields_mode = 'addgrid';
-                        foreach ($this->request->data as $new_data_to_save) {
-                            $this->EventMaster->id = null;
-                            $this->EventMaster->data = array();
-                            if (! $this->EventMaster->save($new_data_to_save, false))
-                                $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
-                        }
-                        $url_to_flash = '/ClinicalAnnotation/EventMasters/listall/' . $event_group . '/' . $participant_id . '/';
-                        $hook_link = $this->hook('postsave_process_batch');
-                        if ($hook_link) {
-                            require ($hook_link);
-                        }
-                        AppModel::releaseBatchViewsUpdateLock();
-                        $this->atimFlash(__('your data has been updated'), $url_to_flash);
-                    } else {
-                        $this->EventMaster->validationErrors = array();
-                        foreach ($errors_tracking as $field => $msg_and_lines) {
-                            foreach ($msg_and_lines as $msg => $lines) {
-                                $this->EventMaster->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
-                            }
+                } elseif (empty($errors_tracking)) {
+                    AppModel::acquireBatchViewsUpdateLock();
+                    // save all
+                    $this->EventMaster->addWritableField(array(
+                        'event_control_id',
+                        'participant_id',
+                        'diagnosis_master_id'
+                    ));
+                    $this->EventMaster->writable_fields_mode = 'addgrid';
+                    foreach ($this->request->data as $new_data_to_save) {
+                        $this->EventMaster->id = null;
+                        $this->EventMaster->data = array();
+                        if (! $this->EventMaster->save($new_data_to_save, false))
+                            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                    }
+                    $url_to_flash = '/ClinicalAnnotation/EventMasters/listall/' . $event_group . '/' . $participant_id . '/';
+                    $hook_link = $this->hook('postsave_process_batch');
+                    if ($hook_link) {
+                        require ($hook_link);
+                    }
+                    AppModel::releaseBatchViewsUpdateLock();
+                    $this->atimFlash(__('your data has been updated'), $url_to_flash);
+                } else {
+                    $this->EventMaster->validationErrors = array();
+                    foreach ($errors_tracking as $field => $msg_and_lines) {
+                        foreach ($msg_and_lines as $msg => $lines) {
+                            $this->EventMaster->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
                         }
                     }
+                }
             }
         }
     }

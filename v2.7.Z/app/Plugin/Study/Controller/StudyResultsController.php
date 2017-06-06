@@ -20,7 +20,7 @@ class StudyResultsController extends StudyAppController
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
         if (! $study_summary_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -56,10 +56,10 @@ class StudyResultsController extends StudyAppController
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
         if (! $study_summary_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         if (! $study_results_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -93,7 +93,7 @@ class StudyResultsController extends StudyAppController
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
         if (! $study_summary_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -160,10 +160,10 @@ class StudyResultsController extends StudyAppController
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
         if (! $study_summary_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         if (! $study_results_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
@@ -230,10 +230,10 @@ class StudyResultsController extends StudyAppController
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
         if (! $study_summary_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         if (! $study_results_id) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA

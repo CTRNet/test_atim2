@@ -324,24 +324,23 @@ class PermissionsController extends AdministrateAppController
                 } else {
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-            } else 
-                if ($this->request->data[0]['overwrite']) {
-                    if ($this->PermissionsPreset->save(array(
-                        'id' => $permission_preset['PermissionsPreset']['id'],
-                        'serialized_data' => serialize(array(
-                            'allow' => $this->request->data[0]['allow'],
-                            'deny' => $this->request->data[0]['deny']
-                        )),
-                        'description' => $this->request->data['PermissionsPreset']['description']
-                    ))) {
-                        echo 200;
-                        exit();
-                    } else {
-                        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    }
+            } elseif ($this->request->data[0]['overwrite']) {
+                if ($this->PermissionsPreset->save(array(
+                    'id' => $permission_preset['PermissionsPreset']['id'],
+                    'serialized_data' => serialize(array(
+                        'allow' => $this->request->data[0]['allow'],
+                        'deny' => $this->request->data[0]['deny']
+                    )),
+                    'description' => $this->request->data['PermissionsPreset']['description']
+                ))) {
+                    echo 200;
+                    exit();
                 } else {
-                    $this->PermissionsPreset->validationErrors['name'] = __('this name already exists') . " " . __('select a new one or check the overwrite option');
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
+            } else {
+                $this->PermissionsPreset->validationErrors['name'] = __('this name already exists') . " " . __('select a new one or check the overwrite option');
+            }
         }
     }
 

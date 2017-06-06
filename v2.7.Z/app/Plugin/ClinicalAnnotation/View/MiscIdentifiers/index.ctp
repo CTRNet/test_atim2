@@ -13,7 +13,7 @@ $final_options = array(
     ),
     'settings' => array(
         'header' => __('search type', null) . ': ' . __('misc identifiers', null),
-        'actions' => FALSE
+        'actions' => false
     )
 );
 

@@ -106,10 +106,9 @@ $parameters);
         
         if (count($alias) > 1) {
             self::sortStructure($structure);
-        } else 
-            if (count($structure['Structure']) == 1) {
-                $structure['Structure'] = $structure['Structure'][0];
-            }
+        } elseif (count($structure['Structure']) == 1) {
+            $structure['Structure'] = $structure['Structure'][0];
+        }
         
         $this->controller->set($structure_name, $structure);
     }
@@ -136,15 +135,14 @@ $parameters);
                 $schema = $model->_schema;
                 if ($model !== false && ! empty($schema) && ($field['tablename'] == $model->table || empty($field['tablename']))) {
                     $tablename = $model->table;
-                } else 
-                    if (! empty($field['tablename'])) {
-                        $model = new AppModel(array(
-                            'table' => $field['tablename'],
-                            'name' => $field['model'],
-                            'alias' => $field['model']
-                        ));
-                        $tablename = $field['tablename'];
-                    }
+                } elseif (! empty($field['tablename'])) {
+                    $model = new AppModel(array(
+                        'table' => $field['tablename'],
+                        'name' => $field['model'],
+                        'alias' => $field['model']
+                    ));
+                    $tablename = $field['tablename'];
+                }
                 
                 if ($tablename != null) {
                     if (! array_key_exists($tablename, AppModel::$accuracy_config)) {
@@ -153,10 +151,9 @@ $parameters);
                     if (isset(AppModel::$accuracy_config[$tablename][$field['field']])) {
                         $structure['Accuracy'][$field['model']][$field['field']] = $field['field'] . '_accuracy';
                     }
-                } else 
-                    if ($field['model'] != 'custom' && Configure::read('debug') > 0) {
-                        AppController::addWarningMsg('Cannot load model for field with id ' . $field['structure_field_id'] . '. Check field tablename.', true);
-                    }
+                } elseif ($field['model'] != 'custom' && Configure::read('debug') > 0) {
+                    AppController::addWarningMsg('Cannot load model for field with id ' . $field['structure_field_id'] . '. Check field tablename.', true);
+                }
             }
         }
     }
@@ -184,16 +181,14 @@ $parameters);
         }
         if (count($alias) > 1) {
             self::sortStructure($result['structure']);
-        } else 
-            if (count($result['structure']['Structure']) == 1) {
-                $result['structure']['Structure'] = $result['structure']['Structure'][0];
-            }
+        } elseif (count($result['structure']['Structure']) == 1) {
+            $result['structure']['Structure'] = $result['structure']['Structure'][0];
+        }
         if ($mode == 'rule' || $mode == 'rules') {
             $result = $result['rules'];
-        } else 
-            if ($mode == 'form') {
-                $result = $result['structure'];
-            }
+        } elseif ($mode == 'form') {
+            $result = $result['structure'];
+        }
         
         $this->updateAccuracyChecks($result);
         return $result;
@@ -412,7 +407,7 @@ $parameters);
                                     if ($handle) {
                                         unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
                                         // in each LINE, get FIRST csv value, and attach to DATA array
-                                        while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+                                        while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== false) {
                                             $data[] = $csv_data[0];
                                         }
                                         fclose($handle);
@@ -439,10 +434,9 @@ $parameters);
                                             'name' => $model_name,
                                             'alias' => $model_name
                                         ));
-                                    } else 
-                                        if (Configure::read('debug') > 0) {
-                                            AppController::addWarningMsg('There is no tablename for field [' . $form_fields[$form_fields_key]['key'] . ']', true);
-                                        }
+                                    } elseif (Configure::read('debug') > 0) {
+                                        AppController::addWarningMsg('There is no tablename for field [' . $form_fields[$form_fields_key]['key'] . ']', true);
+                                    }
                                 }
                                 
                                 $data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
@@ -463,18 +457,17 @@ $parameters);
                                     // special magical icd case
                                     eval('$instance = ' . $form_fields[$form_fields_key]['cast_icd'] . '::getSingleton();');
                                     $data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
-                                } else 
-                                    if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false) {
-                                        if (is_array($data)) {
-                                            foreach ($data as &$unit) {
-                                                $unit = trim(Sanitize::escape($unit));
-                                            }
-                                            $conditions[] = "(" . $form_fields[$form_fields_key]['key'] . " '%" . implode("%' OR " . $form_fields[$form_fields_key]['key'] . " '%", $data) . "%')";
-                                            unset($data);
-                                        } else {
-                                            $data = '%' . trim(Sanitize::escape($data)) . '%';
+                                } elseif (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false) {
+                                    if (is_array($data)) {
+                                        foreach ($data as &$unit) {
+                                            $unit = trim(Sanitize::escape($unit));
                                         }
+                                        $conditions[] = "(" . $form_fields[$form_fields_key]['key'] . " '%" . implode("%' OR " . $form_fields[$form_fields_key]['key'] . " '%", $data) . "%')";
+                                        unset($data);
+                                    } else {
+                                        $data = '%' . trim(Sanitize::escape($data)) . '%';
                                     }
+                                }
                                 
                                 if (isset($data)) {
                                     if ($auto_accuracy && in_array($form_fields_key, $accuracy_fields)) {
@@ -520,10 +513,9 @@ $parameters);
                                             foreach ($data as &$unit)
                                                 if (is_string($unit))
                                                     $unit = trim($unit);
-                                        } else 
-                                            if (is_string($data)) {
-                                                $data = trim($data);
-                                            }
+                                        } elseif (is_string($data)) {
+                                            $data = trim($data);
+                                        }
                                         $conditions[$form_fields[$form_fields_key]['key']] = $form_fields[$form_fields_key]['is_float'] ? str_replace(',', '.', $data) : $data;
                                     }
                                 }

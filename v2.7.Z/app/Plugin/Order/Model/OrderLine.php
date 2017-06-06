@@ -168,28 +168,27 @@ class OrderLine extends OrderAppModel
                             ++ $shipped_counter;
                         }
                     }
-                } else 
-                    if (isset($new_order_line['OrderLine']['id'])) {
-                        if (! $OrderItem)
-                            $OrderItem = AppModel::getInstance('Order', 'OrderItem', true);
-                        $items_counter = $OrderItem->find('count', array(
+                } elseif (isset($new_order_line['OrderLine']['id'])) {
+                    if (! $OrderItem)
+                        $OrderItem = AppModel::getInstance('Order', 'OrderItem', true);
+                    $items_counter = $OrderItem->find('count', array(
+                        'conditions' => array(
+                            'OrderItem.order_line_id' => $new_order_line['OrderLine']['id']
+                        ),
+                        'recursive' => '-1'
+                    ));
+                    if ($items_counter)
+                        $shipped_counter = $OrderItem->find('count', array(
                             'conditions' => array(
-                                'OrderItem.order_line_id' => $new_order_line['OrderLine']['id']
+                                'OrderItem.order_line_id' => $new_order_line['OrderLine']['id'],
+                                'OrderItem.status' => array(
+                                    'shipped',
+                                    'shipped & returned'
+                                )
                             ),
                             'recursive' => '-1'
                         ));
-                        if ($items_counter)
-                            $shipped_counter = $OrderItem->find('count', array(
-                                'conditions' => array(
-                                    'OrderItem.order_line_id' => $new_order_line['OrderLine']['id'],
-                                    'OrderItem.status' => array(
-                                        'shipped',
-                                        'shipped & returned'
-                                    )
-                                ),
-                                'recursive' => '-1'
-                            ));
-                    }
+                }
                 $new_order_line['Generated']['order_line_completion'] = empty($items_counter) ? 'n/a' : $shipped_counter . '/' . $items_counter;
                 // Set the order line product type value
                 if (isset($new_order_line['OrderLine']) && array_key_exists('sample_control_id', $new_order_line['OrderLine']) && array_key_exists('aliquot_control_id', $new_order_line['OrderLine']) && array_key_exists('is_tma_slide', $new_order_line['OrderLine'])) {

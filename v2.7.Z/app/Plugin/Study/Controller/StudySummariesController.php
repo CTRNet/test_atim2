@@ -268,7 +268,7 @@ class StudySummariesController extends StudyAppController
             
             // Manage Display Of A Specific List
             if (! array_key_exists($specific_list_header, $linked_records_properties))
-                $this->redirect('/Pages/err_plugin_system_error', NULL, TRUE);
+                $this->redirect('/Pages/err_plugin_system_error', NULL, true);
             if ($linked_records_properties[$specific_list_header]) {
                 list ($plugin_model_foreign_key, $permission_link, $structure_alias, $details_url) = $linked_records_properties[$specific_list_header];
                 list ($plugin, $model, $foreign_key) = explode('.', $plugin_model_foreign_key);

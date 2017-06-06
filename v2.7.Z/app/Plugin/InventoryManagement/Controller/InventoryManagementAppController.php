@@ -9,13 +9,11 @@ class InventoryManagementAppController extends AppController
             $id = null;
             if (is_string($data['SampleMaster'])) {
                 $id = explode(",", $data['SampleMaster']);
-            } else 
-                if (array_key_exists(0, $data['SampleMaster']) && is_numeric($data['SampleMaster'][0])) {
-                    $id = $data['SampleMaster'];
-                } else 
-                    if (! array_key_exists('initial_specimen_sample_id', $data['SampleMaster'])) {
-                        $id = $data['SampleMaster']['id'];
-                    }
+            } elseif (array_key_exists(0, $data['SampleMaster']) && is_numeric($data['SampleMaster'][0])) {
+                $id = $data['SampleMaster'];
+            } elseif (! array_key_exists('initial_specimen_sample_id', $data['SampleMaster'])) {
+                $id = $data['SampleMaster']['id'];
+            }
             if ($id != null) {
                 $data = $this->SampleMaster->find('all', array(
                     'conditions' => array(
@@ -23,14 +21,13 @@ class InventoryManagementAppController extends AppController
                     ),
                     'recursive' => - 1
                 ));
-            } else 
-                if (array_key_exists('SampleMaster', $data)) {
-                    $data = array(
-                        array(
-                            'SampleMaster' => $data['SampleMaster']
-                        )
-                    );
-                }
+            } elseif (array_key_exists('SampleMaster', $data)) {
+                $data = array(
+                    array(
+                        'SampleMaster' => $data['SampleMaster']
+                    )
+                );
+            }
             
             if (count($data) == 1) {
                 $data = $data[0]['SampleMaster'];
@@ -44,24 +41,23 @@ class InventoryManagementAppController extends AppController
                     'SampleMaster.id' => $data['id'],
                     'SampleMaster.initial_specimen_sample_id' => $data['initial_specimen_sample_id']
                 ));
-            } else 
-                if (! empty($data)) {
-                    $collection_id = $data[0]['SampleMaster']['collection_id'];
-                    foreach ($data as $data_unit) {
-                        if ($data_unit['SampleMaster']['collection_id'] != $collection_id) {
-                            $collection_id = null;
-                            break;
-                        }
-                    }
-                    if ($collection_id == null) {
-                        $this->set('atim_menu', $this->Menus->get('/InventoryManagement/'));
-                    } else {
-                        $this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/detail/%%Collection.id%%'));
-                        $this->set('atim_menu_variables', array(
-                            'Collection.id' => $collection_id
-                        ));
+            } elseif (! empty($data)) {
+                $collection_id = $data[0]['SampleMaster']['collection_id'];
+                foreach ($data as $data_unit) {
+                    if ($data_unit['SampleMaster']['collection_id'] != $collection_id) {
+                        $collection_id = null;
+                        break;
                     }
                 }
+                if ($collection_id == null) {
+                    $this->set('atim_menu', $this->Menus->get('/InventoryManagement/'));
+                } else {
+                    $this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/detail/%%Collection.id%%'));
+                    $this->set('atim_menu_variables', array(
+                        'Collection.id' => $collection_id
+                    ));
+                }
+            }
         }
     }
 

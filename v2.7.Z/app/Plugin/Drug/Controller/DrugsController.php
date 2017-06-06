@@ -81,30 +81,29 @@ class DrugsController extends DrugAppController
             
             if (empty($this->request->data)) {
                 $this->Drug->validationErrors[][] = 'at least one record has to be created';
-            } else 
-                if (empty($errors_tracking)) {
-                    AppModel::acquireBatchViewsUpdateLock();
-                    // save all
-                    foreach ($this->request->data as $new_data_to_save) {
-                        $this->Drug->id = null;
-                        $this->Drug->data = array();
-                        if (! $this->Drug->save($new_data_to_save, false))
-                            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
-                    }
-                    $hook_link = $this->hook('postsave_process_batch');
-                    if ($hook_link) {
-                        require ($hook_link);
-                    }
-                    AppModel::releaseBatchViewsUpdateLock();
-                    $this->atimFlash(__('your data has been updated'), '/Drug/Drugs/search/');
-                } else {
-                    $this->Drug->validationErrors = array();
-                    foreach ($errors_tracking as $field => $msg_and_lines) {
-                        foreach ($msg_and_lines as $msg => $lines) {
-                            $this->Drug->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
-                        }
+            } elseif (empty($errors_tracking)) {
+                AppModel::acquireBatchViewsUpdateLock();
+                // save all
+                foreach ($this->request->data as $new_data_to_save) {
+                    $this->Drug->id = null;
+                    $this->Drug->data = array();
+                    if (! $this->Drug->save($new_data_to_save, false))
+                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                }
+                $hook_link = $this->hook('postsave_process_batch');
+                if ($hook_link) {
+                    require ($hook_link);
+                }
+                AppModel::releaseBatchViewsUpdateLock();
+                $this->atimFlash(__('your data has been updated'), '/Drug/Drugs/search/');
+            } else {
+                $this->Drug->validationErrors = array();
+                foreach ($errors_tracking as $field => $msg_and_lines) {
+                    foreach ($msg_and_lines as $msg => $lines) {
+                        $this->Drug->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
                     }
                 }
+            }
         }
     }
 

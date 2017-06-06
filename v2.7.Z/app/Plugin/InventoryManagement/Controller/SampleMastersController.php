@@ -969,10 +969,9 @@ class SampleMastersController extends InventoryManagementAppController
         $url_to_cancel = 'javascript:history.go(-1)';
         if (isset($this->request->data['BatchSet']['id'])) {
             $url_to_cancel = '/Datamart/BatchSets/listall/' . $this->request->data['BatchSet']['id'];
-        } else 
-            if (isset($this->request->data['node']['id'])) {
-                $url_to_cancel = '/Datamart/Browser/browse/' . $this->request->data['node']['id'];
-            }
+        } elseif (isset($this->request->data['node']['id'])) {
+            $url_to_cancel = '/Datamart/Browser/browse/' . $this->request->data['node']['id'];
+        }
         
         $this->set('aliquot_master_id', $aliquot_master_id);
         
@@ -980,80 +979,77 @@ class SampleMastersController extends InventoryManagementAppController
         if (isset($this->request->data['SampleMaster'])) {
             $model = 'SampleMaster';
             $key = 'id';
-        } else 
-            if (isset($this->request->data['ViewSample'])) {
-                $model = 'ViewSample';
-                $key = 'sample_master_id';
-            } else 
-                if ($aliquot_master_id != null) {
-                    $model = 'SampleMaster';
-                    $key = 'id';
-                    $aliquot_master = $this->AliquotMaster->findById($aliquot_master_id);
-                    if (empty($aliquot_master))
-                        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    
-                    $this->request->data['SampleMaster']['id'] = array(
-                        $aliquot_master['SampleMaster']['id']
-                    );
-                    $this->set("aliquot_ids", $aliquot_master_id);
-                    $url_to_cancel = '/InventoryManagement/AliquotMasters/detail/' . $aliquot_master['SampleMaster']['collection_id'] . '/' . $aliquot_master['SampleMaster']['id'] . '/' . $aliquot_master_id;
-                    $is_menu_already_set = true;
-                    $this->setAliquotMenu($aliquot_master);
-                } else 
-                    if (isset($this->request->data['ViewAliquot']) || isset($this->request->data['AliquotMaster'])) {
-                        // aliquot init case
-                        $alq_model = 'ViewAliquot';
-                        $alq_key = 'aliquot_master_id';
-                        if (isset($this->request->data['AliquotMaster'])) {
-                            $alq_model = 'AliquotMaster';
-                            $alq_key = 'id';
-                        }
-                        if (isset($this->request->data['node']) && $this->request->data[$alq_model][$alq_key] == 'all') {
-                            $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-                            $browsing_result = $this->BrowsingResult->find('first', array(
-                                'conditions' => array(
-                                    'BrowsingResult.id' => $this->request->data['node']['id']
-                                )
-                            ));
-                            $this->request->data[$alq_model][$alq_key] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
-                        }
-                        $aliquot_ids = array_filter($this->request->data[$alq_model][$alq_key]);
-                        
-                        if (empty($aliquot_ids)) {
-                            $this->atimFlashWarning(__("batch init no data"), $url_to_cancel, 5);
-                        }
-                        $aliquot_data = $this->AliquotMaster->find('all', array(
-                            'fields' => array(
-                                'AliquotMaster.aliquot_control_id',
-                                'AliquotMaster.sample_master_id'
-                            ),
-                            'conditions' => array(
-                                'AliquotMaster.id' => $aliquot_ids
-                            )
-                        ));
-                        
-                        if (empty($aliquot_data)) {
-                            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                        }
-                        
-                        $ids = array();
-                        $expected_ctrl_id = $aliquot_data[0]['AliquotMaster']['aliquot_control_id'];
-                        foreach ($aliquot_data as $aliquot_unit) {
-                            if ($aliquot_unit['AliquotMaster']['aliquot_control_id'] != $expected_ctrl_id) {
-                                $this->atimFlashWarning(__("you must select elements with a common type"), $url_to_cancel, 5);
-                            }
-                            $ids[] = $aliquot_unit['AliquotMaster']['sample_master_id'];
-                        }
-                        $this->request->data['SampleMaster'] = array(
-                            'id' => $ids
-                        );
-                        $model = 'SampleMaster';
-                        $key = 'id';
-                        $this->set("aliquot_ids", implode(",", $aliquot_ids));
-                    } else {
-                        $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
-                        return;
-                    }
+        } elseif (isset($this->request->data['ViewSample'])) {
+            $model = 'ViewSample';
+            $key = 'sample_master_id';
+        } elseif ($aliquot_master_id != null) {
+            $model = 'SampleMaster';
+            $key = 'id';
+            $aliquot_master = $this->AliquotMaster->findById($aliquot_master_id);
+            if (empty($aliquot_master))
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            
+            $this->request->data['SampleMaster']['id'] = array(
+                $aliquot_master['SampleMaster']['id']
+            );
+            $this->set("aliquot_ids", $aliquot_master_id);
+            $url_to_cancel = '/InventoryManagement/AliquotMasters/detail/' . $aliquot_master['SampleMaster']['collection_id'] . '/' . $aliquot_master['SampleMaster']['id'] . '/' . $aliquot_master_id;
+            $is_menu_already_set = true;
+            $this->setAliquotMenu($aliquot_master);
+        } elseif (isset($this->request->data['ViewAliquot']) || isset($this->request->data['AliquotMaster'])) {
+            // aliquot init case
+            $alq_model = 'ViewAliquot';
+            $alq_key = 'aliquot_master_id';
+            if (isset($this->request->data['AliquotMaster'])) {
+                $alq_model = 'AliquotMaster';
+                $alq_key = 'id';
+            }
+            if (isset($this->request->data['node']) && $this->request->data[$alq_model][$alq_key] == 'all') {
+                $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+                $browsing_result = $this->BrowsingResult->find('first', array(
+                    'conditions' => array(
+                        'BrowsingResult.id' => $this->request->data['node']['id']
+                    )
+                ));
+                $this->request->data[$alq_model][$alq_key] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+            }
+            $aliquot_ids = array_filter($this->request->data[$alq_model][$alq_key]);
+            
+            if (empty($aliquot_ids)) {
+                $this->atimFlashWarning(__("batch init no data"), $url_to_cancel, 5);
+            }
+            $aliquot_data = $this->AliquotMaster->find('all', array(
+                'fields' => array(
+                    'AliquotMaster.aliquot_control_id',
+                    'AliquotMaster.sample_master_id'
+                ),
+                'conditions' => array(
+                    'AliquotMaster.id' => $aliquot_ids
+                )
+            ));
+            
+            if (empty($aliquot_data)) {
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            }
+            
+            $ids = array();
+            $expected_ctrl_id = $aliquot_data[0]['AliquotMaster']['aliquot_control_id'];
+            foreach ($aliquot_data as $aliquot_unit) {
+                if ($aliquot_unit['AliquotMaster']['aliquot_control_id'] != $expected_ctrl_id) {
+                    $this->atimFlashWarning(__("you must select elements with a common type"), $url_to_cancel, 5);
+                }
+                $ids[] = $aliquot_unit['AliquotMaster']['sample_master_id'];
+            }
+            $this->request->data['SampleMaster'] = array(
+                'id' => $ids
+            );
+            $model = 'SampleMaster';
+            $key = 'id';
+            $this->set("aliquot_ids", implode(",", $aliquot_ids));
+        } else {
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            return;
+        }
         if (isset($this->request->data['node']) && $this->request->data[$model][$key] == 'all') {
             $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
             $browsing_result = $this->BrowsingResult->find('first', array(
@@ -1101,11 +1097,10 @@ class SampleMastersController extends InventoryManagementAppController
     {
         if (! isset($this->request->data['SampleMaster']['ids']) || ! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } else 
-            if ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-                $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();", 5);
-                return;
-            }
+        } elseif ($this->request->data['SampleMaster']['sample_control_id'] == '') {
+            $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();", 5);
+            return;
+        }
         
         $this->set('aliquot_master_id', $aliquot_master_id);
         
@@ -1172,11 +1167,10 @@ class SampleMastersController extends InventoryManagementAppController
         if (! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
             $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
             return;
-        } else 
-            if ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-                $this->atimFlashWarning(__("you must select a derivative type"), $url_to_cancel, 5);
-                return;
-            }
+        } elseif ($this->request->data['SampleMaster']['sample_control_id'] == '') {
+            $this->atimFlashWarning(__("you must select a derivative type"), $url_to_cancel, 5);
+            return;
+        }
         
         $this->set('aliquot_master_id', $aliquot_master_id);
         

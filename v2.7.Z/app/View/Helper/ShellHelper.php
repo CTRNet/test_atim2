@@ -316,10 +316,9 @@ class ShellHelper extends Helper
                     // save BASE array (main menu) for display in header
                     if ($count == (count($atim_menu) - 1)) {
                         $root_menu_array = $menu;
-                    } else 
-                        if ($count == (count($atim_menu) - 2)) {
-                            $main_menu_array = $menu;
-                        }
+                    } elseif ($count == (count($atim_menu) - 2)) {
+                        $main_menu_array = $menu;
+                    }
                     
                     if (! $is_root) {
                         
@@ -463,7 +462,6 @@ class ShellHelper extends Helper
             
             $return_summary = '';
             $summaries = array_filter($summaries);
-            
             if (show_summary && count($summaries)) {
                 $return_summary .= '
 					<ul id="summary">
@@ -608,30 +606,29 @@ class ShellHelper extends Helper
                                 'actions' => false
                             )
                         ));
-                    } else 
-                        if (isset($summary_result['description']) && is_array($summary_result['description'])) {
-                            if (Configure::read('debug') > 0) {
-                                AppController::addWarningMsg(__("the sumarty for model [%s] function [%s] is using the depreacted description way instead of a structure", $model, $function));
-                            }
-                            $summary_long .= '
+                    } elseif (isset($summary_result['description']) && is_array($summary_result['description'])) {
+                        if (Configure::read('debug') > 0) {
+                            AppController::addWarningMsg(__("the sumarty for model [%s] function [%s] is using the depreacted description way instead of a structure", $model, $function));
+                        }
+                        $summary_long .= '
 							<dl>
 						';
-                            foreach ($summary_result['description'] as $k => $v) {
-                                
-                                // if provided VALUE is an array, it should be a select-option that needs to be looked up and translated...
-                                if (is_array($v)) {
-                                    $v = $structure_fields_model->findPermissibleValue($plugin, $model, $v);
-                                }
-                                
-                                $summary_long .= '
+                        foreach ($summary_result['description'] as $k => $v) {
+                            
+                            // if provided VALUE is an array, it should be a select-option that needs to be looked up and translated...
+                            if (is_array($v)) {
+                                $v = $structure_fields_model->findPermissibleValue($plugin, $model, $v);
+                            }
+                            
+                            $summary_long .= '
 									<dt>' . __($k) . '</dt>
 									<dd>' . ($v ? $v : '-') . '</dd>
 							';
-                            }
-                            $summary_long .= '
+                        }
+                        $summary_long .= '
 							</dl>
 						';
-                        }
+                    }
                     $result['long'] = strlen($summary_long) > 0 ? $summary_long : false;
                     // -------
                 }

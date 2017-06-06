@@ -24,11 +24,10 @@ class MinMaxBehavior extends ModelBehavior
                         $to_fix[$registered_model->name] = $registered_model::$min_value_fields;
                     }
                 }
-            } else 
-                if (isset($model::$min_value_fields)) {
-                    // is a view itself
-                    $to_fix[$model->name] = $model::$min_value_fields;
-                }
+            } elseif (isset($model::$min_value_fields)) {
+                // is a view itself
+                $to_fix[$model->name] = $model::$min_value_fields;
+            }
             
             $conditions = &$query['conditions'];
             foreach ($to_fix as $model_name => $fields) {

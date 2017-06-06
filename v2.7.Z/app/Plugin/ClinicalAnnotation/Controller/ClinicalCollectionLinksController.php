@@ -384,10 +384,9 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         
         if ($collection_data['Collection']['treatment_master_id']) {
             $collection_data['Collection']['tx_or_event_id'] = 'tx_' . $collection_data['Collection']['treatment_master_id'];
-        } else 
-            if ($collection_data['Collection']['event_master_id']) {
-                $collection_data['Collection']['tx_or_event_id'] = 'ev_' . $collection_data['Collection']['event_master_id'];
-            }
+        } elseif ($collection_data['Collection']['event_master_id']) {
+            $collection_data['Collection']['tx_or_event_id'] = 'ev_' . $collection_data['Collection']['event_master_id'];
+        }
         $data_for_form = $this->request->data ? $this->request->data : $collection_data;
         foreach (array(
             'diagnosis_master_id',

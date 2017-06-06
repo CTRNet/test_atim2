@@ -51,24 +51,23 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
             $this->set('add_links', $this->TreatmentControl->getAddLinks($participant_id));
             // Set structure
             $this->Structures->set('treatmentmasters');
-        } else 
-            if ($treatment_control_id == '-1') {
-                // 2 - DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
-                // Set search criteria
-                $search_criteria['TreatmentMaster.participant_id'] = $participant_id;
-                $search_criteria['TreatmentControl.use_detail_form_for_index'] = '0';
-                // Set structure
-                $this->Structures->set('treatmentmasters');
-            } else {
-                // 3 - DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
-                // Set search criteria
-                $search_criteria['TreatmentMaster.participant_id'] = $participant_id;
-                $search_criteria['TreatmentControl.id'] = $treatment_control_id;
-                // Set structure
-                $control_data = $this->TreatmentControl->getOrRedirect($treatment_control_id);
-                $this->Structures->set($control_data['TreatmentControl']['form_alias']);
-                self::buildDetailBinding($this->TreatmentMaster, $search_criteria, $control_data['TreatmentControl']['form_alias']);
-            }
+        } elseif ($treatment_control_id == '-1') {
+            // 2 - DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
+            // Set search criteria
+            $search_criteria['TreatmentMaster.participant_id'] = $participant_id;
+            $search_criteria['TreatmentControl.use_detail_form_for_index'] = '0';
+            // Set structure
+            $this->Structures->set('treatmentmasters');
+        } else {
+            // 3 - DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
+            // Set search criteria
+            $search_criteria['TreatmentMaster.participant_id'] = $participant_id;
+            $search_criteria['TreatmentControl.id'] = $treatment_control_id;
+            // Set structure
+            $control_data = $this->TreatmentControl->getOrRedirect($treatment_control_id);
+            $this->Structures->set($control_data['TreatmentControl']['form_alias']);
+            self::buildDetailBinding($this->TreatmentMaster, $search_criteria, $control_data['TreatmentControl']['form_alias']);
+        }
         
         // MANAGE DATA
         $this->request->data = $treatment_control_id ? $this->paginate($this->TreatmentMaster, $search_criteria) : array();
@@ -247,10 +246,9 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         ));
         if (isset($this->request->data['TreatmentMaster']['diagnosis_master_id'])) {
             $this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $this->request->data['TreatmentMaster']['diagnosis_master_id'], 'TreatmentMaster');
-        } else 
-            if ($diagnosis_master_id) {
-                $this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $diagnosis_master_id, 'TreatmentMaster');
-            }
+        } elseif ($diagnosis_master_id) {
+            $this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $diagnosis_master_id, 'TreatmentMaster');
+        }
         
         $this->set('data_for_checklist', $dx_data);
         
@@ -381,37 +379,36 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                 // Launch Save Process
                 if (empty($this->request->data)) {
                     $this->TreatmentMaster->validationErrors[][] = 'at least one record has to be created';
-                } else 
-                    if (empty($errors_tracking)) {
-                        AppModel::acquireBatchViewsUpdateLock();
-                        // save all
-                        $this->TreatmentMaster->addWritableField(array(
-                            'participant_id',
-                            'treatment_control_id',
-                            'diagnosis_master_id'
-                        ));
-                        $this->TreatmentMaster->addWritableField('treatment_master_id', $tx_control_data['TreatmentControl']['detail_tablename']);
-                        foreach ($this->request->data as $new_data_to_save) {
-                            $this->TreatmentMaster->id = null;
-                            $this->TreatmentMaster->data = array();
-                            if (! $this->TreatmentMaster->save($new_data_to_save, false))
-                                $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, TRUE);
-                        }
-                        $url_to_flash = '/ClinicalAnnotation/TreatmentMasters/listall/' . $participant_id . '/';
-                        $hook_link = $this->hook('postsave_process_batch');
-                        if ($hook_link) {
-                            require ($hook_link);
-                        }
-                        AppModel::releaseBatchViewsUpdateLock();
-                        $this->atimFlash(__('your data has been updated'), $url_to_flash);
-                    } else {
-                        $this->TreatmentMaster->validationErrors = array();
-                        foreach ($errors_tracking as $field => $msg_and_lines) {
-                            foreach ($msg_and_lines as $msg => $lines) {
-                                $this->TreatmentMaster->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
-                            }
+                } elseif (empty($errors_tracking)) {
+                    AppModel::acquireBatchViewsUpdateLock();
+                    // save all
+                    $this->TreatmentMaster->addWritableField(array(
+                        'participant_id',
+                        'treatment_control_id',
+                        'diagnosis_master_id'
+                    ));
+                    $this->TreatmentMaster->addWritableField('treatment_master_id', $tx_control_data['TreatmentControl']['detail_tablename']);
+                    foreach ($this->request->data as $new_data_to_save) {
+                        $this->TreatmentMaster->id = null;
+                        $this->TreatmentMaster->data = array();
+                        if (! $this->TreatmentMaster->save($new_data_to_save, false))
+                            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                    }
+                    $url_to_flash = '/ClinicalAnnotation/TreatmentMasters/listall/' . $participant_id . '/';
+                    $hook_link = $this->hook('postsave_process_batch');
+                    if ($hook_link) {
+                        require ($hook_link);
+                    }
+                    AppModel::releaseBatchViewsUpdateLock();
+                    $this->atimFlash(__('your data has been updated'), $url_to_flash);
+                } else {
+                    $this->TreatmentMaster->validationErrors = array();
+                    foreach ($errors_tracking as $field => $msg_and_lines) {
+                        foreach ($msg_and_lines as $msg => $lines) {
+                            $this->TreatmentMaster->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
                         }
                     }
+                }
             }
         }
     }

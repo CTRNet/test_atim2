@@ -67,14 +67,13 @@ class StructureField extends AppModel
                             if ($option['value'] == $value)
                                 $return = __($option['language_alias']);
                         }
-                    } else 
-                        if (! empty($results['StructureValueDomain']['source'])) {
-                            $pull_down = StructuresComponent::getPulldownFromSource($results['StructureValueDomain']['source']);
-                            foreach ($pull_down as $option) {
-                                if ($option['value'] == $value)
-                                    $return = $option['default'];
-                            }
+                    } elseif (! empty($results['StructureValueDomain']['source'])) {
+                        $pull_down = StructuresComponent::getPulldownFromSource($results['StructureValueDomain']['source']);
+                        foreach ($pull_down as $option) {
+                            if ($option['value'] == $value)
+                                $return = $option['default'];
                         }
+                    }
                 }
             }
             

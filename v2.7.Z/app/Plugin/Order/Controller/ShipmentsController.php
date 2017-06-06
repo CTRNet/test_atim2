@@ -477,10 +477,9 @@ class ShipmentsController extends OrderAppController
                         if ($order_item['OrderLine']['product_type_precision']) {
                             $name .= ' - ' . $order_item['OrderLine']['product_type_precision'];
                         }
-                    } else 
-                        if ($order_item['OrderLine']['is_tma_slide']) {
-                            $name = __('tma slide');
-                        }
+                    } elseif ($order_item['OrderLine']['is_tma_slide']) {
+                        $name = __('tma slide');
+                    }
                 }
                 $data[$order_item['OrderLine']['id']] = array(
                     'name' => $name,

@@ -69,16 +69,13 @@ class PagesController extends AppController
             $p = $this->request->query['p'];
             if (count($p) == 1) {
                 $results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0]);
-            } else 
-                if (count($p) == 2) {
-                    $results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1]);
-                } else 
-                    if (count($p) == 3) {
-                        $results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1], $p[2]);
-                    } else 
-                        if (count($p) > 3) {
-                            $results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1], $p[2], $p[3]);
-                        }
+            } elseif (count($p) == 2) {
+                $results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1]);
+            } elseif (count($p) == 3) {
+                $results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1], $p[2]);
+            } elseif (count($p) > 3) {
+                $results['Page']['language_body'] = sprintf($results['Page']['language_body'], $p[0], $p[1], $p[2], $p[3]);
+            }
             // if it's more than 4 we'll get a warning
         }
         $this->set('data', $results);

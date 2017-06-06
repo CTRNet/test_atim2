@@ -39,29 +39,27 @@ class TmaSlideUsesController extends StorageLayoutAppController
             );
             if (empty($this->request->data))
                 $initial_display = true;
-        } else 
-            if (isset($this->request->data['TmaSlide']['id'])) {
-                // User launched an action from the DataBrowser or a Report Form
-                if ($this->request->data['TmaSlide']['id'] == 'all' && isset($this->request->data['node'])) {
-                    // The displayed elements number was higher than the databrowser_and_report_results_display_limit
-                    $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-                    $browsing_result = $this->BrowsingResult->find('first', array(
-                        'conditions' => array(
-                            'BrowsingResult.id' => $this->request->data['node']['id']
-                        )
-                    ));
-                    $this->request->data['TmaSlide']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
-                }
-                $tma_slide_ids = array_filter($this->request->data['TmaSlide']['id']);
-                $initial_display = true;
-            } else 
-                if (! empty($this->request->data)) {
-                    // User submit data of the TmaSlide.add() form
-                    $tma_slide_ids = array_keys($this->request->data);
-                } else {
-                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
-                    return;
-                }
+        } elseif (isset($this->request->data['TmaSlide']['id'])) {
+            // User launched an action from the DataBrowser or a Report Form
+            if ($this->request->data['TmaSlide']['id'] == 'all' && isset($this->request->data['node'])) {
+                // The displayed elements number was higher than the databrowser_and_report_results_display_limit
+                $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+                $browsing_result = $this->BrowsingResult->find('first', array(
+                    'conditions' => array(
+                        'BrowsingResult.id' => $this->request->data['node']['id']
+                    )
+                ));
+                $this->request->data['TmaSlide']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+            }
+            $tma_slide_ids = array_filter($this->request->data['TmaSlide']['id']);
+            $initial_display = true;
+        } elseif (! empty($this->request->data)) {
+            // User submit data of the TmaSlide.add() form
+            $tma_slide_ids = array_keys($this->request->data);
+        } else {
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            return;
+        }
         
         // Get TMA Blocks data
         
@@ -369,14 +367,13 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 'TmaSlideUse.id' => $tma_slide_use_ids
             );
             $initial_display = true;
-        } else 
-            if (! empty($this->request->data)) {
-                // User submit data of the TmaSlideUse.editInBatch() form
-                $tma_slide_use_ids = explode(',', $this->request->data['tma_slide_use_ids']);
-            } else {
-                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
-                return;
-            }
+        } elseif (! empty($this->request->data)) {
+            // User submit data of the TmaSlideUse.editInBatch() form
+            $tma_slide_use_ids = explode(',', $this->request->data['tma_slide_use_ids']);
+        } else {
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            return;
+        }
         unset($this->request->data['tma_slide_use_ids']);
         
         if ($initial_display) {

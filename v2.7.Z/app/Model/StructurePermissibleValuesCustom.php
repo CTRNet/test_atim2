@@ -107,18 +107,17 @@ class StructurePermissibleValuesCustom extends AppModel
         $control_id = null;
         if (isset($this->data['StructurePermissibleValuesCustom']['control_id'])) {
             $control_id = $this->data['StructurePermissibleValuesCustom']['control_id'];
-        } else 
-            if ($this->id) {
-                $control_id = $this->find('first', array(
-                    'conditions' => array(
-                        'StructurePermissibleValuesCustom.id' => $this->id
-                    ),
-                    'fields' => array(
-                        'StructurePermissibleValuesCustom.control_id'
-                    )
-                ));
-                $control_id = $control_id['StructurePermissibleValuesCustom']['control_id'];
-            }
+        } elseif ($this->id) {
+            $control_id = $this->find('first', array(
+                'conditions' => array(
+                    'StructurePermissibleValuesCustom.id' => $this->id
+                ),
+                'fields' => array(
+                    'StructurePermissibleValuesCustom.control_id'
+                )
+            ));
+            $control_id = $control_id['StructurePermissibleValuesCustom']['control_id'];
+        }
         if ($control_id) {
             $values_counter = $this->find('count', array(
                 'conditions' => array(

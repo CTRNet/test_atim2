@@ -250,19 +250,15 @@ class StructuresHelper extends Helper
                             if ($accuracy != 'c') {
                                 if ($accuracy == 'd') {
                                     $data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 7);
-                                } else 
-                                    if ($accuracy == 'm') {
-                                        $data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 4);
-                                    } else 
-                                        if ($accuracy == 'y') {
-                                            $data_line[$model][$date_field] = '±' . substr($data_line[$model][$date_field], 0, 4);
-                                        } else 
-                                            if ($accuracy == 'h') {
-                                                $data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 10);
-                                            } else 
-                                                if ($accuracy == 'i') {
-                                                    $data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 13);
-                                                }
+                                } elseif ($accuracy == 'm') {
+                                    $data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 4);
+                                } elseif ($accuracy == 'y') {
+                                    $data_line[$model][$date_field] = '±' . substr($data_line[$model][$date_field], 0, 4);
+                                } elseif ($accuracy == 'h') {
+                                    $data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 10);
+                                } elseif ($accuracy == 'i') {
+                                    $data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 13);
+                                }
                             }
                         }
                     }
@@ -285,17 +281,16 @@ class StructuresHelper extends Helper
                     $options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
                 }
             }
-        } else 
-            if ($options['type'] == "tree") {
-                foreach ($atim_structure as $structure) {
-                    // no sanitization on select
-                    foreach ($structure['Sfs'] as $sfs) {
-                        if ($sfs['flag_index'] && $sfs['type'] == 'select') {
-                            $options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
-                        }
+        } elseif ($options['type'] == "tree") {
+            foreach ($atim_structure as $structure) {
+                // no sanitization on select
+                foreach ($structure['Sfs'] as $sfs) {
+                    if ($sfs['flag_index'] && $sfs['type'] == 'select') {
+                        $options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
                     }
                 }
             }
+        }
     }
 
     public function getStructureAlias($atim_structure = [])
@@ -627,41 +622,37 @@ class StructuresHelper extends Helper
         
         if ($type == 'summary') {
             $this->buildSummary($atim_structure, $options, $data);
-        } else 
-            if (in_array($type, array(
-                'index',
-                'addgrid',
-                'editgrid'
-            ))) {
-                if ($type == 'addgrid' || $type == 'editgrid') {
-                    $options['settings']['pagination'] = false;
-                }
-                $this->buildTable($atim_structure, $options, $data);
-            } else 
-                if (in_array($type, array(
-                    'detail',
-                    'add',
-                    'edit',
-                    'search',
-                    'batchedit'
-                ))) {
-                    $this->buildDetail($atim_structure, $options, $data);
-                } else 
-                    if ($type == 'tree') {
-                        $options['type'] = 'index';
-                        $this->buildTree($atim_structure, $options, $data);
-                    } else 
-                        if ($type == 'csv') {
-                            $this->buildCsv($atim_structure, $options, $data);
-                            $options['settings']['actions'] = false;
-                        } else {
-                            if (Configure::read('debug') > 0) {
-                                AppController::addWarningMsg(__("warning: unknown build type [%s]", $type));
-                            }
-                            // build detail anyway
-                            $options['type'] = 'detail';
-                            $this->buildDetail($atim_structure, $options, $data);
-                        }
+        } elseif (in_array($type, array(
+            'index',
+            'addgrid',
+            'editgrid'
+        ))) {
+            if ($type == 'addgrid' || $type == 'editgrid') {
+                $options['settings']['pagination'] = false;
+            }
+            $this->buildTable($atim_structure, $options, $data);
+        } elseif (in_array($type, array(
+            'detail',
+            'add',
+            'edit',
+            'search',
+            'batchedit'
+        ))) {
+            $this->buildDetail($atim_structure, $options, $data);
+        } elseif ($type == 'tree') {
+            $options['type'] = 'index';
+            $this->buildTree($atim_structure, $options, $data);
+        } elseif ($type == 'csv') {
+            $this->buildCsv($atim_structure, $options, $data);
+            $options['settings']['actions'] = false;
+        } else {
+            if (Configure::read('debug') > 0) {
+                AppController::addWarningMsg(__("warning: unknown build type [%s]", $type));
+            }
+            // build detail anyway
+            $options['type'] = 'detail';
+            $this->buildDetail($atim_structure, $options, $data);
+        }
         
         if (isset($options['extras']['end'])) {
             echo '
@@ -941,10 +932,9 @@ class StructuresHelper extends Helper
                             $value = str_replace('\n', '<br/>', $value);
                         }
                         echo $this->getPrintableField($table_row_part, $options, $value, null, null), " ";
-                    } else 
-                        if (Configure::read('debug') > 0 && $options['settings']['data_miss_warn']) {
-                            AppController::addWarningMsg(__("no data for [%s.%s]", $table_row_part['model'], $table_row_part['field']));
-                        }
+                    } elseif (Configure::read('debug') > 0 && $options['settings']['data_miss_warn']) {
+                        AppController::addWarningMsg(__("no data for [%s.%s]", $table_row_part['model'], $table_row_part['field']));
+                    }
                 }
             }
             if (! $first_line) {
@@ -983,211 +973,190 @@ class StructuresHelper extends Helper
             if ($options['links']['top'] && $options['settings']['form_inputs'] && $options['type'] != "search") {
                 AppController::getInstance()->redirect("/Pages/err_confidential");
             }
-        } else 
-            if ($options['links']['top'] && $options['settings']['form_inputs'] && ! $table_row_part['readonly']) {
-                if ($table_row_part['type'] == "date") {
-                    $display = "";
-                    if ($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])) {
-                        $display = "<div class='accuracy_target_blue'></div>";
+        } elseif ($options['links']['top'] && $options['settings']['form_inputs'] && ! $table_row_part['readonly']) {
+            if ($table_row_part['type'] == "date") {
+                $display = "";
+                if ($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])) {
+                    $display = "<div class='accuracy_target_blue'></div>";
+                }
+                $display .= self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
+            } elseif ($table_row_part['type'] == "datetime") {
+                $date = $time = null;
+                if (is_array($current_value)) {
+                    $date = $current_value;
+                    $time = $current_value;
+                } elseif (strlen($current_value) > 0 && $current_value != "NULL") {
+                    if (strpos($current_value, " ") === false) {
+                        $date = $current_value;
+                    } else {
+                        list ($date, $time) = explode(" ", $current_value);
                     }
-                    $display .= self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
-                } else 
-                    if ($table_row_part['type'] == "datetime") {
-                        $date = $time = null;
-                        if (is_array($current_value)) {
-                            $date = $current_value;
-                            $time = $current_value;
-                        } else 
-                            if (strlen($current_value) > 0 && $current_value != "NULL") {
-                                if (strpos($current_value, " ") === false) {
-                                    $date = $current_value;
-                                } else {
-                                    list ($date, $time) = explode(" ", $current_value);
-                                }
-                            }
-                        
-                        if ($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])) {
-                            $display = "<div class='accuracy_target_blue'></div>";
-                        }
-                        
-                        $display .= self::getDateInputs($field_name, $date, $table_row_part['settings']);
-                        unset($table_row_part['settings']['required']);
-                        $display .= self::getTimeInputs($field_name, $time, $table_row_part['settings']);
-                    } else 
-                        if ($table_row_part['type'] == "time") {
-                            $display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
-                        } else 
-                            if ($table_row_part['type'] == "select" || (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u"))) {
-                                if (array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])) {
-                                    $table_row_part['settings']['options']['previously_defined'] = array(
-                                        $current_value => $table_row_part['settings']['options']['previously_defined'][$current_value]
-                                    );
-                                } else 
-                                    if (! array_key_exists($current_value, $table_row_part['settings']['options']['defined']) && ! array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined']) && count($table_row_part['settings']['options']) > 1) {
-                                        // add the unmatched value if there is more than a value
-                                        if (($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == "") {
-                                            // this is a search or batchedit and the value is the empty one, not really an "unmatched" one
-                                            $table_row_part['settings']['options'] = array_merge(array(
-                                                "" => ""
-                                            ), $table_row_part['settings']['options']);
-                                            if (empty($table_row_part['settings']['options']['previously_defined'])) {
-                                                $defined = $table_row_part['settings']['options']['defined'];
-                                                unset($table_row_part['settings']['options']['defined']);
-                                                unset($table_row_part['settings']['options']['previously_defined']);
-                                                $table_row_part['settings']['options'] = array_merge($table_row_part['settings']['options'], $defined);
-                                            }
-                                        } else {
-                                            $table_row_part['settings']['options'] = array(
-                                                __('unmatched value') => array(
-                                                    $current_value => $current_value
-                                                ),
-                                                __('supported value') => $table_row_part['settings']['options']['defined']
-                                            );
-                                        }
-                                    } else 
-                                        if ($options['type'] == "search" && ! empty($table_row_part['settings']['options']['previously_defined'])) {
-                                            $tmp = $table_row_part['settings']['options']['defined'];
-                                            unset($table_row_part['settings']['options']['defined']);
-                                            $table_row_part['settings']['options'][__('defined')] = $tmp;
-                                            $tmp = $table_row_part['settings']['options']['previously_defined'];
-                                            unset($table_row_part['settings']['options']['previously_defined']);
-                                            $table_row_part['settings']['options'][__('previously defined')] = $tmp;
-                                        } else {
-                                            $table_row_part['settings']['options'] = $table_row_part['settings']['options']['defined'];
-                                        }
-                                
-                                $table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
-                                $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
-                                    'type' => 'select',
-                                    'value' => $current_value
-                                )));
-                            } else 
-                                if ($table_row_part['type'] == "radio") {
-                                    if (! array_key_exists($current_value, $table_row_part['settings']['options'])) {
-                                        $table_row_part['settings']['options'][$current_value] = "(" . __('unmatched value') . ") " . $current_value;
-                                    }
-                                    $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
-                                        'type' => $table_row_part['type'],
-                                        'value' => $current_value,
-                                        'checked' => $current_value ? true : false
-                                    )));
-                                } else 
-                                    if ($table_row_part['type'] == "checkbox") {
-                                        unset($table_row_part['settings']['options']);
-                                        $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
-                                            'type' => 'checkbox',
-                                            'value' => 1,
-                                            'checked' => $current_value ? true : false
-                                        )));
-                                    } else 
-                                        if ($table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u") {
-                                            unset($table_row_part['settings']['options']);
-                                            $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
-                                                'type' => 'hidden',
-                                                'value' => ""
-                                            ))) . __('yes') . $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
-                                                'type' => 'checkbox',
-                                                'value' => "y",
-                                                'hiddenField' => false,
-                                                'checked' => $current_value == "y" ? true : false
-                                            ))) . __('no') . $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
-                                                'type' => 'checkbox',
-                                                'value' => "n",
-                                                'hiddenField' => false,
-                                                'checked' => $current_value == "n" ? true : false
-                                            )));
-                                            if ($table_row_part['type'] == "y_n_u") {
-                                                $display .= __('unknown') . $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
-                                                    'type' => 'checkbox',
-                                                    'value' => "u",
-                                                    'hiddenField' => false,
-                                                    'checked' => $current_value == "u" ? true : false
-                                                )));
-                                            }
-                                        } else 
-                                            if (($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ',') {
-                                                $current_value = str_replace('.', ',', $current_value);
-                                            } else 
-                                                if ($table_row_part['type'] == "textarea") {
-                                                    $current_value = str_replace('\n', "\n", $current_value);
-                                                } else 
-                                                    if ($table_row_part['type'] == 'file') {
-                                                        if ($current_value) {
-                                                            $display = $this->get_open_file_link($current_value);
-                                                            $display .= '<input type="radio" class="fileOption" name="data[' . $field_name . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
-                                                            $display .= '<input type="radio" class="fileOption" name="data[' . $field_name . '][option]" value="delete"><span>' . _('delete') . '</span>';
-                                                            $display .= '<input type="radio" class="fileOption" name="data[' . $field_name . '][option]" value="replace"><span>' . _('replace') . '</span>';
-                                                            $display .= ' ';
-                                                        }
-                                                    }
-                $display .= $table_row_part['format']; // might contain hidden field if the current one is disabled
-                
-                $this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
-                
-                if (($options['type'] == "addgrid" || $options['type'] == "editgrid") && strpos($table_row_part['settings']['class'], "pasteDisabled") !== false && $table_row_part['type'] != "hidden") {
-                    // displays the "no copy" icon on the left of the fields with disabled copy option
-                    $display = '<div class="pasteDisabled"></div>' . $display;
                 }
-            } else 
-                if (strlen($current_value) > 0) {
-                    $elligible_as_date = strlen($current_value) > 1;
-                    if ($table_row_part['type'] == "date" && $elligible_as_date) {
-                        $date = explode("-", $current_value);
-                        $year = $date[0];
-                        $month = null;
-                        $day = null;
-                        switch (count($date)) {
-                            case 3:
-                                $day = $date[2];
-                            case 2:
-                                $month = $date[1];
-                                break;
-                        }
-                        list ($day) = explode(" ", $day); // in case the current date is a datetime
-                        $display = AppController::getFormatedDateString($year, $month, $day, $options['type'] != 'csv');
-                    } else 
-                        if ($table_row_part['type'] == "datetime" && $elligible_as_date) {
-                            $display = AppController::getFormatedDatetimeString($current_value, $options['type'] != 'csv');
-                        } else 
-                            if ($table_row_part['type'] == "time" && $elligible_as_date) {
-                                list ($hour, $minutes) = explode(":", $current_value);
-                                $display = AppController::getFormatedTimeString($hour, $minutes);
-                            } else 
-                                if (in_array($table_row_part['type'], array(
-                                    "select",
-                                    "radio",
-                                    "checkbox",
-                                    "yes_no",
-                                    "y_n_u"
-                                ))) {
-                                    if (isset($table_row_part['settings']['options']['defined'][$current_value])) {
-                                        $display = $table_row_part['settings']['options']['defined'][$current_value];
-                                    } else 
-                                        if (isset($table_row_part['settings']['options']['previously_defined'][$current_value])) {
-                                            $display = $table_row_part['settings']['options']['previously_defined'][$current_value];
-                                        } else {
-                                            $display = $current_value;
-                                            if (Configure::read('debug') > 0 && ($current_value != "-" || $options['settings']['data_miss_warn'])) {
-                                                AppController::addWarningMsg(__("missing reference key [%s] for field [%s]", $current_value, $table_row_part['field']));
-                                            }
-                                        }
-                                } else 
-                                    if (($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ',') {
-                                        $display = str_replace('.', ',', $current_value);
-                                    } else 
-                                        if ($table_row_part['type'] == 'textarea') {
-                                            $current_value = htmlspecialchars($current_value);
-                                            $current_value = str_replace('\\\\', '&dbs;', $current_value);
-                                            $current_value = str_replace('\n', in_array($options['type'], self::$write_modes) ? "\n" : '<br/>', $current_value);
-                                            $current_value = str_replace('&dbs;', '\\', $current_value);
-                                            $display = html_entity_decode($current_value);
-                                        } else 
-                                            if ($table_row_part['type'] == 'file') {
-                                                $display = $this->get_open_file_link($current_value);
-                                            } else {
-                                                $display = $current_value;
-                                            }
+                
+                if ($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])) {
+                    $display = "<div class='accuracy_target_blue'></div>";
                 }
+                
+                $display .= self::getDateInputs($field_name, $date, $table_row_part['settings']);
+                unset($table_row_part['settings']['required']);
+                $display .= self::getTimeInputs($field_name, $time, $table_row_part['settings']);
+            } elseif ($table_row_part['type'] == "time") {
+                $display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
+            } elseif ($table_row_part['type'] == "select" || (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u"))) {
+                if (array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])) {
+                    $table_row_part['settings']['options']['previously_defined'] = array(
+                        $current_value => $table_row_part['settings']['options']['previously_defined'][$current_value]
+                    );
+                } elseif (! array_key_exists($current_value, $table_row_part['settings']['options']['defined']) && ! array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined']) && count($table_row_part['settings']['options']) > 1) {
+                    // add the unmatched value if there is more than a value
+                    if (($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == "") {
+                        // this is a search or batchedit and the value is the empty one, not really an "unmatched" one
+                        $table_row_part['settings']['options'] = array_merge(array(
+                            "" => ""
+                        ), $table_row_part['settings']['options']);
+                        if (empty($table_row_part['settings']['options']['previously_defined'])) {
+                            $defined = $table_row_part['settings']['options']['defined'];
+                            unset($table_row_part['settings']['options']['defined']);
+                            unset($table_row_part['settings']['options']['previously_defined']);
+                            $table_row_part['settings']['options'] = array_merge($table_row_part['settings']['options'], $defined);
+                        }
+                    } else {
+                        $table_row_part['settings']['options'] = array(
+                            __('unmatched value') => array(
+                                $current_value => $current_value
+                            ),
+                            __('supported value') => $table_row_part['settings']['options']['defined']
+                        );
+                    }
+                } elseif ($options['type'] == "search" && ! empty($table_row_part['settings']['options']['previously_defined'])) {
+                    $tmp = $table_row_part['settings']['options']['defined'];
+                    unset($table_row_part['settings']['options']['defined']);
+                    $table_row_part['settings']['options'][__('defined')] = $tmp;
+                    $tmp = $table_row_part['settings']['options']['previously_defined'];
+                    unset($table_row_part['settings']['options']['previously_defined']);
+                    $table_row_part['settings']['options'][__('previously defined')] = $tmp;
+                } else {
+                    $table_row_part['settings']['options'] = $table_row_part['settings']['options']['defined'];
+                }
+                
+                $table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
+                $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
+                    'type' => 'select',
+                    'value' => $current_value
+                )));
+            } elseif ($table_row_part['type'] == "radio") {
+                if (! array_key_exists($current_value, $table_row_part['settings']['options'])) {
+                    $table_row_part['settings']['options'][$current_value] = "(" . __('unmatched value') . ") " . $current_value;
+                }
+                $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
+                    'type' => $table_row_part['type'],
+                    'value' => $current_value,
+                    'checked' => $current_value ? true : false
+                )));
+            } elseif ($table_row_part['type'] == "checkbox") {
+                unset($table_row_part['settings']['options']);
+                $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
+                    'type' => 'checkbox',
+                    'value' => 1,
+                    'checked' => $current_value ? true : false
+                )));
+            } elseif ($table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u") {
+                unset($table_row_part['settings']['options']);
+                $display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
+                    'type' => 'hidden',
+                    'value' => ""
+                ))) . __('yes') . $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
+                    'type' => 'checkbox',
+                    'value' => "y",
+                    'hiddenField' => false,
+                    'checked' => $current_value == "y" ? true : false
+                ))) . __('no') . $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
+                    'type' => 'checkbox',
+                    'value' => "n",
+                    'hiddenField' => false,
+                    'checked' => $current_value == "n" ? true : false
+                )));
+                if ($table_row_part['type'] == "y_n_u") {
+                    $display .= __('unknown') . $this->Form->input($field_name, array_merge($table_row_part['settings'], array(
+                        'type' => 'checkbox',
+                        'value' => "u",
+                        'hiddenField' => false,
+                        'checked' => $current_value == "u" ? true : false
+                    )));
+                }
+            } elseif (($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ',') {
+                $current_value = str_replace('.', ',', $current_value);
+            } elseif ($table_row_part['type'] == "textarea") {
+                $current_value = str_replace('\n', "\n", $current_value);
+            } elseif ($table_row_part['type'] == 'file') {
+                if ($current_value) {
+                    $display = $this->get_open_file_link($current_value);
+                    $display .= '<input type="radio" class="fileOption" name="data[' . $field_name . '][option]" value="" checked="checked"><span>' . _('keep') . '</span>';
+                    $display .= '<input type="radio" class="fileOption" name="data[' . $field_name . '][option]" value="delete"><span>' . _('delete') . '</span>';
+                    $display .= '<input type="radio" class="fileOption" name="data[' . $field_name . '][option]" value="replace"><span>' . _('replace') . '</span>';
+                    $display .= ' ';
+                }
+            }
+            $display .= $table_row_part['format']; // might contain hidden field if the current one is disabled
+            
+            $this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
+            
+            if (($options['type'] == "addgrid" || $options['type'] == "editgrid") && strpos($table_row_part['settings']['class'], "pasteDisabled") !== false && $table_row_part['type'] != "hidden") {
+                // displays the "no copy" icon on the left of the fields with disabled copy option
+                $display = '<div class="pasteDisabled"></div>' . $display;
+            }
+        } elseif (strlen($current_value) > 0) {
+            $elligible_as_date = strlen($current_value) > 1;
+            if ($table_row_part['type'] == "date" && $elligible_as_date) {
+                $date = explode("-", $current_value);
+                $year = $date[0];
+                $month = null;
+                $day = null;
+                switch (count($date)) {
+                    case 3:
+                        $day = $date[2];
+                    case 2:
+                        $month = $date[1];
+                        break;
+                }
+                list ($day) = explode(" ", $day); // in case the current date is a datetime
+                $display = AppController::getFormatedDateString($year, $month, $day, $options['type'] != 'csv');
+            } elseif ($table_row_part['type'] == "datetime" && $elligible_as_date) {
+                $display = AppController::getFormatedDatetimeString($current_value, $options['type'] != 'csv');
+            } elseif ($table_row_part['type'] == "time" && $elligible_as_date) {
+                list ($hour, $minutes) = explode(":", $current_value);
+                $display = AppController::getFormatedTimeString($hour, $minutes);
+            } elseif (in_array($table_row_part['type'], array(
+                "select",
+                "radio",
+                "checkbox",
+                "yes_no",
+                "y_n_u"
+            ))) {
+                if (isset($table_row_part['settings']['options']['defined'][$current_value])) {
+                    $display = $table_row_part['settings']['options']['defined'][$current_value];
+                } elseif (isset($table_row_part['settings']['options']['previously_defined'][$current_value])) {
+                    $display = $table_row_part['settings']['options']['previously_defined'][$current_value];
+                } else {
+                    $display = $current_value;
+                    if (Configure::read('debug') > 0 && ($current_value != "-" || $options['settings']['data_miss_warn'])) {
+                        AppController::addWarningMsg(__("missing reference key [%s] for field [%s]", $current_value, $table_row_part['field']));
+                    }
+                }
+            } elseif (($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ',') {
+                $display = str_replace('.', ',', $current_value);
+            } elseif ($table_row_part['type'] == 'textarea') {
+                $current_value = htmlspecialchars($current_value);
+                $current_value = str_replace('\\\\', '&dbs;', $current_value);
+                $current_value = str_replace('\n', in_array($options['type'], self::$write_modes) ? "\n" : '<br/>', $current_value);
+                $current_value = str_replace('&dbs;', '\\', $current_value);
+                $display = html_entity_decode($current_value);
+            } elseif ($table_row_part['type'] == 'file') {
+                $display = $this->get_open_file_link($current_value);
+            } else {
+                $display = $current_value;
+            }
+        }
         
         if ($table_row_part['readonly']) {
             $tmp = $table_row_part['format'];
@@ -1911,30 +1880,28 @@ class StructuresHelper extends Helper
                         }
                     }
                 }
-            } else 
-                if (count($options['links']['index'])) {
-                    // apply prebuilt links
-                    $links = $this->strReplaceLink($options['links']['tree'][$expand_key], $data_val);
-                }
+            } elseif (count($options['links']['index'])) {
+                // apply prebuilt links
+                $links = $this->strReplaceLink($options['links']['tree'][$expand_key], $data_val);
+            }
             if (is_array($children)) {
                 if (empty($children)) {
                     echo '<a class="icon16 reveal not_allowed href="#" onclick="return false;">+</a> | ';
                 } else {
                     echo '<a class="icon16 reveal activate" href="#" onclick="return false;">+</a> | ';
                 }
-            } else 
-                if ($children) {
-                    $data_json = array(
-                        'url' => isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""
-                    );
-                    if ($data_json['url'][0] == '/') {
-                        $data_json['url'] = substr($data_json['url'], 1);
-                    }
-                    $data_json = htmlentities(json_encode($data_json));
-                    echo '<a class="icon16 reveal notFetched" data-json="' . $data_json . '" href="#" onclick="return false;">+</a> | ';
-                } else {
-                    echo '<a class="icon16 reveal not_allowed" href="#" onclick="return false;">+</a> | ';
+            } elseif ($children) {
+                $data_json = array(
+                    'url' => isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""
+                );
+                if ($data_json['url'][0] == '/') {
+                    $data_json['url'] = substr($data_json['url'], 1);
                 }
+                $data_json = htmlentities(json_encode($data_json));
+                echo '<a class="icon16 reveal notFetched" data-json="' . $data_json . '" href="#" onclick="return false;">+</a> | ';
+            } else {
+                echo '<a class="icon16 reveal not_allowed" href="#" onclick="return false;">+</a> | ';
+            }
             
             $data_val['css'][] = 'rightPart';
             echo '</div><div class="' . implode(' ', $data_val['css']) . '"><span class="nowrap">', $links, '</span>';
@@ -2067,10 +2034,9 @@ class StructuresHelper extends Helper
             foreach ($link_parts as $link_part) {
                 if (strpos($link_part, "sort:") === 0) {
                     $sort_on = substr($link_part, 5);
-                } else 
-                    if ($link_part == "direction:desc") {
-                        $sort_asc = false;
-                    }
+                } elseif ($link_part == "direction:desc") {
+                    $sort_asc = false;
+                }
             }
             
             $paging = $this->Paginator->params['paging'];
@@ -2110,13 +2076,12 @@ class StructuresHelper extends Helper
                                 } else {
                                     $structure_group_change = false;
                                 }
-                            } else 
-                                if ($previous_structure_group) {
-                                    $structure_group_change = true;
-                                    $previous_structure_group = null;
-                                } else {
-                                    $structure_group_change = false;
-                                }
+                            } elseif ($previous_structure_group) {
+                                $structure_group_change = true;
+                                $previous_structure_group = null;
+                            } else {
+                                $structure_group_change = false;
+                            }
                             $first_cell = false;
                             
                             // label and help/info marker, if available...
@@ -2333,7 +2298,6 @@ class StructuresHelper extends Helper
                         "structure_group_name" => isset($sfs['structure_group_name']) ? $sfs['structure_group_name'] : null
                     );
                     $settings = $my_default_settings_arr;
-                    
                     $date_format_arr = str_split(date_format);
                     if ($options['links']['top'] && $options['settings']['form_inputs']) {
                         $settings['tabindex'] = self::$last_tabindex ++;
@@ -2406,92 +2370,84 @@ class StructuresHelper extends Helper
                                 "value" => "%s"
                             ), $settings);
                             $settings['disabled'] = "disabled";
-                        } else 
-                            if ($sfs['type'] == "input") {
-                                if ($options['type'] != "search") {
-                                    $settings['class'] = str_replace("range", "", $settings['class']);
+                        } elseif ($sfs['type'] == "input") {
+                            if ($options['type'] != "search") {
+                                $settings['class'] = str_replace("range", "", $settings['class']);
+                            }
+                            $current["format"] = $this->Form->input($field_name, array_merge(array(
+                                "type" => "text"
+                            ), $settings));
+                        } elseif (array_key_exists($sfs['type'], $independent_types)) {
+                            // do nothing for independent types
+                            $current["format"] = "";
+                        } elseif ($sfs['type'] == "integer" || $sfs['type'] == "integer_positive") {
+                            if (! isset($settings['size'])) {
+                                $settings['size'] = 4;
+                            }
+                            $current["format"] = $this->Form->text($field_name, array_merge(array(
+                                "type" => "number"
+                            ), $settings));
+                        } elseif ($sfs['type'] == "float" || $sfs['type'] == "float_positive") {
+                            if (! isset($settings['size'])) {
+                                $settings['size'] = 4;
+                            }
+                            $current["format"] = $this->Form->text($field_name, array_merge(array(
+                                "type" => "text"
+                            ), $settings));
+                        } elseif ($sfs['type'] == "textarea") {
+                            // notice this is Form->input and not Form->text
+                            $tmp_settings = array();
+                            if ($options['type'] == 'add' || $options['type'] == 'edit' || $options == 'search') {
+                                // default textarea size in add/edit/search
+                                if (! array_key_exists('rows', $settings)) {
+                                    $settings['rows'] = 3;
                                 }
-                                $current["format"] = $this->Form->input($field_name, array_merge(array(
-                                    "type" => "text"
-                                ), $settings));
-                            } else 
-                                if (array_key_exists($sfs['type'], $independent_types)) {
-                                    // do nothing for independent types
-                                    $current["format"] = "";
-                                } else 
-                                    if ($sfs['type'] == "integer" || $sfs['type'] == "integer_positive") {
-                                        if (! isset($settings['size'])) {
-                                            $settings['size'] = 4;
-                                        }
-                                        $current["format"] = $this->Form->text($field_name, array_merge(array(
-                                            "type" => "number"
-                                        ), $settings));
-                                    } else 
-                                        if ($sfs['type'] == "float" || $sfs['type'] == "float_positive") {
-                                            if (! isset($settings['size'])) {
-                                                $settings['size'] = 4;
-                                            }
-                                            $current["format"] = $this->Form->text($field_name, array_merge(array(
-                                                "type" => "text"
-                                            ), $settings));
-                                        } else 
-                                            if ($sfs['type'] == "textarea") {
-                                                // notice this is Form->input and not Form->text
-                                                $tmp_settings = array();
-                                                if ($options['type'] == 'add' || $options['type'] == 'edit' || $options == 'search') {
-                                                    // default textarea size in add/edit/search
-                                                    if (! array_key_exists('rows', $settings)) {
-                                                        $settings['rows'] = 3;
-                                                    }
-                                                    if (! array_key_exists('cols', $settings)) {
-                                                        $settings['cols'] = 30;
-                                                    }
-                                                } else 
-                                                    if ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') {
-                                                        // default textarea size in grids
-                                                        if (! array_key_exists('rows', $settings)) {
-                                                            $settings['rows'] = 2;
-                                                        }
-                                                        if (! array_key_exists('cols', $settings)) {
-                                                            $settings['cols'] = 15;
-                                                        }
-                                                    }
-                                                $current["format"] = $this->Form->input($field_name, array_merge(array(
-                                                    "type" => "textarea"
-                                                ), array_merge($settings, $tmp_settings)));
-                                            } else 
-                                                if ($sfs['type'] == "autocomplete" || $sfs['type'] == "hidden" || $sfs['type'] == "file" || $sfs['type'] == "password") {
-                                                    if ($sfs['type'] == "autocomplete" && isset($settings['url'])) {
-                                                        $settings['class'] .= " jqueryAutocomplete";
-                                                    }
-                                                    $current["format"] = $this->Form->text($field_name, array_merge(array(
-                                                        "type" => $sfs['type']
-                                                    ), $settings));
-                                                    if ($sfs['type'] == "hidden") {
-                                                        if (strlen($current['label'])) {
-                                                            if (Configure::read('debug') > 0) {
-                                                                // AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
-                                                            }
-                                                            $current['label'] = "";
-                                                        }
-                                                        if (strlen($current['heading'])) {
-                                                            if (Configure::read('debug') > 0) {
-                                                                // AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
-                                                            }
-                                                            $current['heading'] = "";
-                                                        }
-                                                    }
-                                                } else 
-                                                    if ($sfs['type'] == "display") {
-                                                        $current["format"] = "%s";
-                                                    } else {
-                                                        if (Configure::read('debug') > 0) {
-                                                            AppController::addWarningMsg(__("field type [%s] is unknown", $sfs['type']));
-                                                        }
-                                                        $current["format"] = $this->Form->input($field_name, array_merge(array(
-                                                            "type" => "text"
-                                                        ), $settings));
-                                                    }
+                                if (! array_key_exists('cols', $settings)) {
+                                    $settings['cols'] = 30;
+                                }
+                            } elseif ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') {
+                                // default textarea size in grids
+                                if (! array_key_exists('rows', $settings)) {
+                                    $settings['rows'] = 2;
+                                }
+                                if (! array_key_exists('cols', $settings)) {
+                                    $settings['cols'] = 15;
+                                }
+                            }
+                            $current["format"] = $this->Form->input($field_name, array_merge(array(
+                                "type" => "textarea"
+                            ), array_merge($settings, $tmp_settings)));
+                        } elseif ($sfs['type'] == "autocomplete" || $sfs['type'] == "hidden" || $sfs['type'] == "file" || $sfs['type'] == "password") {
+                            if ($sfs['type'] == "autocomplete" && isset($settings['url'])) {
+                                $settings['class'] .= " jqueryAutocomplete";
+                            }
+                            $current["format"] = $this->Form->text($field_name, array_merge(array(
+                                "type" => $sfs['type']
+                            ), $settings));
+                            if ($sfs['type'] == "hidden") {
+                                if (strlen($current['label'])) {
+                                    if (Configure::read('debug') > 0) {
+                                        // AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
+                                    }
+                                    $current['label'] = "";
+                                }
+                                if (strlen($current['heading'])) {
+                                    if (Configure::read('debug') > 0) {
+                                        // AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
+                                    }
+                                    $current['heading'] = "";
+                                }
+                            }
+                        } elseif ($sfs['type'] == "display") {
+                            $current["format"] = "%s";
+                        } else {
+                            if (Configure::read('debug') > 0) {
+                                AppController::addWarningMsg(__("field type [%s] is unknown", $sfs['type']));
+                            }
+                            $current["format"] = $this->Form->input($field_name, array_merge(array(
+                                "type" => "text"
+                            ), $settings));
+                        }
                         
                         $current['default'] = $sfs['default'];
                         $current['settings'] = $settings;
@@ -2532,28 +2488,25 @@ class StructuresHelper extends Helper
                         
                         if (isset($options['dropdown_options'][$model_dot_field])) {
                             $dropdown_result['defined'] = $options['dropdown_options'][$model_dot_field];
-                        } else 
-                            if (count($sfs['StructureValueDomain']) > 0) {
-                                $this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'], $dropdown_result);
-                            } else 
-                                if ($sfs['type'] == "checkbox") {
-                                    // provide yes/no as default for checkboxes
-                                    $dropdown_result['defined'] = array(
-                                        0 => __("no"),
-                                        1 => __("yes")
-                                    );
-                                } else 
-                                    if ($sfs['type'] == "yes_no" || $sfs['type'] == "y_n_u") {
-                                        // provide yes/no/? as default for yes_no
-                                        $dropdown_result['defined'] = array(
-                                            "" => "",
-                                            "n" => __("no"),
-                                            "y" => __("yes")
-                                        );
-                                        if ($sfs['type'] == "y_n_u") {
-                                            $dropdown_result['defined']["u"] = __('unknown');
-                                        }
-                                    }
+                        } elseif (count($sfs['StructureValueDomain']) > 0) {
+                            $this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'], $dropdown_result);
+                        } elseif ($sfs['type'] == "checkbox") {
+                            // provide yes/no as default for checkboxes
+                            $dropdown_result['defined'] = array(
+                                0 => __("no"),
+                                1 => __("yes")
+                            );
+                        } elseif ($sfs['type'] == "yes_no" || $sfs['type'] == "y_n_u") {
+                            // provide yes/no/? as default for yes_no
+                            $dropdown_result['defined'] = array(
+                                "" => "",
+                                "n" => __("no"),
+                                "y" => __("yes")
+                            );
+                            if ($sfs['type'] == "y_n_u") {
+                                $dropdown_result['defined']["u"] = __('unknown');
+                            }
+                        }
                         
                         if ($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")) {
                             // checkbox and radio buttons in search mode are dropdowns
@@ -2739,10 +2692,9 @@ class StructuresHelper extends Helper
                                 'update' => $option_links['ajax'][$state][$link_name]
                             )));
                         }
-                    } else 
-                        if ($json) {
-                            $html_attributes['data-json'] = $json;
-                        }
+                    } elseif ($json) {
+                        $html_attributes['data-json'] = $json;
+                    }
                     
                     $html_attributes['escape'] = false; // inline option removed from LINK function and moved to Options array
                     $html_attributes['class'] .= $class;
@@ -2772,7 +2724,7 @@ $confirmation_msg); // confirmation message
                 $return_links[$link_name] = $link_results[$link_name];
             } else {
                 $links_append = '
-							<a href="javascript:return false;"><span class="icon16 popup"></span>' . __($link_name, TRUE) . '</a>
+							<a href="javascript:return false;"><span class="icon16 popup"></span>' . __($link_name, true) . '</a>
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu' . (count($link_results) > 7 ? ' scroll' : '') . '">
 								
@@ -2843,15 +2795,13 @@ $confirmation_msg); // confirmation message
             $return_string .= '
 				</div>
 			';
-        } else 
-            if ($state == 'top') {
-                $return_string = $return_urls[0];
-            } else 
-                if ($state == 'index') {
-                    if (count($return_links)) {
-                        $return_string = implode(' ', $return_links);
-                    }
-                }
+        } elseif ($state == 'top') {
+            $return_string = $return_urls[0];
+        } elseif ($state == 'index') {
+            if (count($return_links)) {
+                $return_string = implode(' ', $return_links);
+            }
+        }
         
         return $return_string;
     }
@@ -2895,35 +2845,30 @@ $confirmation_msg); // confirmation message
         $display_class_name = null;
         if (isset(self::$display_class_mapping[$display_class_array[0]])) {
             $display_class_name = self::$display_class_mapping[$display_class_array[0]];
-        } else 
-            if ($display_class_array[0] == "plugin") {
-                if ($display_class_array[1] == 'menus') {
-                    if ($display_class_array[2] == 'tools') {
-                        $display_class_name = 'tools';
-                    } else 
-                        if ($display_class_array[2] == 'datamart') {
-                            $display_class_name = 'datamart';
-                        } else {
-                            $display_class_name = 'home';
-                        }
-                } else 
-                    if ($display_class_array[1] == 'users' && $display_class_array[2] == 'logout') {
-                        $display_class_name = 'logout';
-                    } else 
-                        if (array_key_exists($display_class_array[1], self::$display_class_mapping_plugin)) {
-                            array_shift($display_class_array);
-                            $display_class_name = implode(' ', $display_class_array);
-                        } else {
-                            $display_class_name = 'default';
-                        }
-                
-                $display_class_name = 'plugin ' . $display_class_name;
-            } else 
-                if ($link_name && $link_location) {
-                    $display_class_name = $this->generateLinkClass(NULL, $link_location);
+        } elseif ($display_class_array[0] == "plugin") {
+            if ($display_class_array[1] == 'menus') {
+                if ($display_class_array[2] == 'tools') {
+                    $display_class_name = 'tools';
+                } elseif ($display_class_array[2] == 'datamart') {
+                    $display_class_name = 'datamart';
                 } else {
-                    $display_class_name = 'default';
+                    $display_class_name = 'home';
                 }
+            } elseif ($display_class_array[1] == 'users' && $display_class_array[2] == 'logout') {
+                $display_class_name = 'logout';
+            } elseif (array_key_exists($display_class_array[1], self::$display_class_mapping_plugin)) {
+                array_shift($display_class_array);
+                $display_class_name = implode(' ', $display_class_array);
+            } else {
+                $display_class_name = 'default';
+            }
+            
+            $display_class_name = 'plugin ' . $display_class_name;
+        } elseif ($link_name && $link_location) {
+            $display_class_name = $this->generateLinkClass(NULL, $link_location);
+        } else {
+            $display_class_name = 'default';
+        }
         
         // return
         return $display_class_name;
@@ -2991,18 +2936,17 @@ $confirmation_msg); // confirmation message
             if (isset($date['year_accuracy'])) {
                 $year = '±' . $year;
             }
-        } else 
-            if (strlen($date) > 0 && $date != "NULL") {
-                $date = explode("-", $date);
-                $year = $date[0];
-                switch (count($date)) {
-                    case 3:
-                        $day = $date[2];
-                    case 2:
-                        $month = $date[1];
-                        break;
-                }
+        } elseif (strlen($date) > 0 && $date != "NULL") {
+            $date = explode("-", $date);
+            $year = $date[0];
+            switch (count($date)) {
+                case 3:
+                    $day = $date[2];
+                case 2:
+                    $month = $date[1];
+                    break;
             }
+        }
         $result = "";
         unset($attributes['options']); // fixes an IE js bug where $(select).val() returns an error if "options" is present as an attribute
         $year_attributes = $attributes;
@@ -3020,16 +2964,15 @@ $confirmation_msg); // confirmation message
                     $result .= $this->Form->year($name, 1900, 2100, array_merge($year_attributes, array(
                         'value' => $year
                     )));
-                } else 
-                    if ($part == "M") {
-                        $result .= $this->Form->month($name, array_merge($attributes, array(
-                            'value' => $month
-                        )));
-                    } else {
-                        $result .= $this->Form->day($name, array_merge($attributes, array(
-                            'value' => $day
-                        )));
-                    }
+                } elseif ($part == "M") {
+                    $result .= $this->Form->month($name, array_merge($attributes, array(
+                        'value' => $month
+                    )));
+                } else {
+                    $result .= $this->Form->day($name, array_merge($attributes, array(
+                        'value' => $day
+                    )));
+                }
             }
         } else {
             foreach ($pref_date as $part) {
@@ -3043,28 +2986,27 @@ $confirmation_msg); // confirmation message
                         'maxlength' => 4,
                         'class' => 'year'
                     ))) . "<div>" . __('year') . "</div></span>";
-                } else 
-                    if ($part == "M") {
-                        $result .= '<span class="tooltip">' . $this->Form->text($name . ".month", array_merge($attributes, array(
-                            'type' => 'number',
-                            'min' => 1,
-                            'max' => 12,
-                            'value' => $month,
-                            'size' => 3,
-                            'maxlength' => 2,
-                            'class' => 'month'
-                        ))) . "<div>" . __('month') . "</div></span>";
-                    } else {
-                        $result .= '<span class="tooltip">' . $this->Form->text($name . ".day", array_merge($attributes, array(
-                            'type' => 'number',
-                            'min' => 1,
-                            'max' => 31,
-                            'value' => $day,
-                            'size' => 3,
-                            'maxlength' => 2,
-                            'class' => 'month'
-                        ))) . "<div>" . __('day') . "</div></span>";
-                    }
+                } elseif ($part == "M") {
+                    $result .= '<span class="tooltip">' . $this->Form->text($name . ".month", array_merge($attributes, array(
+                        'type' => 'number',
+                        'min' => 1,
+                        'max' => 12,
+                        'value' => $month,
+                        'size' => 3,
+                        'maxlength' => 2,
+                        'class' => 'month'
+                    ))) . "<div>" . __('month') . "</div></span>";
+                } else {
+                    $result .= '<span class="tooltip">' . $this->Form->text($name . ".day", array_merge($attributes, array(
+                        'type' => 'number',
+                        'min' => 1,
+                        'max' => 31,
+                        'value' => $day,
+                        'size' => 3,
+                        'maxlength' => 2,
+                        'class' => 'month'
+                    ))) . "<div>" . __('day') . "</div></span>";
+                }
             }
         }
         if (! isset($attributes['disabled']) || (! $attributes['disabled'] && $attributes['disabled'] != "disabled")) {
@@ -3096,27 +3038,26 @@ $confirmation_msg); // confirmation message
             if (isset($time['meridian'])) {
                 $meridian = $time['meridian'];
             }
-        } else 
-            if (strlen($time) > 0) {
-                if (strpos($time, ":") === false) {
-                    $hour = $time;
+        } elseif (strlen($time) > 0) {
+            if (strpos($time, ":") === false) {
+                $hour = $time;
+            } else {
+                list ($hour, $minutes, ) = explode(":", $time);
+            }
+            if (time_format == 12) {
+                if ($hour >= 12) {
+                    $meridian = 'pm';
+                    if ($hour > 12) {
+                        $hour %= 12;
+                    }
                 } else {
-                    list ($hour, $minutes, ) = explode(":", $time);
-                }
-                if (time_format == 12) {
-                    if ($hour >= 12) {
-                        $meridian = 'pm';
-                        if ($hour > 12) {
-                            $hour %= 12;
-                        }
-                    } else {
-                        $meridian = 'am';
-                        if ($hour == 0) {
-                            $hour = 12;
-                        }
+                    $meridian = 'am';
+                    if ($hour == 0) {
+                        $hour = 12;
                     }
                 }
             }
+        }
         if (datetime_input_type == "dropdown") {
             unset($attributes['options']); // Fixes an IE8 issue with $.serialize
             $result .= $this->Form->hour($name, time_format == 24, array_merge($attributes, array(
@@ -3156,58 +3097,51 @@ $confirmation_msg); // confirmation message
         if (is_array($data_unit) && array_key_exists($table_row_part['model'], $data_unit) && is_array($data_unit[$table_row_part['model']]) && array_key_exists($table_row_part['field'] . $suffix, $data_unit[$table_row_part['model']])) {
             // priority 1, data
             $current_value = $data_unit[$table_row_part['model']][$table_row_part['field'] . $suffix];
-        } else 
-            if ($options['type'] != 'index' && $options['type'] != 'detail' && $options['type'] != 'csv') {
-                if (isset($options['override'][$table_row_part['model'] . "." . $table_row_part['field']])) {
-                    // priority 2, override
-                    $override_mode_field = $table_row_part['model'] . "." . $table_row_part['field'] . $suffix;
-                    $current_value = $options['override'][$override_mode_field];
-                    if (in_array($table_row_part['type'], array(
-                        'date',
-                        'datetime'
-                    )) && isset($options['override'][$override_mode_field . '_accuracy'])) {
-                        $override_mode_field_accuracy = $options['override'][$override_mode_field . '_accuracy'];
-                        if ($override_mode_field_accuracy != 'c') {
-                            if ($override_mode_field_accuracy == 'd') {
-                                $current_value = substr($current_value, 0, 7);
-                            } else 
-                                if ($override_mode_field_accuracy == 'm') {
-                                    $current_value = substr($current_value, 0, 4);
-                                } else 
-                                    if ($override_mode_field_accuracy == 'y') {
-                                        $current_value = '±' . substr($current_value, 0, 4);
-                                    } else 
-                                        if ($override_mode_field_accuracy == 'h') {
-                                            $current_value = substr($current_value, 0, 10);
-                                        } else 
-                                            if ($override_mode_field_accuracy == 'i') {
-                                                $current_value = substr($current_value, 0, 13);
-                                            }
+        } elseif ($options['type'] != 'index' && $options['type'] != 'detail' && $options['type'] != 'csv') {
+            if (isset($options['override'][$table_row_part['model'] . "." . $table_row_part['field']])) {
+                // priority 2, override
+                $override_mode_field = $table_row_part['model'] . "." . $table_row_part['field'] . $suffix;
+                $current_value = $options['override'][$override_mode_field];
+                if (in_array($table_row_part['type'], array(
+                    'date',
+                    'datetime'
+                )) && isset($options['override'][$override_mode_field . '_accuracy'])) {
+                    $override_mode_field_accuracy = $options['override'][$override_mode_field . '_accuracy'];
+                    if ($override_mode_field_accuracy != 'c') {
+                        if ($override_mode_field_accuracy == 'd') {
+                            $current_value = substr($current_value, 0, 7);
+                        } elseif ($override_mode_field_accuracy == 'm') {
+                            $current_value = substr($current_value, 0, 4);
+                        } elseif ($override_mode_field_accuracy == 'y') {
+                            $current_value = '±' . substr($current_value, 0, 4);
+                        } elseif ($override_mode_field_accuracy == 'h') {
+                            $current_value = substr($current_value, 0, 10);
+                        } elseif ($override_mode_field_accuracy == 'i') {
+                            $current_value = substr($current_value, 0, 13);
                         }
                     }
-                    if (is_array($current_value)) {
-                        if (Configure::read('debug') > 0) {
-                            AppController::addWarningMsg(__("invalid override for model.field [%s.%s]", $table_row_part['model'], $table_row_part['field'] . $suffix));
-                        }
-                        $current_value = "";
-                    } else 
-                        if (Configure::read('debug') > 0 && $table_row_part['type'] == 'select' && ! array_key_exists($current_value, $table_row_part['settings']['options']['defined'])) {
-                            AppController::addWarningMsg(__('unsupported override value for model.field [%s.%s]', $table_row_part['model'], $table_row_part['field'] . $suffix));
-                        }
-                } else 
-                    if (! empty($table_row_part['default'])) {
-                        // priority 3, default
-                        $current_value = $table_row_part['default'];
-                    } else {
-                        $current_value = "";
-                        if ($table_row_part['readonly'] && $table_row_part['field'] != 'CopyCtrl') {
-                            $warning = true;
-                        }
+                }
+                if (is_array($current_value)) {
+                    if (Configure::read('debug') > 0) {
+                        AppController::addWarningMsg(__("invalid override for model.field [%s.%s]", $table_row_part['model'], $table_row_part['field'] . $suffix));
                     }
+                    $current_value = "";
+                } elseif (Configure::read('debug') > 0 && $table_row_part['type'] == 'select' && ! array_key_exists($current_value, $table_row_part['settings']['options']['defined'])) {
+                    AppController::addWarningMsg(__('unsupported override value for model.field [%s.%s]', $table_row_part['model'], $table_row_part['field'] . $suffix));
+                }
+            } elseif (! empty($table_row_part['default'])) {
+                // priority 3, default
+                $current_value = $table_row_part['default'];
             } else {
-                $warning = true;
-                $current_value = "-";
+                $current_value = "";
+                if ($table_row_part['readonly'] && $table_row_part['field'] != 'CopyCtrl') {
+                    $warning = true;
+                }
             }
+        } else {
+            $warning = true;
+            $current_value = "-";
+        }
         
         if ($warning && Configure::read('debug') > 0 && $options['settings']['data_miss_warn']) {
             AppController::addWarningMsg(__("no data for [%s.%s]", $table_row_part['model'], $table_row_part['field']));

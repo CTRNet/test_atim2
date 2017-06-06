@@ -98,31 +98,25 @@ class Structure extends AppModel
                     if ($tmp_type == "integer") {
                         $tmp_rule = VALID_INTEGER;
                         $tmp_msg = "error_must_be_integer";
-                    } else 
-                        if ($tmp_type == "integer_positive") {
-                            $tmp_rule = VALID_INTEGER_POSITIVE;
-                            $tmp_msg = "error_must_be_positive_integer";
-                        } else 
-                            if ($tmp_type == "float" || $tmp_type == "number") {
-                                $tmp_rule = VALID_FLOAT;
-                                $tmp_msg = "error_must_be_float";
-                            } else 
-                                if ($tmp_type == "float_positive") {
-                                    $tmp_rule = VALID_FLOAT_POSITIVE;
-                                    $tmp_msg = "error_must_be_positive_float";
-                                } else 
-                                    if ($tmp_type == "datetime") {
-                                        $tmp_rule = VALID_DATETIME_YMD;
-                                        $tmp_msg = "invalid datetime";
-                                    } else 
-                                        if ($tmp_type == "date") {
-                                            $tmp_rule = "date";
-                                            $tmp_msg = "invalid date";
-                                        } else 
-                                            if ($tmp_type == "time") {
-                                                $tmp_rule = VALID_24TIME;
-                                                $tmp_msg = "this is not a time";
-                                            }
+                    } elseif ($tmp_type == "integer_positive") {
+                        $tmp_rule = VALID_INTEGER_POSITIVE;
+                        $tmp_msg = "error_must_be_positive_integer";
+                    } elseif ($tmp_type == "float" || $tmp_type == "number") {
+                        $tmp_rule = VALID_FLOAT;
+                        $tmp_msg = "error_must_be_float";
+                    } elseif ($tmp_type == "float_positive") {
+                        $tmp_rule = VALID_FLOAT_POSITIVE;
+                        $tmp_msg = "error_must_be_positive_float";
+                    } elseif ($tmp_type == "datetime") {
+                        $tmp_rule = VALID_DATETIME_YMD;
+                        $tmp_msg = "invalid datetime";
+                    } elseif ($tmp_type == "date") {
+                        $tmp_rule = "date";
+                        $tmp_msg = "invalid date";
+                    } elseif ($tmp_type == "time") {
+                        $tmp_rule = VALID_24TIME;
+                        $tmp_msg = "this is not a time";
+                    }
                     if ($tmp_rule != NULL) {
                         $sf['StructureValidation'][] = array(
                             'structure_field_id' => $sf['structure_field_id'],
@@ -140,20 +134,18 @@ class Structure extends AppModel
                         if (($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
                             // To support coma as decimal separator
                             $rule[0] = $validation['rule'];
-                        } else 
-                            if (strlen($validation['rule']) > 0) {
-                                $rule = explode(',', $validation['rule']);
-                            }
+                        } elseif (strlen($validation['rule']) > 0) {
+                            $rule = explode(',', $validation['rule']);
+                        }
                         
                         if (count($rule) == 1) {
                             $rule = $rule[0];
-                        } else 
-                            if (count($rule) == 0) {
-                                if (Configure::read('debug') > 0) {
-                                    AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']));
-                                }
-                                continue;
+                        } elseif (count($rule) == 0) {
+                            if (Configure::read('debug') > 0) {
+                                AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']));
                             }
+                            continue;
+                        }
                         
                         $not_empty = $rule == 'notBlank';
                         $rule_array = array(
@@ -167,20 +159,17 @@ class Structure extends AppModel
                                 'update'
                             ))) {
                                 $rule_array['on'] = $validation['on_action'];
-                            } else 
-                                if (Configure::read('debug') > 0) {
-                                    AppController::addWarningMsg('Invalid on_action for validation rule with id [' . $validation['id'] . ']. Current value: [' . $validation['on_action'] . ']. Expected: [create], [update] or empty.', true);
-                                }
+                            } elseif (Configure::read('debug') > 0) {
+                                AppController::addWarningMsg('Invalid on_action for validation rule with id [' . $validation['id'] . ']. Current value: [' . $validation['on_action'] . ']. Expected: [create], [update] or empty.', true);
+                            }
                         }
                         if ($validation['language_message']) {
                             $rule_array['message'] = __($validation['language_message']);
-                        } else 
-                            if ($rule_array['rule'] == 'notBlank') {
-                                $rule_array['message'] = __("this field is required");
-                            } else 
-                                if ($rule_array['rule'] == 'isUnique') {
-                                    $rule_array['message'] = __("this field must be unique");
-                                }
+                        } elseif ($rule_array['rule'] == 'notBlank') {
+                            $rule_array['message'] = __("this field is required");
+                        } elseif ($rule_array['rule'] == 'isUnique') {
+                            $rule_array['message'] = __("this field must be unique");
+                        }
                         
                         if (strlen($sf['language_label']) > 0 && isset($rule_array['message'])) {
                             $rule_array['message'] .= " (" . __($sf['language_label']) . ")";

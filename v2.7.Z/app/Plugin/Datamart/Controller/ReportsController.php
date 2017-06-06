@@ -66,46 +66,41 @@ class ReportsController extends DatamartAppController
                 'DatamartStructure' => $tmp_node_of_selected_elements['DatamartStructure']
             );
             $previously_displayed_object_title = 'databrowser node';
-        } else 
-            if (empty($this->request->data)) {
-                // Sort on displayed data based on selected field
-                if (! array_key_exists('sort', $this->passedArgs))
-                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
-                $previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
-            } else 
-                if (array_key_exists('Config', $this->request->data) && $csv_creation) {
-                    // Export data in csv
-                    $config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data) ? $this->request->data[0] : array()));
-                    unset($this->request->data[0]);
-                    unset($this->request->data['Config']);
-                    $this->configureCsv($config);
-                    $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
-                    $previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
-                } else 
-                    if (array_key_exists('Report', $this->request->data)) {
-                        // Launched process from report on selected elements
-                        $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($this->request->data['Report']['datamart_structure_id']);
-                        $previously_displayed_object_title = 'report';
-                    } else 
-                        if (array_key_exists('node', $this->request->data)) {
-                            // Launched process from databrowser node on selected elements
-                            $tmp_node_of_selected_elements = $this->BrowsingResult->findById($this->request->data['node']['id']);
-                            $selected_elements_datamart_structure_data = array(
-                                'DatamartStructure' => $tmp_node_of_selected_elements['DatamartStructure']
-                            );
-                            $previously_displayed_object_title = 'databrowser node';
-                        } else 
-                            if (array_key_exists('BatchSet', $this->request->data)) {
-                                // Launched process from previous batchset on selected elements
-                                $tmp_batchset_of_selected_elements = $this->BatchSet->getOrRedirect($this->request->data['BatchSet']['id']);
-                                if (! $this->BatchSet->isUserAuthorizedToRw($tmp_batchset_of_selected_elements, true))
-                                    return;
-                                $selected_elements_datamart_structure_data = array(
-                                    'DatamartStructure' => $tmp_batchset_of_selected_elements['DatamartStructure']
-                                );
-                                $previously_displayed_object_title = 'batchset';
-                            }
+        } elseif (empty($this->request->data)) {
+            // Sort on displayed data based on selected field
+            if (! array_key_exists('sort', $this->passedArgs))
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
+            $previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
+        } elseif (array_key_exists('Config', $this->request->data) && $csv_creation) {
+            // Export data in csv
+            $config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data) ? $this->request->data[0] : array()));
+            unset($this->request->data[0]);
+            unset($this->request->data['Config']);
+            $this->configureCsv($config);
+            $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
+            $previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
+        } elseif (array_key_exists('Report', $this->request->data)) {
+            // Launched process from report on selected elements
+            $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($this->request->data['Report']['datamart_structure_id']);
+            $previously_displayed_object_title = 'report';
+        } elseif (array_key_exists('node', $this->request->data)) {
+            // Launched process from databrowser node on selected elements
+            $tmp_node_of_selected_elements = $this->BrowsingResult->findById($this->request->data['node']['id']);
+            $selected_elements_datamart_structure_data = array(
+                'DatamartStructure' => $tmp_node_of_selected_elements['DatamartStructure']
+            );
+            $previously_displayed_object_title = 'databrowser node';
+        } elseif (array_key_exists('BatchSet', $this->request->data)) {
+            // Launched process from previous batchset on selected elements
+            $tmp_batchset_of_selected_elements = $this->BatchSet->getOrRedirect($this->request->data['BatchSet']['id']);
+            if (! $this->BatchSet->isUserAuthorizedToRw($tmp_batchset_of_selected_elements, true))
+                return;
+            $selected_elements_datamart_structure_data = array(
+                'DatamartStructure' => $tmp_batchset_of_selected_elements['DatamartStructure']
+            );
+            $previously_displayed_object_title = 'batchset';
+        }
         
         // Get shared datamart structure
         if (! $selected_elements_datamart_structure_data || ($selected_elements_datamart_structure_data['DatamartStructure']['id'] != $compared_object_datamart_structure_id))
@@ -140,15 +135,13 @@ class ReportsController extends DatamartAppController
             $studied_element_ids_to_export = $this->request->data[$model][$lookup_key_name];
             $this->request->data[$model][$lookup_key_name] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
             // Nothing to do, selected elements are already submitted by form and recorded into $this->request->data[ $model ][ $lookup_key_name ]
-        } else 
-            if ($tmp_node_of_selected_elements && ($previous_current_node_id || $this->request->data[$model][$lookup_key_name] == 'all')) {
-                // Launched from node with elements > display limit or launched to compare 2 nodes: get all ids of node
-                $this->request->data[$model][$lookup_key_name] = explode(",", $tmp_node_of_selected_elements['BrowsingResult']['id_csv']);
-            } else 
-                if (empty($this->request->data)) {
-                    // Sort data
-                    $this->request->data[$model][$lookup_key_name] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
-                }
+        } elseif ($tmp_node_of_selected_elements && ($previous_current_node_id || $this->request->data[$model][$lookup_key_name] == 'all')) {
+            // Launched from node with elements > display limit or launched to compare 2 nodes: get all ids of node
+            $this->request->data[$model][$lookup_key_name] = explode(",", $tmp_node_of_selected_elements['BrowsingResult']['id_csv']);
+        } elseif (empty($this->request->data)) {
+            // Sort data
+            $this->request->data[$model][$lookup_key_name] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
+        }
         $selected_elements_ids = array_filter($this->request->data[$model][$lookup_key_name]);
         
         // Get diff results
@@ -175,20 +168,19 @@ class ReportsController extends DatamartAppController
             if (in_array($new_studied_element[$model][$lookup_key_name], $elements_ids_just_in_selected_object)) {
                 $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_2', $selected_object_title, __('data of selected %s_2 only (2)'));
                 $sorted_all_studied_elements[3][] = $new_studied_element;
-            } else 
-                if (in_array($new_studied_element[$model][$lookup_key_name], $elements_ids_just_in_previously_disp_object)) {
-                    $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_1', $previously_displayed_object_title, __("data of previously displayed %s_1 only (1)"));
-                    $sorted_all_studied_elements[2][] = $new_studied_element;
-                } else {
-                    $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace(array(
-                        '%s_1',
-                        '%s_2'
-                    ), array(
-                        $previously_displayed_object_title,
-                        $selected_object_title
-                    ), __('data both in previously displayed %s_1 and selected %s_2 (1 & 2)'));
-                    $sorted_all_studied_elements[1][] = $new_studied_element;
-                }
+            } elseif (in_array($new_studied_element[$model][$lookup_key_name], $elements_ids_just_in_previously_disp_object)) {
+                $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_1', $previously_displayed_object_title, __("data of previously displayed %s_1 only (1)"));
+                $sorted_all_studied_elements[2][] = $new_studied_element;
+            } else {
+                $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace(array(
+                    '%s_1',
+                    '%s_2'
+                ), array(
+                    $previously_displayed_object_title,
+                    $selected_object_title
+                ), __('data both in previously displayed %s_1 and selected %s_2 (1 & 2)'));
+                $sorted_all_studied_elements[1][] = $new_studied_element;
+            }
         }
         $diff_results_data = array_merge($sorted_all_studied_elements[1], $sorted_all_studied_elements[2], $sorted_all_studied_elements[3]);
         $this->set('diff_results_data', AppModel::sortWithUrl($diff_results_data, $this->passedArgs));
@@ -296,193 +288,188 @@ class ReportsController extends DatamartAppController
         
         if ($report['Report']['limit_access_from_datamart_structrue_function'] && empty($this->request->data) && (! $csv_creation) && ! array_key_exists('sort', $this->passedArgs)) {
             $this->atimFlashError(__('the selected report can only be launched from a batchset or a databrowser node'), "/Datamart/Reports/index", 5);
-        } else 
-            if (empty($this->request->data) && (! empty($report['Report']['form_alias_for_search'])) && (! $csv_creation) && ! array_key_exists('sort', $this->passedArgs)) {
-                
-                // ** SEARCH FROM DISPLAY **
-                
-                $this->Structures->set($report['Report']['form_alias_for_search'], 'search_form_structure');
-                $_SESSION['report'][$report_id]['search_criteria'] = array(); // clear SEARCH criteria
-                $_SESSION['report'][$report_id]['sort_criteria'] = array(); // clear SEARCH criteria
-            } else {
-                
-                // ** RESULTS/ACTIONS MANAGEMENT **
-                
-                $linked_datamart_structure = null;
-                $LinkedModel = null;
-                if ($report['Report']['form_type_for_results'] == 'index' && $report['Report']['associated_datamart_structure_id']) {
-                    // Load linked structure and model if required
-                    $linked_datamart_structure = $this->DatamartStructure->find('first', array(
-                        'conditions' => array(
-                            "DatamartStructure.id" => $report['Report']['associated_datamart_structure_id']
-                        )
-                    ));
-                    if (empty($linked_datamart_structure))
-                        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    $LinkedModel = AppModel::getInstance($linked_datamart_structure['DatamartStructure']['plugin'], $linked_datamart_structure['DatamartStructure']['model'], true);
-                    $this->set('linked_datamart_structure_id', $report['Report']['associated_datamart_structure_id']);
+        } elseif (empty($this->request->data) && (! empty($report['Report']['form_alias_for_search'])) && (! $csv_creation) && ! array_key_exists('sort', $this->passedArgs)) {
+            
+            // ** SEARCH FROM DISPLAY **
+            
+            $this->Structures->set($report['Report']['form_alias_for_search'], 'search_form_structure');
+            $_SESSION['report'][$report_id]['search_criteria'] = array(); // clear SEARCH criteria
+            $_SESSION['report'][$report_id]['sort_criteria'] = array(); // clear SEARCH criteria
+        } else {
+            
+            // ** RESULTS/ACTIONS MANAGEMENT **
+            
+            $linked_datamart_structure = null;
+            $LinkedModel = null;
+            if ($report['Report']['form_type_for_results'] == 'index' && $report['Report']['associated_datamart_structure_id']) {
+                // Load linked structure and model if required
+                $linked_datamart_structure = $this->DatamartStructure->find('first', array(
+                    'conditions' => array(
+                        "DatamartStructure.id" => $report['Report']['associated_datamart_structure_id']
+                    )
+                ));
+                if (empty($linked_datamart_structure))
+                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                $LinkedModel = AppModel::getInstance($linked_datamart_structure['DatamartStructure']['plugin'], $linked_datamart_structure['DatamartStructure']['model'], true);
+                $this->set('linked_datamart_structure_id', $report['Report']['associated_datamart_structure_id']);
+            }
+            
+            // Set criteria to build report/csv
+            $criteria_to_build_report = null;
+            $criteria_to_sort_report = array();
+            if ($csv_creation) {
+                if (array_key_exists('Config', $this->request->data)) {
+                    $config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data) ? $this->request->data[0] : array()));
+                    unset($this->request->data[0]);
+                    unset($this->request->data['Config']);
+                    $this->configureCsv($config);
                 }
-                
-                // Set criteria to build report/csv
-                $criteria_to_build_report = null;
-                $criteria_to_sort_report = array();
-                if ($csv_creation) {
-                    if (array_key_exists('Config', $this->request->data)) {
-                        $config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data) ? $this->request->data[0] : array()));
-                        unset($this->request->data[0]);
-                        unset($this->request->data['Config']);
-                        $this->configureCsv($config);
+                // Get criteria from session data for csv
+                $criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
+                $criteria_to_sort_report = isset($_SESSION['report'][$report_id]['sort_criteria']) ? $_SESSION['report'][$report_id]['sort_criteria'] : array();
+                if ($LinkedModel && isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
+                    // Take care about selected items (the number of records did not reach the limit of items that could be displayed)
+                    $ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
+                    if (! empty($ids)) {
+                        $criteria_to_build_report['SelectedItemsForCsv'][$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
                     }
-                    // Get criteria from session data for csv
-                    $criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
-                    $criteria_to_sort_report = isset($_SESSION['report'][$report_id]['sort_criteria']) ? $_SESSION['report'][$report_id]['sort_criteria'] : array();
-                    if ($LinkedModel && isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
-                        // Take care about selected items (the number of records did not reach the limit of items that could be displayed)
-                        $ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
-                        if (! empty($ids)) {
-                            $criteria_to_build_report['SelectedItemsForCsv'][$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
-                        }
-                    }
-                } else 
-                    if (array_key_exists('sort', $this->passedArgs)) {
-                        // Data sort: Get criteria from session data
-                        $criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
-                        $criteria_to_sort_report = array(
-                            'sort' => $this->passedArgs['sort'],
-                            'direction' => $this->passedArgs['direction']
-                        );
-                        $_SESSION['report'][$report_id]['sort_criteria'] = $criteria_to_sort_report;
-                    } else {
-                        // Get criteria from search form
-                        $criteria_to_build_report = empty($this->request->data) ? array() : $this->request->data;
-                        // Manage data from csv file
-                        foreach ($criteria_to_build_report as $model => $fields_parameters) {
-                            if (! ($model == 'exact_search' && ! is_array($fields_parameters))) {
-                                foreach ($fields_parameters as $field => $parameters) {
-                                    if (preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
-                                        $matched_field_name = $matches[1];
-                                        if (! isset($criteria_to_build_report[$model][$matched_field_name]))
-                                            $criteria_to_build_report[$model][$matched_field_name] = array();
-                                        if (strlen($parameters['tmp_name'])) {
-                                            if (! preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
-                                                $this->redirect('/Pages/err_submitted_file_extension', null, true);
-                                            } else {
-                                                $handle = fopen($parameters['tmp_name'], "r");
-                                                if ($handle) {
-                                                    while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-                                                        $criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
-                                                    }
-                                                    fclose($handle);
-                                                } else {
-                                                    $this->redirect('/Pages/err_opening_submitted_file', null, true);
-                                                }
+                }
+            } elseif (array_key_exists('sort', $this->passedArgs)) {
+                // Data sort: Get criteria from session data
+                $criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
+                $criteria_to_sort_report = array(
+                    'sort' => $this->passedArgs['sort'],
+                    'direction' => $this->passedArgs['direction']
+                );
+                $_SESSION['report'][$report_id]['sort_criteria'] = $criteria_to_sort_report;
+            } else {
+                // Get criteria from search form
+                $criteria_to_build_report = empty($this->request->data) ? array() : $this->request->data;
+                // Manage data from csv file
+                foreach ($criteria_to_build_report as $model => $fields_parameters) {
+                    if (! ($model == 'exact_search' && ! is_array($fields_parameters))) {
+                        foreach ($fields_parameters as $field => $parameters) {
+                            if (preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
+                                $matched_field_name = $matches[1];
+                                if (! isset($criteria_to_build_report[$model][$matched_field_name]))
+                                    $criteria_to_build_report[$model][$matched_field_name] = array();
+                                if (strlen($parameters['tmp_name'])) {
+                                    if (! preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
+                                        $this->redirect('/Pages/err_submitted_file_extension', null, true);
+                                    } else {
+                                        $handle = fopen($parameters['tmp_name'], "r");
+                                        if ($handle) {
+                                            while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== false) {
+                                                $criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
                                             }
+                                            fclose($handle);
+                                        } else {
+                                            $this->redirect('/Pages/err_opening_submitted_file', null, true);
                                         }
-                                        unset($criteria_to_build_report[$model][$field]);
                                     }
                                 }
+                                unset($criteria_to_build_report[$model][$field]);
                             }
                         }
-                        
-                        // Manage data when launched from databrowser node having a nbr of elements > databrowser_and_report_results_display_limit
-                        if (array_key_exists('node', $criteria_to_build_report)) {
-                            $browsing_result = $this->BrowsingResult->find('first', array(
-                                'conditions' => array(
-                                    'BrowsingResult.id' => $criteria_to_build_report['node']['id']
-                                )
-                            ));
-                            $datamart_structure = $browsing_result['DatamartStructure'];
-                            if (empty($browsing_result) || empty($datamart_structure)) {
-                                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                            }
-                            // Get model and key name
-                            $model = null;
-                            $lookup_key_name = null;
-                            if ($datamart_structure['control_master_model']) {
-                                if (isset($criteria_to_build_report[$datamart_structure['model']])) {
-                                    $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
-                                    $model = $datamart_structure['model'];
-                                    $lookup_key_name = $model_instance->primaryKey;
-                                } else {
-                                    $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
-                                    $model = $datamart_structure['control_master_model'];
-                                    $lookup_key_name = $model_instance->primaryKey;
-                                }
-                            } else {
-                                $model = $datamart_structure['model'];
-                                $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
-                                $lookup_key_name = $model_instance->primaryKey;
-                            }
-                            if ($criteria_to_build_report[$model][$lookup_key_name] == 'all')
-                                $criteria_to_build_report[$model][$lookup_key_name] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
-                        }
-                        // Load search criteria in session
-                        $_SESSION['report'][$report_id]['search_criteria'] = $criteria_to_build_report;
                     }
+                }
                 
-                // Get and manage results
-                $data_returned_by_fct = call_user_func_array(array(
-                    $this,
-                    $report['Report']['function']
-                ), array(
-                    $criteria_to_build_report
-                ));
-                if (empty($data_returned_by_fct) || (! array_key_exists('header', $data_returned_by_fct)) || (! array_key_exists('data', $data_returned_by_fct)) || (! array_key_exists('columns_names', $data_returned_by_fct)) || (! array_key_exists('error_msg', $data_returned_by_fct))) {
-                    // Wrong array keys returned by custom function
-                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                } else 
-                    if (! empty($data_returned_by_fct['error_msg'])) {
-                        // Error detected by custom function -> Display custom error message with empty form
-                        $this->request->data = array();
-                        $this->Structures->set('empty', 'result_form_structure');
-                        $this->set('result_form_type', 'index');
-                        $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
-                        $this->set('csv_creation', false);
-                        $this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
-                    } else 
-                        if (sizeof($data_returned_by_fct['data']) > Configure::read('databrowser_and_report_results_display_limit') && ! $csv_creation) {
-                            // Too many results
-                            $this->request->data = array();
-                            $this->Structures->set('empty', 'result_form_structure');
-                            $this->set('result_form_type', 'index');
-                            $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
-                            $this->set('csv_creation', false);
-                            $this->Report->validationErrors[][] = __('the report contains too many results - please redefine search criteria') . ' [' . sizeof($data_returned_by_fct['data']) . ' ' . __('lines') . ']';
+                // Manage data when launched from databrowser node having a nbr of elements > databrowser_and_report_results_display_limit
+                if (array_key_exists('node', $criteria_to_build_report)) {
+                    $browsing_result = $this->BrowsingResult->find('first', array(
+                        'conditions' => array(
+                            'BrowsingResult.id' => $criteria_to_build_report['node']['id']
+                        )
+                    ));
+                    $datamart_structure = $browsing_result['DatamartStructure'];
+                    if (empty($browsing_result) || empty($datamart_structure)) {
+                        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                    }
+                    // Get model and key name
+                    $model = null;
+                    $lookup_key_name = null;
+                    if ($datamart_structure['control_master_model']) {
+                        if (isset($criteria_to_build_report[$datamart_structure['model']])) {
+                            $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+                            $model = $datamart_structure['model'];
+                            $lookup_key_name = $model_instance->primaryKey;
                         } else {
-                            // Set data for display/csv
-                            $this->request->data = AppModel::sortWithUrl($data_returned_by_fct['data'], $criteria_to_sort_report);
-                            $this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
-                            $this->set('result_form_type', $report['Report']['form_type_for_results']);
-                            $this->set('result_header', $data_returned_by_fct['header']);
-                            $this->set('result_columns_names', $data_returned_by_fct['columns_names']);
-                            $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
-                            $this->set('csv_creation', $csv_creation);
-                            
-                            if ($csv_creation) {
-                                Configure::write('debug', 0);
-                                $this->layout = false;
-                            } else 
-                                if ($linked_datamart_structure) {
-                                    // Code to be able to launch actions from report linked to structure and model
-                                    $this->set('linked_datamart_structure_model_name', $linked_datamart_structure['DatamartStructure']['model']);
-                                    $this->set('linked_datamart_structure_key_name', $LinkedModel->primaryKey);
-                                    if ($linked_datamart_structure['DatamartStructure']['index_link'])
-                                        $this->set('linked_datamart_structure_links', $linked_datamart_structure['DatamartStructure']['index_link']);
-                                    $linked_datamart_structure_actions = $this->DatamartStructure->getDropdownOptions($linked_datamart_structure['DatamartStructure']['plugin'], $linked_datamart_structure['DatamartStructure']['model'], $LinkedModel->primaryKey, null, null, null, null, false);
-                                    $csv_action = "javascript:setCsvPopup('Datamart/Reports/manageReport/$report_id/1/');";
-                                    $linked_datamart_structure_actions[] = array(
-                                        'value' => '0',
-                                        'label' => __('export as CSV file (comma-separated values)'),
-                                        'value' => sprintf($csv_action, 0)
-                                    );
-                                    $linked_datamart_structure_actions[] = array(
-                                        'label' => __("initiate browsing"),
-                                        'value' => "Datamart/Browser/batchToDatabrowser/" . $linked_datamart_structure['DatamartStructure']['model'] . "/report/"
-                                    );
-                                    $this->set('linked_datamart_structure_actions', $linked_datamart_structure_actions);
-                                }
+                            $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
+                            $model = $datamart_structure['control_master_model'];
+                            $lookup_key_name = $model_instance->primaryKey;
                         }
+                    } else {
+                        $model = $datamart_structure['model'];
+                        $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+                        $lookup_key_name = $model_instance->primaryKey;
+                    }
+                    if ($criteria_to_build_report[$model][$lookup_key_name] == 'all')
+                        $criteria_to_build_report[$model][$lookup_key_name] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+                }
+                // Load search criteria in session
+                $_SESSION['report'][$report_id]['search_criteria'] = $criteria_to_build_report;
             }
+            
+            // Get and manage results
+            $data_returned_by_fct = call_user_func_array(array(
+                $this,
+                $report['Report']['function']
+            ), array(
+                $criteria_to_build_report
+            ));
+            if (empty($data_returned_by_fct) || (! array_key_exists('header', $data_returned_by_fct)) || (! array_key_exists('data', $data_returned_by_fct)) || (! array_key_exists('columns_names', $data_returned_by_fct)) || (! array_key_exists('error_msg', $data_returned_by_fct))) {
+                // Wrong array keys returned by custom function
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            } elseif (! empty($data_returned_by_fct['error_msg'])) {
+                // Error detected by custom function -> Display custom error message with empty form
+                $this->request->data = array();
+                $this->Structures->set('empty', 'result_form_structure');
+                $this->set('result_form_type', 'index');
+                $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
+                $this->set('csv_creation', false);
+                $this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
+            } elseif (sizeof($data_returned_by_fct['data']) > Configure::read('databrowser_and_report_results_display_limit') && ! $csv_creation) {
+                // Too many results
+                $this->request->data = array();
+                $this->Structures->set('empty', 'result_form_structure');
+                $this->set('result_form_type', 'index');
+                $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
+                $this->set('csv_creation', false);
+                $this->Report->validationErrors[][] = __('the report contains too many results - please redefine search criteria') . ' [' . sizeof($data_returned_by_fct['data']) . ' ' . __('lines') . ']';
+            } else {
+                // Set data for display/csv
+                $this->request->data = AppModel::sortWithUrl($data_returned_by_fct['data'], $criteria_to_sort_report);
+                $this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
+                $this->set('result_form_type', $report['Report']['form_type_for_results']);
+                $this->set('result_header', $data_returned_by_fct['header']);
+                $this->set('result_columns_names', $data_returned_by_fct['columns_names']);
+                $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
+                $this->set('csv_creation', $csv_creation);
+                
+                if ($csv_creation) {
+                    Configure::write('debug', 0);
+                    $this->layout = false;
+                } elseif ($linked_datamart_structure) {
+                    // Code to be able to launch actions from report linked to structure and model
+                    $this->set('linked_datamart_structure_model_name', $linked_datamart_structure['DatamartStructure']['model']);
+                    $this->set('linked_datamart_structure_key_name', $LinkedModel->primaryKey);
+                    if ($linked_datamart_structure['DatamartStructure']['index_link'])
+                        $this->set('linked_datamart_structure_links', $linked_datamart_structure['DatamartStructure']['index_link']);
+                    $linked_datamart_structure_actions = $this->DatamartStructure->getDropdownOptions($linked_datamart_structure['DatamartStructure']['plugin'], $linked_datamart_structure['DatamartStructure']['model'], $LinkedModel->primaryKey, null, null, null, null, false);
+                    $csv_action = "javascript:setCsvPopup('Datamart/Reports/manageReport/$report_id/1/');";
+                    $linked_datamart_structure_actions[] = array(
+                        'value' => '0',
+                        'label' => __('export as CSV file (comma-separated values)'),
+                        'value' => sprintf($csv_action, 0)
+                    );
+                    $linked_datamart_structure_actions[] = array(
+                        'label' => __("initiate browsing"),
+                        'value' => "Datamart/Browser/batchToDatabrowser/" . $linked_datamart_structure['DatamartStructure']['model'] . "/report/"
+                    );
+                    $this->set('linked_datamart_structure_actions', $linked_datamart_structure_actions);
+                }
+            }
+        }
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -1245,22 +1232,20 @@ class ReportsController extends DatamartAppController
             $participant_ids = array_filter($parameters['Participant']['id']);
             if ($participant_ids)
                 $conditions['Participant.id'] = $participant_ids;
-        } else 
-            if (isset($parameters['Participant']['participant_identifier_start'])) {
-                $participant_identifier_start = (! empty($parameters['Participant']['participant_identifier_start'])) ? $parameters['Participant']['participant_identifier_start'] : null;
-                $participant_identifier_end = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
-                if ($participant_identifier_start)
-                    $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
-                if ($participant_identifier_end)
-                    $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
-            } else 
-                if (isset($parameters['Participant']['participant_identifier'])) {
-                    $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-                    if ($participant_identifiers)
-                        $conditions['Participant.participant_identifier'] = $participant_identifiers;
-                } else {
-                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                }
+        } elseif (isset($parameters['Participant']['participant_identifier_start'])) {
+            $participant_identifier_start = (! empty($parameters['Participant']['participant_identifier_start'])) ? $parameters['Participant']['participant_identifier_start'] : null;
+            $participant_identifier_end = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
+            if ($participant_identifier_start)
+                $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
+            if ($participant_identifier_end)
+                $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
+        } elseif (isset($parameters['Participant']['participant_identifier'])) {
+            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participant_identifiers)
+                $conditions['Participant.participant_identifier'] = $participant_identifiers;
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         
         $misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
         // *** NOTE: It's user choice to display report in csv whatever the number of records ***
@@ -1327,15 +1312,14 @@ class ReportsController extends DatamartAppController
             $selection_labels = array_filter($parameters['SampleMaster']['sample_code']);
             if ($selection_labels)
                 $conditions['SampleMaster.sample_code'] = $selection_labels;
-        } else 
-            if (isset($parameters['ViewSample']['sample_master_id'])) {
-                // From databrowser
-                $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
-                if ($sample_master_ids)
-                    $conditions['SampleMaster.id'] = $sample_master_ids;
-            } else {
-                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+        } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
+            // From databrowser
+            $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
+            if ($sample_master_ids)
+                $conditions['SampleMaster.id'] = $sample_master_ids;
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         // Load Model
         $view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
         $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
@@ -1449,15 +1433,14 @@ class ReportsController extends DatamartAppController
             $selection_labels = array_filter($parameters['SampleMaster']['sample_code']);
             if ($selection_labels)
                 $conditions['SampleMaster.sample_code'] = $selection_labels;
-        } else 
-            if (isset($parameters['ViewSample']['sample_master_id'])) {
-                // From databrowser
-                $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
-                if ($sample_master_ids)
-                    $conditions['SampleMaster.id'] = $sample_master_ids;
-            } else {
-                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+        } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
+            // From databrowser
+            $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
+            if ($sample_master_ids)
+                $conditions['SampleMaster.id'] = $sample_master_ids;
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         // Load Model
         $view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
         $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
@@ -1548,21 +1531,19 @@ class ReportsController extends DatamartAppController
             $selection_labels = array_filter($parameters['StorageMaster']['selection_label']);
             if ($selection_labels)
                 $conditions['StorageMaster.selection_label'] = $selection_labels;
-        } else 
-            if (isset($parameters['ViewStorageMaster']['id'])) {
-                // From databrowser
-                $storage_master_ids = array_filter($parameters['ViewStorageMaster']['id']);
-                if ($storage_master_ids)
-                    $conditions['StorageMaster.id'] = $storage_master_ids;
-            } else 
-                if (isset($parameters['NonTmaBlockStorage']['id'])) {
-                    // From databrowser
-                    $storage_master_ids = array_filter($parameters['NonTmaBlockStorage']['id']);
-                    if ($storage_master_ids)
-                        $conditions['StorageMaster.id'] = $storage_master_ids;
-                } else {
-                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                }
+        } elseif (isset($parameters['ViewStorageMaster']['id'])) {
+            // From databrowser
+            $storage_master_ids = array_filter($parameters['ViewStorageMaster']['id']);
+            if ($storage_master_ids)
+                $conditions['StorageMaster.id'] = $storage_master_ids;
+        } elseif (isset($parameters['NonTmaBlockStorage']['id'])) {
+            // From databrowser
+            $storage_master_ids = array_filter($parameters['NonTmaBlockStorage']['id']);
+            if ($storage_master_ids)
+                $conditions['StorageMaster.id'] = $storage_master_ids;
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         // Load Model
         $storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
         $storage_control_model = AppModel::getInstance("StorageLayout", "StorageControl", true);
@@ -1638,21 +1619,19 @@ class ReportsController extends DatamartAppController
             $diagnosis_master_ids = array_filter($parameters['DiagnosisMaster']['id']);
             if ($diagnosis_master_ids)
                 $conditions['DiagnosisMaster.id'] = $diagnosis_master_ids;
-        } else 
-            if (isset($parameters['Participant']['participant_identifier'])) {
-                // From databrowser
-                $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-                if ($participant_identifiers)
-                    $conditions['Participant.participant_identifier'] = $participant_identifiers;
-            } else 
-                if (isset($parameters['Participant']['id'])) {
-                    // From databrowser
-                    $participant_ids = array_filter($parameters['Participant']['id']);
-                    if ($participant_ids)
-                        $conditions['DiagnosisMaster.participant_id'] = $participant_ids;
-                } else {
-                    $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                }
+        } elseif (isset($parameters['Participant']['participant_identifier'])) {
+            // From databrowser
+            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participant_identifiers)
+                $conditions['Participant.participant_identifier'] = $participant_identifiers;
+        } elseif (isset($parameters['Participant']['id'])) {
+            // From databrowser
+            $participant_ids = array_filter($parameters['Participant']['id']);
+            if ($participant_ids)
+                $conditions['DiagnosisMaster.participant_id'] = $participant_ids;
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
         // Load Model
         $diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
         // Build Res

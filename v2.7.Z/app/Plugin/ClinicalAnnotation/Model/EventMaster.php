@@ -42,19 +42,18 @@ class EventMaster extends ClinicalAnnotationAppModel
             $return = array(
                 'menu' => array(
                     NULL,
-                    __($result['EventControl']['event_type'], TRUE) . (empty($result['EventControl']['disease_site']) ? '' : ' - ' . __($result['EventControl']['disease_site'], TRUE))
+                    __($result['EventControl']['event_type'], true) . (empty($result['EventControl']['disease_site']) ? '' : ' - ' . __($result['EventControl']['disease_site'], true))
                 ),
                 'title' => array(
                     NULL,
-                    __('annotation', TRUE)
+                    __('annotation', true)
                 ),
                 'data' => $result,
                 'structure alias' => 'eventmasters'
             );
-        } else 
-            if (isset($variables['EventControl.id'])) {
-                $return = array();
-            }
+        } elseif (isset($variables['EventControl.id'])) {
+            $return = array();
+        }
         
         return $return;
     }
@@ -115,7 +114,7 @@ class EventMaster extends ClinicalAnnotationAppModel
                 $data['EventDetail']['smoked_for'] = __('cannot calculate on incomplete date');
             }
             if (! empty($data['EventDetail']['stopped_on']) && $data['EventDetail']['stopped_on_accuracy'] == 'c') {
-                $data['EventDetail']['stopped_since'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($data['EventDetail']['stopped_on'] . ' 00:00:00', now()), false);
+                $data['EventDetail']['stopped_since'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($data['EventDetail']['stopped_on'] . ' 00:00:00', date("Y-m-d H:i:s")), false);
             } else {
                 $data['EventDetail']['stopped_since'] = __('cannot calculate on incomplete date');
             }

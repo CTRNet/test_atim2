@@ -97,6 +97,11 @@ Configure::write('App.encoding', 'UTF-8');
  *
  *
  *
+ *
+ *
+ *
+ *
+ *
  * htaccess
  * files:
  *
@@ -223,9 +228,9 @@ Configure::write('App.encoding', 'UTF-8');
  * the cake shell command: cake schema create Sessions
  */
 Configure::write('Session', array(
-    'defaults' => 'cake'
+    'defaults' => 'cake',
+    'cookie' => 'ATiMC'
 ));
-
 /**
  * A random string used in security hashing methods.
  */
@@ -364,7 +369,7 @@ if (Configure::read('debug') > 0) {
 }
 
 // Prefix each application on the same server with a different string, to avoid Memcache and APC conflicts.
-$prefix = '';
+$prefix = 'ATiM';
 
 /**
  * Configure the cache used for general framework caching.
@@ -393,22 +398,22 @@ Cache::config('_cake_model_', array(
 ));
 
 Cache::config('structures', array(
-    'engine' => 'File',
+    'engine' => $engine,
     'path' => CACHE . "structures",
     'duration' => $duration
 ));
 Cache::config('menus', array(
-    'engine' => 'File',
+    'engine' => $engine,
     'path' => CACHE . "menus",
     'duration' => $duration
 ));
 Cache::config('browser', array(
-    'engine' => 'File',
+    'engine' => $engine,
     'path' => CACHE . "browser",
     'duration' => $duration
 ));
 Cache::config('default', array(
-    'engine' => 'File'
+    'engine' => $engine
 ));
 
 Configure::write('use_compression', false);

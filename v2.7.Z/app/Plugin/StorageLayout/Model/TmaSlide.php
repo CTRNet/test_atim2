@@ -89,10 +89,9 @@ class TmaSlide extends StorageLayoutAppModel
                 $msg = null;
                 if ($position_status == StorageMaster::POSITION_OCCUPIED) {
                     $msg = __('the storage [%s] already contained something at position [%s, %s]');
-                } else 
-                    if ($position_status == StorageMaster::POSITION_DOUBLE_SET) {
-                        $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
-                    }
+                } elseif ($position_status == StorageMaster::POSITION_DOUBLE_SET) {
+                    $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
+                }
                 if ($msg != null) {
                     $msg = sprintf($msg, $arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y']);
                     if ($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1) {
@@ -102,10 +101,9 @@ class TmaSlide extends StorageLayoutAppModel
                     }
                 }
             }
-        } else 
-            if ((array_key_exists('storage_coord_x', $tma_slide_data['TmaSlide'])) || (array_key_exists('storage_coord_y', $tma_slide_data['TmaSlide']))) {
-                AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+        } elseif ((array_key_exists('storage_coord_x', $tma_slide_data['TmaSlide'])) || (array_key_exists('storage_coord_y', $tma_slide_data['TmaSlide']))) {
+            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
     }
 
     function isDuplicatedTmaSlideBarcode($tma_slide_data)
@@ -121,12 +119,11 @@ class TmaSlide extends StorageLayoutAppModel
         // Check duplicated barcode into submited record
         if (! strlen($barcode)) {
             // Not studied
-        } else 
-            if (isset($this->barcodes[$barcode])) {
-                $this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
-            } else {
-                $this->barcodes[$barcode] = '';
-            }
+        } elseif (isset($this->barcodes[$barcode])) {
+            $this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
+        } else {
+            $this->barcodes[$barcode] = '';
+        }
         
         // Check duplicated barcode into db
         $criteria = array(

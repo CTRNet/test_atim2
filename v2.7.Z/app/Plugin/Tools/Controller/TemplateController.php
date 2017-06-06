@@ -147,10 +147,9 @@ class TemplateController extends AppController
                         $parent_id = null;
                         if ($node->parent_id < 0) {
                             $parent_id = $nodes_mapping[$node->parent_id];
-                        } else 
-                            if ($node->parent_id > 0) {
-                                $parent_id = $node->parent_id;
-                            }
+                        } elseif ($node->parent_id > 0) {
+                            $parent_id = $node->parent_id;
+                        }
                         $this->TemplateNode->data = array();
                         $this->TemplateNode->id = null;
                         

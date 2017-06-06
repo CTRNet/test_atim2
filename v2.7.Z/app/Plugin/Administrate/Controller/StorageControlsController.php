@@ -126,19 +126,18 @@ class StorageControlsController extends AdministrateAppController
         if ($storage_control_data['StorageCtrl']['flag_active']) {
             $this->atimFlash(__('you are not allowed to work on active storage type'), 'javascript:history.go(-1)');
             return;
-        } else 
-            if ($this->StorageMaster->find('count', array(
-                'conditions' => array(
-                    'StorageMaster.storage_control_id' => $storage_control_id,
-                    'StorageMaster.deleted' => array(
-                        '0',
-                        '1'
-                    )
+        } elseif ($this->StorageMaster->find('count', array(
+            'conditions' => array(
+                'StorageMaster.storage_control_id' => $storage_control_id,
+                'StorageMaster.deleted' => array(
+                    '0',
+                    '1'
                 )
-            ))) {
-                $this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), 'javascript:history.go(-1)');
-                return;
-            }
+            )
+        ))) {
+            $this->atimFlash(__('this storage type has already been used to build a storage in the past - properties can not be changed anymore'), 'javascript:history.go(-1)');
+            return;
+        }
         
         $storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
         $this->set('storage_category', $storage_category);
@@ -238,10 +237,9 @@ class StorageControlsController extends AdministrateAppController
         $no_layout_msg = '';
         if ($storage_category == 'no_d') {
             $no_layout_msg = 'no layout exists';
-        } else 
-            if ($storage_control_data['StorageCtrl']['coord_x_type'] == 'list') {
-                $no_layout_msg = 'custom layout will be built adding coordinates to a created storage';
-            }
+        } elseif ($storage_control_data['StorageCtrl']['coord_x_type'] == 'list') {
+            $no_layout_msg = 'custom layout will be built adding coordinates to a created storage';
+        }
         $this->set('no_layout_msg', $no_layout_msg);
         
         $translated_storage_type = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storage_control_data['StorageCtrl']['storage_type']);

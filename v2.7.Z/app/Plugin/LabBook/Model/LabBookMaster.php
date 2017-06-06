@@ -81,45 +81,43 @@ class LabBookMaster extends LabBookAppModel
         ));
         if (empty($lab_book)) {
             $result = __('invalid lab book code');
-        } else 
-            if (empty($expected_ctrl_id)) {
-                $result = __('no lab book can be applied to the current item(s)');
-            } else 
-                if ($expected_ctrl_id != '-1' && $lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id) {
-                    $result = __('the selected lab book cannot be applied to the current item(s)');
+        } elseif (empty($expected_ctrl_id)) {
+            $result = __('no lab book can be applied to the current item(s)');
+        } elseif ($expected_ctrl_id != '-1' && $lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id) {
+            $result = __('the selected lab book cannot be applied to the current item(s)');
+        } else {
+            $result = $lab_book['LabBookMaster']['id'];
+            if (! empty($data) && ! empty($models)) {
+                $extract = null;
+                if (isset($data[$models[0]])) {
+                    $data = array(
+                        $data
+                    );
+                    $extract = true;
                 } else {
-                    $result = $lab_book['LabBookMaster']['id'];
-                    if (! empty($data) && ! empty($models)) {
-                        $extract = null;
-                        if (isset($data[$models[0]])) {
-                            $data = array(
-                                $data
-                            );
-                            $extract = true;
-                        } else {
-                            $extract = false;
-                        }
-                        if ($extract || (isset($data[0]) && isset($data[0][$models[0]]))) {
-                            // proceed
-                            $fields = $this->getFields($lab_book['LabBookMaster']['lab_book_control_id']);
-                            foreach ($data as &$unit) {
-                                foreach ($models as $model) {
-                                    foreach ($fields as $field) {
-                                        if (isset($unit[$model]) && isset($unit[$model][$field])) {
-                                            $unit[$model][$field] = $lab_book['LabBookDetail'][$field];
-                                        }
-                                    }
+                    $extract = false;
+                }
+                if ($extract || (isset($data[0]) && isset($data[0][$models[0]]))) {
+                    // proceed
+                    $fields = $this->getFields($lab_book['LabBookMaster']['lab_book_control_id']);
+                    foreach ($data as &$unit) {
+                        foreach ($models as $model) {
+                            foreach ($fields as $field) {
+                                if (isset($unit[$model]) && isset($unit[$model][$field])) {
+                                    $unit[$model][$field] = $lab_book['LabBookDetail'][$field];
                                 }
                             }
-                        } else {
-                            // data to sync not found
-                            AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                        }
-                        if ($extract) {
-                            $data = $data[0];
                         }
                     }
+                } else {
+                    // data to sync not found
+                    AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
+                if ($extract) {
+                    $data = $data[0];
+                }
+            }
+        }
         return $result;
     }
 
