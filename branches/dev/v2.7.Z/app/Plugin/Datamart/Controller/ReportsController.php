@@ -359,7 +359,7 @@ class ReportsController extends DatamartAppController
                                     } else {
                                         $handle = fopen($parameters['tmp_name'], "r");
                                         if ($handle) {
-                                            while (($csvData = fgetcsv($handle, 1000, csv_separator, '"')) !== false) {
+                                            while (($csvData = fgetcsv($handle, 1000, CSV_SEPARATOR, '"')) !== false) {
                                                 $criteriaToBuildReport[$model][$matchedFieldName][] = $csvData[0];
                                             }
                                             fclose($handle);

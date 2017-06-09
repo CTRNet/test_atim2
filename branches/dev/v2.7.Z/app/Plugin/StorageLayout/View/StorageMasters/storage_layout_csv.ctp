@@ -227,7 +227,7 @@ $this->Csv->addRow(array(
 ));
 foreach ($csvData as $newDataLine)
     $this->Csv->addRow($newDataLine);
-echo $this->Csv->render(true, isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : csv_encoding);
+echo $this->Csv->render(true, isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : CSV_ENCODING);
 exit();
 
 ?>

@@ -409,7 +409,7 @@ $parameters);
                                     if ($handle) {
                                         unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
                                         // in each LINE, get FIRST csv value, and attach to DATA array
-                                        while (($csvData = fgetcsv($handle, 1000, csv_separator, '"')) !== false) {
+                                        while (($csvData = fgetcsv($handle, 1000, CSV_SEPARATOR, '"')) !== false) {
                                             $data[] = $csvData[0];
                                         }
                                         fclose($handle);

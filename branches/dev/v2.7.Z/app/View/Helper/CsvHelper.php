@@ -13,7 +13,7 @@ class CsvHelper extends AppHelper
 
     public $csvSeparator = ";";
 
-    // var $csvSeparator = csv_separator; See Issue# 3318: Fixe following notice: Notice (8): Use of undefined constant csv_separator
+    // var $csvSeparator = CSV_SEPARATOR; See Issue# 3318: Fixe following notice: Notice (8): Use of undefined constant CSV_SEPARATOR
     static $nodesInfo = null;
 
     static $structures = null;

@@ -800,7 +800,7 @@ class StructuresHelper extends Helper
                                 $display = array();
                                 $endOfLine = "";
                             }
-                            echo '<td class="heading no_border" colspan="' . (show_help ? '3' : '2') . '">
+                            echo '<td class="heading no_border" colspan="' . (SHOW_HELP ? '3' : '2') . '">
 										<h4>' . $tableRowPart['heading'] . '</h4>
 									</td>
 								</tr><tr>
@@ -881,7 +881,7 @@ class StructuresHelper extends Helper
                             }
                         }
                         
-                        if (show_help) {
+                        if (SHOW_HELP) {
                             
                             $endOfLine = '
 									<td class="help">
@@ -1092,7 +1092,7 @@ class StructuresHelper extends Helper
                         'checked' => $currentValue == "u" ? true : false
                     )));
                 }
-            } elseif (($tableRowPart['type'] == "float" || $tableRowPart['type'] == "float_positive") && decimal_separator == ',') {
+            } elseif (($tableRowPart['type'] == "float" || $tableRowPart['type'] == "float_positive") && DECIMAL_SEPARATOR == ',') {
                 $currentValue = str_replace('.', ',', $currentValue);
             } elseif ($tableRowPart['type'] == "textarea") {
                 $currentValue = str_replace('\n', "\n", $currentValue);
@@ -1151,7 +1151,7 @@ class StructuresHelper extends Helper
                         AppController::addWarningMsg(__("missing reference key [%s] for field [%s]", $currentValue, $tableRowPart['field']));
                     }
                 }
-            } elseif (($tableRowPart['type'] == "float" || $tableRowPart['type'] == "float_positive") && decimal_separator == ',') {
+            } elseif (($tableRowPart['type'] == "float" || $tableRowPart['type'] == "float_positive") && DECIMAL_SEPARATOR == ',') {
                 $display = str_replace('.', ',', $currentValue);
             } elseif ($tableRowPart['type'] == 'textarea') {
                 $currentValue = htmlspecialchars($currentValue);
@@ -1463,7 +1463,7 @@ class StructuresHelper extends Helper
                     $headingSubLine = array();
                     $subLine = array();
                     $csv::$structures[$nodeId] = $structure = $this->buildStack($csv::$structures[$nodeId], $options);
-                    $csv::$structures[$nodeId] = $this->titleHtmlSpecialCharsDecode($csv::$structures[$nodeId], isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : csv_encoding);
+                    $csv::$structures[$nodeId] = $this->titleHtmlSpecialCharsDecode($csv::$structures[$nodeId], isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : CSV_ENCODING);
                     foreach ($csv::$structures[$nodeId] as $tableColumn) {
                         $lastHeading = '';
                         foreach ($tableColumn as $fm => $tableRow) {
@@ -1559,12 +1559,12 @@ class StructuresHelper extends Helper
             foreach ($lines as &$line) {
                 $this->Csv->addRow($line);
             }
-            echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : csv_encoding);
+            echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : CSV_ENCODING);
         } else {
             // default mode, multi lines
             $options['type'] = 'index';
             $tableStructure = $this->buildStack($atimStructure, $options);
-            $tableStructure = $this->titleHtmlSpecialCharsDecode($tableStructure, isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : csv_encoding);
+            $tableStructure = $this->titleHtmlSpecialCharsDecode($tableStructure, isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : CSV_ENCODING);
             $options['type'] = 'csv'; // go back to csv
             
             if (is_array($tableStructure) && count($data)) {
@@ -1667,7 +1667,7 @@ class StructuresHelper extends Helper
                 }
             }
             
-            echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : csv_encoding);
+            echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : CSV_ENCODING);
         }
     }
 
@@ -2153,7 +2153,7 @@ class StructuresHelper extends Helper
                                 $returnString .= $tableRowPart['label'];
                             }
                             
-                            if (show_help) {
+                            if (SHOW_HELP) {
                                 $returnString .= $currentColNumber < $contentColumnsCount ? str_replace('<span class="icon16 help">', '<span class="icon16 help right">', $tableRowPart['help']) : $tableRowPart['help'];
                             }
                             
@@ -2309,7 +2309,7 @@ class StructuresHelper extends Helper
                         "structure_group_name" => isset($sfs['structure_group_name']) ? $sfs['structure_group_name'] : null
                     );
                     $settings = $myDefaultSettingsArr;
-                    $dateFormatArr = str_split(date_format);
+                    $dateFormatArr = str_split(DATE_FORMAT);
                     if ($options['links']['top'] && $options['settings']['form_inputs']) {
                         $settings['tabindex'] = self::$lastTabindex ++;
                         
@@ -2938,7 +2938,7 @@ $confirmationMsg); // confirmation message
      */
     private function getDateInputs($name, $date, array $attributes)
     {
-        $prefDate = str_split(date_format);
+        $prefDate = str_split(DATE_FORMAT);
         $year = $month = $day = null;
         if (is_array($date)) {
             $year = $date['year'];
@@ -2969,7 +2969,7 @@ $confirmationMsg); // confirmation message
             $yearAttributes['required'] = $attributes['required'];
             unset($attributes['required']);
         }
-        if (datetime_input_type == "dropdown") {
+        if (DATETIME_INPUT_TYPE == "dropdown") {
             foreach ($prefDate as $part) {
                 if ($part == "Y") {
                     $result .= $this->Form->year($name, 1900, 2100, array_merge($yearAttributes, array(
@@ -3055,7 +3055,7 @@ $confirmationMsg); // confirmation message
             } else {
                 list ($hour, $minutes) = explode(":", $time);
             }
-            if (time_format == 12) {
+            if (TIME_FORMAT == 12) {
                 if ($hour >= 12) {
                     $meridian = 'pm';
                     if ($hour > 12) {
@@ -3069,9 +3069,9 @@ $confirmationMsg); // confirmation message
                 }
             }
         }
-        if (datetime_input_type == "dropdown") {
+        if (DATETIME_INPUT_TYPE == "dropdown") {
             unset($attributes['options']); // Fixes an IE8 issue with $.serialize
-            $result .= $this->Form->hour($name, time_format == 24, array_merge($attributes, array(
+            $result .= $this->Form->hour($name, TIME_FORMAT == 24, array_merge($attributes, array(
                 'value' => $hour
             )));
             $result .= $this->Form->minute($name, array_merge($attributes, array(
@@ -3083,8 +3083,8 @@ $confirmationMsg); // confirmation message
                 'type' => 'number',
                 'value' => $hour,
                 'size' => 3,
-                'min' => time_format == 12 ? 1 : 0,
-                'max' => time_format == 12 ? 12 : 23
+                'min' => TIME_FORMAT == 12 ? 1 : 0,
+                'max' => TIME_FORMAT == 12 ? 12 : 23
             ))) . "<div>" . __('hour') . "</div></span>";
             $result .= '<span class="tooltip">' . $this->Form->text($name . ".min", array_merge($attributes, array(
                 'type' => 'number',
@@ -3094,7 +3094,7 @@ $confirmationMsg); // confirmation message
                 'max' => 59
             ))) . "<div>" . __('minutes') . "</div></span>";
         }
-        if (time_format == 12) {
+        if (TIME_FORMAT == 12) {
             $result .= $this->Form->meridian($name, array_merge($attributes, array(
                 'value' => $meridian
             )));
