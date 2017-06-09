@@ -37,7 +37,7 @@ class StructuresComponent extends Component
     {
         if (! is_array($alias)) {
             $alias = array_filter(explode(",", $alias));
-            $alias = array_map('AppController::snakeToCamel', array_values($alias));
+            // $alias = array_map('AppController::snakeToCamel', array_values($alias));
             if (! $alias) {
                 $alias[] = '';
             }
@@ -57,6 +57,7 @@ $parameters);
         
         foreach ($alias as $aliasUnit) {
             $structUnit = $this->getSingleStructure($aliasUnit);
+            
             $allStructures[] = $structUnit;
             
             if ($parameters['set_validation']) {

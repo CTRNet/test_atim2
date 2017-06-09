@@ -145,15 +145,15 @@ class StorageMaster extends StorageLayoutAppModel
                 ), $exception);
                 
                 $msg = null;
-                if ($positionStatus == StorageMaster::POSITIONOCCUPIED) {
+                if ($positionStatus == StorageMaster::POSITION_OCCUPIED) {
                     $msg = __('the storage [%s] already contained something at position [%s, %s]');
-                } elseif ($positionStatus == StorageMaster::POSITIONDOUBLESET) {
+                } elseif ($positionStatus == StorageMaster::POSITION_DOUBLE_SET) {
                     $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
                 }
                 
                 if ($msg != null) {
                     $msg = sprintf($msg, $parentStorageSelectionResults['storage_data']['StorageMaster']['selection_label'], $this->data['StorageMaster']['parent_storage_coord_x'], $this->data['StorageMaster']['parent_storage_coord_y']);
-                    if ($parentStorageSelectionResults['storage_data']['StorageControl']['check_conflicts'] == self::CONFLICTSWARN) {
+                    if ($parentStorageSelectionResults['storage_data']['StorageControl']['check_conflicts'] == self::CONFLICTS_WARN) {
                         AppController::addWarningMsg($msg);
                     } else {
                         $this->validationErrors['parent_storage_coord_x'][] = $msg;
@@ -1065,7 +1065,7 @@ class StorageMaster extends StorageLayoutAppModel
             'recursive' => - 1
         ));
         if (! empty($tmp)) {
-            return StorageMaster::POSITIONOCCUPIED;
+            return StorageMaster::POSITION_OCCUPIED;
         }
         
         // check if a storage occupies the position
@@ -1084,7 +1084,7 @@ class StorageMaster extends StorageLayoutAppModel
             'recursive' => - 1
         ));
         if (! empty($tmp)) {
-            return StorageMaster::POSITIONOCCUPIED;
+            return StorageMaster::POSITION_OCCUPIED;
         }
         
         // check if a TMA occupies the position
@@ -1103,20 +1103,20 @@ class StorageMaster extends StorageLayoutAppModel
             'recursive' => - 1
         ));
         if (! empty($tmp)) {
-            return StorageMaster::POSITIONOCCUPIED;
+            return StorageMaster::POSITION_OCCUPIED;
         }
         
         // check if a current check occupies the position
         if (array_key_exists('y', $position) && ! empty($position['y'])) {
             if (isset($this->usedStoragePos[$storageMasterId][$position['x']][$position['y']])) {
-                return StorageMaster::POSITIONDOUBLESET;
+                return StorageMaster::POSITION_DOUBLE_SET;
             }
         } elseif (isset($this->usedStoragePos[$storageMasterId][$position['x']])) {
-            return StorageMaster::POSITIONDOUBLESET;
+            return StorageMaster::POSITION_DOUBLE_SET;
         }
         $this->usedStoragePos[$storageMasterId][$position['x']][$position['y']] = 'used';
         
-        return StorageMaster::POSITIONFREE;
+        return StorageMaster::POSITION_FREE;
     }
 
     /**
@@ -1140,10 +1140,10 @@ class StorageMaster extends StorageLayoutAppModel
                 if (isset($cumulStorageData[$storageId]['pos'][$modelData['x']][$modelData['y']])) {
                     $msg = __('conflict detected in storage [%s] at position [%s, %s]', $cumulStorageData[$storageId]['printed_label'], $modelData['x'], $modelData['y']);
                     // react
-                    if ($cumulStorageData[$storageId]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTSWARN) {
+                    if ($cumulStorageData[$storageId]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_WARN) {
                         AppController::addWarningMsg($msg);
                         $conflictsFound = true;
-                    } elseif ($cumulStorageData[$storageId]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTSERR) {
+                    } elseif ($cumulStorageData[$storageId]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_ERR) {
                         $this->validationErrors[][] = ($msg . ' ' . __('unclassifying additional items'));
                         $modelData['x'] = '';
                         $modelData['y'] = '';

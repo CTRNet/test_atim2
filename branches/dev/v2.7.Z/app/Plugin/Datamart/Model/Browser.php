@@ -1258,7 +1258,7 @@ class Browser extends DatamartAppModel
 
     private function getModelAlias($node)
     {
-        return $node[self::NODEID] . "_" . $node[self::MODEL]->name;
+        return $node[self::NODE_ID] . "_" . $node[self::MODEL]->name;
     }
 
     /**
@@ -1275,34 +1275,34 @@ class Browser extends DatamartAppModel
             $condition = null;
             $alias = $this->getModelAlias($node);
             $ancestorAlias = $i > 1 ? $this->getModelAlias($ancestorNode) : $ancestorNode[self::MODEL]->name;
-            if ($node[self::ANCESTORISCHILD]) {
-                $condition = $alias . "." . $node[self::USEKEY] . " = " . $ancestorAlias . "." . $node[self::JOINFIELD];
+            if ($node[self::ANCESTOR_IS_CHILD]) {
+                $condition = $alias . "." . $node[self::USE_KEY] . " = " . $ancestorAlias . "." . $node[self::JOIN_FIELD];
             } else {
-                $condition = $alias . "." . $node[self::JOINFIELD] . " = " . $ancestorAlias . "." . $ancestorNode[self::USEKEY];
+                $condition = $alias . "." . $node[self::JOIN_FIELD] . " = " . $ancestorAlias . "." . $ancestorNode[self::USE_KEY];
             }
-            $fields[] = 'CONCAT("", ' . $alias . "." . $node[self::USEKEY] . ') AS ' . $alias;
+            $fields[] = 'CONCAT("", ' . $alias . "." . $node[self::USE_KEY] . ') AS ' . $alias;
             $joins[] = array(
                 'table' => $node[self::MODEL]->table,
                 'alias' => $alias,
                 'type' => 'LEFT',
                 'conditions' => array(
                     $condition,
-                    $alias . "." . $node[self::USEKEY] => $node[self::IDS]
+                    $alias . "." . $node[self::USE_KEY] => $node[self::IDS]
                 )
             );
-            if ($node[self::SUBMODELID]) {
-                $joins[] = $node[self::MODEL]->getDetailJoin($node[self::SUBMODELID], $alias);
+            if ($node[self::SUB_MODEL_ID]) {
+                $joins[] = $node[self::MODEL]->getDetailJoin($node[self::SUB_MODEL_ID], $alias);
             }
         }
         
         $node = $this->nodes[0];
         $conditions = array();
         $model = $node[self::MODEL];
-        if ($node[self::SUBMODELID]) {
-            $conditions[$model->name . "." . $model->getControlForeign()] = $node[self::SUBMODELID];
+        if ($node[self::SUB_MODEL_ID]) {
+            $conditions[$model->name . "." . $model->getControlForeign()] = $node[self::SUB_MODEL_ID];
         }
-        array_unshift($fields, 'CONCAT("", ' . $node[self::MODEL]->name . "." . $node[self::USEKEY] . ') AS `' . $node[self::MODEL]->name . '`');
-        $conditions[$model->name . "." . $node[self::USEKEY]] = $primaryNodeIds;
+        array_unshift($fields, 'CONCAT("", ' . $node[self::MODEL]->name . "." . $node[self::USE_KEY] . ') AS `' . $node[self::MODEL]->name . '`');
+        $conditions[$model->name . "." . $node[self::USE_KEY]] = $primaryNodeIds;
         $this->searchParameters = array(
             'fields' => $fields,
             'joins' => $joins,
@@ -1445,13 +1445,13 @@ class Browser extends DatamartAppModel
             ));
             $header[] = __($currentBrowsing['DatamartStructure']['display_name']) . $headerSubType . "(" . $count . ")";
             $this->nodes[] = array(
-                self::NODEID => $node,
+                self::NODE_ID => $node,
                 self::IDS => $ids,
                 self::MODEL => $currentModel,
-                self::USEKEY => $currentModel->primaryKey,
-                self::ANCESTORISCHILD => $ancestorIsChild,
-                self::JOINFIELD => $joinField,
-                self::SUBMODELID => $currentSubModel
+                self::USE_KEY => $currentModel->primaryKey,
+                self::ANCESTOR_IS_CHILD => $ancestorIsChild,
+                self::JOIN_FIELD => $joinField,
+                self::SUB_MODEL_ID => $currentSubModel
             );
             $lastBrowsing = $currentBrowsing;
             ++ $iterationCount;
@@ -1509,12 +1509,12 @@ class Browser extends DatamartAppModel
                 $prefix = '';
                 if ($count) {
                     // set a prefix when model != 0 (the first one cannot be prefixed because of links and checkboxes)
-                    $prefix = $node[self::NODEID] . '_';
+                    $prefix = $node[self::NODE_ID] . '_';
                 }
                 $modelDataTmp = $node[self::MODEL]->find('all', array(
                     'fields' => '*',
                     'conditions' => array(
-                        $node[self::MODEL]->name . "." . $node[self::USEKEY] => $modelIds
+                        $node[self::MODEL]->name . "." . $node[self::USE_KEY] => $modelIds
                     ),
                     'recursive' => 0
                 ));
@@ -1531,7 +1531,7 @@ class Browser extends DatamartAppModel
                 } else {
                     $modelData = $modelDataTmp;
                 }
-                $modelData = AppController::defineArrayKey($modelData, $prefix . $node[self::MODEL]->name, $node[self::USEKEY]);
+                $modelData = AppController::defineArrayKey($modelData, $prefix . $node[self::MODEL]->name, $node[self::USE_KEY]);
                 foreach ($this->rowsBuffer as $rowIndex => $rowData) {
                     if (! empty($rowData[$modelIndex])) {
                         $chunk[$rowIndex] = array_merge($modelData[$rowData[$modelIndex]][0], $chunk[$rowIndex]);
@@ -1912,7 +1912,7 @@ class Browser extends DatamartAppModel
                 // construct a field function based on accuracy
                 // we have to use \n and \t for accuracy when searching for max
                 // because they're the rare entries that go before a space
-                $selectField = sprintf(AppModel::ACCURACYREPLACESTR, $browsingFilter['field'], $browsingFilter['field'] . '_accuracy', $browsingFilter['attribute'] == 'MAX' ? '"\n"' : '"A"', // non year
+                $selectField = sprintf(AppModel::ACCURACY_REPLACE_STR, $browsingFilter['field'], $browsingFilter['field'] . '_accuracy', $browsingFilter['attribute'] == 'MAX' ? '"\n"' : '"A"', // non year
 $browsingFilter['attribute'] == 'MAX' ? '"\t"' : '"B"', // year
 $browsingFilter['attribute']);
             } else {

@@ -136,8 +136,7 @@ class MenusComponent extends Component
                         }
                         $sourceId = $sourceResult['Menu']['id'];
                         $parentId = $sourceResult['Menu']['parent_id'];
-                    } 
-                    else {
+                    } else {
                         $parentId = false;
                     }
                 }
