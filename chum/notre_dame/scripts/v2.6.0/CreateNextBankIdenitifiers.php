@@ -8,7 +8,7 @@ $db_ip				= "localhost";
 $db_port 			= "";
 $db_user 			= "root";
 $db_pwd				= "";
-$db_schema	= "atimoncologyaxisprod";
+$db_schema	= "";
 $db_charset			= "utf8";
 
 global $db_connection;
