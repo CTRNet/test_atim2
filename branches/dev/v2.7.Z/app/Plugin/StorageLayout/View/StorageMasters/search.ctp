@@ -3,55 +3,55 @@ $settings = array(
     'return' => true
 );
 
-if (isset($is_ajax) && ! $from_layout_page) {
+if (isset($isAjax) && ! $fromLayoutPage) {
     $settings['actions'] = false;
 }
 
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'detail' => '/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%'
     ),
     'bottom' => array(
-        'add' => $add_links,
+        'add' => $addLinks,
         'tree view' => '/StorageLayout/StorageMasters/contentTreeView'
     )
 );
 
-if ($from_layout_page) {
-    unset($structure_links['bottom']);
-    $structure_links['bottom'] = array(
+if ($fromLayoutPage) {
+    unset($structureLinks['bottom']);
+    $structureLinks['bottom'] = array(
         'cancel' => 'javascript:searchBack();'
     );
     $settings['pagination'] = false;
 }
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => $settings
 );
 
 if (isset($overflow)) {
     $this->Shell->validationHtml(); // clear validations
-    $final_atim_structure = $empty_structure;
+    $finalAtimStructure = $emptyStructure;
 }
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$form = $this->Structures->build($final_atim_structure, $final_options);
+$form = $this->Structures->build($finalAtimStructure, $finalOptions);
 
 if (isset($overflow)) {
     $form = '<ul class="error">
 				<li>' . __("the query returned too many results") . '. ' . __("try refining the search parameters") . '</li>
 			</ul>' . $form;
 }
-if (isset($is_ajax)) {
+if (isset($isAjax)) {
     $this->layout = 'json';
     $this->json = array(
         'page' => $form,

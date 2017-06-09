@@ -7,7 +7,7 @@ class Shipment extends OrderAppModel
 
     public $useTable = 'shipments';
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'Shipment.id'
         )
@@ -45,19 +45,19 @@ class Shipment extends OrderAppModel
     /**
      * Get array gathering all existing shipments.
      *
-     * @param $order_id Id
+     * @param $orderId Id
      *            of the order linked to the shipments to return (null for all).
      *            
      * @author N. Luc
      * @since 2009-09-11
      *        @updated N. Luc
      */
-    function getShipmentPermissibleValues($order_id = null)
+    function getShipmentPermissibleValues($orderId = null)
     {
         $result = array();
         
-        $conditions = is_null($order_id) ? array() : array(
-            'Shipment.order_id' => $order_id
+        $conditions = is_null($orderId) ? array() : array(
+            'Shipment.order_id' => $orderId
         );
         foreach ($this->find('all', array(
             'conditions' => $conditions,
@@ -72,7 +72,7 @@ class Shipment extends OrderAppModel
     /**
      * Check if a shipment can be deleted.
      *
-     * @param $shipment_id Id
+     * @param $shipmentId Id
      *            of the studied shipment.
      *            
      * @return Return results as array:
@@ -82,17 +82,17 @@ class Shipment extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($shipment_id)
+    function allowDeletion($shipmentId)
     {
         // Check no item is linked to this shipment
-        $order_item_model = AppModel::getInstance("Order", "OrderItem", true);
-        $returned_nbr = $order_item_model->find('count', array(
+        $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
+        $returnedNbr = $orderItemModel->find('count', array(
             'conditions' => array(
-                'OrderItem.shipment_id' => $shipment_id
+                'OrderItem.shipment_id' => $shipmentId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'order item exists for the deleted shipment'
@@ -108,9 +108,9 @@ class Shipment extends OrderAppModel
     /**
      * Check if an item can be removed from a shipment.
      *
-     * @param $order_item_id Id
+     * @param $orderItemId Id
      *            of the studied item.
-     * @param $shipment_id Id
+     * @param $shipmentId Id
      *            of the studied shipemnt.
      *            
      * @return Return results as array:
@@ -120,7 +120,7 @@ class Shipment extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowItemRemoveFromShipment($order_item_id, $shipment_id)
+    function allowItemRemoveFromShipment($orderItemId, $shipmentId)
     {
         return array(
             'allow_deletion' => true,

@@ -1,12 +1,12 @@
 <?php
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'edit',
     'links' => array(
-        'top' => '/Datamart/BrowsingSteps/edit/' . $atim_menu_variables['SavedBrowsingIndex.id'],
+        'top' => '/Datamart/BrowsingSteps/edit/' . $atimMenuVariables['SavedBrowsingIndex.id'],
         'bottom' => array(
             'cancel' => '/Datamart/BrowsingSteps/listall/',
             'reset' => array(
-                'link' => '/Datamart/BrowsingSteps/edit/' . $atim_menu_variables['SavedBrowsingIndex.id'],
+                'link' => '/Datamart/BrowsingSteps/edit/' . $atimMenuVariables['SavedBrowsingIndex.id'],
                 'icon' => 'redo'
             )
         )

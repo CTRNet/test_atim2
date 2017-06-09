@@ -1,8 +1,8 @@
 <?php
-if (isset($validation_error)) {
+if (isset($validationError)) {
     $this->validationErrors = array(
         'model' => array(
-            $validation_error
+            $validationError
         )
     );
 }

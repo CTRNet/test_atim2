@@ -3,7 +3,7 @@
 class AtimAco extends Aco
 {
 
-    public $check_writable_fields = false;
+    public $checkWritableFields = false;
 
     /**
      * Retrieves the Aro/Aco node for this model
@@ -58,7 +58,7 @@ class AtimAco extends Aco
                 'order' => $db->name("{$type}.lft") . ' DESC'
             );
             
-            $join_conditions = array();
+            $joinConditions = array();
             
             foreach ($path as $i => $alias) {
                 $j = $i - 1;
@@ -74,9 +74,9 @@ class AtimAco extends Aco
                     )
                 );
                 
-                $join_conditions[] = $db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft") . ' AND ' . $db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght") . ' AND ' . $db->name("{$type}{$i}.parent_id") . ' = ' . $db->name("{$type}{$j}.id");
+                $joinConditions[] = $db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft") . ' AND ' . $db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght") . ' AND ' . $db->name("{$type}{$i}.parent_id") . ' = ' . $db->name("{$type}{$j}.id");
                 
-                $queryData['conditions'] = join(' AND ', $join_conditions) . ' AND (' . ' (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght") . ') OR (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght") . ')' . ' )';
+                $queryData['conditions'] = join(' AND ', $joinConditions) . ' AND (' . ' (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght") . ') OR (' . $db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght") . ')' . ' )';
             }
             $result = $db->read($this, $queryData, - 1);
             $path = array_values($path);

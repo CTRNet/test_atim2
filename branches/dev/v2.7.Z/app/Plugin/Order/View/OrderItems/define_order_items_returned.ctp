@@ -1,31 +1,31 @@
 <?php
-$structure_links = array(
-    'top' => '/Order/OrderItems/defineOrderItemsReturned/' . $order_id . '/' . $order_line_id . '/' . $shipment_id . '/',
+$structureLinks = array(
+    'top' => '/Order/OrderItems/defineOrderItemsReturned/' . $orderId . '/' . $orderLineId . '/' . $shipmentId . '/',
     'bottom' => array(
-        'cancel' => $url_to_cancel
+        'cancel' => $urlToCancel
     )
 );
 
-$final_options = array(
+$finalOptions = array(
     'type' => 'editgrid',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => array(
         'pagination' => false,
         'header' => __('order items')
     ),
-    'extras' => '<input type="hidden" name="data[url_to_cancel]" value="' . $url_to_cancel . '"/><input type="hidden" name="data[order_item_ids]" value="' . $order_item_ids . '"/>'
+    'extras' => '<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/><input type="hidden" name="data[order_item_ids]" value="' . $orderItemIds . '"/>'
 );
 
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <script type="text/javascript">

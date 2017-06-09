@@ -20,53 +20,53 @@ class RealiquotingControl extends InventoryManagementAppModel
      */
     function getPossiblities()
     {
-        $realiquot_data_raw = $this->find('all', array(
+        $realiquotDataRaw = $this->find('all', array(
             'recursive' => 2
         ));
-        $realiquot_data = array();
-        foreach ($realiquot_data_raw as $data) {
-            $realiquot_data[$data['ParentAliquotControl']['sample_control_id']][$data['ParentAliquotControl']['id']][$data['ChildAliquotControl']['id']] = $data['ChildAliquotControl']['AliquotControl']['aliquot_type'];
+        $realiquotData = array();
+        foreach ($realiquotDataRaw as $data) {
+            $realiquotData[$data['ParentAliquotControl']['sample_control_id']][$data['ParentAliquotControl']['id']][$data['ChildAliquotControl']['id']] = $data['ChildAliquotControl']['AliquotControl']['aliquot_type'];
         }
-        return $realiquot_data;
+        return $realiquotData;
     }
 
-    function getAllowedChildrenCtrlId($sample_control_id, $parent_aliquot_control_id)
+    function getAllowedChildrenCtrlId($sampleControlId, $parentAliquotControlId)
     {
         $criteria = array(
-            'ParentAliquotControl.sample_control_id' => $sample_control_id,
-            'ParentAliquotControl.id' => $parent_aliquot_control_id,
+            'ParentAliquotControl.sample_control_id' => $sampleControlId,
+            'ParentAliquotControl.id' => $parentAliquotControlId,
             'ParentAliquotControl.flag_active' => '1',
             'RealiquotingControl.flag_active' => '1',
-            'ChildAliquotControl.sample_control_id' => $sample_control_id,
+            'ChildAliquotControl.sample_control_id' => $sampleControlId,
             'ChildAliquotControl.flag_active' => '1'
         );
-        $realiquotind_control_data = $this->find('all', array(
+        $realiquotindControlData = $this->find('all', array(
             'conditions' => $criteria
         ));
         
-        $allowed_children_aliquot_control_ids = array();
-        foreach ($realiquotind_control_data as $new_realiquoting_control) {
-            $allowed_children_aliquot_control_ids[] = $new_realiquoting_control['ChildAliquotControl']['id'];
+        $allowedChildrenAliquotControlIds = array();
+        foreach ($realiquotindControlData as $newRealiquotingControl) {
+            $allowedChildrenAliquotControlIds[] = $newRealiquotingControl['ChildAliquotControl']['id'];
         }
         
-        return $allowed_children_aliquot_control_ids;
+        return $allowedChildrenAliquotControlIds;
     }
 
-    function getLabBookCtrlId($parent_sample_ctrl_id, $parent_aliquot_ctrl_id, $child_aliquot_ctrl_id)
+    function getLabBookCtrlId($parentSampleCtrlId, $parentAliquotCtrlId, $childAliquotCtrlId)
     {
         $criteria = array(
-            'ParentAliquotControl.sample_control_id' => $parent_sample_ctrl_id,
-            'ParentAliquotControl.id' => $parent_aliquot_ctrl_id,
+            'ParentAliquotControl.sample_control_id' => $parentSampleCtrlId,
+            'ParentAliquotControl.id' => $parentAliquotCtrlId,
             'ParentAliquotControl.flag_active' => '1',
             'RealiquotingControl.flag_active' => '1',
-            'ChildAliquotControl.sample_control_id' => $parent_sample_ctrl_id,
-            'ChildAliquotControl.id' => $child_aliquot_ctrl_id,
+            'ChildAliquotControl.sample_control_id' => $parentSampleCtrlId,
+            'ChildAliquotControl.id' => $childAliquotCtrlId,
             'ChildAliquotControl.flag_active' => '1'
         );
-        $realiquoting_control_data = $this->find('first', array(
+        $realiquotingControlData = $this->find('first', array(
             'conditions' => $criteria
         ));
         
-        return $realiquoting_control_data['RealiquotingControl']['lab_book_control_id'];
+        return $realiquotingControlData['RealiquotingControl']['lab_book_control_id'];
     }
 }

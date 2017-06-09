@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => '/Administrate/Menus/edit/%%Menu.id%%',
     'bottom' => array(
         'delete' => '/Administrate/Menus/delete/%%Menu.id%%',
@@ -7,7 +7,7 @@ $structure_links = array(
     )
 );
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 ?>

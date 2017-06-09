@@ -19,27 +19,27 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         )
     );
 
-    function search($search_id = '')
+    function search($searchId = '')
     {
-        $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
+        $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
         
-        $this->searchHandler($search_id, $this->MiscIdentifier, 'miscidentifiers_for_participant_search', '/ClinicalAnnotation/MiscIdentifiers/search');
+        $this->searchHandler($searchId, $this->MiscIdentifier, 'miscidentifiers_for_participant_search', '/ClinicalAnnotation/MiscIdentifiers/search');
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             $this->render('index');
         }
     }
 
-    function add($participant_id, $misc_identifier_control_id)
+    function add($participantId, $miscIdentifierControlId)
     {
-        $this->Participant->getOrRedirect($participant_id);
-        $controls = $this->MiscIdentifierControl->getOrRedirect($misc_identifier_control_id);
+        $this->Participant->getOrRedirect($participantId);
+        $controls = $this->MiscIdentifierControl->getOrRedirect($miscIdentifierControlId);
         
         if ($controls['MiscIdentifierControl']['flag_confidential'] && ! $this->Session->read('flag_show_confidential')) {
             AppController::getInstance()->redirect("/Pages/err_confidential");
@@ -47,49 +47,49 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         
         if ($controls['MiscIdentifierControl']['flag_once_per_participant']) {
             // Check identifier has not already been created
-            $already_exist = $this->MiscIdentifier->find('count', array(
+            $alreadyExist = $this->MiscIdentifier->find('count', array(
                 'conditions' => array(
-                    'misc_identifier_control_id' => $misc_identifier_control_id,
-                    'participant_id' => $participant_id
+                    'misc_identifier_control_id' => $miscIdentifierControlId,
+                    'participant_id' => $participantId
                 )
             ));
-            if ($already_exist) {
-                $this->atimFlashWarning(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+            if ($alreadyExist) {
+                $this->atimFlashWarning(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
                 return;
             }
         }
         
-        $is_incremented_identifier = ! empty($controls['MiscIdentifierControl']['autoincrement_name']);
+        $isIncrementedIdentifier = ! empty($controls['MiscIdentifierControl']['autoincrement_name']);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'MiscIdentifierControl.id' => $misc_identifier_control_id
+        $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'MiscIdentifierControl.id' => $miscIdentifierControlId
         ));
         
-        $form_alias = ($is_incremented_identifier ? 'incrementedmiscidentifiers' : 'miscidentifiers') . ($controls['MiscIdentifierControl']['flag_link_to_study'] ? ',miscidentifiers_study' : '');
-        $this->Structures->set($form_alias);
+        $formAlias = ($isIncrementedIdentifier ? 'incrementedmiscidentifiers' : 'miscidentifiers') . ($controls['MiscIdentifierControl']['flag_link_to_study'] ? ',miscidentifiers_study' : '');
+        $this->Structures->set($formAlias);
         
         // Following boolean created to allow hook to force the add form display when identifier is incremented
-        $display_add_form = true;
-        if ($is_incremented_identifier && empty($this->request->data))
-            $display_add_form = false;
-            
-            // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $displayAddForm = true;
+        if ($isIncrementedIdentifier && empty($this->request->data))
+            $displayAddForm = false;
+        
+        // CUSTOM CODE: FORMAT DISPLAY DATA
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($this->request->data) && $display_add_form) {
+        if (empty($this->request->data) && $displayAddForm) {
             $this->request->data = $controls;
         } else {
             // Launch Save Process
             
             // Set additional data
-            $this->request->data['MiscIdentifier']['participant_id'] = $participant_id;
-            $this->request->data['MiscIdentifier']['misc_identifier_control_id'] = $misc_identifier_control_id;
+            $this->request->data['MiscIdentifier']['participant_id'] = $participantId;
+            $this->request->data['MiscIdentifier']['misc_identifier_control_id'] = $miscIdentifierControlId;
             if ($controls['MiscIdentifierControl']['flag_unique']) {
                 $this->request->data['MiscIdentifier']['flag_unique'] = 1;
             }
@@ -100,178 +100,178 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
             ));
             
             // Launch validation
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            if (! $is_incremented_identifier) {
+            if (! $isIncrementedIdentifier) {
                 $this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $controls['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
             }
             
             // ... special validations
             $this->MiscIdentifier->set($this->request->data);
-            $submitted_data_validates = $this->MiscIdentifier->validates() ? $submitted_data_validates : false;
+            $submittedDataValidates = $this->MiscIdentifier->validates() ? $submittedDataValidates : false;
             if ($controls['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value'])) {
                 if ($this->MiscIdentifier->find('first', array(
                     'conditions' => array(
-                        'misc_identifier_control_id' => $misc_identifier_control_id,
+                        'misc_identifier_control_id' => $miscIdentifierControlId,
                         'identifier_value' => $this->request->data['MiscIdentifier']['identifier_value']
                     )
                 ))) {
-                    $submitted_data_validates = false;
+                    $submittedDataValidates = false;
                     $this->MiscIdentifier->validationErrors['identifier_value'][] = __('this field must be unique') . ' (' . __('value') . ')';
                 }
             }
             $this->request->data = $this->MiscIdentifier->data;
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 // Set incremented identifier if required
-                if ($is_incremented_identifier) {
-                    $new_identifier_value = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_format'], $controls['MiscIdentifierControl']['pad_to_length']);
-                    if ($new_identifier_value === false) {
+                if ($isIncrementedIdentifier) {
+                    $newIdentifierValue = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_format'], $controls['MiscIdentifierControl']['pad_to_length']);
+                    if ($newIdentifierValue === false) {
                         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
-                    $this->request->data['MiscIdentifier']['identifier_value'] = $new_identifier_value;
+                    $this->request->data['MiscIdentifier']['identifier_value'] = $newIdentifierValue;
                 }
                 
                 // Save data
                 if ($this->MiscIdentifier->save($this->request->data, false)) {
                     
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
                     
-                    $this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                    $this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
                 }
             }
         }
     }
 
-    function edit($participant_id, $misc_identifier_id)
+    function edit($participantId, $miscIdentifierId)
     {
-        $this->Participant->getOrRedirect($participant_id);
-        $this->MiscIdentifier->getOrRedirect($misc_identifier_id);
+        $this->Participant->getOrRedirect($participantId);
+        $this->MiscIdentifier->getOrRedirect($miscIdentifierId);
         
         // MANAGE DATA
         
-        $misc_identifier_data = $this->MiscIdentifier->find('first', array(
+        $miscIdentifierData = $this->MiscIdentifier->find('first', array(
             'conditions' => array(
-                'MiscIdentifier.id' => $misc_identifier_id,
-                'MiscIdentifier.participant_id' => $participant_id
+                'MiscIdentifier.id' => $miscIdentifierId,
+                'MiscIdentifier.participant_id' => $participantId
             ),
             'recursive' => '0'
         ));
-        if ($misc_identifier_data['MiscIdentifierControl']['flag_confidential'] && ! $this->Session->read('flag_show_confidential')) {
+        if ($miscIdentifierData['MiscIdentifierControl']['flag_confidential'] && ! $this->Session->read('flag_show_confidential')) {
             AppController::getInstance()->redirect("/Pages/err_confidential");
         }
         
-        if (empty($misc_identifier_data) || (! isset($misc_identifier_data['MiscIdentifierControl'])) || empty($misc_identifier_data['MiscIdentifierControl']['id'])) {
+        if (empty($miscIdentifierData) || (! isset($miscIdentifierData['MiscIdentifierControl'])) || empty($miscIdentifierData['MiscIdentifierControl']['id'])) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $is_incremented_identifier = ! empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name']);
+        $isIncrementedIdentifier = ! empty($miscIdentifierData['MiscIdentifierControl']['autoincrement_name']);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'MiscIdentifier.id' => $misc_identifier_id
+        $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'MiscIdentifier.id' => $miscIdentifierId
         ));
         
-        $form_alias = ($is_incremented_identifier ? 'incrementedmiscidentifiers' : 'miscidentifiers') . ($misc_identifier_data['MiscIdentifierControl']['flag_link_to_study'] ? ',miscidentifiers_study' : '');
-        $this->Structures->set($form_alias);
+        $formAlias = ($isIncrementedIdentifier ? 'incrementedmiscidentifiers' : 'miscidentifiers') . ($miscIdentifierData['MiscIdentifierControl']['flag_link_to_study'] ? ',miscidentifiers_study' : '');
+        $this->Structures->set($formAlias);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array(
+            $miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array(
                 'StudySummary' => array(
-                    'id' => $misc_identifier_data['MiscIdentifier']['study_summary_id']
+                    'id' => $miscIdentifierData['MiscIdentifier']['study_summary_id']
                 )
             ));
-            $this->request->data = $misc_identifier_data;
+            $this->request->data = $miscIdentifierData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
-            if (! $is_incremented_identifier && $misc_identifier_data['MiscIdentifierControl']['pad_to_length']) {
-                $this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $misc_identifier_data['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
+            if (! $isIncrementedIdentifier && $miscIdentifierData['MiscIdentifierControl']['pad_to_length']) {
+                $this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $miscIdentifierData['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
             }
             
             // ... special validations
             
             $this->MiscIdentifier->set($this->request->data);
-            $submitted_data_validates = $this->MiscIdentifier->validates() ? $submitted_data_validates : false;
-            if ($misc_identifier_data['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value']) && $this->request->data['MiscIdentifier']['identifier_value'] != $misc_identifier_data['MiscIdentifier']['identifier_value']) {
+            $submittedDataValidates = $this->MiscIdentifier->validates() ? $submittedDataValidates : false;
+            if ($miscIdentifierData['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value']) && $this->request->data['MiscIdentifier']['identifier_value'] != $miscIdentifierData['MiscIdentifier']['identifier_value']) {
                 if ($this->MiscIdentifier->find('first', array(
                     'conditions' => array(
-                        'misc_identifier_control_id' => $misc_identifier_data['MiscIdentifierControl']['id'],
+                        'misc_identifier_control_id' => $miscIdentifierData['MiscIdentifierControl']['id'],
                         'identifier_value' => $this->request->data['MiscIdentifier']['identifier_value']
                     )
                 ))) {
-                    $submitted_data_validates = false;
+                    $submittedDataValidates = false;
                     $this->MiscIdentifier->validationErrors['identifier_value'][] = __('this field must be unique') . ' (' . __('value') . ')';
                 }
             }
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->MiscIdentifier->id = $misc_identifier_id;
+            if ($submittedDataValidates) {
+                $this->MiscIdentifier->id = $miscIdentifierId;
                 $this->MiscIdentifier->data = null;
                 if ($this->MiscIdentifier->save($this->request->data)) {
                     
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
                     
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
                 }
             }
         }
     }
 
-    function delete($participant_id, $misc_identifier_id)
+    function delete($participantId, $miscIdentifierId)
     {
-        $misc_identifier_data = $this->MiscIdentifier->getOrRedirect($misc_identifier_id);
+        $miscIdentifierData = $this->MiscIdentifier->getOrRedirect($miscIdentifierId);
         
         // MANAGE DATA
-        if ($misc_identifier_data['MiscIdentifier']['participant_id'] != $participant_id) {
+        if ($miscIdentifierData['MiscIdentifier']['participant_id'] != $participantId) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->MiscIdentifier->allowDeletion($misc_identifier_id);
+        $arrAllowDeletion = $this->MiscIdentifier->allowDeletion($miscIdentifierId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            $deletion_worked = false;
-            if (empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])) {
+        if ($arrAllowDeletion['allow_deletion']) {
+            $deletionWorked = false;
+            if (empty($miscIdentifierData['MiscIdentifierControl']['autoincrement_name'])) {
                 // real delete
                 $this->MiscIdentifier->addWritableField(array(
                     'deleted',
                     'flag_unique'
                 ));
                 $this->MiscIdentifier->data = array();
-                $deletion_worked = $this->MiscIdentifier->save(array(
+                $deletionWorked = $this->MiscIdentifier->save(array(
                     'MiscIdentifier' => array(
                         'deleted' => 1,
                         'flag_unique' => null
@@ -280,98 +280,98 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
             } else {
                 // tmp delete to be able to reuse it
                 // use update to avoid trigerring Participant last mod with a null participant_id.
-                $deletion_worked = true;
-                $this->MiscIdentifier->id = $misc_identifier_id;
+                $deletionWorked = true;
+                $this->MiscIdentifier->id = $miscIdentifierId;
                 $this->MiscIdentifier->beforeDelete();
                 $this->MiscIdentifier->updateAll(array(
                     'participant_id' => null,
                     'tmp_deleted' => 1,
                     'deleted' => 1
                 ), array(
-                    'MiscIdentifier.id' => $misc_identifier_id
+                    'MiscIdentifier.id' => $miscIdentifierId
                 ));
                 $this->MiscIdentifier->afterDelete();
-                $this->Participant->id = $participant_id;
+                $this->Participant->id = $participantId;
                 $this->Participant->data = array();
                 $this->Participant->save(array(
                     'Participant.modified' => now()
                 )); // trigger last modification
             }
             
-            if ($deletion_worked) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($deletionWorked) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
         }
     }
 
-    function reuse($participant_id, $misc_identifier_ctrl_id, $submited = false)
+    function reuse($participantId, $miscIdentifierCtrlId, $submited = false)
     {
-        $this->Participant->getOrRedirect($participant_id);
-        $this->MiscIdentifierControl->getOrRedirect($misc_identifier_ctrl_id);
-        $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'MiscIdentifierControl.id' => $misc_identifier_ctrl_id
+        $this->Participant->getOrRedirect($participantId);
+        $this->MiscIdentifierControl->getOrRedirect($miscIdentifierCtrlId);
+        $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'MiscIdentifierControl.id' => $miscIdentifierCtrlId
         ));
         $this->Structures->set('misc_identifier_value');
         
-        $mi_control = $this->MiscIdentifierControl->findById($misc_identifier_ctrl_id);
-        if ($mi_control['MiscIdentifierControl']['flag_confidential'] && ! $this->Session->read('flag_show_confidential')) {
+        $miControl = $this->MiscIdentifierControl->findById($miscIdentifierCtrlId);
+        if ($miControl['MiscIdentifierControl']['flag_confidential'] && ! $this->Session->read('flag_show_confidential')) {
             AppController::getInstance()->redirect("/Pages/err_confidential");
         }
         
-        $this->set('title', $mi_control['MiscIdentifierControl']['misc_identifier_name']);
-        $data_to_display = $this->MiscIdentifier->find('all', array(
+        $this->set('title', $miControl['MiscIdentifierControl']['misc_identifier_name']);
+        $dataToDisplay = $this->MiscIdentifier->find('all', array(
             'conditions' => array(
                 'MiscIdentifier.participant_id' => null,
                 'MiscIdentifier.deleted' => 1,
                 'MiscIdentifier.tmp_deleted' => 1,
-                'MiscIdentifierControl.id' => $misc_identifier_ctrl_id
+                'MiscIdentifierControl.id' => $miscIdentifierCtrlId
             ),
             'recursive' => 0
         ));
         
-        if ($mi_control['MiscIdentifierControl']['flag_once_per_participant']) {
+        if ($miControl['MiscIdentifierControl']['flag_once_per_participant']) {
             $count = $this->MiscIdentifier->find('count', array(
                 'conditions' => array(
-                    'MiscIdentifier.participant_id' => $participant_id,
-                    'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id
+                    'MiscIdentifier.participant_id' => $participantId,
+                    'MiscIdentifier.misc_identifier_control_id' => $miscIdentifierCtrlId
                 ),
                 'recursive' => - 1
             ));
             if ($count > 0) {
-                $this->atimFlashWarning(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                $this->atimFlashWarning(__('this identifier has already been created for this participant'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
                 return;
             }
         }
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if ($submited) {
             if (isset($this->request->data['MiscIdentifier']['selected_id']) && is_numeric($this->request->data['MiscIdentifier']['selected_id'])) {
-                $submitted_data_validates = true;
-                $hook_link = $this->hook('presave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $submittedDataValidates = true;
+                $hookLink = $this->hook('presave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 
-                if ($submitted_data_validates) {
+                if ($submittedDataValidates) {
                     $conditions = array(
                         'MiscIdentifier.participant_id' => null,
                         'MiscIdentifier.deleted' => 1,
                         'MiscIdentifier.tmp_deleted' => 1,
-                        'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id,
+                        'MiscIdentifier.misc_identifier_control_id' => $miscIdentifierCtrlId,
                         'MiscIdentifier.id' => $this->request->data['MiscIdentifier']['selected_id']
                     );
                     $mi = $this->MiscIdentifier->find('first', array(
@@ -383,13 +383,13 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                         $this->MiscIdentifier->updateAll(array(
                             'tmp_deleted' => 0,
                             'deleted' => 0,
-                            'participant_id' => $participant_id
+                            'participant_id' => $participantId
                         ), $conditions); // will only update if conditions are still ok (hence if no one else took it)
                     }
                     
                     $mi = $this->MiscIdentifier->find('first', array(
                         'conditions' => array(
-                            'MiscIdentifier.participant_id' => $participant_id,
+                            'MiscIdentifier.participant_id' => $participantId,
                             'MiscIdentifier.id' => $this->request->data['MiscIdentifier']['selected_id']
                         )
                     ));
@@ -398,30 +398,30 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                     } else {
                         $this->MiscIdentifier->id = $this->request->data['MiscIdentifier']['selected_id'];
                         $this->MiscIdentifier->createRevision();
-                        $this->Participant->id = $participant_id;
+                        $this->Participant->id = $participantId;
                         $this->Participant->data = array();
                         $this->Participant->save(array(
                             'Participant.modified' => now()
                         )); // trigger last modification
-                        $hook_link = $this->hook('postsave_process');
-                        if ($hook_link) {
-                            require ($hook_link);
+                        $hookLink = $this->hook('postsave_process');
+                        if ($hookLink) {
+                            require ($hookLink);
                         }
-                        $this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+                        $this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
                     }
                 }
             } else {
                 $this->MiscIdentifier->validationErrors[][] = 'you need to select an identifier value';
             }
         }
-        $this->request->data = $data_to_display;
+        $this->request->data = $dataToDisplay;
         
         if (empty($this->request->data)) {
             AppController::addWarningMsg(__('there are no unused identifiers left to reuse. hit cancel to return to the identifiers list.'));
         }
     }
 
-    function listall($participant_id)
+    function listall($participantId)
     {
         // only for permissions
         // since identifiers are all loaded within participants to build the menu,

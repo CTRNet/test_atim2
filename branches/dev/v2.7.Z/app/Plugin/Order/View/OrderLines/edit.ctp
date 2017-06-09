@@ -1,25 +1,25 @@
 <?php
-$structure_links = array(
-    'top' => '/Order/OrderLines/edit/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'],
+$structureLinks = array(
+    'top' => '/Order/OrderLines/edit/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'],
     'bottom' => array(
-        'cancel' => '/Order/OrderLines/detail/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id']
+        'cancel' => '/Order/OrderLines/detail/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id']
     )
 );
 
-$structure_override = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

@@ -14,7 +14,7 @@ class ProtocolExtendMaster extends ProtocolAppModel
         )
     );
 
-    public static $drug_model = null;
+    public static $drugModel = null;
 
     function validates($options = array())
     {
@@ -25,37 +25,37 @@ class ProtocolExtendMaster extends ProtocolAppModel
 
     function validateAndUpdateProtocolExtendDrugData()
     {
-        $protocol_extend_data = & $this->data;
+        $protocolExtendData = & $this->data;
         
         // check data structure
-        $tmp_arr_to_check = array_values($protocol_extend_data);
-        if ((! is_array($protocol_extend_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['ProtocolExtendMaster']))) {
+        $tmpArrToCheck = array_values($protocolExtendData);
+        if ((! is_array($protocolExtendData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['ProtocolExtendMaster']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Launch validation
-        if (array_key_exists('FunctionManagement', $protocol_extend_data) && array_key_exists('autocomplete_protocol_drug_id', $protocol_extend_data['FunctionManagement'])) {
-            $protocol_extend_data['ProtocolExtendMaster']['drug_id'] = null;
-            $protocol_extend_data['FunctionManagement']['autocomplete_protocol_drug_id'] = trim($protocol_extend_data['FunctionManagement']['autocomplete_protocol_drug_id']);
-            if (strlen($protocol_extend_data['FunctionManagement']['autocomplete_protocol_drug_id'])) {
+        if (array_key_exists('FunctionManagement', $protocolExtendData) && array_key_exists('autocomplete_protocol_drug_id', $protocolExtendData['FunctionManagement'])) {
+            $protocolExtendData['ProtocolExtendMaster']['drug_id'] = null;
+            $protocolExtendData['FunctionManagement']['autocomplete_protocol_drug_id'] = trim($protocolExtendData['FunctionManagement']['autocomplete_protocol_drug_id']);
+            if (strlen($protocolExtendData['FunctionManagement']['autocomplete_protocol_drug_id'])) {
                 // Load model
-                if (self::$drug_model == null)
-                    self::$drug_model = AppModel::getInstance("Drug", "Drug", true);
-                    
-                    // Check the protocol extend drug definition
-                $arr_drug_selection_results = self::$drug_model->getDrugIdFromDrugDataAndCode($protocol_extend_data['FunctionManagement']['autocomplete_protocol_drug_id']);
+                if (self::$drugModel == null)
+                    self::$drugModel = AppModel::getInstance("Drug", "Drug", true);
+                
+                // Check the protocol extend drug definition
+                $arrDrugSelectionResults = self::$drugModel->getDrugIdFromDrugDataAndCode($protocolExtendData['FunctionManagement']['autocomplete_protocol_drug_id']);
                 
                 // Set drug id
-                if (isset($arr_drug_selection_results['Drug'])) {
-                    $protocol_extend_data['ProtocolExtendMaster']['drug_id'] = $arr_drug_selection_results['Drug']['id'];
+                if (isset($arrDrugSelectionResults['Drug'])) {
+                    $protocolExtendData['ProtocolExtendMaster']['drug_id'] = $arrDrugSelectionResults['Drug']['id'];
                     $this->addWritableField(array(
                         'drug_id'
                     ));
                 }
                 
                 // Set error
-                if (isset($arr_drug_selection_results['error'])) {
-                    $this->validationErrors['autocomplete_protocol_drug_id'][] = $arr_drug_selection_results['error'];
+                if (isset($arrDrugSelectionResults['error'])) {
+                    $this->validationErrors['autocomplete_protocol_drug_id'][] = $arrDrugSelectionResults['error'];
                 }
             }
         }

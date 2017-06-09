@@ -1,6 +1,6 @@
 <?php
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
     'settings' => array(
         'pagination' => false,
@@ -15,15 +15,15 @@ $final_options = array(
             'MiscIdentifier.selected_id' => '%%MiscIdentifier.id%%'
         ),
         'bottom' => array(
-            'cancel' => '/ClinicalAnnotation/Participants/profile/' . $atim_menu_variables['Participant.id']
+            'cancel' => '/ClinicalAnnotation/Participants/profile/' . $atimMenuVariables['Participant.id']
         ),
-        'top' => '/ClinicalAnnotation/MiscIdentifiers/reuse/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['MiscIdentifierControl.id'] . '/1/'
+        'top' => '/ClinicalAnnotation/MiscIdentifiers/reuse/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['MiscIdentifierControl.id'] . '/1/'
     )
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
-$this->Structures->build($atim_structure, $final_options);
+$this->Structures->build($atimStructure, $finalOptions);
 ?>

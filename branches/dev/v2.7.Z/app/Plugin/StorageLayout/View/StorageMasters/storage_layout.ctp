@@ -17,18 +17,18 @@ ob_start();
 $content = ob_get_clean();
 
 $bottom = array(
-    'undo' => '/StorageLayout/StorageMasters/storageLayout/' . $atim_menu_variables['StorageMaster.id']
+    'undo' => '/StorageLayout/StorageMasters/storageLayout/' . $atimMenuVariables['StorageMaster.id']
 );
-if (isset($add_links)) {
-    $bottom['add to storage'] = $add_links;
+if (isset($addLinks)) {
+    $bottom['add to storage'] = $addLinks;
 }
-$bottom['export as CSV file (comma-separated values)'] = sprintf("javascript:setCsvPopup('StorageLayout/StorageMasters/storageLayout/" . $atim_menu_variables['StorageMaster.id'] . "/0/1/');", 0);
+$bottom['export as CSV file (comma-separated values)'] = sprintf("javascript:setCsvPopup('StorageLayout/StorageMasters/storageLayout/" . $atimMenuVariables['StorageMaster.id'] . "/0/1/');", 0);
 
-$this->Structures->build($empty_structure, array(
+$this->Structures->build($emptyStructure, array(
     'type' => 'detail',
     'extras' => $content,
     'links' => array(
-        'top' => '/StorageLayout/StorageMasters/storageLayout/' . $atim_menu_variables['StorageMaster.id'],
+        'top' => '/StorageLayout/StorageMasters/storageLayout/' . $atimMenuVariables['StorageMaster.id'],
         'bottom' => $bottom
     )
 ));

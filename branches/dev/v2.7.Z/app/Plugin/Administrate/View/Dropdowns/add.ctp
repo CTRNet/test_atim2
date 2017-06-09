@@ -1,25 +1,25 @@
 <?php
-$structure_links = array(
-    "top" => "/Administrate/Dropdowns/add/" . $control_data['StructurePermissibleValuesCustomControl']['id'] . "/",
+$structureLinks = array(
+    "top" => "/Administrate/Dropdowns/add/" . $controlData['StructurePermissibleValuesCustomControl']['id'] . "/",
     "bottom" => array(
-        "cancel" => "/Administrate/Dropdowns/view/" . $control_data['StructurePermissibleValuesCustomControl']['id'] . "/"
+        "cancel" => "/Administrate/Dropdowns/view/" . $controlData['StructurePermissibleValuesCustomControl']['id'] . "/"
     )
 );
-$structure_override = array(
+$structureOverride = array(
     'StructurePermissibleValuesCustom.use_as_input' => 1
 );
-$structure_settings = array(
+$structureSettings = array(
     'pagination' => false,
     'add_fields' => true,
     'del_fields' => true,
-    'header' => __('list') . ' : ' . $control_data['StructurePermissibleValuesCustomControl']['name']
+    'header' => __('list') . ' : ' . $controlData['StructurePermissibleValuesCustomControl']['name']
 );
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override,
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'type' => 'addgrid',
-    'settings' => $structure_settings
+    'settings' => $structureSettings
 );
 
-$this->Structures->build($administrate_dropdown_values, $final_options)?>
+$this->Structures->build($administrateDropdownValues, $finalOptions)?>
 

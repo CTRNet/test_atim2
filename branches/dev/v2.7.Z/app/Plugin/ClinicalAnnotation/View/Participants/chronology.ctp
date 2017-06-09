@@ -1,7 +1,7 @@
 <?php
 $chronology['Accuracy']['custom']['date'] = 'date_accuracy';
 
-$final_atim_structure = $chronology;
+$finalAtimStructure = $chronology;
 
 $links = array(
     'index' => array(
@@ -16,7 +16,7 @@ $links = array(
     )
 );
 
-$final_options = array(
+$finalOptions = array(
     'settings' => array(
         'pagination' => false
     ),
@@ -27,10 +27,10 @@ $final_options = array(
     )
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

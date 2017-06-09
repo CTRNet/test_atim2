@@ -34,16 +34,16 @@ class PermissionsController extends AdministrateAppController
         Cache::clear(false, "menus");
     }
 
-    function update($aro_id, $aco_id, $state)
+    function update($aroId, $acoId, $state)
     {
         $this->autoRender = false;
         
         $aro = $this->Aro->find('first', array(
-            'conditions' => 'Aro.id = "' . $aro_id . '"',
+            'conditions' => 'Aro.id = "' . $aroId . '"',
             'order' => 'alias ASC',
             'recursive' => - 1
         ));
-        $this->updatePermission($aro_id, $aco_id, $state);
+        $this->updatePermission($aroId, $acoId, $state);
         
         list ($type, $id) = explode('::', $aro['Aro']['alias']);
         switch ($type) {
@@ -65,10 +65,10 @@ class PermissionsController extends AdministrateAppController
         exit();
     }
 
-    private function updatePermission($aro_id, $aco_id, $state)
+    private function updatePermission($aroId, $acoId, $state)
     {
         if (intval($state) == 0) {
-            $sql = 'DELETE FROM aros_acos WHERE aro_id = "' . $aro_id . '" AND aco_id = "' . $aco_id . '"';
+            $sql = 'DELETE FROM aros_acos WHERE aro_id = "' . $aroId . '" AND aco_id = "' . $acoId . '"';
         } else {
             $sql = '
 				INSERT INTO
@@ -82,8 +82,8 @@ class PermissionsController extends AdministrateAppController
 					_delete
 				)
 				VALUES(
-					"' . $aro_id . '",
-					"' . $aco_id . '",
+					"' . $aroId . '",
+					"' . $acoId . '",
 					"' . $state . '",
 					"' . $state . '",
 					"' . $state . '",
@@ -105,31 +105,31 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
-    function tree($group_id = 0, $user_id = 0)
+    function tree($groupId = 0, $userId = 0)
     {
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id,
-            'User.id' => $user_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId,
+            'User.id' => $userId
         ));
         $aro = $this->Aro->find('first', array(
-            'conditions' => 'Aro.alias = "Group::' . $group_id . '"',
+            'conditions' => 'Aro.alias = "Group::' . $groupId . '"',
             'order' => 'alias ASC',
             'recursive' => 1
         ));
-        $aco_id_extract = Set::extract('Aco.{n}.id', $aro);
-        $aco_perm_extract = Set::extract('Aco.{n}.Permission', $aro);
-        $known_acos = null;
-        if (count($aco_id_extract) > 0 && count($aco_perm_extract) > 1) {
-            $known_acos = array_combine($aco_id_extract, $aco_perm_extract);
+        $acoIdExtract = Set::extract('Aco.{n}.id', $aro);
+        $acoPermExtract = Set::extract('Aco.{n}.Permission', $aro);
+        $knownAcos = null;
+        if (count($acoIdExtract) > 0 && count($acoPermExtract) > 1) {
+            $knownAcos = array_combine($acoIdExtract, $acoPermExtract);
         } else {
-            $known_acos = array();
+            $knownAcos = array();
         }
         $this->set('aro', $aro);
-        $this->set('known_acos', $known_acos);
+        $this->set('knownAcos', $knownAcos);
         if ($this->request->data) {
-            $this->Group->id = $group_id;
-            $this->Aro->pkey_safeguard = false;
-            $this->Aro->check_writable_fields = false;
+            $this->Group->id = $groupId;
+            $this->Aro->pkeySafeguard = false;
+            $this->Aro->checkWritableFields = false;
             $this->Group->addWritableField('flag_show_confidential');
             $this->Group->save($this->request->data['Group']);
             unset($this->request->data['Group']);
@@ -137,10 +137,10 @@ class PermissionsController extends AdministrateAppController
                 $this->updatePermission($aro['Aro']['id'], $aco['Aco']['id'], intval($aco['Aco']['state']));
             }
             
-            if ($group_id == 1) {
+            if ($groupId == 1) {
                 // make sure admin permissions are always allowed on the administrate module
-                $permission_model = AppModel::getInstance('', 'Permission', false);
-                $permission = $permission_model->find('first', array(
+                $permissionModel = AppModel::getInstance('', 'Permission', false);
+                $permission = $permissionModel->find('first', array(
                     'conditions' => array(
                         'Permission.aro_id' => 1,
                         'Permission.aco_id' => array(
@@ -151,51 +151,51 @@ class PermissionsController extends AdministrateAppController
                     'order' => 'Permission.aco_id DESC',
                     'recursive' => - 1
                 ));
-                $altered_permissions = false;
+                $alteredPermissions = false;
                 if ($permission['Permission']['_create'] == - 1) {
                     // highest node is blocked, allow it.
-                    $altered_permissions = true;
+                    $alteredPermissions = true;
                     $this->updatePermission(1, 2, 1);
                 }
                 $permissions = $this->Aco->children(2); // all administrate functions
                 $permissions = AppController::defineArrayKey($permissions, 'Aco', 'id', true);
-                $permissions_to_delete = $permission_model->find('all', array(
+                $permissionsToDelete = $permissionModel->find('all', array(
                     'conditions' => array(
                         'Permission.aco_id' => array_keys($permissions),
                         'Permission.aro_id' => 1
                     ),
                     'recursive' => - 1
                 ));
-                if ($permissions_to_delete) {
-                    $altered_permissions = true;
-                    foreach ($permissions_to_delete as $permission_to_delete) {
-                        $this->updatePermission(1, $permission_to_delete['Permission']['aco_id'], 0);
+                if ($permissionsToDelete) {
+                    $alteredPermissions = true;
+                    foreach ($permissionsToDelete as $permissionToDelete) {
+                        $this->updatePermission(1, $permissionToDelete['Permission']['aco_id'], 0);
                     }
                 }
                 
-                if ($altered_permissions) {
+                if ($alteredPermissions) {
                     AppController::addWarningMsg(__('permissions were altered to grant group administrators all administrative privileges'));
                 }
             }
             
             // check structure functions dependencies
-            $dm_struct_fct_model = AppModel::getInstance('Datamart', 'DatamartStructureFunction');
-            $dependent_fcts = $dm_struct_fct_model->find('all', array(
+            $dmStructFctModel = AppModel::getInstance('Datamart', 'DatamartStructureFunction');
+            $dependentFcts = $dmStructFctModel->find('all', array(
                 'conditions' => array(
                     'NOT' => array(
                         'DatamartStructureFunction.ref_single_fct_link' => ''
                     )
                 )
             ));
-            $aro_str = "Group::" . $group_id;
+            $aroStr = "Group::" . $groupId;
             $changed = false;
-            $this->Permission->pkey_safeguard = false;
-            $this->Permission->check_writable_fields = false;
-            foreach ($dependent_fcts as $dependent_fct) {
-                $batch = 'Controller' . $dependent_fct['DatamartStructureFunction']['link'];
-                $unit = 'Controller' . $dependent_fct['DatamartStructureFunction']['ref_single_fct_link'];
-                if (! $this->SessionAcl->check($aro_str, $unit) && $this->SessionAcl->check($aro_str, $batch)) {
-                    $this->SessionAcl->deny($aro_str, $batch);
+            $this->Permission->pkeySafeguard = false;
+            $this->Permission->checkWritableFields = false;
+            foreach ($dependentFcts as $dependentFct) {
+                $batch = 'Controller' . $dependentFct['DatamartStructureFunction']['link'];
+                $unit = 'Controller' . $dependentFct['DatamartStructureFunction']['ref_single_fct_link'];
+                if (! $this->SessionAcl->check($aroStr, $unit) && $this->SessionAcl->check($aroStr, $batch)) {
+                    $this->SessionAcl->deny($aroStr, $batch);
                     $changed = true;
                 }
             }
@@ -207,7 +207,7 @@ class PermissionsController extends AdministrateAppController
             $this->SystemVar->setVar('permission_timestamp', time());
             Cache::clear(false, "menus");
             // straight flash because we redirect to the edit screen
-            $this->atimFlash(__('your data has been updated'), '/Administrate/Permissions/tree/' . $group_id . '/' . $user_id);
+            $this->atimFlash(__('your data has been updated'), '/Administrate/Permissions/tree/' . $groupId . '/' . $userId);
             return;
         }
         
@@ -248,53 +248,53 @@ class PermissionsController extends AdministrateAppController
                     'associationForeignKey' => 'aro_id',
                     'conditions' => array(
                         'Aro.model' => 'Group',
-                        'Aro.foreign_key' => $group_id
+                        'Aro.foreign_key' => $groupId
                     )
                 )
             )
         ));
         
-        $threaded_data = $this->Aco->find('threaded', array(
+        $threadedData = $this->Aco->find('threaded', array(
             'order' => 'Aco.alias'
         ));
-        $threaded_data = $this->addPermissionStateToThreadedData($threaded_data);
+        $threadedData = $this->addPermissionStateToThreadedData($threadedData);
         
-        $this->request->data = $threaded_data;
+        $this->request->data = $threadedData;
         if (! isset($this->request->data[0]['Aco']['state'])) {
             // the root not is blank, display "denied" to make it easier to understand
             $this->request->data[0]['Aco']['state'] = - 1;
         }
-        $help_url = $this->ExternalLink->find('first', array(
+        $helpUrl = $this->ExternalLink->find('first', array(
             'conditions' => array(
                 'name' => 'permissions_help'
             )
         ));
-        $this->set("help_url", $help_url['ExternalLink']['link']);
+        $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
         $this->Structures->set("permissions", "permissions");
         $this->Structures->set("permissions2", "permissions2");
-        $this->set("group_data", $this->Group->find('first', array(
+        $this->set("groupData", $this->Group->find('first', array(
             'conditions' => array(
-                'id' => $group_id
+                'id' => $groupId
             ),
             'recursive' => 0
         )));
     }
 
-    function addPermissionStateToThreadedData($threaded_data = array())
+    function addPermissionStateToThreadedData($threadedData = array())
     {
-        foreach ($threaded_data as $k => $v) {
+        foreach ($threadedData as $k => $v) {
             if (isset($v['Aro'][0]) && isset($v['Aro'][0]['ArosAco']) && isset($v['Aro'][0]['ArosAco']['_create']) && $v['Aro'][0]['ArosAco']['_create'] != 0) {
-                $threaded_data[$k]['Aco']['state'] = $v['Aro'][0]['ArosAco']['_create'];
+                $threadedData[$k]['Aco']['state'] = $v['Aro'][0]['ArosAco']['_create'];
             }
             
-            unset($threaded_data[$k]['Aro']);
+            unset($threadedData[$k]['Aro']);
             
             if (isset($v['children']) && count($v['children'])) {
-                $threaded_data[$k]['children'] = $this->addPermissionStateToThreadedData($v['children']);
+                $threadedData[$k]['children'] = $this->addPermissionStateToThreadedData($v['children']);
             }
         }
         
-        return $threaded_data;
+        return $threadedData;
     }
 
     function savePreset()
@@ -305,12 +305,12 @@ class PermissionsController extends AdministrateAppController
         // debug = 0 to avoid printing debug queries that would break the javascript array
         Configure::write('debug', 0);
         if (! empty($this->request->data)) {
-            $permission_preset = $this->PermissionsPreset->find('first', array(
+            $permissionPreset = $this->PermissionsPreset->find('first', array(
                 'conditions' => array(
                     'PermissionsPreset.name' => $this->request->data['PermissionsPreset']['name']
                 )
             ));
-            if (empty($permission_preset)) {
+            if (empty($permissionPreset)) {
                 if ($this->PermissionsPreset->save(array(
                     'name' => $this->request->data['PermissionsPreset']['name'],
                     'serialized_data' => serialize(array(
@@ -326,7 +326,7 @@ class PermissionsController extends AdministrateAppController
                 }
             } elseif ($this->request->data[0]['overwrite']) {
                 if ($this->PermissionsPreset->save(array(
-                    'id' => $permission_preset['PermissionsPreset']['id'],
+                    'id' => $permissionPreset['PermissionsPreset']['id'],
                     'serialized_data' => serialize(array(
                         'allow' => $this->request->data[0]['allow'],
                         'deny' => $this->request->data[0]['deny']
@@ -361,10 +361,10 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
-    function deletePreset($preset_id)
+    function deletePreset($presetId)
     {
         $this->layout = false;
         $this->render(false);
-        $this->PermissionsPreset->atimDelete($preset_id);
+        $this->PermissionsPreset->atimDelete($presetId);
     }
 }

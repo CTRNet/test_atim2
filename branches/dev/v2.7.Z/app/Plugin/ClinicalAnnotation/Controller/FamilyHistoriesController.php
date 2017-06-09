@@ -38,147 +38,147 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
      */
     
     /* ==> Note: Reuse flash() messages as they are into this controller! */
-    function listall($participant_id)
+    function listall($participantId)
     {
         
         // MANAGE DATA
         
         /* ==> Note: Always validate data linked to the created record exists */
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         $this->request->data = $this->paginate($this->FamilyHistory, array(
-            'FamilyHistory.participant_id' => $participant_id
+            'FamilyHistory.participant_id' => $participantId
         ));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
         /* ==> Note: Uncomment following lines to override default structure and menu */
-        // $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));
-        // $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        // $this->set('atimStructure', $this->Structures->get('form', 'familyhistories'));
+        // $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($participant_id, $family_history_id)
+    function detail($participantId, $familyHistoryId)
     {
         // MANAGE DATA
-        $family_history_data = $this->FamilyHistory->find('first', array(
+        $familyHistoryData = $this->FamilyHistory->find('first', array(
             'conditions' => array(
-                'FamilyHistory.id' => $family_history_id,
-                'FamilyHistory.participant_id' => $participant_id
+                'FamilyHistory.id' => $familyHistoryId,
+                'FamilyHistory.participant_id' => $participantId
             )
         ));
         /* ==> Note: Always validate data exists */
-        if (empty($family_history_data)) {
+        if (empty($familyHistoryData)) {
             
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->request->data = $family_history_data;
+        $this->request->data = $familyHistoryData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        // $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));
-        // $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'FamilyHistory.id' => $family_history_id
+        // $this->set('atimStructure', $this->Structures->get('form', 'familyhistories'));
+        // $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'FamilyHistory.id' => $familyHistoryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($participant_id = null)
+    function add($participantId = null)
     {
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        // $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));
-        // $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        // $this->set('atimStructure', $this->Structures->get('form', 'familyhistories'));
+        // $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
             $this->request->data[] = array();
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             
             // Save process
             
             $errors = array();
-            $line_counter = 0;
-            foreach ($this->request->data as $key => &$new_row) {
-                $this->FamilyHistory->patchIcd10NullValues($new_row);
-                $line_counter ++;
+            $lineCounter = 0;
+            foreach ($this->request->data as $key => &$newRow) {
+                $this->FamilyHistory->patchIcd10NullValues($newRow);
+                $lineCounter ++;
                 $this->FamilyHistory->data = array(); // *** To guaranty no merge will be done with previous data ***
-                $this->FamilyHistory->set($new_row);
+                $this->FamilyHistory->set($newRow);
                 if (! $this->FamilyHistory->validates()) {
                     foreach ($this->FamilyHistory->validationErrors as $field => $msgs) {
                         $msgs = is_array($msgs) ? $msgs : array(
                             $msgs
                         );
                         foreach ($msgs as $msg)
-                            $errors[$field][$msg][] = $line_counter;
+                            $errors[$field][$msg][] = $lineCounter;
                     }
                 }
             }
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
             if (empty($errors)) {
                 $this->FamilyHistory->addWritableField('participant_id');
-                $this->FamilyHistory->writable_fields_mode = 'addgrid';
-                foreach ($this->request->data as $new_data) {
-                    $new_data['FamilyHistory']['participant_id'] = $participant_id;
+                $this->FamilyHistory->writableFieldsMode = 'addgrid';
+                foreach ($this->request->data as $newData) {
+                    $newData['FamilyHistory']['participant_id'] = $participantId;
                     $this->FamilyHistory->id = null;
                     $this->FamilyHistory->data = array(); // *** To guaranty no merge will be done with previous data ***
-                    if (! $this->FamilyHistory->save($new_data, false))
+                    if (! $this->FamilyHistory->save($newData, false))
                         $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 
-                $url_to_flash = '/ClinicalAnnotation/FamilyHistories/listall/' . $participant_id;
+                $urlToFlash = '/ClinicalAnnotation/FamilyHistories/listall/' . $participantId;
                 
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 
-                $this->atimFlash(__('your data has been saved'), $url_to_flash);
+                $this->atimFlash(__('your data has been saved'), $urlToFlash);
             } else {
                 $this->FamilyHistory->validationErrors = array();
-                foreach ($errors as $field => $msg_and_lines) {
-                    foreach ($msg_and_lines as $msg => $lines) {
+                foreach ($errors as $field => $msgAndLines) {
+                    foreach ($msgAndLines as $msg => $lines) {
                         $msg = __($msg);
-                        $lines_strg = implode(",", array_unique($lines));
-                        if (! empty($lines_strg)) {
-                            $msg .= ' - ' . str_replace('%s', $lines_strg, __('see line %s'));
+                        $linesStrg = implode(",", array_unique($lines));
+                        if (! empty($linesStrg)) {
+                            $msg .= ' - ' . str_replace('%s', $linesStrg, __('see line %s'));
                         }
                         $this->FamilyHistory->validationErrors[$field][] = $msg;
                     }
@@ -187,38 +187,38 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participant_id, $family_history_id)
+    function edit($participantId, $familyHistoryId)
     {
         
         // MANAGE DATA
-        $family_history_data = $this->FamilyHistory->find('first', array(
+        $familyHistoryData = $this->FamilyHistory->find('first', array(
             'conditions' => array(
-                'FamilyHistory.id' => $family_history_id,
-                'FamilyHistory.participant_id' => $participant_id
+                'FamilyHistory.id' => $familyHistoryId,
+                'FamilyHistory.participant_id' => $participantId
             )
         ));
-        if (empty($family_history_data)) {
+        if (empty($familyHistoryData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        // $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));
-        // $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'FamilyHistory.id' => $family_history_id
+        // $this->set('atimStructure', $this->Structures->get('form', 'familyhistories'));
+        // $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'FamilyHistory.id' => $familyHistoryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $family_history_data;
+            $this->request->data = $familyHistoryData;
         } else {
             $this->FamilyHistory->patchIcd10NullValues($this->request->data);
             // 1- SET ADDITIONAL DATA
@@ -227,72 +227,72 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
             
             // 2- LAUNCH SPECIAL VALIDATION PROCESS
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // ... special validations
             
             // 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // 4- SAVE
                 
-                $this->FamilyHistory->id = $family_history_id;
+                $this->FamilyHistory->id = $familyHistoryId;
                 if ($this->FamilyHistory->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/FamilyHistories/detail/' . $participant_id . '/' . $family_history_id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/FamilyHistories/detail/' . $participantId . '/' . $familyHistoryId);
                 }
             }
         }
     }
 
-    function delete($participant_id, $family_history_id)
+    function delete($participantId, $familyHistoryId)
     {
         
         // MANAGE DATA
-        $family_history_data = $this->FamilyHistory->find('first', array(
+        $familyHistoryData = $this->FamilyHistory->find('first', array(
             'conditions' => array(
-                'FamilyHistory.id' => $family_history_id,
-                'FamilyHistory.participant_id' => $participant_id
+                'FamilyHistory.id' => $familyHistoryId,
+                'FamilyHistory.participant_id' => $participantId
             )
         ));
-        if (empty($family_history_data)) {
+        if (empty($familyHistoryData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->FamilyHistory->allowDeletion($family_history_id);
+        $arrAllowDeletion = $this->FamilyHistory->allowDeletion($familyHistoryId);
         
         // CUSTOM CODE
         
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
+        if ($arrAllowDeletion['allow_deletion']) {
             
             // DELETE DATA
             
-            $flash_link = '/ClinicalAnnotation/FamilyHistories/listall/' . $participant_id;
-            if ($this->FamilyHistory->atimDelete($family_history_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            $flashLink = '/ClinicalAnnotation/FamilyHistories/listall/' . $participantId;
+            if ($this->FamilyHistory->atimDelete($familyHistoryId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), $flash_link);
+                $this->atimFlash(__('your data has been deleted'), $flashLink);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), $flash_link);
+                $this->atimFlashError(__('error deleting data - contact administrator'), $flashLink);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/FamilyHistories/detail/' . $participant_id . '/' . $family_history_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/FamilyHistories/detail/' . $participantId . '/' . $familyHistoryId);
         }
     }
 }

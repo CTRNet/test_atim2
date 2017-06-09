@@ -1,78 +1,78 @@
 <?php
-$structure_override = array();
+$structureOverride = array();
 
 $dropdown = null;
-$display_search_section = true;
-if (isset($is_ccl_ajax)) {
-    $display_search_section = false;
+$displaySearchSection = true;
+if (isset($isCclAjax)) {
+    $displaySearchSection = false;
     // force participant collection
-    foreach ($atim_structure['Sfs'] as &$field) {
+    foreach ($atimStructure['Sfs'] as &$field) {
         if ($field['field'] == "collection_property") {
             $field['flag_search_readonly'] = true;
             break;
         }
     }
-    $structure_override['ViewCollection.collection_property'] = "participant collection";
+    $structureOverride['ViewCollection.collection_property'] = "participant collection";
     $dropdown['ViewCollection.collection_property'] = array(
         "participant collection" => __("participant collection")
     );
-    $last_5 = "";
+    $last5 = "";
 } else {
     $settings = array();
-    $final_atim_structure = $atim_structure;
+    $finalAtimStructure = $atimStructure;
     include ('search_links_n_options.php');
-    $final_options['settings']['return'] = true;
-    $final_options['settings']['pagination'] = false;
-    $final_options['settings']['actions'] = false;
+    $finalOptions['settings']['return'] = true;
+    $finalOptions['settings']['pagination'] = false;
+    $finalOptions['settings']['actions'] = false;
     if (isset($this->request->query['nolatest'])) {
-        $last_5 = "";
-        $display_search_section = false;
+        $last5 = "";
+        $displaySearchSection = false;
     } else {
-        $last_5 = $this->Structures->build($final_atim_structure, $final_options);
+        $last5 = $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }
 
 $settings = array(
     'header' => array(
         'title' => __('search type', null) . ': ' . __('collections', null),
-        'description' => __("more information about the types of samples and aliquots are available %s here", $help_url)
+        'description' => __("more information about the types of samples and aliquots are available %s here", $helpUrl)
     ),
     'actions' => false
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'search',
     'links' => array(
         'top' => '/InventoryManagement/Collections/search/' . AppController::getNewSearchId()
     ),
-    'override' => $structure_override,
+    'override' => $structureOverride,
     'settings' => $settings
 );
 if ($dropdown !== null) {
-    $final_options['dropdown_options'] = $dropdown;
+    $finalOptions['dropdown_options'] = $dropdown;
 }
 
-$final_atim_structure2 = $empty_structure;
-$final_options2 = array(
-    'links' => isset($is_ccl_ajax) ? array() : array(
+$finalAtimStructure2 = $emptyStructure;
+$finalOptions2 = array(
+    'links' => isset($isCclAjax) ? array() : array(
         'bottom' => array(
             'add collection' => '/InventoryManagement/Collections/add'
         )
     ),
-    'extras' => '<div class="ajax_search_results"></div><div class="ajax_search_results_default">' . $last_5 . '</div>'
+    'extras' => '<div class="ajax_search_results"></div><div class="ajax_search_results_default">' . $last5 . '</div>'
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-if ($display_search_section) {
-    $this->Structures->build($final_atim_structure2, $final_options2);
+if ($displaySearchSection) {
+    $this->Structures->build($finalAtimStructure2, $finalOptions2);
 }
 ?>

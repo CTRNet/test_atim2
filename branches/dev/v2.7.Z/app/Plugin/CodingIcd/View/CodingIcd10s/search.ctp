@@ -10,16 +10,16 @@ $header = array(
     'title' => __('icd10 code picker'),
     'description' => __('select an icd10 code')
 );
-$index_link_prefix = "/CodingIcd/CodingIcd10s/search/";
+$indexLinkPrefix = "/CodingIcd/CodingIcd10s/search/";
 $links = array(
     'index' => array(
-        'detail' => $index_link_prefix . '%%CodingIcd.id%%'
+        'detail' => $indexLinkPrefix . '%%CodingIcd.id%%'
     ),
     'bottom' => array(
-        'back' => '/CodingIcd/CodingIcd10s/tool/' . $use_icd_type
+        'back' => '/CodingIcd/CodingIcd10s/tool/' . $useIcdType
     )
 );
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'index',
     'settings' => array(
         'pagination' => false,
@@ -32,7 +32,7 @@ $this->Structures->build($atim_structure, array(
 $(function(){
 	$("#default_popup a.detail").click(function(){
 		val = $(this).attr("href");
-		indexLinkPrefix = "<?php echo($index_link_prefix); ?>";
+		indexLinkPrefix = "<?php echo($indexLinkPrefix); ?>";
 		val = val.substr(val.indexOf(indexLinkPrefix) + indexLinkPrefix.length);
 		$(toolTarget).val(val);
 		$("#default_popup").popup('close');

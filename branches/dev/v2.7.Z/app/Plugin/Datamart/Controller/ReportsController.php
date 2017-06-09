@@ -16,236 +16,236 @@ class ReportsController extends DatamartAppController
             'order' => 'Report.name ASC'
         )
     );
-    
+
     // -------------------------------------------------------------------------------------------------------------------
     // SELECT APP . 'View' . DS . 'Elements' . DS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
     // -------------------------------------------------------------------------------------------------------------------
-    function compareToBatchSetOrNode($type_of_object_to_compare, $batch_set_or_node_id_to_compare, $csv_creation = false, $previous_current_node_id = null)
+    function compareToBatchSetOrNode($typeOfObjectToCompare, $batchSetOrNodeIdToCompare, $csvCreation = false, $previousCurrentNodeId = null)
     {
         
         // Get data of object to compare
-        $compared_object_datamart_structure_id = null;
-        $compared_object_element_ids = array();
-        $selected_object_title = null;
-        switch ($type_of_object_to_compare) {
+        $comparedObjectDatamartStructureId = null;
+        $comparedObjectElementIds = array();
+        $selectedObjectTitle = null;
+        switch ($typeOfObjectToCompare) {
             case 'batchset':
                 // Get batch set data and check permissions on selected batch set
-                $selected_batchset = $this->BatchSet->getOrRedirect($batch_set_or_node_id_to_compare);
-                if (! $this->BatchSet->isUserAuthorizedToRw($selected_batchset, true))
+                $selectedBatchset = $this->BatchSet->getOrRedirect($batchSetOrNodeIdToCompare);
+                if (! $this->BatchSet->isUserAuthorizedToRw($selectedBatchset, true))
                     return;
-                if (! AppController::checkLinkPermission($selected_batchset['DatamartStructure']['index_link'])) {
+                if (! AppController::checkLinkPermission($selectedBatchset['DatamartStructure']['index_link'])) {
                     $this->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
                     return;
                 }
-                $compared_object_datamart_structure_id = $selected_batchset['DatamartStructure']['id'];
-                foreach ($selected_batchset['BatchId'] as $tmp)
-                    $compared_object_element_ids[] = $tmp['lookup_id'];
-                $selected_object_title = 'batchset';
+                $comparedObjectDatamartStructureId = $selectedBatchset['DatamartStructure']['id'];
+                foreach ($selectedBatchset['BatchId'] as $tmp)
+                    $comparedObjectElementIds[] = $tmp['lookup_id'];
+                $selectedObjectTitle = 'batchset';
                 break;
             case 'node':
-                $selected_databrowser_node = $this->BrowsingResult->findById($batch_set_or_node_id_to_compare);
-                $compared_object_datamart_structure_id = $selected_databrowser_node['DatamartStructure']['id'];
-                $compared_object_element_ids = explode(',', $selected_databrowser_node['BrowsingResult']['id_csv']);
-                $selected_object_title = 'databrowser node';
+                $selectedDatabrowserNode = $this->BrowsingResult->findById($batchSetOrNodeIdToCompare);
+                $comparedObjectDatamartStructureId = $selectedDatabrowserNode['DatamartStructure']['id'];
+                $comparedObjectElementIds = explode(',', $selectedDatabrowserNode['BrowsingResult']['id_csv']);
+                $selectedObjectTitle = 'databrowser node';
                 break;
             default:
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Get selected elements of either previous batchset or report or databrowser node
-        $selected_elements_datamart_structure_data = null;
-        $previously_displayed_object_title = null;
-        $tmp_node_of_selected_elements = null;
-        if ($previous_current_node_id) {
+        $selectedElementsDatamartStructureData = null;
+        $previouslyDisplayedObjectTitle = null;
+        $tmpNodeOfSelectedElements = null;
+        if ($previousCurrentNodeId) {
             // User just launched process to compare 2 nodes
             if (! empty($this->request->data))
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                // Launched process from databrowser node on selected elements
-            $tmp_node_of_selected_elements = $this->BrowsingResult->findById($previous_current_node_id);
-            $selected_elements_datamart_structure_data = array(
-                'DatamartStructure' => $tmp_node_of_selected_elements['DatamartStructure']
+            // Launched process from databrowser node on selected elements
+            $tmpNodeOfSelectedElements = $this->BrowsingResult->findById($previousCurrentNodeId);
+            $selectedElementsDatamartStructureData = array(
+                'DatamartStructure' => $tmpNodeOfSelectedElements['DatamartStructure']
             );
-            $previously_displayed_object_title = 'databrowser node';
+            $previouslyDisplayedObjectTitle = 'databrowser node';
         } elseif (empty($this->request->data)) {
             // Sort on displayed data based on selected field
             if (! array_key_exists('sort', $this->passedArgs))
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
-            $previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
-        } elseif (array_key_exists('Config', $this->request->data) && $csv_creation) {
+            $selectedElementsDatamartStructureData = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
+            $previouslyDisplayedObjectTitle = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
+        } elseif (array_key_exists('Config', $this->request->data) && $csvCreation) {
             // Export data in csv
             $config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data) ? $this->request->data[0] : array()));
             unset($this->request->data[0]);
             unset($this->request->data['Config']);
             $this->configureCsv($config);
-            $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
-            $previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
+            $selectedElementsDatamartStructureData = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
+            $previouslyDisplayedObjectTitle = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
         } elseif (array_key_exists('Report', $this->request->data)) {
             // Launched process from report on selected elements
-            $selected_elements_datamart_structure_data = $this->DatamartStructure->findById($this->request->data['Report']['datamart_structure_id']);
-            $previously_displayed_object_title = 'report';
+            $selectedElementsDatamartStructureData = $this->DatamartStructure->findById($this->request->data['Report']['datamart_structure_id']);
+            $previouslyDisplayedObjectTitle = 'report';
         } elseif (array_key_exists('node', $this->request->data)) {
             // Launched process from databrowser node on selected elements
-            $tmp_node_of_selected_elements = $this->BrowsingResult->findById($this->request->data['node']['id']);
-            $selected_elements_datamart_structure_data = array(
-                'DatamartStructure' => $tmp_node_of_selected_elements['DatamartStructure']
+            $tmpNodeOfSelectedElements = $this->BrowsingResult->findById($this->request->data['node']['id']);
+            $selectedElementsDatamartStructureData = array(
+                'DatamartStructure' => $tmpNodeOfSelectedElements['DatamartStructure']
             );
-            $previously_displayed_object_title = 'databrowser node';
+            $previouslyDisplayedObjectTitle = 'databrowser node';
         } elseif (array_key_exists('BatchSet', $this->request->data)) {
             // Launched process from previous batchset on selected elements
-            $tmp_batchset_of_selected_elements = $this->BatchSet->getOrRedirect($this->request->data['BatchSet']['id']);
-            if (! $this->BatchSet->isUserAuthorizedToRw($tmp_batchset_of_selected_elements, true))
+            $tmpBatchsetOfSelectedElements = $this->BatchSet->getOrRedirect($this->request->data['BatchSet']['id']);
+            if (! $this->BatchSet->isUserAuthorizedToRw($tmpBatchsetOfSelectedElements, true))
                 return;
-            $selected_elements_datamart_structure_data = array(
-                'DatamartStructure' => $tmp_batchset_of_selected_elements['DatamartStructure']
+            $selectedElementsDatamartStructureData = array(
+                'DatamartStructure' => $tmpBatchsetOfSelectedElements['DatamartStructure']
             );
-            $previously_displayed_object_title = 'batchset';
+            $previouslyDisplayedObjectTitle = 'batchset';
         }
         
         // Get shared datamart structure
-        if (! $selected_elements_datamart_structure_data || ($selected_elements_datamart_structure_data['DatamartStructure']['id'] != $compared_object_datamart_structure_id))
+        if (! $selectedElementsDatamartStructureData || ($selectedElementsDatamartStructureData['DatamartStructure']['id'] != $comparedObjectDatamartStructureId))
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        $datamart_structure = $selected_elements_datamart_structure_data['DatamartStructure']; // Same Datamart Structure
-        $this->set('$datamart_structure_id', $datamart_structure['id']);
+        $datamartStructure = $selectedElementsDatamartStructureData['DatamartStructure']; // Same Datamart Structure
+        $this->set('$datamartStructureId', $datamartStructure['id']);
         
         // Get selected elements ids
         $model = null;
-        $lookup_key_name = null;
-        $model_instance = null;
-        $control_foreign_key = null;
-        $studied_element_ids_to_export = null;
-        if ($datamart_structure['control_master_model']) {
-            if (isset($this->request->data[$datamart_structure['model']])) {
-                $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
-                $model = $datamart_structure['model'];
-                $lookup_key_name = $model_instance->primaryKey;
+        $lookupKeyName = null;
+        $modelInstance = null;
+        $controlForeignKey = null;
+        $studiedElementIdsToExport = null;
+        if ($datamartStructure['control_master_model']) {
+            if (isset($this->request->data[$datamartStructure['model']])) {
+                $modelInstance = AppModel::getInstance($datamartStructure['plugin'], $datamartStructure['model'], true);
+                $model = $datamartStructure['model'];
+                $lookupKeyName = $modelInstance->primaryKey;
             } else {
-                $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
-                $model = $datamart_structure['control_master_model'];
-                $lookup_key_name = $model_instance->primaryKey;
+                $modelInstance = AppModel::getInstance($datamartStructure['plugin'], $datamartStructure['control_master_model'], true);
+                $model = $datamartStructure['control_master_model'];
+                $lookupKeyName = $modelInstance->primaryKey;
             }
-            $control_foreign_key = $model_instance->getControlForeign();
+            $controlForeignKey = $modelInstance->getControlForeign();
         } else {
-            $model = $datamart_structure['model'];
-            $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
-            $lookup_key_name = $model_instance->primaryKey;
+            $model = $datamartStructure['model'];
+            $modelInstance = AppModel::getInstance($datamartStructure['plugin'], $datamartStructure['model'], true);
+            $lookupKeyName = $modelInstance->primaryKey;
         }
-        if ($csv_creation) {
+        if ($csvCreation) {
             // Export data to csv
-            $studied_element_ids_to_export = $this->request->data[$model][$lookup_key_name];
-            $this->request->data[$model][$lookup_key_name] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
-            // Nothing to do, selected elements are already submitted by form and recorded into $this->request->data[ $model ][ $lookup_key_name ]
-        } elseif ($tmp_node_of_selected_elements && ($previous_current_node_id || $this->request->data[$model][$lookup_key_name] == 'all')) {
+            $studiedElementIdsToExport = $this->request->data[$model][$lookupKeyName];
+            $this->request->data[$model][$lookupKeyName] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
+            // Nothing to do, selected elements are already submitted by form and recorded into $this->request->data[ $model ][ $lookupKeyName ]
+        } elseif ($tmpNodeOfSelectedElements && ($previousCurrentNodeId || $this->request->data[$model][$lookupKeyName] == 'all')) {
             // Launched from node with elements > display limit or launched to compare 2 nodes: get all ids of node
-            $this->request->data[$model][$lookup_key_name] = explode(",", $tmp_node_of_selected_elements['BrowsingResult']['id_csv']);
+            $this->request->data[$model][$lookupKeyName] = explode(",", $tmpNodeOfSelectedElements['BrowsingResult']['id_csv']);
         } elseif (empty($this->request->data)) {
             // Sort data
-            $this->request->data[$model][$lookup_key_name] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
+            $this->request->data[$model][$lookupKeyName] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
         }
-        $selected_elements_ids = array_filter($this->request->data[$model][$lookup_key_name]);
+        $selectedElementsIds = array_filter($this->request->data[$model][$lookupKeyName]);
         
         // Get diff results
-        $all_studied_elements = $model_instance->find('all', array(
+        $allStudiedElements = $modelInstance->find('all', array(
             'conditions' => array(
-                "$model.$lookup_key_name" => array_merge($compared_object_element_ids, $selected_elements_ids)
+                "$model.$lookupKeyName" => array_merge($comparedObjectElementIds, $selectedElementsIds)
             )
         ));
-        $elements_ids_just_in_selected_object = array_diff($compared_object_element_ids, $selected_elements_ids);
-        $elements_ids_just_in_previously_disp_object = array_diff($selected_elements_ids, $compared_object_element_ids);
-        $sorted_all_studied_elements = array(
+        $elementsIdsJustInSelectedObject = array_diff($comparedObjectElementIds, $selectedElementsIds);
+        $elementsIdsJustInPreviouslyDispObject = array_diff($selectedElementsIds, $comparedObjectElementIds);
+        $sortedAllStudiedElements = array(
             '1' => array(),
             '2' => array(),
             '3' => array()
         );
-        $control_master_ids = array();
-        foreach ($all_studied_elements as $new_studied_element) {
-            if ($csv_creation && ! in_array($new_studied_element[$model][$lookup_key_name], $studied_element_ids_to_export))
+        $controlMasterIds = array();
+        foreach ($allStudiedElements as $newStudiedElement) {
+            if ($csvCreation && ! in_array($newStudiedElement[$model][$lookupKeyName], $studiedElementIdsToExport))
                 continue;
-            if ($control_foreign_key) {
-                $control_master_id = $new_studied_element[$model][$control_foreign_key];
-                $control_master_ids[$control_master_id] = $control_master_id;
+            if ($controlForeignKey) {
+                $controlMasterId = $newStudiedElement[$model][$controlForeignKey];
+                $controlMasterIds[$controlMasterId] = $controlMasterId;
             }
-            if (in_array($new_studied_element[$model][$lookup_key_name], $elements_ids_just_in_selected_object)) {
-                $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_2', $selected_object_title, __('data of selected %s_2 only (2)'));
-                $sorted_all_studied_elements[3][] = $new_studied_element;
-            } elseif (in_array($new_studied_element[$model][$lookup_key_name], $elements_ids_just_in_previously_disp_object)) {
-                $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_1', $previously_displayed_object_title, __("data of previously displayed %s_1 only (1)"));
-                $sorted_all_studied_elements[2][] = $new_studied_element;
+            if (in_array($newStudiedElement[$model][$lookupKeyName], $elementsIdsJustInSelectedObject)) {
+                $newStudiedElement['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_2', $selectedObjectTitle, __('data of selected %s_2 only (2)'));
+                $sortedAllStudiedElements[3][] = $newStudiedElement;
+            } elseif (in_array($newStudiedElement[$model][$lookupKeyName], $elementsIdsJustInPreviouslyDispObject)) {
+                $newStudiedElement['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_1', $previouslyDisplayedObjectTitle, __("data of previously displayed %s_1 only (1)"));
+                $sortedAllStudiedElements[2][] = $newStudiedElement;
             } else {
-                $new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace(array(
+                $newStudiedElement['Generated']['batchset_and_node_elements_distribution_description'] = str_replace(array(
                     '%s_1',
                     '%s_2'
                 ), array(
-                    $previously_displayed_object_title,
-                    $selected_object_title
+                    $previouslyDisplayedObjectTitle,
+                    $selectedObjectTitle
                 ), __('data both in previously displayed %s_1 and selected %s_2 (1 & 2)'));
-                $sorted_all_studied_elements[1][] = $new_studied_element;
+                $sortedAllStudiedElements[1][] = $newStudiedElement;
             }
         }
-        $diff_results_data = array_merge($sorted_all_studied_elements[1], $sorted_all_studied_elements[2], $sorted_all_studied_elements[3]);
-        $this->set('diff_results_data', AppModel::sortWithUrl($diff_results_data, $this->passedArgs));
+        $diffResultsData = array_merge($sortedAllStudiedElements[1], $sortedAllStudiedElements[2], $sortedAllStudiedElements[3]);
+        $this->set('diffResultsData', AppModel::sortWithUrl($diffResultsData, $this->passedArgs));
         
         // Manage structure for display
-        $structure_alias = null;
-        if ($control_master_ids && (sizeof($control_master_ids) == 1)) {
-            $control_master_id = array_shift($control_master_ids);
+        $structureAlias = null;
+        if ($controlMasterIds && (sizeof($controlMasterIds) == 1)) {
+            $controlMasterId = array_shift($controlMasterIds);
             AppModel::getInstance("Datamart", "Browser", true);
-            $alternate_info = Browser::getAlternateStructureInfo($datamart_structure['plugin'], $model_instance->getControlName(), $control_master_id);
-            $structure_alias = $alternate_info['form_alias'];
+            $alternateInfo = Browser::getAlternateStructureInfo($datamartStructure['plugin'], $modelInstance->getControlName(), $controlMasterId);
+            $structureAlias = $alternateInfo['form_alias'];
         } else {
             $this->Structure = AppModel::getInstance("", "Structure", true);
-            $atim_structure_data = $this->Structure->find('first', array(
+            $atimStructureData = $this->Structure->find('first', array(
                 'conditions' => array(
-                    'Structure.id' => $datamart_structure['structure_id']
+                    'Structure.id' => $datamartStructure['structure_id']
                 ),
                 'recursive' => '-1'
             ));
-            $structure_alias = $atim_structure_data['structure']['Structure']['alias'];
+            $structureAlias = $atimStructureData['structure']['Structure']['alias'];
         }
-        $this->set('atim_structure_for_results', $this->Structures->get('form', 'batchset_and_node_elements_distribution,' . $structure_alias));
-        $this->set('datamart_structure_id', $datamart_structure['id']);
-        $this->set('type_of_object_to_compare', $type_of_object_to_compare);
-        $this->set('batch_set_or_node_id_to_compare', $batch_set_or_node_id_to_compare);
-        $this->set('csv_creation', $csv_creation);
-        $this->set('header_1', str_replace('%s_1', $previously_displayed_object_title, __('data of previously displayed %s_1 (1)')));
-        $this->set('header_2', str_replace('%s_2', $selected_object_title, __('data of selected %s_2 (2)')));
+        $this->set('atimStructureForResults', $this->Structures->get('form', 'batchset_and_node_elements_distribution,' . $structureAlias));
+        $this->set('datamartStructureId', $datamartStructure['id']);
+        $this->set('typeOfObjectToCompare', $typeOfObjectToCompare);
+        $this->set('batchSetOrNodeIdToCompare', $batchSetOrNodeIdToCompare);
+        $this->set('csvCreation', $csvCreation);
+        $this->set('header1', str_replace('%s_1', $previouslyDisplayedObjectTitle, __('data of previously displayed %s_1 (1)')));
+        $this->set('header2', str_replace('%s_2', $selectedObjectTitle, __('data of selected %s_2 (2)')));
         
-        if ($csv_creation) {
+        if ($csvCreation) {
             // CSV cretion
             Configure::write('debug', 0);
             $this->layout = false;
         } else {
             // Results display
             // - Manage drop down action
-            $this->set('datamart_structure_model_name', $model);
-            $this->set('datamart_structure_key_name', $lookup_key_name);
-            if ($datamart_structure['index_link'])
-                $this->set('datamart_structure_links', $datamart_structure['index_link']);
-            $datamart_structure_actions = $this->DatamartStructure->getDropdownOptions($datamart_structure['plugin'], $datamart_structure['model'], $model_instance->primaryKey, null, $datamart_structure['model'], $model_instance->primaryKey);
-            foreach ($datamart_structure_actions as $key => $new_action) {
-                if ($new_action['value'] && strpos($new_action['value'], 'Datamart/Csv/csv'))
-                    unset($datamart_structure_actions[$key]);
+            $this->set('datamartStructureModelName', $model);
+            $this->set('datamartStructureKeyName', $lookupKeyName);
+            if ($datamartStructure['index_link'])
+                $this->set('datamartStructureLinks', $datamartStructure['index_link']);
+            $datamartStructureActions = $this->DatamartStructure->getDropdownOptions($datamartStructure['plugin'], $datamartStructure['model'], $modelInstance->primaryKey, null, $datamartStructure['model'], $modelInstance->primaryKey);
+            foreach ($datamartStructureActions as $key => $newAction) {
+                if ($newAction['value'] && strpos($newAction['value'], 'Datamart/Csv/csv'))
+                    unset($datamartStructureActions[$key]);
             }
-            $sort_args = array_key_exists('sort', $this->passedArgs) ? 'sort:' . $this->passedArgs['sort'] . '/direction:' . $this->passedArgs['direction'] : '';
-            $csv_action = "javascript:setCsvPopup('Datamart/Reports/compareToBatchSetOrNode/$type_of_object_to_compare/$batch_set_or_node_id_to_compare/1/$sort_args');";
-            $datamart_structure_actions[] = array(
+            $sortArgs = array_key_exists('sort', $this->passedArgs) ? 'sort:' . $this->passedArgs['sort'] . '/direction:' . $this->passedArgs['direction'] : '';
+            $csvAction = "javascript:setCsvPopup('Datamart/Reports/compareToBatchSetOrNode/$typeOfObjectToCompare/$batchSetOrNodeIdToCompare/1/$sortArgs');";
+            $datamartStructureActions[] = array(
                 'label' => __('export as CSV file (comma-separated values)'),
-                'value' => sprintf($csv_action, 0)
+                'value' => sprintf($csvAction, 0)
             );
-            $datamart_structure_actions[] = array(
+            $datamartStructureActions[] = array(
                 'label' => __("initiate browsing"),
-                'value' => "Datamart/Browser/batchToDatabrowser/" . $datamart_structure['model'] . "/report/"
+                'value' => "Datamart/Browser/batchToDatabrowser/" . $datamartStructure['model'] . "/report/"
             );
-            $this->set('datamart_structure_actions', $datamart_structure_actions);
+            $this->set('datamartStructureActions', $datamartStructureActions);
             // - Add session data
             $_SESSION['compareToBatchSetOrNode'] = array(
-                'datamart_structure_id' => $datamart_structure['id'],
-                'previously_displayed_object_title' => $previously_displayed_object_title,
-                'selected_elements_ids' => implode(",", $selected_elements_ids)
+                'datamart_structure_id' => $datamartStructure['id'],
+                'previously_displayed_object_title' => $previouslyDisplayedObjectTitle,
+                'selected_elements_ids' => implode(",", $selectedElementsIds)
             );
         }
     }
-    
+
     // -------------------------------------------------------------------------------------------------------------------
     // CUSTOM REPORTS DISPLAY AND MANAGEMENT
     // -------------------------------------------------------------------------------------------------------------------
@@ -267,12 +267,12 @@ class ReportsController extends DatamartAppController
         $this->Structures->set("reports");
     }
 
-    function manageReport($report_id, $csv_creation = false)
+    function manageReport($reportId, $csvCreation = false)
     {
         // Get report data
         $report = $this->Report->find('first', array(
             'conditions' => array(
-                'Report.id' => $report_id,
+                'Report.id' => $reportId,
                 'Report.flag_active' => '1'
             )
         ));
@@ -281,43 +281,43 @@ class ReportsController extends DatamartAppController
         }
         
         // Set menu variables
-        $this->set('atim_menu_variables', array(
-            'Report.id' => $report_id
+        $this->set('atimMenuVariables', array(
+            'Report.id' => $reportId
         ));
-        $this->set('atim_menu', $this->Menus->get('/Datamart/Reports/manageReport/%%Report.id%%/'));
+        $this->set('atimMenu', $this->Menus->get('/Datamart/Reports/manageReport/%%Report.id%%/'));
         
-        if ($report['Report']['limit_access_from_datamart_structrue_function'] && empty($this->request->data) && (! $csv_creation) && ! array_key_exists('sort', $this->passedArgs)) {
+        if ($report['Report']['limit_access_from_datamart_structrue_function'] && empty($this->request->data) && (! $csvCreation) && ! array_key_exists('sort', $this->passedArgs)) {
             $this->atimFlashError(__('the selected report can only be launched from a batchset or a databrowser node'), "/Datamart/Reports/index", 5);
-        } elseif (empty($this->request->data) && (! empty($report['Report']['form_alias_for_search'])) && (! $csv_creation) && ! array_key_exists('sort', $this->passedArgs)) {
+        } elseif (empty($this->request->data) && (! empty($report['Report']['form_alias_for_search'])) && (! $csvCreation) && ! array_key_exists('sort', $this->passedArgs)) {
             
             // ** SEARCH FROM DISPLAY **
             
             $this->Structures->set($report['Report']['form_alias_for_search'], 'search_form_structure');
-            $_SESSION['report'][$report_id]['search_criteria'] = array(); // clear SEARCH criteria
-            $_SESSION['report'][$report_id]['sort_criteria'] = array(); // clear SEARCH criteria
+            $_SESSION['report'][$reportId]['search_criteria'] = array(); // clear SEARCH criteria
+            $_SESSION['report'][$reportId]['sort_criteria'] = array(); // clear SEARCH criteria
         } else {
             
             // ** RESULTS/ACTIONS MANAGEMENT **
             
-            $linked_datamart_structure = null;
+            $linkedDatamartStructure = null;
             $LinkedModel = null;
             if ($report['Report']['form_type_for_results'] == 'index' && $report['Report']['associated_datamart_structure_id']) {
                 // Load linked structure and model if required
-                $linked_datamart_structure = $this->DatamartStructure->find('first', array(
+                $linkedDatamartStructure = $this->DatamartStructure->find('first', array(
                     'conditions' => array(
                         "DatamartStructure.id" => $report['Report']['associated_datamart_structure_id']
                     )
                 ));
-                if (empty($linked_datamart_structure))
+                if (empty($linkedDatamartStructure))
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                $LinkedModel = AppModel::getInstance($linked_datamart_structure['DatamartStructure']['plugin'], $linked_datamart_structure['DatamartStructure']['model'], true);
-                $this->set('linked_datamart_structure_id', $report['Report']['associated_datamart_structure_id']);
+                $LinkedModel = AppModel::getInstance($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], true);
+                $this->set('linkedDatamartStructureId', $report['Report']['associated_datamart_structure_id']);
             }
             
             // Set criteria to build report/csv
-            $criteria_to_build_report = null;
-            $criteria_to_sort_report = array();
-            if ($csv_creation) {
+            $criteriaToBuildReport = null;
+            $criteriaToSortReport = array();
+            if ($csvCreation) {
                 if (array_key_exists('Config', $this->request->data)) {
                     $config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data) ? $this->request->data[0] : array()));
                     unset($this->request->data[0]);
@@ -325,42 +325,42 @@ class ReportsController extends DatamartAppController
                     $this->configureCsv($config);
                 }
                 // Get criteria from session data for csv
-                $criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
-                $criteria_to_sort_report = isset($_SESSION['report'][$report_id]['sort_criteria']) ? $_SESSION['report'][$report_id]['sort_criteria'] : array();
-                if ($LinkedModel && isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
+                $criteriaToBuildReport = $_SESSION['report'][$reportId]['search_criteria'];
+                $criteriaToSortReport = isset($_SESSION['report'][$reportId]['sort_criteria']) ? $_SESSION['report'][$reportId]['sort_criteria'] : array();
+                if ($LinkedModel && isset($this->request->data[$linkedDatamartStructure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
                     // Take care about selected items (the number of records did not reach the limit of items that could be displayed)
-                    $ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
+                    $ids = array_filter($this->request->data[$linkedDatamartStructure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
                     if (! empty($ids)) {
-                        $criteria_to_build_report['SelectedItemsForCsv'][$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
+                        $criteriaToBuildReport['SelectedItemsForCsv'][$linkedDatamartStructure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
                     }
                 }
             } elseif (array_key_exists('sort', $this->passedArgs)) {
                 // Data sort: Get criteria from session data
-                $criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
-                $criteria_to_sort_report = array(
+                $criteriaToBuildReport = $_SESSION['report'][$reportId]['search_criteria'];
+                $criteriaToSortReport = array(
                     'sort' => $this->passedArgs['sort'],
                     'direction' => $this->passedArgs['direction']
                 );
-                $_SESSION['report'][$report_id]['sort_criteria'] = $criteria_to_sort_report;
+                $_SESSION['report'][$reportId]['sort_criteria'] = $criteriaToSortReport;
             } else {
                 // Get criteria from search form
-                $criteria_to_build_report = empty($this->request->data) ? array() : $this->request->data;
+                $criteriaToBuildReport = empty($this->request->data) ? array() : $this->request->data;
                 // Manage data from csv file
-                foreach ($criteria_to_build_report as $model => $fields_parameters) {
-                    if (! ($model == 'exact_search' && ! is_array($fields_parameters))) {
-                        foreach ($fields_parameters as $field => $parameters) {
+                foreach ($criteriaToBuildReport as $model => $fieldsParameters) {
+                    if (! ($model == 'exact_search' && ! is_array($fieldsParameters))) {
+                        foreach ($fieldsParameters as $field => $parameters) {
                             if (preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
-                                $matched_field_name = $matches[1];
-                                if (! isset($criteria_to_build_report[$model][$matched_field_name]))
-                                    $criteria_to_build_report[$model][$matched_field_name] = array();
+                                $matchedFieldName = $matches[1];
+                                if (! isset($criteriaToBuildReport[$model][$matchedFieldName]))
+                                    $criteriaToBuildReport[$model][$matchedFieldName] = array();
                                 if (strlen($parameters['tmp_name'])) {
                                     if (! preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
                                         $this->redirect('/Pages/err_submitted_file_extension', null, true);
                                     } else {
                                         $handle = fopen($parameters['tmp_name'], "r");
                                         if ($handle) {
-                                            while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== false) {
-                                                $criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+                                            while (($csvData = fgetcsv($handle, 1000, csv_separator, '"')) !== false) {
+                                                $criteriaToBuildReport[$model][$matchedFieldName][] = $csvData[0];
                                             }
                                             fclose($handle);
                                         } else {
@@ -368,110 +368,110 @@ class ReportsController extends DatamartAppController
                                         }
                                     }
                                 }
-                                unset($criteria_to_build_report[$model][$field]);
+                                unset($criteriaToBuildReport[$model][$field]);
                             }
                         }
                     }
                 }
                 
                 // Manage data when launched from databrowser node having a nbr of elements > databrowser_and_report_results_display_limit
-                if (array_key_exists('node', $criteria_to_build_report)) {
-                    $browsing_result = $this->BrowsingResult->find('first', array(
+                if (array_key_exists('node', $criteriaToBuildReport)) {
+                    $browsingResult = $this->BrowsingResult->find('first', array(
                         'conditions' => array(
-                            'BrowsingResult.id' => $criteria_to_build_report['node']['id']
+                            'BrowsingResult.id' => $criteriaToBuildReport['node']['id']
                         )
                     ));
-                    $datamart_structure = $browsing_result['DatamartStructure'];
-                    if (empty($browsing_result) || empty($datamart_structure)) {
+                    $datamartStructure = $browsingResult['DatamartStructure'];
+                    if (empty($browsingResult) || empty($datamartStructure)) {
                         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
                     // Get model and key name
                     $model = null;
-                    $lookup_key_name = null;
-                    if ($datamart_structure['control_master_model']) {
-                        if (isset($criteria_to_build_report[$datamart_structure['model']])) {
-                            $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
-                            $model = $datamart_structure['model'];
-                            $lookup_key_name = $model_instance->primaryKey;
+                    $lookupKeyName = null;
+                    if ($datamartStructure['control_master_model']) {
+                        if (isset($criteriaToBuildReport[$datamartStructure['model']])) {
+                            $modelInstance = AppModel::getInstance($datamartStructure['plugin'], $datamartStructure['model'], true);
+                            $model = $datamartStructure['model'];
+                            $lookupKeyName = $modelInstance->primaryKey;
                         } else {
-                            $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
-                            $model = $datamart_structure['control_master_model'];
-                            $lookup_key_name = $model_instance->primaryKey;
+                            $modelInstance = AppModel::getInstance($datamartStructure['plugin'], $datamartStructure['control_master_model'], true);
+                            $model = $datamartStructure['control_master_model'];
+                            $lookupKeyName = $modelInstance->primaryKey;
                         }
                     } else {
-                        $model = $datamart_structure['model'];
-                        $model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
-                        $lookup_key_name = $model_instance->primaryKey;
+                        $model = $datamartStructure['model'];
+                        $modelInstance = AppModel::getInstance($datamartStructure['plugin'], $datamartStructure['model'], true);
+                        $lookupKeyName = $modelInstance->primaryKey;
                     }
-                    if ($criteria_to_build_report[$model][$lookup_key_name] == 'all')
-                        $criteria_to_build_report[$model][$lookup_key_name] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+                    if ($criteriaToBuildReport[$model][$lookupKeyName] == 'all')
+                        $criteriaToBuildReport[$model][$lookupKeyName] = explode(",", $browsingResult['BrowsingResult']['id_csv']);
                 }
                 // Load search criteria in session
-                $_SESSION['report'][$report_id]['search_criteria'] = $criteria_to_build_report;
+                $_SESSION['report'][$reportId]['search_criteria'] = $criteriaToBuildReport;
             }
             
             // Get and manage results
-            $data_returned_by_fct = call_user_func_array(array(
+            $dataReturnedByFct = call_user_func_array(array(
                 $this,
                 $report['Report']['function']
             ), array(
-                $criteria_to_build_report
+                $criteriaToBuildReport
             ));
-            if (empty($data_returned_by_fct) || (! array_key_exists('header', $data_returned_by_fct)) || (! array_key_exists('data', $data_returned_by_fct)) || (! array_key_exists('columns_names', $data_returned_by_fct)) || (! array_key_exists('error_msg', $data_returned_by_fct))) {
+            if (empty($dataReturnedByFct) || (! array_key_exists('header', $dataReturnedByFct)) || (! array_key_exists('data', $dataReturnedByFct)) || (! array_key_exists('columns_names', $dataReturnedByFct)) || (! array_key_exists('error_msg', $dataReturnedByFct))) {
                 // Wrong array keys returned by custom function
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            } elseif (! empty($data_returned_by_fct['error_msg'])) {
+            } elseif (! empty($dataReturnedByFct['error_msg'])) {
                 // Error detected by custom function -> Display custom error message with empty form
                 $this->request->data = array();
                 $this->Structures->set('empty', 'result_form_structure');
-                $this->set('result_form_type', 'index');
-                $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
-                $this->set('csv_creation', false);
-                $this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
-            } elseif (sizeof($data_returned_by_fct['data']) > Configure::read('databrowser_and_report_results_display_limit') && ! $csv_creation) {
+                $this->set('resultFormType', 'index');
+                $this->set('displayNewSearch', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
+                $this->set('csvCreation', false);
+                $this->Report->validationErrors[][] = $dataReturnedByFct['error_msg'];
+            } elseif (sizeof($dataReturnedByFct['data']) > Configure::read('databrowser_and_report_results_display_limit') && ! $csvCreation) {
                 // Too many results
                 $this->request->data = array();
                 $this->Structures->set('empty', 'result_form_structure');
-                $this->set('result_form_type', 'index');
-                $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
-                $this->set('csv_creation', false);
-                $this->Report->validationErrors[][] = __('the report contains too many results - please redefine search criteria') . ' [' . sizeof($data_returned_by_fct['data']) . ' ' . __('lines') . ']';
+                $this->set('resultFormType', 'index');
+                $this->set('displayNewSearch', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
+                $this->set('csvCreation', false);
+                $this->Report->validationErrors[][] = __('the report contains too many results - please redefine search criteria') . ' [' . sizeof($dataReturnedByFct['data']) . ' ' . __('lines') . ']';
             } else {
                 // Set data for display/csv
-                $this->request->data = AppModel::sortWithUrl($data_returned_by_fct['data'], $criteria_to_sort_report);
+                $this->request->data = AppModel::sortWithUrl($dataReturnedByFct['data'], $criteriaToSortReport);
                 $this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
-                $this->set('result_form_type', $report['Report']['form_type_for_results']);
-                $this->set('result_header', $data_returned_by_fct['header']);
-                $this->set('result_columns_names', $data_returned_by_fct['columns_names']);
-                $this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
-                $this->set('csv_creation', $csv_creation);
+                $this->set('resultFormType', $report['Report']['form_type_for_results']);
+                $this->set('resultHeader', $dataReturnedByFct['header']);
+                $this->set('resultColumnsNames', $dataReturnedByFct['columns_names']);
+                $this->set('displayNewSearch', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function']) ? false : true);
+                $this->set('csvCreation', $csvCreation);
                 
-                if ($csv_creation) {
+                if ($csvCreation) {
                     Configure::write('debug', 0);
                     $this->layout = false;
-                } elseif ($linked_datamart_structure) {
+                } elseif ($linkedDatamartStructure) {
                     // Code to be able to launch actions from report linked to structure and model
-                    $this->set('linked_datamart_structure_model_name', $linked_datamart_structure['DatamartStructure']['model']);
-                    $this->set('linked_datamart_structure_key_name', $LinkedModel->primaryKey);
-                    if ($linked_datamart_structure['DatamartStructure']['index_link'])
-                        $this->set('linked_datamart_structure_links', $linked_datamart_structure['DatamartStructure']['index_link']);
-                    $linked_datamart_structure_actions = $this->DatamartStructure->getDropdownOptions($linked_datamart_structure['DatamartStructure']['plugin'], $linked_datamart_structure['DatamartStructure']['model'], $LinkedModel->primaryKey, null, null, null, null, false);
-                    $csv_action = "javascript:setCsvPopup('Datamart/Reports/manageReport/$report_id/1/');";
-                    $linked_datamart_structure_actions[] = array(
+                    $this->set('linkedDatamartStructureModelName', $linkedDatamartStructure['DatamartStructure']['model']);
+                    $this->set('linkedDatamartStructureKeyName', $LinkedModel->primaryKey);
+                    if ($linkedDatamartStructure['DatamartStructure']['index_link'])
+                        $this->set('linkedDatamartStructureLinks', $linkedDatamartStructure['DatamartStructure']['index_link']);
+                    $linkedDatamartStructureActions = $this->DatamartStructure->getDropdownOptions($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], $LinkedModel->primaryKey, null, null, null, null, false);
+                    $csvAction = "javascript:setCsvPopup('Datamart/Reports/manageReport/$reportId/1/');";
+                    $linkedDatamartStructureActions[] = array(
                         'value' => '0',
                         'label' => __('export as CSV file (comma-separated values)'),
-                        'value' => sprintf($csv_action, 0)
+                        'value' => sprintf($csvAction, 0)
                     );
-                    $linked_datamart_structure_actions[] = array(
+                    $linkedDatamartStructureActions[] = array(
                         'label' => __("initiate browsing"),
-                        'value' => "Datamart/Browser/batchToDatabrowser/" . $linked_datamart_structure['DatamartStructure']['model'] . "/report/"
+                        'value' => "Datamart/Browser/batchToDatabrowser/" . $linkedDatamartStructure['DatamartStructure']['model'] . "/report/"
                     );
-                    $this->set('linked_datamart_structure_actions', $linked_datamart_structure_actions);
+                    $this->set('linkedDatamartStructureActions', $linkedDatamartStructureActions);
                 }
             }
         }
     }
-    
+
     // -------------------------------------------------------------------------------------------------------------------
     // FUNCTIONS ADDED TO THE CONTROLLER AS CUSTOM REPORT EXAMPLES
     // -------------------------------------------------------------------------------------------------------------------
@@ -485,28 +485,28 @@ class ReportsController extends DatamartAppController
         }
         
         // 1- Build Header
-        $start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
-        $end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
+        $startDateForDisplay = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+        $endDateForDisplay = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
         $header = array(
-            'title' => __('from') . ' ' . (empty($parameters[0]['report_date_range_start']['year']) ? '?' : $start_date_for_display) . ' ' . __('to') . ' ' . (empty($parameters[0]['report_date_range_end']['year']) ? '?' : $end_date_for_display),
+            'title' => __('from') . ' ' . (empty($parameters[0]['report_date_range_start']['year']) ? '?' : $startDateForDisplay) . ' ' . __('to') . ' ' . (empty($parameters[0]['report_date_range_end']['year']) ? '?' : $endDateForDisplay),
             'description' => 'n/a'
         );
         
         // 2- Search data
-        $start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
-        $end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+        $startDateForSql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+        $endDateForSql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
         
-        $search_on_date_range = true;
-        if ((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0))
-            $search_on_date_range = false;
-            
-            // Get new participant
+        $searchOnDateRange = true;
+        if ((strpos($startDateForSql, '-9999') === 0) && (strpos($endDateForSql, '9999') === 0))
+            $searchOnDateRange = false;
+        
+        // Get new participant
         if (! isset($this->Participant)) {
             $this->Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
         }
-        $conditions = $search_on_date_range ? array(
-            "Participant.created >= '$start_date_for_sql'",
-            "Participant.created <= '$end_date_for_sql'"
+        $conditions = $searchOnDateRange ? array(
+            "Participant.created >= '$startDateForSql'",
+            "Participant.created <= '$endDateForSql'"
         ) : array();
         $data['0']['new_participants_nbr'] = $this->Participant->find('count', (array(
             'conditions' => $conditions
@@ -516,22 +516,22 @@ class ReportsController extends DatamartAppController
         if (! isset($this->ConsentMaster)) {
             $this->ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
         }
-        $conditions = $search_on_date_range ? array(
-            "ConsentMaster.consent_signed_date >= '$start_date_for_sql'",
-            "ConsentMaster.consent_signed_date <= '$end_date_for_sql'"
+        $conditions = $searchOnDateRange ? array(
+            "ConsentMaster.consent_signed_date >= '$startDateForSql'",
+            "ConsentMaster.consent_signed_date <= '$endDateForSql'"
         ) : array();
-        $all_consent = $this->ConsentMaster->find('count', (array(
+        $allConsent = $this->ConsentMaster->find('count', (array(
             'conditions' => $conditions
         )));
         $conditions['ConsentMaster.consent_status'] = 'obtained';
-        $all_obtained_consent = $this->ConsentMaster->find('count', (array(
+        $allObtainedConsent = $this->ConsentMaster->find('count', (array(
             'conditions' => $conditions
         )));
-        $data['0']['obtained_consents_nbr'] = "$all_obtained_consent/$all_consent";
+        $data['0']['obtained_consents_nbr'] = "$allObtainedConsent/$allConsent";
         
         // Get new collections
-        $conditions = $search_on_date_range ? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-        $new_collections_nbr = $this->Report->tryCatchQuery("SELECT COUNT(*) FROM (
+        $conditions = $searchOnDateRange ? "col.collection_datetime >= '$startDateForSql' AND col.collection_datetime <= '$endDateForSql'" : 'TRUE';
+        $newCollectionsNbr = $this->Report->tryCatchQuery("SELECT COUNT(*) FROM (
 				SELECT DISTINCT col.participant_id 
 				FROM sample_masters AS sm 
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
@@ -541,16 +541,16 @@ class ReportsController extends DatamartAppController
 				AND col.deleted != '1'
 				AND sm.deleted != '1'
 			) AS res;");
-        $data['0']['new_collections_nbr'] = $new_collections_nbr[0][0]['COUNT(*)'];
+        $data['0']['new_collections_nbr'] = $newCollectionsNbr[0][0]['COUNT(*)'];
         
-        $array_to_return = array(
+        $arrayToReturn = array(
             'header' => $header,
             'data' => $data,
             'columns_names' => null,
             'error_msg' => null
         );
         
-        return $array_to_return;
+        return $arrayToReturn;
     }
 
     function sampleAndDerivativeCreationSummary($parameters)
@@ -560,51 +560,51 @@ class ReportsController extends DatamartAppController
         }
         
         // 1- Build Header
-        $start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_start']['year'], $parameters[0]['report_datetime_range_start']['month'], $parameters[0]['report_datetime_range_start']['day']);
-        $end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_end']['year'], $parameters[0]['report_datetime_range_end']['month'], $parameters[0]['report_datetime_range_end']['day']);
+        $startDateForDisplay = AppController::getFormatedDateString($parameters[0]['report_datetime_range_start']['year'], $parameters[0]['report_datetime_range_start']['month'], $parameters[0]['report_datetime_range_start']['day']);
+        $endDateForDisplay = AppController::getFormatedDateString($parameters[0]['report_datetime_range_end']['year'], $parameters[0]['report_datetime_range_end']['month'], $parameters[0]['report_datetime_range_end']['day']);
         
         $header = array(
-            'title' => __('from') . ' ' . (empty($parameters[0]['report_datetime_range_start']['year']) ? '?' : $start_date_for_display) . ' ' . __('to') . ' ' . (empty($parameters[0]['report_datetime_range_end']['year']) ? '?' : $end_date_for_display),
+            'title' => __('from') . ' ' . (empty($parameters[0]['report_datetime_range_start']['year']) ? '?' : $startDateForDisplay) . ' ' . __('to') . ' ' . (empty($parameters[0]['report_datetime_range_end']['year']) ? '?' : $endDateForDisplay),
             'description' => 'n/a'
         );
         
-        $bank_ids = array();
+        $bankIds = array();
         if (isset($parameters[0]['bank_id'])) {
-            foreach ($parameters[0]['bank_id'] as $bank_id)
-                if (! empty($bank_id))
-                    $bank_ids[] = $bank_id;
-            if (! empty($bank_ids)) {
+            foreach ($parameters[0]['bank_id'] as $bankId)
+                if (! empty($bankId))
+                    $bankIds[] = $bankId;
+            if (! empty($bankIds)) {
                 $Bank = AppModel::getInstance("Administrate", "Bank", true);
-                $bank_list = $Bank->find('all', array(
+                $bankList = $Bank->find('all', array(
                     'conditions' => array(
-                        'id' => $bank_ids
+                        'id' => $bankIds
                     )
                 ));
-                $bank_names = array();
-                foreach ($bank_list as $new_bank)
-                    $bank_names[] = $new_bank['Bank']['name'];
-                $header['description'] = __('bank') . ': ' . implode(',', $bank_names);
+                $bankNames = array();
+                foreach ($bankList as $newBank)
+                    $bankNames[] = $newBank['Bank']['name'];
+                $header['description'] = __('bank') . ': ' . implode(',', $bankNames);
             }
         }
         
         // 2- Search data
         
-        $bank_conditions = empty($bank_ids) ? 'TRUE' : 'col.bank_id IN (' . implode(',', $bank_ids) . ')';
+        $bankConditions = empty($bankIds) ? 'TRUE' : 'col.bank_id IN (' . implode(',', $bankIds) . ')';
         
-        $start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_start'], 'start');
-        $end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_end'], 'end');
+        $startDateForSql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_start'], 'start');
+        $endDateForSql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_end'], 'end');
         
-        $search_on_date_range = true;
-        if ((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0))
-            $search_on_date_range = false;
+        $searchOnDateRange = true;
+        if ((strpos($startDateForSql, '-9999') === 0) && (strpos($endDateForSql, '9999') === 0))
+            $searchOnDateRange = false;
         
-        $res_final = array();
-        $tmp_res_final = array();
+        $resFinal = array();
+        $tmpResFinal = array();
         
         // Work on specimen
         
-        $conditions = $search_on_date_range ? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-        $res_samples = $this->Report->tryCatchQuery("SELECT COUNT(*), sc.sample_type
+        $conditions = $searchOnDateRange ? "col.collection_datetime >= '$startDateForSql' AND col.collection_datetime <= '$endDateForSql'" : 'TRUE';
+        $resSamples = $this->Report->tryCatchQuery("SELECT COUNT(*), sc.sample_type
 			FROM sample_masters AS sm
 			INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
 			INNER JOIN collections AS col ON col.id = sm.collection_id
@@ -612,10 +612,10 @@ class ReportsController extends DatamartAppController
 			AND col.participant_id != '0'
 			AND sc.sample_category = 'specimen'
 			AND ($conditions)
-			AND ($bank_conditions)
+			AND ($bankConditions)
 			AND sm.deleted != '1'
 			GROUP BY sample_type;");
-        $res_participants = $this->Report->tryCatchQuery("SELECT COUNT(*), res.sample_type FROM (
+        $resParticipants = $this->Report->tryCatchQuery("SELECT COUNT(*), res.sample_type FROM (
 				SELECT DISTINCT col.participant_id, sc.sample_type
 				FROM sample_masters AS sm
 				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
@@ -624,12 +624,12 @@ class ReportsController extends DatamartAppController
 				AND col.participant_id != '0'
 				AND sc.sample_category = 'specimen'
 				AND ($conditions)
-				AND ($bank_conditions)
+				AND ($bankConditions)
 				AND sm.deleted != '1'
 			) AS res GROUP BY res.sample_type;");
         
-        foreach ($res_samples as $data) {
-            $tmp_res_final['specimen-' . $data['sc']['sample_type']] = array(
+        foreach ($resSamples as $data) {
+            $tmpResFinal['specimen-' . $data['sc']['sample_type']] = array(
                 'SampleControl' => array(
                     'sample_category' => 'specimen',
                     'sample_type' => $data['sc']['sample_type']
@@ -640,14 +640,14 @@ class ReportsController extends DatamartAppController
                 )
             );
         }
-        foreach ($res_participants as $data) {
-            $tmp_res_final['specimen-' . $data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
+        foreach ($resParticipants as $data) {
+            $tmpResFinal['specimen-' . $data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
         }
         
         // Work on derivative
         
-        $conditions = $search_on_date_range ? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
-        $res_samples = $this->Report->tryCatchQuery("SELECT COUNT(*), sc.sample_type
+        $conditions = $searchOnDateRange ? "der.creation_datetime >= '$startDateForSql' AND der.creation_datetime <= '$endDateForSql'" : 'TRUE';
+        $resSamples = $this->Report->tryCatchQuery("SELECT COUNT(*), sc.sample_type
 				FROM sample_masters AS sm
 				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id
@@ -656,10 +656,10 @@ class ReportsController extends DatamartAppController
 				AND col.participant_id != '0'
 				AND sc.sample_category = 'derivative'
 				AND ($conditions)
-				AND ($bank_conditions)
+				AND ($bankConditions)
 				AND sm.deleted != '1'
 				GROUP BY sample_type;");
-        $res_participants = $this->Report->tryCatchQuery("SELECT COUNT(*), res.sample_type FROM (
+        $resParticipants = $this->Report->tryCatchQuery("SELECT COUNT(*), res.sample_type FROM (
 					SELECT DISTINCT col.participant_id, sc.sample_type
 					FROM sample_masters AS sm
 					INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
@@ -669,12 +669,12 @@ class ReportsController extends DatamartAppController
 					AND col.participant_id != '0'
 					AND sc.sample_category = 'derivative'
 					AND ($conditions)
-					AND ($bank_conditions)
+					AND ($bankConditions)
 					AND sm.deleted != '1'
 			) AS res GROUP BY res.sample_type;");
         
-        foreach ($res_samples as $data) {
-            $tmp_res_final['derivative-' . $data['sc']['sample_type']] = array(
+        foreach ($resSamples as $data) {
+            $tmpResFinal['derivative-' . $data['sc']['sample_type']] = array(
                 'SampleControl' => array(
                     'sample_category' => 'derivative',
                     'sample_type' => $data['sc']['sample_type']
@@ -685,23 +685,23 @@ class ReportsController extends DatamartAppController
                 )
             );
         }
-        foreach ($res_participants as $data) {
-            $tmp_res_final['derivative-' . $data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
+        foreach ($resParticipants as $data) {
+            $tmpResFinal['derivative-' . $data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
         }
         
         // Format data for report
-        foreach ($tmp_res_final as $new_sample_type_data) {
-            $res_final[] = $new_sample_type_data;
+        foreach ($tmpResFinal as $newSampleTypeData) {
+            $resFinal[] = $newSampleTypeData;
         }
         
-        $array_to_return = array(
+        $arrayToReturn = array(
             'header' => $header,
-            'data' => $res_final,
+            'data' => $resFinal,
             'columns_names' => null,
             'error_msg' => null
         );
         
-        return $array_to_return;
+        return $arrayToReturn;
     }
 
     function bankActiviySummaryPerPeriod($parameters)
@@ -721,77 +721,77 @@ class ReportsController extends DatamartAppController
                 'columns_names' => null
             );
         }
-        $month_period = ($parameters[0]['report_date_range_period'] == 'month') ? true : false;
+        $monthPeriod = ($parameters[0]['report_date_range_period'] == 'month') ? true : false;
         
         // 1- Build Header
-        $start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
-        $end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
+        $startDateForDisplay = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+        $endDateForDisplay = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
         $header = array(
-            'title' => __('from') . ' ' . (empty($parameters[0]['report_date_range_start']['year']) ? '?' : $start_date_for_display) . ' ' . __('to') . ' ' . (empty($parameters[0]['report_date_range_end']['year']) ? '?' : $end_date_for_display),
+            'title' => __('from') . ' ' . (empty($parameters[0]['report_date_range_start']['year']) ? '?' : $startDateForDisplay) . ' ' . __('to') . ' ' . (empty($parameters[0]['report_date_range_end']['year']) ? '?' : $endDateForDisplay),
             'description' => 'n/a'
         );
         
         // 2- Search data
-        $start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
-        $end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+        $startDateForSql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+        $endDateForSql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
         
-        $search_on_date_range = true;
-        if ((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0))
-            $search_on_date_range = false;
+        $searchOnDateRange = true;
+        if ((strpos($startDateForSql, '-9999') === 0) && (strpos($endDateForSql, '9999') === 0))
+            $searchOnDateRange = false;
         
-        $arr_format_month_to_string = AppController::getCalInfo(false);
+        $arrFormatMonthToString = AppController::getCalInfo(false);
         
-        $tmp_res = array();
-        $date_key_list = array();
+        $tmpRes = array();
+        $dateKeyList = array();
         
         // Get new participant
-        $conditions = $search_on_date_range ? "Participant.created >= '$start_date_for_sql' AND Participant.created <= '$end_date_for_sql'" : 'TRUE';
-        $participant_res = $this->Report->tryCatchQuery("SELECT COUNT(*), YEAR(Participant.created) AS created_year" . ($month_period ? ", MONTH(Participant.created) AS created_month" : "") . " FROM participants AS Participant 
+        $conditions = $searchOnDateRange ? "Participant.created >= '$startDateForSql' AND Participant.created <= '$endDateForSql'" : 'TRUE';
+        $participantRes = $this->Report->tryCatchQuery("SELECT COUNT(*), YEAR(Participant.created) AS created_year" . ($monthPeriod ? ", MONTH(Participant.created) AS created_month" : "") . " FROM participants AS Participant 
 			WHERE ($conditions) AND Participant.deleted != 1 
-			GROUP BY created_year" . ($month_period ? ", created_month" : "") . ";");
-        foreach ($participant_res as $new_data) {
-            $date_key = '';
-            $date_value = __('unknown');
-            if (! empty($new_data['0']['created_year'])) {
-                if ($month_period) {
-                    $date_key = $new_data['0']['created_year'] . "-" . ((strlen($new_data['0']['created_month']) == 1) ? "0" : "") . $new_data['0']['created_month'];
-                    $date_value = $arr_format_month_to_string[$new_data['0']['created_month']] . ' ' . $new_data['0']['created_year'];
+			GROUP BY created_year" . ($monthPeriod ? ", created_month" : "") . ";");
+        foreach ($participantRes as $newData) {
+            $dateKey = '';
+            $dateValue = __('unknown');
+            if (! empty($newData['0']['created_year'])) {
+                if ($monthPeriod) {
+                    $dateKey = $newData['0']['created_year'] . "-" . ((strlen($newData['0']['created_month']) == 1) ? "0" : "") . $newData['0']['created_month'];
+                    $dateValue = $arrFormatMonthToString[$newData['0']['created_month']] . ' ' . $newData['0']['created_year'];
                 } else {
-                    $date_key = $new_data['0']['created_year'];
-                    $date_value = $new_data['0']['created_year'];
+                    $dateKey = $newData['0']['created_year'];
+                    $dateValue = $newData['0']['created_year'];
                 }
             }
             
-            $date_key_list[$date_key] = $date_value;
-            $tmp_res['0']['new_participants_nbr'][$date_value] = $new_data['0']['COUNT(*)'];
+            $dateKeyList[$dateKey] = $dateValue;
+            $tmpRes['0']['new_participants_nbr'][$dateValue] = $newData['0']['COUNT(*)'];
         }
         
         // Get new consents obtained
-        $conditions = $search_on_date_range ? "ConsentMaster.consent_signed_date >= '$start_date_for_sql' AND ConsentMaster.consent_signed_date <= '$end_date_for_sql'" : 'TRUE';
-        $consent_res = $this->Report->tryCatchQuery("SELECT COUNT(*), YEAR(ConsentMaster.consent_signed_date) AS signed_year" . ($month_period ? ", MONTH(ConsentMaster.consent_signed_date) AS signed_month" : "") . " FROM consent_masters AS ConsentMaster
+        $conditions = $searchOnDateRange ? "ConsentMaster.consent_signed_date >= '$startDateForSql' AND ConsentMaster.consent_signed_date <= '$endDateForSql'" : 'TRUE';
+        $consentRes = $this->Report->tryCatchQuery("SELECT COUNT(*), YEAR(ConsentMaster.consent_signed_date) AS signed_year" . ($monthPeriod ? ", MONTH(ConsentMaster.consent_signed_date) AS signed_month" : "") . " FROM consent_masters AS ConsentMaster
 			WHERE ($conditions) AND ConsentMaster.deleted != 1 
-			GROUP BY signed_year" . ($month_period ? ", signed_month" : "") . ";");
-        foreach ($consent_res as $new_data) {
-            $date_key = '';
-            $date_value = __('unknown');
-            if (! empty($new_data['0']['signed_year'])) {
-                if ($month_period) {
-                    $date_key = $new_data['0']['signed_year'] . "-" . ((strlen($new_data['0']['signed_month']) == 1) ? "0" : "") . $new_data['0']['signed_month'];
-                    $date_value = $arr_format_month_to_string[$new_data['0']['signed_month']] . ' ' . $new_data['0']['signed_year'];
+			GROUP BY signed_year" . ($monthPeriod ? ", signed_month" : "") . ";");
+        foreach ($consentRes as $newData) {
+            $dateKey = '';
+            $dateValue = __('unknown');
+            if (! empty($newData['0']['signed_year'])) {
+                if ($monthPeriod) {
+                    $dateKey = $newData['0']['signed_year'] . "-" . ((strlen($newData['0']['signed_month']) == 1) ? "0" : "") . $newData['0']['signed_month'];
+                    $dateValue = $arrFormatMonthToString[$newData['0']['signed_month']] . ' ' . $newData['0']['signed_year'];
                 } else {
-                    $date_key = $new_data['0']['signed_year'];
-                    $date_value = $new_data['0']['signed_year'];
+                    $dateKey = $newData['0']['signed_year'];
+                    $dateValue = $newData['0']['signed_year'];
                 }
             }
             
-            $date_key_list[$date_key] = $date_value;
-            $tmp_res['0']['obtained_consents_nbr'][$date_value] = $new_data['0']['COUNT(*)'];
+            $dateKeyList[$dateKey] = $dateValue;
+            $tmpRes['0']['obtained_consents_nbr'][$dateValue] = $newData['0']['COUNT(*)'];
         }
         
         // Get new collections
-        $conditions = $search_on_date_range ? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-        $collection_res = $this->Report->tryCatchQuery("SELECT COUNT(*), res.collection_year" . ($month_period ? ", res.collection_month" : "") . " FROM (
-				SELECT DISTINCT col.participant_id, YEAR(col.collection_datetime) AS collection_year" . ($month_period ? ", MONTH(col.collection_datetime) AS collection_month" : "") . " FROM sample_masters AS sm 
+        $conditions = $searchOnDateRange ? "col.collection_datetime >= '$startDateForSql' AND col.collection_datetime <= '$endDateForSql'" : 'TRUE';
+        $collectionRes = $this->Report->tryCatchQuery("SELECT COUNT(*), res.collection_year" . ($monthPeriod ? ", res.collection_month" : "") . " FROM (
+				SELECT DISTINCT col.participant_id, YEAR(col.collection_datetime) AS collection_year" . ($monthPeriod ? ", MONTH(col.collection_datetime) AS collection_month" : "") . " FROM sample_masters AS sm 
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
 				WHERE col.participant_id IS NOT NULL 
 				AND col.participant_id != '0'
@@ -799,38 +799,38 @@ class ReportsController extends DatamartAppController
 				AND col.deleted != '1'
 				AND sm.deleted != '1'
 			) AS res
-			GROUP BY res.collection_year" . ($month_period ? ", res.collection_month" : "") . ";");
-        foreach ($collection_res as $new_data) {
-            $date_key = '';
-            $date_value = __('unknown');
-            if (! empty($new_data['res']['collection_year'])) {
-                if ($month_period) {
-                    $date_key = $new_data['res']['collection_year'] . "-" . ((strlen($new_data['res']['collection_month']) == 1) ? "0" : "") . $new_data['res']['collection_month'];
-                    $date_value = $arr_format_month_to_string[$new_data['res']['collection_month']] . ' ' . $new_data['res']['collection_year'];
+			GROUP BY res.collection_year" . ($monthPeriod ? ", res.collection_month" : "") . ";");
+        foreach ($collectionRes as $newData) {
+            $dateKey = '';
+            $dateValue = __('unknown');
+            if (! empty($newData['res']['collection_year'])) {
+                if ($monthPeriod) {
+                    $dateKey = $newData['res']['collection_year'] . "-" . ((strlen($newData['res']['collection_month']) == 1) ? "0" : "") . $newData['res']['collection_month'];
+                    $dateValue = $arrFormatMonthToString[$newData['res']['collection_month']] . ' ' . $newData['res']['collection_year'];
                 } else {
-                    $date_key = $new_data['res']['collection_year'];
-                    $date_value = $new_data['res']['collection_year'];
+                    $dateKey = $newData['res']['collection_year'];
+                    $dateValue = $newData['res']['collection_year'];
                 }
             }
             
-            $date_key_list[$date_key] = $date_value;
-            $tmp_res['0']['new_collections_nbr'][$date_value] = $new_data['0']['COUNT(*)'];
+            $dateKeyList[$dateKey] = $dateValue;
+            $tmpRes['0']['new_collections_nbr'][$dateValue] = $newData['0']['COUNT(*)'];
         }
         
-        ksort($date_key_list);
-        $error_msg = null;
-        if (sizeof($date_key_list) > 20) {
-            $error_msg = 'number of report columns will be too big, please redefine parameters';
+        ksort($dateKeyList);
+        $errorMsg = null;
+        if (sizeof($dateKeyList) > 20) {
+            $errorMsg = 'number of report columns will be too big, please redefine parameters';
         }
         
-        $array_to_return = array(
+        $arrayToReturn = array(
             'header' => $header,
-            'data' => $tmp_res,
-            'columns_names' => array_values($date_key_list),
-            'error_msg' => $error_msg
+            'data' => $tmpRes,
+            'columns_names' => array_values($dateKeyList),
+            'error_msg' => $errorMsg
         );
         
-        return $array_to_return;
+        return $arrayToReturn;
     }
 
     function ctrnetCatalogueSubmissionFile($parameters)
@@ -845,37 +845,37 @@ class ReportsController extends DatamartAppController
             'description' => 'n/a'
         );
         
-        $bank_ids = array();
+        $bankIds = array();
         if (isset($parameters[0]['bank_id'])) {
-            foreach ($parameters[0]['bank_id'] as $bank_id)
-                if (! empty($bank_id))
-                    $bank_ids[] = $bank_id;
-            if (! empty($bank_ids)) {
+            foreach ($parameters[0]['bank_id'] as $bankId)
+                if (! empty($bankId))
+                    $bankIds[] = $bankId;
+            if (! empty($bankIds)) {
                 $Bank = AppModel::getInstance("Administrate", "Bank", true);
-                $bank_list = $Bank->find('all', array(
+                $bankList = $Bank->find('all', array(
                     'conditions' => array(
-                        'id' => $bank_ids
+                        'id' => $bankIds
                     )
                 ));
-                $bank_names = array();
-                foreach ($bank_list as $new_bank)
-                    $bank_names[] = $new_bank['Bank']['name'];
-                $header['title'] .= ' (' . __('bank') . ': ' . implode(',', $bank_names) . ')';
+                $bankNames = array();
+                foreach ($bankList as $newBank)
+                    $bankNames[] = $newBank['Bank']['name'];
+                $header['title'] .= ' (' . __('bank') . ': ' . implode(',', $bankNames) . ')';
             }
         }
         
         // 2- Search data
         
-        $bank_conditions = empty($bank_ids) ? 'TRUE' : 'col.bank_id IN (' . implode(',', $bank_ids) . ')';
-        $aliquot_type_confitions = $parameters[0]['include_core_and_slide'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('core','slide')";
-        $whatman_paper_confitions = $parameters[0]['include_whatman_paper'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('whatman paper')";
-        $detail_other_count = $parameters[0]['detail_other_count'][0] ? true : false;
+        $bankConditions = empty($bankIds) ? 'TRUE' : 'col.bank_id IN (' . implode(',', $bankIds) . ')';
+        $aliquotTypeConfitions = $parameters[0]['include_core_and_slide'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('core','slide')";
+        $whatmanPaperConfitions = $parameters[0]['include_whatman_paper'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('whatman paper')";
+        $detailOtherCount = $parameters[0]['detail_other_count'][0] ? true : false;
         
         $data = array();
         
         // **all**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('total'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -890,21 +890,21 @@ class ReportsController extends DatamartAppController
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				WHERE col.deleted != '1' 
-				AND ($bank_conditions)
-				AND ($aliquot_type_confitions) 
+				AND ($bankConditions)
+				AND ($aliquotTypeConfitions) 
 				AND am.in_stock IN ('yes - available ','yes - not available')
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **FFPE**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('FFPE'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -921,23 +921,23 @@ class ReportsController extends DatamartAppController
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				INNER JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ('tissue')
 				AND ac.aliquot_type = 'block'
 				AND blk.block_type = 'paraffin'
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **frozen tissue**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('frozen tissue'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -953,17 +953,17 @@ class ReportsController extends DatamartAppController
 				INNER JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = sm.id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ('tissue')
-				AND ($aliquot_type_confitions) 
+				AND ($aliquotTypeConfitions) 
 				AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin')
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
         $sql = "
 			SELECT DISTINCT sc.sample_type,ac.aliquot_type,blk.block_type
@@ -974,16 +974,16 @@ class ReportsController extends DatamartAppController
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 			LEFT JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
-			WHERE col.deleted != '1' AND ($bank_conditions)
+			WHERE col.deleted != '1' AND ($bankConditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type IN ('tissue')
-				AND ($aliquot_type_confitions) 
+				AND ($aliquotTypeConfitions) 
 			AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin');";
-        $query_results = $this->Report->tryCatchQuery($sql);
-        foreach ($query_results as $new_type)
-            $tmp_data['notes'] .= (empty($tmp_data['notes']) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']) . (empty($new_type['blk']['block_type']) ? '' : ' (' . __($new_type['blk']['block_type']) . ')');
+        $queryResults = $this->Report->tryCatchQuery($sql);
+        foreach ($queryResults as $newType)
+            $tmpData['notes'] .= (empty($tmpData['notes']) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']) . (empty($newType['blk']['block_type']) ? '' : ' (' . __($newType['blk']['block_type']) . ')');
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **blood**
         // **pbmc**
@@ -995,9 +995,9 @@ class ReportsController extends DatamartAppController
         // **dna**
         // **cell culture**
         
-        $sample_types = "'blood', 'pbmc', 'buffy coat',  'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
+        $sampleTypes = "'blood', 'pbmc', 'buffy coat',  'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
         
-        $tmp_data = array();
+        $tmpData = array();
         $sql = "
 			SELECT count(*) AS nbr,sample_type, aliquot_type FROM (
 				SELECT DISTINCT  %%id%%, sc.sample_type, ac.aliquot_type
@@ -1006,33 +1006,33 @@ class ReportsController extends DatamartAppController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
-				AND sc.sample_type IN ($sample_types)
-				AND ($whatman_paper_confitions)	
+				AND sc.sample_type IN ($sampleTypes)
+				AND ($whatmanPaperConfitions)	
 			) AS res GROUP BY sample_type, aliquot_type;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        foreach ($query_results as $new_res) {
-            $sample_type = $new_res['res']['sample_type'];
-            $aliquot_type = $new_res['res']['aliquot_type'];
-            $tmp_data[$sample_type . $aliquot_type] = array(
-                'sample_type' => __($sample_type) . ' ' . __($aliquot_type),
-                'cases_nbr' => $new_res[0]['nbr'],
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        foreach ($queryResults as $newRes) {
+            $sampleType = $newRes['res']['sample_type'];
+            $aliquotType = $newRes['res']['aliquot_type'];
+            $tmpData[$sampleType . $aliquotType] = array(
+                'sample_type' => __($sampleType) . ' ' . __($aliquotType),
+                'cases_nbr' => $newRes[0]['nbr'],
                 'aliquots_nbr' => '',
                 'notes' => ''
             );
         }
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        foreach ($query_results as $new_res) {
-            $sample_type = $new_res['res']['sample_type'];
-            $aliquot_type = $new_res['res']['aliquot_type'];
-            $tmp_data[$sample_type . $aliquot_type]['aliquots_nbr'] = $new_res[0]['nbr'];
-            $data[] = $tmp_data[$sample_type . $aliquot_type];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        foreach ($queryResults as $newRes) {
+            $sampleType = $newRes['res']['sample_type'];
+            $aliquotType = $newRes['res']['aliquot_type'];
+            $tmpData[$sampleType . $aliquotType]['aliquots_nbr'] = $newRes[0]['nbr'];
+            $data[] = $tmpData[$sampleType . $aliquotType];
         }
         
         // **Urine**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('urine'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -1046,15 +1046,15 @@ class ReportsController extends DatamartAppController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type LIKE '%urine%'
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
         $sql = "
 			SELECT DISTINCT sc.sample_type,ac.aliquot_type
@@ -1063,18 +1063,18 @@ class ReportsController extends DatamartAppController
 			INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-			WHERE col.deleted != '1' AND ($bank_conditions)
+			WHERE col.deleted != '1' AND ($bankConditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type LIKE '%urine%'";
-        $query_results = $this->Report->tryCatchQuery($sql);
-        foreach ($query_results as $new_type)
-            $tmp_data['notes'] .= (empty($tmp_data['notes']) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']);
+        $queryResults = $this->Report->tryCatchQuery($sql);
+        foreach ($queryResults as $newType)
+            $tmpData['notes'] .= (empty($tmpData['notes']) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']);
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **Ascite**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('ascite'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -1088,15 +1088,15 @@ class ReportsController extends DatamartAppController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type LIKE '%ascite%'
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
         $sql = "
 			SELECT DISTINCT sc.sample_type,ac.aliquot_type
@@ -1105,22 +1105,22 @@ class ReportsController extends DatamartAppController
 			INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-			WHERE col.deleted != '1' AND ($bank_conditions)
+			WHERE col.deleted != '1' AND ($bankConditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type LIKE '%ascite%'";
-        $query_results = $this->Report->tryCatchQuery($sql);
-        foreach ($query_results as $new_type)
-            $tmp_data['notes'] .= (empty($tmp_data['notes']) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']);
+        $queryResults = $this->Report->tryCatchQuery($sql);
+        foreach ($queryResults as $newType)
+            $tmpData['notes'] .= (empty($tmpData['notes']) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']);
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **other**
         
-        $other_conditions = "sc.sample_type NOT LIKE '%ascite%' AND sc.sample_type NOT LIKE '%urine%' AND sc.sample_type NOT IN ('tissue', $sample_types)";
+        $otherConditions = "sc.sample_type NOT LIKE '%ascite%' AND sc.sample_type NOT LIKE '%urine%' AND sc.sample_type NOT IN ('tissue', $sampleTypes)";
         
-        if ($detail_other_count) {
+        if ($detailOtherCount) {
             
-            $tmp_data = array();
+            $tmpData = array();
             $sql = "
 				SELECT count(*) AS nbr,sample_type, aliquot_type FROM (
 					SELECT DISTINCT  %%id%%, sc.sample_type, ac.aliquot_type
@@ -1129,31 +1129,31 @@ class ReportsController extends DatamartAppController
 					INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
-					AND ($other_conditions)
+					AND ($otherConditions)
 				) AS res GROUP BY sample_type, aliquot_type;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            foreach ($query_results as $new_res) {
-                $sample_type = $new_res['res']['sample_type'];
-                $aliquot_type = $new_res['res']['aliquot_type'];
-                $tmp_data[$sample_type . $aliquot_type] = array(
-                    'sample_type' => __($sample_type) . ' ' . __($aliquot_type),
-                    'cases_nbr' => $new_res[0]['nbr'],
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            foreach ($queryResults as $newRes) {
+                $sampleType = $newRes['res']['sample_type'];
+                $aliquotType = $newRes['res']['aliquot_type'];
+                $tmpData[$sampleType . $aliquotType] = array(
+                    'sample_type' => __($sampleType) . ' ' . __($aliquotType),
+                    'cases_nbr' => $newRes[0]['nbr'],
                     'aliquots_nbr' => '',
                     'notes' => ''
                 );
             }
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            foreach ($query_results as $new_res) {
-                $sample_type = $new_res['res']['sample_type'];
-                $aliquot_type = $new_res['res']['aliquot_type'];
-                $tmp_data[$sample_type . $aliquot_type]['aliquots_nbr'] = $new_res[0]['nbr'];
-                $data[] = $tmp_data[$sample_type . $aliquot_type];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            foreach ($queryResults as $newRes) {
+                $sampleType = $newRes['res']['sample_type'];
+                $aliquotType = $newRes['res']['aliquot_type'];
+                $tmpData[$sampleType . $aliquotType]['aliquots_nbr'] = $newRes[0]['nbr'];
+                $data[] = $tmpData[$sampleType . $aliquotType];
             }
         } else {
             
-            $tmp_data = array(
+            $tmpData = array(
                 'sample_type' => __('other'),
                 'cases_nbr' => '',
                 'aliquots_nbr' => '',
@@ -1167,15 +1167,15 @@ class ReportsController extends DatamartAppController
 					INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
-					AND ($other_conditions)
+					AND ($otherConditions)
 				) AS res;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
             
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
             
             $sql = "
 				SELECT DISTINCT sc.sample_type,ac.aliquot_type
@@ -1184,33 +1184,33 @@ class ReportsController extends DatamartAppController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
-				AND ($other_conditions)";
-            $query_results = $this->Report->tryCatchQuery($sql);
-            foreach ($query_results as $new_type)
-                $tmp_data['notes'] .= (empty($tmp_data['notes']) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']);
+				AND ($otherConditions)";
+            $queryResults = $this->Report->tryCatchQuery($sql);
+            foreach ($queryResults as $newType)
+                $tmpData['notes'] .= (empty($tmpData['notes']) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']);
             
-            $data[] = $tmp_data;
+            $data[] = $tmpData;
         }
         
         // Format data form display
         
-        $final_data = array();
-        foreach ($data as $new_row) {
-            if ($new_row['cases_nbr']) {
-                $final_data[][0] = $new_row;
+        $finalData = array();
+        foreach ($data as $newRow) {
+            if ($newRow['cases_nbr']) {
+                $finalData[][0] = $newRow;
             }
         }
         
-        $array_to_return = array(
+        $arrayToReturn = array(
             'header' => $header,
-            'data' => $final_data,
+            'data' => $finalData,
             'columns_names' => null,
             'error_msg' => null
         );
         
-        return $array_to_return;
+        return $arrayToReturn;
     }
 
     function participantIdentifiersSummary($parameters)
@@ -1229,50 +1229,50 @@ class ReportsController extends DatamartAppController
             $parameters['Participant']['id'] = $parameters['SelectedItemsForCsv']['Participant']['id'];
         if (isset($parameters['Participant']['id'])) {
             // From databrowser
-            $participant_ids = array_filter($parameters['Participant']['id']);
-            if ($participant_ids)
-                $conditions['Participant.id'] = $participant_ids;
+            $participantIds = array_filter($parameters['Participant']['id']);
+            if ($participantIds)
+                $conditions['Participant.id'] = $participantIds;
         } elseif (isset($parameters['Participant']['participant_identifier_start'])) {
-            $participant_identifier_start = (! empty($parameters['Participant']['participant_identifier_start'])) ? $parameters['Participant']['participant_identifier_start'] : null;
-            $participant_identifier_end = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
-            if ($participant_identifier_start)
-                $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
-            if ($participant_identifier_end)
-                $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
+            $participantIdentifierStart = (! empty($parameters['Participant']['participant_identifier_start'])) ? $parameters['Participant']['participant_identifier_start'] : null;
+            $participantIdentifierEnd = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
+            if ($participantIdentifierStart)
+                $conditions[] = "Participant.participant_identifier >= '$participantIdentifierStart'";
+            if ($participantIdentifierEnd)
+                $conditions[] = "Participant.participant_identifier <= '$participantIdentifierEnd'";
         } elseif (isset($parameters['Participant']['participant_identifier'])) {
-            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-            if ($participant_identifiers)
-                $conditions['Participant.participant_identifier'] = $participant_identifiers;
+            $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participantIdentifiers)
+                $conditions['Participant.participant_identifier'] = $participantIdentifiers;
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+        $miscIdentifierModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
         // *** NOTE: It's user choice to display report in csv whatever the number of records ***
-        // $tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
-        // if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+        // $tmpResCount = $miscIdentifierModel->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
+        // if($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
         // return array(
         // 'header' => null,
         // 'data' => null,
         // 'columns_names' => null,
         // 'error_msg' => 'the report contains too many results - please redefine search criteria');
         // }
-        $misc_identifiers = $misc_identifier_model->find('all', array(
+        $miscIdentifiers = $miscIdentifierModel->find('all', array(
             'conditions' => $conditions,
             'order' => array(
                 'MiscIdentifier.participant_id ASC'
             )
         ));
         $data = array();
-        foreach ($misc_identifiers as $new_ident) {
-            $participant_id = $new_ident['Participant']['id'];
-            if (! isset($data[$participant_id])) {
-                $data[$participant_id] = array(
+        foreach ($miscIdentifiers as $newIdent) {
+            $participantId = $newIdent['Participant']['id'];
+            if (! isset($data[$participantId])) {
+                $data[$participantId] = array(
                     'Participant' => array(
-                        'id' => $new_ident['Participant']['id'],
-                        'participant_identifier' => $new_ident['Participant']['participant_identifier'],
-                        'first_name' => $new_ident['Participant']['first_name'],
-                        'last_name' => $new_ident['Participant']['last_name']
+                        'id' => $newIdent['Participant']['id'],
+                        'participant_identifier' => $newIdent['Participant']['participant_identifier'],
+                        'first_name' => $newIdent['Participant']['first_name'],
+                        'last_name' => $newIdent['Participant']['last_name']
                     ),
                     '0' => array(
                         'BR_Nbr' => null,
@@ -1281,13 +1281,13 @@ class ReportsController extends DatamartAppController
                     )
                 );
             }
-            $data[$participant_id]['0'][str_replace(array(
+            $data[$participantId]['0'][str_replace(array(
                 ' ',
                 '-'
             ), array(
                 '_',
                 '_'
-            ), $new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
+            ), $newIdent['MiscIdentifierControl']['misc_identifier_name'])] = $newIdent['MiscIdentifier']['identifier_value'];
         }
         
         return array(
@@ -1309,22 +1309,22 @@ class ReportsController extends DatamartAppController
         // Get Parameters
         if (isset($parameters['SampleMaster']['sample_code'])) {
             // From databrowser
-            $selection_labels = array_filter($parameters['SampleMaster']['sample_code']);
-            if ($selection_labels)
-                $conditions['SampleMaster.sample_code'] = $selection_labels;
+            $selectionLabels = array_filter($parameters['SampleMaster']['sample_code']);
+            if ($selectionLabels)
+                $conditions['SampleMaster.sample_code'] = $selectionLabels;
         } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
             // From databrowser
-            $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
-            if ($sample_master_ids)
-                $conditions['SampleMaster.id'] = $sample_master_ids;
+            $sampleMasterIds = array_filter($parameters['ViewSample']['sample_master_id']);
+            if ($sampleMasterIds)
+                $conditions['SampleMaster.id'] = $sampleMasterIds;
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         // Load Model
-        $view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $viewSampleModel = AppModel::getInstance("InventoryManagement", "ViewSample", true);
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         // Build Res
-        $sample_master_model->unbindModel(array(
+        $sampleMasterModel->unbindModel(array(
             'belongsTo' => array(
                 'Collection'
             ),
@@ -1336,7 +1336,7 @@ class ReportsController extends DatamartAppController
                 'AliquotMaster'
             )
         ));
-        $tmp_res_count = $sample_master_model->find('count', array(
+        $tmpResCount = $sampleMasterModel->find('count', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -1348,15 +1348,15 @@ class ReportsController extends DatamartAppController
             'recursive' => '0'
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
-        if ($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+        if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
             return array(
                 'header' => null,
                 'data' => null,
                 'columns_names' => null,
-                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmp_res_count " . __('lines') . ']'
+                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmpResCount " . __('lines') . ']'
             );
         }
-        $studied_samples = $sample_master_model->find('all', array(
+        $studiedSamples = $sampleMasterModel->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -1368,15 +1368,15 @@ class ReportsController extends DatamartAppController
             'recursive' => '0'
         ));
         $res = array();
-        foreach ($studied_samples as $new_studied_sample) {
-            $all_derivatives_samples = $this->getChildrenSamples($view_sample_model, array(
-                $new_studied_sample['SampleMaster']['id']
+        foreach ($studiedSamples as $newStudiedSample) {
+            $allDerivativesSamples = $this->getChildrenSamples($viewSampleModel, array(
+                $newStudiedSample['SampleMaster']['id']
             ));
-            if ($all_derivatives_samples) {
-                foreach ($all_derivatives_samples as $new_derivative_sample) {
-                    if (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($new_derivative_sample['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id']))
+            if ($allDerivativesSamples) {
+                foreach ($allDerivativesSamples as $newDerivativeSample) {
+                    if (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($newDerivativeSample['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id']))
                         continue;
-                    $res[] = array_merge($new_studied_sample, $new_derivative_sample);
+                    $res[] = array_merge($newStudiedSample, $newDerivativeSample);
                 }
             }
         }
@@ -1388,17 +1388,17 @@ class ReportsController extends DatamartAppController
         );
     }
 
-    function getChildrenSamples($view_sample_model, $parent_sample_ids = array())
+    function getChildrenSamples($viewSampleModel, $parentSampleIds = array())
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
             $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
         }
         
-        if (! empty($parent_sample_ids)) {
-            // $view_sample_model->unbindModel(array('hasMany' => array('AliquotMaster')));
-            $children_samples = $view_sample_model->find('all', array(
+        if (! empty($parentSampleIds)) {
+            // $viewSampleModel->unbindModel(array('hasMany' => array('AliquotMaster')));
+            $childrenSamples = $viewSampleModel->find('all', array(
                 'conditions' => array(
-                    'ViewSample.parent_id' => $parent_sample_ids
+                    'ViewSample.parent_id' => $parentSampleIds
                 ),
                 'fields' => array(
                     'ViewSample.*, DerivativeDetail.*'
@@ -1408,11 +1408,11 @@ class ReportsController extends DatamartAppController
                 ),
                 'recursive' => '0'
             ));
-            $children_sample_ids = array();
-            foreach ($children_samples as $tmp_sample)
-                $children_sample_ids[] = $tmp_sample['ViewSample']['sample_master_id'];
-            $sub_children_samples = $this->getChildrenSamples($view_sample_model, $children_sample_ids);
-            return array_merge($children_samples, $sub_children_samples);
+            $childrenSampleIds = array();
+            foreach ($childrenSamples as $tmpSample)
+                $childrenSampleIds[] = $tmpSample['ViewSample']['sample_master_id'];
+            $subChildrenSamples = $this->getChildrenSamples($viewSampleModel, $childrenSampleIds);
+            return array_merge($childrenSamples, $subChildrenSamples);
         }
         return array();
     }
@@ -1430,22 +1430,22 @@ class ReportsController extends DatamartAppController
         // Get Parameters
         if (isset($parameters['SampleMaster']['sample_code'])) {
             // From databrowser
-            $selection_labels = array_filter($parameters['SampleMaster']['sample_code']);
-            if ($selection_labels)
-                $conditions['SampleMaster.sample_code'] = $selection_labels;
+            $selectionLabels = array_filter($parameters['SampleMaster']['sample_code']);
+            if ($selectionLabels)
+                $conditions['SampleMaster.sample_code'] = $selectionLabels;
         } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
             // From databrowser
-            $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
-            if ($sample_master_ids)
-                $conditions['SampleMaster.id'] = $sample_master_ids;
+            $sampleMasterIds = array_filter($parameters['ViewSample']['sample_master_id']);
+            if ($sampleMasterIds)
+                $conditions['SampleMaster.id'] = $sampleMasterIds;
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         // Load Model
-        $view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $viewSampleModel = AppModel::getInstance("InventoryManagement", "ViewSample", true);
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         // Build Res
-        $sample_master_model->unbindModel(array(
+        $sampleMasterModel->unbindModel(array(
             'belongsTo' => array(
                 'Collection'
             ),
@@ -1457,7 +1457,7 @@ class ReportsController extends DatamartAppController
                 'AliquotMaster'
             )
         ));
-        $tmp_res_count = $sample_master_model->find('count', array(
+        $tmpResCount = $sampleMasterModel->find('count', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -1469,15 +1469,15 @@ class ReportsController extends DatamartAppController
             'recursive' => '0'
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
-        if ($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+        if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
             return array(
                 'header' => null,
                 'data' => null,
                 'columns_names' => null,
-                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmp_res_count " . __('lines') . ']'
+                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmpResCount " . __('lines') . ']'
             );
         }
-        $studied_samples = $sample_master_model->find('all', array(
+        $studiedSamples = $sampleMasterModel->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -1489,11 +1489,11 @@ class ReportsController extends DatamartAppController
             'recursive' => '0'
         ));
         $res = array();
-        $tmp_initial_specimens = array();
-        foreach ($studied_samples as $new_studied_sample) {
-            $initial_specimen = isset($tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']]) ? $tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']] : $view_sample_model->find('first', array(
+        $tmpInitialSpecimens = array();
+        foreach ($studiedSamples as $newStudiedSample) {
+            $initialSpecimen = isset($tmpInitialSpecimens[$newStudiedSample['SampleMaster']['initial_specimen_sample_id']]) ? $tmpInitialSpecimens[$newStudiedSample['SampleMaster']['initial_specimen_sample_id']] : $viewSampleModel->find('first', array(
                 'conditions' => array(
-                    'ViewSample.sample_master_id' => $new_studied_sample['SampleMaster']['initial_specimen_sample_id']
+                    'ViewSample.sample_master_id' => $newStudiedSample['SampleMaster']['initial_specimen_sample_id']
                 ),
                 'fields' => array(
                     'ViewSample.*, SpecimenDetail.*'
@@ -1503,10 +1503,10 @@ class ReportsController extends DatamartAppController
                 ),
                 'recursive' => '0'
             ));
-            $tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']] = $initial_specimen;
-            if ($initial_specimen) {
-                if (! (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($initial_specimen['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id'])))
-                    $res[] = array_merge($new_studied_sample, $initial_specimen);
+            $tmpInitialSpecimens[$newStudiedSample['SampleMaster']['initial_specimen_sample_id']] = $initialSpecimen;
+            if ($initialSpecimen) {
+                if (! (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($initialSpecimen['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id'])))
+                    $res[] = array_merge($newStudiedSample, $initialSpecimen);
             }
         }
         return array(
@@ -1528,27 +1528,27 @@ class ReportsController extends DatamartAppController
         // Get Parameters
         if (isset($parameters['StorageMaster']['selection_label'])) {
             // From databrowser
-            $selection_labels = array_filter($parameters['StorageMaster']['selection_label']);
-            if ($selection_labels)
-                $conditions['StorageMaster.selection_label'] = $selection_labels;
+            $selectionLabels = array_filter($parameters['StorageMaster']['selection_label']);
+            if ($selectionLabels)
+                $conditions['StorageMaster.selection_label'] = $selectionLabels;
         } elseif (isset($parameters['ViewStorageMaster']['id'])) {
             // From databrowser
-            $storage_master_ids = array_filter($parameters['ViewStorageMaster']['id']);
-            if ($storage_master_ids)
-                $conditions['StorageMaster.id'] = $storage_master_ids;
+            $storageMasterIds = array_filter($parameters['ViewStorageMaster']['id']);
+            if ($storageMasterIds)
+                $conditions['StorageMaster.id'] = $storageMasterIds;
         } elseif (isset($parameters['NonTmaBlockStorage']['id'])) {
             // From databrowser
-            $storage_master_ids = array_filter($parameters['NonTmaBlockStorage']['id']);
-            if ($storage_master_ids)
-                $conditions['StorageMaster.id'] = $storage_master_ids;
+            $storageMasterIds = array_filter($parameters['NonTmaBlockStorage']['id']);
+            if ($storageMasterIds)
+                $conditions['StorageMaster.id'] = $storageMasterIds;
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         // Load Model
-        $storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
-        $storage_control_model = AppModel::getInstance("StorageLayout", "StorageControl", true);
+        $storageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+        $storageControlModel = AppModel::getInstance("StorageLayout", "StorageControl", true);
         // Build Res
-        $tmp_res_count = $storage_master_model->find('count', array(
+        $tmpResCount = $storageMasterModel->find('count', array(
             'conditions' => $conditions,
             'fields' => array(
                 'StorageMaster.*'
@@ -1559,17 +1559,17 @@ class ReportsController extends DatamartAppController
             'recursive' => '-1'
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
-        if ($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+        if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
             return array(
                 'header' => null,
                 'data' => null,
                 'columns_names' => null,
-                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmp_res_count " . __('lines') . ']'
+                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmpResCount " . __('lines') . ']'
             );
         }
-        $tma_storage_contol_ids = $storage_control_model->getTmaBlockStorageTypePermissibleValues();
-        $tma_storage_contol_ids = array_keys($tma_storage_contol_ids);
-        $studied_storages = $storage_master_model->find('all', array(
+        $tmaStorageContolIds = $storageControlModel->getTmaBlockStorageTypePermissibleValues();
+        $tmaStorageContolIds = array_keys($tmaStorageContolIds);
+        $studiedStorages = $storageMasterModel->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
                 'StorageMaster.*'
@@ -1580,18 +1580,18 @@ class ReportsController extends DatamartAppController
             'recursive' => '-1'
         ));
         $res = array();
-        foreach ($studied_storages as $new_studied_storage) {
-            $children_storage_masters = $storage_master_model->children($new_studied_storage['StorageMaster']['id'], false, array(
+        foreach ($studiedStorages as $newStudiedStorage) {
+            $childrenStorageMasters = $storageMasterModel->children($newStudiedStorage['StorageMaster']['id'], false, array(
                 'StorageMaster.*'
             ));
-            if ($children_storage_masters) {
-                foreach ($children_storage_masters as $new_child) {
-                    if (! in_array($new_child['StorageMaster']['storage_control_id'], $tma_storage_contol_ids)) {
-                        if (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($new_child['StorageMaster']['id'], $parameters['SelectedItemsForCsv']['NonTmaBlockStorage']['id']))
+            if ($childrenStorageMasters) {
+                foreach ($childrenStorageMasters as $newChild) {
+                    if (! in_array($newChild['StorageMaster']['storage_control_id'], $tmaStorageContolIds)) {
+                        if (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($newChild['StorageMaster']['id'], $parameters['SelectedItemsForCsv']['NonTmaBlockStorage']['id']))
                             continue;
-                        $res[] = array_merge($new_studied_storage, array(
-                            'ViewStorageMaster' => $new_child['StorageMaster'],
-                            'NonTmaBlockStorage' => $new_child['StorageMaster']
+                        $res[] = array_merge($newStudiedStorage, array(
+                            'ViewStorageMaster' => $newChild['StorageMaster'],
+                            'NonTmaBlockStorage' => $newChild['StorageMaster']
                         ));
                     }
                 }
@@ -1616,26 +1616,26 @@ class ReportsController extends DatamartAppController
         // Get Parameters
         if (isset($parameters['DiagnosisMaster']['id'])) {
             // From databrowser
-            $diagnosis_master_ids = array_filter($parameters['DiagnosisMaster']['id']);
-            if ($diagnosis_master_ids)
-                $conditions['DiagnosisMaster.id'] = $diagnosis_master_ids;
+            $diagnosisMasterIds = array_filter($parameters['DiagnosisMaster']['id']);
+            if ($diagnosisMasterIds)
+                $conditions['DiagnosisMaster.id'] = $diagnosisMasterIds;
         } elseif (isset($parameters['Participant']['participant_identifier'])) {
             // From databrowser
-            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
-            if ($participant_identifiers)
-                $conditions['Participant.participant_identifier'] = $participant_identifiers;
+            $participantIdentifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participantIdentifiers)
+                $conditions['Participant.participant_identifier'] = $participantIdentifiers;
         } elseif (isset($parameters['Participant']['id'])) {
             // From databrowser
-            $participant_ids = array_filter($parameters['Participant']['id']);
-            if ($participant_ids)
-                $conditions['DiagnosisMaster.participant_id'] = $participant_ids;
+            $participantIds = array_filter($parameters['Participant']['id']);
+            if ($participantIds)
+                $conditions['DiagnosisMaster.participant_id'] = $participantIds;
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         // Load Model
-        $diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+        $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
         // Build Res
-        $diagnosis_master_model->bindModel(array(
+        $diagnosisMasterModel->bindModel(array(
             'belongsTo' => array(
                 'Participant' => array(
                     'className' => 'ClinicalAnnotation.Participant',
@@ -1643,12 +1643,12 @@ class ReportsController extends DatamartAppController
                 )
             )
         ), false);
-        $diagnosis_master_model->unbindModel(array(
+        $diagnosisMasterModel->unbindModel(array(
             'hasMany' => array(
                 'Collection'
             )
         ), false);
-        $tmp_res_count = $diagnosis_master_model->find('count', array(
+        $tmpResCount = $diagnosisMasterModel->find('count', array(
             'conditions' => $conditions,
             'fields' => array(
                 'DISTINCT primary_id'
@@ -1656,31 +1656,31 @@ class ReportsController extends DatamartAppController
             'recursive' => '0'
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
-        if ($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+        if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
             return array(
                 'header' => null,
                 'data' => null,
                 'columns_names' => null,
-                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmp_res_count " . __('lines') . ']'
+                'error_msg' => __('the report contains too many results - please redefine search criteria') . " [> $tmpResCount " . __('lines') . ']'
             );
         }
-        $tmp_primary_ids = $diagnosis_master_model->find('all', array(
+        $tmpPrimaryIds = $diagnosisMasterModel->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
                 'DISTINCT primary_id'
             ),
             'recursive' => '0'
         ));
-        $primary_ids = array();
-        foreach ($tmp_primary_ids as $new_primary_id)
-            $primary_ids[] = $new_primary_id['DiagnosisMaster']['primary_id'];
-        $conditions_2 = array(
-            'DiagnosisMaster.primary_id' => $primary_ids
+        $primaryIds = array();
+        foreach ($tmpPrimaryIds as $newPrimaryId)
+            $primaryIds[] = $newPrimaryId['DiagnosisMaster']['primary_id'];
+        $conditions2 = array(
+            'DiagnosisMaster.primary_id' => $primaryIds
         );
         if (isset($parameters['SelectedItemsForCsv']['DiagnosisMaster']['id']))
-            $conditions_2['DiagnosisMaster.id'] = $parameters['SelectedItemsForCsv']['DiagnosisMaster']['id'];
-        $res = $diagnosis_master_model->find('all', array(
-            'conditions' => $conditions_2,
+            $conditions2['DiagnosisMaster.id'] = $parameters['SelectedItemsForCsv']['DiagnosisMaster']['id'];
+        $res = $diagnosisMasterModel->find('all', array(
+            'conditions' => $conditions2,
             'fields' => array(
                 'Participant.*',
                 'DiagnosisMaster.*',
@@ -1712,7 +1712,7 @@ class ReportsController extends DatamartAppController
         
         // Get studied model
         
-        $models_list = array(
+        $modelsList = array(
             'MiscIdentifier' => array(
                 'id',
                 array(
@@ -1845,47 +1845,47 @@ class ReportsController extends DatamartAppController
                 'aliquot review'
             )
         );
-        $model_name = null;
-        foreach (array_keys($models_list) as $tm_model_name) {
-            if (isset($parameters[$tm_model_name])) {
-                $model_name = $tm_model_name;
+        $modelName = null;
+        foreach (array_keys($modelsList) as $tmModelName) {
+            if (isset($parameters[$tmModelName])) {
+                $modelName = $tmModelName;
                 break;
             }
         }
         
         // Get data
         
-        if ($model_name) {
-            list ($model_id_key, $ordered_linked_table_names, $header_detail) = $models_list[$model_name];
-            $ids = array_filter($parameters[$model_name][$model_id_key]);
+        if ($modelName) {
+            list ($modelIdKey, $orderedLinkedTableNames, $headerDetail) = $modelsList[$modelName];
+            $ids = array_filter($parameters[$modelName][$modelIdKey]);
             $ids = empty($ids) ? '-1' : implode(',', $ids);
             $joins = array();
-            $delete_constraints = array();
-            $model_levels = 0;
-            $foreign_key_to_previous_model = null;
-            foreach (array_reverse($ordered_linked_table_names) as $new_table_name) {
-                $model_levels ++;
-                if ($model_levels == 1) {
-                    $joins[] = "INNER JOIN $new_table_name ModelLevel1 ON ModelLevel1.participant_id = Participant.id";
-                    $foreign_key_to_previous_model = preg_replace('/s$/', '_id', $new_table_name);
+            $deleteConstraints = array();
+            $modelLevels = 0;
+            $foreignKeyToPreviousModel = null;
+            foreach (array_reverse($orderedLinkedTableNames) as $newTableName) {
+                $modelLevels ++;
+                if ($modelLevels == 1) {
+                    $joins[] = "INNER JOIN $newTableName ModelLevel1 ON ModelLevel1.participant_id = Participant.id";
+                    $foreignKeyToPreviousModel = preg_replace('/s$/', '_id', $newTableName);
                 } else {
-                    $joins[] = "INNER JOIN $new_table_name ModelLevel$model_levels ON ModelLevel$model_levels." . $foreign_key_to_previous_model . " = ModelLevel" . ($model_levels - 1) . ".id";
-                    $foreign_key_to_previous_model = preg_replace('/s$/', '_id', $new_table_name);
+                    $joins[] = "INNER JOIN $newTableName ModelLevel$modelLevels ON ModelLevel$modelLevels." . $foreignKeyToPreviousModel . " = ModelLevel" . ($modelLevels - 1) . ".id";
+                    $foreignKeyToPreviousModel = preg_replace('/s$/', '_id', $newTableName);
                 }
-                if ($new_table_name != 'view_aliquot_uses')
-                    $delete_constraints[] = "ModelLevel$model_levels.deleted <> 1";
+                if ($newTableName != 'view_aliquot_uses')
+                    $deleteConstraints[] = "ModelLevel$modelLevels.deleted <> 1";
             }
             $query = "SELECT count(*) AS nbr_of_elements, Participant.*
-				FROM participants AS Participant " . implode(' ', $joins) . " WHERE Participant.deleted <> 1 AND " . implode(' AND ', $delete_constraints) . " AND ModelLevel$model_levels.id IN ($ids)
+				FROM participants AS Participant " . implode(' ', $joins) . " WHERE Participant.deleted <> 1 AND " . implode(' AND ', $deleteConstraints) . " AND ModelLevel$modelLevels.id IN ($ids)
 				GROUP BY Participant.id;";
             // Set header
-            $header = str_replace('%s', __($header_detail), __('number of %s per participant'));
+            $header = str_replace('%s', __($headerDetail), __('number of %s per participant'));
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
-        $data = $participant_model->tryCatchQuery($query);
+        $participantModel = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+        $data = $participantModel->tryCatchQuery($query);
         // *** NOTE: It's user choice to display report in csv whatever the number of records ***
         // if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
         // return array(
@@ -1894,8 +1894,8 @@ class ReportsController extends DatamartAppController
         // 'columns_names' => null,
         // 'error_msg' => 'the report contains too many results - please redefine search criteria');
         // }
-        foreach ($data as &$new_row)
-            $new_row['Generated'] = $new_row['0'];
+        foreach ($data as &$newRow)
+            $newRow['Generated'] = $newRow['0'];
         return array(
             'header' => $header,
             'data' => $data,

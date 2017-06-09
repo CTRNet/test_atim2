@@ -2,7 +2,7 @@
 
 class CodingIcdo3Topo extends CodingIcdAppModel
 {
-    
+
     // ---------------------------------------------------------------------------------------------------------------
     // Coding System: ICD-O-3
     // From: Stats Canada through the Manitoba Cancer Registry (CCR_Reference_Tables_2009_FinalDraft_21122009)
@@ -14,7 +14,7 @@ class CodingIcdo3Topo extends CodingIcdAppModel
 
     public $useTable = 'coding_icd_o_3_topography';
 
-    public $icd_description_table_fields = array(
+    public $icdDescriptionTableFields = array(
         'search_format' => array(/*'title': All values are equal to 'Malignant neoplasms' */ 'sub_title',
             'description'
         ),
@@ -49,8 +49,8 @@ class CodingIcdo3Topo extends CodingIcdAppModel
             'fields' => array(
                 'DISTINCT SUBSTRING(id, 1, 3) AS id, ' . $lang . '_sub_title'
             )
-        )) as $new_id) {
-            $data[$new_id['0']['id']] = $new_id['0']['id'] . ' - ' . $new_id['CodingIcdo3Topo'][$lang . '_sub_title'];
+        )) as $newId) {
+            $data[$newId['0']['id']] = $newId['0']['id'] . ' - ' . $newId['CodingIcdo3Topo'][$lang . '_sub_title'];
         }
         return $data;
     }

@@ -1,20 +1,20 @@
 <?php
 require ('search_links_n_options.php');
-$final_options['settings']['return'] = true;
-$final_options['settings']['pagination'] = false;
-$final_options['settings']['header'] = false;
-$final_options['settings']['actions'] = false;
-$last_5 = $this->Structures->build($final_atim_structure, $final_options);
+$finalOptions['settings']['return'] = true;
+$finalOptions['settings']['pagination'] = false;
+$finalOptions['settings']['header'] = false;
+$finalOptions['settings']['actions'] = false;
+$last5 = $this->Structures->build($finalAtimStructure, $finalOptions);
 
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
         'add participant' => '/ClinicalAnnotation/Participants/add'
     )
 );
 
 // Set form structure and option
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'search',
     'links' => array(
         'top' => '/ClinicalAnnotation/Participants/search/' . AppController::getNewSearchId() . '/'
@@ -25,19 +25,19 @@ $final_options = array(
     )
 );
 
-$final_atim_structure2 = $empty_structure;
-$final_options2 = array(
-    'links' => $structure_links,
-    'extras' => '<div class="ajax_search_results"></div><div class="ajax_search_results_default">' . $last_5 . '</div>'
+$finalAtimStructure2 = $emptyStructure;
+$finalOptions2 = array(
+    'links' => $structureLinks,
+    'extras' => '<div class="ajax_search_results"></div><div class="ajax_search_results_default">' . $last5 . '</div>'
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('index'); // when the caller is search, the hook will be 'search_index.php'
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('index'); // when the caller is search, the hook will be 'search_index.php'
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
-$this->Structures->build($final_atim_structure2, $final_options2);
+$this->Structures->build($finalAtimStructure, $finalOptions);
+$this->Structures->build($finalAtimStructure2, $finalOptions2);
 ?>

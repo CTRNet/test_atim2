@@ -1,6 +1,6 @@
 <div id="me">
 <?php
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'search',
     'links' => array(
         'top' => '/'
@@ -23,7 +23,7 @@ $this->Structures->build($empty, array(
 </div>
 <script type="text/javascript">
 var popupSearch = function(){
-	$.post(root_url + "CodingIcd/CodingIcd10s/search/<?php echo($use_icd_type); ?>/1", $("#me form").serialize(), function(data){
+	$.post(root_url + "CodingIcd/CodingIcd10s/search/<?php echo($useIcdType); ?>/1", $("#me form").serialize(), function(data){
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
 	return false;

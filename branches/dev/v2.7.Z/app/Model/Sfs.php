@@ -1,4 +1,5 @@
 <?php
+
 // Sfs stands for Structure Format Simplified
 class Sfs extends AppModel
 {

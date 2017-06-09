@@ -6,21 +6,21 @@ if (isset($overflow)) {
 </ul>
 <?php
 }
-$type = $use_icd_type == "topo" ? "topography" : "morphology";
+$type = $useIcdType == "topo" ? "topography" : "morphology";
 $header = array(
     'title' => __('icdo3 ' . $type . ' code picker'),
     'description' => __('select an icdo3 ' . $type . ' code')
 );
-$index_link_prefix = "/CodingIcd/CodingIcdo3s/search/";
+$indexLinkPrefix = "/CodingIcd/CodingIcdo3s/search/";
 $links = array(
     'index' => array(
-        'detail' => $index_link_prefix . '%%CodingIcd.id%%'
+        'detail' => $indexLinkPrefix . '%%CodingIcd.id%%'
     ),
     'bottom' => array(
-        'back' => '/CodingIcd/CodingIcdo3s/tool/' . $use_icd_type
+        'back' => '/CodingIcd/CodingIcdo3s/tool/' . $useIcdType
     )
 );
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'index',
     'settings' => array(
         'pagination' => false,
@@ -33,7 +33,7 @@ $this->Structures->build($atim_structure, array(
 $(function(){
 	$("#default_popup a.detail").click(function(){
 		val = $(this).attr("href");
-		indexLinkPrefix = "<?php echo($index_link_prefix); ?>";
+		indexLinkPrefix = "<?php echo($indexLinkPrefix); ?>";
 		val = val.substr(val.indexOf(indexLinkPrefix) + indexLinkPrefix.length);
 		$(toolTarget).val(val);
 		$("#default_popup").popup('close');

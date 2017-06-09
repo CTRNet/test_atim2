@@ -17,7 +17,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    public static $join_diagnosis_control_on_dup = array(
+    public static $joinDiagnosisControlOnDup = array(
         'table' => 'diagnosis_controls',
         'alias' => 'DiagnosisControl',
         'type' => 'LEFT',
@@ -26,7 +26,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    public $browsing_search_dropdown_info = array(
+    public $browsingSearchDropdownInfo = array(
         'browsing_filter' => array(
             1 => array(
                 'lang' => 'keep entries with the most recent date per participant',
@@ -58,25 +58,25 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $this->summary($variables['DiagnosisMaster.progression_2_id']);
     }
 
-    function summary($diagnosis_master_id = null)
+    function summary($diagnosisMasterId = null)
     {
         $return = false;
-        if (! is_null($diagnosis_master_id)) {
+        if (! is_null($diagnosisMasterId)) {
             $result = $this->find('first', array(
                 'conditions' => array(
-                    'DiagnosisMaster.id' => $diagnosis_master_id
+                    'DiagnosisMaster.id' => $diagnosisMasterId
                 ),
                 'recursive' => 0
             ));
             
-            $structure_alias = 'diagnosismasters';
+            $structureAlias = 'diagnosismasters';
             switch ($result['DiagnosisControl']['category']) {
                 case 'primary':
                     if ($result['DiagnosisControl']['controls_type'] != 'primary diagnosis unknown')
-                        $structure_alias .= ',dx_primary';
+                        $structureAlias .= ',dx_primary';
                     break;
                 case 'secondary - distant':
-                    $structure_alias = ',dx_secondary';
+                    $structureAlias = ',dx_secondary';
                     break;
             }
             
@@ -90,7 +90,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
                     __($result['DiagnosisControl']['category'], true)
                 ),
                 'data' => $result,
-                'structure alias' => $structure_alias
+                'structure alias' => $structureAlias
             );
         }
         return $return;
@@ -102,17 +102,17 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
      * @param
      *            $participantArray
      */
-    function patchIcd10NullValues(&$participant_array)
+    function patchIcd10NullValues(&$participantArray)
     {
-        if (array_key_exists('icd10_code', $participant_array['DiagnosisMaster']) && strlen(trim($participant_array['DiagnosisMaster']['icd10_code'])) == 0) {
-            $participant_array['DiagnosisMaster']['icd10_code'] = null;
+        if (array_key_exists('icd10_code', $participantArray['DiagnosisMaster']) && strlen(trim($participantArray['DiagnosisMaster']['icd10_code'])) == 0) {
+            $participantArray['DiagnosisMaster']['icd10_code'] = null;
         }
     }
 
     /**
      * Check if a record can be deleted.
      *
-     * @param $diagnosis_master_id Id
+     * @param $diagnosisMasterId Id
      *            of the studied record.
      *            
      * @return Return results as array:
@@ -122,128 +122,128 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($diagnosis_master_id)
+    function allowDeletion($diagnosisMasterId)
     {
-        $arr_allow_deletion = array(
+        $arrAllowDeletion = array(
             'allow_deletion' => true,
             'msg' => ''
         );
         
         // Check for existing records linked to the participant. If found, set error message and deny delete
-        $nbr_primary = $this->find('count', array(
+        $nbrPrimary = $this->find('count', array(
             'conditions' => array(
-                'DiagnosisMaster.primary_id' => $diagnosis_master_id,
-                "DiagnosisMaster.id != $diagnosis_master_id"
+                'DiagnosisMaster.primary_id' => $diagnosisMasterId,
+                "DiagnosisMaster.id != $diagnosisMasterId"
             ),
             'recursive' => '-1'
         ));
-        if ($nbr_primary > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_diagnosis_primary_id';
+        if ($nbrPrimary > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_diagnosis_primary_id';
         }
         
         // Check for existing records linked to the participant. If found, set error message and deny delete
-        $nbr_parent = $this->find('count', array(
+        $nbrParent = $this->find('count', array(
             'conditions' => array(
-                'DiagnosisMaster.parent_id' => $diagnosis_master_id
+                'DiagnosisMaster.parent_id' => $diagnosisMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($nbr_parent > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_diagnosis_parent_id';
+        if ($nbrParent > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_diagnosis_parent_id';
         }
         
         // Check for existing records linked to the participant. If found, set error message and deny delete
-        $collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
-        $nbr_linked_collection = $collection_model->find('count', array(
+        $collectionModel = AppModel::getInstance("InventoryManagement", "Collection", true);
+        $nbrLinkedCollection = $collectionModel->find('count', array(
             'conditions' => array(
-                'Collection.diagnosis_master_id' => $diagnosis_master_id
+                'Collection.diagnosis_master_id' => $diagnosisMasterId
             )
         ));
-        if ($nbr_linked_collection > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_collection';
+        if ($nbrLinkedCollection > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_diagnosis_linked_collection';
         }
         
-        $event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-        $nbr_events = $event_master_model->find('count', array(
+        $eventMasterModel = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+        $nbrEvents = $eventMasterModel->find('count', array(
             'conditions' => array(
-                'EventMaster.diagnosis_master_id' => $diagnosis_master_id
+                'EventMaster.diagnosis_master_id' => $diagnosisMasterId
             )
         ));
-        if ($nbr_events > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_events';
+        if ($nbrEvents > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_diagnosis_linked_events';
         }
         
-        $treatment_master_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-        $nbr_treatment = $treatment_master_model->find('count', array(
+        $treatmentMasterModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+        $nbrTreatment = $treatmentMasterModel->find('count', array(
             'conditions' => array(
-                'TreatmentMaster.diagnosis_master_id' => $diagnosis_master_id
+                'TreatmentMaster.diagnosis_master_id' => $diagnosisMasterId
             )
         ));
-        if ($nbr_treatment > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_treatment';
+        if ($nbrTreatment > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_diagnosis_linked_treatment';
         }
-        return $arr_allow_deletion;
+        return $arrAllowDeletion;
     }
 
-    function getExistingDx($participant_id, $current_dx_id = '0', $current_dx_primary_number = '')
+    function getExistingDx($participantId, $currentDxId = '0', $currentDxPrimaryNumber = '')
     {
-        $existing_dx = $this->find('all', array(
+        $existingDx = $this->find('all', array(
             'conditions' => array(
-                'DiagnosisMaster.participant_id' => $participant_id,
-                'DiagnosisMaster.id != ' . $current_dx_id
+                'DiagnosisMaster.participant_id' => $participantId,
+                'DiagnosisMaster.id != ' . $currentDxId
             )
         ));
         // sort by dx number
-        if (empty($existing_dx)) {
-            $sorted_dx[''] = array();
+        if (empty($existingDx)) {
+            $sortedDx[''] = array();
         } else {
-            foreach ($existing_dx as $dx) {
-                if (isset($sorted_dx[$dx['DiagnosisMaster']['primary_number']])) {
-                    array_push($sorted_dx[$dx['DiagnosisMaster']['primary_number']], $dx);
+            foreach ($existingDx as $dx) {
+                if (isset($sortedDx[$dx['DiagnosisMaster']['primary_number']])) {
+                    array_push($sortedDx[$dx['DiagnosisMaster']['primary_number']], $dx);
                 } else {
-                    $sorted_dx[$dx['DiagnosisMaster']['primary_number']][0] = $dx;
+                    $sortedDx[$dx['DiagnosisMaster']['primary_number']][0] = $dx;
                 }
             }
-            if (! isset($sorted_dx[''])) {
-                $sorted_dx[''] = array();
+            if (! isset($sortedDx[''])) {
+                $sortedDx[''] = array();
             }
-            if (! isset($sorted_dx[$current_dx_primary_number])) {
-                $sorted_dx[$current_dx_primary_number] = array();
+            if (! isset($sortedDx[$currentDxPrimaryNumber])) {
+                $sortedDx[$currentDxPrimaryNumber] = array();
             }
         }
-        ksort($sorted_dx);
-        return $sorted_dx;
+        ksort($sortedDx);
+        return $sortedDx;
     }
 
-    function hasChild(array $diagnosis_master_ids)
+    function hasChild(array $diagnosisMasterIds)
     {
-        $tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-        $event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+        $txModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+        $eventMasterModel = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
         return array_unique(array_merge($this->find('list', array(
             'fields' => array(
                 'DiagnosisMaster.parent_id'
             ),
             'conditions' => array(
-                'DiagnosisMaster.parent_id' => $diagnosis_master_ids
+                'DiagnosisMaster.parent_id' => $diagnosisMasterIds
             )
-        )), $tx_model->find('list', array(
+        )), $txModel->find('list', array(
             'fields' => array(
                 'TreatmentMaster.diagnosis_master_id'
             ),
             'conditions' => array(
-                'TreatmentMaster.diagnosis_master_id' => $diagnosis_master_ids
+                'TreatmentMaster.diagnosis_master_id' => $diagnosisMasterIds
             )
-        )), $event_master_model->find('list', array(
+        )), $eventMasterModel->find('list', array(
             'fields' => array(
                 'EventMaster.diagnosis_master_id'
             ),
             'conditions' => array(
-                'EventMaster.diagnosis_master_id' => $diagnosis_master_ids
+                'EventMaster.diagnosis_master_id' => $diagnosisMasterIds
             )
         ))));
     }
@@ -251,87 +251,87 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     /**
      * Arranges the threaded data
      */
-    function arrangeThreadedDataForView(array &$threaded_dx_data, $seeking_dx_id, $seeking_model_name)
+    function arrangeThreadedDataForView(array &$threadedDxData, $seekingDxId, $seekingModelName)
     {
         $stack = array();
-        $current_array = &$threaded_dx_data;
-        $found_dx = false;
-        foreach ($threaded_dx_data as &$data) {
-            if ($data['DiagnosisMaster']['id'] == $seeking_dx_id) {
-                $data[$seeking_model_name]['diagnosis_master_id'] = $seeking_dx_id;
-                $found_dx = true;
+        $currentArray = &$threadedDxData;
+        $foundDx = false;
+        foreach ($threadedDxData as &$data) {
+            if ($data['DiagnosisMaster']['id'] == $seekingDxId) {
+                $data[$seekingModelName]['diagnosis_master_id'] = $seekingDxId;
+                $foundDx = true;
                 break;
             }
             if (isset($data['children']) && ! empty($data['children'])) {
-                if ($found_dx = $this->arrangeThreadedDataForView($data['children'], $seeking_dx_id, $seeking_model_name)) {
+                if ($foundDx = $this->arrangeThreadedDataForView($data['children'], $seekingDxId, $seekingModelName)) {
                     break;
                 }
             }
         }
         
-        return $found_dx;
+        return $foundDx;
     }
 
-    function getRelatedDiagnosisEvents($diagnosis_master_id)
+    function getRelatedDiagnosisEvents($diagnosisMasterId)
     {
-        $related_diagnosis_data = array();
+        $relatedDiagnosisData = array();
         
-        if (! empty($diagnosis_master_id)) {
-            $event_diagnosis_data = $this->getOrRedirect($diagnosis_master_id);
-            $related_diagnosis_data[] = array_merge(array(
+        if (! empty($diagnosisMasterId)) {
+            $eventDiagnosisData = $this->getOrRedirect($diagnosisMasterId);
+            $relatedDiagnosisData[] = array_merge(array(
                 'Generated' => array(
                     'diagnosis_event_relation_type' => 'diagnosis event'
                 )
-            ), $event_diagnosis_data);
+            ), $eventDiagnosisData);
             
-            $history_diagnosis_data = array();
-            if ($event_diagnosis_data['DiagnosisMaster']['id'] != $event_diagnosis_data['DiagnosisMaster']['primary_id']) {
-                $history_diagnosis_data = $this->find('all', array(
+            $historyDiagnosisData = array();
+            if ($eventDiagnosisData['DiagnosisMaster']['id'] != $eventDiagnosisData['DiagnosisMaster']['primary_id']) {
+                $historyDiagnosisData = $this->find('all', array(
                     'conditions' => array(
                         'DiagnosisMaster.id' => array(
-                            $event_diagnosis_data['DiagnosisMaster']['primary_id'],
-                            $event_diagnosis_data['DiagnosisMaster']['parent_id']
+                            $eventDiagnosisData['DiagnosisMaster']['primary_id'],
+                            $eventDiagnosisData['DiagnosisMaster']['parent_id']
                         )
                     ),
                     'order' => 'DiagnosisMaster.id DESC'
                 ));
-                if (empty($history_diagnosis_data)) {
+                if (empty($historyDiagnosisData)) {
                     AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                foreach ($history_diagnosis_data as $new_diag) {
-                    $related_diagnosis_data[] = array_merge(array(
+                foreach ($historyDiagnosisData as $newDiag) {
+                    $relatedDiagnosisData[] = array_merge(array(
                         'Generated' => array(
                             'diagnosis_event_relation_type' => 'diagnosis history'
                         )
-                    ), $new_diag);
+                    ), $newDiag);
                 }
             }
         }
         
-        return $related_diagnosis_data;
+        return $relatedDiagnosisData;
     }
 
-    static function joinOnDiagnosisDup($on_field)
+    static function joinOnDiagnosisDup($onField)
     {
         return array(
             'table' => 'diagnosis_masters',
             'alias' => 'diagnosis_masters_dup',
             'type' => 'LEFT',
             'conditions' => array(
-                $on_field . ' = diagnosis_masters_dup.id'
+                $onField . ' = diagnosis_masters_dup.id'
             )
         );
     }
 
     function beforeSave($options = array())
     {
-        $ret_val = parent::beforeSave($options);
+        $retVal = parent::beforeSave($options);
         if (isset($this->data['DiagnosisMaster']['topography']) && preg_match('/^(C[0-9]{2})[0-9]$/', $this->data['DiagnosisMaster']['topography'], $matches)) {
             $this->data['DiagnosisMaster']['icd_0_3_topography_category'] = $matches[1];
             $this->addWritableField(array(
                 'icd_0_3_topography_category'
             ));
         }
-        return $ret_val;
+        return $retVal;
     }
 }

@@ -1,11 +1,11 @@
 <?php
-$can_delete = AppController::checkLinkPermission('/Order/Shipments/deleteContact/');
-$this->Structures->build($atim_structure, array(
+$canDelete = AppController::checkLinkPermission('/Order/Shipments/deleteContact/');
+$this->Structures->build($atimStructure, array(
     'type' => 'index',
     'links' => array(
         'index' => array(
             'detail' => 'javascript:',
-            'delete' => $can_delete ? 'javascript:deleteContact(%%ShipmentContact.id%%);' : '/cannot/'
+            'delete' => $canDelete ? 'javascript:deleteContact(%%ShipmentContact.id%%);' : '/cannot/'
         )
     ),
     'settings' => array(

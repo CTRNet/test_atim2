@@ -1,6 +1,6 @@
 <?php
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
     'settings' => array(
         'pagination' => false,
@@ -8,9 +8,9 @@ $final_options = array(
     )
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($atim_structure, $final_options);
+$this->Structures->build($atimStructure, $finalOptions);

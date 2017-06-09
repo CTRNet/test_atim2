@@ -15,148 +15,148 @@ class AnnouncementsController extends AdministrateAppController
         )
     );
 
-    function add($linked_model, $bank_or_group_id = 0, $user_id = 0)
+    function add($linkedModel, $bankOrGroupId = 0, $userId = 0)
     {
-        if ($linked_model == 'user') {
+        if ($linkedModel == 'user') {
             
             // Get user data
             
-            $user = $this->User->getOrRedirect($user_id);
-            if ($user['Group']['id'] != $bank_or_group_id) {
+            $user = $this->User->getOrRedirect($userId);
+            if ($user['Group']['id'] != $bankOrGroupId) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/user'));
-            $this->set('atim_menu_variables', array(
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
+            $this->set('atimMenuVariables', array(
                 'Group.id' => $user['Group']['id'],
-                'User.id' => $user_id
+                'User.id' => $userId
             ));
-        } elseif ($linked_model == 'bank') {
+        } elseif ($linkedModel == 'bank') {
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
-            $this->set('atim_menu_variables', array(
-                'Bank.id' => $bank_or_group_id
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenuVariables', array(
+                'Bank.id' => $bankOrGroupId
             ));
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $this->set('linked_model', $linked_model);
+        $this->set('linkedModel', $linkedModel);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
             
-            if ($linked_model == 'bank') {
-                $this->request->data['Announcement']['bank_id'] = $bank_or_group_id;
+            if ($linkedModel == 'bank') {
+                $this->request->data['Announcement']['bank_id'] = $bankOrGroupId;
                 $this->Announcement->addWritableField(array(
                     'bank_id'
                 ));
             } else {
-                $this->request->data['Announcement']['group_id'] = $bank_or_group_id;
-                $this->request->data['Announcement']['user_id'] = $user_id;
+                $this->request->data['Announcement']['group_id'] = $bankOrGroupId;
+                $this->request->data['Announcement']['user_id'] = $userId;
                 $this->Announcement->addWritableField(array(
                     'group_id',
                     'user_id'
                 ));
             }
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 if ($this->Announcement->save($this->request->data)) {
-                    $url_to_flash = '/Administrate/Announcements/detail/' . $this->Announcement->id;
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $urlToFlash = '/Administrate/Announcements/detail/' . $this->Announcement->id;
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been saved'), $url_to_flash);
+                    $this->atimFlash(__('your data has been saved'), $urlToFlash);
                 }
             }
         }
     }
 
-    function index($linked_model, $bank_or_group_id = 0, $user_id = 0)
+    function index($linkedModel, $bankOrGroupId = 0, $userId = 0)
     {
         $conditions = array();
         
-        if ($linked_model == 'user') {
+        if ($linkedModel == 'user') {
             
             // Get user data
             
-            $user = $this->User->getOrRedirect($user_id);
-            if ($user['Group']['id'] != $bank_or_group_id) {
+            $user = $this->User->getOrRedirect($userId);
+            if ($user['Group']['id'] != $bankOrGroupId) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
             // Set conditions
             
             $conditions = array(
-                'Announcement.group_id' => $bank_or_group_id,
-                'Announcement.user_id' => $user_id
+                'Announcement.group_id' => $bankOrGroupId,
+                'Announcement.user_id' => $userId
             );
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/user'));
-            $this->set('atim_menu_variables', array(
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
+            $this->set('atimMenuVariables', array(
                 'Group.id' => $user['Group']['id'],
-                'User.id' => $user_id
+                'User.id' => $userId
             ));
-        } elseif ($linked_model == 'bank') {
+        } elseif ($linkedModel == 'bank') {
             
             // Set conditions
             
             $conditions = array(
-                'Announcement.bank_id' => $bank_or_group_id
+                'Announcement.bank_id' => $bankOrGroupId
             );
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
-            $this->set('atim_menu_variables', array(
-                'Bank.id' => $bank_or_group_id
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenuVariables', array(
+                'Bank.id' => $bankOrGroupId
             ));
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $this->set('linked_model', $linked_model);
+        $this->set('linkedModel', $linkedModel);
         
         $this->request->data = $this->paginate($this->Announcement, $conditions);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($announcement_id = null)
+    function detail($announcementId = null)
     {
-        $this->request->data = $this->Announcement->getOrRedirect($announcement_id);
+        $this->request->data = $this->Announcement->getOrRedirect($announcementId);
         
         if (isset($this->request->data['Announcement']['user_id'])) {
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/user'));
-            $this->set('atim_menu_variables', array(
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
+            $this->set('atimMenuVariables', array(
                 'Group.id' => $this->request->data['Announcement']['group_id'],
                 'User.id' => $this->request->data['Announcement']['user_id']
             ));
@@ -164,95 +164,95 @@ class AnnouncementsController extends AdministrateAppController
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
-            $this->set('atim_menu_variables', array(
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenuVariables', array(
                 'Bank.id' => $this->request->data['Announcement']['bank_id']
             ));
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function edit($announcement_id = null)
+    function edit($announcementId = null)
     {
-        $announcement_data = $this->Announcement->getOrRedirect($announcement_id);
+        $announcementData = $this->Announcement->getOrRedirect($announcementId);
         
-        if (isset($announcement_data['Announcement']['user_id'])) {
+        if (isset($announcementData['Announcement']['user_id'])) {
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/user'));
-            $this->set('atim_menu_variables', array(
-                'Group.id' => $announcement_data['Announcement']['group_id'],
-                'User.id' => $announcement_data['Announcement']['user_id']
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
+            $this->set('atimMenuVariables', array(
+                'Group.id' => $announcementData['Announcement']['group_id'],
+                'User.id' => $announcementData['Announcement']['user_id']
             ));
         } else {
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
-            $this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/bank'));
-            $this->set('atim_menu_variables', array(
-                'Bank.id' => $announcement_data['Announcement']['bank_id']
+            $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
+            $this->set('atimMenuVariables', array(
+                'Bank.id' => $announcementData['Announcement']['bank_id']
             ));
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
             
-            $this->request->data = $announcement_data;
+            $this->request->data = $announcementData;
         } else {
             
-            $this->Announcement->id = $announcement_id;
+            $this->Announcement->id = $announcementId;
             if ($this->Announcement->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been updated'), '/Administrate/Announcements/detail/' . $announcement_id . '/');
+                $this->atimFlash(__('your data has been updated'), '/Administrate/Announcements/detail/' . $announcementId . '/');
             }
         }
     }
 
-    function delete($announcement_id = null)
+    function delete($announcementId = null)
     {
         
         // MANAGE DATA
-        $announcement_data = $this->Announcement->getOrRedirect($announcement_id);
-        if (empty($announcement_data)) {
+        $announcementData = $this->Announcement->getOrRedirect($announcementId);
+        if (empty($announcementData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->Announcement->allowDeletion($announcement_id);
+        $arrAllowDeletion = $this->Announcement->allowDeletion($announcementId);
         
-        $flash_url = (! empty($announcement_data['Announcement']['user_id'])) ? "/Administrate/Announcements/index/user/" . $announcement_data['Announcement']['group_id'] . '/' . $announcement_data['Announcement']['user_id'] : "/Administrate/Announcements/index/bank/" . $announcement_data['Announcement']['bank_id'];
+        $flashUrl = (! empty($announcementData['Announcement']['user_id'])) ? "/Administrate/Announcements/index/user/" . $announcementData['Announcement']['group_id'] . '/' . $announcementData['Announcement']['user_id'] : "/Administrate/Announcements/index/bank/" . $announcementData['Announcement']['bank_id'];
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->Announcement->atimDelete($announcement_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->Announcement->atimDelete($announcementId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), $flash_url);
+                $this->atimFlash(__('your data has been deleted'), $flashUrl);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), $flash_url);
+                $this->atimFlashError(__('error deleting data - contact administrator'), $flashUrl);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), $flash_url /*'/Administrate/Announcements/detail/'.$announcement_id.'/'*/);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), $flashUrl /*'/Administrate/Announcements/detail/'.$announcementId.'/'*/);
         }
     }
 }

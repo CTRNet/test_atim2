@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => array(
         'search' => '/material/materials/search/' . AppController::getNewSearchId()
     ),
@@ -8,8 +8,8 @@ $structure_links = array(
     )
 );
 
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'search',
-    'links' => $structure_links
+    'links' => $structureLinks
 ));
 ?>

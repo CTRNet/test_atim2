@@ -17,7 +17,7 @@ $this->request->data = array(
         )
     )
 );
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'links' => array(
         'index' => array(
             'detail' => '%%custom.link%%'

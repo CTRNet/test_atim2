@@ -1,12 +1,12 @@
 <?php
-$structure_links = array(
-    'top' => '/rtbform/rtbforms/edit/' . $atim_menu_variables['Rtbform.id'],
+$structureLinks = array(
+    'top' => '/rtbform/rtbforms/edit/' . $atimMenuVariables['Rtbform.id'],
     'bottom' => array(
-        'cancel' => '/rtbform/rtbforms/profile/' . $atim_menu_variables['Rtbform.id']
+        'cancel' => '/rtbform/rtbforms/profile/' . $atimMenuVariables['Rtbform.id']
     )
 );
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 ?>

@@ -28,505 +28,505 @@ class SpecimenReviewsController extends InventoryManagementAppController
         )
     );
 
-    function listAll($collection_id, $sample_master_id)
+    function listAll($collectionId, $sampleMasterId)
     {
         // MANAGE DATA
-        $sample_data = $this->SampleMaster->find('first', array(
+        $sampleData = $this->SampleMaster->find('first', array(
             'conditions' => array(
-                'SampleMaster.collection_id' => $collection_id,
-                'SampleMaster.id' => $sample_master_id
+                'SampleMaster.collection_id' => $collectionId,
+                'SampleMaster.id' => $sampleMasterId
             ),
             'recursive' => '-1'
         ));
-        if (empty($sample_data)) {
+        if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->request->data = $this->paginate($this->SpecimenReviewMaster, array(
-            'SpecimenReviewMaster.sample_master_id' => $sample_master_id
+            'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
         ));
         
         // Set list of available review
-        $review_controls = $this->SpecimenReviewControl->find('all', array(
+        $reviewControls = $this->SpecimenReviewControl->find('all', array(
             'conditions' => array(
-                'SpecimenReviewControl.sample_control_id' => $sample_data['SampleMaster']['sample_control_id'],
+                'SpecimenReviewControl.sample_control_id' => $sampleData['SampleMaster']['sample_control_id'],
                 'SpecimenReviewControl.flag_active' => '1'
             )
         ));
-        $this->set('review_controls', $review_controls);
-        if (empty($review_controls)) {
+        $this->set('reviewControls', $reviewControls);
+        if (empty($reviewControls)) {
             $this->SpecimenReviewControl->validationErrors[][] = 'no path review exists for this type of sample';
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
+        $this->set('atimMenu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
         
-        $this->set('atim_menu_variables', array(
-            'Collection.id' => $sample_data['SampleMaster']['collection_id'],
-            'SampleMaster.id' => $sample_master_id,
-            'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']
+        $this->set('atimMenuVariables', array(
+            'Collection.id' => $sampleData['SampleMaster']['collection_id'],
+            'SampleMaster.id' => $sampleMasterId,
+            'SampleMaster.initial_specimen_sample_id' => $sampleData['SampleMaster']['initial_specimen_sample_id']
         ));
         
         $this->Structures->set('specimen_review_masters');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($collection_id, $sample_master_id, $specimen_review_control_id)
+    function add($collectionId, $sampleMasterId, $specimenReviewControlId)
     {
         // MANAGE DATA
-        $sample_data = $this->SampleMaster->find('first', array(
+        $sampleData = $this->SampleMaster->find('first', array(
             'conditions' => array(
-                'SampleMaster.collection_id' => $collection_id,
-                'SampleMaster.id' => $sample_master_id
+                'SampleMaster.collection_id' => $collectionId,
+                'SampleMaster.id' => $sampleMasterId
             ),
             'recursive' => '-1'
         ));
-        if (empty($sample_data)) {
+        if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $criteria = array(
-            'SpecimenReviewControl.id' => $specimen_review_control_id,
-            'SpecimenReviewControl.sample_control_id' => $sample_data['SampleMaster']['sample_control_id'],
+            'SpecimenReviewControl.id' => $specimenReviewControlId,
+            'SpecimenReviewControl.sample_control_id' => $sampleData['SampleMaster']['sample_control_id'],
             'SpecimenReviewControl.flag_active' => '1'
         );
-        $review_control_data = $this->SpecimenReviewControl->find('first', array(
+        $reviewControlData = $this->SpecimenReviewControl->find('first', array(
             'conditions' => $criteria,
             'recursive' => '2'
         ));
         
-        if (empty($review_control_data)) {
+        if (empty($reviewControlData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $this->set('review_control_data', $review_control_data);
+        $this->set('reviewControlData', $reviewControlData);
         
-        $is_aliquot_review_defined = false;
-        if (array_key_exists('flag_active', $review_control_data['AliquotReviewControl']) && $review_control_data['AliquotReviewControl']['flag_active']) {
-            $is_aliquot_review_defined = true;
+        $isAliquotReviewDefined = false;
+        if (array_key_exists('flag_active', $reviewControlData['AliquotReviewControl']) && $reviewControlData['AliquotReviewControl']['flag_active']) {
+            $isAliquotReviewDefined = true;
         }
-        $this->set('is_aliquot_review_defined', $is_aliquot_review_defined);
+        $this->set('isAliquotReviewDefined', $isAliquotReviewDefined);
         
         // Set available aliquot
-        if ($is_aliquot_review_defined) {
-            $this->set('aliquot_list', $this->AliquotReviewMaster->getAliquotListForReview($sample_master_id, (($review_control_data['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $review_control_data['AliquotReviewControl']['aliquot_type_restriction'])));
+        if ($isAliquotReviewDefined) {
+            $this->set('aliquotList', $this->AliquotReviewMaster->getAliquotListForReview($sampleMasterId, (($reviewControlData['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $reviewControlData['AliquotReviewControl']['aliquot_type_restriction'])));
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
+        $this->set('atimMenu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
         
-        $this->set('atim_menu_variables', array(
-            'Collection.id' => $sample_data['SampleMaster']['collection_id'],
-            'SampleMaster.id' => $sample_master_id,
-            'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id'],
-            'SpecimenReviewControl.id' => $specimen_review_control_id
+        $this->set('atimMenuVariables', array(
+            'Collection.id' => $sampleData['SampleMaster']['collection_id'],
+            'SampleMaster.id' => $sampleMasterId,
+            'SampleMaster.initial_specimen_sample_id' => $sampleData['SampleMaster']['initial_specimen_sample_id'],
+            'SpecimenReviewControl.id' => $specimenReviewControlId
         ));
         
-        $this->Structures->set($review_control_data['SpecimenReviewControl']['form_alias'], 'specimen_review_structure');
-        if ($is_aliquot_review_defined) {
-            $this->Structures->set('empty', 'empty_structure');
-            $this->Structures->set($review_control_data['AliquotReviewControl']['form_alias'], 'aliquot_review_structure');
+        $this->Structures->set($reviewControlData['SpecimenReviewControl']['form_alias'], 'specimen_review_structure');
+        if ($isAliquotReviewDefined) {
+            $this->Structures->set('empty', 'emptyStructure');
+            $this->Structures->set($reviewControlData['AliquotReviewControl']['form_alias'], 'aliquot_review_structure');
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
             $this->request->data = NULL;
-            $this->set('specimen_review_data', array());
-            $this->set('aliquot_review_data', array());
+            $this->set('specimenReviewData', array());
+            $this->set('aliquotReviewData', array());
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             // reset array
-            $specimen_review_data['SpecimenReviewMaster'] = $this->request->data['SpecimenReviewMaster'];
-            $specimen_review_data['SpecimenReviewDetail'] = array_key_exists('SpecimenReviewDetail', $this->request->data) ? $this->request->data['SpecimenReviewDetail'] : array();
+            $specimenReviewData['SpecimenReviewMaster'] = $this->request->data['SpecimenReviewMaster'];
+            $specimenReviewData['SpecimenReviewDetail'] = array_key_exists('SpecimenReviewDetail', $this->request->data) ? $this->request->data['SpecimenReviewDetail'] : array();
             unset($this->request->data['SpecimenReviewMaster']);
             unset($this->request->data['SpecimenReviewDetail']);
-            $aliquot_review_data = $this->request->data;
+            $aliquotReviewData = $this->request->data;
             $this->request->data = NULL;
             
-            $specimen_review_data['SpecimenReviewMaster']['specimen_review_control_id'] = $specimen_review_control_id;
-            $specimen_review_data['SpecimenReviewMaster']['collection_id'] = $collection_id;
-            $specimen_review_data['SpecimenReviewMaster']['sample_master_id'] = $sample_master_id;
+            $specimenReviewData['SpecimenReviewMaster']['specimen_review_control_id'] = $specimenReviewControlId;
+            $specimenReviewData['SpecimenReviewMaster']['collection_id'] = $collectionId;
+            $specimenReviewData['SpecimenReviewMaster']['sample_master_id'] = $sampleMasterId;
             
-            foreach ($aliquot_review_data as $key => $new_aliquot_review) {
-                $aliquot_review_data[$key]['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['AliquotReviewControl']['id'];
+            foreach ($aliquotReviewData as $key => $newAliquotReview) {
+                $aliquotReviewData[$key]['AliquotReviewMaster']['aliquot_review_control_id'] = $reviewControlData['AliquotReviewControl']['id'];
             }
             
-            $this->set('specimen_review_data', $specimen_review_data);
-            $this->set('aliquot_review_data', $aliquot_review_data);
+            $this->set('specimenReviewData', $specimenReviewData);
+            $this->set('aliquotReviewData', $aliquotReviewData);
             
             // LAUNCH SPECIAL VALIDATION PROCESS
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // Validate specimen review
-            $this->SpecimenReviewMaster->set($specimen_review_data);
-            $submitted_data_validates = ($this->SpecimenReviewMaster->validates()) ? $submitted_data_validates : false;
-            $specimen_review_data = $this->SpecimenReviewMaster->data;
+            $this->SpecimenReviewMaster->set($specimenReviewData);
+            $submittedDataValidates = ($this->SpecimenReviewMaster->validates()) ? $submittedDataValidates : false;
+            $specimenReviewData = $this->SpecimenReviewMaster->data;
             
             // Validate aliquot review
-            if ($is_aliquot_review_defined) {
-                $all_aliquot_review_master_errors = array();
-                foreach ($aliquot_review_data as &$new_aliquot_review) {
+            if ($isAliquotReviewDefined) {
+                $allAliquotReviewMasterErrors = array();
+                foreach ($aliquotReviewData as &$newAliquotReview) {
                     // Aliquot Review Master
-                    unset($new_aliquot_review['AliquotReviewMaster']['id']);
-                    $this->AliquotReviewMaster->set($new_aliquot_review);
-                    $submitted_data_validates = ($this->AliquotReviewMaster->validates()) ? $submitted_data_validates : false;
-                    $all_aliquot_review_master_errors = array_merge($all_aliquot_review_master_errors, $this->AliquotReviewMaster->validationErrors);
-                    $new_aliquot_review = $this->AliquotReviewMaster->data;
+                    unset($newAliquotReview['AliquotReviewMaster']['id']);
+                    $this->AliquotReviewMaster->set($newAliquotReview);
+                    $submittedDataValidates = ($this->AliquotReviewMaster->validates()) ? $submittedDataValidates : false;
+                    $allAliquotReviewMasterErrors = array_merge($allAliquotReviewMasterErrors, $this->AliquotReviewMaster->validationErrors);
+                    $newAliquotReview = $this->AliquotReviewMaster->data;
                 }
-                if (! empty($all_aliquot_review_master_errors)) {
+                if (! empty($allAliquotReviewMasterErrors)) {
                     $this->AliquotReviewMaster->validationErrors = array();
-                    foreach ($all_aliquot_review_master_errors as $field => $msgs) {
+                    foreach ($allAliquotReviewMasterErrors as $field => $msgs) {
                         $msgs = is_array($msgs) ? $msgs : array(
                             $msgs
                         );
-                        foreach ($msgs as $error_message)
-                            $this->AliquotReviewMaster->validationErrors[$field][] = $error_message;
+                        foreach ($msgs as $errorMessage)
+                            $this->AliquotReviewMaster->validationErrors[$field][] = $errorMessage;
                     }
                 }
             }
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
             // LAUNCH SAVE PROCESS
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // Set additional specimen review data and save
-                unset($specimen_review_data['SpecimenReviewMaster']['id']);
+                unset($specimenReviewData['SpecimenReviewMaster']['id']);
                 $this->SpecimenReviewMaster->addWritableField(array(
                     'specimen_review_control_id',
                     'collection_id',
                     'sample_master_id'
                 ));
-                if (! $this->SpecimenReviewMaster->save($specimen_review_data, false)) {
+                if (! $this->SpecimenReviewMaster->save($specimenReviewData, false)) {
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                $specimen_review_master_id = $this->SpecimenReviewMaster->id;
+                $specimenReviewMasterId = $this->SpecimenReviewMaster->id;
                 
-                $studied_aliquot_master_ids = array();
-                if ($is_aliquot_review_defined) {
-                    $this->AliquotReviewMaster->writable_fields_mode = 'addgrid';
+                $studiedAliquotMasterIds = array();
+                if ($isAliquotReviewDefined) {
+                    $this->AliquotReviewMaster->writableFieldsMode = 'addgrid';
                     $this->AliquotReviewMaster->addWritableField(array(
                         'aliquot_review_control_id',
                         'specimen_review_master_id'
                     ));
-                    foreach ($aliquot_review_data as $new_aliquot_review_to_save) {
+                    foreach ($aliquotReviewData as $newAliquotReviewToSave) {
                         // Save aliquot review
                         $this->AliquotReviewMaster->id = null;
                         $this->AliquotReviewMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
-                        unset($new_aliquot_review_to_save['AliquotReviewMaster']['id']);
-                        $new_aliquot_review_to_save['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
-                        if (! $this->AliquotReviewMaster->save($new_aliquot_review_to_save, false)) {
+                        unset($newAliquotReviewToSave['AliquotReviewMaster']['id']);
+                        $newAliquotReviewToSave['AliquotReviewMaster']['specimen_review_master_id'] = $specimenReviewMasterId;
+                        if (! $this->AliquotReviewMaster->save($newAliquotReviewToSave, false)) {
                             $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
                         
                         // Track aliquot to update
-                        if (! empty($new_aliquot_review_to_save['AliquotReviewMaster']['aliquot_master_id'])) {
-                            $studied_aliquot_master_ids[] = $new_aliquot_review_to_save['AliquotReviewMaster']['aliquot_master_id'];
+                        if (! empty($newAliquotReviewToSave['AliquotReviewMaster']['aliquot_master_id'])) {
+                            $studiedAliquotMasterIds[] = $newAliquotReviewToSave['AliquotReviewMaster']['aliquot_master_id'];
                         }
                     }
                 }
                 
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been saved'), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_master_id);
+                $this->atimFlash(__('your data has been saved'), '/InventoryManagement/SpecimenReviews/detail/' . $collectionId . '/' . $sampleMasterId . '/' . $specimenReviewMasterId);
             }
         }
     }
 
-    function detail($collection_id, $sample_master_id, $specimen_review_id, $aliquot_master_id_from_tree_view = false)
+    function detail($collectionId, $sampleMasterId, $specimenReviewId, $aliquotMasterIdFromTreeView = false)
     {
         
         // MANAGE DATA
         $this->request->data = NULL;
         
-        $sample_data = $this->SampleMaster->find('first', array(
+        $sampleData = $this->SampleMaster->find('first', array(
             'conditions' => array(
-                'SampleMaster.collection_id' => $collection_id,
-                'SampleMaster.id' => $sample_master_id
+                'SampleMaster.collection_id' => $collectionId,
+                'SampleMaster.id' => $sampleMasterId
             ),
             'recursive' => '-1'
         ));
-        if (empty($sample_data)) {
+        if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Get specimen review data
         $criteria = array(
-            'SpecimenReviewMaster.id' => $specimen_review_id,
-            'SpecimenReviewMaster.collection_id' => $collection_id,
-            'SpecimenReviewMaster.sample_master_id' => $sample_master_id
+            'SpecimenReviewMaster.id' => $specimenReviewId,
+            'SpecimenReviewMaster.collection_id' => $collectionId,
+            'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
         );
-        $specimen_review_data = $this->SpecimenReviewMaster->find('first', array(
+        $specimenReviewData = $this->SpecimenReviewMaster->find('first', array(
             'conditions' => $criteria,
             'recursive' => '2'
         ));
-        if (empty($specimen_review_data)) {
+        if (empty($specimenReviewData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->set('specimen_review_data', $specimen_review_data);
+        $this->set('specimenReviewData', $specimenReviewData);
         
-        $is_aliquot_review_defined = false;
-        if (array_key_exists('flag_active', $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']) && $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['flag_active']) {
-            $is_aliquot_review_defined = true;
+        $isAliquotReviewDefined = false;
+        if (array_key_exists('flag_active', $specimenReviewData['SpecimenReviewControl']['AliquotReviewControl']) && $specimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['flag_active']) {
+            $isAliquotReviewDefined = true;
         }
-        $this->set('is_aliquot_review_defined', $is_aliquot_review_defined);
+        $this->set('isAliquotReviewDefined', $isAliquotReviewDefined);
         
         // Get Aliquot Review Data
-        if ($is_aliquot_review_defined) {
+        if ($isAliquotReviewDefined) {
             $criteria = array(
-                'AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id,
-                'AliquotReviewMaster.aliquot_review_control_id' => $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['id']
+                'AliquotReviewMaster.specimen_review_master_id' => $specimenReviewId,
+                'AliquotReviewMaster.aliquot_review_control_id' => $specimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['id']
             );
-            if ($aliquot_master_id_from_tree_view)
-                $criteria['AliquotReviewMaster.aliquot_master_id'] = $aliquot_master_id_from_tree_view;
-            $aliquot_review_data = $this->AliquotReviewMaster->find('all', array(
+            if ($aliquotMasterIdFromTreeView)
+                $criteria['AliquotReviewMaster.aliquot_master_id'] = $aliquotMasterIdFromTreeView;
+            $aliquotReviewData = $this->AliquotReviewMaster->find('all', array(
                 'conditions' => $criteria
             ));
-            $this->set('aliquot_review_data', $aliquot_review_data);
+            $this->set('aliquotReviewData', $aliquotReviewData);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
+        $this->set('atimMenu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
         
-        $this->set('atim_menu_variables', array(
-            'Collection.id' => $sample_data['SampleMaster']['collection_id'],
-            'SampleMaster.id' => $sample_master_id,
-            'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id'],
-            'SpecimenReviewMaster.id' => $specimen_review_id
+        $this->set('atimMenuVariables', array(
+            'Collection.id' => $sampleData['SampleMaster']['collection_id'],
+            'SampleMaster.id' => $sampleMasterId,
+            'SampleMaster.initial_specimen_sample_id' => $sampleData['SampleMaster']['initial_specimen_sample_id'],
+            'SpecimenReviewMaster.id' => $specimenReviewId
         ));
         
-        $this->Structures->set($specimen_review_data['SpecimenReviewControl']['form_alias'], 'specimen_review_structure');
-        if ($is_aliquot_review_defined) {
-            $this->Structures->set('empty', 'empty_structure');
-            $this->Structures->set($specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['form_alias'], 'aliquot_review_structure');
+        $this->Structures->set($specimenReviewData['SpecimenReviewControl']['form_alias'], 'specimen_review_structure');
+        if ($isAliquotReviewDefined) {
+            $this->Structures->set('empty', 'emptyStructure');
+            $this->Structures->set($specimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['form_alias'], 'aliquot_review_structure');
         }
         
-        $this->set('aliquot_master_id_from_tree_view', $aliquot_master_id_from_tree_view);
+        $this->set('aliquotMasterIdFromTreeView', $aliquotMasterIdFromTreeView);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function edit($collection_id, $sample_master_id, $specimen_review_id, $undo = false)
+    function edit($collectionId, $sampleMasterId, $specimenReviewId, $undo = false)
     {
         // MANAGE DATA
         
         // Get sample data
-        $sample_data = $this->SampleMaster->find('first', array(
+        $sampleData = $this->SampleMaster->find('first', array(
             'conditions' => array(
-                'SampleMaster.collection_id' => $collection_id,
-                'SampleMaster.id' => $sample_master_id
+                'SampleMaster.collection_id' => $collectionId,
+                'SampleMaster.id' => $sampleMasterId
             ),
             'recursive' => '-1'
         ));
-        if (empty($sample_data)) {
+        if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Get specimen review data
         $criteria = array(
-            'SpecimenReviewMaster.id' => $specimen_review_id,
-            'SpecimenReviewMaster.collection_id' => $collection_id,
-            'SpecimenReviewMaster.sample_master_id' => $sample_master_id
+            'SpecimenReviewMaster.id' => $specimenReviewId,
+            'SpecimenReviewMaster.collection_id' => $collectionId,
+            'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
         );
-        $initial_specimen_review_data = $this->SpecimenReviewMaster->find('first', array(
+        $initialSpecimenReviewData = $this->SpecimenReviewMaster->find('first', array(
             'conditions' => $criteria,
             'recursive' => '2'
         ));
-        if (empty($initial_specimen_review_data)) {
+        if (empty($initialSpecimenReviewData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $is_aliquot_review_defined = false;
-        if (array_key_exists('flag_active', $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']) && $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['flag_active']) {
-            $is_aliquot_review_defined = true;
+        $isAliquotReviewDefined = false;
+        if (array_key_exists('flag_active', $initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']) && $initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['flag_active']) {
+            $isAliquotReviewDefined = true;
         }
-        $this->set('is_aliquot_review_defined', $is_aliquot_review_defined);
+        $this->set('isAliquotReviewDefined', $isAliquotReviewDefined);
         
-        $review_control_data = array(
-            'SpecimenReviewControl' => $initial_specimen_review_data['SpecimenReviewControl']
+        $reviewControlData = array(
+            'SpecimenReviewControl' => $initialSpecimenReviewData['SpecimenReviewControl']
         );
-        $this->set('review_control_data', $review_control_data);
+        $this->set('reviewControlData', $reviewControlData);
         
         // Get Aliquot Review Data
-        $initial_aliquot_review_data_list = array();
-        if ($is_aliquot_review_defined) {
+        $initialAliquotReviewDataList = array();
+        if ($isAliquotReviewDefined) {
             $criteria = array(
-                'AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id,
-                'AliquotReviewMaster.aliquot_review_control_id' => $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['id']
+                'AliquotReviewMaster.specimen_review_master_id' => $specimenReviewId,
+                'AliquotReviewMaster.aliquot_review_control_id' => $initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['id']
             );
-            $initial_aliquot_review_data_list = $this->AliquotReviewMaster->find('all', array(
+            $initialAliquotReviewDataList = $this->AliquotReviewMaster->find('all', array(
                 'conditions' => $criteria
             ));
             
             // Set available aliquot
-            $this->set('aliquot_list', $this->AliquotReviewMaster->getAliquotListForReview($sample_master_id, (($initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'])));
+            $this->set('aliquotList', $this->AliquotReviewMaster->getAliquotListForReview($sampleMasterId, (($initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'] == 'all') ? null : $initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'])));
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
+        $this->set('atimMenu', $this->Menus->get('/InventoryManagement/SpecimenReviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
         
-        $this->set('atim_menu_variables', array(
-            'Collection.id' => $sample_data['SampleMaster']['collection_id'],
-            'SampleMaster.id' => $sample_master_id,
-            'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id'],
-            'SpecimenReviewMaster.id' => $specimen_review_id
+        $this->set('atimMenuVariables', array(
+            'Collection.id' => $sampleData['SampleMaster']['collection_id'],
+            'SampleMaster.id' => $sampleMasterId,
+            'SampleMaster.initial_specimen_sample_id' => $sampleData['SampleMaster']['initial_specimen_sample_id'],
+            'SpecimenReviewMaster.id' => $specimenReviewId
         ));
         
-        $this->Structures->set($initial_specimen_review_data['SpecimenReviewControl']['form_alias'], 'specimen_review_structure');
-        if ($is_aliquot_review_defined) {
-            $this->Structures->set('empty', 'empty_structure');
-            $this->Structures->set($initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['form_alias'], 'aliquot_review_structure');
+        $this->Structures->set($initialSpecimenReviewData['SpecimenReviewControl']['form_alias'], 'specimen_review_structure');
+        if ($isAliquotReviewDefined) {
+            $this->Structures->set('empty', 'emptyStructure');
+            $this->Structures->set($initialSpecimenReviewData['SpecimenReviewControl']['AliquotReviewControl']['form_alias'], 'aliquot_review_structure');
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data) || $undo) {
             $this->request->data = NULL;
-            $this->set('specimen_review_data', $initial_specimen_review_data);
-            $this->set('aliquot_review_data', $initial_aliquot_review_data_list);
+            $this->set('specimenReviewData', $initialSpecimenReviewData);
+            $this->set('aliquotReviewData', $initialAliquotReviewDataList);
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             // reset array
-            $specimen_review_data['SpecimenReviewMaster'] = $this->request->data['SpecimenReviewMaster'];
-            $specimen_review_data['SpecimenReviewDetail'] = array_key_exists('SpecimenReviewDetail', $this->request->data) ? $this->request->data['SpecimenReviewDetail'] : array();
+            $specimenReviewData['SpecimenReviewMaster'] = $this->request->data['SpecimenReviewMaster'];
+            $specimenReviewData['SpecimenReviewDetail'] = array_key_exists('SpecimenReviewDetail', $this->request->data) ? $this->request->data['SpecimenReviewDetail'] : array();
             unset($this->request->data['SpecimenReviewMaster']);
             unset($this->request->data['SpecimenReviewDetail']);
-            $aliquot_review_data = array_values($this->request->data); // compact the array as some key might be missing
+            $aliquotReviewData = array_values($this->request->data); // compact the array as some key might be missing
             $this->request->data = NULL;
             
-            $this->set('specimen_review_data', $specimen_review_data);
-            $this->set('aliquot_review_data', $aliquot_review_data);
+            $this->set('specimenReviewData', $specimenReviewData);
+            $this->set('aliquotReviewData', $aliquotReviewData);
             
             // LAUNCH SPECIAL VALIDATION PROCESS
             // Validate specimen review
-            $this->SpecimenReviewMaster->set($specimen_review_data);
-            $this->SpecimenReviewMaster->id = $specimen_review_id;
-            $submitted_data_validates = $this->SpecimenReviewMaster->validates();
-            $specimen_review_data = $this->SpecimenReviewMaster->data;
+            $this->SpecimenReviewMaster->set($specimenReviewData);
+            $this->SpecimenReviewMaster->id = $specimenReviewId;
+            $submittedDataValidates = $this->SpecimenReviewMaster->validates();
+            $specimenReviewData = $this->SpecimenReviewMaster->data;
             
             // Validate aliquot review
-            if ($is_aliquot_review_defined) {
-                $all_aliquot_review_master_errors = array();
-                foreach ($aliquot_review_data as $key => &$new_aliquot_review) {
+            if ($isAliquotReviewDefined) {
+                $allAliquotReviewMasterErrors = array();
+                foreach ($aliquotReviewData as $key => &$newAliquotReview) {
                     // Aliquot Review Master
-                    if ($new_aliquot_review['AliquotReviewMaster']['id']) {
-                        $tmp = $this->AliquotReviewMaster->getOrRedirect($new_aliquot_review['AliquotReviewMaster']['id']);
-                        if (! $tmp || $tmp['AliquotReviewMaster']['specimen_review_master_id'] != $specimen_review_id) {
+                    if ($newAliquotReview['AliquotReviewMaster']['id']) {
+                        $tmp = $this->AliquotReviewMaster->getOrRedirect($newAliquotReview['AliquotReviewMaster']['id']);
+                        if (! $tmp || $tmp['AliquotReviewMaster']['specimen_review_master_id'] != $specimenReviewId) {
                             // hack attempt or deleted prior to save
-                            unset($aliquot_review_data[$key]);
+                            unset($aliquotReviewData[$key]);
                         }
                     } else {
-                        $new_aliquot_review['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['SpecimenReviewControl']['AliquotReviewControl']['id'];
-                        $new_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_id;
+                        $newAliquotReview['AliquotReviewMaster']['aliquot_review_control_id'] = $reviewControlData['SpecimenReviewControl']['AliquotReviewControl']['id'];
+                        $newAliquotReview['AliquotReviewMaster']['specimen_review_master_id'] = $specimenReviewId;
                     }
                     $this->AliquotReviewMaster->data = array();
-                    $this->AliquotReviewMaster->set($new_aliquot_review);
-                    $submitted_data_validates = $this->AliquotReviewMaster->validates() && $submitted_data_validates;
-                    $new_aliquot_review = $this->AliquotReviewMaster->data;
-                    $all_aliquot_review_master_errors = array_merge($all_aliquot_review_master_errors, $this->AliquotReviewMaster->validationErrors);
+                    $this->AliquotReviewMaster->set($newAliquotReview);
+                    $submittedDataValidates = $this->AliquotReviewMaster->validates() && $submittedDataValidates;
+                    $newAliquotReview = $this->AliquotReviewMaster->data;
+                    $allAliquotReviewMasterErrors = array_merge($allAliquotReviewMasterErrors, $this->AliquotReviewMaster->validationErrors);
                 }
-                if (! empty($all_aliquot_review_master_errors)) {
+                if (! empty($allAliquotReviewMasterErrors)) {
                     $this->AliquotReviewMaster->validationErrors = array();
-                    foreach ($all_aliquot_review_master_errors as $field => $msgs) {
+                    foreach ($allAliquotReviewMasterErrors as $field => $msgs) {
                         $msgs = is_array($msgs) ? $msgs : array(
                             $msgs
                         );
-                        foreach ($msgs as $error_message)
-                            $this->AliquotReviewMaster->validationErrors[$field][] = $error_message;
+                        foreach ($msgs as $errorMessage)
+                            $this->AliquotReviewMaster->validationErrors[$field][] = $errorMessage;
                     }
                 }
             }
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
             // LAUNCH SAVE PROCESS
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 // Set additional specimen review data and save
-                $this->SpecimenReviewMaster->id = $specimen_review_id;
-                if (! $this->SpecimenReviewMaster->save($specimen_review_data, false)) {
+                $this->SpecimenReviewMaster->id = $specimenReviewId;
+                if (! $this->SpecimenReviewMaster->save($specimenReviewData, false)) {
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 
-                if ($is_aliquot_review_defined) {
+                if ($isAliquotReviewDefined) {
                     // Build aliquot review array with id = key
-                    $initial_aliquot_review_data_from_id = array();
-                    $aliquot_ids_to_update = array();
+                    $initialAliquotReviewDataFromId = array();
+                    $aliquotIdsToUpdate = array();
                     
-                    foreach ($initial_aliquot_review_data_list as $initial_aliquot_review) {
-                        $initial_aliquot_review_data_from_id[$initial_aliquot_review['AliquotReviewMaster']['id']] = array(
-                            'AliquotReviewMaster' => $initial_aliquot_review['AliquotReviewMaster']
+                    foreach ($initialAliquotReviewDataList as $initialAliquotReview) {
+                        $initialAliquotReviewDataFromId[$initialAliquotReview['AliquotReviewMaster']['id']] = array(
+                            'AliquotReviewMaster' => $initialAliquotReview['AliquotReviewMaster']
                         );
                         
                         // Track aliquot that should be udpated
-                        $studied_aliquot_master_id = $initial_aliquot_review['AliquotReviewMaster']['aliquot_master_id'];
-                        if (! empty($studied_aliquot_master_id)) {
-                            $aliquot_ids_to_update[$studied_aliquot_master_id] = $studied_aliquot_master_id;
+                        $studiedAliquotMasterId = $initialAliquotReview['AliquotReviewMaster']['aliquot_master_id'];
+                        if (! empty($studiedAliquotMasterId)) {
+                            $aliquotIdsToUpdate[$studiedAliquotMasterId] = $studiedAliquotMasterId;
                         }
                     }
                     
                     // Launch process to update/create/delete aliquot review
-                    $this->AliquotReviewMaster->writable_fields_mode = 'editgrid';
-                    foreach ($aliquot_review_data as $key => $submitted_aliquot_review) {
+                    $this->AliquotReviewMaster->writableFieldsMode = 'editgrid';
+                    foreach ($aliquotReviewData as $key => $submittedAliquotReview) {
                         // Track aliquot that should be udpated
-                        $studied_aliquot_master_id = $submitted_aliquot_review['AliquotReviewMaster']['aliquot_master_id'];
-                        if (! empty($studied_aliquot_master_id)) {
-                            $aliquot_ids_to_update[$studied_aliquot_master_id] = $studied_aliquot_master_id;
+                        $studiedAliquotMasterId = $submittedAliquotReview['AliquotReviewMaster']['aliquot_master_id'];
+                        if (! empty($studiedAliquotMasterId)) {
+                            $aliquotIdsToUpdate[$studiedAliquotMasterId] = $studiedAliquotMasterId;
                         }
                         
-                        if (isset($initial_aliquot_review_data_from_id[$submitted_aliquot_review['AliquotReviewMaster']['id']])) {
+                        if (isset($initialAliquotReviewDataFromId[$submittedAliquotReview['AliquotReviewMaster']['id']])) {
                             
                             // ---------------------------------------------------------------------------
                             // 1- Existing aliquot review to update
                             // ---------------------------------------------------------------------------
                             
-                            $aliquot_review_id = $submitted_aliquot_review['AliquotReviewMaster']['id'];
-                            $initial_aliquot_review = $initial_aliquot_review_data_from_id[$aliquot_review_id];
-                            unset($initial_aliquot_review_data_from_id[$aliquot_review_id]);
+                            $aliquotReviewId = $submittedAliquotReview['AliquotReviewMaster']['id'];
+                            $initialAliquotReview = $initialAliquotReviewDataFromId[$aliquotReviewId];
+                            unset($initialAliquotReviewDataFromId[$aliquotReviewId]);
                             
                             $this->AliquotReviewMaster->data = array();
-                            $this->AliquotReviewMaster->id = $aliquot_review_id;
-                            if (! $this->AliquotReviewMaster->save($submitted_aliquot_review, false)) {
+                            $this->AliquotReviewMaster->id = $aliquotReviewId;
+                            if (! $this->AliquotReviewMaster->save($submittedAliquotReview, false)) {
                                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                             }
                         } else {
@@ -537,12 +537,12 @@ class SpecimenReviewsController extends InventoryManagementAppController
                             
                             $this->AliquotReviewMaster->data = array();
                             $this->AliquotReviewMaster->id = null;
-                            unset($submitted_aliquot_review['AliquotReviewMaster']['id']);
+                            unset($submittedAliquotReview['AliquotReviewMaster']['id']);
                             $this->AliquotReviewMaster->addWritableField(array(
                                 'aliquot_review_control_id',
                                 'specimen_review_master_id'
                             ));
-                            if (! $this->AliquotReviewMaster->save($submitted_aliquot_review, false)) {
+                            if (! $this->AliquotReviewMaster->save($submittedAliquotReview, false)) {
                                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                             }
                             $this->AliquotReviewMaster->removeWritableField(array(
@@ -556,100 +556,100 @@ class SpecimenReviewsController extends InventoryManagementAppController
                     // 3- Old aliquot review to delete
                     // ---------------------------------------------------------------------------
                     
-                    foreach ($initial_aliquot_review_data_from_id as $initial_aliquot_review_to_delete) {
-                        $aliquot_review_id_to_delete = $initial_aliquot_review_to_delete['AliquotReviewMaster']['id'];
-                        if (! $this->AliquotReviewMaster->atimDelete($aliquot_review_id_to_delete)) {
+                    foreach ($initialAliquotReviewDataFromId as $initialAliquotReviewToDelete) {
+                        $aliquotReviewIdToDelete = $initialAliquotReviewToDelete['AliquotReviewMaster']['id'];
+                        if (! $this->AliquotReviewMaster->atimDelete($aliquotReviewIdToDelete)) {
                             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
                     }
                 }
                 
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been saved'), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);
+                $this->atimFlash(__('your data has been saved'), '/InventoryManagement/SpecimenReviews/detail/' . $collectionId . '/' . $sampleMasterId . '/' . $specimenReviewId);
             }
         }
     }
 
-    function delete($collection_id, $sample_master_id, $specimen_review_id)
+    function delete($collectionId, $sampleMasterId, $specimenReviewId)
     {
         // MANAGE DATA
         
         // Get sample data
-        $sample_data = $this->SampleMaster->find('first', array(
+        $sampleData = $this->SampleMaster->find('first', array(
             'conditions' => array(
-                'SampleMaster.collection_id' => $collection_id,
-                'SampleMaster.id' => $sample_master_id
+                'SampleMaster.collection_id' => $collectionId,
+                'SampleMaster.id' => $sampleMasterId
             ),
             'recursive' => '-1'
         ));
-        if (empty($sample_data)) {
+        if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Get specimen review data
         $criteria = array(
-            'SpecimenReviewMaster.id' => $specimen_review_id,
-            'SpecimenReviewMaster.collection_id' => $collection_id,
-            'SpecimenReviewMaster.sample_master_id' => $sample_master_id
+            'SpecimenReviewMaster.id' => $specimenReviewId,
+            'SpecimenReviewMaster.collection_id' => $collectionId,
+            'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
         );
-        $specimen_review_data = $this->SpecimenReviewMaster->find('first', array(
+        $specimenReviewData = $this->SpecimenReviewMaster->find('first', array(
             'conditions' => $criteria,
             'recursive' => '2'
         ));
-        if (empty($specimen_review_data)) {
+        if (empty($specimenReviewData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Get Aliquot Review Data
         $criteria = array(
-            'AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id
+            'AliquotReviewMaster.specimen_review_master_id' => $specimenReviewId
         );
-        $aliquot_review_data_list = $this->AliquotReviewMaster->find('all', array(
+        $aliquotReviewDataList = $this->AliquotReviewMaster->find('all', array(
             'conditions' => $criteria
         ));
         
         // Check deletion is allowed
-        $arr_allow_deletion = $this->SpecimenReviewMaster->allowDeletion($specimen_review_id);
+        $arrAllowDeletion = $this->SpecimenReviewMaster->allowDeletion($specimenReviewId);
         
         // CUSTOM CODE
         
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            $aliquot_ids_to_update = array();
+        if ($arrAllowDeletion['allow_deletion']) {
+            $aliquotIdsToUpdate = array();
             
             // 1- Delete aliquot review
-            foreach ($aliquot_review_data_list as $new_linked_review) {
+            foreach ($aliquotReviewDataList as $newLinkedReview) {
                 // Track aliquot that should be udpated
-                $studied_aliquot_master_id = $new_linked_review['AliquotReviewMaster']['aliquot_master_id'];
-                if (! empty($studied_aliquot_master_id))
-                    $aliquot_ids_to_update[$studied_aliquot_master_id] = $studied_aliquot_master_id;
+                $studiedAliquotMasterId = $newLinkedReview['AliquotReviewMaster']['aliquot_master_id'];
+                if (! empty($studiedAliquotMasterId))
+                    $aliquotIdsToUpdate[$studiedAliquotMasterId] = $studiedAliquotMasterId;
                 
-                $aliquot_review_id_to_delete = $new_linked_review['AliquotReviewMaster']['id'];
-                if (! $this->AliquotReviewMaster->atimDelete($aliquot_review_id_to_delete)) {
+                $aliquotReviewIdToDelete = $newLinkedReview['AliquotReviewMaster']['id'];
+                if (! $this->AliquotReviewMaster->atimDelete($aliquotReviewIdToDelete)) {
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
             }
             
             // 2- Delete sample review
-            if (! $this->SpecimenReviewMaster->atimDelete($specimen_review_id)) {
+            if (! $this->SpecimenReviewMaster->atimDelete($specimenReviewId)) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
-            $hook_link = $this->hook('postsave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('postsave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            $this->atimFlash(__('your data has been deleted'), '/InventoryManagement/SpecimenReviews/listAll/' . $collection_id . '/' . $sample_master_id);
+            $this->atimFlash(__('your data has been deleted'), '/InventoryManagement/SpecimenReviews/listAll/' . $collectionId . '/' . $sampleMasterId);
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/InventoryManagement/SpecimenReviews/detail/' . $collectionId . '/' . $sampleMasterId . '/' . $specimenReviewId);
         }
     }
 }

@@ -14,7 +14,7 @@ class TemplateInit extends InventoryManagementAppModel
         // eg.: SpecimenDetail is created via the "uses" array, so the validation rules are defined.
         // Otherwise, on has to add it before setting the structures (which in turn sets the validation).
         // eg.: AppController::getInstance()->AliquotMaster = AppModel::getInstance('InventoryManagement', 'AliquotMaster'); would make AliquotMaster ready to recieve validation rules
-        $models_names = array(
+        $modelsNames = array(
             'SpecimenDetail',
             'DerivativeDetail',
             'SampleMaster',
@@ -25,15 +25,15 @@ class TemplateInit extends InventoryManagementAppModel
         // Set a default control id to fix bug #3226 : Unable to use field with MasterModel in template_init_structure
         $this->data['TemplateInit']['SampleMaster']['sample_control_id'] = 1;
         $this->data['TemplateInit']['AliquotMaster']['aliquot_control_id'] = 1;
-        foreach ($models_names as $model_name) {
-            if (array_key_exists($model_name, $this->data['TemplateInit'])) {
-                $model = AppModel::getInstance('InventoryManagement', $model_name);
+        foreach ($modelsNames as $modelName) {
+            if (array_key_exists($modelName, $this->data['TemplateInit'])) {
+                $model = AppModel::getInstance('InventoryManagement', $modelName);
                 $model->set(array(
-                    $model_name => $this->data['TemplateInit'][$model_name]
+                    $modelName => $this->data['TemplateInit'][$modelName]
                 ));
                 $result = $model->validates() ? $result : false;
                 $this->validationErrors = array_merge($model->validationErrors, $this->validationErrors);
-                $this->data['TemplateInit'][$model_name] = $model->data[$model_name];
+                $this->data['TemplateInit'][$modelName] = $model->data[$modelName];
             }
         }
         

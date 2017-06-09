@@ -1,18 +1,18 @@
 <?php
 // ATiM tree
-$structure_links = array(
-    'top' => '/Administrate/Permissions/tree/' . join('/', array_filter($atim_menu_variables))
+$structureLinks = array(
+    'top' => '/Administrate/Permissions/tree/' . join('/', array_filter($atimMenuVariables))
 );
 $description = __("you can find help about permissions %s");
-$description = sprintf($description, $help_url);
+$description = sprintf($description, $helpUrl);
 
-$structure_extras = array();
-$structure_extras[10] = '<div id="frame"></div>';
+$structureExtras = array();
+$structureExtras[10] = '<div id="frame"></div>';
 
 $this->Structures->build($permissions2, array(
     "type" => "edit",
-    "data" => $group_data,
-    'links' => $structure_links,
+    "data" => $groupData,
+    'links' => $structureLinks,
     "settings" => array(
         "form_bottom" => false,
         'actions' => false,
@@ -24,12 +24,12 @@ $this->Structures->build($permissions2, array(
 ));
 
 $this->Structures->build(array(
-    "Aco" => $atim_structure
+    "Aco" => $atimStructure
 ), array(
     'data' => $this->request->data,
     'type' => 'tree',
-    'links' => $structure_links,
-    'extras' => $structure_extras,
+    'links' => $structureLinks,
+    'extras' => $structureExtras,
     'settings' => array(
         'form_top' => false,
         'tree' => array(

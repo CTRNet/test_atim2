@@ -1,5 +1,5 @@
 <?php
-$tree_html = '<table class="structure">
+$treeHtml = '<table class="structure">
 	<tbody>
 		<tr>
 			<td>
@@ -16,12 +16,12 @@ $tree_html = '<table class="structure">
 		</tr>
 	</tbody>
 </table>';
-$final_options = array();
+$finalOptions = array();
 if ($controls) {
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'edit',
         'links' => array(
-            'top' => '/Tools/Template/edit/' . $template_id,
+            'top' => '/Tools/Template/edit/' . $templateId,
             'bottom' => array(
                 'reset' => array(
                     'link' => 'javascript:confirmReset();',
@@ -33,40 +33,40 @@ if ($controls) {
             'return' => true,
             'form_bottom' => true
         ),
-        'extras' => $tree_html
+        'extras' => $treeHtml
     );
-    if ($edit_properties) {
-        $final_options['links']['bottom']['edit properties'] = '/Tools/Template/editProperties/' . $template_id;
-        $final_options['links']['bottom']['delete'] = '/Tools/Template/delete/' . $template_id;
+    if ($editProperties) {
+        $finalOptions['links']['bottom']['edit properties'] = '/Tools/Template/editProperties/' . $templateId;
+        $finalOptions['links']['bottom']['delete'] = '/Tools/Template/delete/' . $templateId;
     }
-    if (isset($is_ajax)) {
-        $final_options['settings']['actions'] = false;
+    if (isset($isAjax)) {
+        $finalOptions['settings']['actions'] = false;
     }
 } else {
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'detail',
-        'extras' => "<div style='padding-left: 10px;'><label>" . __('auto submit') . "</label><input type='checkbox' name='autosubmit'/></div>" . $tree_html . "<div class='ajaxContent'></div>",
+        'extras' => "<div style='padding-left: 10px;'><label>" . __('auto submit') . "</label><input type='checkbox' name='autosubmit'/></div>" . $treeHtml . "<div class='ajaxContent'></div>",
         'settings' => array(
             'return' => true
         )
     );
-    if (isset($structure_header)) {
-        $final_options['settings']['header'] = $structure_header;
+    if (isset($structureHeader)) {
+        $finalOptions['settings']['header'] = $structureHeader;
     }
 }
 
-$final_atim_structure = $atim_structure;
-$page = $this->Structures->build($final_atim_structure, $final_options);
+$finalAtimStructure = $atimStructure;
+$page = $this->Structures->build($finalAtimStructure, $finalOptions);
 
-if (isset($is_ajax)) {
+if (isset($isAjax)) {
     $page = $this->Shell->validationHtml() . $page;
     $tmp = $this->Shell->validationErrors();
-    $has_errors = ! empty($tmp);
+    $hasErrors = ! empty($tmp);
     $this->validationErrors = array();
     $this->layout = 'json';
     $this->json = array(
         'page' => $page,
-        'has_errors' => $has_errors
+        'has_errors' => $hasErrors
     );
     return;
 } else {
@@ -77,10 +77,10 @@ if (isset($is_ajax)) {
 
 <script>
 	var STR_ADD = "<?php echo __('add'); ?>";
-	var modelsData = '<?php echo addslashes(json_encode($js_data)); ?>';
-	var wizardTreeData = '<?php echo json_encode($tree_data); ?>';
+	var modelsData = '<?php echo addslashes(json_encode($jsData)); ?>';
+	var wizardTreeData = '<?php echo json_encode($treeData); ?>';
 	var nodeId = 0;
-	var collectionId = <?php echo isset($collection_id) ? $collection_id : null; ?>;
+	var collectionId = <?php echo isset($collectionId) ? $collectionId : null; ?>;
 
 	function drawTree(treeData){
 		modelsData = $.parseJSON(modelsData);
@@ -116,7 +116,7 @@ if (isset($is_ajax)) {
 
 		if(!<?php echo $controls; ?>){
 			//wizard mode
-			initWizardMode(<?php echo $template_id; ?>);
+			initWizardMode(<?php echo $templateId; ?>);
 		}
 
 		setTimeout(dataSavedFadeout, 3500);
@@ -206,7 +206,7 @@ if (isset($is_ajax)) {
 	}
 	
 	function addNode(treeData, node){
-		addButton = treeData.datamart_structure_id != 1 && <?php echo isset($flag_system) && $flag_system ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
+		addButton = treeData.datamart_structure_id != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
 		type = null;
 		label = null;
 		if(treeData.datamart_structure_id == 2){
@@ -372,7 +372,7 @@ if (isset($is_ajax)) {
 				}else{
 					parentId = 0;
 				}
-				url = 'InventoryManagement/SampleMasters/add/<?php echo $collection_id; ?>/' + data.controlId + '/' + parentId + '/';
+				url = 'InventoryManagement/SampleMasters/add/<?php echo $collectionId; ?>/' + data.controlId + '/' + parentId + '/';
 			}
 
 			$.get(root_url + url + 'noActions:/templateInitId:' + templateInitId + '/', function(jsonData){
@@ -400,7 +400,7 @@ if (isset($is_ajax)) {
 	function confirmReset(){
 		if($("#confirmReset").length == 0){
 			buildConfirmDialog("confirmReset", "<?php echo __('are you sure you want to reset?'); ?>", new Array(
-				{icon : "detail", label : STR_YES, "action" : function(){ document.location = root_url + "/Tools/Template/edit/<?php echo $template_id; ?>";}},
+				{icon : "detail", label : STR_YES, "action" : function(){ document.location = root_url + "/Tools/Template/edit/<?php echo $templateId; ?>";}},
 				{"icon" : "cancel", label : STR_CANCEL, "action" : function(){ $("#confirmReset").popup('close'); }})
 			);
 		}

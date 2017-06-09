@@ -14,163 +14,163 @@ class ProtocolMastersController extends ProtocolAppController
         )
     );
 
-    function search($search_id = 0)
+    function search($searchId = 0)
     {
-        $this->set('atim_menu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
-        $this->searchHandler($search_id, $this->ProtocolMaster, 'protocolmasters', '/Protocol/ProtocolMasters/search');
-        $this->set('protocol_controls', $this->ProtocolControl->find('all', array(
+        $this->set('atimMenu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
+        $this->searchHandler($searchId, $this->ProtocolMaster, 'protocolmasters', '/Protocol/ProtocolMasters/search');
+        $this->set('protocolControls', $this->ProtocolControl->find('all', array(
             'conditions' => array(
                 'flag_active' => '1'
             )
         )));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             $this->render('index');
         }
     }
 
-    function add($protocol_control_id)
+    function add($protocolControlId)
     {
-        $protocol_control_data = $this->ProtocolControl->find('first', array(
+        $protocolControlData = $this->ProtocolControl->find('first', array(
             'conditions' => array(
-                'ProtocolControl.id' => $protocol_control_id
+                'ProtocolControl.id' => $protocolControlId
             )
         ));
-        if (empty($protocol_control_data)) {
+        if (empty($protocolControlData)) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
-        $this->set('atim_menu_variables', array(
-            'ProtocolControl.id' => $protocol_control_id
+        $this->set('atimMenuVariables', array(
+            'ProtocolControl.id' => $protocolControlId
         ));
-        $this->set('atim_menu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
-        $this->Structures->set($protocol_control_data['ProtocolControl']['form_alias']);
+        $this->set('atimMenu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
+        $this->Structures->set($protocolControlData['ProtocolControl']['form_alias']);
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
             $this->request->data = array();
-            $this->request->data['ProtocolControl']['tumour_group'] = $protocol_control_data['ProtocolControl']['tumour_group'];
-            $this->request->data['ProtocolControl']['type'] = $protocol_control_data['ProtocolControl']['type'];
+            $this->request->data['ProtocolControl']['tumour_group'] = $protocolControlData['ProtocolControl']['tumour_group'];
+            $this->request->data['ProtocolControl']['type'] = $protocolControlData['ProtocolControl']['type'];
         } else {
             
-            $this->request->data['ProtocolMaster']['protocol_control_id'] = $protocol_control_id;
+            $this->request->data['ProtocolMaster']['protocol_control_id'] = $protocolControlId;
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             $this->ProtocolMaster->addWritableField(array(
                 'protocol_control_id'
             ));
-            if ($submitted_data_validates && $this->ProtocolMaster->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($submittedDataValidates && $this->ProtocolMaster->save($this->request->data)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been updated'), '/Protocol/ProtocolMasters/detail/' . $this->ProtocolMaster->getLastInsertId());
             }
         }
     }
 
-    function detail($protocol_master_id)
+    function detail($protocolMasterId)
     {
-        $protocol_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
-        $this->request->data = $protocol_data;
+        $protocolData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
+        $this->request->data = $protocolData;
         
-        $this->set('atim_menu_variables', array(
-            'ProtocolMaster.id' => $protocol_master_id
+        $this->set('atimMenuVariables', array(
+            'ProtocolMaster.id' => $protocolMasterId
         ));
-        $this->Structures->set($protocol_data['ProtocolControl']['form_alias']);
+        $this->Structures->set($protocolData['ProtocolControl']['form_alias']);
         
-        $this->set('display_precisions', (empty($protocol_data['ProtocolControl']['protocol_extend_control_id']) ? false : true));
+        $this->set('displayPrecisions', (empty($protocolData['ProtocolControl']['protocol_extend_control_id']) ? false : true));
         
-        $is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
-        if ($is_used['is_used']) {
-            AppController::addWarningMsg(__('warning') . ": " . __($is_used['msg']));
+        $isUsed = $this->ProtocolMaster->isLinkedToTreatment($protocolMasterId);
+        if ($isUsed['is_used']) {
+            AppController::addWarningMsg(__('warning') . ": " . __($isUsed['msg']));
         }
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function edit($protocol_master_id)
+    function edit($protocolMasterId)
     {
-        $protocol_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
+        $protocolData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
         
-        $this->set('atim_menu_variables', array(
-            'ProtocolMaster.id' => $protocol_master_id
+        $this->set('atimMenuVariables', array(
+            'ProtocolMaster.id' => $protocolMasterId
         ));
-        $this->Structures->set($protocol_data['ProtocolControl']['form_alias']);
+        $this->Structures->set($protocolData['ProtocolControl']['form_alias']);
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $protocol_data;
-            $is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
-            if ($is_used['is_used']) {
-                AppController::addWarningMsg(__('warning') . ": " . __($is_used['msg']));
+            $this->request->data = $protocolData;
+            $isUsed = $this->ProtocolMaster->isLinkedToTreatment($protocolMasterId);
+            if ($isUsed['is_used']) {
+                AppController::addWarningMsg(__('warning') . ": " . __($isUsed['msg']));
             }
-            $submitted_data_validates = false;
+            $submittedDataValidates = false;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            $this->ProtocolMaster->id = $protocol_master_id;
-            if ($submitted_data_validates && $this->ProtocolMaster->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            $this->ProtocolMaster->id = $protocolMasterId;
+            if ($submittedDataValidates && $this->ProtocolMaster->save($this->request->data)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been updated'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id . '/');
+                $this->atimFlash(__('your data has been updated'), '/Protocol/ProtocolMasters/detail/' . $protocolMasterId . '/');
             }
         }
     }
 
-    function delete($protocol_master_id)
+    function delete($protocolMasterId)
     {
-        $protocol_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
+        $protocolData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
         
-        $arr_allow_deletion = $this->ProtocolMaster->allowDeletion($protocol_master_id);
+        $arrAllowDeletion = $this->ProtocolMaster->allowDeletion($protocolMasterId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->ProtocolMaster->atimDelete($protocol_master_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->ProtocolMaster->atimDelete($protocolMasterId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Protocol/ProtocolMasters/search/');
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/Protocol/ProtocolMasters/detail/' . $protocolMasterId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Protocol/ProtocolMasters/detail/' . $protocol_master_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/Protocol/ProtocolMasters/detail/' . $protocolMasterId);
         }
     }
 }

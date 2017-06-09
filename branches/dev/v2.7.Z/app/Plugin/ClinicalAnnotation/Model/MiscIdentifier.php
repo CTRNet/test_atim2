@@ -18,9 +18,9 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         )
     );
 
-    private $confid_warning_absent = true;
+    private $confidWarningAbsent = true;
 
-    public static $study_model = null;
+    public static $studyModel = null;
 
     function summary($variables = array())
     {
@@ -44,14 +44,14 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     function beforeFind($queryData)
     {
         if (! AppController::getInstance()->Session->read('flag_show_confidential') && is_array($queryData['conditions']) && AppModel::isFieldUsedAsCondition("MiscIdentifier.identifier_value", $queryData['conditions'])) {
-            if ($this->confid_warning_absent) {
+            if ($this->confidWarningAbsent) {
                 AppController::addWarningMsg(__('due to your restriction on confidential data, your search did not return confidential identifiers'));
-                $this->confid_warning_absent = false;
+                $this->confidWarningAbsent = false;
             }
-            $misc_control_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
-            $confidential_control_ids = $misc_control_model->getConfidentialIds();
+            $miscControlModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
+            $confidentialControlIds = $miscControlModel->getConfidentialIds();
             $queryData['conditions'][] = array(
-                "MiscIdentifier.misc_identifier_control_id NOT" => $misc_control_model->getConfidentialIds()
+                "MiscIdentifier.misc_identifier_control_id NOT" => $miscControlModel->getConfidentialIds()
             );
         }
         return $queryData;
@@ -60,21 +60,21 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     function find($type = 'first', $query = array())
     {
         if (isset($query['conditions'])) {
-            $gt_key = array_key_exists('MiscIdentifier.identifier_value >=', $query['conditions']);
-            $lt_key = array_key_exists('MiscIdentifier.identifier_value <=', $query['conditions']);
-            if ($gt_key || $lt_key) {
-                $inf_value = $gt_key ? str_replace(',', '.', $query['conditions']['MiscIdentifier.identifier_value >=']) : '';
-                $sup_value = $lt_key ? str_replace(',', '.', $query['conditions']['MiscIdentifier.identifier_value <=']) : '';
-                if (strlen($inf_value . $sup_value) && (is_numeric($inf_value) || ! strlen($inf_value)) && (is_numeric($sup_value) || ! strlen($sup_value))) {
+            $gtKey = array_key_exists('MiscIdentifier.identifier_value >=', $query['conditions']);
+            $ltKey = array_key_exists('MiscIdentifier.identifier_value <=', $query['conditions']);
+            if ($gtKey || $ltKey) {
+                $infValue = $gtKey ? str_replace(',', '.', $query['conditions']['MiscIdentifier.identifier_value >=']) : '';
+                $supValue = $ltKey ? str_replace(',', '.', $query['conditions']['MiscIdentifier.identifier_value <=']) : '';
+                if (strlen($infValue . $supValue) && (is_numeric($infValue) || ! strlen($infValue)) && (is_numeric($supValue) || ! strlen($supValue))) {
                     // Return just numeric
                     $query['conditions']['MiscIdentifier.identifier_value REGEXP'] = "^[0-9]+([\,\.][0-9]+){0,1}$";
                     // Define range
-                    if ($gt_key) {
-                        $query['conditions']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1) >="] = $inf_value;
+                    if ($gtKey) {
+                        $query['conditions']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1) >="] = $infValue;
                         unset($query['conditions']['MiscIdentifier.identifier_value >=']);
                     }
-                    if ($lt_key) {
-                        $query['conditions']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1) <="] = $sup_value;
+                    if ($ltKey) {
+                        $query['conditions']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1) <="] = $supValue;
                         unset($query['conditions']['MiscIdentifier.identifier_value <=']);
                     }
                     // Manage Order
@@ -95,19 +95,19 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     {
         $results = parent::afterFind($results);
         if (! AppController::getInstance()->Session->read('flag_show_confidential') && isset($results[0]) && isset($results[0]['MiscIdentifier'])) {
-            $misc_control_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
-            $confidential_control_ids = $misc_control_model->getConfidentialIds();
-            if (! empty($confidential_control_ids)) {
+            $miscControlModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
+            $confidentialControlIds = $miscControlModel->getConfidentialIds();
+            if (! empty($confidentialControlIds)) {
                 if (isset($results[0]) && isset($results[0]['MiscIdentifier'])) {
                     if (isset($results[0]['MiscIdentifier']['misc_identifier_control_id'])) {
                         foreach ($results as &$result) {
-                            if (in_array($result['MiscIdentifier']['misc_identifier_control_id'], $confidential_control_ids)) {
+                            if (in_array($result['MiscIdentifier']['misc_identifier_control_id'], $confidentialControlIds)) {
                                 $result['MiscIdentifier']['identifier_value'] = CONFIDENTIAL_MARKER;
                             }
                         }
                     } elseif (isset($results[0]['MiscIdentifier'][0]) && isset($results[0]['MiscIdentifier'][0]['misc_identifier_control_id'])) {
                         foreach ($results[0]['MiscIdentifier'] as &$result) {
-                            if (in_array($result['misc_identifier_control_id'], $confidential_control_ids)) {
+                            if (in_array($result['misc_identifier_control_id'], $confidentialControlIds)) {
                                 $result['identifier_value'] = CONFIDENTIAL_MARKER;
                             }
                         }
@@ -141,8 +141,8 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                 $current = $this->findById($this->id);
             } else {
                 assert($this->data['MiscIdentifier']['misc_identifier_control_id']) or die('Missing Identifier Control Id');
-                $misc_identifier_control_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifierControl');
-                $current = $misc_identifier_control_model->findById($this->data['MiscIdentifier']['misc_identifier_control_id']);
+                $miscIdentifierControlModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifierControl');
+                $current = $miscIdentifierControlModel->findById($this->data['MiscIdentifier']['misc_identifier_control_id']);
             }
             if ($current && $current['MiscIdentifierControl']['reg_exp_validation']) {
                 $rule = $current['MiscIdentifierControl']['reg_exp_validation'];
@@ -167,37 +167,37 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
      */
     function validateAndUpdateMiscIdentifierStudyData()
     {
-        $misc_identifier_data = & $this->data;
+        $miscIdentifierData = & $this->data;
         
         // check data structure
-        $tmp_arr_to_check = array_values($misc_identifier_data);
-        if ((! is_array($misc_identifier_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['MiscIdentifier']))) {
+        $tmpArrToCheck = array_values($miscIdentifierData);
+        if ((! is_array($miscIdentifierData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['MiscIdentifier']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Launch validation
-        if (array_key_exists('FunctionManagement', $misc_identifier_data) && array_key_exists('autocomplete_misc_identifier_study_summary_id', $misc_identifier_data['FunctionManagement'])) {
-            $misc_identifier_data['MiscIdentifier']['study_summary_id'] = null;
-            $misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'] = trim($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
+        if (array_key_exists('FunctionManagement', $miscIdentifierData) && array_key_exists('autocomplete_misc_identifier_study_summary_id', $miscIdentifierData['FunctionManagement'])) {
+            $miscIdentifierData['MiscIdentifier']['study_summary_id'] = null;
+            $miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'] = trim($miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
             $this->addWritableField(array(
                 'study_summary_id'
             ));
-            if (strlen($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'])) {
+            if (strlen($miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'])) {
                 // Load model
-                if (self::$study_model == null)
-                    self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
-                    
-                    // Check the aliquot internal use study definition
-                $arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
+                if (self::$studyModel == null)
+                    self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
+                
+                // Check the aliquot internal use study definition
+                $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($miscIdentifierData['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
                 
                 // Set study summary id
-                if (isset($arr_study_selection_results['StudySummary'])) {
-                    $misc_identifier_data['MiscIdentifier']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+                if (isset($arrStudySelectionResults['StudySummary'])) {
+                    $miscIdentifierData['MiscIdentifier']['study_summary_id'] = $arrStudySelectionResults['StudySummary']['id'];
                 }
                 
                 // Set error
-                if (isset($arr_study_selection_results['error'])) {
-                    $this->validationErrors['autocomplete_misc_identifier_study_summary_id'][] = $arr_study_selection_results['error'];
+                if (isset($arrStudySelectionResults['error'])) {
+                    $this->validationErrors['autocomplete_misc_identifier_study_summary_id'][] = $arrStudySelectionResults['error'];
                     return false;
                 }
             }

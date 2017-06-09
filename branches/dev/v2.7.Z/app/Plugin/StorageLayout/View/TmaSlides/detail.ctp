@@ -1,105 +1,105 @@
 <?php
 
 // Set links and settings
-$structure_links = array();
+$structureLinks = array();
 $settings = array(
     'header' => __('tma slide'),
-    'actions' => ($is_from_tree_view_or_layout) ? true : false
+    'actions' => ($isFromTreeViewOrLayout) ? true : false
 );
 
 // Basic
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
-        'edit' => '/StorageLayout/TmaSlides/edit/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'] . '/1',
-        'delete' => '/StorageLayout/TmaSlides/delete/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
-        'add tma slide use' => '/StorageLayout/TmaSlideUses/add/' . $atim_menu_variables['TmaSlide.id']
+        'edit' => '/StorageLayout/TmaSlides/edit/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'] . '/1',
+        'delete' => '/StorageLayout/TmaSlides/delete/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'],
+        'add tma slide use' => '/StorageLayout/TmaSlideUses/add/' . $atimMenuVariables['TmaSlide.id']
     )
 );
 
 // Clean up based on form type
-if ($is_from_tree_view_or_layout == 1) {
+if ($isFromTreeViewOrLayout == 1) {
     // Tree view
 } else 
-    if ($is_from_tree_view_or_layout == 2) {
+    if ($isFromTreeViewOrLayout == 2) {
         // Storage Layout
-        $structure_links = array();
-        $structure_links['bottom']['access to all data'] = '/StorageLayout/TmaSlides/detail/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'];
+        $structureLinks = array();
+        $structureLinks['bottom']['access to all data'] = '/StorageLayout/TmaSlides/detail/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'];
     }
 
-$form_override = array();
-$structure_override = array();
+$formOverride = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'settings' => $settings
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 // TMA Slide Uses
 
-if (! $is_from_tree_view_or_layout) {
+if (! $isFromTreeViewOrLayout) {
     
     // Uses
     
-    $final_atim_structure = array();
-    $final_options = array(
-        'links' => $structure_links,
+    $finalAtimStructure = array();
+    $finalOptions = array(
+        'links' => $structureLinks,
         'settings' => array(
             'actions' => (Configure::read('order_item_type_config') == '2'),
             'header' => __('analysis/scoring', null)
         ),
         'extras' => array(
-            'end' => $this->Structures->ajaxIndex('StorageLayout/TmaSlideUses/listAll/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'])
+            'end' => $this->Structures->ajaxIndex('StorageLayout/TmaSlideUses/listAll/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'])
         )
     );
     
     // CUSTOM CODE
-    $hook_link = $this->Structures->hook('uses');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('uses');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     // BUILD FORM
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
     // Orders
     
     if (Configure::read('order_item_type_config') != '2') {
         
-        $structure_links['bottom']['add to order'] = array(
-            "link" => '/Order/OrderItems/addOrderItemsInBatch/TmaSlide/' . $atim_menu_variables['TmaSlide.id'] . '/',
+        $structureLinks['bottom']['add to order'] = array(
+            "link" => '/Order/OrderItems/addOrderItemsInBatch/TmaSlide/' . $atimMenuVariables['TmaSlide.id'] . '/',
             "icon" => "add_to_order"
         );
         
-        $final_atim_structure = array();
-        $final_options = array(
-            'links' => $structure_links,
+        $finalAtimStructure = array();
+        $finalOptions = array(
+            'links' => $structureLinks,
             'settings' => array(
                 'header' => __('orders', null)
             ),
             'extras' => array(
-                'end' => $this->Structures->ajaxIndex('Order/OrderItems/listAllOrderItemsLinkedToOneObject/TmaSlide/' . $atim_menu_variables['TmaSlide.id'])
+                'end' => $this->Structures->ajaxIndex('Order/OrderItems/listAllOrderItemsLinkedToOneObject/TmaSlide/' . $atimMenuVariables['TmaSlide.id'])
             )
         );
         
         // CUSTOM CODE
-        $hook_link = $this->Structures->hook('orders');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->Structures->hook('orders');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // BUILD FORM
-        $this->Structures->build($final_atim_structure, $final_options);
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }
 

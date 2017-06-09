@@ -11,11 +11,11 @@ class MergeController extends AdministrateAppController
 
     function mergeCollections()
     {
-        $this->set('atim_menu', $this->Menus->get('/Administrate/Merge/index/'));
+        $this->set('atimMenu', $this->Menus->get('/Administrate/Merge/index/'));
         
         if ($this->request->data && $this->request->data['from'] && $this->request->data['to']) {
             if ($this->request->data['from'] == $this->request->data['to']) {
-                $this->set('validation_error', __('you cannot merge an item within itself'));
+                $this->set('validationError', __('you cannot merge an item within itself'));
             } else {
                 // merge!!
                 $regexp = '#([\d]+)(/)?$#';
@@ -26,14 +26,14 @@ class MergeController extends AdministrateAppController
                 $from = $from[1];
                 $to = $to[1];
                 
-                $to_update = array(
+                $toUpdate = array(
                     AppModel::getInstance('InventoryManagement', 'AliquotMaster'),
                     AppModel::getInstance('InventoryManagement', 'SampleMaster'),
                     AppModel::getInstance('InventoryManagement', 'SpecimenReviewMaster')
                 );
                 
                 // update 1 by 1 to trigger right behavior + view updates properly
-                foreach ($to_update as $model) {
+                foreach ($toUpdate as $model) {
                     $ids = $model->find('list', array(
                         'conditions' => array(
                             $model->name . '.collection_id' => $from
@@ -44,15 +44,15 @@ class MergeController extends AdministrateAppController
                             'collection_id' => $to
                         )
                     );
-                    $model->check_writable_fields = false;
+                    $model->checkWritableFields = false;
                     foreach ($ids as $id) {
                         $model->id = $id;
                         $model->save($update, false);
                     }
                 }
                 
-                $collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
-                $collection_model->atimDelete($from);
+                $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection');
+                $collectionModel->atimDelete($from);
                 $this->atimFlash(__('merge complete'), '/Administrate/Merge/index/');
             }
         }
@@ -60,11 +60,11 @@ class MergeController extends AdministrateAppController
 
     function mergeParticipants()
     {
-        $this->set('atim_menu', $this->Menus->get('/Administrate/Merge/index/'));
+        $this->set('atimMenu', $this->Menus->get('/Administrate/Merge/index/'));
         
         if ($this->request->data && $this->request->data['from'] && $this->request->data['to']) {
             if ($this->request->data['from'] == $this->request->data['to']) {
-                $this->set('validation_error', __('you cannot merge an item within itself'));
+                $this->set('validationError', __('you cannot merge an item within itself'));
             } else {
                 // merge!!
                 $regexp = '#([\d]+)(/)?$#';
@@ -76,13 +76,13 @@ class MergeController extends AdministrateAppController
                 $to = $to[1];
                 
                 // identifiers
-                $identifiers_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier');
-                $identifiers = $identifiers_model->find('all', array(
+                $identifiersModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier');
+                $identifiers = $identifiersModel->find('all', array(
                     'conditions' => array(
                         'MiscIdentifier.participant_id' => $from
                     )
                 ));
-                $identifiers_model->check_writable_fields = false;
+                $identifiersModel->checkWritableFields = false;
                 $update = array(
                     'MiscIdentifier' => array(
                         'participant_id' => $to
@@ -92,7 +92,7 @@ class MergeController extends AdministrateAppController
                 foreach ($identifiers as $identifier) {
                     $proceed = false;
                     if ($identifier['MiscIdentifierControl']['flag_once_per_participant']) {
-                        if (! $identifiers_model->find('first', array(
+                        if (! $identifiersModel->find('first', array(
                             'conditions' => array(
                                 'MiscIdentifier.misc_identifier_control_id' => $identifier['MiscIdentifierControl']['id'],
                                 'MiscIdentifier.participant_id' => $to
@@ -105,8 +105,8 @@ class MergeController extends AdministrateAppController
                     }
                     
                     if ($proceed) {
-                        $identifiers_model->id = $identifier['MiscIdentifier']['id'];
-                        $identifiers_model->save($update);
+                        $identifiersModel->id = $identifier['MiscIdentifier']['id'];
+                        $identifiersModel->save($update);
                     } else {
                         ++ $conflicts;
                     }
@@ -116,7 +116,7 @@ class MergeController extends AdministrateAppController
                     AppController::addWarningMsg(__('some identifiers were not merge because they were conflicting') . ' (' . $conflicts . ')');
                 }
                 
-                $to_update = array(
+                $toUpdate = array(
                     AppModel::getInstance('InventoryManagement', 'Collection'),
                     AppModel::getInstance('ClinicalAnnotation', 'ConsentMaster'),
                     AppModel::getInstance('ClinicalAnnotation', 'DiagnosisMaster'),
@@ -129,7 +129,7 @@ class MergeController extends AdministrateAppController
                 );
                 
                 // update 1 by 1 to trigger right behavior + view updates properly
-                foreach ($to_update as $model) {
+                foreach ($toUpdate as $model) {
                     // forcing fields value or ParticipantMessage doesnt work
                     $ids = $model->find('list', array(
                         'fields' => array(
@@ -144,7 +144,7 @@ class MergeController extends AdministrateAppController
                             'participant_id' => $to
                         )
                     );
-                    $model->check_writable_fields = false;
+                    $model->checkWritableFields = false;
                     foreach ($ids as $id) {
                         $model->id = $id;
                         $model->save($update, false);

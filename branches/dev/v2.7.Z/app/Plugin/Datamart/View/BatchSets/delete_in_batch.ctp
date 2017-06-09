@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => '/Datamart/BatchSets/deleteInBatch/',
     'checklist' => array(
         'BatchSet.ids][' => '%%BatchSet.id%%'
@@ -8,28 +8,28 @@ $structure_links = array(
         'cancel' => '/Datamart/BatchSets/index/user'
     )
 );
-$structure_override = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'data' => $user_batchsets,
+    'data' => $userBatchsets,
     'settings' => array(
         'header' => __('select batchsets to delete'),
         'pagination' => false,
         'form_inputs' => false
     ),
-    'links' => $structure_links,
-    'override' => $structure_override
+    'links' => $structureLinks,
+    'override' => $structureOverride
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

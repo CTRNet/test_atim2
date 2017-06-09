@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'tree' => array(
         'DiagnosisMaster' => array(
             'see diagnosis summary' => array(
@@ -60,28 +60,28 @@ $structure_links = array(
     )
 );
 
-if (! $is_ajax) {
-    $add_links = array();
-    foreach ($diagnosis_controls_list as $diagnosis_control) {
-        if ($diagnosis_control['DiagnosisControl']['category'] == 'primary') {
-            $add_links[__($diagnosis_control['DiagnosisControl']['controls_type'])] = '/ClinicalAnnotation/DiagnosisMasters/add/' . $atim_menu_variables['Participant.id'] . '/' . $diagnosis_control['DiagnosisControl']['id'] . '/0/';
+if (! $isAjax) {
+    $addLinks = array();
+    foreach ($diagnosisControlsList as $diagnosisControl) {
+        if ($diagnosisControl['DiagnosisControl']['category'] == 'primary') {
+            $addLinks[__($diagnosisControl['DiagnosisControl']['controls_type'])] = '/ClinicalAnnotation/DiagnosisMasters/add/' . $atimMenuVariables['Participant.id'] . '/' . $diagnosisControl['DiagnosisControl']['id'] . '/0/';
         }
     }
-    ksort($add_links);
-    $structure_links['bottom'] = array(
-        'add primary' => $add_links
+    ksort($addLinks);
+    $structureLinks['bottom'] = array(
+        'add primary' => $addLinks
     );
 }
 
-$structure_extras = array();
-$structure_extras[10] = '<div id="frame"></div>';
+$structureExtras = array();
+$structureExtras[10] = '<div id="frame"></div>';
 
 // Set form structure and option
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'tree',
-    'links' => $structure_links,
-    'extras' => $structure_extras,
+    'links' => $structureLinks,
+    'extras' => $structureExtras,
     'settings' => array(
         'tree' => array(
             'DiagnosisMaster' => 'DiagnosisMaster',
@@ -90,20 +90,20 @@ $final_options = array(
         ),
         'header' => array(
             'title' => '',
-            'description' => __('information about the diagnosis module is available %s here', $help_url)
+            'description' => __('information about the diagnosis module is available %s here', $helpUrl)
         )
     )
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-if (! $is_ajax) {
+if (! $isAjax) {
     require ('add_popup.php');
 }

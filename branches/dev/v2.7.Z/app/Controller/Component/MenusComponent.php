@@ -21,33 +21,33 @@ class MenusComponent extends Component
 
     function get($alias = NULL, $replace = array())
     {
-        $aro_alias = 'Group::' . $this->Session->read('Auth.User.group_id');
+        $aroAlias = 'Group::' . $this->Session->read('Auth.User.group_id');
         
         $return = array();
-        $alias_calculated = array();
+        $aliasCalculated = array();
         
         // if ALIAS not provided, try to guess what menu item CONTROLLER is looking for, defaulting to DETAIL/PROFILE if possible
         if (! $alias) {
             $alias = '/' . ($this->controller->params['plugin'] ? $this->controller->params['plugin'] . '/' : '') . $this->controller->params['controller'] . '/' . $this->controller->params['action'];
             
-            $alias_with_params = $alias;
+            $aliasWithParams = $alias;
             foreach ($this->controller->request->params as $param) {
                 if (is_string($param)) {
-                    $alias_with_params .= '/' . $param;
-                    $alias_calculated[] = $alias_with_params . '%';
+                    $aliasWithParams .= '/' . $param;
+                    $aliasCalculated[] = $aliasWithParams . '%';
                 }
             }
-            $alias_calculated = array_reverse($alias_calculated);
+            $aliasCalculated = array_reverse($aliasCalculated);
             $prefix = '/' . ($this->controller->params['plugin'] ? $this->controller->params['plugin'] . '/' : '') . $this->controller->params['controller'];
-            $alias_calculated[] = $prefix . '/detail%';
-            $alias_calculated[] = $prefix . '/profile%';
-            $alias_calculated[] = $prefix . '/listall%';
-            $alias_calculated[] = $prefix . '/index%';
-            $alias_calculated[] = $prefix . '%';
+            $aliasCalculated[] = $prefix . '/detail%';
+            $aliasCalculated[] = $prefix . '/profile%';
+            $aliasCalculated[] = $prefix . '/listall%';
+            $aliasCalculated[] = $prefix . '/index%';
+            $aliasCalculated[] = $prefix . '%';
         }
         
-        $cache_name = AppController::getInstance()->SystemVar->getVar('permission_timestamp') . str_replace("/", "_", $alias) . "_" . str_replace(":", "", $aro_alias);
-        $return = Cache::read($cache_name, "menus");
+        $cacheName = AppController::getInstance()->SystemVar->getVar('permission_timestamp') . str_replace("/", "_", $alias) . "_" . str_replace(":", "", $aroAlias);
+        $return = Cache::read($cacheName, "menus");
         if ($return === null) {
             $return = false;
             if (Configure::read('debug') == 2) {
@@ -56,9 +56,9 @@ class MenusComponent extends Component
         }
         if (! $return) {
             if ($alias) {
-                $this->menu_model = AppModel::getInstance('', 'Menu', true);
+                $this->menuModel = AppModel::getInstance('', 'Menu', true);
                 
-                $result = $this->menu_model->find('all', array(
+                $result = $this->menuModel->find('all', array(
                     'conditions' => array(
                         "Menu.use_link" => array(
                             $alias,
@@ -73,7 +73,7 @@ class MenusComponent extends Component
                 
                 if (! $result) {
                     
-                    $result = $this->menu_model->find('all', array(
+                    $result = $this->menuModel->find('all', array(
                         'conditions' => array(
                             'Menu.use_link LIKE' => $alias . '%',
                             'Menu.flag_active' => 1
@@ -86,11 +86,11 @@ class MenusComponent extends Component
                 
                 if (! $result) {
                     
-                    $alias_count = 0;
-                    while (! $result && $alias_count < count($alias_calculated)) {
-                        $result = $this->menu_model->find('all', array(
+                    $aliasCount = 0;
+                    while (! $result && $aliasCount < count($aliasCalculated)) {
+                        $result = $this->menuModel->find('all', array(
                             'conditions' => array(
-                                "Menu.use_link LIKE " => $alias_calculated[$alias_count],
+                                "Menu.use_link LIKE " => $aliasCalculated[$aliasCount],
                                 "Menu.flag_active" => 1
                             ),
                             'recursive' => 3,
@@ -98,48 +98,47 @@ class MenusComponent extends Component
                             'limit' => 1
                         ));
                         
-                        $alias_count ++;
+                        $aliasCount ++;
                     }
                 }
                 
                 $menu = array();
                 
-                $parent_id = isset($result[0]['Menu']['parent_id']) ? $result[0]['Menu']['parent_id'] : false;
-                $source_id = isset($result[0]['Menu']['id']) ? $result[0]['Menu']['id'] : false;
+                $parentId = isset($result[0]['Menu']['parent_id']) ? $result[0]['Menu']['parent_id'] : false;
+                $sourceId = isset($result[0]['Menu']['id']) ? $result[0]['Menu']['id'] : false;
                 
-                while ($parent_id !== false) {
+                while ($parentId !== false) {
                     
-                    $current_level = $this->menu_model->find('all', array(
+                    $currentLevel = $this->menuModel->find('all', array(
                         'conditions' => array(
-                            "Menu.parent_id" => $parent_id,
+                            "Menu.parent_id" => $parentId,
                             "Menu.flag_active" => 1
                         ),
                         'order' => 'Menu.parent_id DESC, Menu.display_order ASC'
                     ));
-                    if ($current_level && count($current_level)) {
+                    if ($currentLevel && count($currentLevel)) {
                         
-                        foreach ($current_level as &$current_item) {
-                            $current_item['Menu']['at'] = $current_item['Menu']['id'] == $source_id;
-                            $current_item['Menu']['allowed'] = AppController::checkLinkPermission($current_item['Menu']['use_link']); // $this->SessionAcl->check($aro_alias, $aco_alias);
+                        foreach ($currentLevel as &$currentItem) {
+                            $currentItem['Menu']['at'] = $currentItem['Menu']['id'] == $sourceId;
+                            $currentItem['Menu']['allowed'] = AppController::checkLinkPermission($currentItem['Menu']['use_link']); // $this->SessionAcl->check($aroAlias, $acoAlias);
                         }
                         
-                        $menu[] = $current_level;
+                        $menu[] = $currentLevel;
                         
-                        $source_result = $this->menu_model->find('first', array(
+                        $sourceResult = $this->menuModel->find('first', array(
                             'conditions' => array(
-                                'Menu.id' => $parent_id
+                                'Menu.id' => $parentId
                             )
                         ));
                         
-                        if (! $source_result) {
+                        if (! $sourceResult) {
                             break;
                         }
-                        $source_id = $source_result['Menu']['id'];
-                        $parent_id = $source_result['Menu']['parent_id'];
+                        $sourceId = $sourceResult['Menu']['id'];
+                        $parentId = $sourceResult['Menu']['parent_id'];
                     } 
-
                     else {
-                        $parent_id = false;
+                        $parentId = false;
                     }
                 }
                 
@@ -148,7 +147,7 @@ class MenusComponent extends Component
             }
             
             if (Configure::read('debug') == 0) {
-                Cache::write($cache_name, $return, "menus");
+                Cache::write($cacheName, $return, "menus");
             }
         }
         

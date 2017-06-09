@@ -1,77 +1,77 @@
 <?php
-if (! $is_main_form) {
+if (! $isMainForm) {
     
     // Sub Form to display either Aliquots, sub-storages or tma slides list
     
-    $structure_settings = array(
+    $structureSettings = array(
         'actions' => false
     );
     
-    $structure_links = array(
+    $structureLinks = array(
         'index' => array(
             'detail' => array(
-                'link' => $detail_url,
+                'link' => $detailUrl,
                 'icon' => $icon
             )
         )
     );
     
-    $final_atim_structure = $atim_structure;
-    $final_options = array(
+    $finalAtimStructure = $atimStructure;
+    $finalOptions = array(
         'type' => 'index',
-        'settings' => $structure_settings,
-        'links' => $structure_links
+        'settings' => $structureSettings,
+        'links' => $structureLinks
     );
     
     // CUSTOM CODE
-    $hook_link = $this->Structures->hook('list');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('list');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     // BUILD FORM
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 } else {
     
     // Main form to display one to many lists
     
-    if (isset($add_links)) {
-        $structure_links = array(
+    if (isset($addLinks)) {
+        $structureLinks = array(
             'bottom' => array(
-                'add to storage' => $add_links
+                'add to storage' => $addLinks
             )
         );
     } else {
-        $structure_links = array();
+        $structureLinks = array();
     }
     
-    $models_nbr = sizeof($models_to_dispay);
-    $form_counter = 0;
-    foreach ($models_to_dispay as $model => $header) {
-        $form_counter ++;
-        $structure_settings = array(
-            'actions' => ($form_counter == $models_nbr) ? true : false,
+    $modelsNbr = sizeof($modelsToDispay);
+    $formCounter = 0;
+    foreach ($modelsToDispay as $model => $header) {
+        $formCounter ++;
+        $structureSettings = array(
+            'actions' => ($formCounter == $modelsNbr) ? true : false,
             'header' => array(
                 'title' => __($header),
                 'description' => null
             )
         );
         
-        $final_options = array(
+        $finalOptions = array(
             'type' => 'detail',
             'data' => array(),
-            'settings' => $structure_settings,
-            'links' => $structure_links,
-            'extras' => $this->Structures->ajaxIndex('StorageLayout/StorageMasters/contentListView/' . $atim_menu_variables['StorageMaster.id'] . '/' . $model)
+            'settings' => $structureSettings,
+            'links' => $structureLinks,
+            'extras' => $this->Structures->ajaxIndex('StorageLayout/StorageMasters/contentListView/' . $atimMenuVariables['StorageMaster.id'] . '/' . $model)
         );
-        $final_atim_structure = $empty_structure;
+        $finalAtimStructure = $emptyStructure;
         
         // CUSTOM CODE
-        $hook_link = $this->Structures->hook();
-        if ($hook_link)
-            require ($hook_link);
+        $hookLink = $this->Structures->hook();
+        if ($hookLink)
+            require ($hookLink);
             
             // BUILD FORM
-        $this->Structures->build($final_atim_structure, $final_options);
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }

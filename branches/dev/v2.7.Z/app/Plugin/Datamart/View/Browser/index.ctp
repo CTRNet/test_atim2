@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     "index" => array(
         'detail' => "/Datamart/Browser/browse/%%BrowsingIndex.root_node_id%%",
         'edit' => "/Datamart/Browser/edit/%%BrowsingIndex.id%%",
@@ -17,17 +17,17 @@ $structure_links = array(
 $settings = array(
     'header' => array(
         'title' => __('temporary browsing'),
-        'description' => __('unsaved browsing trees that are automatically deleted when there are more than %d', $tmp_browsing_limit)
+        'description' => __('unsaved browsing trees that are automatically deleted when there are more than %d', $tmpBrowsingLimit)
     ),
     'form_bottom' => false,
     'actions' => false,
     'pagination' => false
 );
 
-$this->Structures->build($atim_structure, array(
-    'data' => $tmp_browsing,
+$this->Structures->build($atimStructure, array(
+    'data' => $tmpBrowsing,
     'type' => 'index',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => $settings
 ));
 
@@ -38,11 +38,11 @@ $settings = array(
     ),
     'form_top' => false
 );
-unset($structure_links['index']['save']);
-$this->Structures->build($atim_structure, array(
+unset($structureLinks['index']['save']);
+$this->Structures->build($atimStructure, array(
     'data' => $this->request->data,
     'type' => 'index',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => $settings
 ));
 ?>

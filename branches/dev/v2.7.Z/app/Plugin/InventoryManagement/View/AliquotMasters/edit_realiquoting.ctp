@@ -1,25 +1,25 @@
 <?php
-$structure_links = array(
-    'top' => '/InventoryManagement/AliquotMasters/editRealiquoting/' . $realiquoting_id,
+$structureLinks = array(
+    'top' => '/InventoryManagement/AliquotMasters/editRealiquoting/' . $realiquotingId,
     'bottom' => array(
-        'cancel' => '/InventoryManagement/AliquotMasters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id']
+        'cancel' => '/InventoryManagement/AliquotMasters/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['AliquotMaster.id']
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'edit',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => array(
         'header' => __('realiquoted parent')
     )
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);	
+$this->Structures->build($finalAtimStructure, $finalOptions);	

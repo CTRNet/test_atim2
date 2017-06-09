@@ -30,16 +30,16 @@ class ParticipantsController extends ClinicalAnnotationAppController
         )
     );
 
-    function search($search_id = '')
+    function search($searchId = '')
     {
-        $this->searchHandler($search_id, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
+        $this->searchHandler($searchId, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             $this->request->data = $this->Participant->find('all', array(
                 'conditions' => array(
@@ -54,24 +54,24 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
-    function profile($participant_id)
+    function profile($participantId)
     {
         // MANAGE DATA
-        $this->request->data = $this->Participant->getOrRedirect($participant_id);
+        $this->request->data = $this->Participant->getOrRedirect($participantId);
         
         // Set data for identifier list
-        $participant_identifiers_data = $this->paginate($this->MiscIdentifier, array(
-            'MiscIdentifier.participant_id' => $participant_id
+        $participantIdentifiersData = $this->paginate($this->MiscIdentifier, array(
+            'MiscIdentifier.participant_id' => $participantId
         ));
-        $this->set('participant_identifiers_data', $participant_identifiers_data);
+        $this->set('participantIdentifiersData', $participantIdentifiersData);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // Set form for identifier list
-        $this->Structures->set('miscidentifiers', 'atim_structure_for_misc_identifiers');
+        $this->Structures->set('miscidentifiers', 'atimStructureForMiscIdentifiers');
         
         $mi = $this->MiscIdentifier->find('all', array(
             'fields' => array(
@@ -86,8 +86,8 @@ class ParticipantsController extends ClinicalAnnotationAppController
             )
         ));
         $reusable = array();
-        foreach ($mi as $mi_unit) {
-            $reusable[$mi_unit['MiscIdentifierControl']['id']] = null;
+        foreach ($mi as $miUnit) {
+            $reusable[$miUnit['MiscIdentifierControl']['id']] = null;
         }
         $conditions = array(
             'flag_active' => '1'
@@ -95,139 +95,139 @@ class ParticipantsController extends ClinicalAnnotationAppController
         if (! $this->Session->read('flag_show_confidential')) {
             $conditions["flag_confidential"] = 0;
         }
-        $identifier_controls_list = $this->MiscIdentifierControl->find('all', array(
+        $identifierControlsList = $this->MiscIdentifierControl->find('all', array(
             'conditions' => $conditions
         ));
-        foreach ($identifier_controls_list as &$unit) {
+        foreach ($identifierControlsList as &$unit) {
             if (! empty($unit['MiscIdentifierControl']['autoincrement_name']) && array_key_exists($unit['MiscIdentifierControl']['id'], $reusable)) {
                 $unit['reusable'] = true;
             }
         }
-        $this->set('identifier_controls_list', $identifier_controls_list);
-        $this->Structures->set('empty', 'empty_structure');
+        $this->set('identifierControlsList', $identifierControlsList);
+        $this->Structures->set('empty', 'emptyStructure');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        $this->set('is_ajax', $this->request->is('ajax'));
+        $this->set('isAjax', $this->request->is('ajax'));
     }
 
     function add()
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
+        $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
             $this->Participant->patchIcd10NullValues($this->request->data);
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 if ($this->Participant->save($this->request->data)) {
                     
-                    $url_to_flash = '/ClinicalAnnotation/Participants/profile/' . $this->Participant->getLastInsertID();
+                    $urlToFlash = '/ClinicalAnnotation/Participants/profile/' . $this->Participant->getLastInsertID();
                     
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
                     
-                    $this->atimFlash(__('your data has been saved'), $url_to_flash);
+                    $this->atimFlash(__('your data has been saved'), $urlToFlash);
                 }
             }
         }
     }
 
-    function edit($participant_id)
+    function edit($participantId)
     {
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         if (empty($this->request->data)) {
-            $this->request->data = $participant_data;
+            $this->request->data = $participantData;
         } else {
             $this->Participant->patchIcd10NullValues($this->request->data);
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->Participant->id = $participant_id;
+            if ($submittedDataValidates) {
+                $this->Participant->id = $participantId;
                 $this->Participant->data = array();
                 if ($this->Participant->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/Participants/profile/' . $participant_id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/Participants/profile/' . $participantId);
                 }
             }
         }
     }
 
-    function delete($participant_id)
+    function delete($participantId)
     {
         
         // MANAGE DATA
-        $this->request->data = $this->Participant->getOrRedirect($participant_id);
+        $this->request->data = $this->Participant->getOrRedirect($participantId);
         
-        $arr_allow_deletion = $this->Participant->allowDeletion($participant_id);
+        $arrAllowDeletion = $this->Participant->allowDeletion($participantId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->Participant->atimDelete($participant_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->Participant->atimDelete($participantId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/search/');
             } else {
                 $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/');
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/Participants/profile/' . $participantId . '/');
         }
     }
 
-    function chronology($participant_id)
+    function chronology($participantId)
     {
-        $tmp_array = array();
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $tmpArray = array();
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         $this->Structures->set('chronology', 'chronology');
         
@@ -237,13 +237,13 @@ class ParticipantsController extends ClinicalAnnotationAppController
         App::uses('StructureValueDomain', 'Model');
         $this->StructureValueDomain = new StructureValueDomain();
         
-        $hook_link = $this->hook('start');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('start');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // accuracy_sort
-        $a_s = array(
+        $aS = array(
             '±' => 0,
             'y' => 1,
             'm' => 2,
@@ -254,11 +254,11 @@ class ParticipantsController extends ClinicalAnnotationAppController
             '' => 7
         );
         
-        $add_to_tmp_array = function (array $in) use ($a_s, &$tmp_array) {
+        $addToTmpArray = function (array $in) use ($aS, &$tmpArray) {
             if ($in['date']) {
-                $tmp_array[$in['date'] . $a_s[$in['date_accuracy']]][] = $in;
+                $tmpArray[$in['date'] . $aS[$in['date_accuracy']]][] = $in;
             } else {
-                $tmp_array[' '][] = $in;
+                $tmpArray[' '][] = $in;
             }
         };
         
@@ -269,70 +269,70 @@ class ParticipantsController extends ClinicalAnnotationAppController
         if (AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile/')) {
             $participant = $this->Participant->find('first', array(
                 'conditions' => array(
-                    'Participant.id' => $participant_id
+                    'Participant.id' => $participantId
                 )
             ));
-            $chronolgy_data_participant_birth = array(
+            $chronolgyDataParticipantBirth = array(
                 'date' => $participant['Participant']['date_of_birth'],
                 'date_accuracy' => $participant['Participant']['date_of_birth_accuracy'],
                 'event' => __('date of birth'),
                 'chronology_details' => '',
-                'link' => '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/'
+                'link' => '/ClinicalAnnotation/Participants/profile/' . $participantId . '/'
             );
-            $chronolgy_data_participant_death = false;
+            $chronolgyDataParticipantDeath = false;
             if (strlen($participant['Participant']['date_of_death']) > 0) {
-                $chronolgy_data_participant_death = array(
+                $chronolgyDataParticipantDeath = array(
                     'date' => $participant['Participant']['date_of_death'],
                     'date_accuracy' => $participant['Participant']['date_of_death_accuracy'],
                     'event' => __('date of death'),
                     'chronology_details' => '',
-                    'link' => '/ClinicalAnnotation/Participants/profile/' . $participant_id . '/'
+                    'link' => '/ClinicalAnnotation/Participants/profile/' . $participantId . '/'
                 );
             }
-            $hook_link = $this->hook('participant');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('participant');
+            if ($hookLink) {
+                require ($hookLink);
             }
-            if ($chronolgy_data_participant_birth)
-                $add_to_tmp_array($chronolgy_data_participant_birth);
-            if ($chronolgy_data_participant_death)
-                $add_to_tmp_array($chronolgy_data_participant_death);
+            if ($chronolgyDataParticipantBirth)
+                $addToTmpArray($chronolgyDataParticipantBirth);
+            if ($chronolgyDataParticipantDeath)
+                $addToTmpArray($chronolgyDataParticipantDeath);
         }
         
         // 2-Consent
         
         if (AppController::checkLinkPermission('/ClinicalAnnotation/ConsentMasters/detail/')) {
-            $consent_status = $this->StructureValueDomain->find('first', array(
+            $consentStatus = $this->StructureValueDomain->find('first', array(
                 'conditions' => array(
                     'StructureValueDomain.domain_name' => 'consent_status'
                 ),
                 'recursive' => 2
             ));
-            $consent_status_values = array();
-            if ($consent_status) {
-                foreach ($consent_status['StructurePermissibleValue'] as $new_value) {
-                    $consent_status_values[$new_value['value']] = __($new_value['language_alias']);
+            $consentStatusValues = array();
+            if ($consentStatus) {
+                foreach ($consentStatus['StructurePermissibleValue'] as $newValue) {
+                    $consentStatusValues[$newValue['value']] = __($newValue['language_alias']);
                 }
             }
             $consents = $this->ConsentMaster->find('all', array(
                 'conditions' => array(
-                    'ConsentMaster.participant_id' => $participant_id
+                    'ConsentMaster.participant_id' => $participantId
                 )
             ));
             foreach ($consents as $consent) {
-                $chronolgy_data_consent = array(
+                $chronolgyDataConsent = array(
                     'date' => $consent['ConsentMaster']['consent_signed_date'],
                     'date_accuracy' => isset($consent['ConsentMaster']['consent_signed_date_accuracy']) ? $consent['ConsentMaster']['consent_signed_date_accuracy'] : 'c',
                     'event' => __('consent') . ', ' . __($consent['ConsentControl']['controls_type']),
-                    'chronology_details' => isset($consent_status_values[$consent['ConsentMaster']['consent_status']]) ? $consent_status_values[$consent['ConsentMaster']['consent_status']] : $consent['ConsentMaster']['consent_status'],
-                    'link' => '/ClinicalAnnotation/ConsentMasters/detail/' . $participant_id . '/' . $consent['ConsentMaster']['id']
+                    'chronology_details' => isset($consentStatusValues[$consent['ConsentMaster']['consent_status']]) ? $consentStatusValues[$consent['ConsentMaster']['consent_status']] : $consent['ConsentMaster']['consent_status'],
+                    'link' => '/ClinicalAnnotation/ConsentMasters/detail/' . $participantId . '/' . $consent['ConsentMaster']['id']
                 );
-                $hook_link = $this->hook('consent');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('consent');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                if ($chronolgy_data_consent)
-                    $add_to_tmp_array($chronolgy_data_consent);
+                if ($chronolgyDataConsent)
+                    $addToTmpArray($chronolgyDataConsent);
             }
         }
         
@@ -341,23 +341,23 @@ class ParticipantsController extends ClinicalAnnotationAppController
         if (AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/detail/')) {
             $dxs = $this->DiagnosisMaster->find('all', array(
                 'conditions' => array(
-                    'DiagnosisMaster.participant_id' => $participant_id
+                    'DiagnosisMaster.participant_id' => $participantId
                 )
             ));
             foreach ($dxs as $dx) {
-                $chronolgy_data_diagnosis = array(
+                $chronolgyDataDiagnosis = array(
                     'date' => $dx['DiagnosisMaster']['dx_date'],
                     'date_accuracy' => $dx['DiagnosisMaster']['dx_date_accuracy'],
                     'event' => __('diagnosis') . ', ' . __($dx['DiagnosisControl']['category']) . ' - ' . __($dx['DiagnosisControl']['controls_type']),
                     'chronology_details' => '',
-                    'link' => '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participant_id . '/' . $dx['DiagnosisMaster']['id']
+                    'link' => '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participantId . '/' . $dx['DiagnosisMaster']['id']
                 );
-                $hook_link = $this->hook('diagnosis');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('diagnosis');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                if ($chronolgy_data_diagnosis)
-                    $add_to_tmp_array($chronolgy_data_diagnosis);
+                if ($chronolgyDataDiagnosis)
+                    $addToTmpArray($chronolgyDataDiagnosis);
             }
         }
         
@@ -366,23 +366,23 @@ class ParticipantsController extends ClinicalAnnotationAppController
         if (AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/detail/')) {
             $annotations = $this->EventMaster->find('all', array(
                 'conditions' => array(
-                    'EventMaster.participant_id' => $participant_id
+                    'EventMaster.participant_id' => $participantId
                 )
             ));
             foreach ($annotations as $annotation) {
-                $chronolgy_data_annotation = array(
+                $chronolgyDataAnnotation = array(
                     'date' => $annotation['EventMaster']['event_date'],
                     'date_accuracy' => isset($annotation['EventMaster']['event_date_accuracy']) ? $annotation['EventMaster']['event_date_accuracy'] : 'c',
                     'event' => __($annotation['EventControl']['event_group']) . ', ' . __($annotation['EventControl']['event_type']),
                     'chronology_details' => '',
-                    'link' => '/ClinicalAnnotation/EventMasters/detail/' . $participant_id . '/' . $annotation['EventMaster']['id']
+                    'link' => '/ClinicalAnnotation/EventMasters/detail/' . $participantId . '/' . $annotation['EventMaster']['id']
                 );
-                $hook_link = $this->hook('annotation');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('annotation');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                if ($chronolgy_data_annotation)
-                    $add_to_tmp_array($chronolgy_data_annotation);
+                if ($chronolgyDataAnnotation)
+                    $addToTmpArray($chronolgyDataAnnotation);
             }
         }
         
@@ -391,101 +391,101 @@ class ParticipantsController extends ClinicalAnnotationAppController
         if (AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/detail/')) {
             $txs = $this->TreatmentMaster->find('all', array(
                 'conditions' => array(
-                    'TreatmentMaster.participant_id' => $participant_id
+                    'TreatmentMaster.participant_id' => $participantId
                 )
             ));
             foreach ($txs as $tx) {
-                $start_suffix_msg = '';
-                $finish_suffix_msg = '';
+                $startSuffixMsg = '';
+                $finishSuffixMsg = '';
                 if ($tx['TreatmentMaster']['start_date'] || $tx['TreatmentMaster']['finish_date']) {
-                    $start_suffix_msg = " (" . __("start") . ")";
-                    $finish_suffix_msg = empty($tx['TreatmentMaster']['finish_date']) ? '' : " (" . __("end") . ")";
+                    $startSuffixMsg = " (" . __("start") . ")";
+                    $finishSuffixMsg = empty($tx['TreatmentMaster']['finish_date']) ? '' : " (" . __("end") . ")";
                     if ($tx['TreatmentMaster']['start_date'] == $tx['TreatmentMaster']['finish_date'] && $tx['TreatmentMaster']['start_date_accuracy'] == $tx['TreatmentMaster']['finish_date_accuracy']) {
-                        $start_suffix_msg = " (" . __("start") . " & " . __("end") . ")";
-                        $finish_suffix_msg = '';
+                        $startSuffixMsg = " (" . __("start") . " & " . __("end") . ")";
+                        $finishSuffixMsg = '';
                     }
                 }
-                $chronolgy_data_treatment_start = array(
+                $chronolgyDataTreatmentStart = array(
                     'date' => $tx['TreatmentMaster']['start_date'],
                     'date_accuracy' => $tx['TreatmentMaster']['start_date_accuracy'],
-                    'event' => __('treatment') . ", " . __($tx['TreatmentControl']['tx_method']) . $start_suffix_msg,
+                    'event' => __('treatment') . ", " . __($tx['TreatmentControl']['tx_method']) . $startSuffixMsg,
                     'chronology_details' => '',
-                    'link' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx['TreatmentMaster']['id']
+                    'link' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $participantId . '/' . $tx['TreatmentMaster']['id']
                 );
-                $chronolgy_data_treatment_finish = false;
-                if ($finish_suffix_msg) {
-                    $chronolgy_data_treatment_finish = array(
+                $chronolgyDataTreatmentFinish = false;
+                if ($finishSuffixMsg) {
+                    $chronolgyDataTreatmentFinish = array(
                         'date' => $tx['TreatmentMaster']['finish_date'],
                         'date_accuracy' => $tx['TreatmentMaster']['finish_date_accuracy'],
-                        'event' => __('treatment') . ", " . __($tx['TreatmentControl']['tx_method']) . $finish_suffix_msg,
+                        'event' => __('treatment') . ", " . __($tx['TreatmentControl']['tx_method']) . $finishSuffixMsg,
                         'chronology_details' => '',
-                        'link' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $participant_id . '/' . $tx['TreatmentMaster']['id']
+                        'link' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $participantId . '/' . $tx['TreatmentMaster']['id']
                     );
                 }
-                $hook_link = $this->hook('treatment');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('treatment');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                if ($chronolgy_data_treatment_start)
-                    $add_to_tmp_array($chronolgy_data_treatment_start);
-                if ($chronolgy_data_treatment_finish)
-                    $add_to_tmp_array($chronolgy_data_treatment_finish);
+                if ($chronolgyDataTreatmentStart)
+                    $addToTmpArray($chronolgyDataTreatmentStart);
+                if ($chronolgyDataTreatmentFinish)
+                    $addToTmpArray($chronolgyDataTreatmentFinish);
             }
         }
         
         // 4-Collection
         
         if (AppController::checkLinkPermission('/InventoryManagement/Collections/detail/')) {
-            $collection_model = AppModel::getInstance('InventoryManagement', 'Collection', true);
-            $collections = $collection_model->find('all', array(
+            $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection', true);
+            $collections = $collectionModel->find('all', array(
                 'conditions' => array(
-                    'Collection.participant_id' => $participant_id
+                    'Collection.participant_id' => $participantId
                 ),
                 'recursive' => - 1
             ));
             foreach ($collections as $collection) {
-                $chronolgy_data_collection = array(
+                $chronolgyDataCollection = array(
                     'date' => $collection['Collection']['collection_datetime'],
                     'date_accuracy' => $collection['Collection']['collection_datetime_accuracy'],
                     'event' => __('collection'),
                     'chronology_details' => $collection['Collection']['acquisition_label'],
                     'link' => '/InventoryManagement/Collections/detail/' . $collection['Collection']['id']
                 );
-                $hook_link = $this->hook('collection');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('collection');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                if ($chronolgy_data_collection)
-                    $add_to_tmp_array($chronolgy_data_collection);
+                if ($chronolgyDataCollection)
+                    $addToTmpArray($chronolgyDataCollection);
             }
         }
         
-        $hook_link = $this->hook('end');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('end');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // *** Sort data ***
         
         // sort the tmpArray by key (key = date)
-        ksort($tmp_array);
-        $tmp_array2 = array();
-        foreach ($tmp_array as $date_w_accu => $elements) {
-            $date = substr($date_w_accu, 0, - 1);
+        ksort($tmpArray);
+        $tmpArray2 = array();
+        foreach ($tmpArray as $dateWAccu => $elements) {
+            $date = substr($dateWAccu, 0, - 1);
             if ($date == 0) {
                 $date = '';
             }
-            if (isset($tmp_array2[$date])) {
-                $tmp_array2[$date] = array_merge($tmp_array2[$date], $elements);
+            if (isset($tmpArray2[$date])) {
+                $tmpArray2[$date] = array_merge($tmpArray2[$date], $elements);
             } else {
-                $tmp_array2[$date] = $elements;
+                $tmpArray2[$date] = $elements;
             }
         }
-        $tmp_array = $tmp_array2;
+        $tmpArray = $tmpArray2;
         
         // transfer the tmpArray into $this->request->data
         $this->request->data = array();
-        foreach ($tmp_array as $key => $values) {
+        foreach ($tmpArray as $key => $values) {
             foreach ($values as $value) {
                 $date = $key;
                 $time = null;
@@ -510,7 +510,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
     {
         // TODO not supported anymore
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
+        $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
         if (empty($this->request->data)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
@@ -518,19 +518,19 @@ class ParticipantsController extends ClinicalAnnotationAppController
             // display
             if (isset($this->request->data['node']) && $this->request->data['Participant']['id'] == 'all') {
                 $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-                $browsing_result = $this->BrowsingResult->find('first', array(
+                $browsingResult = $this->BrowsingResult->find('first', array(
                     'conditions' => array(
                         'BrowsingResult.id' => $this->request->data['node']['id']
                     )
                 ));
-                $this->request->data['Participant']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+                $this->request->data['Participant']['id'] = explode(",", $browsingResult['BrowsingResult']['id_csv']);
             }
             $ids = array_filter($this->request->data['Participant']['id']);
             $this->request->data[0]['ids'] = implode(",", $ids);
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } elseif (isset($this->request->data[0]['ids']) && strlen($this->request->data[0]['ids'])) {
             // save
@@ -543,15 +543,15 @@ class ParticipantsController extends ClinicalAnnotationAppController
             // fake participant to validate
             AppController::removeEmptyValues($this->request->data['Participant']);
             $this->Participant->set($this->request->data);
-            $submitted_data_validates = $this->Participant->validates();
+            $submittedDataValidates = $this->Participant->validates();
             $this->request->data = $this->Participant->data;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 $ids = explode(",", $this->request->data[0]['ids']);
                 foreach ($ids as $id) {
                     $this->Participant->id = $id;
@@ -561,23 +561,23 @@ class ParticipantsController extends ClinicalAnnotationAppController
                     ));
                 }
                 
-                $datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
-                $batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
-                $batch_set_data = array(
+                $datamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+                $batchSetModel = AppModel::getInstance('Datamart', 'BatchSet', true);
+                $batchSetData = array(
                     'BatchSet' => array(
-                        'datamart_structure_id' => $datamart_structure->getIdByModelName('Participant'),
+                        'datamart_structure_id' => $datamartStructure->getIdByModelName('Participant'),
                         'flag_tmp' => true
                     )
                 );
-                $batch_set_model->check_writable_fields = false;
-                $batch_set_model->saveWithIds($batch_set_data, $ids);
+                $batchSetModel->checkWritableFields = false;
+                $batchSetModel->saveWithIds($batchSetData, $ids);
                 
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 
-                $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batch_set_model->getLastInsertId());
+                $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
             }
         } else {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

@@ -1,22 +1,22 @@
 <?php
-$structure_links = array(
-    'top' => '/Administrate/AdminUsers/edit/' . $atim_menu_variables['Group.id'] . '/' . $atim_menu_variables['User.id'] . '/',
+$structureLinks = array(
+    'top' => '/Administrate/AdminUsers/edit/' . $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id'] . '/',
     'bottom' => array(
-        'cancel' => '/Administrate/AdminUsers/detail/' . $atim_menu_variables['Group.id'] . '/' . $atim_menu_variables['User.id'] . '/'
+        'cancel' => '/Administrate/AdminUsers/detail/' . $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id'] . '/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'edit'
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

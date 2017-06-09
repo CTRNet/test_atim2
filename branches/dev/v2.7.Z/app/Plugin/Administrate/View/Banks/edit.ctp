@@ -1,12 +1,12 @@
 <?php
-$structure_links = array(
-    'top' => '/Administrate/Banks/edit/' . $atim_menu_variables['Bank.id'],
+$structureLinks = array(
+    'top' => '/Administrate/Banks/edit/' . $atimMenuVariables['Bank.id'],
     'bottom' => array(
-        'cancel' => '/Administrate/Banks/detail/' . $atim_menu_variables['Bank.id']
+        'cancel' => '/Administrate/Banks/detail/' . $atimMenuVariables['Bank.id']
     )
 );
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 ?>

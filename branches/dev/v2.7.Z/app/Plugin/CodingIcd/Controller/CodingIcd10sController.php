@@ -12,34 +12,34 @@ class CodingIcd10sController extends CodingIcdAppController
      * Forms Helper appends a "tool" link to the "add" and "edit" form types
      * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
      */
-    function tool($use_icd_type)
+    function tool($useIcdType)
     {
-        parent::tool($use_icd_type);
-        $this->set("use_icd_type", $use_icd_type);
+        parent::tool($useIcdType);
+        $this->set("useIcdType", $useIcdType);
     }
 
-    function search($use_icd_type = "who", $is_tool = true)
+    function search($useIcdType = "who", $isTool = true)
     {
-        parent::globalSearch($is_tool, $this->getIcd10Type($use_icd_type));
-        $this->set("use_icd_type", $use_icd_type);
+        parent::globalSearch($isTool, $this->getIcd10Type($useIcdType));
+        $this->set("useIcdType", $useIcdType);
     }
 
-    function autocomplete($use_icd_type = "who")
+    function autocomplete($useIcdType = "who")
     {
-        parent::globalAutocomplete($this->getIcd10Type($use_icd_type));
+        parent::globalAutocomplete($this->getIcd10Type($useIcdType));
     }
 
-    function getIcd10Type($icd_type_name)
+    function getIcd10Type($icdTypeName)
     {
-        $model_to_use = null;
-        if ($icd_type_name == "who") {
-            $model_to_use = $this->CodingIcd10Who;
-        } elseif ($icd_type_name == "ca") {
-            $model_to_use = $this->CodingIcd10Ca;
+        $modelToUse = null;
+        if ($icdTypeName == "who") {
+            $modelToUse = $this->CodingIcd10Who;
+        } elseif ($icdTypeName == "ca") {
+            $modelToUse = $this->CodingIcd10Ca;
         } else {
-            $this->CodingIcd10->validationErrors[][] = __("invalid model for icd10 search [" . $icd_type_name . "]");
-            $model_to_use = $this->CodingIcd10Who;
+            $this->CodingIcd10->validationErrors[][] = __("invalid model for icd10 search [" . $icdTypeName . "]");
+            $modelToUse = $this->CodingIcd10Who;
         }
-        return $model_to_use;
+        return $modelToUse;
     }
 }

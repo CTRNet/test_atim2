@@ -1,81 +1,81 @@
 <?php
-$display_study_investigators = true;
-$display_study_fundings = true;
+$displayStudyInvestigators = true;
+$displayStudyFundings = true;
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 // StudySummary
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
         'edit' => '/Study/StudySummaries/edit/%%StudySummary.id%%/',
         'delete' => '/Study/StudySummaries/delete/%%StudySummary.id%%/'
     )
 );
-if ($display_study_investigators)
-    $structure_links['bottom']['add']['study investigator'] = '/Study/StudyInvestigators/add/' . $atim_menu_variables['StudySummary.id'];
-if ($display_study_fundings)
-    $structure_links['bottom']['add']['study funding'] = '/Study/StudyFundings/add/' . $atim_menu_variables['StudySummary.id'];
+if ($displayStudyInvestigators)
+    $structureLinks['bottom']['add']['study investigator'] = '/Study/StudyInvestigators/add/' . $atimMenuVariables['StudySummary.id'];
+if ($displayStudyFundings)
+    $structureLinks['bottom']['add']['study funding'] = '/Study/StudyFundings/add/' . $atimMenuVariables['StudySummary.id'];
     
     // Set form structure and option
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'settings' => array(
-        'actions' => (! $display_study_investigators && ! $display_study_fundings)
+        'actions' => (! $displayStudyInvestigators && ! $displayStudyFundings)
     ),
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 // StudyInvestigator
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-$final_atim_structure = $empty_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $emptyStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'settings' => array(
         'header' => __('study investigator'),
-        'actions' => (! $display_study_fundings)
+        'actions' => (! $displayStudyFundings)
     ),
-    'extras' => $this->Structures->ajaxIndex('Study/StudyInvestigators/listall/' . $atim_menu_variables['StudySummary.id'])
+    'extras' => $this->Structures->ajaxIndex('Study/StudyInvestigators/listall/' . $atimMenuVariables['StudySummary.id'])
 );
 
-$hook_link = $this->Structures->hook('study_investigator');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('study_investigator');
+if ($hookLink) {
+    require ($hookLink);
 }
 
-if ($display_study_investigators)
-    $this->Structures->build($final_atim_structure, $final_options);
+if ($displayStudyInvestigators)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
     // StudyInvestigator
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-$final_atim_structure = $empty_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $emptyStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'settings' => array(
         'header' => __('study funding')
     ),
-    'extras' => $this->Structures->ajaxIndex('Study/StudyFundings/listall/' . $atim_menu_variables['StudySummary.id'])
+    'extras' => $this->Structures->ajaxIndex('Study/StudyFundings/listall/' . $atimMenuVariables['StudySummary.id'])
 );
 
-$hook_link = $this->Structures->hook('study_funding');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('study_funding');
+if ($hookLink) {
+    require ($hookLink);
 }
 
-if ($display_study_fundings)
-    $this->Structures->build($final_atim_structure, $final_options);
+if ($displayStudyFundings)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

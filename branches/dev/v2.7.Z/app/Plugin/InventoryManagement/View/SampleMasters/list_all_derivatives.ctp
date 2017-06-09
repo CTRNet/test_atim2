@@ -1,47 +1,47 @@
 <?php
-if (isset($derivatives_data)) {
-    $structure_links = array();
-    $structure_links['index']['detail'] = '/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.id%%';
-    $structure_links['index']['edit'] = '/InventoryManagement/SampleMasters/edit/%%Collection.id%%/%%SampleMaster.id%%';
-    $structure_links['index']['delete'] = '/InventoryManagement/SampleMasters/delete/%%Collection.id%%/%%SampleMaster.id%%';
+if (isset($derivativesData)) {
+    $structureLinks = array();
+    $structureLinks['index']['detail'] = '/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.id%%';
+    $structureLinks['index']['edit'] = '/InventoryManagement/SampleMasters/edit/%%Collection.id%%/%%SampleMaster.id%%';
+    $structureLinks['index']['delete'] = '/InventoryManagement/SampleMasters/delete/%%Collection.id%%/%%SampleMaster.id%%';
     
-    $hook_link = $this->Structures->hook();
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook();
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     $i = 0;
-    $arr_size = count($derivatives_data);
-    $hook_link = $this->Structures->hook('unit');
-    foreach ($derivatives_data as $sample_control_id => $derivatives) {
-        $final_atim_structure = $derivatives_structures[$sample_control_id];
-        $final_options = array(
+    $arrSize = count($derivativesData);
+    $hookLink = $this->Structures->hook('unit');
+    foreach ($derivativesData as $sampleControlId => $derivatives) {
+        $finalAtimStructure = $derivativesStructures[$sampleControlId];
+        $finalOptions = array(
             'type' => 'index',
-            'links' => $structure_links,
+            'links' => $structureLinks,
             'dropdown_options' => array(),
             'data' => $derivatives,
             'settings' => array(
                 'language_heading' => __($derivatives[0]['SampleControl']['sample_type']),
                 'header' => array(),
-                'actions' => ++ $i == $arr_size,
+                'actions' => ++ $i == $arrSize,
                 'pagination' => false
             )
         );
         
         // CUSTOM CODE
-        if ($hook_link) {
-            require ($hook_link);
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // BUILD FORM
-        $this->Structures->build($final_atim_structure, $final_options);
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 } else {
     
     // Display empty form
     
-    $final_atim_structure = $no_data_structure;
-    $final_options = array(
+    $finalAtimStructure = $noDataStructure;
+    $finalOptions = array(
         'type' => 'index',
         'data' => array(),
         'settings' => array(
@@ -50,13 +50,13 @@ if (isset($derivatives_data)) {
     );
     
     // CUSTOM CODE
-    $hook_link = $this->Structures->hook('empty');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('empty');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     // BUILD FORM
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 
 ?>

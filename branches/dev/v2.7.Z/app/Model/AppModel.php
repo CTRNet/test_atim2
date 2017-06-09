@@ -36,29 +36,37 @@ class AppModel extends Model
         'SoftDeletable',
         'MasterDetail'
     );
+
     // It's important that MasterDetail be after Revision
-    public static $auto_validation = null;
+    public static $autoValidation = null;
+
     // Validation for all models based on the table field length for char/varchar
-    public static $accuracy_config = array();
+    public static $accuracyConfig = array();
+
     // tablename -> accuracy fields
-    public static $writable_fields = array();
+    public static $writableFields = array();
+
     // tablename -> flag suffix -> fields
-    public $check_writable_fields = true;
+    public $checkWritableFields = true;
+
     // whether to check writable fields or not (security check)
-    public $writable_fields_mode = null;
+    public $writableFieldsMode = null;
+
     // add, edit, addgrid, editgrid, batchedit
     
     // The values in this array can trigger magic actions when applied to a field settings
-    private static $magic_coding_icd_trigger_array = array(
+    private static $magicCodingIcdTriggerArray = array(
         "CodingIcd10Who" => "/CodingIcd/CodingIcd10s/tool/who",
         "CodingIcd10Ca" => "/CodingIcd/CodingIcd10s/tool/ca",
         "CodingIcdo3Morpho" => "/CodingIcd/CodingIcdo3s/tool/morpho",
         "CodingIcdo3Topo" => "/CodingIcd/CodingIcdo3s/tool/topo"
     );
 
-    public $pkey_safeguard = true;
+    public $pkeySafeguard = true;
+
     // whether to prevent data to be saved if the data array contains a pkey different than model->id
-    private $registered_models;
+    private $registeredModels;
+
     // use related to views
     
     /**
@@ -66,22 +74,23 @@ class AppModel extends Model
      *
      * @var SampleMaster
      */
-    public $previous_model = null;
+    public $previousModel = null;
 
-    private static $locked_views_update = false;
+    private static $lockedViewsUpdate = false;
 
-    private static $cached_views_update = array();
+    private static $cachedViewsUpdate = array();
 
-    private static $cached_views_delete = array();
+    private static $cachedViewsDelete = array();
 
-    private static $cached_views_insert = array();
+    private static $cachedViewsInsert = array();
 
-    private static $cached_views_model = null;
+    private static $cachedViewsModel = null;
+
     // some model, only provides accc
     const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
 
     /**
-     * If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
+     * If $baseModelName and $detailTable are not null, a new hasOne relationship is created before calling the parent constructor.
      * This is convenient for search based on master/detail detail table.
      *
      * @param unknown_type $id
@@ -90,24 +99,24 @@ class AppModel extends Model
      *            (see parent::__construct)
      * @param unknown_type $ds
      *            (see parent::__construct)
-     * @param string $base_model_name
+     * @param string $baseModelName
      *            The base model name of a master/detail model
-     * @param string $detail_table
+     * @param string $detailTable
      *            The name of the table to use for detail
-     * @param AppModel $previous_model
+     * @param AppModel $previousModel
      *            The previous model prior to that new creation (purely for convenience)
      * @see parent::__construct
      */
-    function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null)
+    function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
-        if ($detail_table != null && $base_model_name != null) {
-            $this->hasOne[$base_model_name . 'Detail'] = array(
-                'className' => $detail_table,
-                'foreignKey' => strtolower($base_model_name) . '_master_id',
+        if ($detailTable != null && $baseModelName != null) {
+            $this->hasOne[$baseModelName . 'Detail'] = array(
+                'className' => $detailTable,
+                'foreignKey' => strtolower($baseModelName) . '_master_id',
                 'dependent' => true
             );
-            if ($previous_model != null) {
-                $this->previous_model = $previous_model;
+            if ($previousModel != null) {
+                $this->previousModel = $previousModel;
             }
         }
         parent::__construct($id, $table, $ds);
@@ -116,54 +125,54 @@ class AppModel extends Model
     /**
      * Finds the uploaded files from the $data array.
      * Update the $data array
-     * with the name the stored file will have and returns the $mode_files
+     * with the name the stored file will have and returns the $modeFiles
      * directive array to
      */
-    private function filter_move_files(&$data)
+    private function filterMoveFiles(&$data)
     {
-        $move_files = array();
+        $moveFiles = array();
         if (! is_array($data)) {
-            return $move_files;
+            return $moveFiles;
         }
         
         // Keep data in memory to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
-        $this_data_tmp_backup = $this->data;
+        $thisDataTmpBackup = $this->data;
         
-        $prev_data = $this->id ? $this->read() : null;
+        $prevData = $this->id ? $this->read() : null;
         $dir = Configure::read('uploadDirectory');
-        foreach ($data as $model_name => $fields) {
+        foreach ($data as $modelName => $fields) {
             if (! is_array($fields)) {
                 continue;
             }
-            foreach ($fields as $field_name => $value) {
+            foreach ($fields as $fieldName => $value) {
                 if (is_array($value)) {
                     if (isset($value['name'])) {
                         if (! $value['size']) {
                             // no file
-                            $data[$model_name][$field_name] = '';
+                            $data[$modelName][$fieldName] = '';
                             continue;
                         }
                         if (! file_exists($value['tmp_name'])) {
                             die('Error with temporary file');
                         }
-                        $target_name = $model_name . '.' . $field_name . '.%%key_increment%%.' . $value['name'];
+                        $targetName = $modelName . '.' . $fieldName . '.%%key_increment%%.' . $value['name'];
                         
-                        if ($prev_data[$model_name][$field_name]) {
+                        if ($prevData[$modelName][$fieldName]) {
                             // delete previous file
-                            unlink($dir . '/' . $prev_data[$model_name][$field_name]);
+                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
                         }
-                        $target_name = $this->getKeyIncrement('atim_internal_file', $target_name);
-                        array_push($move_files, array(
+                        $targetName = $this->getKeyIncrement('atim_internal_file', $targetName);
+                        array_push($moveFiles, array(
                             'tmpName' => $value['tmp_name'],
-                            'targetName' => $target_name
+                            'targetName' => $targetName
                         ));
-                        $data[$model_name][$field_name] = $target_name;
+                        $data[$modelName][$fieldName] = $targetName;
                     } elseif (isset($value['option'])) {
-                        if ($value['option'] == 'delete' && $prev_data[$model_name][$field_name]) {
-                            $data[$model_name][$field_name] = '';
-                            unlink($dir . '/' . $prev_data[$model_name][$field_name]);
+                        if ($value['option'] == 'delete' && $prevData[$modelName][$fieldName]) {
+                            $data[$modelName][$fieldName] = '';
+                            unlink($dir . '/' . $prevData[$modelName][$fieldName]);
                         } else {
-                            unset($data[$model_name][$field_name]);
+                            unset($data[$modelName][$fieldName]);
                         }
                     }
                 }
@@ -171,26 +180,26 @@ class AppModel extends Model
         }
         
         // Reset data to fix issue #3286: Unable to edit and save collection date when field 'acquisition_label' is hidden
-        $this->data = $this_data_tmp_backup;
+        $this->data = $thisDataTmpBackup;
         
-        return $move_files;
+        return $moveFiles;
     }
 
     /**
      * Takes the move_files array returned by filter_move_files and moves the
      * uploaded files to the configured directory with the set file name.
      */
-    private function move_files($move_files)
+    private function moveFiles($moveFiles)
     {
-        if ($move_files) {
+        if ($moveFiles) {
             // make sure directory exists
             $dir = Configure::read('uploadDirectory');
             if (! is_dir($dir)) {
                 mkdir($dir);
             }
-            foreach ($move_files as $move_file) {
-                $newName = $dir . '/' . $move_file['targetName'];
-                move_uploaded_file($move_file['tmpName'], $newName);
+            foreach ($moveFiles as $moveFile) {
+                $newName = $dir . '/' . $moveFile['targetName'];
+                move_uploaded_file($moveFile['tmpName'], $newName);
             }
         }
     }
@@ -202,7 +211,7 @@ class AppModel extends Model
      */
     function save($data = null, $validate = true, $fieldList = array())
     {
-        if ($this->pkey_safeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
+        if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
             AppController::addWarningMsg('Pkey safeguard on model ' . $this->name, true);
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             return false;
@@ -219,9 +228,9 @@ class AppModel extends Model
             $data[$this->name]['-'] = "foo";
         }
         
-        $move_files = $this->filter_move_files($data);
+        $moveFiles = $this->filterMoveFiles($data);
         $result = parent::save($data, $validate, $fieldList);
-        $this->move_files($move_files);
+        $this->moveFiles($moveFiles);
         
         return $result;
     }
@@ -232,7 +241,7 @@ class AppModel extends Model
      */
     function beforeSave($options = array())
     {
-        if ($this->check_writable_fields) {
+        if ($this->checkWritableFields) {
             $this->checkWritableFields();
         }
         
@@ -244,45 +253,45 @@ class AppModel extends Model
     }
 
     /**
-     * Removes values not found into AppModel::$writable_fields[$this->table]
+     * Removes values not found into AppModel::$writableFields[$this->table]
      * from the saved data set to prevent form hacking.
      * Will use "add" or
      * "edit" filter based on the presence (edit) or absence (add) of
-     * $this->id. Use $this->writable_fields_mode to specify other modes.
+     * $this->id. Use $this->writableFieldsMode to specify other modes.
      */
     private function checkWritableFields()
     {
-        if (isset(AppModel::$writable_fields[$this->table])) {
-            $writable_fields = null;
-            if ($this->writable_fields_mode) {
-                $writable_fields = isset(AppModel::$writable_fields[$this->table][$this->writable_fields_mode]) ? AppModel::$writable_fields[$this->table][$this->writable_fields_mode] : array();
+        if (isset(AppModel::$writableFields[$this->table])) {
+            $writableFields = null;
+            if ($this->writableFieldsMode) {
+                $writableFields = isset(AppModel::$writableFields[$this->table][$this->writableFieldsMode]) ? AppModel::$writableFields[$this->table][$this->writableFieldsMode] : array();
             } elseif ($this->id) {
-                $writable_fields = isset(AppModel::$writable_fields[$this->table]['edit']) ? AppModel::$writable_fields[$this->table]['edit'] : array();
+                $writableFields = isset(AppModel::$writableFields[$this->table]['edit']) ? AppModel::$writableFields[$this->table]['edit'] : array();
             } else {
-                $writable_fields = isset(AppModel::$writable_fields[$this->table]['add']) ? AppModel::$writable_fields[$this->table]['add'] : array();
+                $writableFields = isset(AppModel::$writableFields[$this->table]['add']) ? AppModel::$writableFields[$this->table]['add'] : array();
             }
-            $writable_fields[] = 'modified';
+            $writableFields[] = 'modified';
             if ($this->id) {
-                $writable_fields[] = $this->primaryKey;
+                $writableFields[] = $this->primaryKey;
             } else {
-                $writable_fields[] = 'created';
+                $writableFields[] = 'created';
             }
-            if (isset(AppModel::$writable_fields[$this->table]['all'])) {
-                $writable_fields = array_merge(AppModel::$writable_fields[$this->table]['all'], $writable_fields);
+            if (isset(AppModel::$writableFields[$this->table]['all'])) {
+                $writableFields = array_merge(AppModel::$writableFields[$this->table]['all'], $writableFields);
             }
-            if (isset(AppModel::$writable_fields[$this->table]['none'])) {
-                $writable_fields = array_diff($writable_fields, AppModel::$writable_fields[$this->table]['none']);
+            if (isset(AppModel::$writableFields[$this->table]['none'])) {
+                $writableFields = array_diff($writableFields, AppModel::$writableFields[$this->table]['none']);
             }
-            $schema_keys = array_keys($this->schema());
-            $writable_fields = array_intersect($writable_fields, $schema_keys);
-            $real_fields = isset($this->data[$this->name]) ? array_intersect(array_keys($this->data[$this->name]), $schema_keys) : array();
-            $invalid_fields = array_diff($real_fields, $writable_fields);
-            if (! empty($invalid_fields)) {
-                foreach ($invalid_fields as $invalid_field) {
-                    unset($this->data[$this->name][$invalid_field]);
+            $schemaKeys = array_keys($this->schema());
+            $writableFields = array_intersect($writableFields, $schemaKeys);
+            $realFields = isset($this->data[$this->name]) ? array_intersect(array_keys($this->data[$this->name]), $schemaKeys) : array();
+            $invalidFields = array_diff($realFields, $writableFields);
+            if (! empty($invalidFields)) {
+                foreach ($invalidFields as $invalidField) {
+                    unset($this->data[$this->name][$invalidField]);
                 }
                 if (Configure::read('debug') > 0) {
-                    AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. (' . implode(',', $invalid_fields) . ')', true);
+                    AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. (' . implode(',', $invalidFields) . ')', true);
                 }
             }
         } elseif (Configure::read('debug') > 0 && isset($this->data[$this->name]) && ! empty($this->data[$this->name])) {
@@ -324,45 +333,45 @@ class AppModel extends Model
 
     private function registerModelsToCheck()
     {
-        $this->registered_models = array();
-        if ($this->registered_view && $this->id) {
-            foreach ($this->registered_view as $registered_view => $foreign_keys) {
-                list ($plugin_name, $model_name) = explode('.', $registered_view);
-                $model = AppModel::getInstance($plugin_name, $model_name);
-                $pkeys_to_check = array();
-                $pkeys_for_deletion = array();
-                foreach ($foreign_keys as $foreign_key) {
-                    $at_least_one = false;
+        $this->registeredModels = array();
+        if ($this->registeredView && $this->id) {
+            foreach ($this->registeredView as $registeredView => $foreignKeys) {
+                list ($pluginName, $modelName) = explode('.', $registeredView);
+                $model = AppModel::getInstance($pluginName, $modelName);
+                $pkeysToCheck = array();
+                $pkeysForDeletion = array();
+                foreach ($foreignKeys as $foreignKey) {
+                    $atLeastOne = false;
                     
-                    foreach (explode("UNION ALL", $model::$table_query) as $query_part) {
-                        if (strpos($query_part, $foreign_key) === false) {
+                    foreach (explode("UNION ALL", $model::$tableQuery) as $queryPart) {
+                        if (strpos($queryPart, $foreignKey) === false) {
                             continue;
                         }
-                        $at_least_one = true;
-                        $table_query = str_replace('%%WHERE%%', 'AND ' . $foreign_key . '=' . $this->id, $query_part);
+                        $atLeastOne = true;
+                        $tableQuery = str_replace('%%WHERE%%', 'AND ' . $foreignKey . '=' . $this->id, $queryPart);
                         
-                        $results = $this->tryCatchQuery($table_query);
+                        $results = $this->tryCatchQuery($tableQuery);
                         foreach ($results as $result) {
-                            $pkeys_for_deletion[] = current(current($result));
+                            $pkeysForDeletion[] = current(current($result));
                             if (method_exists($model, "getPkeyAndModelToCheck")) {
-                                $pkeys_to_check[] = $model->getPkeyAndModelToCheck($result);
+                                $pkeysToCheck[] = $model->getPkeyAndModelToCheck($result);
                             } else {
-                                $pkeys_to_check[] = array(
+                                $pkeysToCheck[] = array(
                                     'pkey' => current(current($result)),
-                                    'base_model' => $model->base_model
+                                    'base_model' => $model->baseModel
                                 );
                             }
                         }
                     }
-                    if (! $at_least_one) {
-                        throw new Exception("No queries part fitted with the foreign key " . $foreign_key);
+                    if (! $atLeastOne) {
+                        throw new Exception("No queries part fitted with the foreign key " . $foreignKey);
                     }
                 }
-                if ($pkeys_to_check) {
-                    $this->registered_models[] = array(
+                if ($pkeysToCheck) {
+                    $this->registeredModels[] = array(
                         'model' => $model,
-                        'pkeys_to_check' => $pkeys_to_check,
-                        'pkeys_for_deletion' => $pkeys_for_deletion
+                        'pkeys_to_check' => $pkeysToCheck,
+                        'pkeys_for_deletion' => $pkeysForDeletion
                     );
                 }
             }
@@ -371,63 +380,63 @@ class AppModel extends Model
 
     private function updateRegisteredModels()
     {
-        foreach ($this->registered_models as $registered_model) {
+        foreach ($this->registeredModels as $registeredModel) {
             // try to find the row
-            $model = $registered_model['model'];
-            if (self::$locked_views_update) {
-                if (! isset(self::$cached_views_delete[$model->table])) {
-                    self::$cached_views_delete[$model->table] = array();
+            $model = $registeredModel['model'];
+            if (self::$lockedViewsUpdate) {
+                if (! isset(self::$cachedViewsDelete[$model->table])) {
+                    self::$cachedViewsDelete[$model->table] = array();
                 }
-                if (! isset(self::$cached_views_delete[$model->table][$model->primaryKey])) {
-                    self::$cached_views_delete[$model->table][$model->primaryKey] = array(
+                if (! isset(self::$cachedViewsDelete[$model->table][$model->primaryKey])) {
+                    self::$cachedViewsDelete[$model->table][$model->primaryKey] = array(
                         "pkeys_for_deletion" => array()
                     );
                 }
-                self::$cached_views_delete[$model->table][$model->primaryKey]["pkeys_for_deletion"] = array_merge(self::$cached_views_delete[$model->table][$model->primaryKey]["pkeys_for_deletion"], $registered_model['pkeys_for_deletion']);
+                self::$cachedViewsDelete[$model->table][$model->primaryKey]["pkeys_for_deletion"] = array_merge(self::$cachedViewsDelete[$model->table][$model->primaryKey]["pkeys_for_deletion"], $registeredModel['pkeys_for_deletion']);
             } else {
-                $query = sprintf('DELETE FROM %s  WHERE %s IN (%s)', $model->table, $model->primaryKey, implode(',', $registered_model['pkeys_for_deletion'])); // To fix issue#2980: Edit Storage & View Update
+                $query = sprintf('DELETE FROM %s  WHERE %s IN (%s)', $model->table, $model->primaryKey, implode(',', $registeredModel['pkeys_for_deletion'])); // To fix issue#2980: Edit Storage & View Update
                 $this->tryCatchquery($query);
             }
-            foreach (explode("UNION ALL", $model::$table_query) as $query_part) {
+            foreach (explode("UNION ALL", $model::$tableQuery) as $queryPart) {
                 $ids = array();
-                $base_model = null;
-                for ($i = count($registered_model['pkeys_to_check']) - 1; $i >= 0; -- $i) {
-                    $curr = $registered_model['pkeys_to_check'][$i];
-                    if ($base_model == null) {
+                $baseModel = null;
+                for ($i = count($registeredModel['pkeys_to_check']) - 1; $i >= 0; -- $i) {
+                    $curr = $registeredModel['pkeys_to_check'][$i];
+                    if ($baseModel == null) {
                         // find the base model, once found don't get back in here
-                        if (strpos($query_part, $curr['base_model']) !== false) {
-                            $base_model = $curr['base_model'];
+                        if (strpos($queryPart, $curr['base_model']) !== false) {
+                            $baseModel = $curr['base_model'];
                         } else {
                             continue;
                         }
                     }
-                    if ($base_model == $curr['base_model']) {
+                    if ($baseModel == $curr['base_model']) {
                         array_push($ids, $curr['pkey']);
-                        $base_model = $curr['base_model'];
+                        $baseModel = $curr['base_model'];
                         // To support new design on OrderItem & ViewAliquotUse: See Issue #3310
-                        // unset($registered_model['pkeys_to_check'][$i]);
+                        // unset($registeredModel['pkeys_to_check'][$i]);
                     }
                 }
                 if ($ids) {
-                    if (self::$locked_views_update) {
-                        if (! isset(self::$cached_views_insert[$model->table])) {
-                            self::$cached_views_insert[$model->table] = array();
+                    if (self::$lockedViewsUpdate) {
+                        if (! isset(self::$cachedViewsInsert[$model->table])) {
+                            self::$cachedViewsInsert[$model->table] = array();
                         }
-                        if (! isset(self::$cached_views_insert[$model->table][$base_model])) {
-                            self::$cached_views_insert[$model->table][$base_model] = array();
+                        if (! isset(self::$cachedViewsInsert[$model->table][$baseModel])) {
+                            self::$cachedViewsInsert[$model->table][$baseModel] = array();
                         }
-                        if (! isset(self::$cached_views_insert[$model->table][$base_model][$query_part])) {
-                            self::$cached_views_insert[$model->table][$base_model][$query_part] = array(
+                        if (! isset(self::$cachedViewsInsert[$model->table][$baseModel][$queryPart])) {
+                            self::$cachedViewsInsert[$model->table][$baseModel][$queryPart] = array(
                                 "ids" => array()
                             );
                         }
-                        self::$cached_views_insert[$model->table][$base_model][$query_part]["ids"] = array_merge(self::$cached_views_insert[$model->table][$base_model][$query_part]["ids"], $ids);
+                        self::$cachedViewsInsert[$model->table][$baseModel][$queryPart]["ids"] = array_merge(self::$cachedViewsInsert[$model->table][$baseModel][$queryPart]["ids"], $ids);
                     } else {
-                        $table_query = str_replace('%%WHERE%%', 'AND ' . $base_model . '.id IN(' . implode(", ", $ids) . ')', $query_part);
-                        $query = sprintf('INSERT INTO %s (%s)', $model->table, $table_query);
+                        $tableQuery = str_replace('%%WHERE%%', 'AND ' . $baseModel . '.id IN(' . implode(", ", $ids) . ')', $queryPart);
+                        $query = sprintf('INSERT INTO %s (%s)', $model->table, $tableQuery);
                         $this->tryCatchquery($query);
                     }
-                    $registered_model['pkeys_to_check'] = array_values($registered_model['pkeys_to_check']); // reindex from 0
+                    $registeredModel['pkeys_to_check'] = array_values($registeredModel['pkeys_to_check']); // reindex from 0
                 }
             }
         }
@@ -437,14 +446,14 @@ class AppModel extends Model
      * ATiM 2.0 function
      * used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
      */
-    function atimDelete($model_id, $cascade = true)
+    function atimDelete($modelId, $cascade = true)
     {
-        $this->id = $model_id;
+        $this->id = $modelId;
         $this->registerModelsToCheck();
         
         // delete DATA as normal
         $this->addWritableField('deleted');
-        $this->delete($model_id, $cascade);
+        $this->delete($modelId, $cascade);
         
         // do a FIND of the same DATA, return FALSE if found or TRUE if not found
         if ($this->read()) {
@@ -458,7 +467,7 @@ class AppModel extends Model
      * ATiM 2.0 function
      * acts like find('all') but returns array with ID values as arrays key values
      */
-    function atim_list($options = array())
+    function atimList($options = array())
     {
         $return = false;
         
@@ -515,13 +524,13 @@ class AppModel extends Model
      *            The name of the field to be deconstructed
      * @param mixed $data
      *            An array or object to be deconstructed into a field
-     * @param boolean $is_end
+     * @param boolean $isEnd
      *            (for a range search)
-     * @param boolean $is_search
+     * @param boolean $isSearch
      *            If true, date/time will be patched as much as possible
      * @return mixed The resulting data that should be assigned to a field
      */
-    function deconstruct($field, $data, $is_end = false, $is_search = false)
+    function deconstruct($field, $data, $isEnd = false, $isSearch = false)
     {
         if (! is_array($data)) {
             return $data;
@@ -543,19 +552,19 @@ class AppModel extends Model
                 "sec" => null
             ), $data);
             if (strlen($data['year']) > 0 || strlen($data['month']) > 0 || strlen($data['day']) > 0 || strlen($data['hour']) > 0 || strlen($data['min']) > 0) {
-                $got_date = in_array($type, array(
+                $gotDate = in_array($type, array(
                     'datetime',
                     'timestamp',
                     'date'
                 ));
-                $got_time = in_array($type, array(
+                $gotTime = in_array($type, array(
                     'datetime',
                     'timestamp',
                     'time'
                 ));
-                if ($is_search) {
+                if ($isSearch) {
                     // if search and leading field missing, return
-                    if ($got_date && strlen($data['year']) == 0) {
+                    if ($gotDate && strlen($data['year']) == 0) {
                         return null;
                     }
                     if ($type == 'time' && strlen($data['hour']) == 0) {
@@ -564,7 +573,7 @@ class AppModel extends Model
                 }
                 
                 // manage meridian
-                if ($is_end && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0) {
+                if ($isEnd && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0) {
                     $data['meridian'] = 'pm';
                 }
                 if (is_numeric($data['hour'])) {
@@ -578,9 +587,9 @@ class AppModel extends Model
                 }
                 
                 // patch incomplete values
-                if ($is_search) {
-                    if ($got_date) {
-                        if ($is_end) {
+                if ($isSearch) {
+                    if ($gotDate) {
+                        if ($isEnd) {
                             if (strlen($data['day']) == 0) {
                                 $data['day'] = 31;
                                 if (strlen($data['month']) == 0) {
@@ -605,16 +614,16 @@ class AppModel extends Model
                     ))) {
                         if (strlen($data['hour']) == 0 && strlen($data['min']) == 0 && strlen($data['sec']) == 0) {
                             // only patch hour if min and sec are empty
-                            $data['hour'] = $is_end ? 23 : 0;
+                            $data['hour'] = $isEnd ? 23 : 0;
                         }
                     }
                     
-                    if ($got_time) {
+                    if ($gotTime) {
                         if (strlen($data['min']) == 0) {
-                            $data['min'] = $is_end ? 59 : 0;
+                            $data['min'] = $isEnd ? 59 : 0;
                         }
                         if (! isset($data['sec']) || strlen($data['sec']) == 0) {
-                            $data['sec'] = $is_end ? 59 : 0;
+                            $data['sec'] = $isEnd ? 59 : 0;
                         }
                     }
                 } else {
@@ -627,7 +636,7 @@ class AppModel extends Model
                     }
                 }
                 
-                if ($got_time) {
+                if ($gotTime) {
                     foreach (array(
                         'hour',
                         'min',
@@ -640,9 +649,9 @@ class AppModel extends Model
                 }
                 
                 $result = null;
-                if ($got_date && $got_time) {
+                if ($gotDate && $gotTime) {
                     $result = sprintf("%s-%s-%s %s:%s:%s", $data['year'], $data['month'], $data['day'], $data['hour'], $data['min'], $data['sec']);
-                } elseif ($got_date) {
+                } elseif ($gotDate) {
                     $result = sprintf("%s-%s-%s", $data['year'], $data['month'], $data['day']);
                 } else {
                     $result = sprintf("%s:%s:%s", $data['hour'], $data['min'], $data['sec']);
@@ -662,11 +671,11 @@ class AppModel extends Model
      *            - The key to seek in the database
      * @param string $str
      *            - The string where to put the value. %%key_increment%% will be replaced by the value.
-     * @param int $pad_to_length
+     * @param int $padToLength
      *            - The min length of the key increment part. If the retrieved key is too short, 0 will be prepended.
      * @return string The string with the replaced value or false when SQL error happens
      */
-    function getKeyIncrement($key, $str, $pad_to_length = 0)
+    function getKeyIncrement($key, $str, $padToLength = 0)
     {
         $this->query('LOCK TABLE key_increments WRITE');
         $result = $this->query('SELECT key_value FROM key_increments WHERE key_name="' . $key . '"');
@@ -681,47 +690,47 @@ class AppModel extends Model
             return false;
         }
         $this->query('UNLOCK TABLES');
-        return str_replace("%%key_increment%%", str_pad($result[0]['key_increments']['key_value'], $pad_to_length, '0', STR_PAD_LEFT), $str);
+        return str_replace("%%key_increment%%", str_pad($result[0]['key_increments']['key_value'], $padToLength, '0', STR_PAD_LEFT), $str);
     }
 
     static function getMagicCodingIcdTriggerArray()
     {
-        return self::$magic_coding_icd_trigger_array;
+        return self::$magicCodingIcdTriggerArray;
     }
 
     public function buildAccuracyConfig()
     {
-        $tmp_acc = array();
+        $tmpAcc = array();
         if (! isset($this->_schema) && $this->table) {
             $this->schema();
         }
         if (isset($this->_schema)) {
-            foreach ($this->_schema as $field_name => $foo) {
-                if (strpos($field_name, "_accuracy") === strlen($field_name) - 9) {
-                    $tmp_acc[substr($field_name, 0, strlen($field_name) - 9)] = $field_name;
+            foreach ($this->_schema as $fieldName => $foo) {
+                if (strpos($fieldName, "_accuracy") === strlen($fieldName) - 9) {
+                    $tmpAcc[substr($fieldName, 0, strlen($fieldName) - 9)] = $fieldName;
                 }
             }
         } else {
             AppController::addWarningMsg('failed to build accuracy config for model [' . $this->name . '] because there is no schema. ' . 'To avoid this warning message you can add an empty array as a schema to your model. Eg.: <code>$model->_schema = array();</code>');
         }
-        self::$accuracy_config[$this->table] = $tmp_acc;
+        self::$accuracyConfig[$this->table] = $tmpAcc;
     }
 
     private function setDataAccuracy()
     {
-        if (! array_key_exists($this->table, self::$accuracy_config)) {
+        if (! array_key_exists($this->table, self::$accuracyConfig)) {
             // build accuracy settings for that table
             $this->buildAccuracyConfig();
         }
         
-        foreach (self::$accuracy_config[$this->table] as $date_field => $accuracy_field) {
-            if (! isset($this->data[$this->name][$date_field])) {
+        foreach (self::$accuracyConfig[$this->table] as $dateField => $accuracyField) {
+            if (! isset($this->data[$this->name][$dateField])) {
                 continue;
             }
             
-            $current = &$this->data[$this->name][$date_field];
+            $current = &$this->data[$this->name][$dateField];
             if (empty($current)) {
-                $this->data[$this->name][$accuracy_field] = '';
+                $this->data[$this->name][$accuracyField] = '';
                 $current = null;
             } else {
                 list ($year, $month, $day) = explode("-", trim($current));
@@ -734,15 +743,15 @@ class AppModel extends Model
                 }
                 
                 // used to avoid altering the date when its invalid
-                $go_to_next_field = false;
-                $plus_minus = false;
+                $goToNextField = false;
+                $plusMinus = false;
                 if (strpos($year, '±') === 0) {
-                    $plus_minus = true;
+                    $plusMinus = true;
                     $year = substr($year, 2);
                     $month = $day = $hour = $minute = null;
                 }
                 
-                $empty_found = false;
+                $emptyFound = false;
                 foreach (array(
                     $year,
                     $month,
@@ -751,48 +760,48 @@ class AppModel extends Model
                     $minute
                 ) as $field) {
                     if (! empty($field) && ! is_numeric($field)) {
-                        $go_to_next_field = true;
+                        $goToNextField = true;
                         break;
                     }
                     if (strlen($field) == 0) {
-                        $empty_found = true;
-                    } elseif ($empty_found) {
+                        $emptyFound = true;
+                    } elseif ($emptyFound) {
                         // example: Entered 2010--02 -> Invalid date is skiped here and get caught at validation level
-                        $go_to_next_field = true;
+                        $goToNextField = true;
                         break;
                     }
                 }
-                if ($go_to_next_field) {
+                if ($goToNextField) {
                     continue; // if one of them is not empty AND not numeric
                 }
                 
                 if (! empty($year)) {
-                    if ($plus_minus || (empty($month) && empty($day) && empty($hour) && empty($minute))) {
+                    if ($plusMinus || (empty($month) && empty($day) && empty($hour) && empty($minute))) {
                         $month = '01';
                         $day = '01';
                         $hour = '00';
                         $minute = '00';
-                        if ($plus_minus) {
-                            $this->data[$this->name][$accuracy_field] = 'y';
+                        if ($plusMinus) {
+                            $this->data[$this->name][$accuracyField] = 'y';
                         } else {
-                            $this->data[$this->name][$accuracy_field] = 'm';
+                            $this->data[$this->name][$accuracyField] = 'm';
                         }
                     } elseif (empty($day) && empty($hour) && empty($minute)) {
                         $day = '01';
                         $hour = '00';
                         $minute = '00';
-                        $this->data[$this->name][$accuracy_field] = 'd';
+                        $this->data[$this->name][$accuracyField] = 'd';
                     } elseif (empty($time)) {
-                        $this->data[$this->name][$accuracy_field] = 'c';
+                        $this->data[$this->name][$accuracyField] = 'c';
                     } elseif (! strlen($hour) && ! strlen($minute)) {
                         $hour = '00';
                         $minute = '00';
-                        $this->data[$this->name][$accuracy_field] = 'h';
+                        $this->data[$this->name][$accuracyField] = 'h';
                     } elseif (! strlen($minute)) {
                         $minute = '00';
-                        $this->data[$this->name][$accuracy_field] = 'i';
+                        $this->data[$this->name][$accuracyField] = 'i';
                     } else {
-                        $this->data[$this->name][$accuracy_field] = 'c';
+                        $this->data[$this->name][$accuracyField] = 'c';
                     }
                     $current = sprintf("%s-%02s-%02s", $year, $month, $day);
                     if (! empty($time)) {
@@ -808,13 +817,13 @@ class AppModel extends Model
         if (! $this->_schema) {
             $this->schema();
         }
-        if (! isset(self::$auto_validation[$this->name]) && isset($this->Behaviors->MasterDetail) && (strpos($this->name, 'Detail') === false || ! array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->__settings))) {
+        if (! isset(self::$autoValidation[$this->name]) && isset($this->Behaviors->MasterDetail) && (strpos($this->name, 'Detail') === false || ! array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->__settings))) {
             // build master validation (detail validation are built within the validation function)
             // debug($this->_schema);
             // die();
             self::buildAutoValidation($this->name, $this);
-            if (array_key_exists($this->name, self::$auto_validation)) {
-                $this->validate = array_merge_recursive($this->validate, self::$auto_validation[$this->name]);
+            if (array_key_exists($this->name, self::$autoValidation)) {
+                $this->validate = array_merge_recursive($this->validate, self::$autoValidation[$this->name]);
             }
         }
         $this->setDataAccuracy();
@@ -822,80 +831,80 @@ class AppModel extends Model
         if (isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) {
             // master detail, validate the details part
             $settings = $this->Behaviors->MasterDetail->__settings[$this->name];
-            $master_class = $settings['master_class'];
-            $control_foreign = $settings['control_foreign'];
-            $control_class = $settings['control_class'];
-            $detail_class = $settings['detail_class'];
-            $form_alias = $settings['form_alias'];
-            $detail_field = $settings['detail_field'];
+            $masterClass = $settings['master_class'];
+            $controlForeign = $settings['control_foreign'];
+            $controlClass = $settings['control_class'];
+            $detailClass = $settings['detail_class'];
+            $formAlias = $settings['form_alias'];
+            $detailField = $settings['detail_field'];
             
             $associated = NULL;
-            if (isset($this->data[$master_class][$control_foreign]) && $this->data[$master_class][$control_foreign]) {
+            if (isset($this->data[$masterClass][$controlForeign]) && $this->data[$masterClass][$controlForeign]) {
                 // use CONTROL_ID to get control row
-                $associated = $this->$control_class->find('first', array(
+                $associated = $this->$controlClass->find('first', array(
                     'conditions' => array(
-                        $control_class . '.id' => $this->data[$master_class][$control_foreign]
+                        $controlClass . '.id' => $this->data[$masterClass][$controlForeign]
                     )
                 ));
             } elseif (isset($this->id) && is_numeric($this->id)) {
                 // else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
                 $associated = $this->find('first', array(
                     'conditions' => array(
-                        $master_class . '.id' => $this->id
+                        $masterClass . '.id' => $this->id
                     )
                 ));
-            } elseif (isset($this->data[$master_class]['id']) && is_numeric($this->data[$master_class]['id'])) {
+            } elseif (isset($this->data[$masterClass]['id']) && is_numeric($this->data[$masterClass]['id'])) {
                 // else, (still EDIT), use use data[master_model][id] to get row and find CONTROL_ID that way...
                 $associated = $this->find('first', array(
                     'conditions' => array(
-                        $master_class . '.id' => $model->data[$this]['id']
+                        $masterClass . '.id' => $model->data[$this]['id']
                     )
                 ));
             }
             
             if ($associated == NULL || empty($associated)) {
                 // FAIL!, we ABSOLUTELY WANT validations
-                AppController::getInstance()->redirect('/Pages/err_internal?p[]=' . __CLASS__ . " @ line " . __LINE__ . " (the detail control id was not found for " . $master_class . ")", NULL, true);
+                AppController::getInstance()->redirect('/Pages/err_internal?p[]=' . __CLASS__ . " @ line " . __LINE__ . " (the detail control id was not found for " . $masterClass . ")", NULL, true);
                 exit();
             }
             
-            $use_form_alias = $associated[$control_class][$form_alias];
-            $use_table_name = $associated[$control_class][$detail_field];
-            if ($use_form_alias) {
-                $plugin_name = $this->getPluginName();
-                $detail_class_instance = AppModel::getInstance($plugin_name, $detail_class);
-                if ($detail_class_instance->useTable == false) {
-                    $detail_class_instance->useTable = $use_table_name;
-                } elseif ($detail_class_instance->useTable != $use_table_name) {
-                    ClassRegistry::removeObject($detail_class_instance->alias);
-                    $detail_class_instance = AppModel::getInstance($plugin_name, $detail_class);
-                    $detail_class_instance->useTable = $use_table_name;
+            $useFormAlias = $associated[$controlClass][$formAlias];
+            $useTableName = $associated[$controlClass][$detailField];
+            if ($useFormAlias) {
+                $pluginName = $this->getPluginName();
+                $detailClassInstance = AppModel::getInstance($pluginName, $detailClass);
+                if ($detailClassInstance->useTable == false) {
+                    $detailClassInstance->useTable = $useTableName;
+                } elseif ($detailClassInstance->useTable != $useTableName) {
+                    ClassRegistry::removeObject($detailClassInstance->alias);
+                    $detailClassInstance = AppModel::getInstance($pluginName, $detailClass);
+                    $detailClassInstance->useTable = $useTableName;
                 }
-                assert($detail_class_instance->useTable == $use_table_name);
-                if (isset(AppController::getInstance()->{$detail_class}) && (! isset($params['validate']) || $params['validate'])) {
+                assert($detailClassInstance->useTable == $useTableName);
+                if (isset(AppController::getInstance()->{$detailClass}) && (! isset($params['validate']) || $params['validate'])) {
                     // attach auto validation
-                    $auto_validation_name = $detail_class . $associated[$control_class]['id'];
+                    $autoValidationName = $detailClass . $associated[$controlClass]['id'];
                     
-                    if (! isset(self::$auto_validation[$auto_validation_name])) {
+                    if (! isset(self::$autoValidation[$autoValidationName])) {
                         // build detail validation on the fly
-                        $this->buildAutoValidation($auto_validation_name, $detail_class_instance);
+                        $this->buildAutoValidation($autoValidationName, $detailClassInstance);
                     }
                     
-                    $detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
-                    foreach (self::$auto_validation[$auto_validation_name] as $field_name => $rules) {
-                        if (! isset($detail_class_instance->validate[$field_name])) {
-                            $detail_class_instance->validate[$field_name] = array();
+                    $detailClassInstance->validate = AppController::getInstance()->{$detailClass}->validate;
+                    foreach (self::$autoValidation[$autoValidationName] as $fieldName => $rules) {
+                        if (! isset($detailClassInstance->validate[$fieldName])) {
+                            $detailClassInstance->validate[$fieldName] = array();
                         }
-                        $detail_class_instance->validate[$field_name] = array_merge($detail_class_instance->validate[$field_name], $rules);
+                        $detailClassInstance->validate[$fieldName] = array_merge($detailClassInstance->validate[$fieldName], $rules);
                     }
-                    $detail_class_instance->set(isset($this->data[$detail_class]) ? $this->data[$detail_class] : array());
-                    $valid_detail_class = $detail_class_instance->validates();
-                    if ($detail_class_instance->data) {
-                        $this->data = array_merge($this->data, $detail_class_instance->data);
+                    $detailClassInstance->set(isset($this->data[$detailClass]) ? $this->data[$detailClass] : array());
+                    $validDetailClass = $detailClassInstance->validates();
+                    if ($detailClassInstance->data) {
+                        $this->data = array_merge($this->data, $detailClassInstance->data);
                     }
-                    if (! $valid_detail_class) {
+                    if (! $validDetailClass) {
                         // put details validation errors in the master model
-                        $this->validationErrors = array_merge($this->validationErrors, $detail_class_instance->validationErrors);
+                        $this->validationErrors = array_merge($this->validationErrors, $detailClassInstance->validationErrors);
                     }
                 }
             }
@@ -911,32 +920,32 @@ class AppModel extends Model
         return false;
     }
 
-    static function getInstance($plugin_name, $class_name, $error_view_on_null = true)
+    static function getInstance($pluginName, $className, $errorViewOnNull = true)
     {
-        $instance = ClassRegistry::getObject($class_name);
-        if ($instance !== false && $instance instanceof $class_name) {
+        $instance = ClassRegistry::getObject($className);
+        if ($instance !== false && $instance instanceof $className) {
             return $instance;
         }
         
-        if ($plugin_name != null && strlen($plugin_name) > 0) {
-            $plugin_name .= ".";
+        if ($pluginName != null && strlen($pluginName) > 0) {
+            $pluginName .= ".";
         }
         
-        $import_name = (strlen($plugin_name) > 0 ? $plugin_name : "") . $class_name;
-        if (class_exists($class_name, false) || App::import('Model', $import_name)) {
-            $instance = ClassRegistry::init($plugin_name . $class_name, true);
+        $importName = (strlen($pluginName) > 0 ? $pluginName : "") . $className;
+        if (class_exists($className, false) || App::import('Model', $importName)) {
+            $instance = ClassRegistry::init($pluginName . $className, true);
             
-            if (($bogus_model = ClassRegistry::getObject('Model')) != false && $bogus_model->alias == $class_name) {
+            if (($bogusModel = ClassRegistry::getObject('Model')) != false && $bogusModel->alias == $className) {
                 // fix a cakephp2 issue where the "Model" model is bogusly created with the alias of the model we just initialized
                 ClassRegistry::removeObject('Model');
             }
         }
-        if ($instance === false && $error_view_on_null) {
+        if ($instance === false && $errorViewOnNull) {
             if (Configure::read('debug') > 0) {
                 pr(AppController::getStackTrace());
-                die('died in AppModel::getInstance [' . $plugin_name . $class_name . '] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
+                die('died in AppModel::getInstance [' . $pluginName . $className . '] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
             } else {
-                AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $class_name, NULL, true);
+                AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $className, NULL, true);
             }
         }
         
@@ -950,14 +959,14 @@ class AppModel extends Model
      *
      * @param class $class
      *            The class to instantiate
-     * @param string $table_name
+     * @param string $tableName
      *            The table to use
      * @return The instantiated class
      */
-    static function atimInstantiateExtend($class, $table_name)
+    static function atimInstantiateExtend($class, $tableName)
     {
         ClassRegistry::removeObject($class->name);
-        $extend = new $class(false, $table_name);
+        $extend = new $class(false, $tableName);
         $extend->Behaviors->Revision->setup($extend); // activate shadow model
         return $extend;
     }
@@ -965,43 +974,43 @@ class AppModel extends Model
     /**
      * Builds automatic string length and float validations based on the field type
      *
-     * @param string $use_name
+     * @param string $useName
      *            The name under which to record the validations
      * @param Model $model
      *            The model to base the validations on
      */
-    static function buildAutoValidation($use_name, Model $model)
+    static function buildAutoValidation($useName, Model $model)
     {
         if (! is_array($model->_schema)) {
             $model->schema();
         }
         if (is_array($model->_schema)) {
-            $auto_validation = array();
-            foreach ($model->_schema as $field_name => $field_data) {
-                // debug($field_data);
-                switch ($field_data['type']) {
+            $autoValidation = array();
+            foreach ($model->_schema as $fieldName => $fieldData) {
+                // debug($fieldData);
+                switch ($fieldData['type']) {
                     case 'string':
-                        $auto_validation[$field_name][] = array(
+                        $autoValidation[$fieldName][] = array(
                             'rule' => array(
                                 "maxLength",
-                                $field_data['length']
+                                $fieldData['length']
                             ),
                             'allowEmpty' => true,
                             'required' => null,
-                            'message' => __("the string length must not exceed %d characters", $field_data['length'])
+                            'message' => __("the string length must not exceed %d characters", $fieldData['length'])
                         );
                         break;
                     case 'float':
                         $min = "-1000000000";
                         $max = "1000000000"; // arbitrary limit
-                        if ($field_data['length']) {
-                            list ($m, $d) = explode(',', $field_data['length']);
+                        if ($fieldData['length']) {
+                            list ($m, $d) = explode(',', $fieldData['length']);
                             $max = str_repeat('9', $m - $d) . "." . str_repeat('9', $d);
                             $min = - 1 * $max;
-                        } elseif ($field_data['atim_type'] == 'float unsigned') {
+                        } elseif ($fieldData['atim_type'] == 'float unsigned') {
                             $min = "0";
                         }
-                        $auto_validation[$field_name][] = array(
+                        $autoValidation[$fieldName][] = array(
                             'rule' => array(
                                 'range',
                                 (int) $min - 1,
@@ -1014,8 +1023,8 @@ class AppModel extends Model
                         break;
                     case 'integer':
                         $rule = null;
-                        if (strpos($field_data['atim_type'], 'int') === 0) {
-                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                        if (strpos($fieldData['atim_type'], 'int') === 0) {
+                            if (strpos($fieldData['atim_type'], 'unsigned') === false) {
                                 $rule = array(
                                     'range',
                                     - 2147483649,
@@ -1028,8 +1037,8 @@ class AppModel extends Model
                                     4294967295
                                 );
                             }
-                        } elseif (strpos($field_data['atim_type'], 'tinyint') === 0) {
-                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                        } elseif (strpos($fieldData['atim_type'], 'tinyint') === 0) {
+                            if (strpos($fieldData['atim_type'], 'unsigned') === false) {
                                 $rule = array(
                                     'range',
                                     - 129,
@@ -1042,8 +1051,8 @@ class AppModel extends Model
                                     256
                                 );
                             }
-                        } elseif (strpos($field_data['atim_type'], 'smallint') === 0) {
-                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                        } elseif (strpos($fieldData['atim_type'], 'smallint') === 0) {
+                            if (strpos($fieldData['atim_type'], 'unsigned') === false) {
                                 $rule = array(
                                     'range',
                                     - 32769,
@@ -1056,8 +1065,8 @@ class AppModel extends Model
                                     65536
                                 );
                             }
-                        } elseif (strpos($field_data['atim_type'], 'mediumint') === 0) {
-                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                        } elseif (strpos($fieldData['atim_type'], 'mediumint') === 0) {
+                            if (strpos($fieldData['atim_type'], 'unsigned') === false) {
                                 $rule = array(
                                     'range',
                                     - 8388609,
@@ -1070,8 +1079,8 @@ class AppModel extends Model
                                     16777216
                                 );
                             }
-                        } elseif (strpos($field_data['atim_type'], 'bigint') === 0) {
-                            if (strpos($field_data['atim_type'], 'unsigned') === false) {
+                        } elseif (strpos($fieldData['atim_type'], 'bigint') === 0) {
+                            if (strpos($fieldData['atim_type'], 'unsigned') === false) {
                                 $rule = array(
                                     'range',
                                     - 9223372036854775809,
@@ -1085,10 +1094,10 @@ class AppModel extends Model
                                 );
                             }
                         } else {
-                            AppController::addWarningMsg('Unknown integer type for field [' . $model->name . '.' . $field_name, true);
+                            AppController::addWarningMsg('Unknown integer type for field [' . $model->name . '.' . $fieldName, true);
                         }
                         if ($rule) {
-                            $auto_validation[$field_name][] = array(
+                            $autoValidation[$fieldName][] = array(
                                 'rule' => $rule,
                                 'allowEmpty' => true,
                                 'required' => null,
@@ -1100,7 +1109,7 @@ class AppModel extends Model
                         break;
                 }
             }
-            self::$auto_validation[$use_name] = $auto_validation;
+            self::$autoValidation[$useName] = $autoValidation;
         }
     }
 
@@ -1116,13 +1125,13 @@ class AppModel extends Model
     static function isFieldUsedAsCondition($field, array $conditions)
     {
         foreach ($conditions as $key => $value) {
-            $is_array = is_array($value);
+            $isArray = is_array($value);
             $pos1 = strpos($key, $field);
             $pos2 = strpos($key, " ");
             if ($pos1 !== false && ($pos2 === false || $pos1 < $pos2)) {
                 return true;
             }
-            if ($is_array) {
+            if ($isArray) {
                 if (self::isFieldUsedAsCondition($field, $value)) {
                     return true;
                 }
@@ -1142,9 +1151,9 @@ class AppModel extends Model
      *
      * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
      *
-     * @param $start_datetime Start
+     * @param $startDatetime Start
      *            date and time
-     * @param $end_datetime End
+     * @param $endDatetime End
      *            date and time
      *            
      * @return Return an array that contains the spent time
@@ -1163,9 +1172,9 @@ class AppModel extends Model
      * @author N. Luc
      * @since 2007-06-20
      */
-    static function getSpentTime($start_datetime, $end_datetime)
+    static function getSpentTime($startDatetime, $endDatetime)
     {
-        $arr_spent_time = array(
+        $arrSpentTime = array(
             'message' => null,
             'years' => '0',
             'month' => '0',
@@ -1175,43 +1184,43 @@ class AppModel extends Model
             'total_days' => '0'
         );
         
-        if (preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $start_datetime))
-            $start_datetime .= ' 00:00:00';
-        $start_datetime = str_replace('0000-00-00 00:00:00', '', $start_datetime);
-        if (preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $end_datetime))
-            $end_datetime .= ' 00:00:00';
-        $end_datetime = str_replace('0000-00-00 00:00:00', '', $end_datetime);
+        if (preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $startDatetime))
+            $startDatetime .= ' 00:00:00';
+        $startDatetime = str_replace('0000-00-00 00:00:00', '', $startDatetime);
+        if (preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $endDatetime))
+            $endDatetime .= ' 00:00:00';
+        $endDatetime = str_replace('0000-00-00 00:00:00', '', $endDatetime);
         
-        $datetime_pattern = '/^((19)|(20))[0-9]{2}\-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[01]))\ ((0[0-9])|([1-5][0-9])|(60))(:((0[0-9])|([1-5][0-9])|(60))){2}$/';
+        $datetimePattern = '/^((19)|(20))[0-9]{2}\-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[01]))\ ((0[0-9])|([1-5][0-9])|(60))(:((0[0-9])|([1-5][0-9])|(60))){2}$/';
         // Verfiy date is not empty
-        if (empty($start_datetime) || empty($end_datetime)) {
+        if (empty($startDatetime) || empty($endDatetime)) {
             // At least one date is missing to continue
-            $arr_spent_time['message'] = 'missing date';
-        } elseif (! preg_match($datetime_pattern, $start_datetime) || ! preg_match($datetime_pattern, $end_datetime)) {
+            $arrSpentTime['message'] = 'missing date';
+        } elseif (! preg_match($datetimePattern, $startDatetime) || ! preg_match($datetimePattern, $endDatetime)) {
             // Error in the date
-            $arr_spent_time['message'] = 'error in the date definitions';
-        } elseif ($datetime_pattern == $end_datetime) {
-            // Nothing to change to $arr_spent_time
-            $arr_spent_time['message'] = '0';
+            $arrSpentTime['message'] = 'error in the date definitions';
+        } elseif ($datetimePattern == $endDatetime) {
+            // Nothing to change to $arrSpentTime
+            $arrSpentTime['message'] = '0';
         } else {
-            $start_datetime_ob = new DateTime($start_datetime);
-            $end_datetime_ob = new DateTime($end_datetime);
-            $interval = $start_datetime_ob->diff($end_datetime_ob);
+            $startDatetimeOb = new DateTime($startDatetime);
+            $endDatetimeOb = new DateTime($endDatetime);
+            $interval = $startDatetimeOb->diff($endDatetimeOb);
             if ($interval->invert) {
                 // Error in the date
-                $arr_spent_time['message'] = 'error in the date definitions';
+                $arrSpentTime['message'] = 'error in the date definitions';
             } else {
                 // Return spend time
-                $arr_spent_time['years'] = $interval->y;
-                $arr_spent_time['months'] = $interval->m;
-                $arr_spent_time['days'] = $interval->d;
-                $arr_spent_time['hours'] = $interval->h;
-                $arr_spent_time['minutes'] = $interval->i;
-                $arr_spent_time['total_days'] = $interval->days;
+                $arrSpentTime['years'] = $interval->y;
+                $arrSpentTime['months'] = $interval->m;
+                $arrSpentTime['days'] = $interval->d;
+                $arrSpentTime['hours'] = $interval->h;
+                $arrSpentTime['minutes'] = $interval->i;
+                $arrSpentTime['total_days'] = $interval->days;
             }
         }
         
-        return $arr_spent_time;
+        return $arrSpentTime;
     }
 
     /**
@@ -1219,48 +1228,48 @@ class AppModel extends Model
      *
      * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
      *
-     * @param $date_string Date            
+     * @param $dateString Date            
      *
      * @return Return time stamp of the date.
      *        
      * @author N. Luc
      * @since 2007-06-20
      */
-    static function getTimeStamp($date_string)
+    static function getTimeStamp($dateString)
     {
-        list ($date, $time) = explode(' ', $date_string);
+        list ($date, $time) = explode(' ', $dateString);
         list ($year, $month, $day) = explode('-', $date);
         list ($hour, $minute, $second) = explode(':', $time);
         
         return mktime($hour, $minute, $second, $month, $day, $year);
     }
 
-    static function manageSpentTimeDataDisplay($spent_time_data, $with_time = true)
+    static function manageSpentTimeDataDisplay($spentTimeData, $withTime = true)
     {
-        $spent_time_msg = '';
-        if (! empty($spent_time_data)) {
-            if (! is_null($spent_time_data['message'])) {
-                if ($spent_time_data['message'] == '0') {
-                    $spent_time_msg = $spent_time_data['message'];
+        $spentTimeMsg = '';
+        if (! empty($spentTimeData)) {
+            if (! is_null($spentTimeData['message'])) {
+                if ($spentTimeData['message'] == '0') {
+                    $spentTimeMsg = $spentTimeData['message'];
                 } else {
-                    $spent_time_msg = __($spent_time_data['message']);
+                    $spentTimeMsg = __($spentTimeData['message']);
                 }
             } else {
-                if ($with_time) {
-                    $spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'total_days') . AppModel::translateDateValueAndUnit($spent_time_data, 'hours') . AppModel::translateDateValueAndUnit($spent_time_data, 'minutes');
+                if ($withTime) {
+                    $spentTimeMsg = AppModel::translateDateValueAndUnit($spentTimeData, 'total_days') . AppModel::translateDateValueAndUnit($spentTimeData, 'hours') . AppModel::translateDateValueAndUnit($spentTimeData, 'minutes');
                 } else {
-                    $spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'years') . AppModel::translateDateValueAndUnit($spent_time_data, 'months') . AppModel::translateDateValueAndUnit($spent_time_data, 'days');
+                    $spentTimeMsg = AppModel::translateDateValueAndUnit($spentTimeData, 'years') . AppModel::translateDateValueAndUnit($spentTimeData, 'months') . AppModel::translateDateValueAndUnit($spentTimeData, 'days');
                 }
             }
         }
         
-        return $spent_time_msg;
+        return $spentTimeMsg;
     }
 
-    static function translateDateValueAndUnit($spent_time_data, $time_unit)
+    static function translateDateValueAndUnit($spentTimeData, $timeUnit)
     {
-        if (array_key_exists($time_unit, $spent_time_data)) {
-            return (((! empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00')) ? ($spent_time_data[$time_unit] . ' ' . ($spent_time_data[$time_unit] == 1 ? __(substr($time_unit, 0, - 1)) : __($time_unit)) . ' ') : '');
+        if (array_key_exists($timeUnit, $spentTimeData)) {
+            return (((! empty($spentTimeData[$timeUnit])) && ($spentTimeData[$timeUnit] != '00')) ? ($spentTimeData[$timeUnit] . ' ' . ($spentTimeData[$timeUnit] == 1 ? __(substr($timeUnit, 0, - 1)) : __($timeUnit)) . ' ') : '');
         }
         return '#err#';
     }
@@ -1270,26 +1279,26 @@ class AppModel extends Model
      *
      * @param array $data
      *            The data to sort
-     * @param array $passed_args
+     * @param array $passedArgs
      *            The controller passed arguments. (From the controller, $this->passedArgs)
      * @return The data sorted if the passed_args were compatible with it
      */
-    static function sortWithUrl(array $data, array $passed_args)
+    static function sortWithUrl(array $data, array $passedArgs)
     {
         $order = array();
-        if (isset($passed_args['sort'])) {
+        if (isset($passedArgs['sort'])) {
             $result = array();
-            list ($sort_model, $sort_field) = explode(".", $passed_args['sort']);
+            list ($sortModel, $sortField) = explode(".", $passedArgs['sort']);
             $i = 0;
-            foreach ($data as $data_unit) {
-                if (isset($data_unit[$sort_model]) && isset($data_unit[$sort_model][$sort_field])) {
-                    $result[sprintf("%s%04d", $data_unit[$sort_model][$sort_field], ++ $i)] = $data_unit;
+            foreach ($data as $dataUnit) {
+                if (isset($dataUnit[$sortModel]) && isset($dataUnit[$sortModel][$sortField])) {
+                    $result[sprintf("%s%04d", $dataUnit[$sortModel][$sortField], ++ $i)] = $dataUnit;
                 } else {
-                    $result[sprintf("%04d", ++ $i)] = $data_unit;
+                    $result[sprintf("%04d", ++ $i)] = $dataUnit;
                 }
             }
             ksort($result);
-            if (isset($passed_args['direction']) && $passed_args['direction'] == 'desc') {
+            if (isset($passedArgs['direction']) && $passedArgs['direction'] == 'desc') {
                 $result = array_reverse($result);
             }
             return $result;
@@ -1361,28 +1370,28 @@ class AppModel extends Model
 
     private function updateWritableField($field, $tablename = null, $add)
     {
-        $add_into = null;
-        $remove_from = null;
+        $addInto = null;
+        $removeFrom = null;
         if ($add) {
-            $add_into = 'all';
-            $remove_from = 'none';
+            $addInto = 'all';
+            $removeFrom = 'none';
         } else {
-            $add_into = 'none';
-            $remove_from = 'all';
+            $addInto = 'none';
+            $removeFrom = 'all';
         }
         $tablename = $tablename ?: $this->table;
-        if (! isset(AppModel::$writable_fields[$tablename][$add_into])) {
-            AppModel::$writable_fields[$tablename][$add_into] = array();
+        if (! isset(AppModel::$writableFields[$tablename][$addInto])) {
+            AppModel::$writableFields[$tablename][$addInto] = array();
         }
         if (! is_array($field)) {
             $field = array(
                 $field
             );
         }
-        AppModel::$writable_fields[$tablename][$add_into] = array_unique(array_merge(AppModel::$writable_fields[$tablename][$add_into], $field));
+        AppModel::$writableFields[$tablename][$addInto] = array_unique(array_merge(AppModel::$writableFields[$tablename][$addInto], $field));
         
-        if (isset(AppModel::$writable_fields[$this->table][$remove_from])) {
-            AppModel::$writable_fields[$this->table][$remove_from] = array_diff(AppModel::$writable_fields[$this->table][$remove_from], $field);
+        if (isset(AppModel::$writableFields[$this->table][$removeFrom])) {
+            AppModel::$writableFields[$this->table][$removeFrom] = array_diff(AppModel::$writableFields[$this->table][$removeFrom], $field);
         }
     }
 
@@ -1412,8 +1421,8 @@ class AppModel extends Model
     function getBrowsingFilter()
     {
         $result = array();
-        if (isset($this->browsing_search_dropdown_info['browsing_filter'])) {
-            foreach ($this->browsing_search_dropdown_info['browsing_filter'] as $key => $details) {
+        if (isset($this->browsingSearchDropdownInfo['browsing_filter'])) {
+            foreach ($this->browsingSearchDropdownInfo['browsing_filter'] as $key => $details) {
                 $result[$key] = __($details['lang']);
             }
         }
@@ -1425,17 +1434,17 @@ class AppModel extends Model
      * Searches into
      * base model when called from a view.
      *
-     * @param string $field_name            
+     * @param string $fieldName            
      * @return array if the field config is found, null otherwise
      */
-    function getBrowsingAdvSearchArray($field_name)
+    function getBrowsingAdvSearchArray($fieldName)
     {
-        if (isset($this->browsing_search_dropdown_info[$field_name])) {
-            return $this->browsing_search_dropdown_info[$field_name];
+        if (isset($this->browsingSearchDropdownInfo[$fieldName])) {
+            return $this->browsingSearchDropdownInfo[$fieldName];
         }
-        if (isset($this->base_model)) {
-            $base_model = AppModel::getInstance($this->base_plugin, $this->base_model, true);
-            return $base_model->getBrowsingAdvSearchArray($field_name);
+        if (isset($this->baseModel)) {
+            $baseModel = AppModel::getInstance($this->basePlugin, $this->baseModel, true);
+            return $baseModel->getBrowsingAdvSearchArray($fieldName);
         }
         return null;
     }
@@ -1443,24 +1452,24 @@ class AppModel extends Model
     /**
      * Called by structure builder to get the browsing advanced search fields.
      *
-     * @param array $field_name            
+     * @param array $fieldName            
      * @return array An array formated for dropdown use
      */
-    function getBrowsingAdvSearch($field_name)
+    function getBrowsingAdvSearch($fieldName)
     {
-        $field_name = $field_name[0];
+        $fieldName = $fieldName[0];
         $result = array();
-        if (isset($this->browsing_search_dropdown_info[$field_name]) && Browser::$cache['current_node_id'] != 0) {
-            $browser_model = AppModel::getInstance('Datamart', 'Browser', 'true');
+        if (isset($this->browsingSearchDropdownInfo[$fieldName]) && Browser::$cache['current_node_id'] != 0) {
+            $browserModel = AppModel::getInstance('Datamart', 'Browser', 'true');
             
-            $datamart_structure = AppModel::getInstance('Datamart', 'DatamartStructure', true);
-            $sfs_model = AppModel::getInstance('', 'Sfs', true);
-            $dm_structures = $datamart_structure->find('all');
-            $dm_structures = AppController::defineArrayKey($dm_structures, 'DatamartStructure', 'model', true);
+            $datamartStructure = AppModel::getInstance('Datamart', 'DatamartStructure', true);
+            $sfsModel = AppModel::getInstance('', 'Sfs', true);
+            $dmStructures = $datamartStructure->find('all');
+            $dmStructures = AppController::defineArrayKey($dmStructures, 'DatamartStructure', 'model', true);
             
             if (! isset(Browser::$cache['path'])) {
-                $browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-                $path = $browsing_result_model->getPath(Browser::$cache['current_node_id'], null, 0);
+                $browsingResultModel = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+                $path = $browsingResultModel->getPath(Browser::$cache['current_node_id'], null, 0);
                 Browser::$cache['allowed_models'] = array();
                 while ($current = array_pop($path)) {
                     if ($current['BrowsingResult']['raw']) {
@@ -1471,9 +1480,9 @@ class AppModel extends Model
                     }
                 }
             }
-            foreach ($this->browsing_search_dropdown_info[$field_name] as $key => $option) {
+            foreach ($this->browsingSearchDropdownInfo[$fieldName] as $key => $option) {
                 if (array_key_exists($option['model'], Browser::$cache['allowed_models'])) {
-                    $sfs = $sfs_model->find('first', array(
+                    $sfs = $sfsModel->find('first', array(
                         'fields' => array(
                             'language_label'
                         ),
@@ -1483,7 +1492,7 @@ class AppModel extends Model
                         ),
                         'recursive' => - 1
                     ));
-                    $result[$key] = $option['relation'] . ' ' . __($dm_structures[$option['model']]['DatamartStructure']['display_name']) . ' ' . __($sfs['Sfs']['language_label']);
+                    $result[$key] = $option['relation'] . ' ' . __($dmStructures[$option['model']]['DatamartStructure']['display_name']) . ' ' . __($sfs['Sfs']['language_label']);
                 }
             }
         }
@@ -1512,25 +1521,25 @@ class AppModel extends Model
 
     function afterFind($results, $primary = false)
     {
-        if (isset($this->fields_replace) && isset($results[0][$this->name])) {
-            $current_fields_replace = $this->fields_replace;
-            foreach ($current_fields_replace as $field_name => $options) {
-                if (isset($results[0][$this->name]) && ! array_key_exists($field_name, $results[0][$this->name])) {
-                    unset($current_fields_replace[$field_name]);
+        if (isset($this->fieldsReplace) && isset($results[0][$this->name])) {
+            $currentFieldsReplace = $this->fieldsReplace;
+            foreach ($currentFieldsReplace as $fieldName => $options) {
+                if (isset($results[0][$this->name]) && ! array_key_exists($fieldName, $results[0][$this->name])) {
+                    unset($currentFieldsReplace[$fieldName]);
                 }
             }
             foreach ($results as &$result) {
-                foreach ($current_fields_replace as $field_name => $options) {
-                    if (isset($options['msg'][$result[$this->name][$field_name]])) {
-                        $result[$this->name][$field_name] = $options['msg'][$result[$this->name][$field_name]];
+                foreach ($currentFieldsReplace as $fieldName => $options) {
+                    if (isset($options['msg'][$result[$this->name][$fieldName]])) {
+                        $result[$this->name][$fieldName] = $options['msg'][$result[$this->name][$fieldName]];
                     } elseif ($options['type'] == 'spentTime') {
-                        $remainder = $result[$this->name][$field_name];
+                        $remainder = $result[$this->name][$fieldName];
                         $time['minutes'] = $remainder % 60;
                         $remainder = ($remainder - $time['minutes']) / 60;
                         $time['hours'] = $remainder % 24;
                         $time['days'] = ($remainder - $time['hours']) / 24;
-                        $spent_time = AppModel::translateDateValueAndUnit($time, 'days') . '' . AppModel::translateDateValueAndUnit($time, 'hours') . AppModel::translateDateValueAndUnit($time, 'minutes');
-                        $result[$this->name][$field_name] = $spent_time ?: 0;
+                        $spentTime = AppModel::translateDateValueAndUnit($time, 'days') . '' . AppModel::translateDateValueAndUnit($time, 'hours') . AppModel::translateDateValueAndUnit($time, 'minutes');
+                        $result[$this->name][$fieldName] = $spentTime ?: 0;
                     }
                 }
             }
@@ -1540,38 +1549,38 @@ class AppModel extends Model
 
     private function updateRegisteredViews()
     {
-        if ($this->registered_view) {
-            foreach ($this->registered_view as $registered_view => $foreign_keys) {
-                list ($plugin_name, $model_name) = explode('.', $registered_view);
-                $model = AppModel::getInstance($plugin_name, $model_name);
-                foreach ($foreign_keys as $foreign_key) {
-                    $at_least_one = false;
-                    foreach (explode("UNION ALL", $model::$table_query) as $query_part) {
-                        if (strpos($query_part, $foreign_key) === false) {
+        if ($this->registeredView) {
+            foreach ($this->registeredView as $registeredView => $foreignKeys) {
+                list ($pluginName, $modelName) = explode('.', $registeredView);
+                $model = AppModel::getInstance($pluginName, $modelName);
+                foreach ($foreignKeys as $foreignKey) {
+                    $atLeastOne = false;
+                    foreach (explode("UNION ALL", $model::$tableQuery) as $queryPart) {
+                        if (strpos($queryPart, $foreignKey) === false) {
                             continue;
                         }
-                        $at_least_one = true;
-                        if (self::$locked_views_update) {
-                            if (! isset(self::$cached_views_update[$model->table])) {
-                                self::$cached_views_update[$model->table] = array();
+                        $atLeastOne = true;
+                        if (self::$lockedViewsUpdate) {
+                            if (! isset(self::$cachedViewsUpdate[$model->table])) {
+                                self::$cachedViewsUpdate[$model->table] = array();
                             }
-                            if (! isset(self::$cached_views_update[$model->table][$foreign_key])) {
-                                self::$cached_views_update[$model->table][$foreign_key] = array();
+                            if (! isset(self::$cachedViewsUpdate[$model->table][$foreignKey])) {
+                                self::$cachedViewsUpdate[$model->table][$foreignKey] = array();
                             }
-                            if (! isset(self::$cached_views_update[$model->table][$foreign_key][$query_part])) {
-                                self::$cached_views_update[$model->table][$foreign_key][$query_part] = array(
+                            if (! isset(self::$cachedViewsUpdate[$model->table][$foreignKey][$queryPart])) {
+                                self::$cachedViewsUpdate[$model->table][$foreignKey][$queryPart] = array(
                                     "ids" => array()
                                 );
                             }
-                            array_push(self::$cached_views_update[$model->table][$foreign_key][$query_part]["ids"], $this->id);
+                            array_push(self::$cachedViewsUpdate[$model->table][$foreignKey][$queryPart]["ids"], $this->id);
                         } else {
-                            $table_query = str_replace('%%WHERE%%', 'AND ' . $foreign_key . '=' . $this->id, $query_part);
-                            $query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+                            $tableQuery = str_replace('%%WHERE%%', 'AND ' . $foreignKey . '=' . $this->id, $queryPart);
+                            $query = sprintf('REPLACE INTO %s (%s)', $model->table, $tableQuery);
                             $this->tryCatchquery($query);
                         }
                     }
-                    if (! $at_least_one) {
-                        throw new Exception("No queries part fitted with the foreign key " . $foreign_key);
+                    if (! $atLeastOne) {
+                        throw new Exception("No queries part fitted with the foreign key " . $foreignKey);
                     }
                 }
             }
@@ -1587,9 +1596,9 @@ class AppModel extends Model
     function makeTree(array &$in)
     {
         if (! empty($in)) {
-            $starting_pkey = $in[0][$this->name][$this->primaryKey];
+            $startingPkey = $in[0][$this->name][$this->primaryKey];
             $in = AppController::defineArrayKey($in, $this->name, $this->primaryKey, true);
-            $to_remove = array();
+            $toRemove = array();
             foreach ($in as $key => &$part) {
                 if ($part[$this->name]['parent_id'] != null && isset($in[$part[$this->name]['parent_id']])) {
                     // parent exists, create link
@@ -1597,10 +1606,10 @@ class AppModel extends Model
                         $in[$part[$this->name]['parent_id']][$this->name]['children'] = array();
                     }
                     $in[$part[$this->name]['parent_id']][$this->name]['children'][] = &$part;
-                    $to_remove[] = $key;
+                    $toRemove[] = $key;
                 }
             }
-            foreach ($to_remove as &$key) {
+            foreach ($toRemove as &$key) {
                 unset($in[$key]);
             }
         }
@@ -1625,19 +1634,19 @@ class AppModel extends Model
      */
     function checkFloats()
     {
-        foreach ($this->_schema as $field_name => $field_properties) {
-            $tmp_type = $field_properties['type'];
-            if ($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive") {
+        foreach ($this->_schema as $fieldName => $fieldProperties) {
+            $tmpType = $fieldProperties['type'];
+            if ($tmpType == "float" || $tmpType == "number" || $tmpType == "float_positive") {
                 // Manage float record
-                if (isset($this->data[$this->alias][$field_name])) {
-                    $this->data[$this->alias][$field_name] = str_replace(",", ".", $this->data[$this->alias][$field_name]);
-                    $this->data[$this->alias][$field_name] = str_replace(" ", "", $this->data[$this->alias][$field_name]);
-                    $this->data[$this->alias][$field_name] = str_replace("+", "", $this->data[$this->alias][$field_name]);
-                    if (is_numeric($this->data[$this->alias][$field_name])) {
-                        if (strpos($this->data[$this->alias][$field_name], ".") === 0)
-                            $this->data[$this->alias][$field_name] = "0" . $this->data[$this->alias][$field_name];
-                        if (strpos($this->data[$this->alias][$field_name], "-.") === 0)
-                            $this->data[$this->alias][$field_name] = "-0" . substr($this->data[$this->alias][$field_name], 1);
+                if (isset($this->data[$this->alias][$fieldName])) {
+                    $this->data[$this->alias][$fieldName] = str_replace(",", ".", $this->data[$this->alias][$fieldName]);
+                    $this->data[$this->alias][$fieldName] = str_replace(" ", "", $this->data[$this->alias][$fieldName]);
+                    $this->data[$this->alias][$fieldName] = str_replace("+", "", $this->data[$this->alias][$fieldName]);
+                    if (is_numeric($this->data[$this->alias][$fieldName])) {
+                        if (strpos($this->data[$this->alias][$fieldName], ".") === 0)
+                            $this->data[$this->alias][$fieldName] = "0" . $this->data[$this->alias][$fieldName];
+                        if (strpos($this->data[$this->alias][$fieldName], "-.") === 0)
+                            $this->data[$this->alias][$fieldName] = "-0" . substr($this->data[$this->alias][$fieldName], 1);
                     }
                 }
             }
@@ -1670,44 +1679,44 @@ class AppModel extends Model
      */
     function sortForDisplay(array &$data, $order)
     {
-        $tmp_data = AppController::defineArrayKey($data, $this->name, $this->primaryKey, true);
+        $tmpData = AppController::defineArrayKey($data, $this->name, $this->primaryKey, true);
         if (is_string($order)) {
             $order = explode(',', $order);
         }
         $order = array_unique(array_filter($order));
         $data = array();
         foreach ($order as $key) {
-            $data[] = $tmp_data[$key];
+            $data[] = $tmpData[$key];
         }
-        unset($tmp_data);
+        unset($tmpData);
     }
 
     static function acquireBatchViewsUpdateLock()
     {
-        if (self::$locked_views_update) {
+        if (self::$lockedViewsUpdate) {
             throw new Exception('Deadlock in acquireBatchViewsUpdateLock');
         }
-        self::$locked_views_update = true;
+        self::$lockedViewsUpdate = true;
     }
 
-    static function manageViewUpdate($model_table, $foreign_key, $ids, $query_part)
+    static function manageViewUpdate($modelTable, $foreignKey, $ids, $queryPart)
     {
-        if (self::$locked_views_update) {
-            if (! isset(self::$cached_views_update[$model_table])) {
-                self::$cached_views_update[$model_table] = array();
+        if (self::$lockedViewsUpdate) {
+            if (! isset(self::$cachedViewsUpdate[$modelTable])) {
+                self::$cachedViewsUpdate[$modelTable] = array();
             }
-            if (! isset(self::$cached_views_update[$model_table][$foreign_key])) {
-                self::$cached_views_update[$model_table][$foreign_key] = array();
+            if (! isset(self::$cachedViewsUpdate[$modelTable][$foreignKey])) {
+                self::$cachedViewsUpdate[$modelTable][$foreignKey] = array();
             }
-            if (! isset(self::$cached_views_update[$model_table][$foreign_key][$query_part])) {
-                self::$cached_views_update[$model_table][$foreign_key][$query_part] = array(
+            if (! isset(self::$cachedViewsUpdate[$modelTable][$foreignKey][$queryPart])) {
+                self::$cachedViewsUpdate[$modelTable][$foreignKey][$queryPart] = array(
                     "ids" => array()
                 );
             }
-            self::$cached_views_update[$model_table][$foreign_key][$query_part]["ids"] = array_merge(self::$cached_views_update[$model_table][$foreign_key][$query_part]["ids"], $ids);
+            self::$cachedViewsUpdate[$modelTable][$foreignKey][$queryPart]["ids"] = array_merge(self::$cachedViewsUpdate[$modelTable][$foreignKey][$queryPart]["ids"], $ids);
         } else {
-            $table_query = str_replace('%%WHERE%%', 'AND ' . $foreign_key . ' IN (' . implode(',', $ids) . ')', $query_part);
-            $query = sprintf('REPLACE INTO %s (%s)', $model_table, $table_query);
+            $tableQuery = str_replace('%%WHERE%%', 'AND ' . $foreignKey . ' IN (' . implode(',', $ids) . ')', $queryPart);
+            $query = sprintf('REPLACE INTO %s (%s)', $modelTable, $tableQuery);
             $pages = AppModel::getInstance("", "Page");
             $pages->tryCatchquery($query);
         }
@@ -1717,34 +1726,34 @@ class AppModel extends Model
     {
         // just "some" model to do the work
         $pages = AppModel::getInstance("", "Page");
-        foreach (self::$cached_views_update as $model_table => $models) {
-            foreach ($models as $foreign_key => $query_parts) {
-                foreach ($query_parts as $query_part => $details) {
-                    $table_query = str_replace('%%WHERE%%', 'AND ' . $foreign_key . ' IN(' . implode(",", array_unique($details['ids'])) . ')', $query_part);
-                    $query = sprintf('REPLACE INTO %s (%s)', $model_table, $table_query);
+        foreach (self::$cachedViewsUpdate as $modelTable => $models) {
+            foreach ($models as $foreignKey => $queryParts) {
+                foreach ($queryParts as $queryPart => $details) {
+                    $tableQuery = str_replace('%%WHERE%%', 'AND ' . $foreignKey . ' IN(' . implode(",", array_unique($details['ids'])) . ')', $queryPart);
+                    $query = sprintf('REPLACE INTO %s (%s)', $modelTable, $tableQuery);
                     $pages->tryCatchquery($query);
                 }
             }
         }
-        foreach (self::$cached_views_delete as $model_table => $models) {
-            foreach ($models as $primary_key => $details) {
-                $query = sprintf('DELETE FROM %s  WHERE %s IN (%s)', $model_table, $primary_key, implode(',', array_unique($details['pkeys_for_deletion']))); // To fix issue#2980: Edit Storage & View Update
+        foreach (self::$cachedViewsDelete as $modelTable => $models) {
+            foreach ($models as $primaryKey => $details) {
+                $query = sprintf('DELETE FROM %s  WHERE %s IN (%s)', $modelTable, $primaryKey, implode(',', array_unique($details['pkeys_for_deletion']))); // To fix issue#2980: Edit Storage & View Update
                 $pages->tryCatchquery($query);
             }
         }
-        foreach (self::$cached_views_insert as $model_table => $base_models) {
-            foreach ($base_models as $base_model => $query_parts) {
-                foreach ($query_parts as $query_part => $details) {
-                    $table_query = str_replace('%%WHERE%%', 'AND ' . $base_model . '.id IN(' . implode(", ", array_unique($details['ids'])) . ')', $query_part);
-                    $query = sprintf('INSERT INTO %s (%s)', $model_table, $table_query);
+        foreach (self::$cachedViewsInsert as $modelTable => $baseModels) {
+            foreach ($baseModels as $baseModel => $queryParts) {
+                foreach ($queryParts as $queryPart => $details) {
+                    $tableQuery = str_replace('%%WHERE%%', 'AND ' . $baseModel . '.id IN(' . implode(", ", array_unique($details['ids'])) . ')', $queryPart);
+                    $query = sprintf('INSERT INTO %s (%s)', $modelTable, $tableQuery);
                     $pages->tryCatchquery($query);
                 }
             }
         }
-        self::$cached_views_update = array();
-        self::$cached_views_delete = array();
-        self::$cached_views_insert = array();
-        self::$locked_views_update = false;
+        self::$cachedViewsUpdate = array();
+        self::$cachedViewsDelete = array();
+        self::$cachedViewsInsert = array();
+        self::$lockedViewsUpdate = false;
     }
 
     static function getRemoteIPAddress()

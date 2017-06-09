@@ -18,7 +18,7 @@ class TreatmentExtendMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    public static $drug_model = null;
+    public static $drugModel = null;
 
     function validates($options = array())
     {
@@ -29,37 +29,37 @@ class TreatmentExtendMaster extends ClinicalAnnotationAppModel
 
     function validateAndUpdateTreatmentExtendDrugData()
     {
-        $treatment_extend_data = & $this->data;
+        $treatmentExtendData = & $this->data;
         
         // check data structure
-        $tmp_arr_to_check = array_values($treatment_extend_data);
-        if ((! is_array($treatment_extend_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['TreatmentExtendMaster']))) {
+        $tmpArrToCheck = array_values($treatmentExtendData);
+        if ((! is_array($treatmentExtendData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['TreatmentExtendMaster']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Launch validation
-        if (array_key_exists('FunctionManagement', $treatment_extend_data) && array_key_exists('autocomplete_treatment_drug_id', $treatment_extend_data['FunctionManagement'])) {
-            $treatment_extend_data['TreatmentExtendMaster']['drug_id'] = null;
-            $treatment_extend_data['FunctionManagement']['autocomplete_treatment_drug_id'] = trim($treatment_extend_data['FunctionManagement']['autocomplete_treatment_drug_id']);
-            if (strlen($treatment_extend_data['FunctionManagement']['autocomplete_treatment_drug_id'])) {
+        if (array_key_exists('FunctionManagement', $treatmentExtendData) && array_key_exists('autocomplete_treatment_drug_id', $treatmentExtendData['FunctionManagement'])) {
+            $treatmentExtendData['TreatmentExtendMaster']['drug_id'] = null;
+            $treatmentExtendData['FunctionManagement']['autocomplete_treatment_drug_id'] = trim($treatmentExtendData['FunctionManagement']['autocomplete_treatment_drug_id']);
+            if (strlen($treatmentExtendData['FunctionManagement']['autocomplete_treatment_drug_id'])) {
                 // Load model
-                if (self::$drug_model == null)
-                    self::$drug_model = AppModel::getInstance("Drug", "Drug", true);
-                    
-                    // Check the treatment extend drug definition
-                $arr_drug_selection_results = self::$drug_model->getDrugIdFromDrugDataAndCode($treatment_extend_data['FunctionManagement']['autocomplete_treatment_drug_id']);
+                if (self::$drugModel == null)
+                    self::$drugModel = AppModel::getInstance("Drug", "Drug", true);
+                
+                // Check the treatment extend drug definition
+                $arrDrugSelectionResults = self::$drugModel->getDrugIdFromDrugDataAndCode($treatmentExtendData['FunctionManagement']['autocomplete_treatment_drug_id']);
                 
                 // Set drug id
-                if (isset($arr_drug_selection_results['Drug'])) {
-                    $treatment_extend_data['TreatmentExtendMaster']['drug_id'] = $arr_drug_selection_results['Drug']['id'];
+                if (isset($arrDrugSelectionResults['Drug'])) {
+                    $treatmentExtendData['TreatmentExtendMaster']['drug_id'] = $arrDrugSelectionResults['Drug']['id'];
                     $this->addWritableField(array(
                         'drug_id'
                     ));
                 }
                 
                 // Set error
-                if (isset($arr_drug_selection_results['error'])) {
-                    $this->validationErrors['autocomplete_treatment_drug_id'][] = $arr_drug_selection_results['error'];
+                if (isset($arrDrugSelectionResults['error'])) {
+                    $this->validationErrors['autocomplete_treatment_drug_id'][] = $arrDrugSelectionResults['error'];
                 }
             }
         }

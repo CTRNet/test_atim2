@@ -4,7 +4,7 @@ $override = array(
     'Config.define_csv_separator' => csv_separator,
     'Config.define_csv_encoding' => csv_encoding
 );
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'add',
     'links' => array(
         'top' => 'Datamart/Csv/csv/'

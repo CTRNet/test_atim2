@@ -63,16 +63,16 @@ class Structure extends AppModel
         $structure = parent::find('first', $fields, $order, $recursive);
         $rules = array();
         if ($structure) {
-            $fields_ids = array(
+            $fieldsIds = array(
                 0
             );
             if ($this->simple && isset($structure['Sfs'])) {
                 // if recursive = -1, there is no Sfs
                 foreach ($structure['Sfs'] as $sfs) {
-                    $fields_ids[] = $sfs['structure_field_id'];
+                    $fieldsIds[] = $sfs['structure_field_id'];
                 }
                 $validations = $this->StructureValidation->find('all', array(
-                    'conditions' => ('StructureValidation.structure_field_id IN(' . implode(", ", $fields_ids) . ')')
+                    'conditions' => ('StructureValidation.structure_field_id IN(' . implode(", ", $fieldsIds) . ')')
                 ));
                 foreach ($validations as $validation) {
                     foreach ($structure['Sfs'] as &$sfs) {
@@ -88,41 +88,41 @@ class Structure extends AppModel
             
             if (($this->simple && isset($structure['Sfs'])) || (! $this->simple && isset($structure['StructureFormat']))) {
                 foreach ($structure[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf) {
-                    $auto_validation = isset(AppModel::$auto_validation[$sf['model']]) ? AppModel::$auto_validation[$sf['model']] : array();
+                    $autoValidation = isset(AppModel::$autoValidation[$sf['model']]) ? AppModel::$autoValidation[$sf['model']] : array();
                     if (! isset($rules[$sf['model']])) {
                         $rules[$sf['model']] = array();
                     }
-                    $tmp_type = $sf['type'];
-                    $tmp_rule = NULL;
-                    $tmp_msg = NULL;
-                    if ($tmp_type == "integer") {
-                        $tmp_rule = VALID_INTEGER;
-                        $tmp_msg = "error_must_be_integer";
-                    } elseif ($tmp_type == "integer_positive") {
-                        $tmp_rule = VALID_INTEGER_POSITIVE;
-                        $tmp_msg = "error_must_be_positive_integer";
-                    } elseif ($tmp_type == "float" || $tmp_type == "number") {
-                        $tmp_rule = VALID_FLOAT;
-                        $tmp_msg = "error_must_be_float";
-                    } elseif ($tmp_type == "float_positive") {
-                        $tmp_rule = VALID_FLOAT_POSITIVE;
-                        $tmp_msg = "error_must_be_positive_float";
-                    } elseif ($tmp_type == "datetime") {
-                        $tmp_rule = VALID_DATETIME_YMD;
-                        $tmp_msg = "invalid datetime";
-                    } elseif ($tmp_type == "date") {
-                        $tmp_rule = "date";
-                        $tmp_msg = "invalid date";
-                    } elseif ($tmp_type == "time") {
-                        $tmp_rule = VALID_24TIME;
-                        $tmp_msg = "this is not a time";
+                    $tmpType = $sf['type'];
+                    $tmpRule = NULL;
+                    $tmpMsg = NULL;
+                    if ($tmpType == "integer") {
+                        $tmpRule = VALID_INTEGER;
+                        $tmpMsg = "error_must_be_integer";
+                    } elseif ($tmpType == "integer_positive") {
+                        $tmpRule = VALID_INTEGER_POSITIVE;
+                        $tmpMsg = "error_must_be_positive_integer";
+                    } elseif ($tmpType == "float" || $tmpType == "number") {
+                        $tmpRule = VALID_FLOAT;
+                        $tmpMsg = "error_must_be_float";
+                    } elseif ($tmpType == "float_positive") {
+                        $tmpRule = VALID_FLOAT_POSITIVE;
+                        $tmpMsg = "error_must_be_positive_float";
+                    } elseif ($tmpType == "datetime") {
+                        $tmpRule = VALID_DATETIME_YMD;
+                        $tmpMsg = "invalid datetime";
+                    } elseif ($tmpType == "date") {
+                        $tmpRule = "date";
+                        $tmpMsg = "invalid date";
+                    } elseif ($tmpType == "time") {
+                        $tmpRule = VALID_24TIME;
+                        $tmpMsg = "this is not a time";
                     }
-                    if ($tmp_rule != NULL) {
+                    if ($tmpRule != NULL) {
                         $sf['StructureValidation'][] = array(
                             'structure_field_id' => $sf['structure_field_id'],
-                            'rule' => $tmp_rule,
+                            'rule' => $tmpRule,
                             'on_action' => NULL,
-                            'language_message' => $tmp_msg
+                            'language_message' => $tmpMsg
                         );
                     }
                     if (! $this->simple) {
@@ -147,10 +147,10 @@ class Structure extends AppModel
                             continue;
                         }
                         
-                        $not_empty = $rule == 'notBlank';
-                        $rule_array = array(
+                        $notEmpty = $rule == 'notBlank';
+                        $ruleArray = array(
                             'rule' => $rule,
-                            'allowEmpty' => ! $not_empty
+                            'allowEmpty' => ! $notEmpty
                         );
                         
                         if ($validation['on_action']) {
@@ -158,39 +158,39 @@ class Structure extends AppModel
                                 'create',
                                 'update'
                             ))) {
-                                $rule_array['on'] = $validation['on_action'];
+                                $ruleArray['on'] = $validation['on_action'];
                             } elseif (Configure::read('debug') > 0) {
                                 AppController::addWarningMsg('Invalid on_action for validation rule with id [' . $validation['id'] . ']. Current value: [' . $validation['on_action'] . ']. Expected: [create], [update] or empty.', true);
                             }
                         }
                         if ($validation['language_message']) {
-                            $rule_array['message'] = __($validation['language_message']);
-                        } elseif ($rule_array['rule'] == 'notBlank') {
-                            $rule_array['message'] = __("this field is required");
-                        } elseif ($rule_array['rule'] == 'isUnique') {
-                            $rule_array['message'] = __("this field must be unique");
+                            $ruleArray['message'] = __($validation['language_message']);
+                        } elseif ($ruleArray['rule'] == 'notBlank') {
+                            $ruleArray['message'] = __("this field is required");
+                        } elseif ($ruleArray['rule'] == 'isUnique') {
+                            $ruleArray['message'] = __("this field must be unique");
                         }
                         
-                        if (strlen($sf['language_label']) > 0 && isset($rule_array['message'])) {
-                            $rule_array['message'] .= " (" . __($sf['language_label']) . ")";
+                        if (strlen($sf['language_label']) > 0 && isset($ruleArray['message'])) {
+                            $ruleArray['message'] .= " (" . __($sf['language_label']) . ")";
                         }
                         
                         if (! isset($rules[$sf['model']][$sf['field']])) {
                             $rules[$sf['model']][$sf['field']] = array();
                         }
                         
-                        if ($not_empty) {
+                        if ($notEmpty) {
                             // the not empty rule must be the first one or cakes will ignore it
-                            array_unshift($rules[$sf['model']][$sf['field']], $rule_array);
+                            array_unshift($rules[$sf['model']][$sf['field']], $ruleArray);
                         } else {
-                            $rules[$sf['model']][$sf['field']][] = $rule_array;
+                            $rules[$sf['model']][$sf['field']][] = $ruleArray;
                         }
                     }
                     
-                    if (isset($auto_validation[$sf['field']])) {
-                        foreach ($auto_validation[$sf['field']] as $rule_array) {
-                            $rule_array['message'] .= " (" . __($sf['language_label']) . ")";
-                            $rules[$sf['model']][$sf['field']][] = $rule_array;
+                    if (isset($autoValidation[$sf['field']])) {
+                        foreach ($autoValidation[$sf['field']] as $ruleArray) {
+                            $ruleArray['message'] .= " (" . __($sf['language_label']) . ")";
+                            $rules[$sf['model']][$sf['field']][] = $ruleArray;
                         }
                     }
                 }

@@ -20,89 +20,89 @@ class AdminUsersController extends AdministrateAppController
         $this->Structures->set('users');
     }
 
-    function listall($group_id)
+    function listall($groupId)
     {
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId
         ));
         $this->Structures->set('users,users_form_for_admin');
         
         $this->hook();
         
         $this->request->data = $this->paginate($this->User, array(
-            'User.group_id' => $group_id
+            'User.group_id' => $groupId
         ));
     }
 
-    function detail($group_id, $user_id)
+    function detail($groupId, $userId)
     {
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id,
-            'User.id' => $user_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId,
+            'User.id' => $userId
         ));
         $this->Structures->set('users,users_form_for_admin');
         
         $this->hook();
         
-        $this->request->data = $this->User->getOrRedirect($user_id);
+        $this->request->data = $this->User->getOrRedirect($userId);
     }
 
-    function add($group_id)
+    function add($groupId)
     {
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId
         ));
         $this->Structures->set('users,users_form_for_admin');
-        $this->set("atim_menu", $this->Menus->get('/Administrate/AdminUsers/listall/%%Group.id%%/'));
+        $this->set("atimMenu", $this->Menus->get('/Administrate/AdminUsers/listall/%%Group.id%%/'));
         
-        if ($this->Group->hasPermissions($group_id)) {
-            $hook_link = $this->hook('format');
-            if ($hook_link) {
-                require ($hook_link);
+        if ($this->Group->hasPermissions($groupId)) {
+            $hookLink = $this->hook('format');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
             if (! empty($this->request->data)) {
-                $tmp_data = $this->User->find('first', array(
+                $tmpData = $this->User->find('first', array(
                     'conditions' => array(
                         'User.username' => $this->request->data['User']['username']
                     )
                 ));
-                if (! empty($tmp_data)) {
+                if (! empty($tmpData)) {
                     $this->User->validationErrors[][] = __('this user name is already in use');
                 }
                 
-                $password_data = array(
+                $passwordData = array(
                     'User' => array(
                         'new_password' => $this->request->data['User']['password'],
                         'confirm_password' => $this->request->data['Generated']['field1']
                     )
                 );
-                $submitted_data_validates = $this->User->validatePassword($password_data, $this->request->data['User']['username']);
+                $submittedDataValidates = $this->User->validatePassword($passwordData, $this->request->data['User']['username']);
                 
                 $this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
                 $this->request->data['User']['password_modified'] = date("Y-m-d H:i:s");
-                $this->request->data['User']['group_id'] = $group_id;
+                $this->request->data['User']['group_id'] = $groupId;
                 $this->request->data['User']['flag_active'] = true;
                 $this->User->addWritableField(array(
                     'group_id',
                     'flag_active',
                     'password_modified'
                 ));
-                $aro_m = AppModel::getInstance('', 'Aro', true);
-                $aro_m->check_writable_fields = false;
+                $aroM = AppModel::getInstance('', 'Aro', true);
+                $aroM->checkWritableFields = false;
                 
-                $hook_link = $this->hook('presave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('presave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 
-                if ($submitted_data_validates) {
+                if ($submittedDataValidates) {
                     if ($this->User->save($this->request->data)) {
-                        $hook_link = $this->hook('postsave_process');
-                        if ($hook_link) {
-                            require ($hook_link);
+                        $hookLink = $this->hook('postsave_process');
+                        if ($hookLink) {
+                            require ($hookLink);
                         }
-                        $this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/' . $group_id . '/' . $this->User->getLastInsertId() . '/');
+                        $this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/' . $groupId . '/' . $this->User->getLastInsertId() . '/');
                     }
                 }
                 // reset password display
@@ -110,128 +110,128 @@ class AdminUsersController extends AdministrateAppController
                 $this->request->data['Generated']['field1'] = "";
             }
         } else {
-            $this->atimFlash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $group_id . "/", AppController::ERROR);
+            $this->atimFlash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/" . $groupId . "/", AppController::ERROR);
         }
     }
 
-    function edit($group_id, $user_id)
+    function edit($groupId, $userId)
     {
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id,
-            'User.id' => $user_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId,
+            'User.id' => $userId
         ));
-        $user_data = $this->User->getOrRedirect($user_id);
+        $userData = $this->User->getOrRedirect($userId);
         
         $this->Structures->set('users,users_form_for_admin');
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $user_data;
+            $this->request->data = $userData;
         } else {
-            $this->request->data['User']['id'] = $user_id;
-            $this->request->data['User']['group_id'] = $group_id;
-            $this->request->data['Group']['id'] = $group_id;
+            $this->request->data['User']['id'] = $userId;
+            $this->request->data['User']['group_id'] = $groupId;
+            $this->request->data['Group']['id'] = $groupId;
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            if ($this->request->data['User']['username'] != $user_data['User']['username']) {
+            if ($this->request->data['User']['username'] != $userData['User']['username']) {
                 $this->User->validationErrors['username'][] = __('a user name can not be changed');
-                $submitted_data_validates = false;
+                $submittedDataValidates = false;
             }
             
             unset($this->request->data['User']['username']);
             
-            if ($user_id == $_SESSION['Auth']['User']['id'] && ! $this->request->data['User']['flag_active']) {
+            if ($userId == $_SESSION['Auth']['User']['id'] && ! $this->request->data['User']['flag_active']) {
                 unset($this->request->data['User']['flag_active']);
                 $this->User->validationErrors[][] = __('you cannot deactivate yourself');
-                $submitted_data_validates = false;
+                $submittedDataValidates = false;
             }
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 if ($this->User->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/' . $group_id . '/' . $user_id . '/');
+                    $this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/' . $groupId . '/' . $userId . '/');
                     return;
                 }
             }
             
             // Reset username
-            $this->request->data['User']['username'] = $user_data['User']['username'];
+            $this->request->data['User']['username'] = $userData['User']['username'];
         }
     }
 
-    function delete($group_id, $user_id)
+    function delete($groupId, $userId)
     {
         // to be used in a hook
-        $arr_allow_deletion = array(
-            "allow_deletion" => $user_id != $_SESSION['Auth']['User']['id'],
+        $arrAllowDeletion = array(
+            "allow_deletion" => $userId != $_SESSION['Auth']['User']['id'],
             "msg" => null
         );
         
-        if (! $arr_allow_deletion['allow_deletion']) {
-            $arr_allow_deletion['msg'] = 'you cannot delete yourself';
+        if (! $arrAllowDeletion['allow_deletion']) {
+            $arrAllowDeletion['msg'] = 'you cannot delete yourself';
         }
         
-        $aro_m = AppModel::getInstance('', 'Aro', true);
-        $aro_m->check_writable_fields = false;
-        $aro_m->pkey_safeguard = false;
+        $aroM = AppModel::getInstance('', 'Aro', true);
+        $aroM->checkWritableFields = false;
+        $aroM->pkeySafeguard = false;
         
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            $this->User->id = $user_id;
-            $this->User->atimDelete($user_id);
-            $this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/" . $group_id);
+        if ($arrAllowDeletion['allow_deletion']) {
+            $this->User->id = $userId;
+            $this->User->atimDelete($userId);
+            $this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/" . $groupId);
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), 'javascript:history.back()');
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), 'javascript:history.back()');
         }
     }
 
-    function search($search_id = 0)
+    function search($searchId = 0)
     {
-        $this->set('atim_menu', $this->Menus->get('/Administrate/Groups/index'));
-        $this->searchHandler($search_id, $this->User, 'users', '/Administrate/AdminUsers/search');
-        $this->Structures->set('empty', 'empty_structure');
+        $this->set('atimMenu', $this->Menus->get('/Administrate/Groups/index'));
+        $this->searchHandler($searchId, $this->User, 'users', '/Administrate/AdminUsers/search');
+        $this->Structures->set('empty', 'emptyStructure');
         
-        $this->set('search_id', $search_id);
+        $this->set('searchId', $searchId);
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function changeGroup($group_id, $user_id)
+    function changeGroup($groupId, $userId)
     {
-        $user = $this->User->getOrRedirect($user_id);
-        if ($user['Group']['id'] != $group_id) {
+        $user = $this->User->getOrRedirect($userId);
+        if ($user['Group']['id'] != $groupId) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $this->set('atim_menu_variables', array(
+        $this->set('atimMenuVariables', array(
             'Group.id' => $user['Group']['id'],
-            'User.id' => $user_id
+            'User.id' => $userId
         ));
         
         $this->Structures->set('group_select');
         
         if ($this->request->data) {
             $this->Group->getOrRedirect($this->request->data['Group']['id']);
-            $this->User->id = $user_id;
+            $this->User->id = $userId;
             $this->User->data = array();
             $this->User->addWritableField('group_id');
             $this->User->save(array(
@@ -240,7 +240,7 @@ class AdminUsersController extends AdministrateAppController
                 )
             ), false);
             $this->SystemVar->setVar('permission_timestamp', time());
-            $this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/' . $this->request->data['Group']['id'] . '/' . $user_id . '/');
+            $this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/' . $this->request->data['Group']['id'] . '/' . $userId . '/');
         } else {
             $this->request->data = $user;
         }

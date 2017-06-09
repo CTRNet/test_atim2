@@ -3,7 +3,7 @@
 class EventControl extends ClinicalAnnotationAppModel
 {
 
-    public $master_form_alias = 'eventmasters';
+    public $masterFormAlias = 'eventmasters';
 
     /**
      * Get permissible values array gathering all existing event disease sites.
@@ -21,8 +21,8 @@ class EventControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $event_control) {
-            $result[$event_control['EventControl']['disease_site']] = __($event_control['EventControl']['disease_site']);
+        )) as $eventControl) {
+            $result[$eventControl['EventControl']['disease_site']] = __($eventControl['EventControl']['disease_site']);
         }
         natcasesort($result);
         
@@ -38,8 +38,8 @@ class EventControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $event_control) {
-            $result[$event_control['EventControl']['event_group']] = __($event_control['EventControl']['event_group']);
+        )) as $eventControl) {
+            $result[$eventControl['EventControl']['event_group']] = __($eventControl['EventControl']['event_group']);
         }
         natcasesort($result);
         
@@ -62,22 +62,22 @@ class EventControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $event_control) {
-            $result[$event_control['EventControl']['event_type']] = __($event_control['EventControl']['event_type']);
+        )) as $eventControl) {
+            $result[$eventControl['EventControl']['event_type']] = __($eventControl['EventControl']['event_type']);
         }
         natcasesort($result);
         
         return $result;
     }
 
-    function buildAddLinks($event_ctrl_data, $participant_id, $event_group)
+    function buildAddLinks($eventCtrlData, $participantId, $eventGroup)
     {
         $links = array();
-        foreach ($event_ctrl_data as $event_ctrl) {
+        foreach ($eventCtrlData as $eventCtrl) {
             $links[] = array(
-                'order' => $event_ctrl['EventControl']['display_order'],
-                'label' => __($event_ctrl['EventControl']['event_type']) . (empty($event_ctrl['EventControl']['disease_site']) ? '' : ' - ' . __($event_ctrl['EventControl']['disease_site'])),
-                'link' => '/ClinicalAnnotation/EventMasters/add/' . $participant_id . '/' . $event_ctrl['EventControl']['id']
+                'order' => $eventCtrl['EventControl']['display_order'],
+                'label' => __($eventCtrl['EventControl']['event_type']) . (empty($eventCtrl['EventControl']['disease_site']) ? '' : ' - ' . __($eventCtrl['EventControl']['disease_site'])),
+                'link' => '/ClinicalAnnotation/EventMasters/add/' . $participantId . '/' . $eventCtrl['EventControl']['id']
             );
         }
         AppController::buildBottomMenuOptions($links);

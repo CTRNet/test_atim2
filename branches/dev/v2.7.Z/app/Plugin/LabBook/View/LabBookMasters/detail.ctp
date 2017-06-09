@@ -1,70 +1,70 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
-        'edit' => '/labbook/LabBookMasters/edit/' . $atim_menu_variables['LabBookMaster.id'],
-        'delete' => '/labbook/LabBookMasters/delete/' . $atim_menu_variables['LabBookMaster.id']
+        'edit' => '/labbook/LabBookMasters/edit/' . $atimMenuVariables['LabBookMaster.id'],
+        'delete' => '/labbook/LabBookMasters/delete/' . $atimMenuVariables['LabBookMaster.id']
     )
 );
-$structure_override = array();
+$structureOverride = array();
 $settings = array();
 
-if ($full_detail_screen) {
+if ($fullDetailScreen) {
     $settings['actions'] = false;
-    $structure_links['bottom'] = array_merge(array(
-        'edit synchronization option' => '/labbook/LabBookMasters/editSynchOptions/' . $atim_menu_variables['LabBookMaster.id']
-    ), $structure_links['bottom']);
+    $structureLinks['bottom'] = array_merge(array(
+        'edit synchronization option' => '/labbook/LabBookMasters/editSynchOptions/' . $atimMenuVariables['LabBookMaster.id']
+    ), $structureLinks['bottom']);
 }
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'settings' => $settings
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-if ($full_detail_screen) {
+if ($fullDetailScreen) {
     
     // DERIVATIVE DETAILS
     
-    $structure_links['index'] = array(
+    $structureLinks['index'] = array(
         'sample' => array(
             'link' => '/InventoryManagement/SampleMasters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%',
             'icon' => 'flask'
         )
     );
-    $structure_override = array();
+    $structureOverride = array();
     $settings = array(
         'header' => __('derivative', null),
         'actions' => false,
         'pagination' => false
     );
     
-    $final_atim_structure = $lab_book_derivatives_summary;
-    $final_options = array(
+    $finalAtimStructure = $labBookDerivativesSummary;
+    $finalOptions = array(
         'type' => 'index',
-        'links' => $structure_links,
-        'override' => $structure_override,
-        'data' => $derivatives_list,
+        'links' => $structureLinks,
+        'override' => $structureOverride,
+        'data' => $derivativesList,
         'settings' => $settings
     );
     
-    $hook_link = $this->Structures->hook('derivatives');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('derivatives');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
     // REALIQUOTING
     
-    $structure_links['index'] = array(
+    $structureLinks['index'] = array(
         'sample' => array(
             'link' => '/InventoryManagement/SampleMasters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%',
             'icon' => 'flask'
@@ -75,27 +75,27 @@ if ($full_detail_screen) {
         )
     );
     
-    $structure_override = array();
+    $structureOverride = array();
     $settings = array(
         'header' => __('realiquoting', null),
         'pagination' => false
     );
     
-    $final_atim_structure = $lab_book_realiquotings_summary;
-    $final_options = array(
+    $finalAtimStructure = $labBookRealiquotingsSummary;
+    $finalOptions = array(
         'type' => 'index',
-        'links' => $structure_links,
-        'override' => $structure_override,
-        'data' => $realiquotings_list,
+        'links' => $structureLinks,
+        'override' => $structureOverride,
+        'data' => $realiquotingsList,
         'settings' => $settings
     );
     
-    $hook_link = $this->Structures->hook('derivatives');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('derivatives');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 
 ?>

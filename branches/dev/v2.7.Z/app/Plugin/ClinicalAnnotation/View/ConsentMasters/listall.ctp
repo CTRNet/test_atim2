@@ -1,35 +1,35 @@
 <?php
-$add_links = array();
-foreach ($consent_controls_list as $consent_control) {
-    $add_links[__($consent_control['ConsentControl']['controls_type'])] = '/ClinicalAnnotation/ConsentMasters/add/' . $atim_menu_variables['Participant.id'] . '/' . $consent_control['ConsentControl']['id'] . '/';
+$addLinks = array();
+foreach ($consentControlsList as $consentControl) {
+    $addLinks[__($consentControl['ConsentControl']['controls_type'])] = '/ClinicalAnnotation/ConsentMasters/add/' . $atimMenuVariables['Participant.id'] . '/' . $consentControl['ConsentControl']['id'] . '/';
 }
-natcasesort($add_links);
+natcasesort($addLinks);
 
-$structure_links = array(
+$structureLinks = array(
     'top' => NULL,
     'index' => array(
-        'detail' => '/ClinicalAnnotation/ConsentMasters/detail/' . $atim_menu_variables['Participant.id'] . '/%%ConsentMaster.id%%',
-        'edit' => '/ClinicalAnnotation/ConsentMasters/edit/' . $atim_menu_variables['Participant.id'] . '/%%ConsentMaster.id%%',
-        'delete' => '/ClinicalAnnotation/ConsentMasters/delete/' . $atim_menu_variables['Participant.id'] . '/%%ConsentMaster.id%%'
+        'detail' => '/ClinicalAnnotation/ConsentMasters/detail/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%',
+        'edit' => '/ClinicalAnnotation/ConsentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%',
+        'delete' => '/ClinicalAnnotation/ConsentMasters/delete/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%'
     ),
     'bottom' => array(
-        'add' => $add_links
+        'add' => $addLinks
     )
 );
 
 // Set form structure and option
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

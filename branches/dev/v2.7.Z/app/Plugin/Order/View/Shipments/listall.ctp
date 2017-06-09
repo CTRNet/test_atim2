@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => null,
     'index' => array(
         'detail' => '/Order/Shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/',
@@ -14,23 +14,23 @@ $structure_links = array(
         'delete' => '/Order/Shipments/delete/%%Shipment.order_id%%/%%Shipment.id%%/'
     ),
     'bottom' => array(
-        'add' => '/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/'
+        'add' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

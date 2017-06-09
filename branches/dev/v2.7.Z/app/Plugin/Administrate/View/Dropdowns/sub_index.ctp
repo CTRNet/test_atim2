@@ -1,6 +1,6 @@
 <?php
-$final_atim_structure = $administrate_dropdowns;
-$final_options = array(
+$finalAtimStructure = $administrateDropdowns;
+$finalOptions = array(
     'type' => 'index',
     'links' => array(
         'index' => array(
@@ -14,12 +14,12 @@ $final_options = array(
     'override' => array()
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 

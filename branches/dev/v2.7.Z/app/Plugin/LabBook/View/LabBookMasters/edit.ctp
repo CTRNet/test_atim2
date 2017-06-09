@@ -1,26 +1,26 @@
 <?php
-$structure_links = array(
-    'top' => '/labbook/LabBookMasters/edit/' . $atim_menu_variables['LabBookMaster.id'],
+$structureLinks = array(
+    'top' => '/labbook/LabBookMasters/edit/' . $atimMenuVariables['LabBookMaster.id'],
     'bottom' => array(
-        'cancel' => '/labbook/LabBookMasters/detail/' . $atim_menu_variables['LabBookMaster.id']
+        'cancel' => '/labbook/LabBookMasters/detail/' . $atimMenuVariables['LabBookMaster.id']
     )
 );
 
-$structure_override = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

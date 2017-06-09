@@ -28,14 +28,14 @@ class CollectionsController extends InventoryManagementAppController
         )
     );
 
-    function search($search_id = 0, $is_ccl_ajax = false)
+    function search($searchId = 0, $isCclAjax = false)
     {
-        if ($is_ccl_ajax && $this->request->data) {
+        if ($isCclAjax && $this->request->data) {
             // custom result handling for ccl
-            $view_collection = $this->Structures->get('form', 'view_collection');
-            $this->set('atim_structure', $view_collection);
-            $this->Structures->set('empty', 'empty_structure');
-            $conditions = $this->Structures->parseSearchConditions($view_collection);
+            $viewCollection = $this->Structures->get('form', 'view_collection');
+            $this->set('atimStructure', $viewCollection);
+            $this->Structures->set('empty', 'emptyStructure');
+            $conditions = $this->Structures->parseSearchConditions($viewCollection);
             $limit = 20;
             $conditions[] = "ViewCollection.participant_id IS NULL";
             $this->request->data = $this->ViewCollection->find('all', array(
@@ -50,44 +50,44 @@ class CollectionsController extends InventoryManagementAppController
                 $this->set("overflow", true);
             }
         } elseif (isset($this->passedArgs['unlinkedParticipants'])) {
-            $group_model = AppModel::getInstance('', 'Group');
-            $group = $group_model->find('first', array(
+            $groupModel = AppModel::getInstance('', 'Group');
+            $group = $groupModel->find('first', array(
                 'conditions' => array(
                     'Group.id' => $this->Session->read('Auth.User.group_id')
                 )
             ));
-            $collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
+            $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection');
             $conditions = array(
                 'ViewCollection.collection_property' => 'participant collection',
                 'ViewCollection.participant_id' => null
             );
             if ($group['Group']['bank_id']) {
-                $this->set('bank_filter', true);
+                $this->set('bankFilter', true);
                 $conditions['ViewCollection.bank_id'] = $group['Group']['bank_id'];
             }
             $this->Structures->set('view_collection');
             $this->request->data = $this->paginate($this->ViewCollection, $conditions);
         } else {
-            $this->searchHandler($search_id, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
+            $this->searchHandler($searchId, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
         }
         
-        $help_url = $this->ExternalLink->find('first', array(
+        $helpUrl = $this->ExternalLink->find('first', array(
             'conditions' => array(
                 'name' => 'inventory_elements_defintions'
             )
         ));
-        $this->set("help_url", $help_url['ExternalLink']['link']);
-        if ($is_ccl_ajax) {
-            $this->set('is_ccl_ajax', $is_ccl_ajax);
+        $this->set("helpUrl", $helpUrl['ExternalLink']['link']);
+        if ($isCclAjax) {
+            $this->set('isCclAjax', $isCclAjax);
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             if (! isset($this->request->query['nolatest'])) {
                 $this->request->data = $this->ViewCollection->find('all', array(
@@ -104,70 +104,70 @@ class CollectionsController extends InventoryManagementAppController
         }
     }
 
-    function detail($collection_id, $hide_header = false)
+    function detail($collectionId, $hideHeader = false)
     {
         unset($_SESSION['InventoryManagement']['TemplateInit']);
         
         // MANAGE DATA
-        $this->request->data = $this->ViewCollection->getOrRedirect($collection_id);
+        $this->request->data = $this->ViewCollection->getOrRedirect($collectionId);
         
         // Set participant id
-        $this->set('participant_id', $this->request->data['ViewCollection']['participant_id']);
+        $this->set('participantId', $this->request->data['ViewCollection']['participant_id']);
         
         // Get all sample control types to build the add to selected button
         $controls = $this->SampleControl->getPermissibleSamplesArray(null);
-        $this->set('specimen_sample_controls_list', $controls);
+        $this->set('specimenSampleControlsList', $controls);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu_variables', array(
-            'Collection.id' => $collection_id
+        $this->set('atimMenuVariables', array(
+            'Collection.id' => $collectionId
         ));
         $this->Structures->set('view_collection');
         
         // Define if this detail form is displayed into the collection content tree view
-        $this->set('is_ajax', $this->request->is('ajax'));
-        $this->set('hide_header', $hide_header);
+        $this->set('isAjax', $this->request->is('ajax'));
+        $this->set('hideHeader', $hideHeader);
         
-        $template_model = AppModel::getInstance("Tools", "Template", true);
-        $templates = $template_model->getAddFromTemplateMenu($collection_id);
+        $templateModel = AppModel::getInstance("Tools", "Template", true);
+        $templates = $templateModel->getAddFromTemplateMenu($collectionId);
         $this->set('templates', $templates);
         
         if (! $this->request->is('ajax')) {
             $this->Structures->set('sample_masters_for_collection_tree_view', 'sample_masters_for_collection_tree_view');
-            $sample_data = $this->SampleMaster->find('all', array(
+            $sampleData = $this->SampleMaster->find('all', array(
                 'conditions' => array(
-                    'SampleMaster.collection_id' => $collection_id,
+                    'SampleMaster.collection_id' => $collectionId,
                     'SampleMaster.parent_id' => null
                 ),
                 'recursive' => 0
             ));
             $ids = array();
-            foreach ($sample_data as $unit) {
+            foreach ($sampleData as $unit) {
                 $ids[] = $unit['SampleMaster']['id'];
             }
             $ids = array_flip($this->SampleMaster->hasChild($ids)); // array_key_exists is faster than in_array
-            foreach ($sample_data as &$unit) {
+            foreach ($sampleData as &$unit) {
                 $unit['children'] = array_key_exists($unit['SampleMaster']['id'], $ids);
             }
-            $this->set('sample_data', $sample_data);
+            $this->set('sampleData', $sampleData);
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($collection_id = 0, $copy_source = 0)
+    function add($collectionId = 0, $copySource = 0)
     {
-        $collection_data = null;
-        if ($collection_id > 0) {
-            $collection_data = $this->Collection->find('first', array(
+        $collectionData = null;
+        if ($collectionId > 0) {
+            $collectionData = $this->Collection->find('first', array(
                 'conditions' => array(
-                    'Collection.id' => $collection_id,
+                    'Collection.id' => $collectionId,
                     'Collection.deleted' => 1
                 ),
                 'recursive' => '1'
@@ -175,15 +175,15 @@ class CollectionsController extends InventoryManagementAppController
         }
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        if (! empty($collection_data)) {
+        if (! empty($collectionData)) {
             $this->Structures->set('linked_collections');
         }
         
-        $this->set('atim_variables', array(
-            'Collection.id' => $collection_id
+        $this->set('atimVariables', array(
+            'Collection.id' => $collectionId
         ));
-        $this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
-        $this->set('copy_source', $copy_source);
+        $this->set('atimMenu', $this->Menus->get('/InventoryManagement/Collections/search'));
+        $this->set('copySource', $copySource);
         
         // Manage collection_property
         if (! empty($this->request->data) && ! array_key_exists('collection_property', $this->request->data['Collection'])) {
@@ -192,44 +192,44 @@ class CollectionsController extends InventoryManagementAppController
             $this->Collection->addWritableField('collection_property'); // Force collection_property record in case field display flag is set to read only in collections form (see issue#3312)
         }
         
-        $need_to_save = ! empty($this->request->data);
+        $needToSave = ! empty($this->request->data);
         if (empty($this->request->data) || isset($this->request->data['FunctionManagement']['col_copy_binding_opt'])) {
-            if (! empty($copy_source)) {
+            if (! empty($copySource)) {
                 if (empty($this->request->data)) {
-                    $this->request->data = $this->Collection->getOrRedirect($copy_source);
+                    $this->request->data = $this->Collection->getOrRedirect($copySource);
                 }
                 if ($this->request->data['Collection']['collection_property'] == 'participant collection') {
                     $this->Structures->set('collections,col_copy_binding_opt');
                 }
             }
-            $this->request->data['Generated']['field1'] = (! empty($collection_data)) ? $collection_data['Participant']['participant_identifier'] : __('n/a');
+            $this->request->data['Generated']['field1'] = (! empty($collectionData)) ? $collectionData['Participant']['participant_identifier'] : __('n/a');
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($need_to_save) {
+        if ($needToSave) {
             
             // Manage Copy
             
-            $copy_src_data = null;
-            if ($copy_source) {
-                $copy_src_data = $this->Collection->getOrRedirect($copy_source);
+            $copySrcData = null;
+            if ($copySource) {
+                $copySrcData = $this->Collection->getOrRedirect($copySource);
             }
             
-            $copy_links_option = isset($this->request->data['FunctionManagement']['col_copy_binding_opt']) ? (int) $this->request->data['FunctionManagement']['col_copy_binding_opt'] : 0;
-            if ($copy_source) {
-                if ($copy_links_option > 0 && $this->request->data['Collection']['collection_property'] == 'independent collection') {
+            $copyLinksOption = isset($this->request->data['FunctionManagement']['col_copy_binding_opt']) ? (int) $this->request->data['FunctionManagement']['col_copy_binding_opt'] : 0;
+            if ($copySource) {
+                if ($copyLinksOption > 0 && $this->request->data['Collection']['collection_property'] == 'independent collection') {
                     AppController::addWarningMsg(__('links were not copied since the destination is an independant collection'));
-                } elseif ($copy_links_option > 1) {
-                    $classic_ccl_insert = false;
-                    $this->request->data['Collection']['participant_id'] = $copy_src_data['Collection']['participant_id'];
+                } elseif ($copyLinksOption > 1) {
+                    $classicCclInsert = false;
+                    $this->request->data['Collection']['participant_id'] = $copySrcData['Collection']['participant_id'];
                     $this->Collection->addWritableField('participant_id');
-                    if ($copy_links_option == 6) {
+                    if ($copyLinksOption == 6) {
                         $this->Collection->addWritableField(array(
                             'consent_master_id',
                             'diagnosis_master_id',
@@ -237,10 +237,10 @@ class CollectionsController extends InventoryManagementAppController
                             'event_master_id'
                         ));
                         $this->request->data['Collection'] = array_merge($this->request->data['Collection'], array(
-                            'consent_master_id' => $copy_src_data['Collection']['consent_master_id'],
-                            'diagnosis_master_id' => $copy_src_data['Collection']['diagnosis_master_id'],
-                            'treatment_master_id' => $copy_src_data['Collection']['treatment_master_id'],
-                            'event_master_id' => $copy_src_data['Collection']['event_master_id']
+                            'consent_master_id' => $copySrcData['Collection']['consent_master_id'],
+                            'diagnosis_master_id' => $copySrcData['Collection']['diagnosis_master_id'],
+                            'treatment_master_id' => $copySrcData['Collection']['treatment_master_id'],
+                            'event_master_id' => $copySrcData['Collection']['event_master_id']
                         ));
                     }
                 }
@@ -250,139 +250,139 @@ class CollectionsController extends InventoryManagementAppController
             $this->Collection->addWritableField('deleted');
             
             // LAUNCH SAVE PROCESS
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // HOOK AND VALIDATION
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // SAVE
-                if ($collection_data) {
-                    $this->Collection->id = $collection_id;
+                if ($collectionData) {
+                    $this->Collection->id = $collectionId;
                 } else {
                     $this->Collection->id = 0;
                     $this->Collection->data = null;
                 }
                 
                 if ($this->Collection->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $collection_id = $collection_id ?: $this->Collection->getLastInsertId();
-                    $this->atimFlash(__('your data has been saved'), '/InventoryManagement/Collections/detail/' . $collection_id);
+                    $collectionId = $collectionId ?: $this->Collection->getLastInsertId();
+                    $this->atimFlash(__('your data has been saved'), '/InventoryManagement/Collections/detail/' . $collectionId);
                 }
             }
         }
     }
 
-    function edit($collection_id)
+    function edit($collectionId)
     {
         $this->Collection->unbindModel(array(
             'hasMany' => array(
                 'SampleMaster'
             )
         ));
-        $collection_data = $this->Collection->getOrRedirect($collection_id);
+        $collectionData = $this->Collection->getOrRedirect($collectionId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Collection.id' => $collection_id
+        $this->set('atimMenuVariables', array(
+            'Collection.id' => $collectionId
         ));
         
-        if ($collection_data['Collection']['participant_id']) {
+        if ($collectionData['Collection']['participant_id']) {
             // Linked collection: Set specific structure
             $this->Structures->set('linked_collections');
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $collection_data;
+            $this->request->data = $collectionData;
         } else {
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // 4- SAVE
-                $this->Collection->id = $collection_id;
+                $this->Collection->id = $collectionId;
                 $this->Collection->data = array();
                 if ($this->Collection->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/InventoryManagement/Collections/detail/' . $collection_id);
+                    $this->atimFlash(__('your data has been updated'), '/InventoryManagement/Collections/detail/' . $collectionId);
                 }
             }
         }
     }
 
-    function delete($collection_id)
+    function delete($collectionId)
     {
         // Get collection data
-        $collection_data = $this->Collection->getOrRedirect($collection_id);
+        $collectionData = $this->Collection->getOrRedirect($collectionId);
         
         // Check deletion is allowed
-        $arr_allow_deletion = $this->Collection->allowDeletion($collection_id);
+        $arrAllowDeletion = $this->Collection->allowDeletion($collectionId);
         
         // CUSTOM CODE
         
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
+        if ($arrAllowDeletion['allow_deletion']) {
             // Delete collection
-            if ($this->Collection->atimDelete($collection_id, true)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($this->Collection->atimDelete($collectionId, true)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been deleted'), '/InventoryManagement/Collections/search/');
             } else {
                 $this->atimFlashError(__('error deleting data - contact administrator'), '/InventoryManagement/Collections/search/');
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/InventoryManagement/Collections/detail/' . $collection_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/InventoryManagement/Collections/detail/' . $collectionId);
         }
     }
 
-    function template($collection_id, $template_id)
+    function template($collectionId, $templateId)
     {
-        $this->set('atim_menu_variables', array(
-            'Collection.id' => $collection_id
+        $this->set('atimMenuVariables', array(
+            'Collection.id' => $collectionId
         ));
-        $template_model = AppModel::getInstance("Tools", "Template", true);
-        $template_model->id = $template_id;
-        $template = $template_model->read();
-        $tree = $template_model->init();
-        $this->set('tree_data', $tree['']);
+        $templateModel = AppModel::getInstance("Tools", "Template", true);
+        $templateModel->id = $templateId;
+        $template = $templateModel->read();
+        $tree = $templateModel->init();
+        $this->set('treeData', $tree['']);
         
-        $sample_controls = $this->SampleControl->find('all');
-        $sample_controls = AppController::defineArrayKey($sample_controls, 'SampleControl', 'id', true);
-        AppController::applyTranslation($sample_controls, 'SampleControl', 'sample_type');
+        $sampleControls = $this->SampleControl->find('all');
+        $sampleControls = AppController::defineArrayKey($sampleControls, 'SampleControl', 'id', true);
+        AppController::applyTranslation($sampleControls, 'SampleControl', 'sample_type');
         
-        $aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl', true);
-        $aliquot_controls = $aliquot_control_model->find('all', array(
+        $aliquotControlModel = AppModel::getInstance('InventoryManagement', 'AliquotControl', true);
+        $aliquotControls = $aliquotControlModel->find('all', array(
             'fields' => array(
                 'id',
                 'sample_control_id',
@@ -393,36 +393,36 @@ class CollectionsController extends InventoryManagementAppController
             ),
             'recursive' => - 1
         ));
-        $aliquot_controls = AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true);
-        AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type');
+        $aliquotControls = AppController::defineArrayKey($aliquotControls, 'AliquotControl', 'id', true);
+        AppController::applyTranslation($aliquotControls, 'AliquotControl', 'aliquot_type');
         
-        $parent_to_derivative_sample_control_model = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
-        $samples_relations = $parent_to_derivative_sample_control_model->find('all', array(
+        $parentToDerivativeSampleControlModel = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+        $samplesRelations = $parentToDerivativeSampleControlModel->find('all', array(
             'conditions' => array(
                 'flag_active' => 1
             ),
             'recusrive' => - 1
         ));
-        foreach ($samples_relations as &$sample_relation) {
-            unset($sample_relation['ParentSampleControl']);
-            unset($sample_relation['DerivativeControl']);
+        foreach ($samplesRelations as &$sampleRelation) {
+            unset($sampleRelation['ParentSampleControl']);
+            unset($sampleRelation['DerivativeControl']);
         }
-        unset($sample_relation);
-        $samples_relations = AppController::defineArrayKey($samples_relations, 'ParentToDerivativeSampleControl', 'parent_sample_control_id');
+        unset($sampleRelation);
+        $samplesRelations = AppController::defineArrayKey($samplesRelations, 'ParentToDerivativeSampleControl', 'parent_sample_control_id');
         
-        $js_data = array(
-            'sample_controls' => $sample_controls,
-            'samples_relations' => $samples_relations,
-            'aliquot_controls' => AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true),
-            'aliquot_relations' => AppController::defineArrayKey($aliquot_controls, "AliquotControl", "sample_control_id")
+        $jsData = array(
+            'sample_controls' => $sampleControls,
+            'samples_relations' => $samplesRelations,
+            'aliquot_controls' => AppController::defineArrayKey($aliquotControls, 'AliquotControl', 'id', true),
+            'aliquot_relations' => AppController::defineArrayKey($aliquotControls, "AliquotControl", "sample_control_id")
         );
         
-        $this->set('js_data', $js_data);
-        $this->set('template_id', empty($template) ? null : $template['Template']['id']);
+        $this->set('jsData', $jsData);
+        $this->set('templateId', empty($template) ? null : $template['Template']['id']);
         $this->set('controls', 0);
-        $this->set('collection_id', $collection_id);
-        $this->set('flag_system', empty($template) ? null : $template['Template']['flag_system']);
-        $this->set('structure_header', array(
+        $this->set('collectionId', $collectionId);
+        $this->set('flagSystem', empty($template) ? null : $template['Template']['flag_system']);
+        $this->set('structureHeader', array(
             'title' => __('samples and aliquots creation from template'),
             'description' => empty($template) ? null : __('collection template') . ': ' . __($template['Template']['name'])
         ));
@@ -431,73 +431,73 @@ class CollectionsController extends InventoryManagementAppController
         $this->render('/../../Tools/View/Template/tree');
     }
 
-    function templateInit($collection_id, $template_id)
+    function templateInit($collectionId, $templateId)
     {
         $template = null;
-        if ($template_id != 0) {
-            $template_model = AppModel::getInstance("Tools", "Template", true);
-            $template = $template_model->findById($template_id);
-            $template_model->init($template_id);
+        if ($templateId != 0) {
+            $templateModel = AppModel::getInstance("Tools", "Template", true);
+            $template = $templateModel->findById($templateId);
+            $templateModel->init($templateId);
         }
         $this->set('template', $template);
-        $this->set('template_id', $template_id);
+        $this->set('templateId', $templateId);
         
         $this->TemplateInit = AppModel::getInstance('InventoryManagement', 'TemplateInit');
-        $to_begin_msg = true; // can be overriden in hooks
+        $toBeginMsg = true; // can be overriden in hooks
         $this->Structures->set('template_init_structure', 'template_init_structure');
         
-        $this->set('collection_id', $collection_id);
+        $this->set('collectionId', $collectionId);
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        $template_init_id = null;
+        $templateInitId = null;
         if (empty($this->request->data)) {
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             // validate and stuff
-            $data_validates = true;
+            $dataValidates = true;
             
             if (isset($this->request->data['template_init_id'])) {
-                $template_init_id = $this->request->data['template_init_id'];
+                $templateInitId = $this->request->data['template_init_id'];
             }
             
             $this->TemplateInit->set($this->request->data);
             if (! $this->TemplateInit->validates()) {
-                $data_validates = false;
+                $dataValidates = false;
             } else {
                 $this->request->data = $this->TemplateInit->data['TemplateInit'];
             }
             
             // hook
-            $hook_link = $this->hook('validate_and_set');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('validate_and_set');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($data_validates && $template_init_id) {
-                $this->Session->write('Template.init_data.' . $template_init_id, $this->request->data);
+            if ($dataValidates && $templateInitId) {
+                $this->Session->write('Template.init_data.' . $templateInitId, $this->request->data);
                 $this->set('goToNext', true);
             }
         }
         
-        if ($template_init_id == null) {
-            if ($template_init_id = $this->Session->read('Template.init_id')) {
-                ++ $template_init_id;
+        if ($templateInitId == null) {
+            if ($templateInitId = $this->Session->read('Template.init_id')) {
+                ++ $templateInitId;
             } else {
-                $template_init_id = 1;
+                $templateInitId = 1;
             }
-            $this->Session->write('Template.init_id', $template_init_id);
+            $this->Session->write('Template.init_id', $templateInitId);
         }
-        $this->set('template_init_id', $template_init_id);
+        $this->set('templateInitId', $templateInitId);
         
-        if ($to_begin_msg) {
+        if ($toBeginMsg) {
             AppController::addInfoMsg(__('to begin, click submit'));
         }
     }

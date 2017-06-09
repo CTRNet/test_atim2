@@ -1,35 +1,35 @@
 <?php
-$structure_links = array(
-    'top' => '/StorageLayout/StorageMasters/add/' . $atim_menu_variables['StorageControl.id'],
+$structureLinks = array(
+    'top' => '/StorageLayout/StorageMasters/add/' . $atimMenuVariables['StorageControl.id'],
     'bottom' => array(
-        'cancel' => $url_to_cancel
+        'cancel' => $urlToCancel
     )
 );
 
-$structure_override = array();
+$structureOverride = array();
 
-$structure_override['StorageMaster.storage_control_id'] = $storage_control_id;
-$structure_override['StorageMaster.layout_description'] = $layout_description;
+$structureOverride['StorageMaster.storage_control_id'] = $storageControlId;
+$structureOverride['StorageMaster.layout_description'] = $layoutDescription;
 unset($this->request->data['StorageMaster']['layout_description']);
 
-if (isset($predefined_parent_storage_selection_label)) {
-    $structure_override['FunctionManagement.recorded_storage_selection_label'] = $predefined_parent_storage_selection_label;
+if (isset($predefinedParentStorageSelectionLabel)) {
+    $structureOverride['FunctionManagement.recorded_storage_selection_label'] = $predefinedParentStorageSelectionLabel;
 }
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride
 );
-$final_options['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="' . $url_to_cancel . '"/>';
+$finalOptions['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>';
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

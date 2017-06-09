@@ -14,113 +14,113 @@ class StudyContactsController extends StudyAppController
         )
     );
 
-    function listall($study_summary_id)
+    function listall($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
         // Missing or empty function variable, send to ERROR page
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_contact_data = $this->StudySummary->find('first', array(
+        $studyContactData = $this->StudySummary->find('first', array(
             'conditions' => array(
-                'StudySummary.id' => $study_summary_id
+                'StudySummary.id' => $studySummaryId
             ),
             'recursive' => '-1'
         ));
-        if (empty($study_contact_data)) {
+        if (empty($studyContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->request->data = $this->paginate($this->StudyContact, array(
-            'StudyContact.study_summary_id' => $study_summary_id
+            'StudyContact.study_summary_id' => $studySummaryId
         ));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($study_summary_id, $study_contact_id)
+    function detail($studySummaryId, $studyContactId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
-        if (! $study_contact_id) {
+        if (! $studyContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_contact_data = $this->StudyContact->find('first', array(
+        $studyContactData = $this->StudyContact->find('first', array(
             'conditions' => array(
-                'StudyContact.id' => $study_contact_id,
-                'StudyContact.study_summary_id' => $study_summary_id
+                'StudyContact.id' => $studyContactId,
+                'StudyContact.study_summary_id' => $studySummaryId
             )
         ));
-        if (empty($study_contact_data)) {
+        if (empty($studyContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->request->data = $study_contact_data;
+        $this->request->data = $studyContactData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id,
-            'StudyContact.id' => $study_contact_id
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId,
+            'StudyContact.id' => $studyContactId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($study_summary_id)
+    function add($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_contact_data = $this->StudySummary->find('first', array(
+        $studyContactData = $this->StudySummary->find('first', array(
             'conditions' => array(
-                'StudySummary.id' => $study_summary_id
+                'StudySummary.id' => $studySummaryId
             ),
             'recursive' => '-1'
         ));
-        if (empty($study_contact_data)) {
+        if (empty($studyContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        // $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));
-        // $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id
+        // $this->set('atimStructure', $this->Structures->get('form', 'familyhistories'));
+        // $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
@@ -128,69 +128,69 @@ class StudyContactsController extends StudyAppController
             // LAUNCH SAVE PROCESS
             // 1- SET ADDITIONAL DATA
             
-            $this->request->data['StudyContact']['study_summary_id'] = $study_summary_id;
+            $this->request->data['StudyContact']['study_summary_id'] = $studySummaryId;
             
             // 2- LAUNCH SPECIAL VALIDATION PROCESS
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // ... special validations
             
             // 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 // 4- SAVE
                 if ($this->StudyContact->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been saved'), '/Study/StudyContacts/detail/' . $study_summary_id . '/' . $this->StudyContact->id);
+                    $this->atimFlash(__('your data has been saved'), '/Study/StudyContacts/detail/' . $studySummaryId . '/' . $this->StudyContact->id);
                 }
             }
         }
     }
 
-    function edit($study_summary_id, $study_contact_id)
+    function edit($studySummaryId, $studyContactId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
-        if (! $study_contact_id) {
+        if (! $studyContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_contact_data = $this->StudyContact->find('first', array(
+        $studyContactData = $this->StudyContact->find('first', array(
             'conditions' => array(
-                'StudyContact.id' => $study_contact_id,
-                'StudyContact.study_summary_id' => $study_summary_id
+                'StudyContact.id' => $studyContactId,
+                'StudyContact.study_summary_id' => $studySummaryId
             )
         ));
-        if (empty($study_contact_data)) {
+        if (empty($studyContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id,
-            'StudyContact.id' => $study_contact_id
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId,
+            'StudyContact.id' => $studyContactId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $study_contact_data;
+            $this->request->data = $studyContactData;
         } else {
             // 1- SET ADDITIONAL DATA
             
@@ -198,74 +198,74 @@ class StudyContactsController extends StudyAppController
             
             // 2- LAUNCH SPECIAL VALIDATION PROCESS
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // ... special validations
             
             // 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // 4- SAVE
-                $this->StudyContact->id = $study_contact_id;
+                $this->StudyContact->id = $studyContactId;
                 if ($this->StudyContact->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/Study/StudyContacts/detail/' . $study_summary_id . '/' . $study_contact_id);
+                    $this->atimFlash(__('your data has been updated'), '/Study/StudyContacts/detail/' . $studySummaryId . '/' . $studyContactId);
                 }
             }
         }
     }
 
-    function delete($study_summary_id, $study_contact_id)
+    function delete($studySummaryId, $studyContactId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
-        if (! $study_contact_id) {
+        if (! $studyContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_contact_data = $this->StudyContact->find('first', array(
+        $studyContactData = $this->StudyContact->find('first', array(
             'conditions' => array(
-                'StudyContact.id' => $study_contact_id,
-                'StudyContact.study_summary_id' => $study_summary_id
+                'StudyContact.id' => $studyContactId,
+                'StudyContact.study_summary_id' => $studySummaryId
             )
         ));
-        if (empty($study_contact_data)) {
+        if (empty($studyContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->StudyContact->allowDeletion($study_contact_id);
+        $arrAllowDeletion = $this->StudyContact->allowDeletion($studyContactId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
+        if ($arrAllowDeletion['allow_deletion']) {
             
             // DELETE DATA
             
-            if ($this->StudyContact->atimDelete($study_contact_id)) {
-                $this->atimFlash(__('your data has been deleted'), '/Study/StudyContacts/listall/' . $study_summary_id);
+            if ($this->StudyContact->atimDelete($studyContactId)) {
+                $this->atimFlash(__('your data has been deleted'), '/Study/StudyContacts/listall/' . $studySummaryId);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator.'), '/Study/StudyContacts/listall/' . $study_summary_id);
+                $this->atimFlashError(__('error deleting data - contact administrator.'), '/Study/StudyContacts/listall/' . $studySummaryId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Study/StudyContacts/detail/' . $study_summary_id . '/' . $study_contact_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/Study/StudyContacts/detail/' . $studySummaryId . '/' . $studyContactId);
         }
     }
 }

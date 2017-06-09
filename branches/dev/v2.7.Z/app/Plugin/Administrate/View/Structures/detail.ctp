@@ -1,11 +1,11 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
         'edit' => '/Administrate/Structure/edit/%%Structure.id%%'
     )
 );
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 ?>

@@ -10,49 +10,49 @@ class PreferencesAdminController extends AdministrateAppController
         'Config'
     );
 
-    function index($group_id, $user_id)
+    function index($groupId, $userId)
     {
         $this->Structures->set('preferences');
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id,
-            'User.id' => $user_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId,
+            'User.id' => $userId
         ));
         $this->request->data = $this->User->find('first', array(
             'conditions' => array(
-                'User.id' => $user_id
+                'User.id' => $userId
             )
         ));
         
         // get USER data
         
-        $config_results = $this->Config->getConfig($group_id, $user_id);
+        $configResults = $this->Config->getConfig($groupId, $userId);
         
-        $this->request->data['Config'] = $config_results['Config'];
+        $this->request->data['Config'] = $configResults['Config'];
     }
 
-    function edit($group_id, $user_id)
+    function edit($groupId, $userId)
     {
         $this->Structures->set('preferences');
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id,
-            'User.id' => $user_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId,
+            'User.id' => $userId
         ));
         
-        $config_results = $this->Config->getConfig($group_id, $user_id);
+        $configResults = $this->Config->getConfig($groupId, $userId);
         
         if (! empty($this->request->data)) {
-            $this->Config->preSave($config_results, $this->request->data, $group_id, $user_id);
+            $this->Config->preSave($configResults, $this->request->data, $groupId, $userId);
             
             $this->Config->set($this->request->data);
             
             if ($this->Config->save()) {
-                $this->atimFlash(__('your data has been updated'), '/Administrate/PreferencesAdmin/index/' . $group_id . '/' . $user_id);
+                $this->atimFlash(__('your data has been updated'), '/Administrate/PreferencesAdmin/index/' . $groupId . '/' . $userId);
             } else {
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
             }
         } else {
             
-            $this->request->data['Config'] = $config_results['Config'];
+            $this->request->data['Config'] = $configResults['Config'];
         }
     }
 }

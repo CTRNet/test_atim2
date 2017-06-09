@@ -1,14 +1,14 @@
 <?php
-$final_options = array(
+$finalOptions = array(
     'type' => 'edit',
     'links' => array(
-        'top' => sprintf('/Administrate/AdminUsers/changeGroup/%d/%d/', $atim_menu_variables['Group.id'], $atim_menu_variables['User.id']),
+        'top' => sprintf('/Administrate/AdminUsers/changeGroup/%d/%d/', $atimMenuVariables['Group.id'], $atimMenuVariables['User.id']),
         'bottom' => array(
-            'cancel' => sprintf('/Administrate/AdminUsers/detail/%d/%d/', $atim_menu_variables['Group.id'], $atim_menu_variables['User.id'])
+            'cancel' => sprintf('/Administrate/AdminUsers/detail/%d/%d/', $atimMenuVariables['Group.id'], $atimMenuVariables['User.id'])
         )
     )
 );
 
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
-$this->Structures->build($final_atim_structure, $final_options); 
+$this->Structures->build($finalAtimStructure, $finalOptions); 

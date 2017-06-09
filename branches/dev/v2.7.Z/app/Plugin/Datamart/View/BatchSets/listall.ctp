@@ -1,6 +1,6 @@
 <?php
 // display adhoc DETAIL
-$this->Structures->build($atim_structure_for_detail, array(
+$this->Structures->build($atimStructureForDetail, array(
     'type' => 'detail',
     'settings' => array(
         'actions' => false,
@@ -10,29 +10,29 @@ $this->Structures->build($atim_structure_for_detail, array(
             )
         )
     ),
-    'data' => $data_for_detail
+    'data' => $dataForDetail
 ));
 
 // display adhoc RESULTS form
-$structure_links = array(
+$structureLinks = array(
     'top' => '#',
     'checklist' => array(
-        $lookup_model_name . '.' . $lookup_key_name . '][' => '%%' . $data_for_detail['BatchSet']['model'] . '.' . $data_for_detail['BatchSet']['lookup_key_name'] . '%%'
+        $lookupModelName . '.' . $lookupKeyName . '][' => '%%' . $dataForDetail['BatchSet']['model'] . '.' . $dataForDetail['BatchSet']['lookup_key_name'] . '%%'
     )
 );
 
 // append LINKS from DATATABLE, if any...
-if (count($ctrapp_form_links)) {
-    $structure_links['index'] = $ctrapp_form_links;
+if (count($ctrappFormLinks)) {
+    $structureLinks['index'] = $ctrappFormLinks;
 }
 
-// $add_to_batchset_hidden_field = '<input type="hidden" name="data[BatchSet][id]" value="'.$data_for_detail['BatchSet']['id'].'"/>';
-$add_to_batchset_hidden_field = $this->Form->input('BatchSet.id', array(
+// $addToBatchsetHiddenField = '<input type="hidden" name="data[BatchSet][id]" value="'.$dataForDetail['BatchSet']['id'].'"/>';
+$addToBatchsetHiddenField = $this->Form->input('BatchSet.id', array(
     'type' => 'hidden',
-    'value' => $data_for_detail['BatchSet']['id']
+    'value' => $dataForDetail['BatchSet']['id']
 ));
 
-$this->Structures->build($atim_structure_for_results, array(
+$this->Structures->build($atimStructureForResults, array(
     'type' => 'index',
     'data' => $results,
     'settings' => array(
@@ -42,35 +42,35 @@ $this->Structures->build($atim_structure_for_results, array(
         'actions' => false,
         'pagination' => false,
         'sorting' => array(
-            $data_for_detail['BatchSet']['id']
+            $dataForDetail['BatchSet']['id']
         )
     ),
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'extras' => array(
-        'end' => $add_to_batchset_hidden_field
+        'end' => $addToBatchsetHiddenField
     )
 ));
 
 // display adhoc-to-batchset ADD form
-$structure_links = array(
+$structureLinks = array(
     'top' => '#',
     'bottom' => array(
-        'edit' => '/Datamart/BatchSets/edit/' . $atim_menu_variables['BatchSet.id'],
-        'delete' => '/Datamart/BatchSets/delete/' . $atim_menu_variables['BatchSet.id']
+        'edit' => '/Datamart/BatchSets/edit/' . $atimMenuVariables['BatchSet.id'],
+        'delete' => '/Datamart/BatchSets/delete/' . $atimMenuVariables['BatchSet.id']
     )
 );
-if ($display_unlock_button)
-    $structure_links['bottom'] = array_merge(array(
-        'unlock' => '/Datamart/BatchSets/unlock/' . $atim_menu_variables['BatchSet.id']
-    ), $structure_links['bottom']);
+if ($displayUnlockButton)
+    $structureLinks['bottom'] = array_merge(array(
+        'unlock' => '/Datamart/BatchSets/unlock/' . $atimMenuVariables['BatchSet.id']
+    ), $structureLinks['bottom']);
 
-$this->Structures->build($atim_structure_for_process, array(
+$this->Structures->build($atimStructureForProcess, array(
     'type' => 'add',
     'settings' => array(
         'form_top' => false,
         'header' => __('actions', null)
     ),
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'data' => array(),
     'extras' => array(
         'end' => '<div id="actionsTarget"></div>'

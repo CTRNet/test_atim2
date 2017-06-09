@@ -1,6 +1,6 @@
 <?php
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
     'settings' => array(
         'pagination' => false,
@@ -13,17 +13,17 @@ $final_options = array(
     ),
     'links' => array(
         'bottom' => array(),
-        'top' => '/Administrate/ReusableMiscIdentifiers/manage/' . $atim_menu_variables['MiscIdentifierControl.id'],
+        'top' => '/Administrate/ReusableMiscIdentifiers/manage/' . $atimMenuVariables['MiscIdentifierControl.id'],
         'checklist' => array(
             'MiscIdentifier.selected_id][' => '%%MiscIdentifier.id%%'
         )
     )
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

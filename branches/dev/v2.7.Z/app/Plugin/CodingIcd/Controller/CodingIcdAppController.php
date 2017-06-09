@@ -3,7 +3,7 @@
 class CodingIcdAppController extends AppController
 {
 
-    function tool($use_icd_type)
+    function tool($useIcdType)
     {
         $this->layout = 'ajax';
         $this->Structures->set('simple_search');
@@ -13,26 +13,26 @@ class CodingIcdAppController extends AppController
     /**
      * Search through an icd coding model
      *
-     * @param boolean $is_tool
+     * @param boolean $isTool
      *            Is the search made from a popup tool
-     * @param AppModel $model_to_use
+     * @param AppModel $modelToUse
      *            The model to base the search on
-     * @param $search_fields_prefix array
+     * @param $searchFieldsPrefix array
      *            The fields prefix to base the search on
      */
-    function globalSearch($is_tool, $model_to_use)
+    function globalSearch($isTool, $modelToUse)
     {
-        if ($is_tool) {
-            $model_name_to_use = $model_to_use->name;
+        if ($isTool) {
+            $modelNameToUse = $modelToUse->name;
             $this->layout = 'ajax';
             $this->Structures->set("CodingIcd");
             $limit = 25;
             
-            if (! $db = ConnectionManager::getDataSource($model_to_use->useDbConfig)) {
+            if (! $db = ConnectionManager::getDataSource($modelToUse->useDbConfig)) {
                 return false;
             }
             
-            $this->request->data = $model_to_use->globalSearch(array(
+            $this->request->data = $modelToUse->globalSearch(array(
                 $this->request->data[0]['term']
             ), isset($this->request->data['exact_search']) && $this->request->data['exact_search'], true, $limit + 1);
             
@@ -45,7 +45,7 @@ class CodingIcdAppController extends AppController
         }
     }
 
-    function globalAutocomplete($model_to_use)
+    function globalAutocomplete($modelToUse)
     {
         // layout = ajax to avoid printing layout
         $this->layout = 'ajax';
@@ -54,12 +54,12 @@ class CodingIcdAppController extends AppController
         
         // query the database
         $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
-        $data = $model_to_use->find('all', array(
+        $data = $modelToUse->find('all', array(
             'conditions' => array(
-                $model_to_use->name . '.id LIKE' => $term . '%'
+                $modelToUse->name . '.id LIKE' => $term . '%'
             ),
             'fields' => array(
-                $model_to_use->name . '.id'
+                $modelToUse->name . '.id'
             ),
             'limit' => 10,
             'recursive' => - 1
@@ -67,8 +67,8 @@ class CodingIcdAppController extends AppController
         
         // build javascript textual array
         $result = "";
-        foreach ($data as $data_unit) {
-            $result .= '"' . $data_unit[$model_to_use->name]['id'] . '", ';
+        foreach ($data as $dataUnit) {
+            $result .= '"' . $dataUnit[$modelToUse->name]['id'] . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

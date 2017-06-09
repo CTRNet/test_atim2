@@ -2,15 +2,15 @@
 // used by browser
 $csv = $this->Csv;
 
-if ($csv_header) {
-    $csv::$nodes_info = $nodes_info;
-    $csv::$structures = $structures_array;
+if ($csvHeader) {
+    $csv::$nodesInfo = $nodesInfo;
+    $csv::$structures = $structuresArray;
 }
 $this->Structures->build(array(), array(
     'type' => 'csv',
     'settings' => array(
-        'csv_header' => $csv_header,
-        'all_fields' => AppController::getInstance()->csv_config['type'] == 'all'
+        'csv_header' => $csvHeader,
+        'all_fields' => AppController::getInstance()->csvConfig['type'] == 'all'
     )
 ));
 

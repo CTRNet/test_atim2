@@ -1,6 +1,6 @@
 <?php
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
     'links' => array(
         'index' => array(
@@ -13,12 +13,12 @@ $final_options = array(
     )
 );
 
-if ($is_from_tree_view)
-    $final_options['settings']['header'] = __('aliquot') . ': ' . __('uses and events');
+if ($isFromTreeView)
+    $finalOptions['settings']['header'] = __('aliquot') . ': ' . __('uses and events');
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);

@@ -1,29 +1,29 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => NULL,
     'index' => array(
-        'detail' => '/ClinicalAnnotation/ParticipantContacts/detail/' . $atim_menu_variables['Participant.id'] . '/%%ParticipantContact.id%%',
-        'edit' => '/ClinicalAnnotation/ParticipantContacts/edit/' . $atim_menu_variables['Participant.id'] . '/%%ParticipantContact.id%%',
-        'delete' => '/ClinicalAnnotation/ParticipantContacts/delete/' . $atim_menu_variables['Participant.id'] . '/%%ParticipantContact.id%%'
+        'detail' => '/ClinicalAnnotation/ParticipantContacts/detail/' . $atimMenuVariables['Participant.id'] . '/%%ParticipantContact.id%%',
+        'edit' => '/ClinicalAnnotation/ParticipantContacts/edit/' . $atimMenuVariables['Participant.id'] . '/%%ParticipantContact.id%%',
+        'delete' => '/ClinicalAnnotation/ParticipantContacts/delete/' . $atimMenuVariables['Participant.id'] . '/%%ParticipantContact.id%%'
     ),
     'bottom' => array(
-        'add' => '/ClinicalAnnotation/ParticipantContacts/add/' . $atim_menu_variables['Participant.id'] . '/'
+        'add' => '/ClinicalAnnotation/ParticipantContacts/add/' . $atimMenuVariables['Participant.id'] . '/'
     )
 );
 
 // Set form structure and option
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

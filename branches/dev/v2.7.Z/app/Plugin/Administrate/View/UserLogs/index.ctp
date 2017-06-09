@@ -1,3 +1,3 @@
 <?php
-$this->Structures->build($atim_structure);
+$this->Structures->build($atimStructure);
 ?>

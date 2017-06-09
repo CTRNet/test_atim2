@@ -1,27 +1,27 @@
 <?php
 ob_start();
 
-$structure_build_options = array(
+$structureBuildOptions = array(
     'type' => 'edit',
     'links' => array(
-        'top' => '/InventoryManagement/Collections/templateInit/' . $collection_id . '/' . $template_id
+        'top' => '/InventoryManagement/Collections/templateInit/' . $collectionId . '/' . $templateId
     ),
-    'settings' => empty($template_init_structure['Sfs']) ? array() : array(
+    'settings' => empty($templateInitStructure['Sfs']) ? array() : array(
         'header' => __('default values')
     ),
     'extras' => $this->Form->input('template_init_id', array(
         'type' => 'hidden',
-        'value' => $template_init_id,
+        'value' => $templateInitId,
         'id' => false
     ))
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($template_init_structure, $structure_build_options);
+$this->Structures->build($templateInitStructure, $structureBuildOptions);
 
 $display = ob_get_contents();
 ob_end_clean();

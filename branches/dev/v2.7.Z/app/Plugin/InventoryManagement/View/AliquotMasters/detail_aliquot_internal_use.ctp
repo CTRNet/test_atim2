@@ -1,31 +1,31 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => NULL,
     'bottom' => array(
-        'edit' => '/InventoryManagement/AliquotMasters/editAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/',
-        'delete' => '/InventoryManagement/AliquotMasters/deleteAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/'
+        'edit' => '/InventoryManagement/AliquotMasters/editAliquotInternalUse/' . $atimMenuVariables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/',
+        'delete' => '/InventoryManagement/AliquotMasters/deleteAliquotInternalUse/' . $atimMenuVariables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/'
     )
 );
 
-$structure_settings = array(
+$structureSettings = array(
     'header' => __('aliquot use/event', null)
 );
 
 // Set form structure and option
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'detail',
-    'settings' => $structure_settings
+    'settings' => $structureSettings
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

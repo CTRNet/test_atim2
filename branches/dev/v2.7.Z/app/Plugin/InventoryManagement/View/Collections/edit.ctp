@@ -1,25 +1,25 @@
 <?php
-$structure_links = array(
-    'top' => '/InventoryManagement/Collections/edit/' . $atim_menu_variables['Collection.id'],
+$structureLinks = array(
+    'top' => '/InventoryManagement/Collections/edit/' . $atimMenuVariables['Collection.id'],
     'bottom' => array(
-        'cancel' => '/InventoryManagement/Collections/detail/' . $atim_menu_variables['Collection.id']
+        'cancel' => '/InventoryManagement/Collections/detail/' . $atimMenuVariables['Collection.id']
     )
 );
 
-$structure_override = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

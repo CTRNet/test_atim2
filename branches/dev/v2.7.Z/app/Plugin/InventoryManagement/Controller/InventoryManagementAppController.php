@@ -32,44 +32,44 @@ class InventoryManagementAppController extends AppController
             if (count($data) == 1) {
                 $data = $data[0]['SampleMaster'];
                 if ($data['initial_specimen_sample_id'] == $data['id']) {
-                    $this->set('atim_menu', $this->Menus->get('/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
+                    $this->set('atimMenu', $this->Menus->get('/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
                 } else {
-                    $this->set('atim_menu', $this->Menus->get('/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
+                    $this->set('atimMenu', $this->Menus->get('/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
                 }
-                $this->set('atim_menu_variables', array(
+                $this->set('atimMenuVariables', array(
                     'Collection.id' => $data['collection_id'],
                     'SampleMaster.id' => $data['id'],
                     'SampleMaster.initial_specimen_sample_id' => $data['initial_specimen_sample_id']
                 ));
             } elseif (! empty($data)) {
-                $collection_id = $data[0]['SampleMaster']['collection_id'];
-                foreach ($data as $data_unit) {
-                    if ($data_unit['SampleMaster']['collection_id'] != $collection_id) {
-                        $collection_id = null;
+                $collectionId = $data[0]['SampleMaster']['collection_id'];
+                foreach ($data as $dataUnit) {
+                    if ($dataUnit['SampleMaster']['collection_id'] != $collectionId) {
+                        $collectionId = null;
                         break;
                     }
                 }
-                if ($collection_id == null) {
-                    $this->set('atim_menu', $this->Menus->get('/InventoryManagement/'));
+                if ($collectionId == null) {
+                    $this->set('atimMenu', $this->Menus->get('/InventoryManagement/'));
                 } else {
-                    $this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/detail/%%Collection.id%%'));
-                    $this->set('atim_menu_variables', array(
-                        'Collection.id' => $collection_id
+                    $this->set('atimMenu', $this->Menus->get('/InventoryManagement/Collections/detail/%%Collection.id%%'));
+                    $this->set('atimMenuVariables', array(
+                        'Collection.id' => $collectionId
                     ));
                 }
             }
         }
     }
 
-    function setAliquotMenu($data, $is_realiquoted_list = false)
+    function setAliquotMenu($data, $isRealiquotedList = false)
     {
         if (! isset($data['SampleControl']) || ! isset($data['SampleMaster']) || ! isset($data['AliquotMaster'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $atim_menu_link = ($data['SampleControl']['sample_category'] == 'specimen') ? '/InventoryManagement/AliquotMasters/' . ($is_realiquoted_list ? 'listAllRealiquotedParents' : 'detail') . '/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%' : '/InventoryManagement/AliquotMasters/' . ($is_realiquoted_list ? 'listAllRealiquotedParents' : 'detail') . '/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-        $this->set('atim_menu', $this->Menus->get($atim_menu_link));
-        $this->set('atim_menu_variables', array(
+        $atimMenuLink = ($data['SampleControl']['sample_category'] == 'specimen') ? '/InventoryManagement/AliquotMasters/' . ($isRealiquotedList ? 'listAllRealiquotedParents' : 'detail') . '/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%' : '/InventoryManagement/AliquotMasters/' . ($isRealiquotedList ? 'listAllRealiquotedParents' : 'detail') . '/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+        $this->set('atimMenu', $this->Menus->get($atimMenuLink));
+        $this->set('atimMenuVariables', array(
             'Collection.id' => $data['AliquotMaster']['collection_id'],
             'SampleMaster.id' => $data['AliquotMaster']['sample_master_id'],
             'SampleMaster.initial_specimen_sample_id' => $data['SampleMaster']['initial_specimen_sample_id'],

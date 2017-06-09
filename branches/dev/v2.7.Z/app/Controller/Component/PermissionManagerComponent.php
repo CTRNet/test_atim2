@@ -64,8 +64,8 @@ class PermissionManagerComponent extends Component
         foreach ($this->defaults as $alias => $perms) {
             
             if (isset($perms['allow']) && count($perms['allow'])) {
-                foreach ($perms['allow'] as $user_alias) {
-                    list ($type, $id) = explode('::', $user_alias);
+                foreach ($perms['allow'] as $userAlias) {
+                    list ($type, $id) = explode('::', $userAlias);
                     
                     switch ($type) {
                         case 'Group':
@@ -80,8 +80,8 @@ class PermissionManagerComponent extends Component
                 }
             }
             if (isset($perms['deny']) && count($perms['deny'])) {
-                foreach ($perms['deny'] as $user_alias) {
-                    list ($type, $id) = explode('::', $user_alias);
+                foreach ($perms['deny'] as $userAlias) {
+                    list ($type, $id) = explode('::', $userAlias);
                     
                     switch ($type) {
                         case 'Group':
@@ -98,33 +98,33 @@ class PermissionManagerComponent extends Component
         }
     }
 
-    function getControllerMethods($plugin, $ctrl_name)
+    function getControllerMethods($plugin, $ctrlName)
     {
         if (! $plugin || $plugin == 'App') {
-            $file_path = APP . 'Controller' . DS . $ctrl_name . '.php';
+            $filePath = APP . 'Controller' . DS . $ctrlName . '.php';
         } else {
-            $file_path = APP . 'Plugin' . DS . $plugin . DS . 'Controller' . DS . $ctrl_name . 'Controller.php';
+            $filePath = APP . 'Plugin' . DS . $plugin . DS . 'Controller' . DS . $ctrlName . 'Controller.php';
         }
         
-        if (! file_exists($file_path)) {
+        if (! file_exists($filePath)) {
             return false;
         }
         
         $matches = array();
-        preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($file_path), $matches);
+        preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($filePath), $matches);
         
         $methods = $matches[1];
         
         if (! $plugin || $plugin == 'App') {
-            $file_path = APP . 'Controller' . DS . 'Custom' . DS . $ctrl_name . 'Controller.php';
+            $filePath = APP . 'Controller' . DS . 'Custom' . DS . $ctrlName . 'Controller.php';
         } else {
-            $file_path = APP . 'Plugin' . DS . $plugin . DS . 'Controller' . DS . 'Custom' . DS . $ctrl_name . 'Controller.php';
+            $filePath = APP . 'Plugin' . DS . $plugin . DS . 'Controller' . DS . 'Custom' . DS . $ctrlName . 'Controller.php';
         }
         
-        if (file_exists($file_path)) {
+        if (file_exists($filePath)) {
             
             $matches = array();
-            preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($file_path), $matches);
+            preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($filePath), $matches);
             
             foreach ($matches[1] as $match) {
                 if (! in_array($match, $methods)) {
@@ -269,17 +269,17 @@ class PermissionManagerComponent extends Component
         $this->removeMissingNodes('controllers', $pluginNodeIds);
     }
 
-    function removeMissingNodes($path, $known_ids = array())
+    function removeMissingNodes($path, $knownIds = array())
     {
         $aco = & $this->controller->Acl->Aco;
         
-        $parent_node = $aco->node($path);
-        if (! $parent_node)
+        $parentNode = $aco->node($path);
+        if (! $parentNode)
             return false;
         
-        $conditions = 'Aco.parent_id = "' . $parent_node[0]['Aco']['id'] . '"';
-        if (count($known_ids))
-            $conditions .= ' AND Aco.id NOT IN("' . join('","', $known_ids) . '")';
+        $conditions = 'Aco.parent_id = "' . $parentNode[0]['Aco']['id'] . '"';
+        if (count($knownIds))
+            $conditions .= ' AND Aco.id NOT IN("' . join('","', $knownIds) . '")';
         
         $result = $aco->find('all', array(
             'conditions' => $conditions
@@ -299,8 +299,6 @@ class PermissionManagerComponent extends Component
 
     /**
      * Get the names of the plugin controllers .
-     *
-     *
      *
      *
      *

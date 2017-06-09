@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'detail' => '/InventoryManagement/Collections/detail/%%ViewCollection.collection_id%%',
         'copy for new collection' => array(
@@ -11,14 +11,14 @@ $structure_links = array(
         'add collection' => '/InventoryManagement/Collections/add'
     )
 );
-$final_options = array(
+$finalOptions = array(
     'type' => 'index',
     'data' => $this->request->data,
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => $settings
 );
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }

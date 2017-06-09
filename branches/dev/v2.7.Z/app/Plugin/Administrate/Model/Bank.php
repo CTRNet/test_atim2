@@ -3,7 +3,7 @@
 class Bank extends AdministrateAppModel
 {
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewCollection' => array(
             'Collection.bank_id'
         ),
@@ -59,12 +59,12 @@ class Bank extends AdministrateAppModel
         return $result;
     }
 
-    function allowDeletion($bank_id)
+    function allowDeletion($bankId)
     {
         $GroupModel = AppModel::getInstance("", "Group", true);
         $data = $GroupModel->find('first', array(
             'conditions' => array(
-                'Group.bank_id' => $bank_id
+                'Group.bank_id' => $bankId
             )
         ));
         if ($data) {
@@ -77,7 +77,7 @@ class Bank extends AdministrateAppModel
         $CollectionModel = AppModel::getInstance('InventoryManagement', 'Collection', true);
         $data = $CollectionModel->find('first', array(
             'conditions' => array(
-                'Collection.bank_id' => $bank_id
+                'Collection.bank_id' => $bankId
             )
         ));
         if ($data) {

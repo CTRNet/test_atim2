@@ -7,9 +7,9 @@ class ProtocolMaster extends ProtocolAppModel
 
     public $useTable = 'protocol_masters';
 
-    public static $protocol_dropdown = array();
+    public static $protocolDropdown = array();
 
-    private static $protocol_dropdown_set = false;
+    private static $protocolDropdownSet = false;
 
     public $belongsTo = array(
         'ProtocolControl' => array(
@@ -54,30 +54,30 @@ class ProtocolMaster extends ProtocolAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getProtocolPermissibleValuesFromId($protocol_control_id = null)
+    function getProtocolPermissibleValuesFromId($protocolControlId = null)
     {
         // Build tmp array to sort according translation
         $criteria = array();
-        if (! self::$protocol_dropdown_set) {
-            if (! is_null($protocol_control_id)) {
-                $criteria['ProtocolMaster.protocol_control_id'] = $protocol_control_id;
+        if (! self::$protocolDropdownSet) {
+            if (! is_null($protocolControlId)) {
+                $criteria['ProtocolMaster.protocol_control_id'] = $protocolControlId;
             }
             foreach ($this->find('all', array(
                 'conditions' => $criteria,
                 'order' => 'ProtocolMaster.code'
-            )) as $new_protocol) {
-                self::$protocol_dropdown[$new_protocol['ProtocolMaster']['id']] = __($new_protocol['ProtocolControl']['type']) . ' : ' . $new_protocol['ProtocolMaster']['code'] . (empty($new_protocol['ProtocolMaster']['name']) ? '' : ' (' . $new_protocol['ProtocolMaster']['name'] . ')');
+            )) as $newProtocol) {
+                self::$protocolDropdown[$newProtocol['ProtocolMaster']['id']] = __($newProtocol['ProtocolControl']['type']) . ' : ' . $newProtocol['ProtocolMaster']['code'] . (empty($newProtocol['ProtocolMaster']['name']) ? '' : ' (' . $newProtocol['ProtocolMaster']['name'] . ')');
             }
-            self::$protocol_dropdown_set = true;
+            self::$protocolDropdownSet = true;
         }
         
-        return self::$protocol_dropdown;
+        return self::$protocolDropdown;
     }
 
     /**
      * Check if a record can be deleted.
      *
-     * @param $protocol_master_id Id
+     * @param $protocolMasterId Id
      *            of the studied record.
      *            
      * @return Return results as array:
@@ -88,16 +88,16 @@ class ProtocolMaster extends ProtocolAppModel
      * @since 2010-04-18
      *        @moved from controller to model on 2010-06-08 by Mich
      */
-    function isLinkedToTreatment($protocol_master_id)
+    function isLinkedToTreatment($protocolMasterId)
     {
         $this->TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-        $nbr_trt_masters = $this->TreatmentMaster->find('count', array(
+        $nbrTrtMasters = $this->TreatmentMaster->find('count', array(
             'conditions' => array(
-                'TreatmentMaster.protocol_master_id' => $protocol_master_id
+                'TreatmentMaster.protocol_master_id' => $protocolMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($nbr_trt_masters > 0) {
+        if ($nbrTrtMasters > 0) {
             return array(
                 'is_used' => true,
                 'msg' => 'protocol is defined as protocol of at least one participant treatment'
@@ -110,16 +110,16 @@ class ProtocolMaster extends ProtocolAppModel
         );
     }
 
-    function allowDeletion($protocol_master_id)
+    function allowDeletion($protocolMasterId)
     {
-        if ($protocol_master_id != $this->id) {
+        if ($protocolMasterId != $this->id) {
             // not the same, fetch
-            $data = $this->findById($protocol_master_id);
+            $data = $this->findById($protocolMasterId);
         } else {
             $data = $this->data;
         }
         
-        $res = $this->isLinkedToTreatment($protocol_master_id);
+        $res = $this->isLinkedToTreatment($protocolMasterId);
         if ($res['is_used']) {
             return array(
                 'allow_deletion' => false,
@@ -129,14 +129,14 @@ class ProtocolMaster extends ProtocolAppModel
         
         if (! empty($data['ProtocolControl']['protocol_extend_control_id'])) {
             $ProtocolExtendMaster = AppModel::getInstance('Protocol', 'ProtocolExtendMaster', true);
-            $nbr_extends = $ProtocolExtendMaster->find('count', array(
+            $nbrExtends = $ProtocolExtendMaster->find('count', array(
                 'conditions' => array(
-                    'ProtocolExtendMaster.protocol_master_id' => $protocol_master_id,
+                    'ProtocolExtendMaster.protocol_master_id' => $protocolMasterId,
                     'ProtocolExtendMaster.protocol_extend_control_id' => $data['ProtocolControl']['protocol_extend_control_id']
                 ),
                 'recursive' => '-1'
             ));
-            if ($nbr_extends > 0) {
+            if ($nbrExtends > 0) {
                 return array(
                     'allow_deletion' => false,
                     'msg' => 'at least one precision is defined as protocol component'

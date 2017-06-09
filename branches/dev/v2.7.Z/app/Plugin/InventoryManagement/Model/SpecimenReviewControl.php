@@ -3,7 +3,7 @@
 class SpecimenReviewControl extends InventoryManagementAppModel
 {
 
-    public $master_form_alias = 'specimen_review_masters';
+    public $masterFormAlias = 'specimen_review_masters';
 
     public $belongsTo = array(
         'AliquotReviewControl' => array(
@@ -31,8 +31,8 @@ class SpecimenReviewControl extends InventoryManagementAppModel
             'conditions' => array(
                 'SpecimenReviewControl.flag_active' => 1
             )
-        )) as $new_control) {
-            $result[$new_control['SpecimenReviewControl']['sample_control_id']] = __($new_control['SampleControl']['sample_type']);
+        )) as $newControl) {
+            $result[$newControl['SpecimenReviewControl']['sample_control_id']] = __($newControl['SampleControl']['sample_type']);
         }
         
         return $result;
@@ -53,8 +53,8 @@ class SpecimenReviewControl extends InventoryManagementAppModel
             'conditions' => array(
                 'SpecimenReviewControl.flag_active' => 1
             )
-        )) as $new_control) {
-            $result[$new_control['SpecimenReviewControl']['review_type']] = __($new_control['SpecimenReviewControl']['review_type']);
+        )) as $newControl) {
+            $result[$newControl['SpecimenReviewControl']['review_type']] = __($newControl['SpecimenReviewControl']['review_type']);
         }
         
         return $result;

@@ -1,11 +1,11 @@
 <?php
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/ClinicalCollectionLinks/edit/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['Collection.id'],
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/ClinicalCollectionLinks/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['Collection.id'],
     'radiolist' => array(
         'Collection.id' => '%%Collection.id%%'
     )
 );
-$structure_settings = array(
+$structureSettings = array(
     'form_bottom' => false,
     'form_inputs' => false,
     'actions' => false,
@@ -14,24 +14,24 @@ $structure_settings = array(
 
 // ************** 1- COLLECTION **************
 
-$final_atim_structure = $atim_structure_collection_detail;
-$final_options = array(
+$finalAtimStructure = $atimStructureCollectionDetail;
+$finalOptions = array(
     'type' => 'index',
     'data' => array(
-        $collection_data
+        $collectionData
     ),
-    'settings' => $structure_settings,
-    'links' => $structure_links
+    'settings' => $structureSettings,
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('collection_detail');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('collection_detail');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 require ('add_edit.php');
 ?>

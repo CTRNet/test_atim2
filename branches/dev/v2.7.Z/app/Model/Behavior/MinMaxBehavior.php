@@ -14,28 +14,28 @@ class MinMaxBehavior extends ModelBehavior
     function beforeFind(Model $model, $query)
     {
         if (isset($query['conditions'])) {
-            $to_fix = array(); // contains the model -> fields to fix.
-            if (isset($model->registered_view)) {
+            $toFix = array(); // contains the model -> fields to fix.
+            if (isset($model->registeredView)) {
                 // if views are attached, parse each of them
-                foreach ($model->registered_view as $plugin_model => $foo) {
-                    list ($plugin, $model_name) = explode('.', $plugin_model);
-                    $registered_model = AppModel::getInstance($plugin, $model_name);
-                    if (isset($registered_model::$min_value_fields)) {
-                        $to_fix[$registered_model->name] = $registered_model::$min_value_fields;
+                foreach ($model->registeredView as $pluginModel => $foo) {
+                    list ($plugin, $modelName) = explode('.', $pluginModel);
+                    $registeredModel = AppModel::getInstance($plugin, $modelName);
+                    if (isset($registeredModel::$minValueFields)) {
+                        $toFix[$registeredModel->name] = $registeredModel::$minValueFields;
                     }
                 }
-            } elseif (isset($model::$min_value_fields)) {
+            } elseif (isset($model::$minValueFields)) {
                 // is a view itself
-                $to_fix[$model->name] = $model::$min_value_fields;
+                $toFix[$model->name] = $model::$minValueFields;
             }
             
             $conditions = &$query['conditions'];
-            foreach ($to_fix as $model_name => $fields) {
+            foreach ($toFix as $modelName => $fields) {
                 foreach ($fields as $field) {
-                    $field_max = $model_name . '.' . $field . ' <=';
-                    $field_min = $model_name . '.' . $field . ' >=';
-                    if (isset($conditions[$field_max]) && ! isset($conditions[$field_min]) && $conditions[$field_max] >= 0) {
-                        $conditions[$field_min] = 0;
+                    $fieldMax = $modelName . '.' . $field . ' <=';
+                    $fieldMin = $modelName . '.' . $field . ' >=';
+                    if (isset($conditions[$fieldMax]) && ! isset($conditions[$fieldMin]) && $conditions[$fieldMax] >= 0) {
+                        $conditions[$fieldMin] = 0;
                     }
                 }
             }

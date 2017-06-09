@@ -9,15 +9,15 @@ class PasswordsAdminController extends AdministrateAppController
         'User'
     );
 
-    function index($group_id, $user_id)
+    function index($groupId, $userId)
     {
-        $this->set('atim_menu_variables', array(
-            'Group.id' => $group_id,
-            'User.id' => $user_id
+        $this->set('atimMenuVariables', array(
+            'Group.id' => $groupId,
+            'User.id' => $userId
         ));
         $this->Structures->set('password_update_by_administartor');
         
-        $this->User->id = $user_id;
+        $this->User->id = $userId;
         
         if (empty($this->request->data)) {
             $this->set('data', $this->User->read());
@@ -31,7 +31,7 @@ class PasswordsAdminController extends AdministrateAppController
                 'conditions' => $conditions
             ))) {
                 if ($this->User->savePassword($this->request->data, false)) {
-                    $this->atimFlash(__('your data has been updated'), '/Administrate/PasswordsAdmin/index/' . $group_id . '/' . $user_id);
+                    $this->atimFlash(__('your data has been updated'), '/Administrate/PasswordsAdmin/index/' . $groupId . '/' . $userId);
                 } else {
                     $this->request->data = array();
                 }

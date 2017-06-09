@@ -14,113 +14,113 @@ class StudyEthicsBoardsController extends StudyAppController
         )
     );
 
-    function listall($study_summary_id)
+    function listall($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
         // Missing or empty function variable, send to ERROR page
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_ethics_board_data = $this->StudySummary->find('first', array(
+        $studyEthicsBoardData = $this->StudySummary->find('first', array(
             'conditions' => array(
-                'StudySummary.id' => $study_summary_id
+                'StudySummary.id' => $studySummaryId
             ),
             'recursive' => '-1'
         ));
-        if (empty($study_ethics_board_data)) {
+        if (empty($studyEthicsBoardData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->request->data = $this->paginate($this->StudyEthicsBoard, array(
-            'StudyEthicsBoard.study_summary_id' => $study_summary_id
+            'StudyEthicsBoard.study_summary_id' => $studySummaryId
         ));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($study_summary_id, $study_ethics_board_id)
+    function detail($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
-        if (! $study_ethics_board_id) {
+        if (! $studyEthicsBoardId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_ethics_board_data = $this->StudyEthicsBoard->find('first', array(
+        $studyEthicsBoardData = $this->StudyEthicsBoard->find('first', array(
             'conditions' => array(
-                'StudyEthicsBoard.id' => $study_ethics_board_id,
-                'StudyEthicsBoard.study_summary_id' => $study_summary_id
+                'StudyEthicsBoard.id' => $studyEthicsBoardId,
+                'StudyEthicsBoard.study_summary_id' => $studySummaryId
             )
         ));
-        if (empty($study_ethics_board_data)) {
+        if (empty($studyEthicsBoardData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->request->data = $study_ethics_board_data;
+        $this->request->data = $studyEthicsBoardData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id,
-            'StudyEthicsBoard.id' => $study_ethics_board_id
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId,
+            'StudyEthicsBoard.id' => $studyEthicsBoardId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($study_summary_id)
+    function add($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_ethics_board_data = $this->StudySummary->find('first', array(
+        $studyEthicsBoardData = $this->StudySummary->find('first', array(
             'conditions' => array(
-                'StudySummary.id' => $study_summary_id
+                'StudySummary.id' => $studySummaryId
             ),
             'recursive' => '-1'
         ));
-        if (empty($study_ethics_board_data)) {
+        if (empty($studyEthicsBoardData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        // $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));
-        // $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id
+        // $this->set('atimStructure', $this->Structures->get('form', 'familyhistories'));
+        // $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%'));
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
@@ -128,70 +128,70 @@ class StudyEthicsBoardsController extends StudyAppController
             // LAUNCH SAVE PROCESS
             // 1- SET ADDITIONAL DATA
             
-            $this->request->data['StudyEthicsBoard']['study_summary_id'] = $study_summary_id;
+            $this->request->data['StudyEthicsBoard']['study_summary_id'] = $studySummaryId;
             
             // 2- LAUNCH SPECIAL VALIDATION PROCESS
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // ... special validations
             
             // 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // 4- SAVE
                 if ($this->StudyEthicsBoard->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been saved'), '/Study/StudyEthicsBoards/detail/' . $study_summary_id . '/' . $this->StudyEthicsBoard->id);
+                    $this->atimFlash(__('your data has been saved'), '/Study/StudyEthicsBoards/detail/' . $studySummaryId . '/' . $this->StudyEthicsBoard->id);
                 }
             }
         }
     }
 
-    function edit($study_summary_id, $study_ethics_board_id)
+    function edit($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
-        if (! $study_ethics_board_id) {
+        if (! $studyEthicsBoardId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_ethics_board_data = $this->StudyEthicsBoard->find('first', array(
+        $studyEthicsBoardData = $this->StudyEthicsBoard->find('first', array(
             'conditions' => array(
-                'StudyEthicsBoard.id' => $study_ethics_board_id,
-                'StudyEthicsBoard.study_summary_id' => $study_summary_id
+                'StudyEthicsBoard.id' => $studyEthicsBoardId,
+                'StudyEthicsBoard.study_summary_id' => $studySummaryId
             )
         ));
-        if (empty($study_ethics_board_data)) {
+        if (empty($studyEthicsBoardData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'StudySummary.id' => $study_summary_id,
-            'StudyEthicsBoard.id' => $study_ethics_board_id
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId,
+            'StudyEthicsBoard.id' => $studyEthicsBoardId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $study_ethics_board_data;
+            $this->request->data = $studyEthicsBoardData;
         } else {
             // 1- SET ADDITIONAL DATA
             
@@ -199,74 +199,74 @@ class StudyEthicsBoardsController extends StudyAppController
             
             // 2- LAUNCH SPECIAL VALIDATION PROCESS
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // ... special validations
             
             // 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // 4- SAVE
-                $this->StudyEthicsBoard->id = $study_ethics_board_id;
+                $this->StudyEthicsBoard->id = $studyEthicsBoardId;
                 if ($this->StudyEthicsBoard->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/Study/StudyEthicsBoards/detail/' . $study_summary_id . '/' . $study_ethics_board_id);
+                    $this->atimFlash(__('your data has been updated'), '/Study/StudyEthicsBoards/detail/' . $studySummaryId . '/' . $studyEthicsBoardId);
                 }
             }
         }
     }
 
-    function delete($study_summary_id, $study_ethics_board_id)
+    function delete($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         exit();
-        if (! $study_summary_id) {
+        if (! $studySummaryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
-        if (! $study_ethics_board_id) {
+        if (! $studyEthicsBoardId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $study_ethics_board_data = $this->StudyEthicsBoard->find('first', array(
+        $studyEthicsBoardData = $this->StudyEthicsBoard->find('first', array(
             'conditions' => array(
-                'StudyEthicsBoard.id' => $study_ethics_board_id,
-                'StudyEthicsBoard.study_summary_id' => $study_summary_id
+                'StudyEthicsBoard.id' => $studyEthicsBoardId,
+                'StudyEthicsBoard.study_summary_id' => $studySummaryId
             )
         ));
-        if (empty($study_ethics_board_data)) {
+        if (empty($studyEthicsBoardData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->StudyEthicsBoard->allowDeletion($study_ethics_board_id);
+        $arrAllowDeletion = $this->StudyEthicsBoard->allowDeletion($studyEthicsBoardId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
+        if ($arrAllowDeletion['allow_deletion']) {
             
             // DELETE DATA
             
-            if ($this->StudyEthicsBoard->atimDelete($study_ethics_board_id)) {
-                $this->atimFlash(__('your data has been deleted'), '/Study/StudyEthicsBoards/listall/' . $study_summary_id);
+            if ($this->StudyEthicsBoard->atimDelete($studyEthicsBoardId)) {
+                $this->atimFlash(__('your data has been deleted'), '/Study/StudyEthicsBoards/listall/' . $studySummaryId);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator.'), '/Study/StudyEthicsBoards/listall/' . $study_summary_id);
+                $this->atimFlashError(__('error deleting data - contact administrator.'), '/Study/StudyEthicsBoards/listall/' . $studySummaryId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Study/StudyEthicsBoards/detail/' . $study_summary_id . '/' . $study_ethics_board_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/Study/StudyEthicsBoards/detail/' . $studySummaryId . '/' . $studyEthicsBoardId);
         }
     }
 }

@@ -3,19 +3,19 @@
 class Config extends AppModel
 {
 
-    function getConfig($group_id, $user_id)
+    function getConfig($groupId, $userId)
     {
-        $config_results = $this->find('first', array(
+        $configResults = $this->find('first', array(
             'conditions' => array(
-                'Config.user_id' => $user_id,
-                'Config.group_id' => $group_id
+                'Config.user_id' => $userId,
+                'Config.group_id' => $groupId
             )
         ));
-        if ($config_results) {
-            return $config_results;
+        if ($configResults) {
+            return $configResults;
         }
         
-        $config_results = $this->find('first', array(
+        $configResults = $this->find('first', array(
             'conditions' => array(
                 array(
                     'OR' => array(
@@ -29,14 +29,14 @@ class Config extends AppModel
                         'Config.group_id IS NULL'
                     )
                 ),
-                'Config.user_id' => $user_id
+                'Config.user_id' => $userId
             )
         ));
-        if ($config_results) {
-            return $config_results;
+        if ($configResults) {
+            return $configResults;
         }
         
-        $config_results = $this->find('first', array(
+        $configResults = $this->find('first', array(
             'conditions' => array(
                 array(
                     'OR' => array(
@@ -44,7 +44,7 @@ class Config extends AppModel
                         'Config.bank_id IS NULL'
                     )
                 ),
-                'Config.group_id' => $group_id,
+                'Config.group_id' => $groupId,
                 array(
                     'OR' => array(
                         'Config.user_id' => "0",
@@ -53,8 +53,8 @@ class Config extends AppModel
                 )
             )
         ));
-        if ($config_results) {
-            return $config_results;
+        if ($configResults) {
+            return $configResults;
         }
         
         return $this->find('first', array(
@@ -81,14 +81,14 @@ class Config extends AppModel
         ));
     }
 
-    function preSave($config_results, &$request_data, $group_id, $user_id)
+    function preSave($configResults, &$requestData, $groupId, $userId)
     {
-        if ($config_results['Config']['user_id'] != 0) {
+        if ($configResults['Config']['user_id'] != 0) {
             // own config, edit, otherwise will create a new one
-            $this->id = $config_results['Config']['id'];
+            $this->id = $configResults['Config']['id'];
         } else {
-            $request_data['Config']['user_id'] = $user_id;
-            $request_data['Config']['group_id'] = $group_id;
+            $requestData['Config']['user_id'] = $userId;
+            $requestData['Config']['group_id'] = $groupId;
             // $this->request->data['Config']['bank_id'] = TODO is it needed here???
             $this->addWritableField(array(
                 'user_id',
@@ -98,6 +98,6 @@ class Config extends AppModel
         }
         
         // fixes a cakePHP 2.0 issue with integer enums
-        $request_data['Config']['define_time_format'] = $request_data['Config']['define_time_format'] == 24 ? 2 : 1;
+        $requestData['Config']['define_time_format'] = $requestData['Config']['define_time_format'] == 24 ? 2 : 1;
     }
 }

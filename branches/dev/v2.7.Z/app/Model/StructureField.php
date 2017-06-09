@@ -33,16 +33,16 @@ class StructureField extends AppModel
             'foreignKey' => 'structure_value_domain'
         )
     );
-    
+
     // when building SUMMARIES, function used to look up, translate, and return translated VALUE
-    function findPermissibleValue($plugin = NULL, $model = NULL, $field_and_value = array())
+    function findPermissibleValue($plugin = NULL, $model = NULL, $fieldAndValue = array())
     {
         $return = NULL;
         
-        if (count($field_and_value)) {
+        if (count($fieldAndValue)) {
             
-            $field = $field_and_value[1];
-            $value = $field_and_value[0];
+            $field = $fieldAndValue[1];
+            $value = $fieldAndValue[0];
             
             if ($value) {
                 
@@ -68,8 +68,8 @@ class StructureField extends AppModel
                                 $return = __($option['language_alias']);
                         }
                     } elseif (! empty($results['StructureValueDomain']['source'])) {
-                        $pull_down = StructuresComponent::getPulldownFromSource($results['StructureValueDomain']['source']);
-                        foreach ($pull_down as $option) {
+                        $pullDown = StructuresComponent::getPulldownFromSource($results['StructureValueDomain']['source']);
+                        foreach ($pullDown as $option) {
                             if ($option['value'] == $value)
                                 $return = $option['default'];
                         }

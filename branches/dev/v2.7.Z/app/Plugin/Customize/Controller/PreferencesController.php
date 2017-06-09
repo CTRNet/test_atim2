@@ -16,19 +16,19 @@ class PreferencesController extends CustomizeAppController
         
         // get USER data
         
-        $config_results = $this->Config->getConfig($_SESSION['Auth']['User']['group_id'], $_SESSION['Auth']['User']['id']);
+        $configResults = $this->Config->getConfig($_SESSION['Auth']['User']['group_id'], $_SESSION['Auth']['User']['id']);
         
-        $this->request->data['Config'] = $config_results['Config'];
+        $this->request->data['Config'] = $configResults['Config'];
     }
 
     function edit()
     {
         $this->Structures->set('preferences');
         
-        $config_results = $this->Config->getConfig($_SESSION['Auth']['User']['group_id'], $_SESSION['Auth']['User']['id']);
+        $configResults = $this->Config->getConfig($_SESSION['Auth']['User']['group_id'], $_SESSION['Auth']['User']['id']);
         
         if (! empty($this->request->data)) {
-            $this->Config->preSave($config_results, $this->request->data, $_SESSION['Auth']['User']['group_id'], $_SESSION['Auth']['User']['id']);
+            $this->Config->preSave($configResults, $this->request->data, $_SESSION['Auth']['User']['group_id'], $_SESSION['Auth']['User']['id']);
             
             $this->Config->set($this->request->data);
             
@@ -43,7 +43,7 @@ class PreferencesController extends CustomizeAppController
                     'User.id' => $_SESSION['Auth']['User']['id']
                 )
             ));
-            $this->request->data['Config'] = $config_results['Config'];
+            $this->request->data['Config'] = $configResults['Config'];
         }
     }
 }

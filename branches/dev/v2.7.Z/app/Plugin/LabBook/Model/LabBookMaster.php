@@ -38,21 +38,21 @@ class LabBookMaster extends LabBookAppModel
         return $return;
     }
 
-    function getLabBookPermissibleValuesFromId($lab_book_control_id = null)
+    function getLabBookPermissibleValuesFromId($labBookControlId = null)
     {
         $result = array(
             '' => ''
         );
         
         $conditions = array();
-        if (! is_null($lab_book_control_id)) {
-            $conditions['LabBookMaster.lab_book_control_id'] = $lab_book_control_id;
+        if (! is_null($labBookControlId)) {
+            $conditions['LabBookMaster.lab_book_control_id'] = $labBookControlId;
         }
-        $available_books = $this->find('all', array(
+        $availableBooks = $this->find('all', array(
             'conditions' => $conditions,
             'order' => 'LabBookMaster.created DESC'
         ));
-        foreach ($available_books as $book) {
+        foreach ($availableBooks as $book) {
             $result[$book['LabBookMaster']['id']] = $book['LabBookMaster']['code'];
         }
         
@@ -66,27 +66,27 @@ class LabBookMaster extends LabBookAppModel
      *            The data to synchronize. Direct data and data array both supported
      * @param array $models
      *            The models to go through
-     * @param string $lab_book_code
+     * @param string $labBookCode
      *            The lab book code to synch with
-     * @param int $expected_ctrl_id
+     * @param int $expectedCtrlId
      *            If not null, will validate that the lab book code control id match the expected one.
      */
-    function syncData(array &$data, array $models, $lab_book_code, $expected_ctrl_id = '-1')
+    function syncData(array &$data, array $models, $labBookCode, $expectedCtrlId = '-1')
     {
         $result = null;
-        $lab_book = $this->find('first', array(
+        $labBook = $this->find('first', array(
             'conditions' => array(
-                'LabBookMaster.code' => $lab_book_code
+                'LabBookMaster.code' => $labBookCode
             )
         ));
-        if (empty($lab_book)) {
+        if (empty($labBook)) {
             $result = __('invalid lab book code');
-        } elseif (empty($expected_ctrl_id)) {
+        } elseif (empty($expectedCtrlId)) {
             $result = __('no lab book can be applied to the current item(s)');
-        } elseif ($expected_ctrl_id != '-1' && $lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id) {
+        } elseif ($expectedCtrlId != '-1' && $labBook['LabBookMaster']['lab_book_control_id'] != $expectedCtrlId) {
             $result = __('the selected lab book cannot be applied to the current item(s)');
         } else {
-            $result = $lab_book['LabBookMaster']['id'];
+            $result = $labBook['LabBookMaster']['id'];
             if (! empty($data) && ! empty($models)) {
                 $extract = null;
                 if (isset($data[$models[0]])) {
@@ -99,12 +99,12 @@ class LabBookMaster extends LabBookAppModel
                 }
                 if ($extract || (isset($data[0]) && isset($data[0][$models[0]]))) {
                     // proceed
-                    $fields = $this->getFields($lab_book['LabBookMaster']['lab_book_control_id']);
+                    $fields = $this->getFields($labBook['LabBookMaster']['lab_book_control_id']);
                     foreach ($data as &$unit) {
                         foreach ($models as $model) {
                             foreach ($fields as $field) {
                                 if (isset($unit[$model]) && isset($unit[$model][$field])) {
-                                    $unit[$model][$field] = $lab_book['LabBookDetail'][$field];
+                                    $unit[$model][$field] = $labBook['LabBookDetail'][$field];
                                 }
                             }
                         }
@@ -140,28 +140,28 @@ class LabBookMaster extends LabBookAppModel
         return empty($lb) ? false : array_pop($lb);
     }
 
-    function allowLabBookDeletion($lab_book_master_id)
+    function allowLabBookDeletion($labBookMasterId)
     {
-        $derivative_detail_model = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
-        $nbr_derivatives = $derivative_detail_model->find('count', array(
+        $derivativeDetailModel = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
+        $nbrDerivatives = $derivativeDetailModel->find('count', array(
             'conditions' => array(
-                'DerivativeDetail.lab_book_master_id' => $lab_book_master_id
+                'DerivativeDetail.lab_book_master_id' => $labBookMasterId
             )
         ));
-        if ($nbr_derivatives > 0) {
+        if ($nbrDerivatives > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'deleted lab book is linked to a derivative'
             );
         }
         
-        $realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
-        $nbr_realiquotings = $realiquoting_model->find('count', array(
+        $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+        $nbrRealiquotings = $realiquotingModel->find('count', array(
             'conditions' => array(
-                'Realiquoting.lab_book_master_id' => $lab_book_master_id
+                'Realiquoting.lab_book_master_id' => $labBookMasterId
             )
         ));
-        if ($nbr_realiquotings > 0) {
+        if ($nbrRealiquotings > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'deleted lab book is linked to a realiquoted aliquot'
@@ -174,11 +174,11 @@ class LabBookMaster extends LabBookAppModel
         );
     }
 
-    function getLabBookDerivativesList($lab_book_master_id)
+    function getLabBookDerivativesList($labBookMasterId)
     {
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         
-        $sample_master_model->unbindModel(array(
+        $sampleMasterModel->unbindModel(array(
             'hasMany' => array(
                 'AliquotMaster'
             ),
@@ -189,7 +189,7 @@ class LabBookMaster extends LabBookAppModel
                 'SampleControl'
             )
         ));
-        $sample_master_model->bindModel(array(
+        $sampleMasterModel->bindModel(array(
             'belongsTo' => array(
                 'GeneratedParentSample' => array(
                     'className' => 'InventoryManagement.SampleMaster',
@@ -198,21 +198,21 @@ class LabBookMaster extends LabBookAppModel
             )
         ));
         
-        return $sample_master_model->find('all', array(
+        return $sampleMasterModel->find('all', array(
             'conditions' => array(
-                'DerivativeDetail.lab_book_master_id' => $lab_book_master_id
+                'DerivativeDetail.lab_book_master_id' => $labBookMasterId
             )
         ));
     }
 
-    function getLabBookRealiquotingsList($lab_book_master_id)
+    function getLabBookRealiquotingsList($labBookMasterId)
     {
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
-        $realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
         
-        $sample_master_ids_data = $realiquoting_model->find('all', array(
+        $sampleMasterIdsData = $realiquotingModel->find('all', array(
             'conditions' => array(
-                'Realiquoting.lab_book_master_id' => $lab_book_master_id
+                'Realiquoting.lab_book_master_id' => $labBookMasterId
             ),
             'fields' => array(
                 'AliquotMaster.sample_master_id'
@@ -221,7 +221,7 @@ class LabBookMaster extends LabBookAppModel
                 'AliquotMaster.sample_master_id'
             )
         ));
-        $sample_master_model->unbindModel(array(
+        $sampleMasterModel->unbindModel(array(
             'hasMany' => array(
                 'AliquotMaster'
             ),
@@ -233,54 +233,54 @@ class LabBookMaster extends LabBookAppModel
                 'SampleControl'
             )
         ));
-        $sample_master_ids = array();
-        foreach ($sample_master_ids_data as $sample_id_data) {
-            $sample_master_ids[] = $sample_id_data['AliquotMaster']['sample_master_id'];
+        $sampleMasterIds = array();
+        foreach ($sampleMasterIdsData as $sampleIdData) {
+            $sampleMasterIds[] = $sampleIdData['AliquotMaster']['sample_master_id'];
         }
         
-        $sample_master_from_ids = $sample_master_model->atim_list(array(
+        $sampleMasterFromIds = $sampleMasterModel->atimList(array(
             'conditions' => array(
-                'SampleMaster.id' => $sample_master_ids
+                'SampleMaster.id' => $sampleMasterIds
             )
         ));
-        $realiquoting_models_list = $realiquoting_model->find('all', array(
+        $realiquotingModelsList = $realiquotingModel->find('all', array(
             'conditions' => array(
-                'Realiquoting.lab_book_master_id' => $lab_book_master_id
+                'Realiquoting.lab_book_master_id' => $labBookMasterId
             )
         ));
-        foreach ($realiquoting_models_list as $key => $realiquoting_model_data) {
-            if (! isset($sample_master_from_ids[$realiquoting_model_data['AliquotMaster']['sample_master_id']])) {
+        foreach ($realiquotingModelsList as $key => $realiquotingModelData) {
+            if (! isset($sampleMasterFromIds[$realiquotingModelData['AliquotMaster']['sample_master_id']])) {
                 AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            $realiquoting_models_list[$key] = array_merge($sample_master_from_ids[$realiquoting_model_data['AliquotMaster']['sample_master_id']], $realiquoting_model_data);
+            $realiquotingModelsList[$key] = array_merge($sampleMasterFromIds[$realiquotingModelData['AliquotMaster']['sample_master_id']], $realiquotingModelData);
         }
         
-        return $realiquoting_models_list;
+        return $realiquotingModelsList;
     }
 
-    function synchLabbookRecords($lab_book_master_id, $lab_book_detail = null)
+    function synchLabbookRecords($labBookMasterId, $labBookDetail = null)
     {
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
-        $realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
-        $derivative_detail_model = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+        $derivativeDetailModel = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
         
-        if (empty($lab_book_detail)) {
-            $lab_book = $this->getOrRedirect($lab_book_master_id);
-            $lab_book_detail = $lab_book['LabBookDetail'];
+        if (empty($labBookDetail)) {
+            $labBook = $this->getOrRedirect($labBookMasterId);
+            $labBookDetail = $labBook['LabBookDetail'];
         }
         
-        unset($lab_book_detail['id']);
-        unset($lab_book_detail['lab_book_master_id']);
-        unset($lab_book_detail['created']);
-        unset($lab_book_detail['created_by']);
-        unset($lab_book_detail['modified']);
-        unset($lab_book_detail['modified_by']);
-        unset($lab_book_detail['deleted']);
-        unset($lab_book_detail['deleted_date']);
+        unset($labBookDetail['id']);
+        unset($labBookDetail['lab_book_master_id']);
+        unset($labBookDetail['created']);
+        unset($labBookDetail['created_by']);
+        unset($labBookDetail['modified']);
+        unset($labBookDetail['modified_by']);
+        unset($labBookDetail['deleted']);
+        unset($labBookDetail['deleted_date']);
         
         // 1 - Derivatives
         
-        $sample_master_model->unbindModel(array(
+        $sampleMasterModel->unbindModel(array(
             'hasMany' => array(
                 'AliquotMaster'
             ),
@@ -291,25 +291,25 @@ class LabBookMaster extends LabBookAppModel
                 'Collection'
             )
         ));
-        $derivatives_list = $sample_master_model->find('all', array(
+        $derivativesList = $sampleMasterModel->find('all', array(
             'conditions' => array(
-                'DerivativeDetail.lab_book_master_id' => $lab_book_master_id,
+                'DerivativeDetail.lab_book_master_id' => $labBookMasterId,
                 'DerivativeDetail.sync_with_lab_book' => '1'
             )
         ));
         
-        foreach ($derivatives_list as $sample_to_update) {
-            $sample_master_model->id = $sample_to_update['SampleMaster']['id'];
-            if (! $sample_master_model->save(array(
-                'SampleMaster' => $lab_book_detail,
-                'SampleDetail' => $lab_book_detail
+        foreach ($derivativesList as $sampleToUpdate) {
+            $sampleMasterModel->id = $sampleToUpdate['SampleMaster']['id'];
+            if (! $sampleMasterModel->save(array(
+                'SampleMaster' => $labBookDetail,
+                'SampleDetail' => $labBookDetail
             ), false)) {
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
-            $derivative_detail_model->id = $sample_to_update['DerivativeDetail']['id'];
-            if (! $derivative_detail_model->save(array(
-                'DerivativeDetail' => $lab_book_detail
+            $derivativeDetailModel->id = $sampleToUpdate['DerivativeDetail']['id'];
+            if (! $derivativeDetailModel->save(array(
+                'DerivativeDetail' => $labBookDetail
             ), false)) {
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
@@ -317,16 +317,16 @@ class LabBookMaster extends LabBookAppModel
         
         // 2 - Realiquoting
         
-        $realiquoting_models_list = $realiquoting_model->find('all', array(
+        $realiquotingModelsList = $realiquotingModel->find('all', array(
             'conditions' => array(
-                'Realiquoting.lab_book_master_id' => $lab_book_master_id,
+                'Realiquoting.lab_book_master_id' => $labBookMasterId,
                 'Realiquoting.sync_with_lab_book' => '1'
             )
         ));
-        foreach ($realiquoting_models_list as $realiquoting_model_to_update) {
-            $realiquoting_model->id = $realiquoting_model_to_update['Realiquoting']['id'];
-            if (! $realiquoting_model->save(array(
-                'Realiquoting' => $lab_book_detail
+        foreach ($realiquotingModelsList as $realiquotingModelToUpdate) {
+            $realiquotingModel->id = $realiquotingModelToUpdate['Realiquoting']['id'];
+            if (! $realiquotingModel->save(array(
+                'Realiquoting' => $labBookDetail
             ), false)) {
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }

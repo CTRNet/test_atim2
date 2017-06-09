@@ -142,7 +142,7 @@ class DbAclSchema extends CakeSchema
      * Used by the Cake::Model:Permission class.
      * Checks if the given $aro has access to action $action in $aco.
      */
-    public $aros_acos = array(
+    public $arosAcos = array(
         'id' => array(
             'type' => 'integer',
             'null' => false,

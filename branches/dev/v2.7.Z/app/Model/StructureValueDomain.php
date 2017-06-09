@@ -15,20 +15,20 @@ class StructureValueDomain extends AppModel
     public function afterFind($results, $primary = false)
     {
         if (isset($results[0])) {
-            $permissible_values = array();
-            foreach ($results as &$sub_result) {
-                if (isset($sub_result['StructureValueDomainsPermissibleValue'])) {
-                    $old_result = $sub_result;
-                    $svd = $old_result['StructureValueDomain'];
-                    $sub_result = array(
+            $permissibleValues = array();
+            foreach ($results as &$subResult) {
+                if (isset($subResult['StructureValueDomainsPermissibleValue'])) {
+                    $oldResult = $subResult;
+                    $svd = $oldResult['StructureValueDomain'];
+                    $subResult = array(
                         "id" => $svd['id'],
                         "domain_name" => $svd['domain_name'],
                         "overrive" => $svd['override'],
                         "category" => $svd['category'],
                         "source" => $svd['source']
                     );
-                    foreach ($old_result['StructureValueDomainsPermissibleValue'] as $svdpv) {
-                        $permissible_values[] = array(
+                    foreach ($oldResult['StructureValueDomainsPermissibleValue'] as $svdpv) {
+                        $permissibleValues[] = array(
                             "id" => $svdpv['id'],
                             "value" => $svdpv['StructurePermissibleValue']['value'],
                             "language_alias" => $svdpv['StructurePermissibleValue']['language_alias'],
@@ -37,60 +37,60 @@ class StructureValueDomain extends AppModel
                             "use_as_input" => $svdpv['use_as_input']
                         );
                     }
-                    $sub_result['StructurePermissibleValue'] = $permissible_values;
+                    $subResult['StructurePermissibleValue'] = $permissibleValues;
                 } else {
                     break;
                 }
             }
-            $results['StructurePermissibleValue'] = $permissible_values;
+            $results['StructurePermissibleValue'] = $permissibleValues;
         }
         return $results;
     }
 
-    function updateDropdownResult(array $structure_value_domain, &$dropdown_result)
+    function updateDropdownResult(array $structureValueDomain, &$dropdownResult)
     {
-        if (strlen($structure_value_domain['source']) > 0) {
+        if (strlen($structureValueDomain['source']) > 0) {
             // load source
-            $tmp_dropdown_result = StructuresComponent::getPulldownFromSource($structure_value_domain['source']);
-            if (array_key_exists('defined', $tmp_dropdown_result)) {
-                $dropdown_result['defined'] += $tmp_dropdown_result['defined'];
-                if (array_key_exists('previously_defined', $tmp_dropdown_result)) {
-                    $dropdown_result['previously_defined'] += $tmp_dropdown_result['previously_defined'];
+            $tmpDropdownResult = StructuresComponent::getPulldownFromSource($structureValueDomain['source']);
+            if (array_key_exists('defined', $tmpDropdownResult)) {
+                $dropdownResult['defined'] += $tmpDropdownResult['defined'];
+                if (array_key_exists('previously_defined', $tmpDropdownResult)) {
+                    $dropdownResult['previously_defined'] += $tmpDropdownResult['previously_defined'];
                 }
             } else {
-                $dropdown_result['defined'] += $tmp_dropdown_result;
+                $dropdownResult['defined'] += $tmpDropdownResult;
             }
         } else {
             $this->cacheQueries = true;
-            $tmp_dropdown_result = $this->find('first', array(
+            $tmpDropdownResult = $this->find('first', array(
                 'recursive' => 2, // cakephp has a memory leak when recursive = 2
                 'conditions' => array(
-                    'StructureValueDomain.id' => $structure_value_domain['id']
+                    'StructureValueDomain.id' => $structureValueDomain['id']
                 )
             ));
-            if (isset($tmp_dropdown_result['StructurePermissibleValue']) && count($tmp_dropdown_result['StructurePermissibleValue']) > 0) {
-                $tmp_result = array(
+            if (isset($tmpDropdownResult['StructurePermissibleValue']) && count($tmpDropdownResult['StructurePermissibleValue']) > 0) {
+                $tmpResult = array(
                     'defined' => array(),
                     'previously_defined' => array()
                 );
                 // sort based on flag and on order
-                foreach ($tmp_dropdown_result['StructurePermissibleValue'] as $tmp_entry) {
-                    if ($tmp_entry['flag_active']) {
-                        if ($tmp_entry['use_as_input']) {
-                            $tmp_result['defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']) . __($tmp_entry['language_alias'], null);
+                foreach ($tmpDropdownResult['StructurePermissibleValue'] as $tmpEntry) {
+                    if ($tmpEntry['flag_active']) {
+                        if ($tmpEntry['use_as_input']) {
+                            $tmpResult['defined'][$tmpEntry['value']] = sprintf("%04d", $tmpEntry['display_order']) . __($tmpEntry['language_alias'], null);
                         } else {
-                            $tmp_result['previously_defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']) . __($tmp_entry['language_alias'], null);
+                            $tmpResult['previously_defined'][$tmpEntry['value']] = sprintf("%04d", $tmpEntry['display_order']) . __($tmpEntry['language_alias'], null);
                         }
                     }
                 }
-                asort($tmp_result['defined']);
-                asort($tmp_result['previously_defined']);
-                $substr4_func = create_function('$str', 'return substr($str, 4);');
-                $tmp_result['defined'] = array_map($substr4_func, $tmp_result['defined']);
-                $tmp_result['previously_defined'] = array_map($substr4_func, $tmp_result['previously_defined']);
+                asort($tmpResult['defined']);
+                asort($tmpResult['previously_defined']);
+                $substr4Func = create_function('$str', 'return substr($str, 4);');
+                $tmpResult['defined'] = array_map($substr4Func, $tmpResult['defined']);
+                $tmpResult['previously_defined'] = array_map($substr4Func, $tmpResult['previously_defined']);
                 
-                $dropdown_result['defined'] += $tmp_result['defined']; // merging arrays and keeping numeric keys intact
-                $dropdown_result['previously_defined'] += $tmp_result['previously_defined'];
+                $dropdownResult['defined'] += $tmpResult['defined']; // merging arrays and keeping numeric keys intact
+                $dropdownResult['previously_defined'] += $tmpResult['previously_defined'];
             }
         }
     }

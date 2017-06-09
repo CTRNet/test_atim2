@@ -1,7 +1,7 @@
 <div id="me">
 <?php
-$type = $use_icd_type == "topo" ? "topography" : "morphology";
-$this->Structures->build($atim_structure, array(
+$type = $useIcdType == "topo" ? "topography" : "morphology";
+$this->Structures->build($atimStructure, array(
     'type' => 'search',
     'links' => array(
         'top' => 'foo'
@@ -25,7 +25,7 @@ $this->Structures->build($empty, array(
 
 <script type="text/javascript">
 var popupSearch = function(){
-	$.post(root_url + "CodingIcd/CodingIcdo3s/search/<?php echo($use_icd_type); ?>/1", $("#me form").serialize(), function(data){
+	$.post(root_url + "CodingIcd/CodingIcdo3s/search/<?php echo($useIcdType); ?>/1", $("#me form").serialize(), function(data){
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
 	return false;

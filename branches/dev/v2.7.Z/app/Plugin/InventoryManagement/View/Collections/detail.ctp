@@ -1,74 +1,74 @@
 <?php
-$structure_links = array();
+$structureLinks = array();
 
-$add_links = array();
-foreach ($specimen_sample_controls_list as $sample_control) {
-    $add_links[__($sample_control['SampleControl']['sample_type'])] = '/InventoryManagement/SampleMasters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
+$addLinks = array();
+foreach ($specimenSampleControlsList as $sampleControl) {
+    $addLinks[__($sampleControl['SampleControl']['sample_type'])] = '/InventoryManagement/SampleMasters/add/' . $atimMenuVariables['Collection.id'] . '/' . $sampleControl['SampleControl']['id'];
 }
-ksort($add_links);
+ksort($addLinks);
 
 $settings = array();
-if ($is_ajax && ! $hide_header)
+if ($isAjax && ! $hideHeader)
     $settings['header'] = __('collection');
 
-$bottom_links = array(
-    'edit' => '/InventoryManagement/Collections/edit/' . $atim_menu_variables['Collection.id'],
-    'delete' => '/InventoryManagement/Collections/delete/' . $atim_menu_variables['Collection.id'],
+$bottomLinks = array(
+    'edit' => '/InventoryManagement/Collections/edit/' . $atimMenuVariables['Collection.id'],
+    'delete' => '/InventoryManagement/Collections/delete/' . $atimMenuVariables['Collection.id'],
     'copy for new collection' => array(
-        'link' => '/InventoryManagement/Collections/add/0/' . $atim_menu_variables['Collection.id'],
+        'link' => '/InventoryManagement/Collections/add/0/' . $atimMenuVariables['Collection.id'],
         'icon' => 'copy'
     ),
     'print barcodes' => array(
-        'link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:Collection/id:' . $atim_menu_variables['Collection.id'],
+        'link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:Collection/id:' . $atimMenuVariables['Collection.id'],
         'icon' => 'barcode'
     ),
-    'add specimen' => $add_links,
+    'add specimen' => $addLinks,
     'add from template' => $templates
 );
-if (empty($participant_id)) {
-    $bottom_links['participant data'] = '/underdevelopment/';
+if (empty($participantId)) {
+    $bottomLinks['participant data'] = '/underdevelopment/';
 } else {
-    $bottom_links['participant data'] = array(
+    $bottomLinks['participant data'] = array(
         'profile' => array(
             'icon' => 'participant',
-            'link' => '/ClinicalAnnotation/Participants/profile/' . $participant_id
+            'link' => '/ClinicalAnnotation/Participants/profile/' . $participantId
         ),
         'participant inventory' => array(
             'icon' => 'participant',
-            'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participant_id . '/' . $atim_menu_variables['Collection.id']
+            'link' => '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participantId . '/' . $atimMenuVariables['Collection.id']
         )
     );
 }
 
-$structure_links['bottom'] = $bottom_links;
+$structureLinks['bottom'] = $bottomLinks;
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'settings' => $settings
 );
 
-if (! $is_ajax && ! empty($sample_data)) {
-    $final_options['settings']['actions'] = false;
+if (! $isAjax && ! empty($sampleData)) {
+    $finalOptions['settings']['actions'] = false;
 }
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-if (! $is_ajax && ! empty($sample_data)) {
-    $structure_settings = array(
+if (! $isAjax && ! empty($sampleData)) {
+    $structureSettings = array(
         'tree' => array(
             'SampleMaster' => 'SampleMaster'
         ),
         'header' => __('collection contents')
     );
-    $structure_links['tree'] = array(
+    $structureLinks['tree'] = array(
         'SampleMaster' => array(
             'detail' => array(
                 'link' => '/InventoryManagement/SampleMasters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/',
@@ -80,10 +80,10 @@ if (! $is_ajax && ! empty($sample_data)) {
             )
         )
     );
-    $structure_links['tree_expand'] = array(
+    $structureLinks['tree_expand'] = array(
         'SampleMaster' => '/InventoryManagement/SampleMasters/contentTreeView/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/'
     );
-    $structure_links['ajax'] = array(
+    $structureLinks['ajax'] = array(
         'index' => array(
             'detail' => array(
                 'json' => array(
@@ -93,34 +93,34 @@ if (! $is_ajax && ! empty($sample_data)) {
             )
         )
     );
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'tree',
-        'data' => $sample_data
+        'data' => $sampleData
     );
     
-    $structure_extras = array();
-    $structure_extras[10] = '<div id="frame"></div>';
+    $structureExtras = array();
+    $structureExtras[10] = '<div id="frame"></div>';
     
     // BUILD
-    $final_atim_structure = array(
-        'SampleMaster' => $sample_masters_for_collection_tree_view
+    $finalAtimStructure = array(
+        'SampleMaster' => $sampleMastersForCollectionTreeView
     );
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'tree',
-        'data' => $sample_data,
-        'settings' => $structure_settings,
-        'links' => $structure_links,
-        'extras' => $structure_extras
+        'data' => $sampleData,
+        'settings' => $structureSettings,
+        'links' => $structureLinks,
+        'extras' => $structureExtras
     );
     
     // CUSTOM CODE
-    $hook_link = $this->Structures->hook();
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook();
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     // BUILD FORM
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 
 ?>

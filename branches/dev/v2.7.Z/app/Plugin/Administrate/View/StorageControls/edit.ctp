@@ -1,13 +1,13 @@
 <?php
-$structure_links = array(
-    'top' => '/Administrate/StorageControls/edit/' . $atim_menu_variables['StorageCtrl.id'] . '/',
+$structureLinks = array(
+    'top' => '/Administrate/StorageControls/edit/' . $atimMenuVariables['StorageCtrl.id'] . '/',
     'bottom' => array(
         'cancel' => '/Administrate/StorageControls/listAll/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'settings' => array(
         'header' => __('storage layout description', null) . ' : ' . __(str_replace(array(
             'no_d',
@@ -19,16 +19,16 @@ $final_options = array(
             '1 coordinate',
             '2 coordinates',
             'tma block'
-        ), $storage_category))
+        ), $storageCategory))
     ),
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

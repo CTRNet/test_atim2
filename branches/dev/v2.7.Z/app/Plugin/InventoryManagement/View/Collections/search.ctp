@@ -2,16 +2,16 @@
 $settings = array(
     'return' => true
 );
-if (isset($is_ccl_ajax)) {
-    $structure_links = array(
+if (isset($isCclAjax)) {
+    $structureLinks = array(
         'radiolist' => array(
             "Collection.id" => "%%ViewCollection.collection_id%%"
         )
     );
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'index',
         'data' => $this->request->data,
-        'links' => $structure_links,
+        'links' => $structureLinks,
         'settings' => array(
             'pagination' => false,
             'actions' => false,
@@ -26,27 +26,27 @@ if (isset($is_ccl_ajax)) {
 <?php
     }
 } else {
-    if (isset($is_ajax)) {
+    if (isset($isAjax)) {
         $settings['actions'] = false;
     } else {
         $settings['header'] = array(
             'title' => __('search type', null) . ': ' . __('collections', null),
-            'description' => __("more information about the types of samples and aliquots are available %s here", $help_url)
+            'description' => __("more information about the types of samples and aliquots are available %s here", $helpUrl)
         );
     }
     include ('search_links_n_options.php');
 }
 
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$form = $this->Structures->build($final_atim_structure, $final_options);
-if (isset($is_ajax) && ! isset($is_ccl_ajax)) {
+$form = $this->Structures->build($finalAtimStructure, $finalOptions);
+if (isset($isAjax) && ! isset($isCclAjax)) {
     $this->layout = 'json';
     $this->json = array(
         'page' => $form,

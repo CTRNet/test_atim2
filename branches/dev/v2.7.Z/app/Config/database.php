@@ -67,9 +67,9 @@ class DATABASE_CONFIG
         'host' => '127.0.0.1',
         'login' => 'root',
         'password' => '',
-        'database' => 'atim',
+        'database' => 'atim_1',
         'prefix' => '',
         'encoding' => 'utf8',
-        'port' => 3303
+        'port' => 3306
     );
 }

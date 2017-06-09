@@ -3,7 +3,7 @@
 class DiagnosisControl extends ClinicalAnnotationAppModel
 {
 
-    public $master_form_alias = 'diagnosismasters';
+    public $masterFormAlias = 'diagnosismasters';
 
     /**
      * Get permissible values array gathering all existing diagnosis types.
@@ -21,8 +21,8 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $diagnosis_control) {
-            $result[$diagnosis_control['DiagnosisControl']['id']] = __($diagnosis_control['DiagnosisControl']['controls_type']);
+        )) as $diagnosisControl) {
+            $result[$diagnosisControl['DiagnosisControl']['id']] = __($diagnosisControl['DiagnosisControl']['controls_type']);
         }
         natcasesort($result);
         
@@ -38,8 +38,8 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $diagnosis_control) {
-            $result[$diagnosis_control['DiagnosisControl']['controls_type']] = __($diagnosis_control['DiagnosisControl']['controls_type']);
+        )) as $diagnosisControl) {
+            $result[$diagnosisControl['DiagnosisControl']['controls_type']] = __($diagnosisControl['DiagnosisControl']['controls_type']);
         }
         natcasesort($result);
         
@@ -55,8 +55,8 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $diagnosis_control) {
-            $result[$diagnosis_control['DiagnosisControl']['category']] = __($diagnosis_control['DiagnosisControl']['category']);
+        )) as $diagnosisControl) {
+            $result[$diagnosisControl['DiagnosisControl']['category']] = __($diagnosisControl['DiagnosisControl']['category']);
         }
         natcasesort($result);
         

@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'parent aliquot detail' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
         'edit link' => '/InventoryManagement/AliquotMasters/editRealiquoting/%%Realiquoting.id%%/',
@@ -7,17 +7,17 @@ $structure_links = array(
     )
 );
 
-if ($display_lab_book_url) {
-    $structure_links['index']['see lab book'] = array(
+if ($displayLabBookUrl) {
+    $structureLinks['index']['see lab book'] = array(
         'link' => '/labbook/LabBookMasters/detail/%%Realiquoting.generated_lab_book_master_id%%',
         'icon' => 'lab_book'
     );
 }
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => array(
         'actions' => false,
         'pagination' => false
@@ -25,10 +25,10 @@ $final_options = array(
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);	
+$this->Structures->build($finalAtimStructure, $finalOptions);	

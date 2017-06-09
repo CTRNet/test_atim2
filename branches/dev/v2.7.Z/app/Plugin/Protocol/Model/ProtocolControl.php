@@ -3,7 +3,7 @@
 class ProtocolControl extends ProtocolAppModel
 {
 
-    public $master_form_alias = 'protocolmasters';
+    public $masterFormAlias = 'protocolmasters';
 
     /**
      * Get permissible values array gathering all existing protocol types.
@@ -21,8 +21,8 @@ class ProtocolControl extends ProtocolAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $protocol_control) {
-            $result[$protocol_control['ProtocolControl']['type']] = __($protocol_control['ProtocolControl']['type']);
+        )) as $protocolControl) {
+            $result[$protocolControl['ProtocolControl']['type']] = __($protocolControl['ProtocolControl']['type']);
         }
         natcasesort($result);
         
@@ -45,8 +45,8 @@ class ProtocolControl extends ProtocolAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $protocol_control) {
-            $result[$protocol_control['ProtocolControl']['tumour_group']] = __($protocol_control['ProtocolControl']['tumour_group']);
+        )) as $protocolControl) {
+            $result[$protocolControl['ProtocolControl']['tumour_group']] = __($protocolControl['ProtocolControl']['tumour_group']);
         }
         natcasesort($result);
         

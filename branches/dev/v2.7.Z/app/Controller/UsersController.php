@@ -31,7 +31,7 @@ class UsersController extends AppController
                 )
             )
         );
-        $this->set('atim_structure', $this->Structures->get('form', 'login'));
+        $this->set('atimStructure', $this->Structures->get('form', 'login'));
     }
 
     /**
@@ -61,7 +61,7 @@ class UsersController extends AppController
             $this->newVersionSetup();
         }
         
-        $this->set('skip_expiration_cookie', true);
+        $this->set('skipExpirationCookie', true);
         
         if ($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
             // Too many login attempts - froze atim for couple of minutes
@@ -161,18 +161,18 @@ class UsersController extends AppController
             $this->redirect('/');
         }
         
-        $ip_temporarily_disabled = $this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts();
+        $ipTemporarilyDisabled = $this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts();
         
-        if (empty($this->request->data) || $ip_temporarily_disabled) {
+        if (empty($this->request->data) || $ipTemporarilyDisabled) {
             
             // 1- Initial access to the function:
             // Display of the form to set the username.
             
             $this->Structures->set('username');
-            if ($ip_temporarily_disabled)
+            if ($ipTemporarilyDisabled)
                 $this->User->validationErrors[][] = __('too many failed login attempts - connection to atim disabled temporarily');
             
-            $this->set('reset_forgotten_password_step', '1');
+            $this->set('resetForgottenPasswordStep', '1');
         } else {
             
             // Check username exists in the database and is not disabled
@@ -181,39 +181,39 @@ class UsersController extends AppController
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
-            $reset_form_fields = $this->User->getForgottenPasswordResetFormFields();
-            $reset_form_question_fields = array_keys($reset_form_fields);
+            $resetFormFields = $this->User->getForgottenPasswordResetFormFields();
+            $resetFormQuestionFields = array_keys($resetFormFields);
             
-            $db_user_data = $this->User->find('first', array(
+            $dbUserData = $this->User->find('first', array(
                 'conditions' => array(
                     'User.username' => $this->request->data['User']['username'],
                     'User.flag_active' => '1'
                 )
             ));
-            if (! $db_user_data) {
+            if (! $dbUserData) {
                 
                 // 2- User name does not exist in the database or is disabled
                 // Display or re-display the form to set the username
                 
                 $this->User->validationErrors['username'][] = __('invalid username or disabled user');
                 $this->Structures->set('username');
-                $this->set('reset_forgotten_password_step', '1');
+                $this->set('resetForgottenPasswordStep', '1');
                 $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
                 $this->request->data = array();
-            } elseif (! array_key_exists(array_shift($reset_form_question_fields), $this->request->data['User'])) {
+            } elseif (! array_key_exists(array_shift($resetFormQuestionFields), $this->request->data['User'])) {
                 
                 // 3- User name does exist in the database
                 // Display the form to set the username confidential questions
                 
                 $this->Structures->set('forgotten_password_reset' . ((Configure::read('reset_forgotten_password_feature') != '1') ? ',other_user_login_to_forgotten_password_reset' : ''));
-                $this->set('reset_forgotten_password_step', '2');
+                $this->set('resetForgottenPasswordStep', '2');
                 $this->request->data = array(
                     'User' => array(
                         'username' => $this->request->data['User']['username']
                     )
                 );
-                foreach ($reset_form_fields as $question_field_name => $answer_field_name) {
-                    $this->request->data['User'][$question_field_name] = $db_user_data['User'][$question_field_name];
+                foreach ($resetFormFields as $questionFieldName => $answerFieldName) {
+                    $this->request->data['User'][$questionFieldName] = $dbUserData['User'][$questionFieldName];
                 }
             } else {
                 
@@ -221,26 +221,26 @@ class UsersController extends AppController
                 // Check the answers set by the user to reset the password
                 
                 $this->Structures->set('forgotten_password_reset' . ((Configure::read('reset_forgotten_password_feature') != '1') ? ',other_user_login_to_forgotten_password_reset' : ''));
-                $this->set('reset_forgotten_password_step', '2');
+                $this->set('resetForgottenPasswordStep', '2');
                 
-                $submitted_data_validates = true;
+                $submittedDataValidates = true;
                 
                 // Validate user questions answers
                 
-                foreach ($reset_form_fields as $question_field_name => $answer_field_name) {
+                foreach ($resetFormFields as $questionFieldName => $answerFieldName) {
                     // Check db/form questions matche
-                    if ($db_user_data['User'][$question_field_name] != $this->request->data['User'][$question_field_name]) {
+                    if ($dbUserData['User'][$questionFieldName] != $this->request->data['User'][$questionFieldName]) {
                         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
                     // Check answers
-                    if (! strlen($db_user_data['User'][$answer_field_name])) {
+                    if (! strlen($dbUserData['User'][$answerFieldName])) {
                         // No answer in db. Validation can not be done
                         $this->User->validationErrors['username']['#1'] = __('at least one error exists in the questions you answered - password can not be reset');
-                        $submitted_data_validates = false;
+                        $submittedDataValidates = false;
                     }
-                    if ($db_user_data['User'][$answer_field_name] !== $this->User->hashSecuritAsnwer($this->request->data['User'][$answer_field_name])) {
+                    if ($dbUserData['User'][$answerFieldName] !== $this->User->hashSecuritAsnwer($this->request->data['User'][$answerFieldName])) {
                         $this->User->validationErrors['username']['#1'] = __('at least one error exists in the questions you answered - password can not be reset');
-                        $submitted_data_validates = false;
+                        $submittedDataValidates = false;
                     }
                 }
                 
@@ -260,22 +260,22 @@ class UsersController extends AppController
                         'conditions' => $conditions
                     ))) {
                         $this->User->validationErrors['other_user_check_username'][] = __('other user control') . ' : ' . __('invalid username or disabled user');
-                        $submitted_data_validates = false;
+                        $submittedDataValidates = false;
                     }
                 }
                 
-                if ($submitted_data_validates) {
+                if ($submittedDataValidates) {
                     // Save new password
-                    $this->User->id = $db_user_data['User']['id'];
-                    $suer_data_to_save = array(
+                    $this->User->id = $dbUserData['User']['id'];
+                    $suerDataToSave = array(
                         'User' => array(
-                            'id' => $db_user_data['User']['id'],
-                            'group_id' => $db_user_data['User']['group_id'],
+                            'id' => $dbUserData['User']['id'],
+                            'group_id' => $dbUserData['User']['group_id'],
                             'new_password' => $this->request->data['User']['new_password'],
                             'confirm_password' => $this->request->data['User']['confirm_password']
                         )
                     );
-                    if ($this->User->savePassword($suer_data_to_save, true)) {
+                    if ($this->User->savePassword($suerDataToSave, true)) {
                         $this->atimFlash(__('your data has been updated'), '/');
                     }
                 } else {

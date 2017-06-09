@@ -7,38 +7,38 @@
 class StoredItemBehavior extends ModelBehavior
 {
 
-    private $previous_storage_master_id = null;
+    private $previousStorageMasterId = null;
 
     public function beforeSave(Model $model, $options = Array())
     {
         if ($model->id) {
-            $prev_data = $model->find('first', array(
+            $prevData = $model->find('first', array(
                 'conditions' => array(
                     $model->name . '.' . $model->primaryKey => $model->id
                 )
             ));
-            $this->previous_storage_master_id = $model->name == 'StorageMaster' ? $prev_data['StorageMaster']['parent_id'] : $prev_data[$model->name]['storage_master_id'];
+            $this->previousStorageMasterId = $model->name == 'StorageMaster' ? $prevData['StorageMaster']['parent_id'] : $prevData[$model->name]['storage_master_id'];
         }
         return true;
     }
 
     public function afterSave(Model $model, $created, $options = Array())
     {
-        $view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
-        $use_key = $model->name == 'StorageMaster' ? 'parent_id' : 'storage_master_id';
-        $new_storage_id = isset($model->data[$model->name][$use_key]) ? $model->data[$model->name][$use_key] : null;
-        if ((isset($model->data[$model->name]['deleted']) && $model->data[$model->name]['deleted']) || $this->previous_storage_master_id != $new_storage_id) {
+        $viewStorageMasterModel = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
+        $useKey = $model->name == 'StorageMaster' ? 'parent_id' : 'storage_master_id';
+        $newStorageId = isset($model->data[$model->name][$useKey]) ? $model->data[$model->name][$useKey] : null;
+        if ((isset($model->data[$model->name]['deleted']) && $model->data[$model->name]['deleted']) || $this->previousStorageMasterId != $newStorageId) {
             // deleted OR new != old
-            $query = 'REPLACE INTO view_storage_masters (' . $view_storage_master_model::$table_query . ')';
-            if ($this->previous_storage_master_id) {
+            $query = 'REPLACE INTO view_storage_masters (' . $viewStorageMasterModel::$tableQuery . ')';
+            if ($this->previousStorageMasterId) {
                 $model->manageViewUpdate('view_storage_masters', 'StorageMaster.id', array(
-                    $this->previous_storage_master_id
-                ), $view_storage_master_model::$table_query);
+                    $this->previousStorageMasterId
+                ), $viewStorageMasterModel::$tableQuery);
             }
-            if ($new_storage_id) {
+            if ($newStorageId) {
                 $model->manageViewUpdate('view_storage_masters', 'StorageMaster.id', array(
-                    $new_storage_id
-                ), $view_storage_master_model::$table_query);
+                    $newStorageId
+                ), $viewStorageMasterModel::$tableQuery);
             }
         }
     }

@@ -3,7 +3,7 @@
 class AliquotControl extends InventoryManagementAppModel
 {
 
-    public $master_form_alias = 'aliquot_masters';
+    public $masterFormAlias = 'aliquot_masters';
 
     /**
      * Get permissible values array gathering all existing aliquot types.
@@ -29,7 +29,7 @@ class AliquotControl extends InventoryManagementAppModel
         return $this->getAliquotsTypePermissibleValues(false, null);
     }
 
-    function getAliquotsTypePermissibleValues($use_id, $parent_sample_control_id)
+    function getAliquotsTypePermissibleValues($useId, $parentSampleControlId)
     {
         $result = array();
         
@@ -37,11 +37,11 @@ class AliquotControl extends InventoryManagementAppModel
         $conditions = array(
             'AliquotControl.flag_active' => 1
         );
-        if ($parent_sample_control_id != null) {
-            $conditions['AliquotControl.sample_control_id'] = $parent_sample_control_id;
+        if ($parentSampleControlId != null) {
+            $conditions['AliquotControl.sample_control_id'] = $parentSampleControlId;
         }
         
-        if ($use_id) {
+        if ($useId) {
             $this->bindModel(array(
                 'belongsTo' => array(
                     'SampleControl' => array(
@@ -50,22 +50,22 @@ class AliquotControl extends InventoryManagementAppModel
                     )
                 )
             ));
-            $aliquot_controls = $this->find('all', array(
+            $aliquotControls = $this->find('all', array(
                 'conditions' => $conditions
             ));
-            foreach ($aliquot_controls as $aliquot_control) {
-                $result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type']);
-                // $aliquot_type_precision = $aliquot_control['AliquotControl']['aliquot_type_precision'];
-                // $result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type'])
-                // . ' ['.__($aliquot_control['SampleControl']['sample_type'])
-                // . (empty($aliquot_type_precision)? '' : ' - ' . __($aliquot_type_precision)) . ']';
+            foreach ($aliquotControls as $aliquotControl) {
+                $result[$aliquotControl['AliquotControl']['id']] = __($aliquotControl['AliquotControl']['aliquot_type']);
+                // $aliquotTypePrecision = $aliquotControl['AliquotControl']['aliquot_type_precision'];
+                // $result[$aliquotControl['AliquotControl']['id']] = __($aliquotControl['AliquotControl']['aliquot_type'])
+                // . ' ['.__($aliquotControl['SampleControl']['sample_type'])
+                // . (empty($aliquotTypePrecision)? '' : ' - ' . __($aliquotTypePrecision)) . ']';
             }
         } else {
-            $aliquot_controls = $this->find('all', array(
+            $aliquotControls = $this->find('all', array(
                 'conditions' => $conditions
             ));
-            foreach ($aliquot_controls as $aliquot_control) {
-                $result[$aliquot_control['AliquotControl']['aliquot_type']] = __($aliquot_control['AliquotControl']['aliquot_type']);
+            foreach ($aliquotControls as $aliquotControl) {
+                $result[$aliquotControl['AliquotControl']['aliquot_type']] = __($aliquotControl['AliquotControl']['aliquot_type']);
             }
         }
         natcasesort($result);
@@ -73,21 +73,21 @@ class AliquotControl extends InventoryManagementAppModel
         return $result;
     }
 
-    function getPermissibleAliquotsArray($parent_sample_control_id)
+    function getPermissibleAliquotsArray($parentSampleControlId)
     {
         $conditions = array(
             'AliquotControl.flag_active' => true,
-            'AliquotControl.sample_control_id' => $parent_sample_control_id
+            'AliquotControl.sample_control_id' => $parentSampleControlId
         );
         
         $controls = $this->find('all', array(
             'conditions' => $conditions
         ));
-        $aliquot_controls_list = array();
+        $aliquotControlsList = array();
         foreach ($controls as $control) {
-            $aliquot_controls_list[$control['AliquotControl']['id']]['AliquotControl'] = $control['AliquotControl'];
+            $aliquotControlsList[$control['AliquotControl']['id']]['AliquotControl'] = $control['AliquotControl'];
         }
-        return $aliquot_controls_list;
+        return $aliquotControlsList;
     }
 
     /**
@@ -113,9 +113,9 @@ class AliquotControl extends InventoryManagementAppModel
             )
         ));
         
-        $specimen_sample_control_ids_list = array();
+        $specimenSampleControlIdsList = array();
         foreach ($controls as $control) {
-            $specimen_sample_control_ids_list[] = $control['DerivativeControl']['id'];
+            $specimenSampleControlIdsList[] = $control['DerivativeControl']['id'];
         }
         
         // Build final list
@@ -130,7 +130,7 @@ class AliquotControl extends InventoryManagementAppModel
         $result = $this->find('all', array(
             'conditions' => array(
                 'AliquotControl.flag_active' => '1',
-                'AliquotControl.sample_control_id' => $specimen_sample_control_ids_list
+                'AliquotControl.sample_control_id' => $specimenSampleControlIdsList
             ),
             'order' => array(
                 'SampleControl.sample_type' => 'asc',
@@ -138,27 +138,27 @@ class AliquotControl extends InventoryManagementAppModel
             )
         ));
         
-        $working_array = array();
-        $last_sample_type = '';
-        foreach ($result as $new_sample_aliquot) {
-            $sample_control_id = $new_sample_aliquot['SampleControl']['id'];
-            $aliquot_control_id = $new_sample_aliquot['AliquotControl']['id'];
+        $workingArray = array();
+        $lastSampleType = '';
+        foreach ($result as $newSampleAliquot) {
+            $sampleControlId = $newSampleAliquot['SampleControl']['id'];
+            $aliquotControlId = $newSampleAliquot['AliquotControl']['id'];
             
-            $sample_type = $new_sample_aliquot['SampleControl']['sample_type'];
-            $aliquot_type = $new_sample_aliquot['AliquotControl']['aliquot_type'];
+            $sampleType = $newSampleAliquot['SampleControl']['sample_type'];
+            $aliquotType = $newSampleAliquot['AliquotControl']['aliquot_type'];
             
             // New Sample Type
-            if ($last_sample_type != $sample_type) {
+            if ($lastSampleType != $sampleType) {
                 // Add just sample type to the list
-                $working_array[$sample_control_id . '|'] = __($sample_type);
+                $workingArray[$sampleControlId . '|'] = __($sampleType);
             }
             
             // New Sample-Aliquot
-            $working_array[$sample_control_id . '|' . $aliquot_control_id] = __($sample_type) . ' - ' . __($aliquot_type);
+            $workingArray[$sampleControlId . '|' . $aliquotControlId] = __($sampleType) . ' - ' . __($aliquotType);
         }
-        natcasesort($working_array);
+        natcasesort($workingArray);
         
-        return $working_array;
+        return $workingArray;
     }
 
     function afterFind($results, $primary = false)

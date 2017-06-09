@@ -10,7 +10,7 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    public $browsing_search_dropdown_info = array(
+    public $browsingSearchDropdownInfo = array(
         'browsing_filter' => array(
             1 => array(
                 'lang' => 'keep entries with the most recent start date per participant',
@@ -59,10 +59,10 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $tx_master_id Id
+     * @param $txMasterId Id
      *            of the studied record.
      * @param
-     *            $tx_extend_tablename
+     *            $txExtendTablename
      *            
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
@@ -71,25 +71,25 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2010-04-18
      */
-    function allowDeletion($tx_master_id)
+    function allowDeletion($txMasterId)
     {
-        if ($tx_master_id != $this->id) {
+        if ($txMasterId != $this->id) {
             // not the same, fetch
-            $data = $this->findById($tx_master_id);
+            $data = $this->findById($txMasterId);
         } else {
             $data = $this->data;
         }
         
         if (! empty($data['TreatmentControl']['treatment_extend_control_id'])) {
             $TreatmentExtendMaster = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
-            $nbr_extends = $TreatmentExtendMaster->find('count', array(
+            $nbrExtends = $TreatmentExtendMaster->find('count', array(
                 'conditions' => array(
-                    'TreatmentExtendMaster.treatment_master_id' => $tx_master_id,
+                    'TreatmentExtendMaster.treatment_master_id' => $txMasterId,
                     'TreatmentExtendMaster.treatment_extend_control_id' => $data['TreatmentControl']['treatment_extend_control_id']
                 ),
                 'recursive' => '-1'
             ));
-            if ($nbr_extends > 0) {
+            if ($nbrExtends > 0) {
                 return array(
                     'allow_deletion' => false,
                     'msg' => 'at least one precision is defined as treatment component'
@@ -97,10 +97,10 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
             }
         }
         
-        $collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
-        if ($collection_model->find('first', array(
+        $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection');
+        if ($collectionModel->find('first', array(
             'conditions' => array(
-                'Collection.treatment_master_id' => $tx_master_id
+                'Collection.treatment_master_id' => $txMasterId
             )
         ))) {
             return array(

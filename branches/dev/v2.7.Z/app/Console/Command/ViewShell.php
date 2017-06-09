@@ -13,7 +13,7 @@ class ViewShell extends AppShell
     {
         $this->out('Log in with a user/password combination of a user from the administror group.');
         $username = $this->in('user');
-        $pwd = $this->prompt_silent();
+        $pwd = $this->promptSilent();
         $pwd = Security::hash($pwd, null, true);
         
         $user = $this->User->find('first', array(
@@ -48,14 +48,14 @@ class ViewShell extends AppShell
                 }
                 $self->User->query('CREATE TABLE console_stored_views (name VARCHAR(50) NOT NULL DEFAULT "", command TEXT)Engine=InnoDb');
                 
-                $db_conf = new DATABASE_CONFIG();
+                $dbConf = new DATABASE_CONFIG();
                 
                 foreach ($views as $result) {
                     $create = $self->User->query('SHOW CREATE TABLE ' . $result);
                     $index = strpos($create[0][0]['Create View'], " VIEW ");
-                    $create_view_str = str_replace('`' . $db_conf->default['database'] . '`.', '', $create[0][0]['Create View']);
-                    $create_view_str = "CREATE " . substr($create_view_str, $index + 1);
-                    $self->User->query('INSERT INTO console_stored_views VALUES ("' . $result . '", "' . $create_view_str . '")');
+                    $createViewStr = str_replace('`' . $dbConf->default['database'] . '`.', '', $create[0][0]['Create View']);
+                    $createViewStr = "CREATE " . substr($createViewStr, $index + 1);
+                    $self->User->query('INSERT INTO console_stored_views VALUES ("' . $result . '", "' . $createViewStr . '")');
                 }
                 $self->out('Views have been stored. Any previous entries in console_stored_views have been deleted.');
             } else {

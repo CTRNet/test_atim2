@@ -16,127 +16,127 @@ class MaterialsController extends MaterialAppController
     function index()
     {
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function search($search_id)
+    function search($searchId)
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu', $this->Menus->get('/material/materials/index/'));
+        $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
         
-        $this->searchHandler($search_id, $this->Material, 'materials', '/material/materials/search');
+        $this->searchHandler($searchId, $this->Material, 'materials', '/material/materials/search');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
     function add()
     {
-        $this->set('atim_menu', $this->Menus->get('/material/materials/index/'));
+        $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates && $this->Material->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($submittedDataValidates && $this->Material->save($this->request->data)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been updated'), '/material/materials/detail/' . $this->Material->id);
             }
         }
     }
 
-    function edit($material_id = null)
+    function edit($materialId = null)
     {
-        $material_data = $this->Material->getOrRedirect($material_id);
+        $materialData = $this->Material->getOrRedirect($materialId);
         
-        $this->set('atim_menu_variables', array(
-            'Material.id' => $material_id
+        $this->set('atimMenuVariables', array(
+            'Material.id' => $materialId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $material_data;
+            $this->request->data = $materialData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->Material->id = $material_id;
+            if ($submittedDataValidates) {
+                $this->Material->id = $materialId;
                 if ($this->Material->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/material/materials/detail/' . $material_id);
+                    $this->atimFlash(__('your data has been updated'), '/material/materials/detail/' . $materialId);
                 }
             }
         }
     }
 
-    function detail($material_id = null)
+    function detail($materialId = null)
     {
-        if (! $material_id) {
+        if (! $materialId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
-        $this->set('atim_menu_variables', array(
-            'Material.id' => $material_id
+        $this->set('atimMenuVariables', array(
+            'Material.id' => $materialId
         ));
         
         $this->request->data = $this->Material->find('first', array(
             'conditions' => array(
-                'Material.id' => $material_id
+                'Material.id' => $materialId
             )
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function delete($material_id = null)
+    function delete($materialId = null)
     {
-        if (! $material_id) {
+        if (! $materialId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($this->Material->atimDelete($material_id)) {
+        if ($this->Material->atimDelete($materialId)) {
             $this->atimFlash(__('your data has been deleted'), '/material/materials/index/');
         } else {
             $this->atimFlashError(__('error deleting data - contact administrator'), '/material/materials/listall/');

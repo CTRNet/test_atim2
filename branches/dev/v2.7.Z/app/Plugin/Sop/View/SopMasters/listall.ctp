@@ -1,29 +1,29 @@
 <?php
-$add_links = array();
-foreach ($sop_controls as $sop_control) {
-    $add_links[__($sop_control['SopControl']['sop_group']) . ' - ' . __($sop_control['SopControl']['type'])] = '/Sop/SopMasters/add/' . $sop_control['SopControl']['id'] . '/';
+$addLinks = array();
+foreach ($sopControls as $sopControl) {
+    $addLinks[__($sopControl['SopControl']['sop_group']) . ' - ' . __($sopControl['SopControl']['type'])] = '/Sop/SopMasters/add/' . $sopControl['SopControl']['id'] . '/';
 }
-ksort($add_links);
+ksort($addLinks);
 
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'detail' => '/Sop/SopMasters/detail/%%SopMaster.id%%/'
     ),
     'bottom' => array(
-        'add' => $add_links
+        'add' => $addLinks
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
