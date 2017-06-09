@@ -3,7 +3,7 @@
 class OrderAppController extends AppController
 {
 
-    static $search_links = array(
+    static $searchLinks = array(
         'order' => array(
             'link' => '/Order/Orders/search/',
             'icon' => 'search'

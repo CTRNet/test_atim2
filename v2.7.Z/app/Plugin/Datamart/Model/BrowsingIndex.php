@@ -12,5 +12,5 @@ class BrowsingIndex extends DatamartAppModel
         )
     );
 
-    public $tmp_browsing_limit = 5;
+    public $tmpBrowsingLimit = 5;
 }

@@ -77,9 +77,9 @@ class Group extends AppModel
      * Checks if at least one permission for that group is granted
      *
      * @param
-     *            $group_id
+     *            $groupId
      */
-    function hasPermissions($group_id)
+    function hasPermissions($groupId)
     {
         $data = $this->find('first', array(
             'joins' => array(
@@ -108,7 +108,7 @@ class Group extends AppModel
                 )
             ),
             'conditions' => array(
-                'Group.id' => $group_id
+                'Group.id' => $groupId
             )
         ));
         return ! empty($data);

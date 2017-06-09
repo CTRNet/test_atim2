@@ -26,7 +26,7 @@ class OrderItem extends OrderAppModel
         )
     );
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'OrderItem.id'
         )
@@ -35,30 +35,30 @@ class OrderItem extends OrderAppModel
     function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
-        foreach ($results as &$new_item) {
-            if (array_key_exists('OrderItem', $new_item) && array_key_exists('aliquot_master_id', $new_item['OrderItem']) && array_key_exists('tma_slide_id', $new_item['OrderItem'])) {
-                if (($new_item['OrderItem']['aliquot_master_id'] && $new_item['OrderItem']['tma_slide_id']) || (! $new_item['OrderItem']['aliquot_master_id'] && ! $new_item['OrderItem']['tma_slide_id'])) {
+        foreach ($results as &$newItem) {
+            if (array_key_exists('OrderItem', $newItem) && array_key_exists('aliquot_master_id', $newItem['OrderItem']) && array_key_exists('tma_slide_id', $newItem['OrderItem'])) {
+                if (($newItem['OrderItem']['aliquot_master_id'] && $newItem['OrderItem']['tma_slide_id']) || (! $newItem['OrderItem']['aliquot_master_id'] && ! $newItem['OrderItem']['tma_slide_id'])) {
                     AppController::addWarningMsg(__('error on order item type - contact your administartor'));
                 }
             }
             // Set generated data
-            $new_item['Generated']['type'] = '';
-            $new_item['Generated']['barcode'] = '';
-            if (array_key_exists('AliquotMaster', $new_item) && $new_item['AliquotMaster']['id']) {
-                $new_item['Generated']['type'] = 'aliquot';
-                if (isset($new_item['AliquotMaster']['barcode']))
-                    $new_item['Generated']['barcode'] = $new_item['AliquotMaster']['barcode'];
+            $newItem['Generated']['type'] = '';
+            $newItem['Generated']['barcode'] = '';
+            if (array_key_exists('AliquotMaster', $newItem) && $newItem['AliquotMaster']['id']) {
+                $newItem['Generated']['type'] = 'aliquot';
+                if (isset($newItem['AliquotMaster']['barcode']))
+                    $newItem['Generated']['barcode'] = $newItem['AliquotMaster']['barcode'];
             }
-            if (array_key_exists('TmaSlide', $new_item) && $new_item['TmaSlide']['id']) {
-                $new_item['Generated']['type'] = 'tma slide';
-                if (isset($new_item['TmaSlide']['barcode']))
-                    $new_item['Generated']['barcode'] = $new_item['TmaSlide']['barcode'];
+            if (array_key_exists('TmaSlide', $newItem) && $newItem['TmaSlide']['id']) {
+                $newItem['Generated']['type'] = 'tma slide';
+                if (isset($newItem['TmaSlide']['barcode']))
+                    $newItem['Generated']['barcode'] = $newItem['TmaSlide']['barcode'];
             }
             // Set the order line product type value
-            if (isset($new_item['OrderLine']) && array_key_exists('sample_control_id', $new_item['OrderLine']) && array_key_exists('aliquot_control_id', $new_item['OrderLine']) && array_key_exists('is_tma_slide', $new_item['OrderLine'])) {
-                $new_item['FunctionManagement']['product_type'] = $new_item['OrderLine']['sample_control_id'] . '|' . $new_item['OrderLine']['aliquot_control_id'] . '|' . $new_item['OrderLine']['is_tma_slide'];
-                if ('||' == $new_item['FunctionManagement']['product_type'])
-                    $new_item['FunctionManagement']['product_type'] = '';
+            if (isset($newItem['OrderLine']) && array_key_exists('sample_control_id', $newItem['OrderLine']) && array_key_exists('aliquot_control_id', $newItem['OrderLine']) && array_key_exists('is_tma_slide', $newItem['OrderLine'])) {
+                $newItem['FunctionManagement']['product_type'] = $newItem['OrderLine']['sample_control_id'] . '|' . $newItem['OrderLine']['aliquot_control_id'] . '|' . $newItem['OrderLine']['is_tma_slide'];
+                if ('||' == $newItem['FunctionManagement']['product_type'])
+                    $newItem['FunctionManagement']['product_type'] = '';
             }
         }
         return $results;
@@ -67,7 +67,7 @@ class OrderItem extends OrderAppModel
     /**
      * Check if an item can be deleted.
      *
-     * @param $order_line_data Data
+     * @param $orderLineData Data
      *            of the studied order item.
      *            
      * @return Return results as array:
@@ -77,10 +77,10 @@ class OrderItem extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($order_line_data)
+    function allowDeletion($orderLineData)
     {
         // Check aliquot is not gel matrix used to create either core
-        if (! empty($order_line_data['Shipment']['id'])) {
+        if (! empty($orderLineData['Shipment']['id'])) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'this item cannot be deleted because it was already shipped'
@@ -98,11 +98,11 @@ class OrderItem extends OrderAppModel
      * - An order item linked to an aliquot (or tma slide) can have a status equal to 'pending' or 'shipped'
      * - when no other order item linked to the same aliquot (or tma slide) has a status equal to 'pending' or 'shipped'
      *
-     * @param $foreign_key_field (aliquot_master_id
+     * @param $foreignKeyField (aliquot_master_id
      *            or tma_slide_id) OrderItem foreign key field to check
      * @param $id (aliquot_master_id
      *            or tma_slide_id value) Id of the object (AliquotMaster or TmaSlide) linked to the order item (that will be created or that will be updated)
-     * @param $order_item_id Id
+     * @param $orderItemId Id
      *            of the order item
      *            
      * @return Boolean
@@ -110,12 +110,12 @@ class OrderItem extends OrderAppModel
      * @author N. Luc
      * @since 2016-05-16
      */
-    function checkOrderItemStatusCanBeSetToPendingOrShipped($foreign_key_field, $object_id, $order_item_id = '-1')
+    function checkOrderItemStatusCanBeSetToPendingOrShipped($foreignKeyField, $objectId, $orderItemId = '-1')
     {
         $res = $this->find('count', array(
             'conditions' => array(
-                "OrderItem.id != '$order_item_id'",
-                "OrderItem.$foreign_key_field" => $object_id,
+                "OrderItem.id != '$orderItemId'",
+                "OrderItem.$foreignKeyField" => $objectId,
                 'OrderItem.status' => array(
                     'pending',
                     'shipped'

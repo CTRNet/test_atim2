@@ -5,9 +5,9 @@ class ViewAliquot extends InventoryManagementAppModel
 
     public $primaryKey = 'aliquot_master_id';
 
-    public $base_model = "AliquotMaster";
+    public $baseModel = "AliquotMaster";
 
-    public $base_plugin = 'InventoryManagement';
+    public $basePlugin = 'InventoryManagement';
 
     public $actsAs = array(
         'MinMax',
@@ -46,7 +46,7 @@ class ViewAliquot extends InventoryManagementAppModel
         )
     );
 
-    static $table_query = 'SELECT 
+    static $tableQuery = 'SELECT 
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id, 
@@ -118,16 +118,16 @@ class ViewAliquot extends InventoryManagementAppModel
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
-    static $min_value_fields = array(
+    static $minValueFields = array(
         'coll_to_stor_spent_time_msg',
         'rec_to_stor_spent_time_msg',
         'creat_to_stor_spent_time_msg'
     );
 
-    function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null)
+    function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
-        if ($this->fields_replace == null) {
-            $this->fields_replace = array(
+        if ($this->fieldsReplace == null) {
+            $this->fieldsReplace = array(
                 'coll_to_stor_spent_time_msg' => array(
                     'msg' => array(
                         - 1 => __('collection date missing'),
@@ -154,6 +154,6 @@ class ViewAliquot extends InventoryManagementAppModel
                 )
             );
         }
-        return parent::__construct($id, $table, $ds, $base_model_name, $detail_table, $previous_model);
+        return parent::__construct($id, $table, $ds, $baseModelName, $detailTable, $previousModel);
     }
 }

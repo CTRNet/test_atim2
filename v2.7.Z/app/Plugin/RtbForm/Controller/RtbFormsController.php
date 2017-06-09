@@ -18,34 +18,34 @@ class RtbformsController extends RtbformAppController
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
     }
 
-    function search($search_id)
+    function search($searchId)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
-        $this->set('atim_menu', $this->Menus->get('/rtbform/rtbforms/index'));
-        $this->searchHandler($search_id, $this->Rtbform, 'rtbforms', '/rtbform/rtbforms/search');
+        $this->set('atimMenu', $this->Menus->get('/rtbform/rtbforms/index'));
+        $this->searchHandler($searchId, $this->Rtbform, 'rtbforms', '/rtbform/rtbforms/search');
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function profile($rtbform_id = null)
+    function profile($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
-        if (! $rtbform_id) {
+        if (! $rtbformId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
-        $this->set('atim_menu_variables', array(
-            'Rtbform.id' => $rtbform_id
+        $this->set('atimMenuVariables', array(
+            'Rtbform.id' => $rtbformId
         ));
         
         $this->hook();
         
         $this->request->data = $this->Rtbform->find('first', array(
             'conditions' => array(
-                'Rtbform.id' => $rtbform_id
+                'Rtbform.id' => $rtbformId
             )
         ));
     }
@@ -61,43 +61,43 @@ class RtbformsController extends RtbformAppController
         }
     }
 
-    function edit($rtbform_id = null)
+    function edit($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
-        if (! $rtbform_id) {
+        if (! $rtbformId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
-        $this->set('atim_menu_variables', array(
-            'Rtbform.id' => $rtbform_id
+        $this->set('atimMenuVariables', array(
+            'Rtbform.id' => $rtbformId
         ));
         
         $this->hook();
         
         if (! empty($this->request->data)) {
-            $this->Rtbform->id = $rtbform_id;
+            $this->Rtbform->id = $rtbformId;
             if ($this->Rtbform->save($this->request->data)) {
-                $this->atimFlash(__('your data has been updated'), '/rtbform/rtbforms/profile/' . $rtbform_id);
+                $this->atimFlash(__('your data has been updated'), '/rtbform/rtbforms/profile/' . $rtbformId);
             }
         } else {
             $this->request->data = $this->Rtbform->find('first', array(
                 'conditions' => array(
-                    'Rtbform.id' => $rtbform_id
+                    'Rtbform.id' => $rtbformId
                 )
             ));
         }
     }
 
-    function delete($rtbform_id = null)
+    function delete($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
-        if (! $rtbform_id) {
+        if (! $rtbformId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         $this->hook();
         
-        if ($this->Rtbform->atimDelete($rtbform_id)) {
+        if ($this->Rtbform->atimDelete($rtbformId)) {
             $this->atimFlash(__('your data has been deleted'), '/rtbform/rtbforms/search/');
         } else {
             $this->atimFlashError(__('error deleting data - contact administrator'), '/rtbform/rtbforms/search/');

@@ -1,19 +1,19 @@
 <?php
-$structure_links = array(
-    'top' => '/InventoryManagement/AliquotMasters/addSourceAliquots/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/',
+$structureLinks = array(
+    'top' => '/InventoryManagement/AliquotMasters/addSourceAliquots/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/',
     'bottom' => array(
-        'cancel' => '/InventoryManagement/SampleMasters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/'
+        'cancel' => '/InventoryManagement/SampleMasters/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/'
     )
 );
 
-$structure_override = array();
+$structureOverride = array();
 
 // no volume
-$final_atim_structure = $sourcealiquots;
-$final_options = array(
+$finalAtimStructure = $sourcealiquots;
+$finalOptions = array(
     'data' => isset($this->request->data['no_vol']) ? $this->request->data['no_vol'] : array(),
-    'links' => $structure_links,
-    'override' => $structure_override,
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'type' => 'editgrid',
     'settings' => array(
         'header' => __('listall source aliquots'),
@@ -26,21 +26,21 @@ $final_options = array(
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('no_vol');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('no_vol');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 // ----------------
 
 // volume
-$final_atim_structure = $sourcealiquots_volume;
-$final_options = array(
+$finalAtimStructure = $sourcealiquotsVolume;
+$finalOptions = array(
     'data' => isset($this->request->data['vol']) ? $this->request->data['vol'] : array(),
-    'links' => $structure_links,
-    'override' => $structure_override,
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'type' => 'editgrid',
     'settings' => array(
         'pagination' => false,
@@ -51,13 +51,13 @@ $final_options = array(
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('vol');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('vol');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 // ----------------
 
 ?>

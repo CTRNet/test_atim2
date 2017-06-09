@@ -1,11 +1,11 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => '/Customize/Passwords/index'
 );
 
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'edit',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => array(
         'stretch' => false
     )

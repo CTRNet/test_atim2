@@ -14,7 +14,7 @@ class Realiquoting extends InventoryManagementAppModel
         )
     );
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'Realiquoting.id'
         )

@@ -1,9 +1,9 @@
 <?php
-if ($type_of_list) {
+if ($typeOfList) {
     
     // Specific batch sets list
     
-    $structure_links = array(
+    $structureLinks = array(
         'index' => array(
             'detail' => '/Datamart/BatchSets/listall/%%BatchSet.id%%',
             'edit' => '/Datamart/BatchSets/edit/%%BatchSet.id%%',
@@ -16,10 +16,10 @@ if ($type_of_list) {
         'bottom' => array()
     );
     
-    $final_atim_structure = $atim_structure;
-    $final_options = array(
+    $finalAtimStructure = $atimStructure;
+    $finalOptions = array(
         'type' => 'index',
-        'links' => $structure_links,
+        'links' => $structureLinks,
         'settings' => array(
             'pagination' => true,
             'actions' => false
@@ -27,17 +27,17 @@ if ($type_of_list) {
         'override' => array()
     );
     
-    $hook_link = $this->Structures->hook('specific');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('specific');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 } else {
     
     // Manage list display
     
-    $structure_links = array(
+    $structureLinks = array(
         'index' => array(),
         'bottom' => array(
             'delete in batch' => array(
@@ -47,7 +47,7 @@ if ($type_of_list) {
         )
     );
     
-    $list_data = array(
+    $listData = array(
         'temporary' => 'temporary batch sets',
         'saved' => 'saved batch sets',
         'group' => 'group batch sets',
@@ -55,30 +55,30 @@ if ($type_of_list) {
     );
     
     $counter = 0;
-    foreach ($list_data as $type_of_list => $header) {
+    foreach ($listData as $typeOfList => $header) {
         $counter ++;
         
-        $final_atim_structure = array();
-        $final_options = array(
+        $finalAtimStructure = array();
+        $finalOptions = array(
             'type' => 'detail',
-            'links' => $structure_links,
+            'links' => $structureLinks,
             'settings' => array(
                 'header' => __($header, null),
-                'actions' => ($counter == sizeof($list_data)) ? true : false
+                'actions' => ($counter == sizeof($listData)) ? true : false
             ),
-            'extras' => $this->Structures->ajaxIndex('Datamart/BatchSets/index/' . $type_of_list)
+            'extras' => $this->Structures->ajaxIndex('Datamart/BatchSets/index/' . $typeOfList)
         );
         
-        $display_next_form = true;
+        $displayNextForm = true;
         
         // CUSTOM CODE
-        $hook_link = $this->Structures->hook('all');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->Structures->hook('all');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // BUILD FORM
-        if ($display_next_form)
-            $this->Structures->build($final_atim_structure, $final_options);
+        if ($displayNextForm)
+            $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }

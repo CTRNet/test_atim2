@@ -38,14 +38,14 @@ class GroupsController extends AppController
             $this->Group->create();
             if ($this->Group->save($this->request->data)) {
                 
-                $group_id = $this->Group->id;
+                $groupId = $this->Group->id;
                 
-                $aro_data = $this->Aro->find('first', array(
-                    'conditions' => 'Aro.model="Group" AND Aro.foreign_key = "' . $group_id . '"'
+                $aroData = $this->Aro->find('first', array(
+                    'conditions' => 'Aro.model="Group" AND Aro.foreign_key = "' . $groupId . '"'
                 ));
-                $aro_data['Aro']['alias'] = 'Group::' . $group_id;
-                $this->Aro->id = $aro_data['Aro']['id'];
-                $this->Aro->save($aro_data);
+                $aroData['Aro']['alias'] = 'Group::' . $groupId;
+                $this->Aro->id = $aroData['Aro']['id'];
+                $this->Aro->save($aroData);
                 
                 $this->Session->setFlash(__('The Group has been saved'));
                 $this->redirect(array(
@@ -101,26 +101,26 @@ class GroupsController extends AppController
             'order' => 'Aco.lft ASC'
         ));
         
-        $parent_id = 0;
+        $parentId = 0;
         $stack = array();
-        $aco_options = array();
+        $acoOptions = array();
         foreach ($aco as $ac) {
             if (in_array($ac['Aco']['parent_id'], array_keys($stack))) {
-                $new_stack = array();
+                $newStack = array();
                 $done = false;
                 foreach ($stack as $id => $alias) {
                     if ($done)
                         break;
-                    $new_stack[$id] = $alias;
+                    $newStack[$id] = $alias;
                     if ($id == $ac['Aco']['parent_id'])
                         $done = true;
                 }
-                $stack = $new_stack;
+                $stack = $newStack;
             }
             $stack[$ac['Aco']['id']] = $ac['Aco']['alias'];
-            $aco_options[$ac['Aco']['id']] = join('/', $stack);
+            $acoOptions[$ac['Aco']['id']] = join('/', $stack);
         }
-        $this->set('aco_options', $aco_options);
+        $this->set('acoOptions', $acoOptions);
     }
 
     function delete($id = null)

@@ -1,33 +1,33 @@
 <?php
 $options = array(
     "links" => array(
-        "top" => '/InventoryManagement/AliquotMasters/add/' . $sample_master_id . '/0',
+        "top" => '/InventoryManagement/AliquotMasters/add/' . $sampleMasterId . '/0',
         'bottom' => array(
-            'cancel' => $url_to_cancel
+            'cancel' => $urlToCancel
         )
     )
 );
 
-if ($is_ajax) {
+if ($isAjax) {
     $options['links']['top'] .= '/1';
 }
-$options_parent = array_merge($options, array(
+$optionsParent = array_merge($options, array(
     "type" => "edit",
     "settings" => array(
         "actions" => false,
         "form_top" => false,
         "form_bottom" => false,
         "stretch" => false,
-        'section_start' => $is_batch_process
+        'section_start' => $isBatchProcess
     )
 ));
 
 $args = AppController::getInstance()->passedArgs;
 if (isset($args['templateInitId'])) {
-    $override_data = array_merge(Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . $args['templateInitId'])), $override_data);
+    $overrideData = array_merge(Set::flatten(AppController::getInstance()->Session->read('Template.init_data.' . $args['templateInitId'])), $overrideData);
 }
 
-$options_children = array_merge($options, array(
+$optionsChildren = array_merge($options, array(
     "type" => "addgrid",
     "settings" => array(
         "add_fields" => true,
@@ -35,56 +35,56 @@ $options_children = array_merge($options, array(
         "actions" => false,
         "form_top" => false,
         "form_bottom" => false,
-        'section_end' => $is_batch_process
+        'section_end' => $isBatchProcess
     ),
-    "override" => $override_data
+    "override" => $overrideData
 ));
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // Display empty structure with hidden fields to fix issue#2243 : Derivative in batch: control id not posted when last record is hidden
-$empty_structure_options = $options_parent;
-$empty_structure_options['settings']['form_top'] = true;
-$empty_structure_options['data'] = array();
-$empty_structure_options['extras'] = '
-		<input type="hidden" name="data[0][realiquot_into]" value="' . $aliquot_control_id . '"/>
-		<input type="hidden" name="data[url_to_cancel]" value="' . $url_to_cancel . '"/>';
+$emptyStructureOptions = $optionsParent;
+$emptyStructureOptions['settings']['form_top'] = true;
+$emptyStructureOptions['data'] = array();
+$emptyStructureOptions['extras'] = '
+		<input type="hidden" name="data[0][realiquot_into]" value="' . $aliquotControlId . '"/>
+		<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>';
 
-$this->Structures->build($empty_structure, $empty_structure_options);
+$this->Structures->build($emptyStructure, $emptyStructureOptions);
 
 // print the layout
-$hook_link = $this->Structures->hook('loop');
+$hookLink = $this->Structures->hook('loop');
 $counter = 0;
 while ($data = array_shift($this->request->data)) {
     $counter ++;
     $parent = $data['parent'];
-    $final_options_parent = $options_parent;
-    $final_options_children = $options_children;
+    $finalOptionsParent = $optionsParent;
+    $finalOptionsChildren = $optionsChildren;
     if (count($this->request->data) == 0) {
-        $final_options_children['settings']['form_bottom'] = true;
-        $final_options_children['settings']['actions'] = true;
-        if ($is_batch_process)
-            $final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
+        $finalOptionsChildren['settings']['form_bottom'] = true;
+        $finalOptionsChildren['settings']['actions'] = true;
+        if ($isBatchProcess)
+            $finalOptionsChildren['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
     }
-    if ($is_batch_process)
-        $final_options_parent['settings']['header'] = __('aliquot creation batch process') . ' - ' . __('creation') . " #" . $counter;
-    $final_options_parent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
-    $final_options_parent['data'] = $parent;
+    if ($isBatchProcess)
+        $finalOptionsParent['settings']['header'] = __('aliquot creation batch process') . ' - ' . __('creation') . " #" . $counter;
+    $finalOptionsParent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
+    $finalOptionsParent['data'] = $parent;
     
-    $final_options_children['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
-    $final_options_children['data'] = $data['children'];
+    $finalOptionsChildren['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
+    $finalOptionsChildren['data'] = $data['children'];
     
-    if ($hook_link) {
-        require ($hook_link);
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    if ($is_batch_process)
-        $this->Structures->build($sample_info, $final_options_parent);
-    $this->Structures->build($atim_structure, $final_options_children);
+    if ($isBatchProcess)
+        $this->Structures->build($sampleInfo, $finalOptionsParent);
+    $this->Structures->build($atimStructure, $finalOptionsChildren);
 }
 ?>
 <script type="text/javascript">
@@ -96,7 +96,7 @@ var copyControl = true;
 </script>
 
 <?php
-if ($is_ajax) {
+if ($isAjax) {
     $display = ob_get_contents();
     ob_end_clean();
     $display = ob_get_contents() . $display;

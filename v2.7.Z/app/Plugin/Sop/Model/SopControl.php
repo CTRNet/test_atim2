@@ -5,7 +5,7 @@ class SopControl extends SopAppModel
 
     public $useTable = 'sop_controls';
 
-    public $master_form_alias = 'sopmasters';
+    public $masterFormAlias = 'sopmasters';
 
     function getTypePermissibleValues()
     {
@@ -16,8 +16,8 @@ class SopControl extends SopAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $sop_control) {
-            $result[$sop_control['SopControl']['type']] = __($sop_control['SopControl']['type']);
+        )) as $sopControl) {
+            $result[$sopControl['SopControl']['type']] = __($sopControl['SopControl']['type']);
         }
         natcasesort($result);
         
@@ -33,8 +33,8 @@ class SopControl extends SopAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $sop_control) {
-            $result[$sop_control['SopControl']['sop_group']] = __($sop_control['SopControl']['sop_group']);
+        )) as $sopControl) {
+            $result[$sopControl['SopControl']['sop_group']] = __($sopControl['SopControl']['sop_group']);
         }
         natcasesort($result);
         

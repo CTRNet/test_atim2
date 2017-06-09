@@ -6,35 +6,35 @@ class DatamartAppController extends AppController
     static function printList($options, $label, $webroot)
     {
         foreach ($options as $option) {
-            $curr_label = $label . " &gt; " . $option['label'];
-            $curr_label_for_class = str_replace("'", "&#39;", $curr_label);
+            $currLabel = $label . " &gt; " . $option['label'];
+            $currLabelForClass = str_replace("'", "&#39;", $currLabel);
             $action = isset($option['value']) ? ', "action" : "' . $webroot . $option['value'] . '" ' : "";
             $class = isset($option['class']) ? $option['class'] : "";
-            echo ("<li class='" . "'><a href='#' class='{ \"value\" : \"" . $option['value'] . "\", \"label\" : \"" . $curr_label_for_class . "\" " . $action . " } " . $class . "'>" . $option['default'] . "</a>");
+            echo ("<li class='" . "'><a href='#' class='{ \"value\" : \"" . $option['value'] . "\", \"label\" : \"" . $currLabelForClass . "\" " . $action . " } " . $class . "'>" . $option['default'] . "</a>");
             if (isset($option['children'])) {
                 if (count($option['children']) > 15) {
-                    $tmp_children = array();
+                    $tmpChildren = array();
                     if ($option['children'][0]['label'] == __("filter")) {
                         // remove filter and no filter from the pages
-                        $tmp_children = array_splice($option['children'], 2);
+                        $tmpChildren = array_splice($option['children'], 2);
                     } else {
-                        $tmp_children = $option['children'];
+                        $tmpChildren = $option['children'];
                         $option['children'] = array();
                     }
-                    $children_arr = array_chunk($tmp_children, 15);
-                    $page_str = __("page %d");
-                    $page_num = 1;
-                    foreach ($children_arr as $child) {
+                    $childrenArr = array_chunk($tmpChildren, 15);
+                    $pageStr = __("page %d");
+                    $pageNum = 1;
+                    foreach ($childrenArr as $child) {
                         $option['children'][] = array(
-                            "default" => sprintf($page_str, $page_num),
+                            "default" => sprintf($pageStr, $pageNum),
                             "value" => "",
                             "children" => $child
                         );
-                        $page_num ++;
+                        $pageNum ++;
                     }
                 }
                 echo ("<ul>");
-                self::printList($option['children'], $curr_label, $webroot);
+                self::printList($option['children'], $currLabel, $webroot);
                 echo ("</ul>");
             }
             echo ("</li>\n");

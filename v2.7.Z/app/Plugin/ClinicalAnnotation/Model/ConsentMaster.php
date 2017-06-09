@@ -21,7 +21,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    public static $join_consent_control_on_dup = array(
+    public static $joinConsentControlOnDup = array(
         'table' => 'consent_controls',
         'alias' => 'ConsentControl',
         'type' => 'LEFT',
@@ -30,7 +30,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    public static $study_model = null;
+    public static $studyModel = null;
 
     function validates($options = array())
     {
@@ -44,37 +44,37 @@ class ConsentMaster extends ClinicalAnnotationAppModel
      */
     function validateAndUpdateConsentStudyData()
     {
-        $consent_data = & $this->data;
+        $consentData = & $this->data;
         
         // check data structure
-        $tmp_arr_to_check = array_values($consent_data);
-        if ((! is_array($consent_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['ConsentMaster']))) {
+        $tmpArrToCheck = array_values($consentData);
+        if ((! is_array($consentData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['ConsentMaster']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Launch validation
-        if (array_key_exists('FunctionManagement', $consent_data) && array_key_exists('autocomplete_consent_study_summary_id', $consent_data['FunctionManagement'])) {
-            $consent_data['ConsentMaster']['study_summary_id'] = null;
-            $consent_data['FunctionManagement']['autocomplete_consent_study_summary_id'] = trim($consent_data['FunctionManagement']['autocomplete_consent_study_summary_id']);
+        if (array_key_exists('FunctionManagement', $consentData) && array_key_exists('autocomplete_consent_study_summary_id', $consentData['FunctionManagement'])) {
+            $consentData['ConsentMaster']['study_summary_id'] = null;
+            $consentData['FunctionManagement']['autocomplete_consent_study_summary_id'] = trim($consentData['FunctionManagement']['autocomplete_consent_study_summary_id']);
             $this->addWritableField(array(
                 'study_summary_id'
             ));
-            if (strlen($consent_data['FunctionManagement']['autocomplete_consent_study_summary_id'])) {
+            if (strlen($consentData['FunctionManagement']['autocomplete_consent_study_summary_id'])) {
                 // Load model
-                if (self::$study_model == null)
-                    self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
-                    
-                    // Check the aliquot internal use study definition
-                $arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($consent_data['FunctionManagement']['autocomplete_consent_study_summary_id']);
+                if (self::$studyModel == null)
+                    self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
+                
+                // Check the aliquot internal use study definition
+                $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($consentData['FunctionManagement']['autocomplete_consent_study_summary_id']);
                 
                 // Set study summary id
-                if (isset($arr_study_selection_results['StudySummary'])) {
-                    $consent_data['ConsentMaster']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+                if (isset($arrStudySelectionResults['StudySummary'])) {
+                    $consentData['ConsentMaster']['study_summary_id'] = $arrStudySelectionResults['StudySummary']['id'];
                 }
                 
                 // Set error
-                if (isset($arr_study_selection_results['error'])) {
-                    $this->validationErrors['autocomplete_consent_study_summary_id'][] = $arr_study_selection_results['error'];
+                if (isset($arrStudySelectionResults['error'])) {
+                    $this->validationErrors['autocomplete_consent_study_summary_id'][] = $arrStudySelectionResults['error'];
                 }
             }
         }
@@ -83,7 +83,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $consent_master_id Id
+     * @param $consentMasterId Id
      *            of the studied record.
      *            
      * @return Return results as array:
@@ -93,34 +93,34 @@ class ConsentMaster extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($consent_master_id)
+    function allowDeletion($consentMasterId)
     {
-        $arr_allow_deletion = array(
+        $arrAllowDeletion = array(
             'allow_deletion' => true,
             'msg' => ''
         );
         
-        $collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
-        $returned_nbr = $collection_model->find('count', array(
+        $collectionModel = AppModel::getInstance("InventoryManagement", "Collection", true);
+        $returnedNbr = $collectionModel->find('count', array(
             'conditions' => array(
-                'Collection.consent_master_id' => $consent_master_id
+                'Collection.consent_master_id' => $consentMasterId
             )
         ));
-        if ($returned_nbr > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_consent_linked_collection';
+        if ($returnedNbr > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_consent_linked_collection';
         }
-        return $arr_allow_deletion;
+        return $arrAllowDeletion;
     }
 
-    static function joinOnConsentDup($on_field)
+    static function joinOnConsentDup($onField)
     {
         return array(
             'table' => 'consent_masters',
             'alias' => 'consent_masters_dup',
             'type' => 'LEFT',
             'conditions' => array(
-                $on_field . ' = consent_masters_dup.id'
+                $onField . ' = consent_masters_dup.id'
             )
         );
     }

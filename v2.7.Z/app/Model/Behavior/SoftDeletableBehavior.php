@@ -133,17 +133,17 @@ class SoftDeletableBehavior extends ModelBehavior
             foreach (array_merge($model->hasMany, $model->hasOne) as $assoc => $data) {
                 if ($data['dependent'] === true) {
                     
-                    $assoc_model = $model->{$assoc};
+                    $assocModel = $model->{$assoc};
                     
-                    if ($data['foreignKey'] === false && $data['conditions'] && in_array($model->name, $assoc_model->getAssociated('belongsTo'))) {
-                        $assoc_model->recursive = 0;
+                    if ($data['foreignKey'] === false && $data['conditions'] && in_array($model->name, $assocModel->getAssociated('belongsTo'))) {
+                        $assocModel->recursive = 0;
                         $conditions = array(
                             $model->escapeField(null, $model->name) => $id
                         );
                     } else {
-                        $assoc_model->recursive = - 1;
+                        $assocModel->recursive = - 1;
                         $conditions = array(
-                            $assoc_model->escapeField($data['foreignKey']) => $id
+                            $assocModel->escapeField($data['foreignKey']) => $id
                         );
                         if ($data['conditions']) {
                             $conditions = array_merge((array) $data['conditions'], $conditions);
@@ -151,18 +151,18 @@ class SoftDeletableBehavior extends ModelBehavior
                     }
                     
                     if (isset($data['exclusive']) && $data['exclusive']) {
-                        $assoc_model->deleteAll($conditions);
+                        $assocModel->deleteAll($conditions);
                     } else {
-                        $records = $assoc_model->find('all', array(
+                        $records = $assocModel->find('all', array(
                             'conditions' => $conditions,
-                            'fields' => $assoc_model->primaryKey
+                            'fields' => $assocModel->primaryKey
                         ));
                         
                         if (! empty($records)) {
                             foreach ($records as $record) {
-                                $schema = $assoc_model->schema();
+                                $schema = $assocModel->schema();
                                 if (isset($schema["deleted"])) {
-                                    $assoc_model->delete($record[$assoc_model->alias][$assoc_model->primaryKey]);
+                                    $assocModel->delete($record[$assocModel->alias][$assocModel->primaryKey]);
                                 }
                             }
                         }

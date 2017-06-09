@@ -1,41 +1,41 @@
 <?php
-$add_links = array();
-foreach ($protocol_controls as $protocol_control) {
-    $add_links[(empty($protocol_control['ProtocolControl']['tumour_group']) ? '' : __($protocol_control['ProtocolControl']['tumour_group']) . ' - ') . __($protocol_control['ProtocolControl']['type'])] = '/Protocol/ProtocolMasters/add/' . $protocol_control['ProtocolControl']['id'] . '/';
+$addLinks = array();
+foreach ($protocolControls as $protocolControl) {
+    $addLinks[(empty($protocolControl['ProtocolControl']['tumour_group']) ? '' : __($protocolControl['ProtocolControl']['tumour_group']) . ' - ') . __($protocolControl['ProtocolControl']['type'])] = '/Protocol/ProtocolMasters/add/' . $protocolControl['ProtocolControl']['id'] . '/';
 }
 
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'detail' => '/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%'
     ),
     'bottom' => array(
-        'add' => $add_links
+        'add' => $addLinks
     )
 );
 
 $settings = array(
     'return' => true
 );
-if (isset($is_ajax)) {
+if (isset($isAjax)) {
     $settings['actions'] = false;
 }
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => $settings
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$form = $this->Structures->build($final_atim_structure, $final_options);
-if (isset($is_ajax)) {
+$form = $this->Structures->build($finalAtimStructure, $finalOptions);
+if (isset($isAjax)) {
     $this->layout = 'json';
     $this->json = array(
         'page' => $form,

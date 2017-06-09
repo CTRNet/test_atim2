@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'detail' => '/Administrate/Banks/detail/%%Bank.id%%'
     ),
@@ -8,7 +8,7 @@ $structure_links = array(
     )
 );
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 ?>

@@ -14,130 +14,130 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participant_id)
+    function listall($participantId)
     {
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         $this->request->data = $this->paginate($this->ParticipantContact, array(
-            'ParticipantContact.participant_id' => $participant_id
+            'ParticipantContact.participant_id' => $participantId
         ));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($participant_id, $participant_contact_id)
+    function detail($participantId, $participantContactId)
     {
-        if (! $participant_id && ! $participant_contact_id) {
+        if (! $participantId && ! $participantContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $participant_contact_data = $this->ParticipantContact->find('first', array(
+        $participantContactData = $this->ParticipantContact->find('first', array(
             'conditions' => array(
-                'ParticipantContact.id' => $participant_contact_id,
-                'ParticipantContact.participant_id' => $participant_id
+                'ParticipantContact.id' => $participantContactId,
+                'ParticipantContact.participant_id' => $participantId
             ),
             'recursive' => '-1'
         ));
-        if (empty($participant_contact_data)) {
+        if (empty($participantContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        if ($participant_contact_data['ParticipantContact']['confidential'] && ! $this->Session->read('flag_show_confidential')) {
+        if ($participantContactData['ParticipantContact']['confidential'] && ! $this->Session->read('flag_show_confidential')) {
             // Should not happens but in case
             $this->redirect("/Pages/err_confidential");
         }
-        $this->request->data = $participant_contact_data;
+        $this->request->data = $participantContactData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ParticipantContact.id' => $participant_contact_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ParticipantContact.id' => $participantContactId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($participant_id)
+    function add($participantId)
     {
-        if (! $participant_id) {
+        if (! $participantId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         if ($this->Session->read('flag_show_confidential')) {
             $this->Structures->set('participantcontacts,participantcontacts_confidential');
         }
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
             $this->ParticipantContact->addWritableField('participant_id');
-            $this->request->data['ParticipantContact']['participant_id'] = $participant_id;
+            $this->request->data['ParticipantContact']['participant_id'] = $participantId;
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 if ($this->ParticipantContact->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantContacts/detail/' . $participant_id . '/' . $this->ParticipantContact->id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantContacts/detail/' . $participantId . '/' . $this->ParticipantContact->id);
                 }
             }
         }
     }
 
-    function edit($participant_id, $participant_contact_id)
+    function edit($participantId, $participantContactId)
     {
-        if (! $participant_id && ! $participant_contact_id) {
+        if (! $participantId && ! $participantContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $participant_contact_data = $this->ParticipantContact->find('first', array(
+        $participantContactData = $this->ParticipantContact->find('first', array(
             'conditions' => array(
-                'ParticipantContact.id' => $participant_contact_id,
-                'ParticipantContact.participant_id' => $participant_id
+                'ParticipantContact.id' => $participantContactId,
+                'ParticipantContact.participant_id' => $participantId
             ),
             'recursive' => '-1'
         ));
-        if (empty($participant_contact_data)) {
+        if (empty($participantContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        if ($participant_contact_data['ParticipantContact']['confidential'] && ! $this->Session->read('flag_show_confidential')) {
+        if ($participantContactData['ParticipantContact']['confidential'] && ! $this->Session->read('flag_show_confidential')) {
             // Should not happens but in case
             $this->redirect("/Pages/err_confidential");
         } elseif ($this->Session->read('flag_show_confidential')) {
@@ -145,77 +145,77 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ParticipantContact.id' => $participant_contact_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ParticipantContact.id' => $participantContactId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $participant_contact_data;
+            $this->request->data = $participantContactData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->ParticipantContact->id = $participant_contact_id;
+            if ($submittedDataValidates) {
+                $this->ParticipantContact->id = $participantContactId;
                 if ($this->ParticipantContact->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantContacts/detail/' . $participant_id . '/' . $participant_contact_id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantContacts/detail/' . $participantId . '/' . $participantContactId);
                 }
             }
         }
     }
 
-    function delete($participant_id, $participant_contact_id)
+    function delete($participantId, $participantContactId)
     {
-        if (! $participant_id && ! $participant_contact_id) {
+        if (! $participantId && ! $participantContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $participant_contact_data = $this->ParticipantContact->find('first', array(
+        $participantContactData = $this->ParticipantContact->find('first', array(
             'conditions' => array(
-                'ParticipantContact.id' => $participant_contact_id,
-                'ParticipantContact.participant_id' => $participant_id
+                'ParticipantContact.id' => $participantContactId,
+                'ParticipantContact.participant_id' => $participantId
             ),
             'recursive' => '-1'
         ));
-        if (empty($participant_contact_data)) {
+        if (empty($participantContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        if ($participant_contact_data['ParticipantContact']['confidential'] && ! $this->Session->read('flag_show_confidential')) {
+        if ($participantContactData['ParticipantContact']['confidential'] && ! $this->Session->read('flag_show_confidential')) {
             AppController::getInstance()->redirect("/Pages/err_confidential");
         }
         
-        $arr_allow_deletion = $this->ParticipantContact->allowDeletion($participant_contact_id);
+        $arrAllowDeletion = $this->ParticipantContact->allowDeletion($participantContactId);
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->ParticipantContact->atimDelete($participant_contact_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->ParticipantContact->atimDelete($participantContactId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantContacts/listall/' . $participant_id);
+                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantContacts/listall/' . $participantId);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantContacts/listall/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantContacts/listall/' . $participantId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ParticipantContacts/detail/' . $participant_id . '/' . $participant_contact_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/ParticipantContacts/detail/' . $participantId . '/' . $participantContactId);
         }
     }
 }

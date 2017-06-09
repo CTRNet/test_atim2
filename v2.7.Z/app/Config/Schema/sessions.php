@@ -38,7 +38,7 @@ class SessionsSchema extends CakeSchema
     public function after($event = array())
     {}
 
-    public $cake_sessions = array(
+    public $cakeSessions = array(
         'id' => array(
             'type' => 'string',
             'null' => false,

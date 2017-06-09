@@ -140,7 +140,7 @@ class BenchmarkShell extends Shell
 
     /**
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      */
     public function getOptionParser()

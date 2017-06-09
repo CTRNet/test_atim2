@@ -1,5 +1,5 @@
 <?php
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'settings' => array(
         'pagination' => false
     ),

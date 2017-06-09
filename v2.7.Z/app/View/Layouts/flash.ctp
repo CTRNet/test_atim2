@@ -20,7 +20,7 @@
 <html>
 <head>
 
-<title><?php echo $page_title.' &laquo; '.__('core_appname'); ?></title>
+<title><?php echo $pageTitle.' &laquo; '.__('core_appname'); ?></title>
 <link rel="shortcut icon"
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
 

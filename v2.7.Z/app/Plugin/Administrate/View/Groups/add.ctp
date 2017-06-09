@@ -1,13 +1,13 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => '/Administrate/Groups/add/',
     'bottom' => array(
         'cancel' => '/Administrate/Groups/index/'
     )
 );
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 
 ?>

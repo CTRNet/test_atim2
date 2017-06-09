@@ -2,7 +2,7 @@
 
 class CodingIcd10Who extends CodingIcdAppModel
 {
-    
+
     // ---------------------------------------------------------------------------------------------------------------
     // Coding System: ICD-10 (International)
     // From: Stats Canada (WHO_ICD10_Ever_Created_Codes_2009WC)
@@ -13,7 +13,7 @@ class CodingIcd10Who extends CodingIcdAppModel
 
     public $useTable = 'coding_icd10_who';
 
-    public $icd_description_table_fields = array(
+    public $icdDescriptionTableFields = array(
         'search_format' => array(
             'title',
             'sub_title',
@@ -52,8 +52,8 @@ class CodingIcd10Who extends CodingIcdAppModel
             'fields' => array(
                 'id'
             )
-        )) as $new_id) {
-            $data[$new_id['CodingIcd10Who']['id']] = $new_id['CodingIcd10Who']['id'] . ' - ' . self::$singleton->getDescription($new_id['CodingIcd10Who']['id']);
+        )) as $newId) {
+            $data[$newId['CodingIcd10Who']['id']] = $newId['CodingIcd10Who']['id'] . ' - ' . self::$singleton->getDescription($newId['CodingIcd10Who']['id']);
         }
         return $data;
     }

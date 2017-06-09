@@ -1,30 +1,30 @@
 <?php
-if (in_array($list_type, array(
+if (in_array($listType, array(
     'all',
     'current'
 ))) {
     
-    $structure_links = array(
+    $structureLinks = array(
         'index' => array(
             'detail' => '/Customize/Announcements/detail/%%Announcement.id%%'
         )
     );
     
     // CUSTOM CODE
-    $hook_link = $this->Structures->hook();
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook();
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    $this->Structures->build($atim_structure, array(
-        'links' => $structure_links
+    $this->Structures->build($atimStructure, array(
+        'links' => $structureLinks
     ));
 } else {
     
     // --------- Lists with current announcements ----------------------------------------------------------------------------------------------
     
-    $final_atim_structure = array();
-    $final_options = array(
+    $finalAtimStructure = array();
+    $finalOptions = array(
         'type' => 'detail',
         'links' => array(),
         'settings' => array(
@@ -34,22 +34,22 @@ if (in_array($list_type, array(
         'extras' => $this->Structures->ajaxIndex('Customize/Announcements/index/current')
     );
     
-    $display_next_form = true;
+    $displayNextForm = true;
     
     // CUSTOM CODE
-    $hook_link = $this->Structures->hook('current');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('current');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     // BUILD FORM
-    if ($display_next_form)
-        $this->Structures->build($final_atim_structure, $final_options);
+    if ($displayNextForm)
+        $this->Structures->build($finalAtimStructure, $finalOptions);
         
         // --------- Empty lists ----------------------------------------------------------------------------------------------
     
-    $final_atim_structure = array();
-    $final_options = array(
+    $finalAtimStructure = array();
+    $finalOptions = array(
         'type' => 'detail',
         'links' => array(),
         'settings' => array(
@@ -59,17 +59,17 @@ if (in_array($list_type, array(
         'extras' => $this->Structures->ajaxIndex('Customize/Announcements/index/all')
     );
     
-    $display_next_form = true;
+    $displayNextForm = true;
     
     // CUSTOM CODE
-    $hook_link = $this->Structures->hook('all');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('all');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     // BUILD FORM
-    if ($display_next_form)
-        $this->Structures->build($final_atim_structure, $final_options);
+    if ($displayNextForm)
+        $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 
 ?>

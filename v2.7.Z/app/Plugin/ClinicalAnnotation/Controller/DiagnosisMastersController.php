@@ -17,6 +17,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         'CodingIcd.CodingIcdo3Topo', // required by model
         'CodingIcd.CodingIcdo3Morpho'
     );
+
     // required by model
     public $paginate = array(
         'DiagnosisMaster' => array(
@@ -24,65 +25,65 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participant_id, $parent_dx_id = null, $is_ajax = 0)
+    function listall($participantId, $parentDxId = null, $isAjax = 0)
     {
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
-        if ($is_ajax) {
+        if ($isAjax) {
             $this->layout = 'ajax';
             Configure::write('debug', 0);
         }
         
-        $tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-        $event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-        $dx_data = $this->DiagnosisMaster->find('all', array(
+        $txModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+        $eventMasterModel = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+        $dxData = $this->DiagnosisMaster->find('all', array(
             'conditions' => array(
-                'DiagnosisMaster.participant_id' => $participant_id,
-                'DiagnosisMaster.parent_id' => $parent_dx_id
+                'DiagnosisMaster.participant_id' => $participantId,
+                'DiagnosisMaster.parent_id' => $parentDxId
             ),
             'order' => array(
                 'DiagnosisMaster.dx_date'
             )
         ));
-        $tx_data = $tx_model->find('all', array(
+        $txData = $txModel->find('all', array(
             'conditions' => array(
-                'TreatmentMaster.participant_id' => $participant_id,
-                'TreatmentMaster.diagnosis_master_id' => $parent_dx_id == null ? - 1 : $parent_dx_id
+                'TreatmentMaster.participant_id' => $participantId,
+                'TreatmentMaster.diagnosis_master_id' => $parentDxId == null ? - 1 : $parentDxId
             ),
             'order' => array(
                 'TreatmentMaster.start_date'
             )
         ));
-        $event_data = $event_master_model->find('all', array(
+        $eventData = $eventMasterModel->find('all', array(
             'conditions' => array(
-                'EventMaster.participant_id' => $participant_id,
-                'EventMaster.diagnosis_master_id' => $parent_dx_id == null ? - 1 : $parent_dx_id
+                'EventMaster.participant_id' => $participantId,
+                'EventMaster.diagnosis_master_id' => $parentDxId == null ? - 1 : $parentDxId
             ),
             'order' => array(
                 'EventMaster.event_date'
             )
         ));
-        $tmp_data = array();
-        foreach ($dx_data as &$unit) {
-            $tmp_data[$unit['DiagnosisMaster']['dx_date']][] = $unit;
+        $tmpData = array();
+        foreach ($dxData as &$unit) {
+            $tmpData[$unit['DiagnosisMaster']['dx_date']][] = $unit;
         }
-        foreach ($tx_data as &$unit) {
-            $tmp_data[$unit['TreatmentMaster']['start_date']][] = $unit;
+        foreach ($txData as &$unit) {
+            $tmpData[$unit['TreatmentMaster']['start_date']][] = $unit;
         }
-        foreach ($event_data as &$unit) {
-            $tmp_data[$unit['EventMaster']['event_date']][] = $unit;
+        foreach ($eventData as &$unit) {
+            $tmpData[$unit['EventMaster']['event_date']][] = $unit;
         }
-        ksort($tmp_data);
-        $curr_data = array();
-        foreach ($tmp_data as &$date_data_arr) {
-            foreach ($date_data_arr as &$unit) {
-                $curr_data[] = $unit;
+        ksort($tmpData);
+        $currData = array();
+        foreach ($tmpData as &$dateDataArr) {
+            foreach ($dateDataArr as &$unit) {
+                $currData[] = $unit;
             }
         }
         
         $ids = array(); // ids already having child
-        $can_have_child = $this->DiagnosisMaster->find('all', array(
+        $canHaveChild = $this->DiagnosisMaster->find('all', array(
             'fields' => array(
                 'DiagnosisMaster.id'
             ),
@@ -91,91 +92,91 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
                     'primary',
                     'secondary - distant'
                 ),
-                'DiagnosisMaster.participant_id' => $participant_id
+                'DiagnosisMaster.participant_id' => $participantId
             ),
             'recursive' => 0
         ));
-        $can_have_child = AppController::defineArrayKey($can_have_child, 'DiagnosisMaster', 'id', true);
-        $can_have_child = array_keys($can_have_child);
-        foreach ($curr_data as $data) {
+        $canHaveChild = AppController::defineArrayKey($canHaveChild, 'DiagnosisMaster', 'id', true);
+        $canHaveChild = array_keys($canHaveChild);
+        foreach ($currData as $data) {
             if (array_key_exists('DiagnosisMaster', $data)) {
                 $ids[] = $data['DiagnosisMaster']['id'];
             }
         }
         
-        $ids_having_child = $this->DiagnosisMaster->hasChild($ids);
-        $ids_having_child = array_fill_keys($ids_having_child, null);
-        foreach ($curr_data as &$data) {
+        $idsHavingChild = $this->DiagnosisMaster->hasChild($ids);
+        $idsHavingChild = array_fill_keys($idsHavingChild, null);
+        foreach ($currData as &$data) {
             if (array_key_exists('DiagnosisMaster', $data)) {
-                $data['children'] = array_key_exists($data['DiagnosisMaster']['id'], $ids_having_child);
+                $data['children'] = array_key_exists($data['DiagnosisMaster']['id'], $idsHavingChild);
             }
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
-        $this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array(
+        $this->set('diagnosisControlsList', $this->DiagnosisControl->find('all', array(
             'conditions' => array(
                 'DiagnosisControl.flag_active' => 1
             )
         )));
-        $this->set('treatment_controls_list', $this->TreatmentControl->find('all', array(
+        $this->set('treatmentControlsList', $this->TreatmentControl->find('all', array(
             'conditions' => array(
                 'TreatmentControl.flag_active' => 1
             )
         )));
-        $this->set('event_controls_list', $this->EventControl->find('all', array(
+        $this->set('eventControlsList', $this->EventControl->find('all', array(
             'conditions' => array(
                 'EventControl.flag_active' => 1
             )
         )));
-        $this->set('is_ajax', $is_ajax);
-        $atim_structure['DiagnosisMaster'] = $this->Structures->get('form', 'view_diagnosis');
-        $atim_structure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters');
-        $atim_structure['EventMaster'] = $this->Structures->get('form', 'eventmasters');
-        $this->set('atim_structure', $atim_structure);
-        $this->set('can_have_child', $can_have_child);
+        $this->set('isAjax', $isAjax);
+        $atimStructure['DiagnosisMaster'] = $this->Structures->get('form', 'view_diagnosis');
+        $atimStructure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters');
+        $atimStructure['EventMaster'] = $this->Structures->get('form', 'eventmasters');
+        $this->set('atimStructure', $atimStructure);
+        $this->set('canHaveChild', $canHaveChild);
         
-        $external_link_model = AppModel::getInstance('', 'ExternalLink', true);
-        $help_url = $external_link_model->find('first', array(
+        $externalLinkModel = AppModel::getInstance('', 'ExternalLink', true);
+        $helpUrl = $externalLinkModel->find('first', array(
             'conditions' => array(
                 'name' => 'diagnosis_module_wiki'
             )
         ));
-        $this->set('help_url', $help_url['ExternalLink']['link']);
+        $this->set('helpUrl', $helpUrl['ExternalLink']['link']);
         
-        $this->request->data = $curr_data;
+        $this->request->data = $currData;
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($participant_id, $diagnosis_master_id)
+    function detail($participantId, $diagnosisMasterId)
     {
         // MANAGE DATA
-        $dx_master_data = $this->DiagnosisMaster->find('first', array(
+        $dxMasterData = $this->DiagnosisMaster->find('first', array(
             'conditions' => array(
-                'DiagnosisMaster.id' => $diagnosis_master_id,
-                'DiagnosisMaster.participant_id' => $participant_id
+                'DiagnosisMaster.id' => $diagnosisMasterId,
+                'DiagnosisMaster.participant_id' => $participantId
             )
         ));
-        if (empty($dx_master_data)) {
+        if (empty($dxMasterData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->request->data = $dx_master_data;
+        $this->request->data = $dxMasterData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->setDiagnosisMenu($dx_master_data);
-        if (($dx_master_data['DiagnosisControl']['category'] == 'primary') && ($dx_master_data['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown')) {
-            $this->set('primary_ctrl_to_redefine_unknown', $this->DiagnosisControl->find('all', array(
+        $this->setDiagnosisMenu($dxMasterData);
+        if (($dxMasterData['DiagnosisControl']['category'] == 'primary') && ($dxMasterData['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown')) {
+            $this->set('primaryCtrlToRedefineUnknown', $this->DiagnosisControl->find('all', array(
                 'conditions' => array(
                     'NOT' => array(
-                        'DiagnosisControl.id' => $dx_master_data['DiagnosisControl']['id'],
+                        'DiagnosisControl.id' => $dxMasterData['DiagnosisControl']['id'],
                         'DiagnosisControl.controls_type' => 'primary diagnosis unknown'
                     ),
                     'DiagnosisControl.category' => 'primary',
@@ -184,33 +185,33 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             )));
         }
         
-        $dx_control_data = $this->DiagnosisControl->find('first', array(
+        $dxControlData = $this->DiagnosisControl->find('first', array(
             'conditions' => array(
-                'DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']
+                'DiagnosisControl.id' => $dxMasterData['DiagnosisMaster']['diagnosis_control_id']
             )
         ));
-        $this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
+        $this->Structures->set($dxControlData['DiagnosisControl']['form_alias']);
         
         // check for dates warning
-        if (is_numeric($dx_master_data['DiagnosisMaster']['parent_id']) && ! empty($dx_master_data['DiagnosisMaster']['dx_date']) && $dx_master_data['DiagnosisMaster']['dx_date_accuracy'] == 'c') {
-            $parent_dx = $this->DiagnosisMaster->findById($dx_master_data['DiagnosisMaster']['parent_id']);
-            if (! empty($parent_dx['DiagnosisMaster']['dx_date']) && $parent_dx['DiagnosisMaster']['dx_date_accuracy'] == 'c' && (strtotime($dx_master_data['DiagnosisMaster']['dx_date']) - strtotime($parent_dx['DiagnosisMaster']['dx_date']) < 0)) {
+        if (is_numeric($dxMasterData['DiagnosisMaster']['parent_id']) && ! empty($dxMasterData['DiagnosisMaster']['dx_date']) && $dxMasterData['DiagnosisMaster']['dx_date_accuracy'] == 'c') {
+            $parentDx = $this->DiagnosisMaster->findById($dxMasterData['DiagnosisMaster']['parent_id']);
+            if (! empty($parentDx['DiagnosisMaster']['dx_date']) && $parentDx['DiagnosisMaster']['dx_date_accuracy'] == 'c' && (strtotime($dxMasterData['DiagnosisMaster']['dx_date']) - strtotime($parentDx['DiagnosisMaster']['dx_date']) < 0)) {
                 AppController::addWarningMsg(__('the current diagnosis date is before the parent diagnosis date'));
             }
         }
         
         // available child ctrl_id for creation
-        $condition_not_category = array();
-        $dx_ctrls = array();
-        switch ($dx_master_data['DiagnosisControl']['category']) {
+        $conditionNotCategory = array();
+        $dxCtrls = array();
+        switch ($dxMasterData['DiagnosisControl']['category']) {
             case 'secondary - distant':
-                $condition_not_category[] = 'secondary - distant';
+                $conditionNotCategory[] = 'secondary - distant';
             case 'primary':
-                $condition_not_category[] = 'primary';
-                $dx_ctrls = $this->DiagnosisControl->find('all', array(
+                $conditionNotCategory[] = 'primary';
+                $dxCtrls = $this->DiagnosisControl->find('all', array(
                     'conditions' => array(
                         'NOT' => array(
-                            "DiagnosisControl.category" => $condition_not_category
+                            "DiagnosisControl.category" => $conditionNotCategory
                         ),
                         'DiagnosisControl.flag_active' => 1
                     ),
@@ -221,17 +222,17 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             default:
         }
         $links = array();
-        foreach ($dx_ctrls as $dx_ctrl) {
+        foreach ($dxCtrls as $dxCtrl) {
             $links[] = array(
-                'order' => $dx_ctrl['DiagnosisControl']['display_order'],
-                'label' => __($dx_ctrl['DiagnosisControl']['category']) . ' - ' . __($dx_ctrl['DiagnosisControl']['controls_type']),
-                'link' => '/ClinicalAnnotation/DiagnosisMasters/add/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/' . $dx_ctrl['DiagnosisControl']['id']
+                'order' => $dxCtrl['DiagnosisControl']['display_order'],
+                'label' => __($dxCtrl['DiagnosisControl']['category']) . ' - ' . __($dxCtrl['DiagnosisControl']['controls_type']),
+                'link' => '/ClinicalAnnotation/DiagnosisMasters/add/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/' . $dxCtrl['DiagnosisControl']['id']
             );
         }
         AppController::buildBottomMenuOptions($links);
-        $this->set('child_controls_list', $links);
+        $this->set('childControlsList', $links);
         
-        $can_have_child = $this->DiagnosisMaster->find('all', array(
+        $canHaveChild = $this->DiagnosisMaster->find('all', array(
             'fields' => array(
                 'DiagnosisMaster.id'
             ),
@@ -240,121 +241,121 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
                     'primary',
                     'secondary - distant'
                 ),
-                'DiagnosisMaster.participant_id' => $participant_id
+                'DiagnosisMaster.participant_id' => $participantId
             ),
             'recursive' => 0
         ));
-        $can_have_child = AppController::defineArrayKey($can_have_child, 'DiagnosisMaster', 'id', true);
-        $can_have_child = array_keys($can_have_child);
-        $this->set('can_have_child', $can_have_child);
-        $this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array(
+        $canHaveChild = AppController::defineArrayKey($canHaveChild, 'DiagnosisMaster', 'id', true);
+        $canHaveChild = array_keys($canHaveChild);
+        $this->set('canHaveChild', $canHaveChild);
+        $this->set('diagnosisControlsList', $this->DiagnosisControl->find('all', array(
             'conditions' => array(
                 'DiagnosisControl.flag_active' => 1
             )
         )));
-        $this->set('treatment_controls_list', $this->TreatmentControl->find('all', array(
+        $this->set('treatmentControlsList', $this->TreatmentControl->find('all', array(
             'conditions' => array(
                 'TreatmentControl.flag_active' => 1
             )
         )));
-        $this->set('event_controls_list', $this->EventControl->find('all', array(
+        $this->set('eventControlsList', $this->EventControl->find('all', array(
             'conditions' => array(
                 'EventControl.flag_active' => 1
             )
         )));
-        $this->set('is_ajax', $this->request->is('ajax'));
-        $this->set('diagnosis_master_id', $diagnosis_master_id);
-        $this->set('is_secondary', is_numeric($dx_master_data['DiagnosisMaster']['parent_id']));
+        $this->set('isAjax', $this->request->is('ajax'));
+        $this->set('diagnosisMasterId', $diagnosisMasterId);
+        $this->set('isSecondary', is_numeric($dxMasterData['DiagnosisMaster']['parent_id']));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        $events_data = $this->EventMaster->find('all', array(
+        $eventsData = $this->EventMaster->find('all', array(
             'conditions' => array(
-                'EventMaster.participant_id' => $participant_id,
-                'EventMaster.diagnosis_master_id' => $diagnosis_master_id
+                'EventMaster.participant_id' => $participantId,
+                'EventMaster.diagnosis_master_id' => $diagnosisMasterId
             )
         ));
         if ($this->request->data['DiagnosisControl']['flag_compare_with_cap']) {
-            foreach ($events_data as $event_data) {
-                EventMaster::generateDxCompatWarnings($this->request->data, $event_data);
+            foreach ($eventsData as $eventData) {
+                EventMaster::generateDxCompatWarnings($this->request->data, $eventData);
             }
         }
         
-        $this->Structures->set('empty', 'empty_structure');
+        $this->Structures->set('empty', 'emptyStructure');
     }
 
-    function add($participant_id, $dx_control_id, $parent_id)
+    function add($participantId, $dxControlId, $parentId)
     {
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
-        $dx_ctrl = $this->DiagnosisControl->getOrRedirect($dx_control_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
+        $dxCtrl = $this->DiagnosisControl->getOrRedirect($dxControlId);
         
-        $parent_dx = null;
-        if ($parent_id == 0) {
-            if ($dx_ctrl['DiagnosisControl']['category'] != 'primary') {
+        $parentDx = null;
+        if ($parentId == 0) {
+            if ($dxCtrl['DiagnosisControl']['category'] != 'primary') {
                 // is not a primary but has no parent
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
             }
         } else {
-            $parent_dx = $this->DiagnosisMaster->find('first', array(
+            $parentDx = $this->DiagnosisMaster->find('first', array(
                 'conditions' => array(
-                    'DiagnosisMaster.id' => $parent_id,
-                    'DiagnosisMaster.participant_id' => $participant_id
+                    'DiagnosisMaster.id' => $parentId,
+                    'DiagnosisMaster.participant_id' => $participantId
                 )
             ));
-            if (empty($parent_dx)) {
+            if (empty($parentDx)) {
                 $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
             }
-            if (($dx_ctrl['DiagnosisControl']['category'] == 'primary') || ($dx_ctrl['DiagnosisControl']['category'] == 'secondary - distant') && ($parent_dx['DiagnosisControl']['category'] == 'secondary - distant')) {
+            if (($dxCtrl['DiagnosisControl']['category'] == 'primary') || ($dxCtrl['DiagnosisControl']['category'] == 'secondary - distant') && ($parentDx['DiagnosisControl']['category'] == 'secondary - distant')) {
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
             }
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $atim_menu_variables = array(
-            'Participant.id' => $participant_id,
-            "tableId" => $dx_control_id,
-            'DiagnosisMaster.parent_id' => $parent_id
+        $atimMenuVariables = array(
+            'Participant.id' => $participantId,
+            "tableId" => $dxControlId,
+            'DiagnosisMaster.parent_id' => $parentId
         );
-        if (! empty($parent_dx)) {
-            $this->setDiagnosisMenu($parent_dx, $atim_menu_variables);
+        if (! empty($parentDx)) {
+            $this->setDiagnosisMenu($parentDx, $atimMenuVariables);
         } else {
-            $this->set('atim_menu_variables', $atim_menu_variables);
-            $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/DiagnosisMasters/listall/'));
+            $this->set('atimMenuVariables', $atimMenuVariables);
+            $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/DiagnosisMasters/listall/'));
         }
-        $this->set('origin', $parent_id == 0 ? 'primary' : 'secondary - distant');
-        $dx_control_data = $this->DiagnosisControl->find('first', array(
+        $this->set('origin', $parentId == 0 ? 'primary' : 'secondary - distant');
+        $dxControlData = $this->DiagnosisControl->find('first', array(
             'conditions' => array(
-                'DiagnosisControl.id' => $dx_control_id
+                'DiagnosisControl.id' => $dxControlId
             )
         ));
-        $this->Structures->set($dx_control_data['DiagnosisControl']['form_alias'] . "," . ($parent_id == 0 ? "dx_origin_primary" : "dx_origin_wo_primary"), 'atim_structure', array(
+        $this->Structures->set($dxControlData['DiagnosisControl']['form_alias'] . "," . ($parentId == 0 ? "dx_origin_primary" : "dx_origin_wo_primary"), 'atim_structure', array(
             'model_table_assoc' => array(
-                'DiagnosisDetail' => $dx_control_data['DiagnosisControl']['detail_tablename']
+                'DiagnosisDetail' => $dxControlData['DiagnosisControl']['detail_tablename']
             )
         ));
-        $this->Structures->set('empty', 'empty_structure');
+        $this->Structures->set('empty', 'emptyStructure');
         
-        $this->set('dx_ctrl', $dx_ctrl);
+        $this->set('dxCtrl', $dxCtrl);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
             $this->DiagnosisMaster->patchIcd10NullValues($this->request->data);
-            $this->request->data['DiagnosisMaster']['participant_id'] = $participant_id;
-            $this->request->data['DiagnosisMaster']['diagnosis_control_id'] = $dx_control_id;
+            $this->request->data['DiagnosisMaster']['participant_id'] = $participantId;
+            $this->request->data['DiagnosisMaster']['diagnosis_control_id'] = $dxControlId;
             
-            $this->request->data['DiagnosisMaster']['parent_id'] = $parent_id == 0 ? null : $parent_id;
-            $this->request->data['DiagnosisMaster']['primary_id'] = $parent_id == 0 ? null : (empty($parent_dx['DiagnosisMaster']['primary_id']) ? $parent_dx['DiagnosisMaster']['id'] : $parent_dx['DiagnosisMaster']['primary_id']);
+            $this->request->data['DiagnosisMaster']['parent_id'] = $parentId == 0 ? null : $parentId;
+            $this->request->data['DiagnosisMaster']['primary_id'] = $parentId == 0 ? null : (empty($parentDx['DiagnosisMaster']['primary_id']) ? $parentDx['DiagnosisMaster']['id'] : $parentDx['DiagnosisMaster']['primary_id']);
             
             $this->DiagnosisMaster->addWritableField(array(
                 'participant_id',
@@ -362,92 +363,92 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
                 'parent_id',
                 'primary_id'
             ));
-            $this->DiagnosisMaster->addWritableField('diagnosis_master_id', $dx_control_data['DiagnosisControl']['detail_tablename']);
+            $this->DiagnosisMaster->addWritableField('diagnosis_master_id', $dxControlData['DiagnosisControl']['detail_tablename']);
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 if ($this->DiagnosisMaster->save($this->request->data)) {
-                    $diagnosis_master_id = $this->DiagnosisMaster->getLastInsertId();
+                    $diagnosisMasterId = $this->DiagnosisMaster->getLastInsertId();
                     
-                    if ($parent_id == 0) {
+                    if ($parentId == 0) {
                         // Set primary_id of a Primary
-                        $query_to_update = "UPDATE diagnosis_masters SET diagnosis_masters.primary_id = diagnosis_masters.id WHERE diagnosis_masters.id = $diagnosis_master_id;";
-                        $this->DiagnosisMaster->tryCatchQuery($query_to_update);
-                        $this->DiagnosisMaster->tryCatchQuery(str_replace("diagnosis_masters", "diagnosis_masters_revs", $query_to_update));
+                        $queryToUpdate = "UPDATE diagnosis_masters SET diagnosis_masters.primary_id = diagnosis_masters.id WHERE diagnosis_masters.id = $diagnosisMasterId;";
+                        $this->DiagnosisMaster->tryCatchQuery($queryToUpdate);
+                        $this->DiagnosisMaster->tryCatchQuery(str_replace("diagnosis_masters", "diagnosis_masters_revs", $queryToUpdate));
                     }
                     
-                    $url_to_flash = '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participant_id . '/' . $diagnosis_master_id . '/';
+                    $urlToFlash = '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participantId . '/' . $diagnosisMasterId . '/';
                     
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
                     
-                    $this->atimFlash(__('your data has been saved'), $url_to_flash);
+                    $this->atimFlash(__('your data has been saved'), $urlToFlash);
                 }
             }
         }
     }
 
-    function edit($participant_id, $diagnosis_master_id, $redefined_primary_control_id = null)
+    function edit($participantId, $diagnosisMasterId, $redefinedPrimaryControlId = null)
     {
         
         // MANAGE DATA
-        $dx_master_data = $this->DiagnosisMaster->find('first', array(
+        $dxMasterData = $this->DiagnosisMaster->find('first', array(
             'conditions' => array(
-                'DiagnosisMaster.id' => $diagnosis_master_id,
-                'DiagnosisMaster.participant_id' => $participant_id
+                'DiagnosisMaster.id' => $diagnosisMasterId,
+                'DiagnosisMaster.participant_id' => $participantId
             )
         ));
-        if (empty($dx_master_data)) {
+        if (empty($dxMasterData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // CUSTOM CODE: MANAGE REDEFINE PRIMARY
-        $hook_link = $this->hook('before_redefine_primary');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('before_redefine_primary');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (! is_null($redefined_primary_control_id)) {
+        if (! is_null($redefinedPrimaryControlId)) {
             
             // UNKNOWN PRIMARY REDEFINITION
             // User expected to change an unknown primary to a specific diagnosis
             
-            $new_primary_ctrl = $this->DiagnosisControl->find('first', array(
+            $newPrimaryCtrl = $this->DiagnosisControl->find('first', array(
                 'conditions' => array(
-                    'DiagnosisControl.id' => $redefined_primary_control_id
+                    'DiagnosisControl.id' => $redefinedPrimaryControlId
                 )
             ));
-            if (empty($new_primary_ctrl) || ($dx_master_data['DiagnosisControl']['category'] != 'primary') || ($dx_master_data['DiagnosisControl']['controls_type'] != 'primary diagnosis unknown') || ($new_primary_ctrl['DiagnosisControl']['category'] != 'primary') || ($new_primary_ctrl['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown'))
+            if (empty($newPrimaryCtrl) || ($dxMasterData['DiagnosisControl']['category'] != 'primary') || ($dxMasterData['DiagnosisControl']['controls_type'] != 'primary diagnosis unknown') || ($newPrimaryCtrl['DiagnosisControl']['category'] != 'primary') || ($newPrimaryCtrl['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown'))
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             
-            if ($dx_master_data['DiagnosisControl']['detail_tablename'] != $new_primary_ctrl['DiagnosisControl']['detail_tablename']) {
-                $this->DiagnosisMaster->tryCatchQuery("INSERT INTO " . $new_primary_ctrl['DiagnosisControl']['detail_tablename'] . " (`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
+            if ($dxMasterData['DiagnosisControl']['detail_tablename'] != $newPrimaryCtrl['DiagnosisControl']['detail_tablename']) {
+                $this->DiagnosisMaster->tryCatchQuery("INSERT INTO " . $newPrimaryCtrl['DiagnosisControl']['detail_tablename'] . " (`diagnosis_master_id`) VALUES ($diagnosisMasterId);");
             }
-            $this->DiagnosisMaster->tryCatchQuery("UPDATE diagnosis_masters SET diagnosis_control_id = $redefined_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
+            $this->DiagnosisMaster->tryCatchQuery("UPDATE diagnosis_masters SET diagnosis_control_id = $redefinedPrimaryControlId, deleted = 0 WHERE id = $diagnosisMasterId;");
             // Save empty data to add row in revs table
             $this->DiagnosisMaster->data = array();
-            $this->DiagnosisMaster->id = $diagnosis_master_id;
+            $this->DiagnosisMaster->id = $diagnosisMasterId;
             if (! $this->DiagnosisMaster->save(array()))
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             ;
             
-            $dx_master_data = $this->DiagnosisMaster->find('first', array(
+            $dxMasterData = $this->DiagnosisMaster->find('first', array(
                 'conditions' => array(
-                    'DiagnosisMaster.id' => $diagnosis_master_id,
-                    'DiagnosisMaster.participant_id' => $participant_id
+                    'DiagnosisMaster.id' => $diagnosisMasterId,
+                    'DiagnosisMaster.participant_id' => $participantId
                 )
             ));
-            if (empty($dx_master_data)) {
+            if (empty($dxMasterData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
@@ -455,117 +456,117 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->setDiagnosisMenu($dx_master_data);
+        $this->setDiagnosisMenu($dxMasterData);
         
-        $this->Structures->set($dx_master_data['DiagnosisControl']['form_alias']);
+        $this->Structures->set($dxMasterData['DiagnosisControl']['form_alias']);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $dx_master_data;
+            $this->request->data = $dxMasterData;
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             $this->DiagnosisMaster->patchIcd10NullValues($this->request->data);
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->DiagnosisMaster->id = $diagnosis_master_id;
+            if ($submittedDataValidates) {
+                $this->DiagnosisMaster->id = $diagnosisMasterId;
                 if ($this->DiagnosisMaster->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participant_id . '/' . $diagnosis_master_id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participantId . '/' . $diagnosisMasterId);
                 }
             }
         }
     }
 
-    function delete($participant_id, $diagnosis_master_id)
+    function delete($participantId, $diagnosisMasterId)
     {
         // MANAGE DATA
-        $diagnosis_master_data = $this->DiagnosisMaster->find('first', array(
+        $diagnosisMasterData = $this->DiagnosisMaster->find('first', array(
             'conditions' => array(
-                'DiagnosisMaster.id' => $diagnosis_master_id,
-                'DiagnosisMaster.participant_id' => $participant_id
+                'DiagnosisMaster.id' => $diagnosisMasterId,
+                'DiagnosisMaster.participant_id' => $participantId
             )
         ));
-        if (empty($diagnosis_master_data)) {
+        if (empty($diagnosisMasterData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->DiagnosisMaster->allowDeletion($diagnosis_master_id);
+        $arrAllowDeletion = $this->DiagnosisMaster->allowDeletion($diagnosisMasterId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->DiagnosisMaster->atimDelete($diagnosis_master_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->DiagnosisMaster->atimDelete($diagnosisMasterId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/DiagnosisMasters/listall/' . $participant_id);
+                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/DiagnosisMasters/listall/' . $participantId);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/DiagnosisMasters/listall/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/DiagnosisMasters/listall/' . $participantId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participant_id . '/' . $diagnosis_master_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/DiagnosisMasters/detail/' . $participantId . '/' . $diagnosisMasterId);
         }
     }
 
-    function setDiagnosisMenu($dx_master_data, $additional_menu_variables = array())
+    function setDiagnosisMenu($dxMasterData, $additionalMenuVariables = array())
     {
-        if (! isset($dx_master_data['DiagnosisMaster']['id'])) {
+        if (! isset($dxMasterData['DiagnosisMaster']['id'])) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $primary_id = null;
-        $progression_1_id = null;
-        $progression_2_id = null;
-        if ($dx_master_data['DiagnosisMaster']['primary_id'] == $dx_master_data['DiagnosisMaster']['id']) {
+        $primaryId = null;
+        $progression1Id = null;
+        $progression2Id = null;
+        if ($dxMasterData['DiagnosisMaster']['primary_id'] == $dxMasterData['DiagnosisMaster']['id']) {
             // Primary Display
-            $primary_id = $dx_master_data['DiagnosisMaster']['id'];
-            $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.primary_id%%';
-        } elseif ($dx_master_data['DiagnosisMaster']['primary_id'] == $dx_master_data['DiagnosisMaster']['parent_id']) {
+            $primaryId = $dxMasterData['DiagnosisMaster']['id'];
+            $menuLink = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.primary_id%%';
+        } elseif ($dxMasterData['DiagnosisMaster']['primary_id'] == $dxMasterData['DiagnosisMaster']['parent_id']) {
             // Secondary or primary progression display
-            $primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
-            $progression_1_id = $dx_master_data['DiagnosisMaster']['id'];
-            $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_1_id%%';
+            $primaryId = $dxMasterData['DiagnosisMaster']['primary_id'];
+            $progression1Id = $dxMasterData['DiagnosisMaster']['id'];
+            $menuLink = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_1_id%%';
         } else {
             // Secondary progression display
-            $primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
-            $progression_1_id = $dx_master_data['DiagnosisMaster']['parent_id'];
-            $progression_2_id = $dx_master_data['DiagnosisMaster']['id'];
-            $menu_link = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_2_id%%';
+            $primaryId = $dxMasterData['DiagnosisMaster']['primary_id'];
+            $progression1Id = $dxMasterData['DiagnosisMaster']['parent_id'];
+            $progression2Id = $dxMasterData['DiagnosisMaster']['id'];
+            $menuLink = '/ClinicalAnnotation/DiagnosisMasters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_2_id%%';
         }
         
-        $this->set('atim_menu', $this->Menus->get($menu_link));
-        $this->set('atim_menu_variables', array_merge(array(
-            'Participant.id' => $dx_master_data['DiagnosisMaster']['participant_id'],
-            'DiagnosisMaster.id' => $dx_master_data['DiagnosisMaster']['id'],
+        $this->set('atimMenu', $this->Menus->get($menuLink));
+        $this->set('atimMenuVariables', array_merge(array(
+            'Participant.id' => $dxMasterData['DiagnosisMaster']['participant_id'],
+            'DiagnosisMaster.id' => $dxMasterData['DiagnosisMaster']['id'],
             
-            'DiagnosisMaster.primary_id' => $primary_id,
-            'DiagnosisMaster.progression_1_id' => $progression_1_id,
-            'DiagnosisMaster.progression_2_id' => $progression_2_id
-        ), $additional_menu_variables));
+            'DiagnosisMaster.primary_id' => $primaryId,
+            'DiagnosisMaster.progression_1_id' => $progression1Id,
+            'DiagnosisMaster.progression_2_id' => $progression2Id
+        ), $additionalMenuVariables));
     }
 }

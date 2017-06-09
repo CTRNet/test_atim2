@@ -7,7 +7,7 @@ class Participant extends ClinicalAnnotationAppModel
         'age' => 'IF(date_of_birth IS NULL, NULL, YEAR(NOW()) - YEAR(date_of_birth) - (DAYOFYEAR(NOW()) < DAYOFYEAR(date_of_birth)))'
     );
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewCollection' => array(
             'Participant.id'
         ),
@@ -65,7 +65,7 @@ class Participant extends ClinicalAnnotationAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $participant_id ID
+     * @param $participantId ID
      *            of the studied record.
      *            
      * @return Return results as array:
@@ -75,84 +75,84 @@ class Participant extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($participant_id)
+    function allowDeletion($participantId)
     {
-        $arr_allow_deletion = array(
+        $arrAllowDeletion = array(
             'allow_deletion' => true,
             'msg' => ''
         );
         
         // Check for existing records linked to the participant. If found, set error message and deny delete
-        $collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
-        $nbr_linked_collection = $collection_model->find('count', array(
+        $collectionModel = AppModel::getInstance("InventoryManagement", "Collection", true);
+        $nbrLinkedCollection = $collectionModel->find('count', array(
             'conditions' => array(
-                'Collection.participant_id' => $participant_id
+                'Collection.participant_id' => $participantId
             )
         ));
-        if ($nbr_linked_collection > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_collection';
+        if ($nbrLinkedCollection > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_collection';
         }
         
-        $consent_master_model = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
-        $nbr_consents = $consent_master_model->find('count', array(
+        $consentMasterModel = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
+        $nbrConsents = $consentMasterModel->find('count', array(
             'conditions' => array(
-                'ConsentMaster.participant_id' => $participant_id
+                'ConsentMaster.participant_id' => $participantId
             )
         ));
-        if ($nbr_consents > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_consent';
+        if ($nbrConsents > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_consent';
         }
         
-        $diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
-        $nbr_diagnosis = $diagnosis_master_model->find('count', array(
+        $diagnosisMasterModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+        $nbrDiagnosis = $diagnosisMasterModel->find('count', array(
             'conditions' => array(
-                'DiagnosisMaster.participant_id' => $participant_id
+                'DiagnosisMaster.participant_id' => $participantId
             )
         ));
-        if ($nbr_diagnosis > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_diagnosis';
+        if ($nbrDiagnosis > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_diagnosis';
         }
         
-        $treatment_master_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-        $nbr_treatment = $treatment_master_model->find('count', array(
+        $treatmentMasterModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+        $nbrTreatment = $treatmentMasterModel->find('count', array(
             'conditions' => array(
-                'TreatmentMaster.participant_id' => $participant_id
+                'TreatmentMaster.participant_id' => $participantId
             )
         ));
-        if ($nbr_treatment > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_treatment';
+        if ($nbrTreatment > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_treatment';
         }
         
-        $family_history_model = AppModel::getInstance("ClinicalAnnotation", "FamilyHistory", true);
-        $nbr_familyhistory = $family_history_model->find('count', array(
+        $familyHistoryModel = AppModel::getInstance("ClinicalAnnotation", "FamilyHistory", true);
+        $nbrFamilyhistory = $familyHistoryModel->find('count', array(
             'conditions' => array(
-                'FamilyHistory.participant_id' => $participant_id
+                'FamilyHistory.participant_id' => $participantId
             )
         ));
-        if ($nbr_familyhistory > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_familyhistory';
+        if ($nbrFamilyhistory > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_familyhistory';
         }
         
-        $reproductive_history_model = AppModel::getInstance("ClinicalAnnotation", "ReproductiveHistory", true);
-        $nbr_reproductive = $reproductive_history_model->find('count', array(
+        $reproductiveHistoryModel = AppModel::getInstance("ClinicalAnnotation", "ReproductiveHistory", true);
+        $nbrReproductive = $reproductiveHistoryModel->find('count', array(
             'conditions' => array(
-                'ReproductiveHistory.participant_id' => $participant_id
+                'ReproductiveHistory.participant_id' => $participantId
             )
         ));
-        if ($nbr_reproductive > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_reproductive';
+        if ($nbrReproductive > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_reproductive';
         }
         
-        $participant_contact_model = AppModel::getInstance("ClinicalAnnotation", "ParticipantContact", true);
-        $nbr_contacts = $participant_contact_model->find('count', array(
+        $participantContactModel = AppModel::getInstance("ClinicalAnnotation", "ParticipantContact", true);
+        $nbrContacts = $participantContactModel->find('count', array(
             'conditions' => array(
-                'ParticipantContact.participant_id' => $participant_id,
+                'ParticipantContact.participant_id' => $participantId,
                 array(
                     'OR' => array(
                         'ParticipantContact.confidential != 1',
@@ -161,45 +161,45 @@ class Participant extends ClinicalAnnotationAppModel
                 )
             )
         ));
-        if ($nbr_contacts > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_contacts';
+        if ($nbrContacts > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_contacts';
         }
         
-        $misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
-        $nbr_identifiers = $misc_identifier_model->find('count', array(
+        $miscIdentifierModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+        $nbrIdentifiers = $miscIdentifierModel->find('count', array(
             'conditions' => array(
-                'MiscIdentifier.participant_id' => $participant_id
+                'MiscIdentifier.participant_id' => $participantId
             )
         ));
-        if ($nbr_identifiers > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_identifiers';
+        if ($nbrIdentifiers > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_identifiers';
         }
         
-        $participant_message_model = AppModel::getInstance("ClinicalAnnotation", "ParticipantMessage", true);
-        $nbr_messages = $participant_message_model->find('count', array(
+        $participantMessageModel = AppModel::getInstance("ClinicalAnnotation", "ParticipantMessage", true);
+        $nbrMessages = $participantMessageModel->find('count', array(
             'conditions' => array(
-                'ParticipantMessage.participant_id' => $participant_id
+                'ParticipantMessage.participant_id' => $participantId
             )
         ));
-        if ($nbr_messages > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_messages';
+        if ($nbrMessages > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_messages';
         }
         
-        $event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-        $nbr_events = $event_master_model->find('count', array(
+        $eventMasterModel = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+        $nbrEvents = $eventMasterModel->find('count', array(
             'conditions' => array(
-                'EventMaster.participant_id' => $participant_id
+                'EventMaster.participant_id' => $participantId
             )
         ));
-        if ($nbr_events > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_participant_linked_events';
+        if ($nbrEvents > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_participant_linked_events';
         }
         
-        return $arr_allow_deletion;
+        return $arrAllowDeletion;
     }
 
     function beforeSave($options = array())
@@ -213,9 +213,9 @@ class Participant extends ClinicalAnnotationAppModel
             'last_modification',
             'last_modification_ds_id'
         ));
-        $ret_val = parent::beforeSave($options);
+        $retVal = parent::beforeSave($options);
         $this->data['Participant']['last_modification'] = $this->data['Participant']['modified'];
         $this->data['Participant']['last_modification_ds_id'] = 4; // participant
-        return $ret_val;
+        return $retVal;
     }
 }

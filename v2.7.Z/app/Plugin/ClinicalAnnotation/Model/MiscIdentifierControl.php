@@ -3,7 +3,7 @@
 class MiscIdentifierControl extends ClinicalAnnotationAppModel
 {
 
-    private $confidential_ids = null;
+    private $confidentialIds = null;
 
     /**
      * Get permissible values array gathering all existing misc identifier names.
@@ -21,8 +21,8 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $ident_ctrl) {
-            $result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name']);
+        )) as $identCtrl) {
+            $result[$identCtrl['MiscIdentifierControl']['misc_identifier_name']] = __($identCtrl['MiscIdentifierControl']['misc_identifier_name']);
         }
         natcasesort($result);
         
@@ -45,8 +45,8 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $ident_ctrl) {
-            $result[$ident_ctrl['MiscIdentifierControl']['id']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name']);
+        )) as $identCtrl) {
+            $result[$identCtrl['MiscIdentifierControl']['id']] = __($identCtrl['MiscIdentifierControl']['misc_identifier_name']);
         }
         natcasesort($result);
         
@@ -55,8 +55,8 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
 
     function getConfidentialIds()
     {
-        if ($this->confidential_ids == null) {
-            $misc_controls = $this->find('all', array(
+        if ($this->confidentialIds == null) {
+            $miscControls = $this->find('all', array(
                 'fields' => array(
                     'MiscIdentifierControl.id'
                 ),
@@ -64,11 +64,11 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
                     'flag_confidential' => 1
                 )
             ));
-            $this->confidential_ids = array();
-            foreach ($misc_controls as $misc_control) {
-                $this->confidential_ids[] = $misc_control['MiscIdentifierControl']['id'];
+            $this->confidentialIds = array();
+            foreach ($miscControls as $miscControl) {
+                $this->confidentialIds[] = $miscControl['MiscIdentifierControl']['id'];
             }
         }
-        return $this->confidential_ids;
+        return $this->confidentialIds;
     }
 }

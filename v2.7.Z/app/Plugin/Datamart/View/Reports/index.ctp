@@ -9,7 +9,7 @@ $links = array(
     )
 );
 $header = array();
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'links' => $links,
     'settings' => array(
         'header' => $header,

@@ -1,14 +1,14 @@
 <?php
-$structure_links = array(
-    "top" => '/labbook/LabBookMasters/editSynchOptions/' . $atim_menu_variables['LabBookMaster.id'],
+$structureLinks = array(
+    "top" => '/labbook/LabBookMasters/editSynchOptions/' . $atimMenuVariables['LabBookMaster.id'],
     'bottom' => array(
-        'cancel' => '/labbook/LabBookMasters/detail/' . $atim_menu_variables['LabBookMaster.id']
+        'cancel' => '/labbook/LabBookMasters/detail/' . $atimMenuVariables['LabBookMaster.id']
     )
 );
 
 // DERIVATIVE DETAILS
 
-$structure_override = array();
+$structureOverride = array();
 $settings = array(
     'header' => __('derivative', null),
     'actions' => false,
@@ -17,45 +17,45 @@ $settings = array(
     'name_prefix' => 'derivative'
 );
 
-$final_atim_structure = $lab_book_derivatives_summary;
-$final_options = array(
+$finalAtimStructure = $labBookDerivativesSummary;
+$finalOptions = array(
     'type' => 'editgrid',
-    'links' => $structure_links,
-    'override' => $structure_override,
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'data' => $this->request->data['derivative'],
     'settings' => $settings
 );
 
-$hook_link = $this->Structures->hook('derivatives');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('derivatives');
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 // REALIQUOTING
 
-$structure_override = array();
+$structureOverride = array();
 $settings = array(
     'header' => __('realiquoting', null),
     'pagination' => false,
     'name_prefix' => 'realiquoting'
 );
 
-$final_atim_structure = $lab_book_realiquotings_summary;
-$final_options = array(
+$finalAtimStructure = $labBookRealiquotingsSummary;
+$finalOptions = array(
     'type' => 'editgrid',
-    'links' => $structure_links,
-    'override' => $structure_override,
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'data' => $this->request->data['realiquoting'],
     'settings' => $settings
 );
 
-$hook_link = $this->Structures->hook('derivatives');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('derivatives');
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

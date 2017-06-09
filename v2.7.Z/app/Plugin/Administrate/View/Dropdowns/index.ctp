@@ -1,8 +1,8 @@
 <?php
 
 // --------- Lists with values ----------------------------------------------------------------------------------------------
-$final_atim_structure = array();
-$final_options = array(
+$finalAtimStructure = array();
+$finalOptions = array(
     'type' => 'detail',
     'links' => array(),
     'settings' => array(
@@ -12,22 +12,22 @@ $final_options = array(
     'extras' => $this->Structures->ajaxIndex('Administrate/Dropdowns/subIndex/not_empty')
 );
 
-$display_next_form = true;
+$displayNextForm = true;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('not_empty');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('not_empty');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-if ($display_next_form)
-    $this->Structures->build($final_atim_structure, $final_options);
+if ($displayNextForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
     // --------- Empty lists ----------------------------------------------------------------------------------------------
 
-$final_atim_structure = array();
-$final_options = array(
+$finalAtimStructure = array();
+$finalOptions = array(
     'type' => 'detail',
     'links' => array(),
     'settings' => array(
@@ -37,15 +37,15 @@ $final_options = array(
     'extras' => $this->Structures->ajaxIndex('Administrate/Dropdowns/subIndex/empty')
 );
 
-$display_next_form = true;
+$displayNextForm = true;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('empty');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('empty');
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-if ($display_next_form)
-    $this->Structures->build($final_atim_structure, $final_options);	
+if ($displayNextForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);	
 	

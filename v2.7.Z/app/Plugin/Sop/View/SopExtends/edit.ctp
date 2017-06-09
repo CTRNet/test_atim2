@@ -1,16 +1,16 @@
 <?php
-$structure_links = array(
-    'top' => '/Sop/SopExtends/edit/' . $atim_menu_variables['SopMaster.id'] . '/%%SopExtend.id%%/',
+$structureLinks = array(
+    'top' => '/Sop/SopExtends/edit/' . $atimMenuVariables['SopMaster.id'] . '/%%SopExtend.id%%/',
     'bottom' => array(
-        'delete' => '/Sop/SopExtends/delete/' . $atim_menu_variables['SopMaster.id'] . '/%%SopExtend.id%%/',
-        'cancel' => '/Sop/SopExtends/detail/' . $atim_menu_variables['SopMaster.id'] . '/%%SopExtend.id%%/'
+        'delete' => '/Sop/SopExtends/delete/' . $atimMenuVariables['SopMaster.id'] . '/%%SopExtend.id%%/',
+        'cancel' => '/Sop/SopExtends/detail/' . $atimMenuVariables['SopMaster.id'] . '/%%SopExtend.id%%/'
     )
 );
 
-$structure_override = array(
-    'SopExtend.material_id' => $material_list
+$structureOverride = array(
+    'SopExtend.material_id' => $materialList
 );
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 ?>

@@ -1,22 +1,22 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
         'edit' => '/Sop/SopMasters/edit/%%SopMaster.id%%/',
         'delete' => '/Sop/SopMasters/delete/%%SopMaster.id%%/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

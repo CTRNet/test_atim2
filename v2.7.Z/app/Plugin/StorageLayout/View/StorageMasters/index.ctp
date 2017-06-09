@@ -1,17 +1,17 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
-        'add' => $add_links,
+        'add' => $addLinks,
         'tree view' => '/StorageLayout/StorageMasters/contentTreeView'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'search',
     'links' => array(
         'top' => array(
-            'search' => '/StorageLayout/StorageMasters/search/' . (isset($is_ajax) ? '-1' : AppController::getNewSearchId())
+            'search' => '/StorageLayout/StorageMasters/search/' . (isset($isAjax) ? '-1' : AppController::getNewSearchId())
         )
     ),
     'settings' => array(
@@ -19,23 +19,23 @@ $final_options = array(
         'header' => __('search type', null) . ': ' . __('storages', null)
     )
 );
-$final_atim_structure2 = $empty_structure;
-$final_options2 = array(
-    'links' => $structure_links,
+$finalAtimStructure2 = $emptyStructure;
+$finalOptions2 = array(
+    'links' => $structureLinks,
     'extras' => '<div class="ajax_search_results"></div>'
 );
-if (isset($is_ajax)) {
-    unset($final_options2['links']['bottom']);
+if (isset($isAjax)) {
+    unset($finalOptions2['links']['bottom']);
 }
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
-$this->Structures->build($final_atim_structure2, $final_options2);
+$this->Structures->build($finalAtimStructure, $finalOptions);
+$this->Structures->build($finalAtimStructure2, $finalOptions2);
 
 ?>

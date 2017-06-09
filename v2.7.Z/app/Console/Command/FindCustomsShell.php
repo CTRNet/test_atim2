@@ -5,26 +5,26 @@ class FindCustomsShell extends AppShell
 
     public function main()
     {
-        $to_do = array(
+        $toDo = array(
             getcwd()
         );
         
-        if (! is_dir($to_do[0])) {
+        if (! is_dir($toDo[0])) {
             die("Invalid directory\n");
         }
         
         echo "*** Program start ***\n";
-        echo "Parsing directory ", $to_do[0], "\n";
-        while ($to_do) {
-            $parent_dir = array_pop($to_do);
-            $d = dir($parent_dir);
+        echo "Parsing directory ", $toDo[0], "\n";
+        while ($toDo) {
+            $parentDir = array_pop($toDo);
+            $d = dir($parentDir);
             while (false !== ($current = $d->read())) {
                 if ($current == '.' || $current == '..') {
                     continue;
                 }
-                $val = $parent_dir . '/' . $current;
+                $val = $parentDir . '/' . $current;
                 if (is_dir($val)) {
-                    $to_do[] = $val;
+                    $toDo[] = $val;
                 }
                 
                 $lower = strtolower($current);

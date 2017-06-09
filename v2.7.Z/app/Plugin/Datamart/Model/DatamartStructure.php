@@ -5,13 +5,13 @@ class DatamartStructure extends DatamartAppModel
 
     public $useTable = 'datamart_structures';
 
-    function getIdByModelName($model_name)
+    function getIdByModelName($modelName)
     {
         $data = $this->find('first', array(
             'conditions' => array(
                 'OR' => array(
-                    'model' => $model_name,
-                    'control_master_model' => $model_name
+                    'model' => $modelName,
+                    'control_master_model' => $modelName
                 )
             ),
             'recursive' => - 1,
@@ -33,8 +33,8 @@ class DatamartStructure extends DatamartAppModel
         $data = $this->find('all', array(
             'recursive' => - 1
         ));
-        foreach ($data as $new_ds) {
-            $result[$new_ds['DatamartStructure']['id']] = __($new_ds['DatamartStructure']['display_name']);
+        foreach ($data as $newDs) {
+            $result[$newDs['DatamartStructure']['id']] = __($newDs['DatamartStructure']['display_name']);
         }
         natcasesort($result);
         
@@ -45,14 +45,14 @@ class DatamartStructure extends DatamartAppModel
      * Retrieves the model associated to the id
      *
      * @param int $id            
-     * @param string $model_name
-     *            If null, the model defined in the db will be used. If not, $model_name will be.
+     * @param string $modelName
+     *            If null, the model defined in the db will be used. If not, $modelName will be.
      * @return AppModel
      */
-    function getModel($id, $model_name = null)
+    function getModel($id, $modelName = null)
     {
         $d = $this->findById($id);
-        return AppModel::getInstance($d['DatamartStructure']['plugin'], $model_name ?: $d['DatamartStructure']['model']);
+        return AppModel::getInstance($d['DatamartStructure']['plugin'], $modelName ?: $d['DatamartStructure']['model']);
     }
 
     function getDisplayNameFromModel()
@@ -67,10 +67,10 @@ class DatamartStructure extends DatamartAppModel
             )
         ));
         $results = array();
-        foreach ($data as $new_record) {
-            $results[$new_record['DatamartStructure']['model']] = __($new_record['DatamartStructure']['display_name']);
-            if (isset($new_record['DatamartStructure']['control_master_model']))
-                $results[$new_record['DatamartStructure']['control_master_model']] = __($new_record['DatamartStructure']['display_name']);
+        foreach ($data as $newRecord) {
+            $results[$newRecord['DatamartStructure']['model']] = __($newRecord['DatamartStructure']['display_name']);
+            if (isset($newRecord['DatamartStructure']['control_master_model']))
+                $results[$newRecord['DatamartStructure']['control_master_model']] = __($newRecord['DatamartStructure']['display_name']);
         }
         return $results;
     }

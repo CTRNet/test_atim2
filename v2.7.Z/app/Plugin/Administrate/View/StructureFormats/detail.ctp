@@ -1,11 +1,11 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
-        'edit' => '/Administrate/StructureFormats/edit/' . $atim_menu_variables['Structure.id'] . '/%%StructureFormat.id%%'
+        'edit' => '/Administrate/StructureFormats/edit/' . $atimMenuVariables['Structure.id'] . '/%%StructureFormat.id%%'
     )
 );
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 ?>

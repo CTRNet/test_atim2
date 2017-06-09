@@ -15,8 +15,8 @@ class Template extends AppModel
 
     function init()
     {
-        $template_node_model = AppModel::getInstance("Tools", "TemplateNode", true);
-        $tree = $template_node_model->find('all', array(
+        $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
+        $tree = $templateNodeModel->find('all', array(
             'conditions' => array(
                 'TemplateNode.Template_id' => $this->id
             )
@@ -40,14 +40,14 @@ class Template extends AppModel
 
     /*
      * Get tamplate(s) list based on use definition.
-     * When $template_id is set, system defined if template properties can be edited or not by the user
+     * When $templateId is set, system defined if template properties can be edited or not by the user
      * (Only user who created the template or administrators can change template properties or delete)
      */
-    function getTemplates($use_defintion, $template_id = null)
+    function getTemplates($useDefintion, $templateId = null)
     {
         $conditions = array();
-        $find_type = $template_id ? 'first' : 'all';
-        switch ($use_defintion) {
+        $findType = $templateId ? 'first' : 'all';
+        switch ($useDefintion) {
             case 'template edition':
                 $conditions = array(
                     'OR' => array(
@@ -68,8 +68,8 @@ class Template extends AppModel
                 );
                 if (AppController::getInstance()->Session->read('Auth.User.group_id') == '1')
                     unset($conditions['OR']); // Admin can work on all templates
-                if ($template_id)
-                    $conditions['Template.id'] = $template_id;
+                if ($templateId)
+                    $conditions['Template.id'] = $templateId;
                 break;
             
             case 'template use':
@@ -98,10 +98,10 @@ class Template extends AppModel
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $templates = $this->find($find_type, array(
+        $templates = $this->find($findType, array(
             'conditions' => $conditions
         ));
-        if ($templates && $find_type == 'first') {
+        if ($templates && $findType == 'first') {
             $templates['Template']['allow_properties_edition'] = ((AppController::getInstance()->Session->read('Auth.User.group_id') == 1) || (AppController::getInstance()->Session->read('Auth.User.id') == $templates['Template']['created_by']));
         }
         return $templates;
@@ -110,60 +110,60 @@ class Template extends AppModel
     /*
      * Get code for 'Add From Template' button to build collection content from template
      */
-    function getAddFromTemplateMenu($collection_id)
+    function getAddFromTemplateMenu($collectionId)
     {
-        $visible_nodes = $this->getTemplates('template use');
+        $visibleNodes = $this->getTemplates('template use');
         $options['empty template'] = array(
             'icon' => 'add',
-            'link' => '/InventoryManagement/Collections/template/' . $collection_id . '/0'
+            'link' => '/InventoryManagement/Collections/template/' . $collectionId . '/0'
         );
-        foreach ($visible_nodes as $template) {
+        foreach ($visibleNodes as $template) {
             $options[$template['Template']['name']] = array(
                 'icon' => 'template',
-                'link' => '/InventoryManagement/Collections/template/' . $collection_id . '/' . $template['Template']['id']
+                'link' => '/InventoryManagement/Collections/template/' . $collectionId . '/' . $template['Template']['id']
             );
         }
         
         return $options;
     }
 
-    function setOwnerAndVisibility(&$tempate_data, $created_by = null)
+    function setOwnerAndVisibility(&$tempateData, $createdBy = null)
     {
-        if (Template::$sharing[$tempate_data['Template']['visibility']] < Template::$sharing[$tempate_data['Template']['owner']]) {
-            $tempate_data['Template']['owner'] = $tempate_data['Template']['visibility'];
+        if (Template::$sharing[$tempateData['Template']['visibility']] < Template::$sharing[$tempateData['Template']['owner']]) {
+            $tempateData['Template']['owner'] = $tempateData['Template']['visibility'];
             AppController::addWarningMsg(__('visibility reduced to owner level'));
         }
         
         // Get template user & group ids--------------
-        $template_user_id = AppController::getInstance()->Session->read('Auth.User.id');
-        $template_group_id = AppController::getInstance()->Session->read('Auth.User.group_id');
-        if ($created_by && $created_by != $template_user_id) {
+        $templateUserId = AppController::getInstance()->Session->read('Auth.User.id');
+        $templateGroupId = AppController::getInstance()->Session->read('Auth.User.group_id');
+        if ($createdBy && $createdBy != $templateUserId) {
             // Get real tempalte owner and group in case admiistrator is changing data
-            $template_user_id = $created_by;
+            $templateUserId = $createdBy;
             
-            $user_model = AppModel::getInstance("", "User", true);
-            $template_user_data = $user_model->find('first', array(
+            $userModel = AppModel::getInstance("", "User", true);
+            $templateUserData = $userModel->find('first', array(
                 'conditions' => array(
-                    'User.id' => $created_by,
+                    'User.id' => $createdBy,
                     'User.deleted' => array(
                         0,
                         1
                     )
                 )
             ));
-            $template_user_id = $template_user_data['User']['id'];
-            $template_group_id = $template_user_data['Group']['id'];
+            $templateUserId = $templateUserData['User']['id'];
+            $templateGroupId = $templateUserData['Group']['id'];
         }
         
         // update entities----------
-        $tempate_data['Template']['owning_entity_id'] = null;
-        $tempate_data['Template']['visible_entity_id'] = null;
+        $tempateData['Template']['owning_entity_id'] = null;
+        $tempateData['Template']['visible_entity_id'] = null;
         $tmp = array(
             'owner' => array(
-                $tempate_data['Template']['owner'] => &$tempate_data['Template']['owning_entity_id']
+                $tempateData['Template']['owner'] => &$tempateData['Template']['owning_entity_id']
             ),
             'visibility' => array(
-                $tempate_data['Template']['visibility'] => &$tempate_data['Template']['visible_entity_id']
+                $tempateData['Template']['visibility'] => &$tempateData['Template']['visible_entity_id']
             )
         );
         
@@ -171,10 +171,10 @@ class Template extends AppModel
             foreach ($level as $sharing => &$value) {
                 switch ($sharing) {
                     case "user":
-                        $value = $template_user_id;
+                        $value = $templateUserId;
                         break;
                     case "bank":
-                        $value = $template_group_id;
+                        $value = $templateGroupId;
                         break;
                     case "all":
                         $value = '0';

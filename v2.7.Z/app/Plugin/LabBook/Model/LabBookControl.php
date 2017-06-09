@@ -3,7 +3,7 @@
 class LabBookControl extends LabBookAppModel
 {
 
-    public $master_form_alias = 'labbookmasters';
+    public $masterFormAlias = 'labbookmasters';
 
     function getLabBookTypePermissibleValuesFromId()
     {

@@ -1,20 +1,20 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'detail' => '/Administrate/Announcements/detail/%%Announcement.id%%/'
     ),
     'bottom' => array(
-        'add' => "/Administrate/Announcements/add/$linked_model/" . (isset($atim_menu_variables['User.id']) ? $atim_menu_variables['Group.id'] . '/' . $atim_menu_variables['User.id'] . '/' : $atim_menu_variables['Bank.id'])
+        'add' => "/Administrate/Announcements/add/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id'])
     )
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($atim_structure, array(
-    'links' => $structure_links
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
 ));
 	

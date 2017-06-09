@@ -1,8 +1,8 @@
 <?php
 
-function updateHeading(array &$sfs_array, $heading)
+function updateHeading(array &$sfsArray, $heading)
 {
-    foreach ($sfs_array as &$sfs) {
+    foreach ($sfsArray as &$sfs) {
         if ($sfs['flag_edit']) {
             $sfs['language_heading'] = $heading;
             break;
@@ -11,42 +11,42 @@ function updateHeading(array &$sfs_array, $heading)
 }
 
 // preparing structures
-$parent_structure = $samples_structure;
-$parent_structure_w_vol = null;
-$children_structure = $qc_structure;
-$children_structure_w_vol = $qc_volume_structure;
+$parentStructure = $samplesStructure;
+$parentStructureWVol = null;
+$childrenStructure = $qcStructure;
+$childrenStructureWVol = $qcVolumeStructure;
 
 if (isset($this->request->data[0]['parent']['AliquotMaster'])) {
     // we've got aliquots, prep parent with and w/o vol
-    foreach ($parent_structure['Sfs'] as &$sfs) {
+    foreach ($parentStructure['Sfs'] as &$sfs) {
         $sfs['display_column'] -= 10;
     }
     
     // updating headings
-    updateHeading($parent_structure['Sfs'], 'sample');
-    updateHeading($aliquots_structure['Sfs'], 'used aliquot');
-    updateHeading($aliquots_volume_structure['Sfs'], 'used aliquot');
+    updateHeading($parentStructure['Sfs'], 'sample');
+    updateHeading($aliquotsStructure['Sfs'], 'used aliquot');
+    updateHeading($aliquotsVolumeStructure['Sfs'], 'used aliquot');
     
-    $parent_structure_w_vol['Structure'] = array_merge(array(
-        $parent_structure['Structure']
-    ), $aliquots_volume_structure['Structure']);
-    $parent_structure_w_vol['Sfs'] = array_merge($parent_structure['Sfs'], $aliquots_volume_structure['Sfs']);
+    $parentStructureWVol['Structure'] = array_merge(array(
+        $parentStructure['Structure']
+    ), $aliquotsVolumeStructure['Structure']);
+    $parentStructureWVol['Sfs'] = array_merge($parentStructure['Sfs'], $aliquotsVolumeStructure['Sfs']);
     
-    $parent_structure['Structure'] = array(
-        $parent_structure['Structure'],
-        $aliquots_structure['Structure']
+    $parentStructure['Structure'] = array(
+        $parentStructure['Structure'],
+        $aliquotsStructure['Structure']
     );
-    $parent_structure['Sfs'] = array_merge($parent_structure['Sfs'], $aliquots_structure['Sfs']);
+    $parentStructure['Sfs'] = array_merge($parentStructure['Sfs'], $aliquotsStructure['Sfs']);
 }
 
 $links = array(
-    'top' => '/InventoryManagement/QualityCtrls/add/' . $sample_master_id_parameter,
+    'top' => '/InventoryManagement/QualityCtrls/add/' . $sampleMasterIdParameter,
     'bottom' => array(
-        'cancel' => $cancel_button
+        'cancel' => $cancelButton
     )
 );
 
-$options_parent = array(
+$optionsParent = array(
     'type' => 'edit',
     'links' => $links,
     'settings' => array(
@@ -59,7 +59,7 @@ $options_parent = array(
     )
 );
 
-$options_children = array(
+$optionsChildren = array(
     'type' => 'addgrid',
     'links' => $links,
     'settings' => array(
@@ -76,79 +76,79 @@ $options_children = array(
 $first = true;
 $counter = 0;
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // Display empty structure with hidden fields to fix issue#2243 : Derivative in batch: control id not posted when last record is hidden
-$empty_structure_options = $options_parent;
-$empty_structure_options['settings']['form_top'] = true;
-$empty_structure_options['settings']['header'] = '';
-$empty_structure_options['data'] = array();
-$empty_structure_options['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="' . $cancel_button . '"/>';
+$emptyStructureOptions = $optionsParent;
+$emptyStructureOptions['settings']['form_top'] = true;
+$emptyStructureOptions['settings']['header'] = '';
+$emptyStructureOptions['data'] = array();
+$emptyStructureOptions['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="' . $cancelButton . '"/>';
 
-$this->Structures->build(array(), $empty_structure_options);
+$this->Structures->build(array(), $emptyStructureOptions);
 
-if ($display_batch_process_aliq_storage_and_in_stock_details) {
+if ($displayBatchProcessAliqStorageAndInStockDetails) {
     // Form to aplly data to all parents
-    $structure_options = $options_parent;
-    $structure_options['settings']['header'] = array(
+    $structureOptions = $optionsParent;
+    $structureOptions['settings']['header'] = array(
         'title' => __('quality control creation process') . ' : ' . __('data to apply to all'),
         'description' => __('fields values of the section below will be applied to all other sections if entered and will replace sections fields values')
     );
-    $structure_options['settings']['language_heading'] = __('used aliquot');
-    $structure_options['settings']['section_start'] = false;
-    $hook_link = $this->Structures->hook('apply_to_all');
-    $this->Structures->build($batch_process_aliq_storage_and_in_stock_details, $structure_options);
+    $structureOptions['settings']['language_heading'] = __('used aliquot');
+    $structureOptions['settings']['section_start'] = false;
+    $hookLink = $this->Structures->hook('apply_to_all');
+    $this->Structures->build($batchProcessAliqStorageAndInStockDetails, $structureOptions);
 }
 
 // print the layout
 
-$hook_link = $this->Structures->hook('loop');
+$hookLink = $this->Structures->hook('loop');
 
-$final_structure_parent = null;
-$final_structure_children = null;
+$finalStructureParent = null;
+$finalStructureChildren = null;
 
-$one_parent = (sizeof($this->request->data) == 1) ? true : false;
+$oneParent = (sizeof($this->request->data) == 1) ? true : false;
 
 while ($data = array_shift($this->request->data)) {
     $parent = $data['parent'];
     $prefix = isset($parent['AliquotMaster']) ? $parent['AliquotMaster']['id'] : $parent['ViewSample']['sample_master_id'];
-    $final_options_parent = $options_parent;
-    $final_options_children = $options_children;
+    $finalOptionsParent = $optionsParent;
+    $finalOptionsChildren = $optionsChildren;
     
     if (empty($this->request->data)) {
         // last row
-        $final_options_children['settings']['actions'] = true;
-        $final_options_children['settings']['form_bottom'] = true;
-        if (! $one_parent)
-            $final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
+        $finalOptionsChildren['settings']['actions'] = true;
+        $finalOptionsChildren['settings']['form_bottom'] = true;
+        if (! $oneParent)
+            $finalOptionsChildren['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
     }
     
-    $final_options_parent['data'] = $parent;
+    $finalOptionsParent['data'] = $parent;
     
-    $final_options_parent['settings']['header'] .= $one_parent ? '' : " #" . (++ $counter);
-    $final_options_parent['settings']['name_prefix'] = $prefix;
+    $finalOptionsParent['settings']['header'] .= $oneParent ? '' : " #" . (++ $counter);
+    $finalOptionsParent['settings']['name_prefix'] = $prefix;
     
-    $final_options_children['settings']['name_prefix'] = $prefix;
-    $final_options_children['data'] = $data['children'];
+    $finalOptionsChildren['settings']['name_prefix'] = $prefix;
+    $finalOptionsChildren['data'] = $data['children'];
     
     if (isset($parent['AliquotControl']['volume_unit']) && strlen($parent['AliquotControl']['volume_unit']) > 0) {
-        $final_structure_parent = $parent_structure_w_vol;
-        $final_structure_children = $children_structure_w_vol;
-        $final_options_children['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
+        $finalStructureParent = $parentStructureWVol;
+        $finalStructureChildren = $childrenStructureWVol;
+        $finalOptionsChildren['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
     } else {
-        $final_structure_parent = $parent_structure;
-        $final_structure_children = $children_structure;
+        $finalStructureParent = $parentStructure;
+        $finalStructureChildren = $childrenStructure;
     }
     
-    if ($hook_link) {
-        require ($hook_link);
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    $this->Structures->build($final_structure_parent, $final_options_parent);
-    $this->Structures->build($final_structure_children, $final_options_children);
+    $this->Structures->build($finalStructureParent, $finalOptionsParent);
+    $this->Structures->build($finalStructureChildren, $finalOptionsChildren);
 }
 
 ?>

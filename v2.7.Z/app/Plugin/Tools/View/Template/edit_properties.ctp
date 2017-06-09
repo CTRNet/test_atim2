@@ -1,24 +1,24 @@
 <?php
-$structure_links = array(
-    'top' => '/Tools/Template/editProperties/' . $atim_menu_variables['Template.id'] . '/',
+$structureLinks = array(
+    'top' => '/Tools/Template/editProperties/' . $atimMenuVariables['Template.id'] . '/',
     'bottom' => array(
-        'cancel' => '/Tools/Template/edit/' . $atim_menu_variables['Template.id'] . '/'
+        'cancel' => '/Tools/Template/edit/' . $atimMenuVariables['Template.id'] . '/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'edit'
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

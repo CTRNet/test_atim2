@@ -19,18 +19,18 @@ class StructurePermissibleValuesCustom extends AppModel
     static protected function getLanguage()
     {
         if (self::$lang == null) {
-            $tmp_l10n = new L10n();
-            $tmp_l10n_map = $tmp_l10n->map();
-            self::$lang = isset($tmp_l10n_map[$_SESSION['Config']['language']]) ? $tmp_l10n_map[$_SESSION['Config']['language']] : '';
+            $tmpL10n = new L10n();
+            $tmpL10nMap = $tmpL10n->map();
+            self::$lang = isset($tmpL10nMap[$_SESSION['Config']['language']]) ? $tmpL10nMap[$_SESSION['Config']['language']] : '';
         }
         return self::$lang;
     }
 
     function getCustomDropdown(array $args)
     {
-        $control_name = null;
+        $controlName = null;
         if (sizeof($args) == 1) {
-            $control_name = $args['0'];
+            $controlName = $args['0'];
         }
         
         $lang = self::getLanguage();
@@ -42,7 +42,7 @@ class StructurePermissibleValuesCustom extends AppModel
             self::$instance->cacheQueries = true;
         }
         $conditions = array(
-            'StructurePermissibleValuesCustomControl.name' => $control_name
+            'StructurePermissibleValuesCustomControl.name' => $controlName
         );
         $data = self::$instance->find('all', array(
             'conditions' => $conditions,
@@ -63,13 +63,13 @@ class StructurePermissibleValuesCustom extends AppModel
             "defined" => array(),
             "previously_defined" => array()
         );
-        foreach ($data as $data_unit) {
-            $value = $data_unit['StructurePermissibleValuesCustom']['value'];
-            $translated_value = (isset($data_unit['StructurePermissibleValuesCustom'][$lang]) && (! empty($data_unit['StructurePermissibleValuesCustom'][$lang]))) ? $data_unit['StructurePermissibleValuesCustom'][$lang] : $value;
-            if ($data_unit['StructurePermissibleValuesCustom']['use_as_input']) {
-                $result['defined'][$value] = $translated_value;
+        foreach ($data as $dataUnit) {
+            $value = $dataUnit['StructurePermissibleValuesCustom']['value'];
+            $translatedValue = (isset($dataUnit['StructurePermissibleValuesCustom'][$lang]) && (! empty($dataUnit['StructurePermissibleValuesCustom'][$lang]))) ? $dataUnit['StructurePermissibleValuesCustom'][$lang] : $value;
+            if ($dataUnit['StructurePermissibleValuesCustom']['use_as_input']) {
+                $result['defined'][$value] = $translatedValue;
             } else {
-                $result['previously_defined'][$value] = $translated_value;
+                $result['previously_defined'][$value] = $translatedValue;
             }
         }
         if ($data[0]['StructurePermissibleValuesCustom']['display_order'] == 0) {
@@ -81,7 +81,7 @@ class StructurePermissibleValuesCustom extends AppModel
         return $result;
     }
 
-    function getTranslatedCustomDropdownValue($control_name, $value)
+    function getTranslatedCustomDropdownValue($controlName, $value)
     {
         $lang = self::getLanguage();
         
@@ -90,7 +90,7 @@ class StructurePermissibleValuesCustom extends AppModel
             self::$instance->cacheQueries = true;
         }
         $conditions = array(
-            'StructurePermissibleValuesCustomControl.name' => $control_name,
+            'StructurePermissibleValuesCustomControl.name' => $controlName,
             'StructurePermissibleValuesCustom.value' => $value
         );
         $data = self::$instance->find('first', array(
@@ -104,11 +104,11 @@ class StructurePermissibleValuesCustom extends AppModel
 
     function afterSave($created, $options = Array())
     {
-        $control_id = null;
+        $controlId = null;
         if (isset($this->data['StructurePermissibleValuesCustom']['control_id'])) {
-            $control_id = $this->data['StructurePermissibleValuesCustom']['control_id'];
+            $controlId = $this->data['StructurePermissibleValuesCustom']['control_id'];
         } elseif ($this->id) {
-            $control_id = $this->find('first', array(
+            $controlId = $this->find('first', array(
                 'conditions' => array(
                     'StructurePermissibleValuesCustom.id' => $this->id
                 ),
@@ -116,22 +116,22 @@ class StructurePermissibleValuesCustom extends AppModel
                     'StructurePermissibleValuesCustom.control_id'
                 )
             ));
-            $control_id = $control_id['StructurePermissibleValuesCustom']['control_id'];
+            $controlId = $controlId['StructurePermissibleValuesCustom']['control_id'];
         }
-        if ($control_id) {
-            $values_counter = $this->find('count', array(
+        if ($controlId) {
+            $valuesCounter = $this->find('count', array(
                 'conditions' => array(
-                    'StructurePermissibleValuesCustom.control_id' => $control_id
+                    'StructurePermissibleValuesCustom.control_id' => $controlId
                 )
             ));
-            $values_used_as_input_counter = $this->find('count', array(
+            $valuesUsedAsInputCounter = $this->find('count', array(
                 'conditions' => array(
-                    'StructurePermissibleValuesCustom.control_id' => $control_id,
+                    'StructurePermissibleValuesCustom.control_id' => $controlId,
                     'StructurePermissibleValuesCustom.use_as_input' => '1'
                 )
             ));
             $StructurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
-            $this->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $values_counter, values_used_as_input_counter = $values_used_as_input_counter WHERE id = $control_id;");
+            $this->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $valuesCounter, values_used_as_input_counter = $valuesUsedAsInputCounter WHERE id = $controlId;");
         }
         parent::afterSave($created, $options);
     }

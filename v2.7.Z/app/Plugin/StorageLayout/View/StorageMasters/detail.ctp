@@ -3,47 +3,47 @@
 // 1 ** DISPLAY STORAGE FORM **
 
 // Set links and settings
-$structure_links = array();
+$structureLinks = array();
 $settings = array();
 
 // Basic
-$structure_links['bottom']['edit'] = '/StorageLayout/StorageMasters/edit/' . $atim_menu_variables['StorageMaster.id'];
-// TODO: See issue#2702 $structure_links['bottom']['add storage event to stored aliquots'] = '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/' . $atim_menu_variables['StorageMaster.id'];
-if ($is_tma) {
+$structureLinks['bottom']['edit'] = '/StorageLayout/StorageMasters/edit/' . $atimMenuVariables['StorageMaster.id'];
+// TODO: See issue#2702 $structureLinks['bottom']['add storage event to stored aliquots'] = '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/' . $atimMenuVariables['StorageMaster.id'];
+if ($isTma) {
     // No children storage could be added to a TMA block
     // Add button to create slide
-    $structure_links['bottom']['add tma slide'] = '/StorageLayout/TmaSlides/add/' . $atim_menu_variables['StorageMaster.id'];
+    $structureLinks['bottom']['add tma slide'] = '/StorageLayout/TmaSlides/add/' . $atimMenuVariables['StorageMaster.id'];
 } else {
-    $structure_links['bottom']['add to storage'] = $add_links;
+    $structureLinks['bottom']['add to storage'] = $addLinks;
     $settings = array(
         'actions' => false
     );
 }
-$layout_url = str_replace('/detail/', '/storageLayout/', $this->here);
+$layoutUrl = str_replace('/detail/', '/storageLayout/', $this->here);
 
-if (! empty($parent_storage_id)) {
-    $structure_links['bottom']['see parent storage'] = '/StorageLayout/StorageMasters/detail/' . $parent_storage_id;
+if (! empty($parentStorageId)) {
+    $structureLinks['bottom']['see parent storage'] = '/StorageLayout/StorageMasters/detail/' . $parentStorageId;
 }
-$structure_links['bottom']['delete'] = '/StorageLayout/StorageMasters/delete/' . $atim_menu_variables['StorageMaster.id'];
+$structureLinks['bottom']['delete'] = '/StorageLayout/StorageMasters/delete/' . $atimMenuVariables['StorageMaster.id'];
 
 // Clean up based on form type
-if ($is_from_tree_view_or_layout == 1) {
+if ($isFromTreeViewOrLayout == 1) {
     // Display Detail From Tree view
-    unset($structure_links['bottom']['see parent storage']);
-    unset($structure_links['bottom']['search']);
+    unset($structureLinks['bottom']['see parent storage']);
+    unset($structureLinks['bottom']['search']);
     $settings = array(
-        'header' => __($is_tma ? 'TMA-blc' : 'storage')
+        'header' => __($isTma ? 'TMA-blc' : 'storage')
     );
 } else 
-    if ($is_from_tree_view_or_layout == 2) {
+    if ($isFromTreeViewOrLayout == 2) {
         // Display Detail From Storage Layout
-        $structure_links = array();
-        $structure_links['bottom']['access to all data'] = '/StorageLayout/StorageMasters/detail/' . $atim_menu_variables['StorageMaster.id'];
+        $structureLinks = array();
+        $structureLinks['bottom']['access to all data'] = '/StorageLayout/StorageMasters/detail/' . $atimMenuVariables['StorageMaster.id'];
         $settings = array(
-            'header' => __($is_tma ? 'TMA-blc' : 'storage')
+            'header' => __($isTma ? 'TMA-blc' : 'storage')
         );
     } else 
-        if ($is_tma) {
+        if ($isTma) {
             // Main TMA Display
             $settings = array(
                 'actions' => false
@@ -55,77 +55,77 @@ $settings['no_sanitization']['StorageMaster'] = array(
 );
 
 // Set override
-$structure_override = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'settings' => $settings
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-if (! $is_from_tree_view_or_layout) {
-    if ($is_tma) {
+if (! $isFromTreeViewOrLayout) {
+    if ($isTma) {
         // 2 ** DISPLAY TMA SLIDES **
         
-        $final_atim_structure = array();
-        $final_options = array(
-            'links' => $structure_links,
+        $finalAtimStructure = array();
+        $finalOptions = array(
+            'links' => $structureLinks,
             'settings' => array(
                 'header' => __('slides', null),
                 'actions' => false
             ),
             'extras' => array(
-                'end' => $this->Structures->ajaxIndex('StorageLayout/TmaSlides/listAll/' . $atim_menu_variables['StorageMaster.id'] . '/')
+                'end' => $this->Structures->ajaxIndex('StorageLayout/TmaSlides/listAll/' . $atimMenuVariables['StorageMaster.id'] . '/')
             )
         );
         
         // CUSTOM CODE
-        $hook_link = $this->Structures->hook();
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->Structures->hook();
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // BUILD FORM
-        $this->Structures->build($final_atim_structure, $final_options);
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     }
     
     // display layout
-    $final_atim_structure = array();
-    if ($display_layout) {
-        $final_options['extras'] = '
+    $finalAtimStructure = array();
+    if ($displayLayout) {
+        $finalOptions['extras'] = '
 				<div style="display: table; vertical-align: top;">
-					<div style="display: table-row;" id="firstStorageRow" data-storage-url="' . $layout_url . '" data-ctrls="false">
+					<div style="display: table-row;" id="firstStorageRow" data-storage-url="' . $layoutUrl . '" data-ctrls="false">
 						<div style="display: table-cell;" class="loading">---' . __('loading') . '---</div>
 					</div>
 				</div>';
         
-        $final_options['links']['bottom'] = array_merge($final_options['links']['bottom'], array(
+        $finalOptions['links']['bottom'] = array_merge($finalOptions['links']['bottom'], array(
             'move storage content' => array(
-                'link' => '/StorageLayout/StorageMasters/storageLayout/' . $atim_menu_variables['StorageMaster.id'],
+                'link' => '/StorageLayout/StorageMasters/storageLayout/' . $atimMenuVariables['StorageMaster.id'],
                 'icon' => 'edit'
             ),
-            'export as CSV file (comma-separated values)' => sprintf("javascript:setCsvPopup('StorageLayout/StorageMasters/storageLayout/" . $atim_menu_variables['StorageMaster.id'] . "/0/1/');", 0)
+            'export as CSV file (comma-separated values)' => sprintf("javascript:setCsvPopup('StorageLayout/StorageMasters/storageLayout/" . $atimMenuVariables['StorageMaster.id'] . "/0/1/');", 0)
         ));
     } else {
-        $final_options['extras'] = __('no layout exists');
+        $finalOptions['extras'] = __('no layout exists');
     }
-    $final_options['settings']['header'] = __('storage layout');
-    $final_options['settings']['actions'] = true;
-    $hook_link = $this->Structures->hook();
-    if ($hook_link) {
-        require ($hook_link);
+    $finalOptions['settings']['header'] = __('storage layout');
+    $finalOptions['settings']['actions'] = true;
+    $hookLink = $this->Structures->hook();
+    if ($hookLink) {
+        require ($hookLink);
     }
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 ?>
 

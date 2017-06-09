@@ -1,134 +1,134 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
-        'edit' => '/ClinicalAnnotation/TreatmentMasters/edit/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'],
-        'delete' => '/ClinicalAnnotation/TreatmentMasters/delete/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id']
+        'edit' => '/ClinicalAnnotation/TreatmentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'],
+        'delete' => '/ClinicalAnnotation/TreatmentMasters/delete/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id']
     )
 );
 
 // TRT DATA
 
-$structure_settings = array(
-    'actions' => ($is_ajax && ! isset($extend_form_alias)),
-    'form_bottom' => ! ($is_ajax && ! isset($extend_form_alias))
+$structureSettings = array(
+    'actions' => ($isAjax && ! isset($extendFormAlias)),
+    'form_bottom' => ! ($isAjax && ! isset($extendFormAlias))
 );
 
-$structure_override = array();
+$structureOverride = array();
 
-$final_options = array(
-    'links' => $structure_links,
-    'settings' => $structure_settings,
-    'override' => $structure_override
+$finalOptions = array(
+    'links' => $structureLinks,
+    'settings' => $structureSettings,
+    'override' => $structureOverride
 );
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-if (isset($extend_form_alias)) {
-    $structure_settings = array(
+if (isset($extendFormAlias)) {
+    $structureSettings = array(
         'pagination' => false,
-        'actions' => $is_ajax,
-        ($is_ajax ? 'language_heading' : 'header') => ($tx_extend_type ? __($tx_extend_type) : __('precision'))
+        'actions' => $isAjax,
+        ($isAjax ? 'language_heading' : 'header') => ($txExtendType ? __($txExtendType) : __('precision'))
     );
     
-    $structure_links['bottom']['add'][($tx_extend_type ? __($tx_extend_type) : __('add precision'))] = array(
-        'link' => '/ClinicalAnnotation/TreatmentExtendMasters/add/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'],
+    $structureLinks['bottom']['add'][($txExtendType ? __($txExtendType) : __('add precision'))] = array(
+        'link' => '/ClinicalAnnotation/TreatmentExtendMasters/add/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'],
         'icon' => 'treatment precision'
     );
-    if (isset($extended_data_import_process)) {
-        $structure_links['bottom']['add'][($tx_extend_type ? __($tx_extend_type) . ' (' . __('from associated protocol') . ')' : __('import precisions from associated protocol'))] = array(
-            'link' => '/ClinicalAnnotation/TreatmentExtendMasters/' . $extended_data_import_process . '/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'],
+    if (isset($extendedDataImportProcess)) {
+        $structureLinks['bottom']['add'][($txExtendType ? __($txExtendType) . ' (' . __('from associated protocol') . ')' : __('import precisions from associated protocol'))] = array(
+            'link' => '/ClinicalAnnotation/TreatmentExtendMasters/' . $extendedDataImportProcess . '/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'],
             'icon' => 'treatment precision'
         );
     }
     
-    $structure_links['index'] = array(
-        'edit' => '/ClinicalAnnotation/TreatmentExtendMasters/edit/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'] . '/%%TreatmentExtendMaster.id%%',
-        'delete' => '/ClinicalAnnotation/TreatmentExtendMasters/delete/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'] . '/%%TreatmentExtendMaster.id%%'
+    $structureLinks['index'] = array(
+        'edit' => '/ClinicalAnnotation/TreatmentExtendMasters/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'] . '/%%TreatmentExtendMaster.id%%',
+        'delete' => '/ClinicalAnnotation/TreatmentExtendMasters/delete/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'] . '/%%TreatmentExtendMaster.id%%'
     );
     
-    $final_options = array(
-        'data' => $tx_extend_data,
+    $finalOptions = array(
+        'data' => $txExtendData,
         'type' => 'index',
-        'settings' => $structure_settings,
-        'links' => $structure_links
+        'settings' => $structureSettings,
+        'links' => $structureLinks
     );
-    $final_atim_structure = $extend_form_alias;
+    $finalAtimStructure = $extendFormAlias;
     
-    $display_next_sub_form = true;
+    $displayNextSubForm = true;
     
-    $hook_link = $this->Structures->hook('tx_extend_list');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('tx_extend_list');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    if ($display_next_sub_form)
-        $this->Structures->build($final_atim_structure, $final_options);
+    if ($displayNextSubForm)
+        $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 
-if (! $is_ajax) {
+if (! $isAjax) {
     
-    $flag_use_for_ccl = $this->data['TreatmentControl']['flag_use_for_ccl'];
+    $flagUseForCcl = $this->data['TreatmentControl']['flag_use_for_ccl'];
     
     // DIAGNOSTICS
     
-    $structure_settings = array(
+    $structureSettings = array(
         'form_inputs' => false,
         'pagination' => false,
-        'actions' => $flag_use_for_ccl ? false : true,
+        'actions' => $flagUseForCcl ? false : true,
         'form_bottom' => true,
         'header' => __('related diagnosis', null),
         'form_top' => false
     );
     
-    $structure_links['index'] = array(
+    $structureLinks['index'] = array(
         'detail' => '/ClinicalAnnotation/DiagnosisMasters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%'
     );
     
-    $final_options = array(
-        'data' => $diagnosis_data,
+    $finalOptions = array(
+        'data' => $diagnosisData,
         'type' => 'index',
-        'settings' => $structure_settings,
-        'links' => $structure_links
+        'settings' => $structureSettings,
+        'links' => $structureLinks
     );
-    $final_atim_structure = $diagnosis_structure;
+    $finalAtimStructure = $diagnosisStructure;
     
     if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')) {
-        $final_options['type'] = 'detail';
-        $final_atim_structure = array();
-        $final_options['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
+        $finalOptions['type'] = 'detail';
+        $finalAtimStructure = array();
+        $finalOptions['extras'] = '<div>' . __('You are not authorized to access that location.') . '</div>';
     }
     
-    $display_next_sub_form = true;
+    $displayNextSubForm = true;
     
-    $hook_link = $this->Structures->hook('dx_list');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('dx_list');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    if ($display_next_sub_form)
-        $this->Structures->build($final_atim_structure, $final_options);
+    if ($displayNextSubForm)
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     
-    $final_atim_structure = array();
-    $final_options['type'] = 'detail';
-    $final_options['settings']['header'] = __('links to collections');
-    $final_options['settings']['actions'] = true;
-    $final_options['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $atim_menu_variables['Participant.id'] . '/noActions:/filterModel:TreatmentMaster/filterId:' . $atim_menu_variables['TreatmentMaster.id']);
+    $finalAtimStructure = array();
+    $finalOptions['type'] = 'detail';
+    $finalOptions['settings']['header'] = __('links to collections');
+    $finalOptions['settings']['actions'] = true;
+    $finalOptions['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $atimMenuVariables['Participant.id'] . '/noActions:/filterModel:TreatmentMaster/filterId:' . $atimMenuVariables['TreatmentMaster.id']);
     
-    $display_next_sub_form = $flag_use_for_ccl ? true : false;
+    $displayNextSubForm = $flagUseForCcl ? true : false;
     
-    $hook_link = $this->Structures->hook('ccl');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('ccl');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    if ($display_next_sub_form)
-        $this->Structures->build(array(), $final_options);
+    if ($displayNextSubForm)
+        $this->Structures->build(array(), $finalOptions);
 }
 
 ?>

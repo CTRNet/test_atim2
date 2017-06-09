@@ -1,14 +1,14 @@
 <?php
-$structure_links = array(
-    'top' => '/InventoryManagement/QualityCtrls/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['QualityCtrl.id'] . '/',
+$structureLinks = array(
+    'top' => '/InventoryManagement/QualityCtrls/edit/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['QualityCtrl.id'] . '/',
     'bottom' => array(
-        'cancel' => '/InventoryManagement/QualityCtrls/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['QualityCtrl.id'] . '/'
+        'cancel' => '/InventoryManagement/QualityCtrls/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['QualityCtrl.id'] . '/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'edit',
     'settings' => array(
         'form_bottom' => false,
@@ -17,42 +17,42 @@ $final_options = array(
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 // aliquot part
-$aliquot_master_id = $this->request->data['QualityCtrl']['aliquot_master_id'];
-$na_checked = true;
-foreach ($aliquot_data_vol as &$aliquot_data_unit) {
-    if ($aliquot_data_unit['AliquotMaster']['id'] == $aliquot_master_id) {
-        $aliquot_data_unit['QualityCtrl']['aliquot_master_id'] = $aliquot_master_id;
-        $na_checked = false;
+$aliquotMasterId = $this->request->data['QualityCtrl']['aliquot_master_id'];
+$naChecked = true;
+foreach ($aliquotDataVol as &$aliquotDataUnit) {
+    if ($aliquotDataUnit['AliquotMaster']['id'] == $aliquotMasterId) {
+        $aliquotDataUnit['QualityCtrl']['aliquot_master_id'] = $aliquotMasterId;
+        $naChecked = false;
         break;
     }
 }
-if ($na_checked) {
-    foreach ($aliquot_data_no_vol as &$aliquot_data_unit) {
-        if ($aliquot_data_unit['AliquotMaster']['id'] == $aliquot_master_id) {
-            $aliquot_data_unit['QualityCtrl']['aliquot_master_id'] = $aliquot_master_id;
-            $na_checked = false;
+if ($naChecked) {
+    foreach ($aliquotDataNoVol as &$aliquotDataUnit) {
+        if ($aliquotDataUnit['AliquotMaster']['id'] == $aliquotMasterId) {
+            $aliquotDataUnit['QualityCtrl']['aliquot_master_id'] = $aliquotMasterId;
+            $naChecked = false;
             break;
         }
     }
 }
 
-$structure_links['radiolist'] = array(
+$structureLinks['radiolist'] = array(
     'QualityCtrl.aliquot_master_id' => '%%AliquotMaster.id%%'
 );
-$final_atim_structure = $aliquot_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $aliquotStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'index',
-    'data' => array_merge($aliquot_data_vol, $aliquot_data_no_vol),
+    'data' => array_merge($aliquotDataVol, $aliquotDataNoVol),
     'settings' => array(
         'form_top' => false,
         'pagination' => false,
@@ -63,11 +63,11 @@ $final_options = array(
     )
 );
 
-$hook_link = $this->Structures->hook('aliquot');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('aliquot');
+if ($hookLink) {
+    require ($hookLink);
 }
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <table class="structure">
@@ -75,7 +75,7 @@ $this->Structures->build($final_atim_structure, $final_options);
 		<tr>
 			<td style='text-align: left; padding-left: 10px;'>
 			
- 				<?php echo $this->Form->radio('QualityCtrl.aliquot_master_id', array('na' => 'N/A'), array('legend'=>false, 'value'=>false, 'checked' => $na_checked)); ?>
+ 				<?php echo $this->Form->radio('QualityCtrl.aliquot_master_id', array('na' => 'N/A'), array('legend'=>false, 'value'=>false, 'checked' => $naChecked)); ?>
  				
 			</td>
 		</tr>
@@ -83,14 +83,14 @@ $this->Structures->build($final_atim_structure, $final_options);
 </table>
 <?php
 
-$final_atim_structure = array(
+$finalAtimStructure = array(
     'Structure' => array(
         'alias' => ''
     ),
     'Sfs' => array()
 );
-$final_options = array(
-    'links' => $structure_links,
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'detail',
     'data' => array(),
     'settings' => array(
@@ -100,19 +100,19 @@ $final_options = array(
     )
 );
 
-$hook_link = $this->Structures->hook('no_aliquot');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('no_aliquot');
+if ($hookLink) {
+    require ($hookLink);
 }
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-$aliquot_vol_ids = array(
+$aliquotVolIds = array(
     0
 );
-foreach ($aliquot_data_vol as $aliquot_unit) {
-    $aliquot_vol_ids[] = $aliquot_unit['AliquotMaster']['id'];
+foreach ($aliquotDataVol as $aliquotUnit) {
+    $aliquotVolIds[] = $aliquotUnit['AliquotMaster']['id'];
 }
 ?>
 <script>
-	var volumeIds = new Array("<?php echo implode('", "', $aliquot_vol_ids); ?>");
+	var volumeIds = new Array("<?php echo implode('", "', $aliquotVolIds); ?>");
 </script>

@@ -13,17 +13,17 @@ class DrugsController extends DrugAppController
         )
     );
 
-    function search($search_id = 0)
+    function search($searchId = 0)
     {
-        $this->searchHandler($search_id, $this->Drug, 'drugs', '/Drug/Drugs/search');
+        $this->searchHandler($searchId, $this->Drug, 'drugs', '/Drug/Drugs/search');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             $this->render('index');
         }
@@ -31,12 +31,12 @@ class DrugsController extends DrugAppController
 
     function add()
     {
-        $this->set('atim_menu', $this->Menus->get('/Drug/Drugs/search/'));
+        $this->set('atimMenu', $this->Menus->get('/Drug/Drugs/search/'));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
@@ -44,62 +44,62 @@ class DrugsController extends DrugAppController
                 array()
             );
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             
-            $errors_tracking = array();
+            $errorsTracking = array();
             
             // Validation
             
-            $row_counter = 0;
-            foreach ($this->request->data as &$data_unit) {
-                $row_counter ++;
+            $rowCounter = 0;
+            foreach ($this->request->data as &$dataUnit) {
+                $rowCounter ++;
                 $this->Drug->id = null;
-                $this->Drug->set($data_unit);
+                $this->Drug->set($dataUnit);
                 if (! $this->Drug->validates()) {
                     foreach ($this->Drug->validationErrors as $field => $msgs) {
                         $msgs = is_array($msgs) ? $msgs : array(
                             $msgs
                         );
                         foreach ($msgs as $msg)
-                            $errors_tracking[$field][$msg][] = $row_counter;
+                            $errorsTracking[$field][$msg][] = $rowCounter;
                     }
                 }
-                $data_unit = $this->Drug->data;
+                $dataUnit = $this->Drug->data;
             }
-            unset($data_unit);
+            unset($dataUnit);
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
             // Launch Save Process
             
             if (empty($this->request->data)) {
                 $this->Drug->validationErrors[][] = 'at least one record has to be created';
-            } elseif (empty($errors_tracking)) {
+            } elseif (empty($errorsTracking)) {
                 AppModel::acquireBatchViewsUpdateLock();
                 // save all
-                foreach ($this->request->data as $new_data_to_save) {
+                foreach ($this->request->data as $newDataToSave) {
                     $this->Drug->id = null;
                     $this->Drug->data = array();
-                    if (! $this->Drug->save($new_data_to_save, false))
+                    if (! $this->Drug->save($newDataToSave, false))
                         $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
                 }
-                $hook_link = $this->hook('postsave_process_batch');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process_batch');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 AppModel::releaseBatchViewsUpdateLock();
                 $this->atimFlash(__('your data has been updated'), '/Drug/Drugs/search/');
             } else {
                 $this->Drug->validationErrors = array();
-                foreach ($errors_tracking as $field => $msg_and_lines) {
-                    foreach ($msg_and_lines as $msg => $lines) {
+                foreach ($errorsTracking as $field => $msgAndLines) {
+                    foreach ($msgAndLines as $msg => $lines) {
                         $this->Drug->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
                     }
                 }
@@ -107,81 +107,81 @@ class DrugsController extends DrugAppController
         }
     }
 
-    function edit($drug_id)
+    function edit($drugId)
     {
-        $drug_data = $this->Drug->getOrRedirect($drug_id);
+        $drugData = $this->Drug->getOrRedirect($drugId);
         
-        $this->set('atim_menu_variables', array(
-            'Drug.id' => $drug_id
+        $this->set('atimMenuVariables', array(
+            'Drug.id' => $drugId
         ));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $drug_data;
+            $this->request->data = $drugData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->Drug->id = $drug_id;
+            if ($submittedDataValidates) {
+                $this->Drug->id = $drugId;
                 if ($this->Drug->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/Drug/Drugs/detail/' . $drug_id);
+                    $this->atimFlash(__('your data has been updated'), '/Drug/Drugs/detail/' . $drugId);
                 }
             }
         }
     }
 
-    function detail($drug_id)
+    function detail($drugId)
     {
-        $this->request->data = $this->Drug->getOrRedirect($drug_id);
+        $this->request->data = $this->Drug->getOrRedirect($drugId);
         
-        $this->set('atim_menu_variables', array(
-            'Drug.id' => $drug_id
+        $this->set('atimMenuVariables', array(
+            'Drug.id' => $drugId
         ));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function delete($drug_id)
+    function delete($drugId)
     {
-        $drug_data = $this->Drug->getOrRedirect($drug_id);
-        $arr_allow_deletion = $this->Drug->allowDeletion($drug_id);
+        $drugData = $this->Drug->getOrRedirect($drugId);
+        $arrAllowDeletion = $this->Drug->allowDeletion($drugId);
         
         // CUSTOM CODE
         
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
+        if ($arrAllowDeletion['allow_deletion']) {
             $this->Drug->data = null;
-            if ($this->Drug->atimDelete($drug_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($this->Drug->atimDelete($drugId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Drug/Drugs/search/');
             } else {
                 $this->atimFlashError(__('error deleting data - contact administrator'), '/Drug/Drugs/search/');
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Drug/Drugs/detail/' . $drug_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/Drug/Drugs/detail/' . $drugId);
         }
     }
 
@@ -207,8 +207,8 @@ class DrugsController extends DrugAppController
         // query the database
         $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
         $terms = array();
-        foreach (explode(' ', $term) as $key_word)
-            $terms[] = "Drug.generic_name LIKE '%" . $key_word . "%'";
+        foreach (explode(' ', $term) as $keyWord)
+            $terms[] = "Drug.generic_name LIKE '%" . $keyWord . "%'";
         
         $conditions = array(
             'AND' => $terms
@@ -217,9 +217,9 @@ class DrugsController extends DrugAppController
         $order = 'Drug.generic_name ASC';
         $joins = array();
         
-        $hook_link = $this->hook('query_args');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('query_args');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         $data = $this->Drug->find('all', array(
@@ -232,16 +232,16 @@ class DrugsController extends DrugAppController
         
         // build javascript textual array
         $result = "";
-        foreach ($data as $data_unit) {
-            $result .= '"' . $this->Drug->getDrugDataAndCodeForDisplay($data_unit) . '", ';
+        foreach ($data as $dataUnit) {
+            $result .= '"' . $this->Drug->getDrugDataAndCodeForDisplay($dataUnit) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);
         }
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         $this->set('result', "[" . $result . "]");

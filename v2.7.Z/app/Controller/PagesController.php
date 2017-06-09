@@ -81,11 +81,11 @@ class PagesController extends AppController
         $this->set('data', $results);
         
         if (isset($results) && isset($results['Page']) && isset($results['Page']['use_link']) && $results['Page']['use_link']) {
-            $use_link = $results['Page']['use_link'];
+            $useLink = $results['Page']['use_link'];
         } else {
-            $use_link = '/menus';
+            $useLink = '/menus';
         }
         
-        $this->set('atim_menu', $this->Menus->get($use_link));
+        $this->set('atimMenu', $this->Menus->get($useLink));
     }
 }

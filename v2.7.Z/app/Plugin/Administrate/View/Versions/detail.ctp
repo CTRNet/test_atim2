@@ -1,6 +1,6 @@
 <?php
-$structure_links = array();
-$this->Structures->build($atim_structure, array(
+$structureLinks = array();
+$this->Structures->build($atimStructure, array(
     'type' => 'detail',
     'data' => $this->request->data[0],
     'settings' => array(
@@ -9,7 +9,7 @@ $this->Structures->build($atim_structure, array(
 ));
 
 unset($this->request->data[0]);
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'index',
     'data' => $this->request->data,
     'settings' => array(

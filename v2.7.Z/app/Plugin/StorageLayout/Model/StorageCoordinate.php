@@ -13,9 +13,9 @@ class StorageCoordinate extends StorageLayoutAppModel
     /**
      * Define if a storage coordinate can be deleted.
      *
-     * @param $storage_master_id Id
+     * @param $storageMasterId Id
      *            of the studied storage.
-     * @param $storage_coordinate_data Storage
+     * @param $storageCoordinateData Storage
      *            coordinate data.
      *            
      * @return Return results as array:
@@ -26,18 +26,18 @@ class StorageCoordinate extends StorageLayoutAppModel
      * @since 2008-02-04
      *        @updated A. Suggitt
      */
-    function allowDeletion($storage_master_id, $storage_coordinate_data = array())
+    function allowDeletion($storageMasterId, $storageCoordinateData = array())
     {
         // Check storage contains no chlidren storage stored within this position
-        $storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
-        $nbr_children_storages = $storage_master_model->find('count', array(
+        $storageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+        $nbrChildrenStorages = $storageMasterModel->find('count', array(
             'conditions' => array(
-                'StorageMaster.parent_id' => $storage_master_id,
-                'StorageMaster.parent_storage_coord_x' => $storage_coordinate_data['StorageCoordinate']['coordinate_value']
+                'StorageMaster.parent_id' => $storageMasterId,
+                'StorageMaster.parent_storage_coord_x' => $storageCoordinateData['StorageCoordinate']['coordinate_value']
             ),
             'recursive' => '-1'
         ));
-        if ($nbr_children_storages > 0) {
+        if ($nbrChildrenStorages > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'children storage is stored within the storage at this position'
@@ -45,15 +45,15 @@ class StorageCoordinate extends StorageLayoutAppModel
         }
         
         // Verify storage contains no aliquots
-        $aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-        $nbr_storage_aliquots = $aliquot_master_model->find('count', array(
+        $aliquotMasterModel = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+        $nbrStorageAliquots = $aliquotMasterModel->find('count', array(
             'conditions' => array(
-                'AliquotMaster.storage_master_id' => $storage_master_id,
-                'AliquotMaster.storage_coord_x ' => $storage_coordinate_data['StorageCoordinate']['coordinate_value']
+                'AliquotMaster.storage_master_id' => $storageMasterId,
+                'AliquotMaster.storage_coord_x ' => $storageCoordinateData['StorageCoordinate']['coordinate_value']
             ),
             'recursive' => '-1'
         ));
-        if ($nbr_storage_aliquots > 0) {
+        if ($nbrStorageAliquots > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'aliquot is stored within the storage at this position'
@@ -69,9 +69,9 @@ class StorageCoordinate extends StorageLayoutAppModel
     /**
      * Check the coordinate value does not already exists and set error if not.
      *
-     * @param $storage_master_id Id
+     * @param $storageMasterId Id
      *            of the studied storage.
-     * @param $new_coordinate_value New
+     * @param $newCoordinateValue New
      *            coordinate value.
      *            
      * @return Return true if the storage coordinate has already been set.
@@ -80,17 +80,17 @@ class StorageCoordinate extends StorageLayoutAppModel
      * @since 2008-02-04
      *        @updated A. Suggitt
      */
-    function isDuplicatedValue($storage_master_id, $new_coordinate_value)
+    function isDuplicatedValue($storageMasterId, $newCoordinateValue)
     {
-        $nbr_coord_values = $this->find('count', array(
+        $nbrCoordValues = $this->find('count', array(
             'conditions' => array(
-                'StorageCoordinate.storage_master_id' => $storage_master_id,
-                'StorageCoordinate.coordinate_value' => $new_coordinate_value
+                'StorageCoordinate.storage_master_id' => $storageMasterId,
+                'StorageCoordinate.coordinate_value' => $newCoordinateValue
             ),
             'recursive' => '-1'
         ));
         
-        if ($nbr_coord_values == 0) {
+        if ($nbrCoordValues == 0) {
             return false;
         }
         
@@ -103,9 +103,9 @@ class StorageCoordinate extends StorageLayoutAppModel
     /**
      * Check the coordinate order does not already exists and set error if not.
      *
-     * @param $storage_master_id Id
+     * @param $storageMasterId Id
      *            of the studied storage.
-     * @param $new_coordinate_order New
+     * @param $newCoordinateOrder New
      *            coordinate order.
      *            
      * @return Return true if the storage coordinate order has already been set.
@@ -114,17 +114,17 @@ class StorageCoordinate extends StorageLayoutAppModel
      * @since 2008-02-04
      *        @updated A. Suggitt
      */
-    function isDuplicatedOrder($storage_master_id, $new_coordinate_order)
+    function isDuplicatedOrder($storageMasterId, $newCoordinateOrder)
     {
-        $nbr_coord_values = $this->find('count', array(
+        $nbrCoordValues = $this->find('count', array(
             'conditions' => array(
-                'StorageCoordinate.storage_master_id' => $storage_master_id,
-                'StorageCoordinate.order' => $new_coordinate_order
+                'StorageCoordinate.storage_master_id' => $storageMasterId,
+                'StorageCoordinate.order' => $newCoordinateOrder
             ),
             'recursive' => '-1'
         ));
         
-        if ($nbr_coord_values == 0) {
+        if ($nbrCoordValues == 0) {
             return false;
         }
         

@@ -1,32 +1,32 @@
 <?php
-$structure_links = array(
-    'top' => '/StorageLayout/StorageMasters/edit/' . $atim_menu_variables['StorageMaster.id'],
+$structureLinks = array(
+    'top' => '/StorageLayout/StorageMasters/edit/' . $atimMenuVariables['StorageMaster.id'],
     'bottom' => array(
-        'cancel' => '/StorageLayout/StorageMasters/detail/' . $atim_menu_variables['StorageMaster.id']
+        'cancel' => '/StorageLayout/StorageMasters/detail/' . $atimMenuVariables['StorageMaster.id']
     )
 );
 
-$structure_override = array();
+$structureOverride = array();
 
-if (isset($predefined_parent_storage_selection_label))
-    $structure_override['FunctionManagement.recorded_storage_selection_label'] = $predefined_parent_storage_selection_label;
+if (isset($predefinedParentStorageSelectionLabel))
+    $structureOverride['FunctionManagement.recorded_storage_selection_label'] = $predefinedParentStorageSelectionLabel;
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride
 );
-$final_options['settings']['no_sanitization']['StorageMaster'] = array(
+$finalOptions['settings']['no_sanitization']['StorageMaster'] = array(
     'layout_description'
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

@@ -1,59 +1,59 @@
 <?php
-if (isset($linked_records_headers)) {
+if (isset($linkedRecordsHeaders)) {
     
     // Manage all lists display
     
-    if ($linked_records_headers) {
+    if ($linkedRecordsHeaders) {
         $counter = 0;
-        foreach ($linked_records_headers as $new_list_header) {
+        foreach ($linkedRecordsHeaders as $newListHeader) {
             $counter ++;
-            $final_options = array(
+            $finalOptions = array(
                 'type' => 'detail',
                 'links' => array(),
                 'settings' => array(
-                    'header' => __($new_list_header, null),
-                    'actions' => ($counter == sizeof($linked_records_headers)) ? true : false
+                    'header' => __($newListHeader, null),
+                    'actions' => ($counter == sizeof($linkedRecordsHeaders)) ? true : false
                 ),
                 'extras' => array(
-                    'end' => $this->Structures->ajaxIndex('Study/StudySummaries/listAllLinkedRecords/' . $atim_menu_variables['StudySummary.id'] . "/$new_list_header")
+                    'end' => $this->Structures->ajaxIndex('Study/StudySummaries/listAllLinkedRecords/' . $atimMenuVariables['StudySummary.id'] . "/$newListHeader")
                 )
             );
-            $final_atim_structure = array();
+            $finalAtimStructure = array();
             
-            $hook_link = $this->Structures->hook();
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->Structures->hook();
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            $this->Structures->build($final_atim_structure, $final_options);
+            $this->Structures->build($finalAtimStructure, $finalOptions);
         }
     } else {
-        $final_options = array(
+        $finalOptions = array(
             'type' => 'detail',
             'extras' => '<div>' . __('core_no_data_available') . '</div>'
         );
-        $final_atim_structure = array();
+        $finalAtimStructure = array();
         
-        $this->Structures->build($final_atim_structure, $final_options);
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 } else {
     
     // Specific list display
     
-    if (! AppController::checkLinkPermission($permission_link)) {
-        $final_options = array(
+    if (! AppController::checkLinkPermission($permissionLink)) {
+        $finalOptions = array(
             'type' => 'detail',
             'extras' => '<div>' . __('You are not authorized to access that location.') . '</div>'
         );
-        $final_atim_structure = array();
-        $this->Structures->build($final_atim_structure, $final_options);
+        $finalAtimStructure = array();
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     } else {
-        $final_atim_structure = $atim_structure;
-        $final_options = array(
+        $finalAtimStructure = $atimStructure;
+        $finalOptions = array(
             'type' => 'index',
             'links' => array(
                 'index' => array(
-                    'detail' => $details_url
+                    'detail' => $detailsUrl
                 )
             ),
             'settings' => array(
@@ -62,14 +62,14 @@ if (isset($linked_records_headers)) {
             ),
             'override' => array()
         );
-        $final_atim_structure = $atim_structure;
+        $finalAtimStructure = $atimStructure;
         
-        $hook_link = $this->Structures->hook('specific_list');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->Structures->hook('specific_list');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        $this->Structures->build($final_atim_structure, $final_options);
+        $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }
 

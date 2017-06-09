@@ -15,15 +15,15 @@ class BanksController extends AdministrateAppController
 
     function add()
     {
-        $this->set('atim_menu', $this->Menus->get('/Administrate/Banks/index'));
+        $this->set('atimMenu', $this->Menus->get('/Administrate/Banks/index'));
         
         $this->hook();
         
         if (! empty($this->request->data)) {
             if ($this->Bank->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been updated'), '/Administrate/Banks/detail/' . $this->Bank->id);
             }
@@ -36,63 +36,63 @@ class BanksController extends AdministrateAppController
         $this->request->data = $this->paginate($this->Bank);
     }
 
-    function detail($bank_id)
+    function detail($bankId)
     {
-        $this->set('atim_menu_variables', array(
-            'Bank.id' => $bank_id
+        $this->set('atimMenuVariables', array(
+            'Bank.id' => $bankId
         ));
         $this->hook();
         $this->request->data = $this->Bank->find('first', array(
             'conditions' => array(
-                'Bank.id' => $bank_id
+                'Bank.id' => $bankId
             )
         ));
     }
 
-    function edit($bank_id)
+    function edit($bankId)
     {
-        $this->set('atim_menu_variables', array(
-            'Bank.id' => $bank_id
+        $this->set('atimMenuVariables', array(
+            'Bank.id' => $bankId
         ));
         
         $this->hook();
         
         if (! empty($this->request->data)) {
-            $this->Bank->id = $bank_id;
+            $this->Bank->id = $bankId;
             if ($this->Bank->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been updated'), '/Administrate/Banks/detail/' . $bank_id);
+                $this->atimFlash(__('your data has been updated'), '/Administrate/Banks/detail/' . $bankId);
             }
         } else {
             $this->request->data = $this->Bank->find('first', array(
                 'conditions' => array(
-                    'Bank.id' => $bank_id
+                    'Bank.id' => $bankId
                 )
             ));
         }
     }
 
-    function delete($bank_id)
+    function delete($bankId)
     {
-        $arr_allow_deletion = $this->Bank->allowDeletion($bank_id);
+        $arrAllowDeletion = $this->Bank->allowDeletion($bankId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook();
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook();
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->Bank->atimDelete($bank_id)) {
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->Bank->atimDelete($bankId)) {
                 $this->atimFlash(__('your data has been deleted'), '/Administrate/Banks/index');
             } else {
                 $this->atimFlashError(__('error deleting data - contact administrator'), '/Administrate/Banks/index');
             }
         } else {
-            $this->atimFlashWarning(__('this bank is being used and cannot be deleted') . ': ' . __($arr_allow_deletion['msg']), '/Administrate/Banks/detail/' . $bank_id . "/");
+            $this->atimFlashWarning(__('this bank is being used and cannot be deleted') . ': ' . __($arrAllowDeletion['msg']), '/Administrate/Banks/detail/' . $bankId . "/");
         }
     }
 }

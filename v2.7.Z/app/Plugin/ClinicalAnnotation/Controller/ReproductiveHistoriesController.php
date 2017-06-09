@@ -14,203 +14,203 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participant_id)
+    function listall($participantId)
     {
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         $this->request->data = $this->paginate($this->ReproductiveHistory, array(
-            'ReproductiveHistory.participant_id' => $participant_id
+            'ReproductiveHistory.participant_id' => $participantId
         ));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($participant_id, $reproductive_history_id)
+    function detail($participantId, $reproductiveHistoryId)
     {
-        if (! $participant_id && ! $reproductive_history_id) {
+        if (! $participantId && ! $reproductiveHistoryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $reproductive_data = $this->ReproductiveHistory->find('first', array(
+        $reproductiveData = $this->ReproductiveHistory->find('first', array(
             'conditions' => array(
-                'ReproductiveHistory.id' => $reproductive_history_id,
-                'ReproductiveHistory.participant_id' => $participant_id
+                'ReproductiveHistory.id' => $reproductiveHistoryId,
+                'ReproductiveHistory.participant_id' => $participantId
             ),
             'recursive' => '-1'
         ));
-        if (empty($reproductive_data)) {
+        if (empty($reproductiveData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->request->data = $reproductive_data;
+        $this->request->data = $reproductiveData;
         
         $this->request->data = $this->ReproductiveHistory->find('first', array(
             'conditions' => array(
-                'ReproductiveHistory.id' => $reproductive_history_id
+                'ReproductiveHistory.id' => $reproductiveHistoryId
             )
         ));
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ReproductiveHistory.id' => $reproductive_history_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ReproductiveHistory.id' => $reproductiveHistoryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($participant_id = null)
+    function add($participantId = null)
     {
-        if (! $participant_id) {
+        if (! $participantId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
-            $this->request->data['ReproductiveHistory']['participant_id'] = $participant_id;
+            $this->request->data['ReproductiveHistory']['participant_id'] = $participantId;
             $this->ReproductiveHistory->addWritableField('participant_id');
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 if ($this->ReproductiveHistory->save($this->request->data)) {
-                    $url_to_flash = '/ClinicalAnnotation/ReproductiveHistories/detail/' . $participant_id . '/' . $this->ReproductiveHistory->id;
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $urlToFlash = '/ClinicalAnnotation/ReproductiveHistories/detail/' . $participantId . '/' . $this->ReproductiveHistory->id;
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been saved'), $url_to_flash);
+                    $this->atimFlash(__('your data has been saved'), $urlToFlash);
                 }
             }
         }
     }
 
-    function edit($participant_id, $reproductive_history_id)
+    function edit($participantId, $reproductiveHistoryId)
     {
-        if ((! $participant_id) && (! $reproductive_history_id)) {
+        if ((! $participantId) && (! $reproductiveHistoryId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $reproductive_history_data = $this->ReproductiveHistory->find('first', array(
+        $reproductiveHistoryData = $this->ReproductiveHistory->find('first', array(
             'conditions' => array(
-                'ReproductiveHistory.id' => $reproductive_history_id,
-                'ReproductiveHistory.participant_id' => $participant_id
+                'ReproductiveHistory.id' => $reproductiveHistoryId,
+                'ReproductiveHistory.participant_id' => $participantId
             )
         ));
-        if (empty($reproductive_history_data)) {
+        if (empty($reproductiveHistoryData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ReproductiveHistory.id' => $reproductive_history_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ReproductiveHistory.id' => $reproductiveHistoryId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $reproductive_history_data;
+            $this->request->data = $reproductiveHistoryData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->ReproductiveHistory->id = $reproductive_history_id;
+            if ($submittedDataValidates) {
+                $this->ReproductiveHistory->id = $reproductiveHistoryId;
                 if ($this->ReproductiveHistory->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ReproductiveHistories/detail/' . $participant_id . '/' . $reproductive_history_id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ReproductiveHistories/detail/' . $participantId . '/' . $reproductiveHistoryId);
                 }
             }
         }
     }
 
-    function delete($participant_id, $reproductive_history_id)
+    function delete($participantId, $reproductiveHistoryId)
     {
-        if ((! $participant_id) && (! $reproductive_history_id)) {
+        if ((! $participantId) && (! $reproductiveHistoryId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $reproductive_history_data = $this->ReproductiveHistory->find('first', array(
+        $reproductiveHistoryData = $this->ReproductiveHistory->find('first', array(
             'conditions' => array(
-                'ReproductiveHistory.id' => $reproductive_history_id,
-                'ReproductiveHistory.participant_id' => $participant_id
+                'ReproductiveHistory.id' => $reproductiveHistoryId,
+                'ReproductiveHistory.participant_id' => $participantId
             )
         ));
-        if (empty($reproductive_history_data)) {
+        if (empty($reproductiveHistoryData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->ReproductiveHistory->allowDeletion($reproductive_history_id);
+        $arrAllowDeletion = $this->ReproductiveHistory->allowDeletion($reproductiveHistoryId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
+        if ($arrAllowDeletion['allow_deletion']) {
             // DELETE DATA
-            $flash_link = '/ClinicalAnnotation/ReproductiveHistories/listall/' . $participant_id;
-            if ($this->ReproductiveHistory->atimDelete($reproductive_history_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            $flashLink = '/ClinicalAnnotation/ReproductiveHistories/listall/' . $participantId;
+            if ($this->ReproductiveHistory->atimDelete($reproductiveHistoryId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), $flash_link);
+                $this->atimFlash(__('your data has been deleted'), $flashLink);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), $flash_link);
+                $this->atimFlashError(__('error deleting data - contact administrator'), $flashLink);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ReproductiveHistories/detail/' . $participant_id . '/' . $reproductive_history_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/ReproductiveHistories/detail/' . $participantId . '/' . $reproductiveHistoryId);
         }
     }
 }

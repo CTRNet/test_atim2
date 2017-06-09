@@ -14,7 +14,7 @@ class QualityCtrl extends InventoryManagementAppModel
         )
     );
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'QualityCtrl.id'
         )
@@ -32,7 +32,7 @@ class QualityCtrl extends InventoryManagementAppModel
                 'QualityCtrl.id' => $variables['QualityCtrl.id']
             );
             
-            $qc_data = $this->find('first', array(
+            $qcData = $this->find('first', array(
                 'conditions' => $criteria
             ));
             
@@ -40,13 +40,13 @@ class QualityCtrl extends InventoryManagementAppModel
             $return = array(
                 'menu' => array(
                     __('quality control abbreviation'),
-                    ' : ' . $qc_data['QualityCtrl']['run_id']
+                    ' : ' . $qcData['QualityCtrl']['run_id']
                 ),
                 'title' => array(
                     null,
-                    __('quality control abbreviation') . ' : ' . $qc_data['QualityCtrl']['run_id']
+                    __('quality control abbreviation') . ' : ' . $qcData['QualityCtrl']['run_id']
                 ),
-                'data' => $qc_data,
+                'data' => $qcData,
                 'structure alias' => 'qualityctrls'
             );
         }
@@ -57,7 +57,7 @@ class QualityCtrl extends InventoryManagementAppModel
     /**
      * Check if a quality control can be deleted.
      *
-     * @param $quality_ctrl_id Id
+     * @param $qualityCtrlId Id
      *            of the studied quality control.
      *            
      * @return Return results as array:
@@ -67,7 +67,7 @@ class QualityCtrl extends InventoryManagementAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($quality_ctrl_id)
+    function allowDeletion($qualityCtrlId)
     {
         return array(
             'allow_deletion' => true,
@@ -79,11 +79,11 @@ class QualityCtrl extends InventoryManagementAppModel
      * Create code of a new quality control.
      *
      *
-     * @param $qc_id ID
+     * @param $qcId ID
      *            of the studied quality control.
-     * @param $qc_data Data
+     * @param $qcData Data
      *            of the quality control.
-     * @param $sample_data Data
+     * @param $sampleData Data
      *            of the sample linked to this quality control.
      *            
      * @return The new code.
@@ -93,14 +93,14 @@ class QualityCtrl extends InventoryManagementAppModel
      * @deprecated
      *
      */
-    function createCode($qc_id, $storage_data, $qc_data = null, $sample_data = null)
+    function createCode($qcId, $storageData, $qcData = null, $sampleData = null)
     {
         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
     }
 
     function generateQcCode()
     {
-        $qc_to_update = $this->find('all', array(
+        $qcToUpdate = $this->find('all', array(
             'conditions' => array(
                 'QualityCtrl.qc_code IS NULL'
             ),
@@ -109,19 +109,19 @@ class QualityCtrl extends InventoryManagementAppModel
             ),
             'recursive' => 1
         ));
-        foreach ($qc_to_update as $new_qc) {
-            $new_qc_id = $new_qc['QualityCtrl']['id'];
-            $qc_data = array(
+        foreach ($qcToUpdate as $newQc) {
+            $newQcId = $newQc['QualityCtrl']['id'];
+            $qcData = array(
                 'QualityCtrl' => array(
-                    'qc_code' => 'QC - ' . $new_qc_id
+                    'qc_code' => 'QC - ' . $newQcId
                 )
             );
-            $this->id = $new_qc_id;
+            $this->id = $newQcId;
             $this->data = null;
             $this->addWritableField(array(
                 'qc_code'
             ));
-            $this->save($qc_data, false);
+            $this->save($qcData, false);
         }
     }
 }

@@ -1,5 +1,5 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
         'detail' => '/material/materials/detail/%%Material.id%%'
     ),
@@ -9,9 +9,9 @@ $structure_links = array(
     )
 );
 
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 ));
 
 ?>

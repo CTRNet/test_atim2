@@ -1,30 +1,30 @@
 <?php
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/FamilyHistories/add/' . $atim_menu_variables['Participant.id'] . '/',
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/FamilyHistories/add/' . $atimMenuVariables['Participant.id'] . '/',
     'bottom' => array(
-        'cancel' => '/ClinicalAnnotation/FamilyHistories/listall/' . $atim_menu_variables['Participant.id'] . '/'
+        'cancel' => '/ClinicalAnnotation/FamilyHistories/listall/' . $atimMenuVariables['Participant.id'] . '/'
     )
 );
 
-$structure_settings = array(
+$structureSettings = array(
     'pagination' => false,
     'add_fields' => true,
     'del_fields' => true
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'addgrid',
-    'settings' => $structure_settings
+    'settings' => $structureSettings
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <script type="text/javascript">

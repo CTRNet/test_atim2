@@ -1,28 +1,28 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
-        'detail' => '/InventoryManagement/QualityCtrls/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/%%QualityCtrl.id%%',
-        'edit' => '/InventoryManagement/QualityCtrls/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/%%QualityCtrl.id%%',
-        'delete' => '/InventoryManagement/QualityCtrls/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/%%QualityCtrl.id%%'
+        'detail' => '/InventoryManagement/QualityCtrls/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/%%QualityCtrl.id%%',
+        'edit' => '/InventoryManagement/QualityCtrls/edit/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/%%QualityCtrl.id%%',
+        'delete' => '/InventoryManagement/QualityCtrls/delete/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/%%QualityCtrl.id%%'
     ),
     'bottom' => array(
-        'add' => '/InventoryManagement/QualityCtrls/addInit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/'
+        'add' => '/InventoryManagement/QualityCtrls/addInit/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

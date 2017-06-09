@@ -21,13 +21,13 @@ class Order extends OrderAppModel
         )
     );
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'Order.id'
         )
     );
 
-    public static $study_model = null;
+    public static $studyModel = null;
 
     function summary($variables = array())
     {
@@ -71,37 +71,37 @@ class Order extends OrderAppModel
      */
     function validateAndUpdateOrderStudyData()
     {
-        $order_data = & $this->data;
+        $orderData = & $this->data;
         
         // check data structure
-        $tmp_arr_to_check = array_values($order_data);
-        if ((! is_array($order_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['Order']))) {
+        $tmpArrToCheck = array_values($orderData);
+        if ((! is_array($orderData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['Order']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Launch validation
-        if (array_key_exists('FunctionManagement', $order_data) && array_key_exists('autocomplete_order_study_summary_id', $order_data['FunctionManagement'])) {
-            $order_data['Order']['study_summary_id'] = null;
-            $order_data['FunctionManagement']['autocomplete_order_default_study_summary_id'] = trim($order_data['FunctionManagement']['autocomplete_order_study_summary_id']);
+        if (array_key_exists('FunctionManagement', $orderData) && array_key_exists('autocomplete_order_study_summary_id', $orderData['FunctionManagement'])) {
+            $orderData['Order']['study_summary_id'] = null;
+            $orderData['FunctionManagement']['autocomplete_order_default_study_summary_id'] = trim($orderData['FunctionManagement']['autocomplete_order_study_summary_id']);
             $this->addWritableField(array(
                 'default_study_summary_id'
             ));
-            if (strlen($order_data['FunctionManagement']['autocomplete_order_study_summary_id'])) {
+            if (strlen($orderData['FunctionManagement']['autocomplete_order_study_summary_id'])) {
                 // Load model
-                if (self::$study_model == null)
-                    self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
-                    
-                    // Check the aliquot internal use study definition
-                $arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($order_data['FunctionManagement']['autocomplete_order_study_summary_id']);
+                if (self::$studyModel == null)
+                    self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
+                
+                // Check the aliquot internal use study definition
+                $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($orderData['FunctionManagement']['autocomplete_order_study_summary_id']);
                 
                 // Set study summary id
-                if (isset($arr_study_selection_results['StudySummary'])) {
-                    $order_data['Order']['default_study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+                if (isset($arrStudySelectionResults['StudySummary'])) {
+                    $orderData['Order']['default_study_summary_id'] = $arrStudySelectionResults['StudySummary']['id'];
                 }
                 
                 // Set error
-                if (isset($arr_study_selection_results['error'])) {
-                    $this->validationErrors['autocomplete_order_study_summary_id'][] = $arr_study_selection_results['error'];
+                if (isset($arrStudySelectionResults['error'])) {
+                    $this->validationErrors['autocomplete_order_study_summary_id'][] = $arrStudySelectionResults['error'];
                 }
             }
         }
@@ -110,7 +110,7 @@ class Order extends OrderAppModel
     /**
      * Check if an order can be deleted.
      *
-     * @param $order_id Id
+     * @param $orderId Id
      *            of the studied order.
      *            
      * @return Return results as array:
@@ -120,17 +120,17 @@ class Order extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($order_id)
+    function allowDeletion($orderId)
     {
         // Check no order line exists
-        $order_item_model = AppModel::getInstance("Order", "OrderItem", true);
-        $returned_nbr = $order_item_model->find('count', array(
+        $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
+        $returnedNbr = $orderItemModel->find('count', array(
             'conditions' => array(
-                'OrderItem.order_id' => $order_id
+                'OrderItem.order_id' => $orderId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'order item exists for the deleted order'
@@ -138,14 +138,14 @@ class Order extends OrderAppModel
         }
         
         // Check no order line exists
-        $order_ling_model = AppModel::getInstance("Order", "OrderLine", true);
-        $returned_nbr = $order_ling_model->find('count', array(
+        $orderLingModel = AppModel::getInstance("Order", "OrderLine", true);
+        $returnedNbr = $orderLingModel->find('count', array(
             'conditions' => array(
-                'OrderLine.order_id' => $order_id
+                'OrderLine.order_id' => $orderId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'order line exists for the deleted order'
@@ -153,14 +153,14 @@ class Order extends OrderAppModel
         }
         
         // Check no order line exists
-        $shipment_model = AppModel::getInstance("Order", "Shipment", true);
-        $returned_nbr = $shipment_model->find('count', array(
+        $shipmentModel = AppModel::getInstance("Order", "Shipment", true);
+        $returnedNbr = $shipmentModel->find('count', array(
             'conditions' => array(
-                'Shipment.order_id' => $order_id
+                'Shipment.order_id' => $orderId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'shipment exists for the deleted order'
@@ -173,12 +173,12 @@ class Order extends OrderAppModel
         );
     }
 
-    function warnUnconsentedAliquots($order_id)
+    function warnUnconsentedAliquots($orderId)
     {
-        $order_item_model = AppModel::getInstance("Order", "OrderItem", true);
-        $order_item_data = $order_item_model->find('all', array(
+        $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
+        $orderItemData = $orderItemModel->find('all', array(
             'conditions' => array(
-                'OrderItem.order_id' => $order_id,
+                'OrderItem.order_id' => $orderId,
                 'OrderItem.aliquot_master_id IS NOT NULL'
             ),
             'fields' => array(
@@ -187,22 +187,22 @@ class Order extends OrderAppModel
             'recursive' => '0'
         ));
         
-        if (empty($order_item_data)) {
+        if (empty($orderItemData)) {
             return;
         }
         
-        $aliquot_ids = array();
-        foreach ($order_item_data as $order_item_data_unit) {
-            $aliquot_ids[] = $order_item_data_unit['OrderItem']['aliquot_master_id'];
+        $aliquotIds = array();
+        foreach ($orderItemData as $orderItemDataUnit) {
+            $aliquotIds[] = $orderItemDataUnit['OrderItem']['aliquot_master_id'];
         }
         
-        if (! empty($aliquot_ids)) {
-            $aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-            $unconsented_aliquots = $aliquot_master_model->getUnconsentedAliquots(array(
-                'id' => $aliquot_ids
+        if (! empty($aliquotIds)) {
+            $aliquotMasterModel = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+            $unconsentedAliquots = $aliquotMasterModel->getUnconsentedAliquots(array(
+                'id' => $aliquotIds
             ));
-            if (! empty($unconsented_aliquots)) {
-                AppController::addWarningMsg(__('aliquot(s) without a proper consent') . ": " . count($unconsented_aliquots));
+            if (! empty($unconsentedAliquots)) {
+                AppController::addWarningMsg(__('aliquot(s) without a proper consent') . ": " . count($unconsentedAliquots));
             }
         }
     }

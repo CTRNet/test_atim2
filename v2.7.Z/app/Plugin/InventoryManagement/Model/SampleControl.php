@@ -3,7 +3,7 @@
 class SampleControl extends InventoryManagementAppModel
 {
 
-    public $master_form_alias = 'sample_masters';
+    public $masterFormAlias = 'sample_masters';
 
     public $actsAs = array(
         'OrderByTranslate' => array(
@@ -70,7 +70,7 @@ class SampleControl extends InventoryManagementAppModel
         return $this->getSamplesPermissibleValues(true, true);
     }
 
-    function getSamplesPermissibleValues($by_id, $only_specimen, $dont_limit_to_samples_that_can_be_parents = true)
+    function getSamplesPermissibleValues($byId, $onlySpecimen, $dontLimitToSamplesThatCanBeParents = true)
     {
         $result = array();
         
@@ -79,13 +79,13 @@ class SampleControl extends InventoryManagementAppModel
         $conditions = array(
             'ParentToDerivativeSampleControl.flag_active' => true
         );
-        if ($only_specimen) {
+        if ($onlySpecimen) {
             $conditions['DerivativeControl.sample_category'] = 'specimen';
         }
         $controls = null;
-        $model_name = null;
-        if ($dont_limit_to_samples_that_can_be_parents) {
-            $model_name = 'DerivativeControl';
+        $modelName = null;
+        if ($dontLimitToSamplesThatCanBeParents) {
+            $modelName = 'DerivativeControl';
             $controls = $this->ParentToDerivativeSampleControl->find('all', array(
                 'conditions' => $conditions,
                 'fields' => array(
@@ -93,7 +93,7 @@ class SampleControl extends InventoryManagementAppModel
                 )
             ));
         } else {
-            $model_name = 'ParentSampleControl';
+            $modelName = 'ParentSampleControl';
             $conditions['NOT'] = array(
                 'ParentToDerivativeSampleControl.parent_sample_control_id' => NULL
             );
@@ -106,13 +106,13 @@ class SampleControl extends InventoryManagementAppModel
             ));
         }
         
-        if ($by_id) {
+        if ($byId) {
             foreach ($controls as $control) {
-                $result[$control[$model_name]['id']] = __($control[$model_name]['sample_type']);
+                $result[$control[$modelName]['id']] = __($control[$modelName]['sample_type']);
             }
         } else {
             foreach ($controls as $control) {
-                $result[$control[$model_name]['sample_type']] = __($control[$model_name]['sample_type']);
+                $result[$control[$modelName]['sample_type']] = __($control[$modelName]['sample_type']);
             }
         }
         natcasesort($result);
@@ -123,7 +123,7 @@ class SampleControl extends InventoryManagementAppModel
     /**
      * Gets a list of sample types that could be created from a sample type.
      *
-     * @param $sample_control_id ID
+     * @param $sampleControlId ID
      *            of the sample control linked to the studied sample.
      *            
      * @return List of allowed aliquot types stored into the following array:
@@ -133,15 +133,15 @@ class SampleControl extends InventoryManagementAppModel
      * @since 2009-11-01
      * @author FMLH 2010-08-04 (new flag_active policy)
      */
-    function getPermissibleSamplesArray($parent_id)
+    function getPermissibleSamplesArray($parentId)
     {
         $conditions = array(
             'ParentToDerivativeSampleControl.flag_active' => true
         );
-        if ($parent_id == null) {
+        if ($parentId == null) {
             $conditions[] = 'ParentToDerivativeSampleControl.parent_sample_control_id IS NULL';
         } else {
-            $conditions['ParentToDerivativeSampleControl.parent_sample_control_id'] = $parent_id;
+            $conditions['ParentToDerivativeSampleControl.parent_sample_control_id'] = $parentId;
         }
         
         $this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
@@ -151,11 +151,11 @@ class SampleControl extends InventoryManagementAppModel
                 'DerivativeControl.*'
             )
         ));
-        $specimen_sample_controls_list = array();
+        $specimenSampleControlsList = array();
         foreach ($controls as $control) {
-            $specimen_sample_controls_list[$control['DerivativeControl']['id']]['SampleControl'] = $control['DerivativeControl'];
+            $specimenSampleControlsList[$control['DerivativeControl']['id']]['SampleControl'] = $control['DerivativeControl'];
         }
-        return $specimen_sample_controls_list;
+        return $specimenSampleControlsList;
     }
 
     function afterFind($results, $primary = false)

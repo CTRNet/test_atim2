@@ -1,25 +1,25 @@
 <?php
-$structure_links = array(
-    'top' => '/Sop/SopMasters/add/' . $atim_menu_variables['SopControl.id'] . '/',
+$structureLinks = array(
+    'top' => '/Sop/SopMasters/add/' . $atimMenuVariables['SopControl.id'] . '/',
     'bottom' => array(
         'cancel' => '/Sop/SopMasters/listall/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'settings' => array(
-        'header' => __($sop_control_data['sop_group']) . ' - ' . __($sop_control_data['type'])
+        'header' => __($sopControlData['sop_group']) . ' - ' . __($sopControlData['type'])
     )
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

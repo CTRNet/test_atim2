@@ -1,24 +1,24 @@
 <?php
 $links = array(
     "bottom" => array(
-        "add" => "/Administrate/Dropdowns/add/" . $control_data['StructurePermissibleValuesCustomControl']['id'] . "/",
-        "configure" => "/Administrate/Dropdowns/configure/" . $control_data['StructurePermissibleValuesCustomControl']['id'] . "/"
+        "add" => "/Administrate/Dropdowns/add/" . $controlData['StructurePermissibleValuesCustomControl']['id'] . "/",
+        "configure" => "/Administrate/Dropdowns/configure/" . $controlData['StructurePermissibleValuesCustomControl']['id'] . "/"
     ),
     'index' => array(
-        'edit' => '/Administrate/Dropdowns/edit/' . $control_data['StructurePermissibleValuesCustomControl']['id'] . '/%%StructurePermissibleValuesCustom.id%%'
+        'edit' => '/Administrate/Dropdowns/edit/' . $controlData['StructurePermissibleValuesCustomControl']['id'] . '/%%StructurePermissibleValuesCustom.id%%'
     )
 );
-$structure_settings = array(
+$structureSettings = array(
     "pagination" => false,
-    'header' => __('list') . ' : ' . $control_data['StructurePermissibleValuesCustomControl']['name']
+    'header' => __('list') . ' : ' . $controlData['StructurePermissibleValuesCustomControl']['name']
 );
-$final_options = array(
+$finalOptions = array(
     "type" => "index",
     "data" => $this->request->data,
     "links" => $links,
-    "settings" => $structure_settings
+    "settings" => $structureSettings
 );
 
-$this->Structures->build($administrate_dropdown_values, $final_options);
+$this->Structures->build($administrateDropdownValues, $finalOptions);
 
 ?>

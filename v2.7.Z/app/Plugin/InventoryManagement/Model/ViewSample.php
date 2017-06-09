@@ -5,9 +5,9 @@ class ViewSample extends InventoryManagementAppModel
 
     public $primaryKey = 'sample_master_id';
 
-    public $base_model = "SampleMaster";
+    public $baseModel = "SampleMaster";
 
-    public $base_plugin = 'InventoryManagement';
+    public $basePlugin = 'InventoryManagement';
 
     public $actsAs = array(
         'MinMax',
@@ -45,7 +45,7 @@ class ViewSample extends InventoryManagementAppModel
         )
     );
 
-    static $table_query = '
+    static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -92,17 +92,17 @@ class ViewSample extends InventoryManagementAppModel
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 
-    public $fields_replace = null;
+    public $fieldsReplace = null;
 
-    static $min_value_fields = array(
+    static $minValueFields = array(
         'coll_to_creation_spent_time_msg',
         'coll_to_rec_spent_time_msg'
     );
 
-    function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null)
+    function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
-        if ($this->fields_replace == null) {
-            $this->fields_replace = array(
+        if ($this->fieldsReplace == null) {
+            $this->fieldsReplace = array(
                 'coll_to_creation_spent_time_msg' => array(
                     'msg' => array(
                         - 1 => __('collection date missing'),
@@ -121,6 +121,6 @@ class ViewSample extends InventoryManagementAppModel
                 )
             );
         }
-        return parent::__construct($id, $table, $ds, $base_model_name, $detail_table, $previous_model);
+        return parent::__construct($id, $table, $ds, $baseModelName, $detailTable, $previousModel);
     }
 }

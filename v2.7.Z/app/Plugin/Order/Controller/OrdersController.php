@@ -22,23 +22,23 @@ class OrdersController extends OrderAppController
         )
     );
 
-    function search($search_id = 0)
+    function search($searchId = 0)
     {
-        $this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
+        $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
         }
         
-        $this->searchHandler($search_id, $this->Order, 'orders', '/Order/Orders/search');
+        $this->searchHandler($searchId, $this->Order, 'orders', '/Order/Orders/search');
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             $this->render('index');
         }
@@ -49,153 +49,153 @@ class OrdersController extends OrderAppController
         // MANAGE DATA
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
+        $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // SAVE PROCESS
         
         if (! empty($this->request->data)) {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates && $this->Order->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($submittedDataValidates && $this->Order->save($this->request->data)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been saved'), '/Order/Orders/detail/' . $this->Order->id);
             }
         }
     }
 
-    function detail($order_id, $is_from_tree_view = false)
+    function detail($orderId, $isFromTreeView = false)
     {
         // MANAGE DATA
-        $order_data = $this->Order->getOrRedirect($order_id);
-        if (empty($order_data)) {
+        $orderData = $this->Order->getOrRedirect($orderId);
+        if (empty($orderData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Set order data
-        $this->set('order_data', $order_data);
+        $this->set('orderData', $orderData);
         $this->request->data = array();
         
-        $shipments_list = $this->Shipment->find('all', array(
+        $shipmentsList = $this->Shipment->find('all', array(
             'conditions' => array(
-                'Shipment.order_id' => $order_id
+                'Shipment.order_id' => $orderId
             ),
             'recursive' => '-1'
         ));
-        $this->set('shipments_list', $shipments_list);
+        $this->set('shipmentsList', $shipmentsList);
         
-        $this->set('is_from_tree_view', $is_from_tree_view);
+        $this->set('isFromTreeView', $isFromTreeView);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu_variables', array(
-            'Order.id' => $order_id
+        $this->set('atimMenuVariables', array(
+            'Order.id' => $orderId
         ));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function edit($order_id)
+    function edit($orderId)
     {
         // MANAGE DATA
-        $order_data = $this->Order->getOrRedirect($order_id);
+        $orderData = $this->Order->getOrRedirect($orderId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu_variables', array(
-            'Order.id' => $order_id
+        $this->set('atimMenuVariables', array(
+            'Order.id' => $orderId
         ));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // SAVE PROCESS
         
         if (empty($this->request->data)) {
-            $order_data['FunctionManagement']['autocomplete_order_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array(
+            $orderData['FunctionManagement']['autocomplete_order_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array(
                 'StudySummary' => array(
-                    'id' => $order_data['Order']['default_study_summary_id']
+                    'id' => $orderData['Order']['default_study_summary_id']
                 )
             ));
-            $this->request->data = $order_data;
+            $this->request->data = $orderData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->Order->id = $order_id;
+            if ($submittedDataValidates) {
+                $this->Order->id = $orderId;
                 $this->Order->data = array();
                 if ($this->Order->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/Order/Orders/detail/' . $order_id);
+                    $this->atimFlash(__('your data has been updated'), '/Order/Orders/detail/' . $orderId);
                 }
             }
         }
     }
 
-    function delete($order_id)
+    function delete($orderId)
     {
-        if (! $order_id) {
+        if (! $orderId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA
         
-        $order_data = $this->Order->find('first', array(
+        $orderData = $this->Order->find('first', array(
             'conditions' => array(
-                'Order.id' => $order_id
+                'Order.id' => $orderId
             )
         ));
-        if (empty($order_data)) {
+        if (empty($orderData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Check deletion is allowed
-        $arr_allow_deletion = $this->Order->allowDeletion($order_id);
+        $arrAllowDeletion = $this->Order->allowDeletion($orderId);
         
         // CUSTOM CODE
         
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->Order->atimDelete($order_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->Order->atimDelete($orderId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 $this->atimFlash(__('your data has been deleted'), '/Order/Orders/search/');
             } else {
                 $this->atimFlashError(__('error deleting data - contact administrator'), '/Order/Orders/search/');
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/Order/Orders/detail/' . $order_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/Order/Orders/detail/' . $orderId);
         }
     }
 }

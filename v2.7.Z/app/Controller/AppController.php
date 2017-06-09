@@ -32,7 +32,7 @@ App::uses('Controller', 'Controller');
 class AppController extends Controller
 {
 
-    private static $missing_translations = array();
+    private static $missingTranslations = array();
 
     private static $me = NULL;
 
@@ -77,9 +77,9 @@ class AppController extends Controller
         'Time',
         'Form'
     );
-    
+
     // use AppController::getCalInfo to get those with translations
-    private static $cal_info_short = array(
+    private static $calInfoShort = array(
         1 => 'jan',
         'feb',
         'mar',
@@ -94,7 +94,7 @@ class AppController extends Controller
         'dec'
     );
 
-    private static $cal_info_long = array(
+    private static $calInfoLong = array(
         1 => 'January',
         'February',
         'March',
@@ -111,14 +111,14 @@ class AppController extends Controller
 
     public static $query;
 
-    private static $cal_info_short_translated = false;
+    private static $calInfoShortTranslated = false;
 
-    private static $cal_info_long_translated = false;
+    private static $calInfoLongTranslated = false;
 
-    static $highlight_missing_translations = true;
-    
+    static $highlightMissingTranslations = true;
+
     // Used as a set from the array keys
-    public $allowed_file_prefixes = array();
+    public $allowedFilePrefixes = array();
 
     /**
      * This function is executed before every action in the controller.
@@ -146,42 +146,42 @@ class AppController extends Controller
         $this->Auth->authorize = 'Actions';
         
         // Check password should be reset
-        $lower_url_here = strtolower($this->request->here);
-        if ($this->Session->read('Auth.User.force_password_reset') && strpos($lower_url_here, '/users/logout') === false) {
-            if (strpos($lower_url_here, '/customize/passwords/index') === false) {
+        $lowerUrlHere = strtolower($this->request->here);
+        if ($this->Session->read('Auth.User.force_password_reset') && strpos($lowerUrlHere, '/users/logout') === false) {
+            if (strpos($lowerUrlHere, '/customize/passwords/index') === false) {
                 $this->redirect('/Customize/Passwords/index/');
             }
         }
         
         // record URL in logs
-        $log_activity_data['UserLog']['user_id'] = $this->Session->read('Auth.User.id');
-        $log_activity_data['UserLog']['url'] = $this->request->here;
-        $log_activity_data['UserLog']['visited'] = now();
-        $log_activity_data['UserLog']['allowed'] = 1;
+        $logActivityData['UserLog']['user_id'] = $this->Session->read('Auth.User.id');
+        $logActivityData['UserLog']['url'] = $this->request->here;
+        $logActivityData['UserLog']['visited'] = now();
+        $logActivityData['UserLog']['allowed'] = 1;
         
         if (isset($this->UserLog)) {
-            $log_activity_model = & $this->UserLog;
+            $logActivityModel = & $this->UserLog;
         } else {
             App::uses('UserLog', 'Model');
-            $log_activity_model = new UserLog();
+            $logActivityModel = new UserLog();
         }
         
-        $log_activity_model->save($log_activity_data);
+        $logActivityModel->save($logActivityData);
         
         // menu grabbed for HEADER
         if ($this->request->is('ajax')) {
             Configure::write('debug', 0);
         } else {
-            $atim_sub_menu_for_header = array();
-            $menu_model = AppModel::getInstance("", "Menu", true);
+            $atimSubMenuForHeader = array();
+            $menuModel = AppModel::getInstance("", "Menu", true);
             
-            $main_menu_items = $menu_model->find('all', array(
+            $mainMenuItems = $menuModel->find('all', array(
                 'conditions' => array(
                     'Menu.parent_id' => 'MAIN_MENU_1'
                 )
             ));
-            foreach ($main_menu_items as $item) {
-                $atim_sub_menu_for_header[$item['Menu']['id']] = $menu_model->find('all', array(
+            foreach ($mainMenuItems as $item) {
+                $atimSubMenuForHeader[$item['Menu']['id']] = $menuModel->find('all', array(
                     'conditions' => array(
                         'Menu.parent_id' => $item['Menu']['id'],
                         'Menu.is_root' => 1
@@ -192,12 +192,12 @@ class AppController extends Controller
                 ));
             }
             
-            $this->set('atim_menu_for_header', $this->Menus->get('/menus/tools'));
-            $this->set('atim_sub_menu_for_header', $atim_sub_menu_for_header);
+            $this->set('atimMenuForHeader', $this->Menus->get('/menus/tools'));
+            $this->set('atimSubMenuForHeader', $atimSubMenuForHeader);
             
             // menu, passed to Layout where it would be rendered through a Helper
-            $this->set('atim_menu_variables', array());
-            $this->set('atim_menu', $this->Menus->get());
+            $this->set('atimMenuVariables', array());
+            $this->set('atimMenu', $this->Menus->get());
         }
         // get default STRUCTRES, used for forms, views, and validation
         $this->Structures->set();
@@ -211,28 +211,28 @@ class AppController extends Controller
         }
     }
 
-    function hook($hook_extension = '')
+    function hook($hookExtension = '')
     {
-        if ($hook_extension) {
-            $hook_extension = '_' . $hook_extension;
+        if ($hookExtension) {
+            $hookExtension = '_' . $hookExtension;
         }
         
-        $hook_file = APP . ($this->request->params['plugin'] ? 'Plugin' . DS . $this->request->params['plugin'] . DS : '') . 'Controller' . DS . 'Hook' . DS . $this->request->params['controller'] . '_' . $this->request->params['action'] . $hook_extension . '.php';
+        $hookFile = APP . ($this->request->params['plugin'] ? 'Plugin' . DS . $this->request->params['plugin'] . DS : '') . 'Controller' . DS . 'Hook' . DS . $this->request->params['controller'] . '_' . $this->request->params['action'] . $hookExtension . '.php';
         
-        if (! file_exists($hook_file)) {
-            $hook_file = false;
+        if (! file_exists($hookFile)) {
+            $hookFile = false;
         }
         
-        return $hook_file;
+        return $hookFile;
     }
 
     private function handleFileRequest()
     {
         $file = $this->request->query['file'];
         
-        $redirect_invalid_file = function ($case_type) use (&$file) {
-            CakeLog::error("User tried to download invalid file (" . $case_type . "): " . $file);
-            if ($case_type === 3) {
+        $redirectInvalidFile = function ($caseType) use (&$file) {
+            CakeLog::error("User tried to download invalid file (" . $caseType . "): " . $file);
+            if ($caseType === 3) {
                 AppController::getInstance()->redirect("/Pages/err_file_not_auth?p[]=" . $file);
             } else {
                 AppController::getInstance()->redirect("/Pages/err_file_not_found?p[]=" . $file);
@@ -244,24 +244,24 @@ class AppController extends Controller
             $index = strpos($file, '.', $index + 1);
         }
         $prefix = substr($file, 0, $index);
-        if ($prefix && array_key_exists($prefix, $this->allowed_file_prefixes)) {
+        if ($prefix && array_key_exists($prefix, $this->allowedFilePrefixes)) {
             $dir = Configure::read('uploadDirectory');
             // NOTE: Cannot use flash for errors because file is still in the
             // url and that would cause an infinite loop
             if (strpos($file, '/') > - 1 || strpos($file, '\\') > - 1) {
-                $redirect_invalid_file(1);
+                $redirectInvalidFile(1);
             }
-            $full_file = $dir . '/' . $file;
-            if (! file_exists($full_file)) {
-                $redirect_invalid_file(2);
+            $fullFile = $dir . '/' . $file;
+            if (! file_exists($fullFile)) {
+                $redirectInvalidFile(2);
             }
             $index = strpos($file, '.', $index + 1) + 1;
-            $this->response->file($full_file, array(
+            $this->response->file($fullFile, array(
                 'name' => substr($file, $index)
             ));
             return $this->response;
         }
-        $redirect_invalid_file(3);
+        $redirectInvalidFile(3);
     }
 
     /**
@@ -297,15 +297,15 @@ class AppController extends Controller
 
     function afterFilter()
     {
-        // global $start_time;
-        // echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
-        if (sizeof(AppController::$missing_translations) > 0) {
+        // global $startTime;
+        // echo("Exec time (sec): ".(AppController::microtimeFloat() - $startTime));
+        if (sizeof(AppController::$missingTranslations) > 0) {
             App::uses('MissingTranslation', 'Model');
             $mt = new MissingTranslation();
-            foreach (AppController::$missing_translations as $missing_translation) {
+            foreach (AppController::$missingTranslations as $missingTranslation) {
                 $mt->set(array(
                     "MissingTranslation" => array(
-                        "id" => $missing_translation
+                        "id" => $missingTranslation
                     )
                 ));
                 $mt->save(); // ignore errors, kind of insert ingnore
@@ -316,7 +316,7 @@ class AppController extends Controller
     /**
      * Simple function to replicate PHP 5 behaviour
      */
-    static function microtime_float()
+    static function microtimeFloat()
     {
         list ($usec, $sec) = explode(" ", microtime());
         return ((float) $usec + (float) $sec);
@@ -325,8 +325,8 @@ class AppController extends Controller
     static function missingTranslation(&$word)
     {
         if (! is_numeric($word) && strpos($word, "<span class='untranslated'>") === false) {
-            AppController::$missing_translations[] = $word;
-            if (Configure::read('debug') == 2 && self::$highlight_missing_translations) {
+            AppController::$missingTranslations[] = $word;
+            if (Configure::read('debug') == 2 && self::$highlightMissingTranslations) {
                 $word = "<span class='untranslated'>" . $word . "</span>";
             }
         }
@@ -389,10 +389,10 @@ class AppController extends Controller
         define('VALID_DATETIME_YMD', '%^(?:(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)(?:0?2\\1(?:29)))|(?:(?:(?:1[6-9]|2\\d)\\d{2})(-)(?:(?:(?:0?[13578]|1[02])\\2(?:31))|(?:(?:0?(1|[3-9])|1[0-2])\\2(29|30))|(?:(?:0?[1-9])|(?:1[0-2]))\\2(?:0?[1-9]|1\\d|2[0-8])))\s([0-1][0-9]|2[0-3])\:[0-5][0-9]\:[0-5][0-9]$%');
         
         // parse URI manually to get passed PARAMS
-        global $start_time;
-        $start_time = AppController::microtime_float();
+        global $startTime;
+        $startTime = AppController::microtimeFloat();
         
-        $request_uri_params = array();
+        $requestUriParams = array();
         
         // Fix REQUEST_URI on IIS
         if (! isset($_SERVER['REQUEST_URI'])) {
@@ -401,53 +401,53 @@ class AppController extends Controller
                 $_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
             }
         }
-        $request_uri = $_SERVER['REQUEST_URI'];
-        $request_uri = explode('/', $request_uri);
-        $request_uri = array_filter($request_uri);
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $requestUri = explode('/', $requestUri);
+        $requestUri = array_filter($requestUri);
         
-        foreach ($request_uri as $uri) {
-            $exploded_uri = explode(':', $uri);
-            if (count($exploded_uri) > 1) {
-                $request_uri_params[$exploded_uri[0]] = $exploded_uri[1];
+        foreach ($requestUri as $uri) {
+            $explodedUri = explode(':', $uri);
+            if (count($explodedUri) > 1) {
+                $requestUriParams[$explodedUri[0]] = $explodedUri[1];
             }
         }
         
         // import APP code required...
         App::import('Model', 'Config');
-        $config_data_model = new Config();
+        $configDataModel = new Config();
         
         // get CONFIG data from table and SET
-        $config_results = false;
+        $configResults = false;
         
         App::uses('CakeSession', 'Model/Datasource');
-        $user_id = CakeSession::read('Auth.User.id');
-        $logged_in_user = CakeSession::read('Auth.User.id');
-        $logged_in_group = CakeSession::read('Auth.User.group_id');
+        $userId = CakeSession::read('Auth.User.id');
+        $loggedInUser = CakeSession::read('Auth.User.id');
+        $loggedInGroup = CakeSession::read('Auth.User.group_id');
         
-        $config_results = $config_data_model->getConfig(CakeSession::read('Auth.User.group_id'), CakeSession::read('Auth.User.id'));
+        $configResults = $configDataModel->getConfig(CakeSession::read('Auth.User.group_id'), CakeSession::read('Auth.User.id'));
         // parse result, set configs/defines
-        if ($config_results) {
+        if ($configResults) {
             
-            Configure::write('Config.language', $config_results['Config']['config_language']);
-            foreach ($config_results['Config'] as $config_key => $config_data) {
-                if (strpos($config_key, '_') !== false) {
+            Configure::write('Config.language', $configResults['Config']['config_language']);
+            foreach ($configResults['Config'] as $configKey => $configData) {
+                if (strpos($configKey, '_') !== false) {
                     
                     // break apart CONFIG key
-                    $config_key = explode('_', $config_key);
-                    $config_format = array_shift($config_key);
-                    $config_key = implode('_', $config_key);
+                    $configKey = explode('_', $configKey);
+                    $configFormat = array_shift($configKey);
+                    $configKey = implode('_', $configKey);
                     
                     // if a DEFINE or CONFIG, set new setting for APP
-                    if ($config_format == 'define') {
+                    if ($configFormat == 'define') {
                         
                         // override DATATABLE value with URI PARAM value
-                        if ($config_key == 'pagination_amount' && isset($request_uri_params['per'])) {
-                            $config_data = $request_uri_params['per'];
+                        if ($configKey == 'pagination_amount' && isset($requestUriParams['per'])) {
+                            $configData = $requestUriParams['per'];
                         }
                         
-                        define($config_key, $config_data);
-                    } elseif ($config_format == 'config') {
-                        Configure::write($config_key, $config_data);
+                        define($configKey, $configData);
+                    } elseif ($configFormat == 'config') {
+                        Configure::write($configKey, $configData);
                     }
                 }
             }
@@ -469,17 +469,17 @@ class AppController extends Controller
     static function getCalInfo($short = true)
     {
         if ($short) {
-            if (! AppController::$cal_info_short_translated) {
-                AppController::$cal_info_short_translated = true;
-                AppController::$cal_info_short = array_map(create_function('$a', 'return __($a);'), AppController::$cal_info_short);
+            if (! AppController::$calInfoShortTranslated) {
+                AppController::$calInfoShortTranslated = true;
+                AppController::$calInfoShort = array_map(create_function('$a', 'return __($a);'), AppController::$calInfoShort);
             }
-            return AppController::$cal_info_short;
+            return AppController::$calInfoShort;
         } else {
-            if (! AppController::$cal_info_long_translated) {
-                AppController::$cal_info_long_translated = true;
-                AppController::$cal_info_long = array_map(create_function('$a', 'return __($a);'), AppController::$cal_info_long);
+            if (! AppController::$calInfoLongTranslated) {
+                AppController::$calInfoLongTranslated = true;
+                AppController::$calInfoLong = array_map(create_function('$a', 'return __($a);'), AppController::$calInfoLong);
             }
-            return AppController::$cal_info_long;
+            return AppController::$calInfoLong;
         }
     }
 
@@ -489,22 +489,22 @@ class AppController extends Controller
      * @param
      *            mixed int | string $month
      * @param int $day            
-     * @param boolean $nbsp_spaces
+     * @param boolean $nbspSpaces
      *            True if white spaces must be printed as &nbsp;
-     * @param boolean $short_months
+     * @param boolean $shortMonths
      *            True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
-    static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true)
+    static function getFormatedDateString($year, $month, $day, $nbspSpaces = true, $shortMonths = true)
     {
         $result = null;
         if (empty($year) && empty($month) && empty($day)) {
             $result = "";
         } else {
-            $divider = $nbsp_spaces ? "&nbsp;" : " ";
+            $divider = $nbspSpaces ? "&nbsp;" : " ";
             if (is_numeric($month)) {
-                $month_str = AppController::getCalInfo($short_months);
-                $month = $month > 0 && $month < 13 ? $month_str[(int) $month] : "-";
+                $monthStr = AppController::getCalInfo($shortMonths);
+                $month = $month > 0 && $month < 13 ? $monthStr[(int) $month] : "-";
             }
             if (date_format == 'MDY') {
                 $result = $month . (empty($month) ? "" : $divider) . $day . (empty($day) ? "" : $divider) . $year;
@@ -517,7 +517,7 @@ class AppController extends Controller
         return $result;
     }
 
-    static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true)
+    static function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
     {
         if (time_format == 12) {
             $meridiem = $hour >= 12 ? "PM" : "AM";
@@ -525,7 +525,7 @@ class AppController extends Controller
             if ($hour == 0) {
                 $hour = 12;
             }
-            return $hour . (empty($minutes) ? '' : ":" . $minutes . ($nbsp_spaces ? "&nbsp;" : " ")) . $meridiem;
+            return $hour . (empty($minutes) ? '' : ":" . $minutes . ($nbspSpaces ? "&nbsp;" : " ")) . $meridiem;
         } elseif (empty($minutes)) {
             return $hour . __('hour_sign');
         } else {
@@ -537,28 +537,28 @@ class AppController extends Controller
      *
      * Enter description here ...
      *
-     * @param $datetime_string String
+     * @param $datetimeString String
      *            with format yyyy[-MM[-dd[ hh[:mm:ss]]]] (missing parts represent the accuracy
-     * @param boolean $nbsp_spaces
+     * @param boolean $nbspSpaces
      *            True if white spaces must be printed as &nbsp;
-     * @param boolean $short_months
+     * @param boolean $shortMonths
      *            True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
-    static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true)
+    static function getFormatedDatetimeString($datetimeString, $nbspSpaces = true, $shortMonths = true)
     {
         $month = null;
         $day = null;
         $hour = null;
         $minutes = null;
-        if (strpos($datetime_string, ' ') === false) {
-            $date = $datetime_string;
+        if (strpos($datetimeString, ' ') === false) {
+            $date = $datetimeString;
         } else {
-            list ($date, $time) = explode(" ", $datetime_string);
+            list ($date, $time) = explode(" ", $datetimeString);
             if (strpos($time, ":") === false) {
                 $hour = $time;
             } else {
-                list ($hour, $minutes, ) = explode(":", $time);
+                list ($hour, $minutes) = explode(":", $time);
             }
         }
         
@@ -571,21 +571,21 @@ class AppController extends Controller
                 $month = $date[1];
                 break;
         }
-        $formated_date = self::getFormatedDateString($year, $month, $day, $nbsp_spaces);
-        return $hour === null ? $formated_date : $formated_date . ($nbsp_spaces ? "&nbsp;" : " ") . self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
+        $formatedDate = self::getFormatedDateString($year, $month, $day, $nbspSpaces);
+        return $hour === null ? $formatedDate : $formatedDate . ($nbspSpaces ? "&nbsp;" : " ") . self::getFormatedTimeString($hour, $minutes, $nbspSpaces);
     }
 
     /**
      * Return formatted date in SQL format from a date array returned by an application form.
      *
-     * @param $datetime_array Array
+     * @param $datetimeArray Array
      *            gathering date data into following structure:
      *            array('month' => string, '
      *            'day' => string,
      *            'year' => string,
      *            'hour' => string,
      *            'min' => string)
-     * @param $date_type Specify
+     * @param $dateType Specify
      *            the type of date ('normal', 'start', 'end')
      *            - normal => Will force function to build a date witout specific rules.
      *            - start => Will force function to build date as a 'start date' of date range defintion
@@ -597,36 +597,36 @@ class AppController extends Controller
      *            
      * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
      */
-    static function getFormatedDatetimeSQL($datetime_array, $date_type = 'normal')
+    static function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
     {
-        $formatted_date = '';
-        switch ($date_type) {
+        $formattedDate = '';
+        switch ($dateType) {
             case 'normal':
-                if ((! empty($datetime_array['year'])) && (! empty($datetime_array['month'])) && (! empty($datetime_array['day']))) {
-                    $formatted_date = $datetime_array['year'] . '-' . $datetime_array['month'] . '-' . $datetime_array['day'];
+                if ((! empty($datetimeArray['year'])) && (! empty($datetimeArray['month'])) && (! empty($datetimeArray['day']))) {
+                    $formattedDate = $datetimeArray['year'] . '-' . $datetimeArray['month'] . '-' . $datetimeArray['day'];
                 }
-                if ((! empty($formatted_date)) && (! empty($datetime_array['hour']))) {
-                    $formatted_date .= ' ' . $datetime_array['hour'] . ':' . (empty($datetime_array['min']) ? '00' : $datetime_array['min']);
+                if ((! empty($formattedDate)) && (! empty($datetimeArray['hour']))) {
+                    $formattedDate .= ' ' . $datetimeArray['hour'] . ':' . (empty($datetimeArray['min']) ? '00' : $datetimeArray['min']);
                 }
                 break;
             
             case 'start':
-                if (empty($datetime_array['year'])) {
-                    $formatted_date = '-9999-99-99 00:00';
+                if (empty($datetimeArray['year'])) {
+                    $formattedDate = '-9999-99-99 00:00';
                 } else {
-                    $formatted_date = $datetime_array['year'];
-                    if (empty($datetime_array['month'])) {
-                        $formatted_date .= '-01-01 00:00';
+                    $formattedDate = $datetimeArray['year'];
+                    if (empty($datetimeArray['month'])) {
+                        $formattedDate .= '-01-01 00:00';
                     } else {
-                        $formatted_date .= '-' . $datetime_array['month'];
-                        if (empty($datetime_array['day'])) {
-                            $formatted_date .= '-01 00:00';
+                        $formattedDate .= '-' . $datetimeArray['month'];
+                        if (empty($datetimeArray['day'])) {
+                            $formattedDate .= '-01 00:00';
                         } else {
-                            $formatted_date .= '-' . $datetime_array['day'];
-                            if (empty($datetime_array['hour'])) {
-                                $formatted_date .= ' 00:00';
+                            $formattedDate .= '-' . $datetimeArray['day'];
+                            if (empty($datetimeArray['hour'])) {
+                                $formattedDate .= ' 00:00';
                             } else {
-                                $formatted_date .= ' ' . $datetime_array['hour'] . ':' . (empty($datetime_array['min']) ? '00' : $datetime_array['min']);
+                                $formattedDate .= ' ' . $datetimeArray['hour'] . ':' . (empty($datetimeArray['min']) ? '00' : $datetimeArray['min']);
                             }
                         }
                     }
@@ -634,22 +634,22 @@ class AppController extends Controller
                 break;
             
             case 'end':
-                if (empty($datetime_array['year'])) {
-                    $formatted_date = '9999-12-31 23:59';
+                if (empty($datetimeArray['year'])) {
+                    $formattedDate = '9999-12-31 23:59';
                 } else {
-                    $formatted_date = $datetime_array['year'];
-                    if (empty($datetime_array['month'])) {
-                        $formatted_date .= '-12-31 23:59';
+                    $formattedDate = $datetimeArray['year'];
+                    if (empty($datetimeArray['month'])) {
+                        $formattedDate .= '-12-31 23:59';
                     } else {
-                        $formatted_date .= '-' . $datetime_array['month'];
-                        if (empty($datetime_array['day'])) {
-                            $formatted_date .= '-31 23:59';
+                        $formattedDate .= '-' . $datetimeArray['month'];
+                        if (empty($datetimeArray['day'])) {
+                            $formattedDate .= '-31 23:59';
                         } else {
-                            $formatted_date .= '-' . $datetime_array['day'];
-                            if (empty($datetime_array['hour'])) {
-                                $formatted_date .= ' 23:59';
+                            $formattedDate .= '-' . $datetimeArray['day'];
+                            if (empty($datetimeArray['hour'])) {
+                                $formattedDate .= ' 23:59';
                             } else {
-                                $formatted_date .= ' ' . $datetime_array['hour'] . ':' . (empty($datetime_array['min']) ? '59' : $datetime_array['min']);
+                                $formattedDate .= ' ' . $datetimeArray['hour'] . ':' . (empty($datetimeArray['min']) ? '59' : $datetimeArray['min']);
                             }
                         }
                     }
@@ -659,7 +659,7 @@ class AppController extends Controller
             default:
         }
         
-        return $formatted_date;
+        return $formattedDate;
     }
 
     /**
@@ -681,9 +681,9 @@ class AppController extends Controller
         return $result;
     }
 
-    static function addWarningMsg($msg, $with_trace = false)
+    static function addWarningMsg($msg, $withTrace = false)
     {
-        if ($with_trace) {
+        if ($withTrace) {
             $_SESSION['ctrapp_core']['warning_trace_msg'][] = array(
                 'msg' => $msg,
                 'trace' => self::getStackTrace()
@@ -743,16 +743,16 @@ class AppController extends Controller
      * cookie manipulation to counter cake problems.
      * see eventum #1032
      */
-    static function atimSetCookie($skip_expiration_cookie)
+    static function atimSetCookie($skipExpirationCookie)
     {
-        $session_expiration = time() + Configure::read("Session.timeout");
+        $sessionExpiration = time() + Configure::read("Session.timeout");
         
-        setcookie('last_request', time(), $session_expiration, '/');
+        setcookie('last_request', time(), $sessionExpiration, '/');
         
-        if (! $skip_expiration_cookie) {
-            setcookie('session_expiration', $session_expiration, $session_expiration, '/');
+        if (! $skipExpirationCookie) {
+            setcookie('session_expiration', $sessionExpiration, $sessionExpiration, '/');
             if (isset($_COOKIE[Configure::read("Session.cookie")])) {
-                setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $session_expiration, "/");
+                setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $sessionExpiration, "/");
             }
         }
     }
@@ -763,23 +763,23 @@ class AppController extends Controller
      *
      * @param AppModek $model
      *            The model to work on
-     * @param string $data_model_name
+     * @param string $dataModelName
      *            The model name used in $this->request->data
-     * @param string $data_key
+     * @param string $dataKey
      *            The data key name used in $this->request->data
-     * @param string $control_key_name
+     * @param string $controlKeyName
      *            The name of the control field used in the model table
-     * @param AppModel $possibilities_model
+     * @param AppModel $possibilitiesModel
      *            The model to fetch the possibilities from
-     * @param string $possibilities_parent_key
+     * @param string $possibilitiesParentKey
      *            The possibilities parent key to base the search on
      * @return An array with the ids and the possibilities
      */
-    function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg)
+    function batchInit($model, $dataModelName, $dataKey, $controlKeyName, $possibilitiesModel, $possibilitiesParentKey, $noPossibilitiesMsg)
     {
         if (empty($this->request->data)) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        } elseif (! is_array($this->request->data[$data_model_name][$data_key]) && strpos($this->request->data[$data_model_name][$data_key], ',')) {
+        } elseif (! is_array($this->request->data[$dataModelName][$dataKey]) && strpos($this->request->data[$dataModelName][$dataKey], ',')) {
             return array(
                 'error' => "batch init - number of submitted records too big"
             );
@@ -787,7 +787,7 @@ class AppController extends Controller
         // extract valid ids
         $ids = $model->find('all', array(
             'conditions' => array(
-                $model->name . '.id' => $this->request->data[$data_model_name][$data_key]
+                $model->name . '.id' => $this->request->data[$dataModelName][$dataKey]
             ),
             'fields' => array(
                 $model->name . '.id'
@@ -799,7 +799,7 @@ class AppController extends Controller
                 'error' => "batch init no data"
             );
         }
-        $model->sortForDisplay($ids, $this->request->data[$data_model_name][$data_key]);
+        $model->sortForDisplay($ids, $this->request->data[$dataModelName][$dataKey]);
         $ids = self::defineArrayKey($ids, $model->name, 'id');
         $ids = array_keys($ids);
         
@@ -808,10 +808,10 @@ class AppController extends Controller
                 $model->name . '.id' => $ids
             ),
             'fields' => array(
-                $model->name . '.' . $control_key_name
+                $model->name . '.' . $controlKeyName
             ),
             'group' => array(
-                $model->name . '.' . $control_key_name
+                $model->name . '.' . $controlKeyName
             ),
             'recursive' => - 1
         ));
@@ -821,56 +821,56 @@ class AppController extends Controller
             );
         }
         
-        $possibilities = $possibilities_model->find('all', array(
+        $possibilities = $possibilitiesModel->find('all', array(
             'conditions' => array(
-                $possibilities_parent_key => $controls[0][$model->name][$control_key_name],
+                $possibilitiesParentKey => $controls[0][$model->name][$controlKeyName],
                 'flag_active' => '1'
             )
         ));
         
         if (empty($possibilities)) {
             return array(
-                'error' => $no_possibilities_msg
+                'error' => $noPossibilitiesMsg
             );
         }
         
         return array(
             'ids' => implode(',', $ids),
             'possibilities' => $possibilities,
-            'control_id' => $controls[0][$model->name][$control_key_name]
+            'control_id' => $controls[0][$model->name][$controlKeyName]
         );
     }
 
     /**
      * Replaces the array key (generally of a find) with an inner value
      *
-     * @param array $in_array            
+     * @param array $inArray            
      * @param string $model
-     *            The model ($in_array[$model])
+     *            The model ($inArray[$model])
      * @param string $field
-     *            The field (new key = $in_array[$model][$field])
+     *            The field (new key = $inArray[$model][$field])
      * @param bool $unique
      *            If true, the array block will be directly under the model.field, not in an array.
      * @return array
      */
-    static function defineArrayKey($in_array, $model, $field, $unique = false)
+    static function defineArrayKey($inArray, $model, $field, $unique = false)
     {
-        $out_array = array();
+        $outArray = array();
         if ($unique) {
-            foreach ($in_array as $val) {
-                $out_array[$val[$model][$field]] = $val;
+            foreach ($inArray as $val) {
+                $outArray[$val[$model][$field]] = $val;
             }
         } else {
-            foreach ($in_array as $val) {
+            foreach ($inArray as $val) {
                 if (isset($val[$model])) {
-                    $out_array[$val[$model][$field]][] = $val;
+                    $outArray[$val[$model][$field]][] = $val;
                 } else {
                     // the key cannot be foud
-                    $out_array[- 1][] = $val;
+                    $outArray[- 1][] = $val;
                 }
             }
         }
-        return $out_array;
+        return $outArray;
     }
 
     /**
@@ -912,17 +912,17 @@ class AppController extends Controller
         if (empty($parts)) {
             return false;
         }
-        $aco_alias = 'Controller/' . ($parts['plugin'] ? Inflector::camelize($parts['plugin']) . '/' : '');
-        $aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']) . '/' : '');
-        $aco_alias .= ($parts['action'] ? $parts['action'] : '');
+        $acoAlias = 'Controller/' . ($parts['plugin'] ? Inflector::camelize($parts['plugin']) . '/' : '');
+        $acoAlias .= ($parts['controller'] ? Inflector::camelize($parts['controller']) . '/' : '');
+        $acoAlias .= ($parts['action'] ? $parts['action'] : '');
         $instance = AppController::getInstance();
         
-        return strpos($aco_alias, 'Controller/Users') !== false || strpos($aco_alias, 'Controller/Pages') !== false || $aco_alias == "Controller/Menus/index" || $instance->SessionAcl->check('Group::' . $instance->Session->read('Auth.User.group_id'), $aco_alias);
+        return strpos($acoAlias, 'Controller/Users') !== false || strpos($acoAlias, 'Controller/Pages') !== false || $acoAlias == "Controller/Menus/index" || $instance->SessionAcl->check('Group::' . $instance->Session->read('Auth.User.group_id'), $acoAlias);
     }
 
-    static function applyTranslation(&$in_array, $model, $field)
+    static function applyTranslation(&$inArray, $model, $field)
     {
-        foreach ($in_array as &$part) {
+        foreach ($inArray as &$part) {
             $part[$model][$field] = __($part[$model][$field]);
         }
     }
@@ -942,13 +942,13 @@ class AppController extends Controller
     public function paginate($object = null, $scope = array(), $whitelist = array())
     {
         $this->setControlerPaginatorSettings($object);
-        $model_name = isset($object->base_model) ? $object->base_model : $object->name;
-        if (isset($object->Behaviors->MasterDetail->__settings[$model_name])) {
-            extract($object->Behaviors->MasterDetail->__settings[$model_name]);
-            if ($is_master_model && isset($scope[$model_name . '.' . $control_foreign]) && preg_match('/^[0-9]+$/', $scope[$model_name . '.' . $control_foreign])) {
+        $modelName = isset($object->baseModel) ? $object->baseModel : $object->name;
+        if (isset($object->Behaviors->MasterDetail->__settings[$modelName])) {
+            extract(self::convertArrayKeyFromSnakeToCamel($object->Behaviors->MasterDetail->__settings[$modelName]));
+            if ($isMasterModel && isset($scope[$modelName . '.' . $controlForeign]) && preg_match('/^[0-9]+$/', $scope[$modelName . '.' . $controlForeign])) {
                 self::buildDetailBinding($object, array(
-                    $model_name . '.' . $control_foreign => $scope[$model_name . '.' . $control_foreign]
-                ), $empty_structure_alias);
+                    $modelName . '.' . $controlForeign => $scope[$modelName . '.' . $controlForeign]
+                ), $emptyStructureAlias);
             }
         }
         return parent::paginate($object, $scope, $whitelist);
@@ -962,65 +962,65 @@ class AppController extends Controller
      * Sets 'result_are_unique_ctrl' as true if the results are based on a unique ctrl id,
      * false otherwise. (Non master/detail models will return false)
      *
-     * @param int $search_id
+     * @param int $searchId
      *            The search id used by the pagination
      * @param Object $model
      *            The model to search upon
-     * @param string $structure_alias
+     * @param string $structureAlias
      *            The structure alias to parse the search conditions on
      * @param string $url
      *            The base url to use in the pagination links (meaning without the search_id)
-     * @param bool $ignore_detail
+     * @param bool $ignoreDetail
      *            If true, even if the model is a master_detail ,the detail level won't be loaded
      * @param mixed $limit
      *            If false, will make a paginate call, if an int greater than 0, will make a find with the limit
      */
-    function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false, $limit = false)
+    function searchHandler($searchId, $model, $structureAlias, $url, $ignoreDetail = false, $limit = false)
     {
         // setting structure
-        $structure = $this->Structures->get('form', $structure_alias);
-        $this->set('atim_structure', $structure);
-        if (empty($search_id)) {
-            $this->Structures->set('empty', 'empty_structure');
+        $structure = $this->Structures->get('form', $structureAlias);
+        $this->set('atimStructure', $structure);
+        if (empty($searchId)) {
+            $this->Structures->set('empty', 'emptyStructure');
         } else {
             if ($this->request->data) {
                 // newly submitted search, parse conditions and store in session
-                $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($structure);
-            } elseif (! isset($_SESSION['ctrapp_core']['search'][$search_id]['criteria'])) {
+                $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
+            } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {
                 self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
                 $this->redirect('/menus');
                 exit();
             }
             
             // check if the current model is a master/detail one or a similar view
-            if (! $ignore_detail) {
-                self::buildDetailBinding($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], $structure_alias);
-                $this->Structures->set($structure_alias);
+            if (! $ignoreDetail) {
+                self::buildDetailBinding($model, $_SESSION['ctrapp_core']['search'][$searchId]['criteria'], $structureAlias);
+                $this->Structures->set($structureAlias);
             }
             
             if ($limit) {
                 $this->request->data = $model->find('all', array(
-                    'conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'],
+                    'conditions' => $_SESSION['ctrapp_core']['search'][$searchId]['criteria'],
                     'limit' => $limit
                 ));
             } else {
                 $this->setControlerPaginatorSettings($model);
-                $this->request->data = $this->Paginator->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+                $this->request->data = $this->Paginator->paginate($model, $_SESSION['ctrapp_core']['search'][$searchId]['criteria']);
             }
             
             // if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
-            if ($search_id == - 1) {
+            if ($searchId == - 1) {
                 // don't use the last search button if search id = -1
-                unset($_SESSION['ctrapp_core']['search'][$search_id]);
+                unset($_SESSION['ctrapp_core']['search'][$searchId]);
             } else {
-                $_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->request->params['paging'][$model->name]['count'];
-                $_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
+                $_SESSION['ctrapp_core']['search'][$searchId]['results'] = $this->request->params['paging'][$model->name]['count'];
+                $_SESSION['ctrapp_core']['search'][$searchId]['url'] = $url;
             }
         }
         
         if ($this->request->is('ajax')) {
             Configure::write('debug', 0);
-            $this->set('is_ajax', true);
+            $this->set('isAjax', true);
         }
     }
 
@@ -1049,81 +1049,81 @@ class AppController extends Controller
      * @param array $conditions
      *            Search conditions
      * @param
-     *            string &$structure_alias
+     *            string &$structureAlias
      */
-    static function buildDetailBinding(&$model, array $conditions, &$structure_alias)
+    static function buildDetailBinding(&$model, array $conditions, &$structureAlias)
     {
         $controller = AppController::getInstance();
-        $master_class_name = isset($model->base_model) ? $model->base_model : $model->name;
-        if (! isset($model->Behaviors->MasterDetail->__settings[$master_class_name])) {
-            $controller->$master_class_name; // try to force lazyload
-            if (! isset($model->Behaviors->MasterDetail->__settings[$master_class_name])) {
+        $masterClassName = isset($model->baseModel) ? $model->baseModel : $model->name;
+        if (! isset($model->Behaviors->MasterDetail->__settings[$masterClassName])) {
+            $controller->$masterClassName; // try to force lazyload
+            if (! isset($model->Behaviors->MasterDetail->__settings[$masterClassName])) {
                 if (Configure::read('debug') != 0) {
-                    AppController::addWarningMsg("buildDetailBinding requires you to force instanciation of model " . $master_class_name);
+                    AppController::addWarningMsg("buildDetailBinding requires you to force instanciation of model " . $masterClassName);
                 }
                 return;
             }
         }
-        if ($model->Behaviors->MasterDetail->__settings[$master_class_name]['is_master_model']) {
-            $ctrl_ids = null;
-            $single_ctrl_id = $model->getSingleControlIdCondition(array(
+        if ($model->Behaviors->MasterDetail->__settings[$masterClassName]['is_master_model']) {
+            $ctrlIds = null;
+            $singleCtrlId = $model->getSingleControlIdCondition(array(
                 'conditions' => $conditions
             ));
-            $control_field = $model->Behaviors->MasterDetail->__settings[$master_class_name]['control_foreign'];
-            if ($single_ctrl_id === false) {
+            $controlField = $model->Behaviors->MasterDetail->__settings[$masterClassName]['control_foreign'];
+            if ($singleCtrlId === false) {
                 // determine if the results contain only one control id
-                $ctrl_ids = $model->find('all', array(
+                $ctrlIds = $model->find('all', array(
                     'fields' => array(
-                        $model->name . '.' . $control_field
+                        $model->name . '.' . $controlField
                     ),
                     'conditions' => $conditions,
                     'group' => array(
-                        $model->name . '.' . $control_field
+                        $model->name . '.' . $controlField
                     ),
                     'limit' => 2
                 ));
-                if (count($ctrl_ids) == 1) {
-                    $single_ctrl_id = current(current($ctrl_ids[0]));
+                if (count($ctrlIds) == 1) {
+                    $singleCtrlId = current(current($ctrlIds[0]));
                 }
             }
-            if ($single_ctrl_id !== false) {
+            if ($singleCtrlId !== false) {
                 // only one ctrl, attach detail
-                $has_one = array();
-                extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
-                $ctrl_model = isset($controller->$control_class) ? $controller->$control_class : AppModel::getInstance('', $control_class, false);
-                if (! $ctrl_model) {
+                $hasOne = array();
+                extract(self::convertArrayKeyFromSnakeToCamel($model->Behaviors->MasterDetail->__settings[$masterClassName]));
+                $ctrlModel = isset($controller->$controlClass) ? $controller->$controlClass : AppModel::getInstance('', $controlClass, false);
+                if (! $ctrlModel) {
                     if (Configure::read('debug') != 0) {
-                        AppController::addWarningMsg('buildDetailBinding requires you to force instanciation of model ' . $control_class);
+                        AppController::addWarningMsg('buildDetailBinding requires you to force instanciation of model ' . $controlClass);
                     }
                     return;
                 }
-                $ctrl_data = $ctrl_model->findById($single_ctrl_id);
-                $ctrl_data = current($ctrl_data);
+                $ctrlData = $ctrlModel->findById($singleCtrlId);
+                $ctrlData = current($ctrlData);
                 // put a new instance of the detail model in the cache
-                ClassRegistry::removeObject($detail_class); // flush the old detail from cache, we'll need to reinstance it
-                assert(strlen($ctrl_data['detail_tablename'])) or die("detail_tablename cannot be empty");
+                ClassRegistry::removeObject($detailClass); // flush the old detail from cache, we'll need to reinstance it
+                assert(strlen($ctrlData['detail_tablename'])) or die("detail_tablename cannot be empty");
                 new AppModel(array(
-                    'table' => $ctrl_data['detail_tablename'],
-                    'name' => $detail_class,
-                    'alias' => $detail_class
+                    'table' => $ctrlData['detail_tablename'],
+                    'name' => $detailClass,
+                    'alias' => $detailClass
                 ));
                 
                 // has one and win
-                $has_one[$detail_class] = array(
-                    'className' => $detail_class,
-                    'foreignKey' => $master_foreign
+                $hasOne[$detailClass] = array(
+                    'className' => $detailClass,
+                    'foreignKey' => $masterForeign
                 );
                 
-                if ($master_class_name == 'SampleMaster') {
+                if ($masterClassName == 'SampleMaster') {
                     // join specimen/derivative details
-                    if ($ctrl_data['sample_category'] == 'specimen') {
-                        $has_one['SpecimenDetail'] = array(
+                    if ($ctrlData['sample_category'] == 'specimen') {
+                        $hasOne['SpecimenDetail'] = array(
                             'className' => 'SpecimenDetail',
                             'foreignKey' => 'sample_master_id'
                         );
                     } else {
                         // derivative
-                        $has_one['DerivativeDetail'] = array(
+                        $hasOne['DerivativeDetail'] = array(
                             'className' => 'DerivativeDetail',
                             'foreignKey' => 'sample_master_id'
                         );
@@ -1132,22 +1132,22 @@ class AppController extends Controller
                 
                 // persistent bind
                 $model->bindModel(array(
-                    'hasOne' => $has_one,
+                    'hasOne' => $hasOne,
                     'belongsTo' => array(
-                        $control_class => array(
-                            'className' => $control_class
+                        $controlClass => array(
+                            'className' => $controlClass
                         )
                     )
                 ), false);
-                isset($model->{$detail_class}); // triggers model lazy loading (See cakephp Model class)
-                                                
+                isset($model->{$detailClass}); // triggers model lazy loading (See cakephp Model class)
+                                               
                 // updating structure
-                if (($pos = strpos($ctrl_data['form_alias'], ',')) !== false) {
-                    $structure_alias = $structure_alias . ',' . substr($ctrl_data['form_alias'], $pos + 1);
+                if (($pos = strpos($ctrlData['form_alias'], ',')) !== false) {
+                    $structureAlias = $structureAlias . ',' . substr($ctrlData['form_alias'], $pos + 1);
                 }
                 
-                ClassRegistry::removeObject($detail_class); // flush the new model to make sure the default one is loaded if needed
-            } elseif (count($ctrl_ids) > 0) {
+                ClassRegistry::removeObject($detailClass); // flush the new model to make sure the default one is loaded if needed
+            } elseif (count($ctrlIds) > 0) {
                 // more than one
                 AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));
             }
@@ -1157,20 +1157,20 @@ class AppController extends Controller
     /**
      * Builds menu options based on 1-display_order and 2-translation
      *
-     * @param array $menu_options
+     * @param array $menuOptions
      *            An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
      *            The label must be translated already.
      */
-    static function buildBottomMenuOptions(array &$menu_options)
+    static function buildBottomMenuOptions(array &$menuOptions)
     {
         $tmp = array();
-        foreach ($menu_options as $menu_option) {
-            $tmp[sprintf("%05d", $menu_option['order']) . '-' . $menu_option['label']] = $menu_option['link'];
+        foreach ($menuOptions as $menuOption) {
+            $tmp[sprintf("%05d", $menuOption['order']) . '-' . $menuOption['label']] = $menuOption['link'];
         }
         ksort($tmp);
-        $menu_options = array();
+        $menuOptions = array();
         foreach ($tmp as $label => $link) {
-            $menu_options[preg_replace('/^[0-9]+-/', '', $label)] = $link;
+            $menuOptions[preg_replace('/^[0-9]+-/', '', $label)] = $link;
         }
     }
 
@@ -1193,14 +1193,14 @@ class AppController extends Controller
             $this->request->data['url_to_cancel'] = 'javascript:history.go(-1)';
         }
         
-        $this->set('url_to_cancel', $this->request->data['url_to_cancel']);
+        $this->set('urlToCancel', $this->request->data['url_to_cancel']);
     }
 
     function resetPermissions()
     {
         if ($this->Auth->user()) {
-            $user_model = AppModel::getInstance('', 'User', true);
-            $user = $user_model->findById($this->Session->read('Auth.User.id'));
+            $userModel = AppModel::getInstance('', 'User', true);
+            $user = $userModel->findById($this->Session->read('Auth.User.id'));
             $this->Session->write('Auth.User.group_id', $user['User']['group_id']);
             $this->Session->write('flag_show_confidential', $user['Group']['flag_show_confidential']);
             $this->Session->write('permission_timestamp', time());
@@ -1208,12 +1208,12 @@ class AppController extends Controller
         }
     }
 
-    function setForRadiolist(array &$list, $l_model, $l_key, array $data, $d_model, $d_key)
+    function setForRadiolist(array &$list, $lModel, $lKey, array $data, $dModel, $dKey)
     {
         foreach ($list as &$unit) {
-            if ($data[$d_model][$d_key] == $unit[$l_model][$l_key]) {
+            if ($data[$dModel][$dKey] == $unit[$lModel][$lKey]) {
                 // we found the one that interests us
-                $unit[$d_model] = $data[$d_model];
+                $unit[$dModel] = $data[$dModel];
                 return true;
             }
         }
@@ -1262,38 +1262,38 @@ class AppController extends Controller
         
         // *** 2 *** update the i18n string for version
         
-        $storage_control_model = AppModel::getInstance('StorageLayout', 'StorageControl', true);
-        $is_tma_block = $storage_control_model->find('count', array(
+        $storageControlModel = AppModel::getInstance('StorageLayout', 'StorageControl', true);
+        $isTmaBlock = $storageControlModel->find('count', array(
             'condition' => array(
                 'StorageControl.flag_active' => '1',
                 'is_tma_block' => '1'
             )
         ));
-        $this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage layout management - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '" . ($is_tma_block ? 'storage layout & tma blocks management' : 'storage layout management') . "')");
-        $this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage layout management description - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '" . ($is_tma_block ? 'storage layout & tma blocks management description' : 'storage layout management description') . "')");
-        $this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage (non tma block) - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '" . ($is_tma_block ? 'storage (non tma block)' : 'storage') . "')");
+        $this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage layout management - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '" . ($isTmaBlock ? 'storage layout & tma blocks management' : 'storage layout management') . "')");
+        $this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage layout management description - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '" . ($isTmaBlock ? 'storage layout & tma blocks management description' : 'storage layout management description') . "')");
+        $this->Version->query("REPLACE INTO i18n (id,en,fr) (SELECT 'storage (non tma block) - value generated by newVersionSetup function', en, fr FROM i18n WHERE id = '" . ($isTmaBlock ? 'storage (non tma block)' : 'storage') . "')");
         
-        $i18n_model = new Model(array(
+        $i18nModel = new Model(array(
             'table' => 'i18n',
             'name' => 0
         ));
-        $version_number = $this->Version->data['Version']['version_number'];
-        $i18n_model->save(array(
+        $versionNumber = $this->Version->data['Version']['version_number'];
+        $i18nModel->save(array(
             'id' => 'core_app_version',
-            'en' => $version_number,
-            'fr' => $version_number
+            'en' => $versionNumber,
+            'fr' => $versionNumber
         ));
         
         // *** 3 ***rebuild language files
         
         $filee = fopen("../../app/Locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
         $filef = fopen("../../app/Locale/fra/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
-        $i18n = $i18n_model->find('all');
-        foreach ($i18n as &$i18n_line) {
+        $i18n = $i18nModel->find('all');
+        foreach ($i18n as &$i18nLine) {
             // Takes information returned by query and creates variable for each field
-            $id = $i18n_line[0]['id'];
-            $en = $i18n_line[0]['en'];
-            $fr = $i18n_line[0]['fr'];
+            $id = $i18nLine[0]['id'];
+            $en = $i18nLine[0]['en'];
+            $fr = $i18nLine[0]['fr'];
             if (strlen($en) > 1014) {
                 $error = "msgid\t\"$id\"\nen\t\"$en\"\n";
                 $en = substr($en, 0, 1014);
@@ -1318,15 +1318,15 @@ class AppController extends Controller
         fclose($filef);
         AppController::addWarningMsg(__('language files have been rebuilt'));
         
-        // *** 4 *** rebuilts lft rght in datamart_browsing_result if needed + delete all temporary browsing index if > $tmp_browsing_limit. Since v2.5.0.
+        // *** 4 *** rebuilts lft rght in datamart_browsing_result if needed + delete all temporary browsing index if > $tmpBrowsingLimit. Since v2.5.0.
         
-        $browsing_index_model = AppModel::getInstance('Datamart', 'BrowsingIndex', true);
-        $browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-        $root_node_ids_to_keep = array();
-        $user_root_node_counter = 0;
-        $last_user_id = null;
-        $force_rebuild_left_rght = false;
-        $tmp_browsing = $browsing_index_model->find('all', array(
+        $browsingIndexModel = AppModel::getInstance('Datamart', 'BrowsingIndex', true);
+        $browsingResultModel = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+        $rootNodeIdsToKeep = array();
+        $userRootNodeCounter = 0;
+        $lastUserId = null;
+        $forceRebuildLeftRght = false;
+        $tmpBrowsing = $browsingIndexModel->find('all', array(
             'conditions' => array(
                 'BrowsingIndex.temporary' => true
             ),
@@ -1334,41 +1334,41 @@ class AppController extends Controller
                 'BrowsingResult.user_id, BrowsingResult.created DESC'
             )
         ));
-        foreach ($tmp_browsing as $new_browsing_index) {
-            if ($last_user_id != $new_browsing_index['BrowsingResult']['user_id'] || $user_root_node_counter < $browsing_index_model->tmp_browsing_limit) {
-                if ($last_user_id != $new_browsing_index['BrowsingResult']['user_id'])
-                    $user_root_node_counter = 0;
-                $last_user_id = $new_browsing_index['BrowsingResult']['user_id'];
-                $user_root_node_counter ++;
-                $root_node_ids_to_keep[$new_browsing_index['BrowsingIndex']['root_node_id']] = $new_browsing_index['BrowsingIndex']['root_node_id'];
+        foreach ($tmpBrowsing as $newBrowsingIndex) {
+            if ($lastUserId != $newBrowsingIndex['BrowsingResult']['user_id'] || $userRootNodeCounter < $browsingIndexModel->tmpBrowsingLimit) {
+                if ($lastUserId != $newBrowsingIndex['BrowsingResult']['user_id'])
+                    $userRootNodeCounter = 0;
+                $lastUserId = $newBrowsingIndex['BrowsingResult']['user_id'];
+                $userRootNodeCounter ++;
+                $rootNodeIdsToKeep[$newBrowsingIndex['BrowsingIndex']['root_node_id']] = $newBrowsingIndex['BrowsingIndex']['root_node_id'];
             } else {
                 // Some browsing index will be deleted
-                $force_rebuild_left_rght = true;
+                $forceRebuildLeftRght = true;
             }
         }
-        $result_ids_to_keep = $root_node_ids_to_keep;
-        $new_parent_ids = $root_node_ids_to_keep;
-        $loop_counter = 0;
-        while (! empty($new_parent_ids)) {
+        $resultIdsToKeep = $rootNodeIdsToKeep;
+        $newParentIds = $rootNodeIdsToKeep;
+        $loopCounter = 0;
+        while (! empty($newParentIds)) {
             // Just in case
-            $loop_counter ++;
-            if ($loop_counter > 100)
+            $loopCounter ++;
+            if ($loopCounter > 100)
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $new_parent_ids = $browsing_result_model->find('list', array(
+            $newParentIds = $browsingResultModel->find('list', array(
                 'conditions' => array(
-                    "BrowsingResult.parent_id" => $new_parent_ids
+                    "BrowsingResult.parent_id" => $newParentIds
                 ),
                 'fields' => array(
                     'BrowsingResult.id'
                 )
             ));
-            $result_ids_to_keep = array_merge($result_ids_to_keep, $new_parent_ids);
+            $resultIdsToKeep = array_merge($resultIdsToKeep, $newParentIds);
         }
-        if (! empty($result_ids_to_keep)) {
-            $browsing_index_model->deleteAll("BrowsingIndex.root_node_id NOT IN (" . implode(',', $root_node_ids_to_keep) . ")");
-            $browsing_result_model->deleteAll("BrowsingResult.id NOT IN (" . implode(',', $result_ids_to_keep) . ")");
+        if (! empty($resultIdsToKeep)) {
+            $browsingIndexModel->deleteAll("BrowsingIndex.root_node_id NOT IN (" . implode(',', $rootNodeIdsToKeep) . ")");
+            $browsingResultModel->deleteAll("BrowsingResult.id NOT IN (" . implode(',', $resultIdsToKeep) . ")");
         }
-        $result = $browsing_result_model->find('first', array(
+        $result = $browsingResultModel->find('first', array(
             'conditions' => array(
                 'NOT' => array(
                     'BrowsingResult.parent_id' => NULL
@@ -1376,34 +1376,34 @@ class AppController extends Controller
                 'BrowsingResult.lft' => NULL
             )
         ));
-        if ($result || $force_rebuild_left_rght) {
+        if ($result || $forceRebuildLeftRght) {
             self::addWarningMsg(__('rebuilt lft rght for datamart_browsing_results'));
-            $browsing_result_model->recover('parent');
+            $browsingResultModel->recover('parent');
         }
         
         // *** 5 *** rebuild views
         
-        $view_models = array(
+        $viewModels = array(
             AppModel::getInstance('InventoryManagement', 'ViewCollection'),
             AppModel::getInstance('InventoryManagement', 'ViewSample'),
             AppModel::getInstance('InventoryManagement', 'ViewAliquot'),
             AppModel::getInstance('StorageLayout', 'ViewStorageMaster'),
             AppModel::getInstance('InventoryManagement', 'ViewAliquotUse')
         );
-        foreach ($view_models as $view_model) {
-            $this->Version->query('DROP TABLE IF EXISTS ' . $view_model->table);
-            $this->Version->query('DROP VIEW IF EXISTS ' . $view_model->table);
-            if (isset($view_model::$table_create_query)) {
+        foreach ($viewModels as $viewModel) {
+            $this->Version->query('DROP TABLE IF EXISTS ' . $viewModel->table);
+            $this->Version->query('DROP VIEW IF EXISTS ' . $viewModel->table);
+            if (isset($viewModel::$tableCreateQuery)) {
                 // Must be done with multiple queries
-                $this->Version->query($view_model::$table_create_query);
-                $queries = explode("UNION ALL", $view_model::$table_query);
+                $this->Version->query($viewModel::$tableCreateQuery);
+                $queries = explode("UNION ALL", $viewModel::$tableQuery);
                 foreach ($queries as $query) {
-                    $this->Version->query('INSERT INTO ' . $view_model->table . '(' . str_replace('%%WHERE%%', '', $query) . ')');
+                    $this->Version->query('INSERT INTO ' . $viewModel->table . '(' . str_replace('%%WHERE%%', '', $query) . ')');
                 }
             } else {
-                $this->Version->query('CREATE TABLE ' . $view_model->table . '(' . str_replace('%%WHERE%%', '', $view_model::$table_query) . ')');
+                $this->Version->query('CREATE TABLE ' . $viewModel->table . '(' . str_replace('%%WHERE%%', '', $viewModel::$tableQuery) . ')');
             }
-            $desc = $this->Version->query('DESC ' . $view_model->table);
+            $desc = $this->Version->query('DESC ' . $viewModel->table);
             $fields = array();
             $field = array_shift($desc);
             $pkey = $field['COLUMNS']['Field'];
@@ -1412,92 +1412,92 @@ class AppController extends Controller
                     $fields[] = $field['COLUMNS']['Field'];
                 }
             }
-            $this->Version->query('ALTER TABLE ' . $view_model->table . ' ADD PRIMARY KEY(' . $pkey . '), ADD KEY (' . implode('), ADD KEY (', $fields) . ')');
+            $this->Version->query('ALTER TABLE ' . $viewModel->table . ' ADD PRIMARY KEY(' . $pkey . '), ADD KEY (' . implode('), ADD KEY (', $fields) . ')');
         }
         
         AppController::addWarningMsg(__('views have been rebuilt'));
         
         // *** 6 *** Current Volume clean up
         
-        $ViewAliquot_model = AppModel::getInstance("InventoryManagement", "ViewAliquot", false); // To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
-        $tmp_aliquot_model_cacheSources = $ViewAliquot_model->cacheSources;
-        $ViewAliquot_model->cacheSources = false;
-        $ViewAliquot_model->schema();
-        $AliquotMaster_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-        $AliquotMaster_model->check_writable_fields = false;
+        $ViewAliquotModel = AppModel::getInstance("InventoryManagement", "ViewAliquot", false); // To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
+        $tmpAliquotModelCacheSources = $ViewAliquotModel->cacheSources;
+        $ViewAliquotModel->cacheSources = false;
+        $ViewAliquotModel->schema();
+        $AliquotMasterModel = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+        $AliquotMasterModel->checkWritableFields = false;
         AppModel::acquireBatchViewsUpdateLock();
         // Current Volume
-        $current_volumes_updated = array();
+        $currentVolumesUpdated = array();
         // Search all aliquots having initial_volume but no current_volume
-        $tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
+        $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
 			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
 			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NOT NULL AND am.current_volume IS NULL;";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        foreach ($aliquots_to_clean_up as $new_aliquot) {
-            $AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-            if (! $AliquotMaster_model->save(array(
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        foreach ($aliquotsToCleanUp as $newAliquot) {
+            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $AliquotMasterModel->save(array(
                 'AliquotMaster' => array(
-                    'id' => $new_aliquot['am']['aliquot_master_id'],
-                    'current_volume' => $new_aliquot['am']['initial_volume']
+                    'id' => $newAliquot['am']['aliquot_master_id'],
+                    'current_volume' => $newAliquot['am']['initial_volume']
                 )
             ), false))
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+            $currentVolumesUpdated[$newAliquot['am']['aliquot_master_id']] = $newAliquot['am']['barcode'];
         }
         // Search all aliquots having current_volume but no initial_volume
-        $tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
+        $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
 			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
 			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NULL AND am.current_volume IS NOT NULL;";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        foreach ($aliquots_to_clean_up as $new_aliquot) {
-            $AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-            if (! $AliquotMaster_model->save(array(
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        foreach ($aliquotsToCleanUp as $newAliquot) {
+            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $AliquotMasterModel->save(array(
                 'AliquotMaster' => array(
-                    'id' => $new_aliquot['am']['aliquot_master_id'],
+                    'id' => $newAliquot['am']['aliquot_master_id'],
                     'current_volume' => ''
                 )
             ), false))
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+            $currentVolumesUpdated[$newAliquot['am']['aliquot_master_id']] = $newAliquot['am']['barcode'];
         }
         // Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
-        $tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        foreach ($aliquots_to_clean_up as $new_aliquot) {
-            $AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-            if (! $AliquotMaster_model->save(array(
+        $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        foreach ($aliquotsToCleanUp as $newAliquot) {
+            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $AliquotMasterModel->save(array(
                 'AliquotMaster' => array(
-                    'id' => $new_aliquot['am']['aliquot_master_id'],
+                    'id' => $newAliquot['am']['aliquot_master_id'],
                     'current_volume' => '0'
                 )
             ), false))
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+            $currentVolumesUpdated[$newAliquot['am']['aliquot_master_id']] = $newAliquot['am']['barcode'];
         }
         // Search all aliquots having current_volume != initial volume - used_volume (from view_aliquot_uses) > initial_volume
-        $tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume >= us.sum_used_volumes AND am.current_volume != (am.initial_volume - us.sum_used_volumes);";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        foreach ($aliquots_to_clean_up as $new_aliquot) {
-            $AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
-            if (! $AliquotMaster_model->save(array(
+        $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume >= us.sum_used_volumes AND am.current_volume != (am.initial_volume - us.sum_used_volumes);";
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        foreach ($aliquotsToCleanUp as $newAliquot) {
+            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $AliquotMasterModel->save(array(
                 'AliquotMaster' => array(
-                    'id' => $new_aliquot['am']['aliquot_master_id'],
-                    'current_volume' => ($new_aliquot['am']['initial_volume'] - $new_aliquot['us']['sum_used_volumes'])
+                    'id' => $newAliquot['am']['aliquot_master_id'],
+                    'current_volume' => ($newAliquot['am']['initial_volume'] - $newAliquot['us']['sum_used_volumes'])
                 )
             ), false))
                 $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+            $currentVolumesUpdated[$newAliquot['am']['aliquot_master_id']] = $newAliquot['am']['barcode'];
         }
-        if ($current_volumes_updated)
-            AppController::addWarningMsg(__('aliquot current volume has been corrected for following aliquots : ') . (implode(', ', $current_volumes_updated)));
-            // -C-Used Volume
-        $used_volume_updated = array();
+        if ($currentVolumesUpdated)
+            AppController::addWarningMsg(__('aliquot current volume has been corrected for following aliquots : ') . (implode(', ', $currentVolumesUpdated)));
+        // -C-Used Volume
+        $usedVolumeUpdated = array();
         // Search all aliquot internal use having used volume not null but no volume unit
-        $tmp_sql = "SELECT AliquotInternalUse.id AS aliquot_internal_use_id,
+        $tmpSql = "SELECT AliquotInternalUse.id AS aliquot_internal_use_id,
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.barcode AS barcode,
 			AliquotInternalUse.used_volume AS used_volume,
@@ -1506,25 +1506,25 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE AliquotInternalUse.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND AliquotInternalUse.used_volume IS NOT NULL;";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        if ($aliquots_to_clean_up) {
-            $AliquotInternalUse_model = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
-            $AliquotInternalUse_model->check_writable_fields = false;
-            foreach ($aliquots_to_clean_up as $new_aliquot) {
-                $AliquotInternalUse_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $AliquotInternalUse_model->id = $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'];
-                if (! $AliquotInternalUse_model->save(array(
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        if ($aliquotsToCleanUp) {
+            $AliquotInternalUseModel = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
+            $AliquotInternalUseModel->checkWritableFields = false;
+            foreach ($aliquotsToCleanUp as $newAliquot) {
+                $AliquotInternalUseModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $AliquotInternalUseModel->id = $newAliquot['AliquotInternalUse']['aliquot_internal_use_id'];
+                if (! $AliquotInternalUseModel->save(array(
                     'AliquotInternalUse' => array(
-                        'id' => $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'],
+                        'id' => $newAliquot['AliquotInternalUse']['aliquot_internal_use_id'],
                         'used_volume' => ''
                     )
                 ), false))
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                $used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+                $usedVolumeUpdated[$newAliquot['AliquotMaster']['aliquot_master_id']] = $newAliquot['AliquotMaster']['barcode'];
             }
         }
         // Search all aliquot used as source aliquot, used volume not null but no volume unit
-        $tmp_sql = "SELECT SourceAliquot.id AS source_aliquot_id,
+        $tmpSql = "SELECT SourceAliquot.id AS source_aliquot_id,
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.barcode AS barcode,
 			SourceAliquot.used_volume AS used_volume,
@@ -1533,25 +1533,25 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE SourceAliquot.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND SourceAliquot.used_volume IS NOT NULL;";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        if ($aliquots_to_clean_up) {
-            $SourceAliquot_model = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-            $SourceAliquot_model->check_writable_fields = false;
-            foreach ($aliquots_to_clean_up as $new_aliquot) {
-                $SourceAliquot_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $SourceAliquot_model->id = $new_aliquot['SourceAliquot']['source_aliquot_id'];
-                if (! $SourceAliquot_model->save(array(
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        if ($aliquotsToCleanUp) {
+            $SourceAliquotModel = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
+            $SourceAliquotModel->checkWritableFields = false;
+            foreach ($aliquotsToCleanUp as $newAliquot) {
+                $SourceAliquotModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $SourceAliquotModel->id = $newAliquot['SourceAliquot']['source_aliquot_id'];
+                if (! $SourceAliquotModel->save(array(
                     'SourceAliquot' => array(
-                        'id' => $new_aliquot['SourceAliquot']['source_aliquot_id'],
+                        'id' => $newAliquot['SourceAliquot']['source_aliquot_id'],
                         'used_volume' => ''
                     )
                 ), false))
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                $used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+                $usedVolumeUpdated[$newAliquot['AliquotMaster']['aliquot_master_id']] = $newAliquot['AliquotMaster']['barcode'];
             }
         }
         // Search all aliquot used as parent aliquot, used volume not null but no volume unit
-        $tmp_sql = "SELECT Realiquoting.id AS realiquoting_id,
+        $tmpSql = "SELECT Realiquoting.id AS realiquoting_id,
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.barcode AS barcode,
 			Realiquoting.parent_used_volume AS used_volume,
@@ -1560,25 +1560,25 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE Realiquoting.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND Realiquoting.parent_used_volume IS NOT NULL;";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        if ($aliquots_to_clean_up) {
-            $Realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
-            $Realiquoting_model->check_writable_fields = false;
-            foreach ($aliquots_to_clean_up as $new_aliquot) {
-                $Realiquoting_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $Realiquoting_model->id = $new_aliquot['Realiquoting']['realiquoting_id'];
-                if (! $Realiquoting_model->save(array(
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        if ($aliquotsToCleanUp) {
+            $RealiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+            $RealiquotingModel->checkWritableFields = false;
+            foreach ($aliquotsToCleanUp as $newAliquot) {
+                $RealiquotingModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $RealiquotingModel->id = $newAliquot['Realiquoting']['realiquoting_id'];
+                if (! $RealiquotingModel->save(array(
                     'Realiquoting' => array(
-                        'id' => $new_aliquot['Realiquoting']['realiquoting_id'],
+                        'id' => $newAliquot['Realiquoting']['realiquoting_id'],
                         'parent_used_volume' => ''
                     )
                 ), false))
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                $used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+                $usedVolumeUpdated[$newAliquot['AliquotMaster']['aliquot_master_id']] = $newAliquot['AliquotMaster']['barcode'];
             }
         }
         // Search all aliquot used for quality conbtrol, used volume not null but no volume unit
-        $tmp_sql = "SELECT QualityCtrl.id AS quality_control_id,
+        $tmpSql = "SELECT QualityCtrl.id AS quality_control_id,
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.barcode AS barcode,
 			QualityCtrl.used_volume AS used_volume,
@@ -1587,32 +1587,32 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE QualityCtrl.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND QualityCtrl.used_volume IS NOT NULL;";
-        $aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
-        if ($aliquots_to_clean_up) {
-            $QualityCtrl_model = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
-            $QualityCtrl_model->check_writable_fields = false;
-            foreach ($aliquots_to_clean_up as $new_aliquot) {
-                $QualityCtrl_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $QualityCtrl_model->id = $new_aliquot['QualityCtrl']['quality_control_id'];
-                if (! $QualityCtrl_model->save(array(
+        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        if ($aliquotsToCleanUp) {
+            $QualityCtrlModel = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
+            $QualityCtrlModel->checkWritableFields = false;
+            foreach ($aliquotsToCleanUp as $newAliquot) {
+                $QualityCtrlModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $QualityCtrlModel->id = $newAliquot['QualityCtrl']['quality_control_id'];
+                if (! $QualityCtrlModel->save(array(
                     'QualityCtrl' => array(
-                        'id' => $new_aliquot['QualityCtrl']['quality_control_id'],
+                        'id' => $newAliquot['QualityCtrl']['quality_control_id'],
                         'used_volume' => ''
                     )
                 ), false))
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                $used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+                $usedVolumeUpdated[$newAliquot['AliquotMaster']['aliquot_master_id']] = $newAliquot['AliquotMaster']['barcode'];
             }
         }
-        if ($used_volume_updated) {
-            $ViewAliquotUse_model = AppModel::getInstance('InventoryManagement', 'ViewAliquotUse');
-            foreach (explode("UNION ALL", $ViewAliquotUse_model::$table_query) as $query) {
-                $ViewAliquotUse_model->query('REPLACE INTO ' . $ViewAliquotUse_model->table . '(' . str_replace('%%WHERE%%', 'AND AliquotMaster.id IN (' . implode(',', array_keys($used_volume_updated)) . ')', $query) . ')');
+        if ($usedVolumeUpdated) {
+            $ViewAliquotUseModel = AppModel::getInstance('InventoryManagement', 'ViewAliquotUse');
+            foreach (explode("UNION ALL", $ViewAliquotUseModel::$tableQuery) as $query) {
+                $ViewAliquotUseModel->query('REPLACE INTO ' . $ViewAliquotUseModel->table . '(' . str_replace('%%WHERE%%', 'AND AliquotMaster.id IN (' . implode(',', array_keys($usedVolumeUpdated)) . ')', $query) . ')');
             }
-            AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ') . (implode(', ', $used_volume_updated)));
+            AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ') . (implode(', ', $usedVolumeUpdated)));
         }
-        $ViewAliquot_model->cacheSources = $tmp_aliquot_model_cacheSources;
-        $ViewAliquot_model->schema();
+        $ViewAliquotModel->cacheSources = $tmpAliquotModelCacheSources;
+        $ViewAliquotModel->schema();
         
         // *** 7 *** clear cache
         
@@ -1627,36 +1627,36 @@ class AppController extends Controller
         
         // *** 8 *** Clean up parent to sample control + aliquot control
         
-        $studied_sample_control_id = array();
-        $active_sample_control_ids = array();
+        $studiedSampleControlId = array();
+        $activeSampleControlIds = array();
         $this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
         
         $conditions = array(
             'ParentToDerivativeSampleControl.parent_sample_control_id' => NULL,
             'ParentToDerivativeSampleControl.flag_active' => true
         );
-        while ($active_parent_sample_types = $this->ParentToDerivativeSampleControl->find('all', array(
+        while ($activeParentSampleTypes = $this->ParentToDerivativeSampleControl->find('all', array(
             'conditions' => $conditions
         ))) {
-            foreach ($active_parent_sample_types as $new_parent_sample_type) {
-                $active_sample_control_ids[] = $new_parent_sample_type['DerivativeControl']['id'];
-                $studied_sample_control_id[] = $new_parent_sample_type['DerivativeControl']['id'];
+            foreach ($activeParentSampleTypes as $newParentSampleType) {
+                $activeSampleControlIds[] = $newParentSampleType['DerivativeControl']['id'];
+                $studiedSampleControlId[] = $newParentSampleType['DerivativeControl']['id'];
             }
             $conditions = array(
-                'ParentToDerivativeSampleControl.parent_sample_control_id' => $active_sample_control_ids,
+                'ParentToDerivativeSampleControl.parent_sample_control_id' => $activeSampleControlIds,
                 'ParentToDerivativeSampleControl.flag_active' => true,
                 'not' => array(
-                    'ParentToDerivativeSampleControl.derivative_sample_control_id' => $studied_sample_control_id
+                    'ParentToDerivativeSampleControl.derivative_sample_control_id' => $studiedSampleControlId
                 )
             );
         }
-        $this->Version->query('UPDATE parent_to_derivative_sample_controls SET flag_active = false WHERE parent_sample_control_id IS NOT NULL AND parent_sample_control_id NOT IN (' . implode(',', $active_sample_control_ids) . ')');
-        $this->Version->query('UPDATE aliquot_controls SET flag_active = false WHERE sample_control_id NOT IN (' . implode(',', $active_sample_control_ids) . ')');
+        $this->Version->query('UPDATE parent_to_derivative_sample_controls SET flag_active = false WHERE parent_sample_control_id IS NOT NULL AND parent_sample_control_id NOT IN (' . implode(',', $activeSampleControlIds) . ')');
+        $this->Version->query('UPDATE aliquot_controls SET flag_active = false WHERE sample_control_id NOT IN (' . implode(',', $activeSampleControlIds) . ')');
         
         // *** 9 *** Clean up structure_permissible_values_custom_controls counters values
         
         $StructurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
-        $has_many_details = array(
+        $hasManyDetails = array(
             'hasMany' => array(
                 'StructurePermissibleValuesCustom' => array(
                     'className' => 'StructurePermissibleValuesCustom',
@@ -1664,25 +1664,25 @@ class AppController extends Controller
                 )
             )
         );
-        $StructurePermissibleValuesCustomControl->bindModel($has_many_details);
-        $all_cusom_lists_controls = $StructurePermissibleValuesCustomControl->find('all');
-        foreach ($all_cusom_lists_controls as $new_custom_list) {
-            $values_used_as_input_counter = 0;
-            $values_counter = 0;
-            foreach ($new_custom_list['StructurePermissibleValuesCustom'] as $new_custom_value) {
-                if (! $new_custom_value['deleted']) {
-                    $values_counter ++;
-                    if ($new_custom_value['use_as_input'])
-                        $values_used_as_input_counter ++;
+        $StructurePermissibleValuesCustomControl->bindModel($hasManyDetails);
+        $allCusomListsControls = $StructurePermissibleValuesCustomControl->find('all');
+        foreach ($allCusomListsControls as $newCustomList) {
+            $valuesUsedAsInputCounter = 0;
+            $valuesCounter = 0;
+            foreach ($newCustomList['StructurePermissibleValuesCustom'] as $newCustomValue) {
+                if (! $newCustomValue['deleted']) {
+                    $valuesCounter ++;
+                    if ($newCustomValue['use_as_input'])
+                        $valuesUsedAsInputCounter ++;
                 }
             }
-            $StructurePermissibleValuesCustomControl->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $values_counter, values_used_as_input_counter = $values_used_as_input_counter WHERE id = " . $new_custom_list['StructurePermissibleValuesCustomControl']['id']);
+            $StructurePermissibleValuesCustomControl->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $valuesCounter, values_used_as_input_counter = $valuesUsedAsInputCounter WHERE id = " . $newCustomList['StructurePermissibleValuesCustomControl']['id']);
         }
         
         // *** 10 *** rebuilts lft rght in storage_masters
         
-        $storage_master_model = AppModel::getInstance('StorageLayout', 'StorageMaster', true);
-        $result = $storage_master_model->find('first', array(
+        $storageMasterModel = AppModel::getInstance('StorageLayout', 'StorageMaster', true);
+        $result = $storageMasterModel->find('first', array(
             'conditions' => array(
                 'NOT' => array(
                     'StorageMaster.parent_id' => NULL
@@ -1692,7 +1692,7 @@ class AppController extends Controller
         ));
         if ($result) {
             self::addWarningMsg(__('rebuilt lft rght for storage_masters'));
-            $storage_master_model->recover('parent');
+            $storageMasterModel->recover('parent');
         }
         
         // *** 11 *** Disable unused treatment_extend_controls
@@ -1701,31 +1701,31 @@ class AppController extends Controller
         
         // *** 12 *** Check storage controls data
         
-        $storage_ctrl_model = AppModel::getInstance('Administrate', 'StorageCtrl', true);
-        $storage_ctrl_model->validatesAllStorageControls();
+        $storageCtrlModel = AppModel::getInstance('Administrate', 'StorageCtrl', true);
+        $storageCtrlModel->validatesAllStorageControls();
         
         // *** 12 *** Update structure_formats of 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' forms based on core variable 'order_item_type_config'
         
-        $tmp_sql = "SELECT DISTINCT `flag_detail`
+        $tmpSql = "SELECT DISTINCT `flag_detail`
 			FROM structure_formats
 			WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters')
 			AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label')";
-        $flag_detail_result = $AliquotMaster_model->query($tmp_sql);
-        $aliquot_label_flag_detail = '1';
-        if ($flag_detail_result)
-            $aliquot_label_flag_detail = empty($flag_detail_result[0]['structure_formats']['flag_detail']) ? '0' : '1';
+        $flagDetailResult = $AliquotMasterModel->query($tmpSql);
+        $aliquotLabelFlagDetail = '1';
+        if ($flagDetailResult)
+            $aliquotLabelFlagDetail = empty($flagDetailResult[0]['structure_formats']['flag_detail']) ? '0' : '1';
         
-        $structure_formats_queries = array();
+        $structureFormatsQueries = array();
         switch (Configure::read('order_item_type_config')) {
             case '1':
                 // both tma slide and aliquot could be added to order
                 
-                $structure_formats_queries = array(
+                $structureFormatsQueries = array(
                     "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
 						WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Generated' AND `field`='type');",
                     
                     // 1 - 'shippeditems' structure
-                    "UPDATE structure_formats SET `flag_addgrid`=$aliquot_label_flag_detail, `flag_addgrid_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail
+                    "UPDATE structure_formats SET `flag_addgrid`=$aliquotLabelFlagDetail, `flag_addgrid_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail, `flag_index`=$aliquotLabelFlagDetail, `flag_detail`=$aliquotLabelFlagDetail
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `field`='aliquot_label');",
                     "UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
@@ -1746,7 +1746,7 @@ class AppController extends Controller
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode');",
                     
-                    "UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail 
+                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail, `flag_index`=$aliquotLabelFlagDetail, `flag_detail`=$aliquotLabelFlagDetail 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
                     "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
@@ -1760,7 +1760,7 @@ class AppController extends Controller
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide' AND field != 'barcode');",
                     
                     // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail
+                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
                     "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
@@ -1796,12 +1796,12 @@ class AppController extends Controller
             case '2':
                 // aliquot only could be added to order
                 
-                $structure_formats_queries = array(
+                $structureFormatsQueries = array(
                     "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
 						WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Generated' AND `field`='type');",
                     
                     // 1 - 'shippeditems' structure
-                    "UPDATE structure_formats SET `flag_addgrid`=$aliquot_label_flag_detail, `flag_addgrid_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail
+                    "UPDATE structure_formats SET `flag_addgrid`=$aliquotLabelFlagDetail, `flag_addgrid_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail, `flag_index`=$aliquotLabelFlagDetail, `flag_detail`=$aliquotLabelFlagDetail
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='shippeditems')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='InventoryManagement' AND `model`='AliquotMaster' AND `field`='aliquot_label');",
                     "UPDATE structure_formats SET `flag_addgrid`='1', `flag_addgrid_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
@@ -1822,7 +1822,7 @@ class AppController extends Controller
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode');",
                     
-                    "UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail, `flag_index`=$aliquot_label_flag_detail, `flag_detail`=$aliquot_label_flag_detail 
+                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail, `flag_index`=$aliquotLabelFlagDetail, `flag_detail`=$aliquotLabelFlagDetail 
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems') 
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
                     "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1', `flag_index`='1', `flag_detail`='1'
@@ -1836,7 +1836,7 @@ class AppController extends Controller
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='StorageLayout' AND `model`='TmaSlide');",
                     
                     // 3 - 'orderitems_returned' structure
-                    "UPDATE structure_formats SET `flag_edit`=$aliquot_label_flag_detail, `flag_edit_readonly`=$aliquot_label_flag_detail, `flag_editgrid`=$aliquot_label_flag_detail, `flag_editgrid_readonly`=$aliquot_label_flag_detail
+                    "UPDATE structure_formats SET `flag_edit`=$aliquotLabelFlagDetail, `flag_edit_readonly`=$aliquotLabelFlagDetail, `flag_editgrid`=$aliquotLabelFlagDetail, `flag_editgrid_readonly`=$aliquotLabelFlagDetail
 						WHERE structure_id = (SELECT id FROM structures WHERE alias='orderitems_returned')
 						AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');",
                     "UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1'
@@ -1872,7 +1872,7 @@ class AppController extends Controller
             case '3':
                 // tma slide only could be added to order
                 
-                $structure_formats_queries = array(
+                $structureFormatsQueries = array(
                     "UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0'
 						WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Generated' AND `field`='type');",
                     
@@ -1938,8 +1938,8 @@ class AppController extends Controller
             
             default:
         }
-        foreach ($structure_formats_queries as $tmp_sql)
-            $AliquotMaster_model->query($tmp_sql);
+        foreach ($structureFormatsQueries as $tmpSql)
+            $AliquotMasterModel->query($tmpSql);
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1950,7 +1950,7 @@ class AppController extends Controller
                 'permissions_regenerated' => 1
             )
         );
-        $this->Version->check_writable_fields = false;
+        $this->Version->checkWritableFields = false;
         if ($this->Version->save()) {
             $this->redirect('/Users/login');
         }
@@ -1958,7 +1958,7 @@ class AppController extends Controller
 
     function configureCsv($config)
     {
-        $this->csv_config = $config;
+        $this->csvConfig = $config;
         $this->Session->write('Config.language', $config['config_language']);
     }
 
@@ -1981,6 +1981,27 @@ class AppController extends Controller
             $out .= "</thead>" . "</table>";
         }
         return $out;
+    }
+
+    public static function snakeToCamel($val)
+    {
+        preg_match('#^_*#', $val, $underscores);
+        $underscores = current($underscores);
+        $camel = str_replace('||||', '', ucwords(str_replace('_', '||||', $val), '||||'));
+        $camel = strtolower(substr($camel, 0, 1)) . substr($camel, 1);
+        
+        return $underscores . $camel;
+    }
+
+    public static function convertArrayKeyFromSnakeToCamel($array = null)
+    {
+        $answer = [];
+        if ($array) {
+            foreach ($array as $key => $value) {
+                $answer[self::snakeToCamel($key)] = $value;
+            }
+        }
+        return $answer;
     }
 }
 

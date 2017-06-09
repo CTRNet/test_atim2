@@ -1,95 +1,95 @@
 <?php
-$structure_links = array(
-    'top' => '/StorageLayout/TmaSlides/add/' . $tma_block_storage_master_id,
+$structureLinks = array(
+    'top' => '/StorageLayout/TmaSlides/add/' . $tmaBlockStorageMasterId,
     'bottom' => array(
-        'cancel' => $url_to_cancel
+        'cancel' => $urlToCancel
     )
 );
 
-$parent_settings = array(
+$parentSettings = array(
     'type' => 'edit',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => array(
         'actions' => false,
         'form_top' => false,
         'form_bottom' => false,
-        'header' => $tma_block_storage_master_id ? '' : __('tma slides creation'),
+        'header' => $tmaBlockStorageMasterId ? '' : __('tma slides creation'),
         'stretch' => false,
-        'section_start' => ($tma_block_storage_master_id ? false : true)
+        'section_start' => ($tmaBlockStorageMasterId ? false : true)
     )
 );
 
-$children_settings = array(
+$childrenSettings = array(
     'type' => 'addgrid',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => array(
         'actions' => false,
         'form_top' => false,
         'form_bottom' => false,
         "add_fields" => true,
         "del_fields" => true,
-        'header' => $tma_block_storage_master_id ? __('tma slides creation') : '',
-        "language_heading" => $tma_block_storage_master_id ? '' : __('tma slides'),
-        'section_end' => ($tma_block_storage_master_id ? false : true)
+        'header' => $tmaBlockStorageMasterId ? __('tma slides creation') : '',
+        "language_heading" => $tmaBlockStorageMasterId ? '' : __('tma slides'),
+        'section_end' => ($tmaBlockStorageMasterId ? false : true)
     )
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // Display empty structure with hidden fields to fix issue#2243
-$empty_structure_options = $parent_settings;
-$empty_structure_options['settings']['form_top'] = true;
-$empty_structure_options['settings']['language_heading'] = '';
-$empty_structure_options['settings']['header'] = '';
-$empty_structure_options['data'] = array();
-$empty_structure_options['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="' . $url_to_cancel . '"/>';
+$emptyStructureOptions = $parentSettings;
+$emptyStructureOptions['settings']['form_top'] = true;
+$emptyStructureOptions['settings']['language_heading'] = '';
+$emptyStructureOptions['settings']['header'] = '';
+$emptyStructureOptions['data'] = array();
+$emptyStructureOptions['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>';
 
-$this->Structures->build(array(), $empty_structure_options);
+$this->Structures->build(array(), $emptyStructureOptions);
 
 // BUILD FORM
 
-$hook_link = $this->Structures->hook('loop');
+$hookLink = $this->Structures->hook('loop');
 
 $first = true;
 $creation = 0;
 
-$many_tma_blocks = (sizeof($this->request->data) == 1) ? false : true;
-while ($data_unit = array_shift($this->request->data)) {
-    $final_options_parent = $parent_settings;
-    $final_options_children = $children_settings;
+$manyTmaBlocks = (sizeof($this->request->data) == 1) ? false : true;
+while ($dataUnit = array_shift($this->request->data)) {
+    $finalOptionsParent = $parentSettings;
+    $finalOptionsChildren = $childrenSettings;
     
-    $final_options_parent['settings']['header'] .= $many_tma_blocks ? " #" . (++ $creation) : '';
+    $finalOptionsParent['settings']['header'] .= $manyTmaBlocks ? " #" . (++ $creation) : '';
     
-    $final_options_parent['settings']['name_prefix'] = $data_unit['parent']['StorageMaster']['id'];
-    $final_options_children['settings']['name_prefix'] = $data_unit['parent']['StorageMaster']['id'];
+    $finalOptionsParent['settings']['name_prefix'] = $dataUnit['parent']['StorageMaster']['id'];
+    $finalOptionsChildren['settings']['name_prefix'] = $dataUnit['parent']['StorageMaster']['id'];
     
-    $final_options_parent['data'] = $data_unit['parent'];
-    $final_options_children['data'] = $data_unit['children'];
+    $finalOptionsParent['data'] = $dataUnit['parent'];
+    $finalOptionsChildren['data'] = $dataUnit['children'];
     
     if ($first) {
         $first = false;
-        $final_options_parent['settings']['form_top'] = true;
+        $finalOptionsParent['settings']['form_top'] = true;
     }
     if (empty($this->request->data)) {
-        $final_options_children['settings']['actions'] = true;
-        $final_options_children['settings']['form_bottom'] = true;
-        if ($many_tma_blocks)
-            $final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
+        $finalOptionsChildren['settings']['actions'] = true;
+        $finalOptionsChildren['settings']['form_bottom'] = true;
+        if ($manyTmaBlocks)
+            $finalOptionsChildren['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
     }
     
-    $final_structure_parent = $tma_blocks_atim_structure;
-    $final_structure_children = $atim_structure;
+    $finalStructureParent = $tmaBlocksAtimStructure;
+    $finalStructureChildren = $atimStructure;
     
-    if ($hook_link) {
-        require ($hook_link);
+    if ($hookLink) {
+        require ($hookLink);
     }
     
-    if (! $tma_block_storage_master_id)
-        $this->Structures->build($final_structure_parent, $final_options_parent);
-    $this->Structures->build($final_structure_children, $final_options_children);
+    if (! $tmaBlockStorageMasterId)
+        $this->Structures->build($finalStructureParent, $finalOptionsParent);
+    $this->Structures->build($finalStructureChildren, $finalOptionsChildren);
 }
 ?>
 <script>

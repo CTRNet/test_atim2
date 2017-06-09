@@ -3,7 +3,7 @@
 class TreatmentControl extends ClinicalAnnotationAppModel
 {
 
-    public $master_form_alias = 'treatmentmasters';
+    public $masterFormAlias = 'treatmentmasters';
 
     /**
      * Get permissible values array gathering all existing treatment disease sites.
@@ -21,8 +21,8 @@ class TreatmentControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $tx_ctrl) {
-            $result[$tx_ctrl['TreatmentControl']['disease_site']] = __($tx_ctrl['TreatmentControl']['disease_site']);
+        )) as $txCtrl) {
+            $result[$txCtrl['TreatmentControl']['disease_site']] = __($txCtrl['TreatmentControl']['disease_site']);
         }
         natcasesort($result);
         
@@ -45,27 +45,27 @@ class TreatmentControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $tx_ctrl) {
-            $result[$tx_ctrl['TreatmentControl']['tx_method']] = __($tx_ctrl['TreatmentControl']['tx_method']);
+        )) as $txCtrl) {
+            $result[$txCtrl['TreatmentControl']['tx_method']] = __($txCtrl['TreatmentControl']['tx_method']);
         }
         natcasesort($result);
         
         return $result;
     }
 
-    function getAddLinks($participant_id, $diagnosis_master_id = '')
+    function getAddLinks($participantId, $diagnosisMasterId = '')
     {
-        $treatment_controls = $this->find('all', array(
+        $treatmentControls = $this->find('all', array(
             'conditions' => array(
                 'TreatmentControl.flag_active' => 1
             )
         ));
-        foreach ($treatment_controls as $treatment_control) {
-            $trt_header = __($treatment_control['TreatmentControl']['tx_method']) . (empty($treatment_control['TreatmentControl']['disease_site']) ? '' : ' - ' . __($treatment_control['TreatmentControl']['disease_site']));
-            $add_links[$trt_header] = '/ClinicalAnnotation/TreatmentMasters/add/' . $participant_id . '/' . $treatment_control['TreatmentControl']['id'] . '/' . $diagnosis_master_id;
+        foreach ($treatmentControls as $treatmentControl) {
+            $trtHeader = __($treatmentControl['TreatmentControl']['tx_method']) . (empty($treatmentControl['TreatmentControl']['disease_site']) ? '' : ' - ' . __($treatmentControl['TreatmentControl']['disease_site']));
+            $addLinks[$trtHeader] = '/ClinicalAnnotation/TreatmentMasters/add/' . $participantId . '/' . $treatmentControl['TreatmentControl']['id'] . '/' . $diagnosisMasterId;
         }
-        ksort($add_links);
-        return $add_links;
+        ksort($addLinks);
+        return $addLinks;
     }
 
     function afterFind($results, $primary = false)

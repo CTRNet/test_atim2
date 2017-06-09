@@ -7,9 +7,9 @@ class Drug extends DrugAppModel
 
     public $useTable = 'drugs';
 
-    public $drug_titles_already_checked = array();
+    public $drugTitlesAlreadyChecked = array();
 
-    public $drug_data_and_code_for_display_already_set = array();
+    public $drugDataAndCodeForDisplayAlreadySet = array();
 
     function summary($variables = array())
     {
@@ -63,7 +63,7 @@ class Drug extends DrugAppModel
     /**
      * Check if a record can be deleted.
      *
-     * @param $drug_id Id
+     * @param $drugId Id
      *            of the studied record.
      *            
      * @return Return results as array:
@@ -73,16 +73,16 @@ class Drug extends DrugAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($drug_id)
+    function allowDeletion($drugId)
     {
         $TreatmentExtendMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentExtendMaster", true);
-        $returned_nbr = $TreatmentExtendMaster->find('count', array(
+        $returnedNbr = $TreatmentExtendMaster->find('count', array(
             'conditions' => array(
-                'TreatmentExtendMaster.drug_id' => $drug_id
+                'TreatmentExtendMaster.drug_id' => $drugId
             ),
             'recursive' => '1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'drug is defined as a component of at least one participant treatment'
@@ -90,13 +90,13 @@ class Drug extends DrugAppModel
         }
         
         $ProtocolExtendMaster = AppModel::getInstance("Protocol", "ProtocolExtendMaster", true);
-        $returned_nbr = $ProtocolExtendMaster->find('count', array(
+        $returnedNbr = $ProtocolExtendMaster->find('count', array(
             'conditions' => array(
-                'ProtocolExtendMaster.drug_id' => $drug_id
+                'ProtocolExtendMaster.drug_id' => $drugId
             ),
             'recursive' => '1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'drug is defined as a component of at least one protocol'
@@ -109,7 +109,7 @@ class Drug extends DrugAppModel
         );
     }
 
-    function getDrugDataAndCodeForDisplay($drug_data)
+    function getDrugDataAndCodeForDisplay($drugData)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -123,24 +123,24 @@ class Drug extends DrugAppModel
         // check if you need to override these functions.
         //
         // ------------------------------------------------------------------------
-        $formatted_data = '';
-        if ((! empty($drug_data)) && isset($drug_data['Drug']['id']) && (! empty($drug_data['Drug']['id']))) {
-            if (! isset($this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']])) {
-                if (! isset($drug_data['Drug']['generic_name'])) {
-                    $drug_data = $this->find('first', array(
+        $formattedData = '';
+        if ((! empty($drugData)) && isset($drugData['Drug']['id']) && (! empty($drugData['Drug']['id']))) {
+            if (! isset($this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']])) {
+                if (! isset($drugData['Drug']['generic_name'])) {
+                    $drugData = $this->find('first', array(
                         'conditions' => array(
-                            'Drug.id' => ($drug_data['Drug']['id'])
+                            'Drug.id' => ($drugData['Drug']['id'])
                         )
                     ));
                 }
-                $this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']] = $drug_data['Drug']['generic_name'] . ' [' . $drug_data['Drug']['id'] . ']';
+                $this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']] = $drugData['Drug']['generic_name'] . ' [' . $drugData['Drug']['id'] . ']';
             }
-            $formatted_data = $this->drug_data_and_code_for_display_already_set[$drug_data['Drug']['id']];
+            $formattedData = $this->drugDataAndCodeForDisplayAlreadySet[$drugData['Drug']['id']];
         }
-        return $formatted_data;
+        return $formattedData;
     }
 
-    function getDrugIdFromDrugDataAndCode($drug_data_and_code)
+    function getDrugIdFromDrugDataAndCode($drugDataAndCode)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -154,44 +154,44 @@ class Drug extends DrugAppModel
         // check if you need to override these functions.
         //
         // ------------------------------------------------------------------------
-        if (! isset($this->drug_titles_already_checked[$drug_data_and_code])) {
+        if (! isset($this->drugTitlesAlreadyChecked[$drugDataAndCode])) {
             $matches = array();
-            $selected_drugs = array();
-            if (preg_match("/(.+)\[([0-9]+)\]$/", $drug_data_and_code, $matches) > 0) {
+            $selectedDrugs = array();
+            if (preg_match("/(.+)\[([0-9]+)\]$/", $drugDataAndCode, $matches) > 0) {
                 // Auto complete tool has been used
-                $selected_drugs = $this->find('all', array(
+                $selectedDrugs = $this->find('all', array(
                     'conditions' => array(
                         "Drug.generic_name LIKE '%" . trim($matches[1]) . "%'",
                         'Drug.id' => $matches[2]
                     )
                 ));
             } else {
-                // consider $drug_data_and_code contains just drug title
-                $term = str_replace('_', '\_', str_replace('%', '\%', $drug_data_and_code));
+                // consider $drugDataAndCode contains just drug title
+                $term = str_replace('_', '\_', str_replace('%', '\%', $drugDataAndCode));
                 $terms = array();
-                foreach (explode(' ', $term) as $key_word)
-                    $terms[] = "Drug.generic_name LIKE '%" . $key_word . "%'";
+                foreach (explode(' ', $term) as $keyWord)
+                    $terms[] = "Drug.generic_name LIKE '%" . $keyWord . "%'";
                 $conditions = array(
                     'AND' => $terms
                 );
-                $selected_drugs = $this->find('all', array(
+                $selectedDrugs = $this->find('all', array(
                     'conditions' => $conditions
                 ));
             }
-            if (sizeof($selected_drugs) == 1) {
-                $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                    'Drug' => $selected_drugs[0]['Drug']
+            if (sizeof($selectedDrugs) == 1) {
+                $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                    'Drug' => $selectedDrugs[0]['Drug']
                 );
-            } elseif (sizeof($selected_drugs) > 1) {
-                $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                    'error' => str_replace('%s', $drug_data_and_code, __('more than one drug matches the following data [%s]'))
+            } elseif (sizeof($selectedDrugs) > 1) {
+                $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                    'error' => str_replace('%s', $drugDataAndCode, __('more than one drug matches the following data [%s]'))
                 );
             } else {
-                $this->drug_titles_already_checked[$drug_data_and_code] = array(
-                    'error' => str_replace('%s', $drug_data_and_code, __('no drug matches the following data [%s]'))
+                $this->drugTitlesAlreadyChecked[$drugDataAndCode] = array(
+                    'error' => str_replace('%s', $drugDataAndCode, __('no drug matches the following data [%s]'))
                 );
             }
         }
-        return $this->drug_titles_already_checked[$drug_data_and_code];
+        return $this->drugTitlesAlreadyChecked[$drugDataAndCode];
     }
 }

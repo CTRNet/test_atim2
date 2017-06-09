@@ -21,327 +21,327 @@ class ShipmentsController extends OrderAppController
         )
     );
 
-    function search($search_id = 0)
+    function search($searchId = 0)
     {
-        $this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
-        $this->searchHandler($search_id, $this->Shipment, 'shipments', '/InventoryManagement/Shipments/search');
+        $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
+        $this->searchHandler($searchId, $this->Shipment, 'shipments', '/InventoryManagement/Shipments/search');
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             $this->render('index');
         }
     }
 
-    function listall($order_id = null)
+    function listall($orderId = null)
     {
-        if (! $order_id) {
+        if (! $orderId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA
         
         // Check order
-        $order_data = $this->Order->getOrRedirect($order_id);
+        $orderData = $this->Order->getOrRedirect($orderId);
         
         // Get shipments
-        $shipments_data = $this->paginate($this->Shipment, array(
-            'Shipment.order_id' => $order_id
+        $shipmentsData = $this->paginate($this->Shipment, array(
+            'Shipment.order_id' => $orderId
         ));
-        $this->request->data = $shipments_data;
+        $this->request->data = $shipmentsData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu', $this->Menus->get('/Order/Shipments/detail/%%Order.id%%/'));
-        $this->set('atim_menu_variables', array(
-            'Order.id' => $order_id
+        $this->set('atimMenu', $this->Menus->get('/Order/Shipments/detail/%%Order.id%%/'));
+        $this->set('atimMenuVariables', array(
+            'Order.id' => $orderId
         ));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($order_id, $copied_shipment_id = null)
+    function add($orderId, $copiedShipmentId = null)
     {
         
         // MANAGE DATA
         
         // Check order
-        $order_data = $this->Order->getOrRedirect($order_id);
+        $orderData = $this->Order->getOrRedirect($orderId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu', $this->Menus->get('/Order/Shipments/detail/%%Order.id%%/'));
-        $this->set('atim_menu_variables', array(
-            'Order.id' => $order_id
+        $this->set('atimMenu', $this->Menus->get('/Order/Shipments/detail/%%Order.id%%/'));
+        $this->set('atimMenuVariables', array(
+            'Order.id' => $orderId
         ));
         
         // SAVE PROCESS
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            if ($copied_shipment_id) {
+            if ($copiedShipmentId) {
                 $this->request->data = $this->Shipment->find('first', array(
                     'conditions' => array(
-                        'Shipment.id' => $copied_shipment_id
+                        'Shipment.id' => $copiedShipmentId
                     ),
                     'recursive' => '-1'
                 ));
             }
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             
             // Set order id
-            $this->request->data['Shipment']['order_id'] = $order_id;
+            $this->request->data['Shipment']['order_id'] = $orderId;
             
             // Launch validation
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             $this->Shipment->addWritableField('order_id');
-            if ($submitted_data_validates && $this->Shipment->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($submittedDataValidates && $this->Shipment->save($this->request->data)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been saved'), '/Order/Shipments/addToShipment/' . $order_id . '/' . $this->Shipment->getLastInsertId());
+                $this->atimFlash(__('your data has been saved'), '/Order/Shipments/addToShipment/' . $orderId . '/' . $this->Shipment->getLastInsertId());
             }
         }
     }
 
-    function edit($order_id = null, $shipment_id = null)
+    function edit($orderId = null, $shipmentId = null)
     {
-        if ((! $order_id) || (! $shipment_id)) {
+        if ((! $orderId) || (! $shipmentId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA
         
         // Get shipment data
-        $shipment_data = $this->Shipment->find('first', array(
+        $shipmentData = $this->Shipment->find('first', array(
             'conditions' => array(
-                'Shipment.id' => $shipment_id,
-                'Shipment.order_id' => $order_id
+                'Shipment.id' => $shipmentId,
+                'Shipment.order_id' => $orderId
             )
         ));
-        if (empty($shipment_data)) {
+        if (empty($shipmentData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu_variables', array(
-            'Order.id' => $order_id,
-            'Shipment.id' => $shipment_id
+        $this->set('atimMenuVariables', array(
+            'Order.id' => $orderId,
+            'Shipment.id' => $shipmentId
         ));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $shipment_data;
+            $this->request->data = $shipmentData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            $this->Shipment->id = $shipment_id;
-            if ($submitted_data_validates && $this->Shipment->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            $this->Shipment->id = $shipmentId;
+            if ($submittedDataValidates && $this->Shipment->save($this->request->data)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been updated'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id);
+                $this->atimFlash(__('your data has been updated'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId);
             }
         }
     }
 
-    function detail($order_id = null, $shipment_id = null, $is_from_tree_view = false)
+    function detail($orderId = null, $shipmentId = null, $isFromTreeView = false)
     {
         
         // MANAGE DATA
         
         // Shipment data
-        $shipment_data = $this->Shipment->getOrRedirect($shipment_id);
-        $this->request->data = $shipment_data;
+        $shipmentData = $this->Shipment->getOrRedirect($shipmentId);
+        $this->request->data = $shipmentData;
         
         // Manage the add to shipment option (in case we reach the AddAliquotToShipment_processed_items_limit)
         $conditions = array(
-            'OrderItem.order_id' => $order_id,
+            'OrderItem.order_id' => $orderId,
             'OrderItem.shipment_id IS NULL'
         );
-        $available_order_items = $this->OrderItem->find('count', array(
+        $availableOrderItems = $this->OrderItem->find('count', array(
             'conditions' => $conditions
         ));
-        $order_items_limit = Configure::read('AddToShipment_processed_items_limit');
-        $add_to_shipments_subset_limits = array();
-        if ($available_order_items > $order_items_limit) {
-            $nbr_of_sub_sets = round(($available_order_items / $order_items_limit), 0, PHP_ROUND_HALF_EVEN);
-            for ($start = 0; $start < $order_items_limit; $start ++) {
-                if (($start * $order_items_limit) < $available_order_items)
-                    $add_to_shipments_subset_limits[($start + 1)] = array(
-                        ($start * $order_items_limit),
-                        $order_items_limit
+        $orderItemsLimit = Configure::read('AddToShipment_processed_items_limit');
+        $addToShipmentsSubsetLimits = array();
+        if ($availableOrderItems > $orderItemsLimit) {
+            $nbrOfSubSets = round(($availableOrderItems / $orderItemsLimit), 0, PHP_ROUND_HALF_EVEN);
+            for ($start = 0; $start < $orderItemsLimit; $start ++) {
+                if (($start * $orderItemsLimit) < $availableOrderItems)
+                    $addToShipmentsSubsetLimits[($start + 1)] = array(
+                        ($start * $orderItemsLimit),
+                        $orderItemsLimit
                     );
             }
         }
-        $this->set('add_to_shipments_subset_limits', $add_to_shipments_subset_limits);
+        $this->set('addToShipmentsSubsetLimits', $addToShipmentsSubsetLimits);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu_variables', array(
-            'Order.id' => $order_id,
-            'Shipment.id' => $shipment_id
+        $this->set('atimMenuVariables', array(
+            'Order.id' => $orderId,
+            'Shipment.id' => $shipmentId
         ));
         
-        $this->set('is_from_tree_view', $is_from_tree_view);
+        $this->set('isFromTreeView', $isFromTreeView);
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function delete($order_id = null, $shipment_id = null)
+    function delete($orderId = null, $shipmentId = null)
     {
-        if ((! $order_id) || (! $shipment_id)) {
+        if ((! $orderId) || (! $shipmentId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA
-        $shipment_data = $this->Shipment->getOrRedirect($shipment_id);
+        $shipmentData = $this->Shipment->getOrRedirect($shipmentId);
         
         // Check deletion is allowed
-        $arr_allow_deletion = $this->Shipment->allowDeletion($shipment_id);
+        $arrAllowDeletion = $this->Shipment->allowDeletion($shipmentId);
         
         // CUSTOM CODE
         
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->Shipment->atimDelete($shipment_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->Shipment->atimDelete($shipmentId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/' . $order_id);
+                $this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/' . $orderId);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/Order/Orders/detail/' . $order_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/Order/Orders/detail/' . $orderId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), 'javascript:history.go(-1)');
         }
     }
 
     /* ----------------------------- SHIPPED ITEMS ---------------------------- */
-    function addToShipment($order_id, $shipment_id, $order_line_id = null, $offset = null, $limit = null)
+    function addToShipment($orderId, $shipmentId, $orderLineId = null, $offset = null, $limit = null)
     {
         
         // MANAGE DATA
         
         // Check shipment
-        $shipment_data = $this->Shipment->getOrRedirect($shipment_id);
+        $shipmentData = $this->Shipment->getOrRedirect($shipmentId);
         
         // Get available order items
         
         $conditions = array(
-            'OrderItem.order_id' => $order_id,
+            'OrderItem.order_id' => $orderId,
             'OrderItem.shipment_id IS NULL'
         );
-        if ($order_line_id)
-            $conditions['OrderItem.order_line_id'] = $order_line_id;
-        $available_order_items = $this->OrderItem->find('all', array(
+        if ($orderLineId)
+            $conditions['OrderItem.order_line_id'] = $orderLineId;
+        $availableOrderItems = $this->OrderItem->find('all', array(
             'conditions' => $conditions,
             'order' => 'OrderLine.id, OrderItem.date_added DESC',
             'offset' => $offset,
             'limit' => $limit
         ));
-        if (empty($available_order_items)) {
-            $this->atimFlashWarning(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id);
+        if (empty($availableOrderItems)) {
+            $this->atimFlashWarning(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId);
         }
         
-        $order_items_limit = Configure::read('AddToShipment_processed_items_limit');
-        if (sizeof($available_order_items) > $order_items_limit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$order_items_limit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id, 5);
+        $orderItemsLimit = Configure::read('AddToShipment_processed_items_limit');
+        if (sizeof($availableOrderItems) > $orderItemsLimit) {
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId, 5);
             return;
         }
         
-        $this->set('order_line_id', $order_line_id);
+        $this->set('orderLineId', $orderLineId);
         $this->set('offset', $offset);
         $this->set('limit', $limit);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu_variables', array(
-            'Order.id' => $order_id,
-            'Shipment.id' => $shipment_id
+        $this->set('atimMenuVariables', array(
+            'Order.id' => $orderId,
+            'Shipment.id' => $shipmentId
         ));
         
         $this->Structures->set('shippeditems');
         $this->Structures->set('shippeditems,orderitems_and_lines', 'atim_structure_with_order_lines');
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $this->formatDataForShippedItemsSelection($available_order_items);
+            $this->request->data = $this->formatDataForShippedItemsSelection($availableOrderItems);
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             
             // Launch validation
-            $submitted_data_validates = true;
-            $data_to_save = array_filter($this->request->data['OrderItem']['id']);
+            $submittedDataValidates = true;
+            $dataToSave = array_filter($this->request->data['OrderItem']['id']);
             
-            if (empty($data_to_save)) {
+            if (empty($dataToSave)) {
                 $this->OrderItem->validationErrors[] = 'no item has been defined as shipped';
-                $submitted_data_validates = false;
-                $this->request->data = $this->formatDataForShippedItemsSelection($available_order_items);
+                $submittedDataValidates = false;
+                $this->request->data = $this->formatDataForShippedItemsSelection($availableOrderItems);
             }
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 AppModel::acquireBatchViewsUpdateLock();
                 
                 // Launch Save Process
-                $order_line_to_update = array();
+                $orderLineToUpdate = array();
                 
-                $available_order_items = AppController::defineArrayKey($available_order_items, 'OrderItem', 'id', true);
+                $availableOrderItems = AppController::defineArrayKey($availableOrderItems, 'OrderItem', 'id', true);
                 
                 $this->AliquotMaster->addWritableField(array(
                     'in_stock',
@@ -358,53 +358,53 @@ class ShipmentsController extends OrderAppController
                     'storage_coord_y'
                 ));
                 
-                foreach ($data_to_save as $order_item_id) {
-                    $order_item = isset($available_order_items[$order_item_id]) ? $available_order_items[$order_item_id] : null;
-                    if ($order_item == null) {
+                foreach ($dataToSave as $orderItemId) {
+                    $orderItem = isset($availableOrderItems[$orderItemId]) ? $availableOrderItems[$orderItemId] : null;
+                    if ($orderItem == null) {
                         // hack attempt
                         continue;
                     }
                     
-                    if ($order_item['AliquotMaster']['id']) {
+                    if ($orderItem['AliquotMaster']['id']) {
                         // Get id
-                        $aliquot_master_id = $order_item['AliquotMaster']['id'];
+                        $aliquotMasterId = $orderItem['AliquotMaster']['id'];
                         
                         // 1- Update Aliquot Master Data
-                        $aliquot_master = array();
-                        $aliquot_master['AliquotMaster']['in_stock'] = 'no';
-                        $aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
-                        $aliquot_master['AliquotMaster']['storage_master_id'] = null;
-                        $aliquot_master['AliquotMaster']['storage_coord_x'] = '';
-                        $aliquot_master['AliquotMaster']['storage_coord_y'] = '';
+                        $aliquotMaster = array();
+                        $aliquotMaster['AliquotMaster']['in_stock'] = 'no';
+                        $aliquotMaster['AliquotMaster']['in_stock_detail'] = 'shipped';
+                        $aliquotMaster['AliquotMaster']['storage_master_id'] = null;
+                        $aliquotMaster['AliquotMaster']['storage_coord_x'] = '';
+                        $aliquotMaster['AliquotMaster']['storage_coord_y'] = '';
                         
                         $this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
-                        $this->AliquotMaster->id = $aliquot_master_id;
-                        if (! $this->AliquotMaster->save($aliquot_master, false)) {
+                        $this->AliquotMaster->id = $aliquotMasterId;
+                        if (! $this->AliquotMaster->save($aliquotMaster, false)) {
                             $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
                     } else {
                         // Get id
-                        $tma_slide_id = $order_item['TmaSlide']['id'];
+                        $tmaSlideId = $orderItem['TmaSlide']['id'];
                         
                         // 1- Update slide Data
-                        $tma_slide = array();
-                        $tma_slide['TmaSlide']['in_stock'] = 'no';
-                        $tma_slide['TmaSlide']['in_stock_detail'] = 'shipped';
-                        $tma_slide['TmaSlide']['storage_master_id'] = null;
-                        $tma_slide['TmaSlide']['storage_coord_x'] = '';
-                        $tma_slide['TmaSlide']['storage_coord_y'] = '';
+                        $tmaSlide = array();
+                        $tmaSlide['TmaSlide']['in_stock'] = 'no';
+                        $tmaSlide['TmaSlide']['in_stock_detail'] = 'shipped';
+                        $tmaSlide['TmaSlide']['storage_master_id'] = null;
+                        $tmaSlide['TmaSlide']['storage_coord_x'] = '';
+                        $tmaSlide['TmaSlide']['storage_coord_y'] = '';
                         
                         $this->TmaSlide->data = array(); // *** To guaranty no merge will be done with previous data ***
-                        $this->TmaSlide->id = $tma_slide_id;
-                        if (! $this->TmaSlide->save($tma_slide, false)) {
+                        $this->TmaSlide->id = $tmaSlideId;
+                        if (! $this->TmaSlide->save($tmaSlide, false)) {
                             $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
                     }
                     
                     // 2- Record Order Item Update
-                    $order_item_data = array();
-                    $order_item_data['OrderItem']['shipment_id'] = $shipment_data['Shipment']['id'];
-                    $order_item_data['OrderItem']['status'] = 'shipped';
+                    $orderItemData = array();
+                    $orderItemData['OrderItem']['shipment_id'] = $shipmentData['Shipment']['id'];
+                    $orderItemData['OrderItem']['status'] = 'shipped';
                     
                     $this->OrderItem->addWritableField(array(
                         'shipment_id',
@@ -412,128 +412,128 @@ class ShipmentsController extends OrderAppController
                     ));
                     
                     $this->OrderItem->data = array(); // *** To guaranty no merge will be done with previous data ***
-                    $this->OrderItem->id = $order_item_id;
-                    if (! $this->OrderItem->save($order_item_data, false)) {
+                    $this->OrderItem->id = $orderItemId;
+                    if (! $this->OrderItem->save($orderItemData, false)) {
                         $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
                     
                     // 3- Set order line to update
-                    $order_line_id = $order_item['OrderLine']['id'];
-                    if ($order_line_id)
-                        $order_line_to_update[$order_line_id] = $order_line_id;
+                    $orderLineId = $orderItem['OrderLine']['id'];
+                    if ($orderLineId)
+                        $orderLineToUpdate[$orderLineId] = $orderLineId;
                 }
                 
-                foreach ($order_line_to_update as $order_line_id) {
-                    $items_counts = $this->OrderItem->find('count', array(
+                foreach ($orderLineToUpdate as $orderLineId) {
+                    $itemsCounts = $this->OrderItem->find('count', array(
                         'conditions' => array(
-                            'OrderItem.order_line_id' => $order_line_id,
+                            'OrderItem.order_line_id' => $orderLineId,
                             'OrderItem.status = "pending"'
                         )
                     ));
-                    if ($items_counts == 0) {
+                    if ($itemsCounts == 0) {
                         // update if everything is shipped
-                        $order_line = array();
-                        $order_line['OrderLine']['status'] = "shipped";
+                        $orderLine = array();
+                        $orderLine['OrderLine']['status'] = "shipped";
                         $this->OrderLine->addWritableField(array(
                             'status'
                         ));
                         $this->OrderLine->data = array(); // *** To guaranty no merge will be done with previous data ***
-                        $this->OrderLine->id = $order_line_id;
-                        if (! $this->OrderLine->save($order_line, false)) {
+                        $this->OrderLine->id = $orderLineId;
+                        if (! $this->OrderLine->save($orderLine, false)) {
                             $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                         }
                     }
                 }
                 
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 
                 AppModel::releaseBatchViewsUpdateLock();
                 
-                $this->atimFlash(__('your data has been saved') . '<br>' . __('item storage data were deleted (if required)'), '/Order/Shipments/detail/' . $order_id . '/' . $shipment_id . '/');
+                $this->atimFlash(__('your data has been saved') . '<br>' . __('item storage data were deleted (if required)'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId . '/');
             }
         }
     }
 
-    function formatDataForShippedItemsSelection($order_items)
+    function formatDataForShippedItemsSelection($orderItems)
     {
-        $sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
-        $aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
+        $sampleControlModel = AppModel::getInstance('InventoryManagement', 'SampleControl');
+        $aliquotControlModel = AppModel::getInstance('InventoryManagement', 'AliquotControl');
         $data = array();
-        $name_to_id = array();
-        foreach ($order_items as $order_item) {
-            if (! isset($data[$order_item['OrderLine']['id']])) {
+        $nameToId = array();
+        foreach ($orderItems as $orderItem) {
+            if (! isset($data[$orderItem['OrderLine']['id']])) {
                 $name = '';
-                if ($order_item['OrderLine']['id']) {
-                    if ($order_item['OrderLine']['sample_control_id']) {
-                        $sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);
-                        $name = __($sample_ctrl['SampleControl']['sample_type']);
-                        if ($order_item['OrderLine']['aliquot_control_id']) {
-                            $aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
-                            $name .= ' - ' . $aliquot_ctrl['AliquotControl']['aliquot_type'];
+                if ($orderItem['OrderLine']['id']) {
+                    if ($orderItem['OrderLine']['sample_control_id']) {
+                        $sampleCtrl = $sampleControlModel->findById($orderItem['OrderLine']['sample_control_id']);
+                        $name = __($sampleCtrl['SampleControl']['sample_type']);
+                        if ($orderItem['OrderLine']['aliquot_control_id']) {
+                            $aliquotCtrl = $aliquotControlModel->findById($orderItem['OrderLine']['aliquot_control_id']);
+                            $name .= ' - ' . $aliquotCtrl['AliquotControl']['aliquot_type'];
                         }
-                        if ($order_item['OrderLine']['product_type_precision']) {
-                            $name .= ' - ' . $order_item['OrderLine']['product_type_precision'];
+                        if ($orderItem['OrderLine']['product_type_precision']) {
+                            $name .= ' - ' . $orderItem['OrderLine']['product_type_precision'];
                         }
-                    } elseif ($order_item['OrderLine']['is_tma_slide']) {
+                    } elseif ($orderItem['OrderLine']['is_tma_slide']) {
                         $name = __('tma slide');
                     }
                 }
-                $data[$order_item['OrderLine']['id']] = array(
+                $data[$orderItem['OrderLine']['id']] = array(
                     'name' => $name,
-                    'order_line_id' => $order_item['OrderLine']['id'],
+                    'order_line_id' => $orderItem['OrderLine']['id'],
                     'data' => array()
                 );
-                $name_to_id[$name][] = $order_item['OrderLine']['id'];
+                $nameToId[$name][] = $orderItem['OrderLine']['id'];
             }
-            $data[$order_item['OrderLine']['id']]['data'][] = $order_item;
+            $data[$orderItem['OrderLine']['id']]['data'][] = $orderItem;
         }
         // Sort array
-        $tmp_data = $data;
+        $tmpData = $data;
         $data = array();
-        ksort($name_to_id);
-        foreach ($name_to_id as $ids)
+        ksort($nameToId);
+        foreach ($nameToId as $ids)
             foreach ($ids as $id)
-                $data[$id] = $tmp_data[$id];
+                $data[$id] = $tmpData[$id];
         return $data;
     }
 
-    function deleteFromShipment($order_id, $order_item_id, $shipment_id, $main_form_model = null)
+    function deleteFromShipment($orderId, $orderItemId, $shipmentId, $mainFormModel = null)
     {
         // MANAGE DATA
         
         // Check item
-        $order_item_data = $this->OrderItem->find('first', array(
+        $orderItemData = $this->OrderItem->find('first', array(
             'conditions' => array(
-                'OrderItem.id' => $order_item_id,
-                'OrderItem.shipment_id' => $shipment_id
+                'OrderItem.id' => $orderItemId,
+                'OrderItem.shipment_id' => $shipmentId
             ),
             'recursive' => '-1'
         ));
-        if (empty($order_item_data)) {
+        if (empty($orderItemData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        if (! isset($order_item_data['OrderItem']['aliquot_master_id']) && ! isset($order_item_data['OrderItem']['tma_slide_id'])) {
+        if (! isset($orderItemData['OrderItem']['aliquot_master_id']) && ! isset($orderItemData['OrderItem']['tma_slide_id'])) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Check deletion is allowed
-        $arr_allow_deletion = $this->Shipment->allowItemRemoveFromShipment($order_item_id, $shipment_id);
+        $arrAllowDeletion = $this->Shipment->allowItemRemoveFromShipment($orderItemId, $shipmentId);
         
         // Check the status of the order item can be changed to pending
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($order_item_data['OrderItem']['aliquot_master_id']) {
-                if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('aliquot_master_id', $order_item_data['OrderItem']['aliquot_master_id'], $order_item_data['OrderItem']['id'])) {
-                    $arr_allow_deletion = array(
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($orderItemData['OrderItem']['aliquot_master_id']) {
+                if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('aliquot_master_id', $orderItemData['OrderItem']['aliquot_master_id'], $orderItemData['OrderItem']['id'])) {
+                    $arrAllowDeletion = array(
                         'allow_deletion' => false,
                         'msg' => "the status of an aliquot flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses"
                     );
                 }
             } else {
-                if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('tma_slide_id', $order_item_data['OrderItem']['tma_slide_id'], $order_item_data['OrderItem']['id'])) {
-                    $arr_allow_deletion = array(
+                if (! $this->OrderItem->checkOrderItemStatusCanBeSetToPendingOrShipped('tma_slide_id', $orderItemData['OrderItem']['tma_slide_id'], $orderItemData['OrderItem']['id'])) {
+                    $arrAllowDeletion = array(
                         'allow_deletion' => false,
                         'msg' => "the status of a tma slide flagged as 'returned' cannot be changed to 'pending' or 'shipped' when this one is already linked to another order with these 2 statuses"
                     );
@@ -542,39 +542,39 @@ class ShipmentsController extends OrderAppController
         }
         
         // Build URL
-        $redirect_url = 'javascript:history.go(-1)';
-        switch ($main_form_model) {
+        $redirectUrl = 'javascript:history.go(-1)';
+        switch ($mainFormModel) {
             case 'Order':
-                $redirect_url = '/Order/Orders/detail/' . $order_item_data['OrderItem']['order_id'] . '/';
+                $redirectUrl = '/Order/Orders/detail/' . $orderItemData['OrderItem']['order_id'] . '/';
                 break;
             case 'OrderLine':
-                $redirect_url = '/Order/OrderLines/detail/' . $order_item_data['OrderItem']['order_id'] . '/' . $order_item_data['OrderItem']['order_line_id'] . '/';
+                $redirectUrl = '/Order/OrderLines/detail/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['order_line_id'] . '/';
                 break;
             case 'Shipment':
-                $redirect_url = '/Order/Shipments/detail/' . $order_item_data['OrderItem']['order_id'] . '/' . $order_item_data['OrderItem']['shipment_id'] . '/';
+                $redirectUrl = '/Order/Shipments/detail/' . $orderItemData['OrderItem']['order_id'] . '/' . $orderItemData['OrderItem']['shipment_id'] . '/';
                 break;
         }
         
-        $hook_link = $this->hook('delete_from_shipment');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete_from_shipment');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         // LAUNCH DELETION
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            $remove_done = true;
+        if ($arrAllowDeletion['allow_deletion']) {
+            $removeDone = true;
             
             // -> Remove order item from shipment
-            $order_item = array();
-            $order_item['OrderItem']['shipment_id'] = null;
-            $order_item['OrderItem']['status'] = 'pending';
-            if ($order_item_data['OrderItem']['status'] == 'shipped & returned')
+            $orderItem = array();
+            $orderItem['OrderItem']['shipment_id'] = null;
+            $orderItem['OrderItem']['status'] = 'pending';
+            if ($orderItemData['OrderItem']['status'] == 'shipped & returned')
                 AppController::addWarningMsg(__('the return information was deleted'));
-            $order_item['OrderItem']['date_returned'] = null;
-            $order_item['OrderItem']['date_returned_accuracy'] = '';
-            $order_item['OrderItem']['reason_returned'] = null;
-            $order_item['OrderItem']['reception_by'] = null;
+            $orderItem['OrderItem']['date_returned'] = null;
+            $orderItem['OrderItem']['date_returned_accuracy'] = '';
+            $orderItem['OrderItem']['reason_returned'] = null;
+            $orderItem['OrderItem']['reception_by'] = null;
             $this->OrderItem->addWritableField(array(
                 'shipment_id',
                 'status',
@@ -583,68 +583,68 @@ class ShipmentsController extends OrderAppController
                 'reason_returned',
                 'reception_by'
             ));
-            $this->OrderItem->id = $order_item_id;
-            if (! $this->OrderItem->save($order_item, false)) {
-                $remove_done = false;
+            $this->OrderItem->id = $orderItemId;
+            if (! $this->OrderItem->save($orderItem, false)) {
+                $removeDone = false;
             }
             
             // -> Update aliquot master
-            if ($remove_done) {
-                if ($order_item_data['OrderItem']['aliquot_master_id']) {
-                    $new_aliquot_master_data = array();
-                    $new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
-                    $new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
+            if ($removeDone) {
+                if ($orderItemData['OrderItem']['aliquot_master_id']) {
+                    $newAliquotMasterData = array();
+                    $newAliquotMasterData['AliquotMaster']['in_stock'] = 'yes - not available';
+                    $newAliquotMasterData['AliquotMaster']['in_stock_detail'] = 'reserved for order';
                     $this->AliquotMaster->addWritableField(array(
                         'in_stock',
                         'in_stock_detail'
                     ));
                     $this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
-                    $this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
-                    if (! $this->AliquotMaster->save($new_aliquot_master_data, false)) {
-                        $remove_done = false;
+                    $this->AliquotMaster->id = $orderItemData['OrderItem']['aliquot_master_id'];
+                    if (! $this->AliquotMaster->save($newAliquotMasterData, false)) {
+                        $removeDone = false;
                     }
                 } else {
-                    $new_slide_data = array();
-                    $new_slide_data['TmaSlide']['in_stock'] = 'yes - not available';
-                    $new_slide_data['TmaSlide']['in_stock_detail'] = 'reserved for order';
+                    $newSlideData = array();
+                    $newSlideData['TmaSlide']['in_stock'] = 'yes - not available';
+                    $newSlideData['TmaSlide']['in_stock_detail'] = 'reserved for order';
                     $this->TmaSlide->addWritableField(array(
                         'in_stock',
                         'in_stock_detail'
                     ));
                     $this->TmaSlide->data = array(); // *** To guaranty no merge will be done with previous data ***
-                    $this->TmaSlide->id = $order_item_data['OrderItem']['tma_slide_id'];
-                    if (! $this->TmaSlide->save($new_slide_data, false)) {
-                        $remove_done = false;
+                    $this->TmaSlide->id = $orderItemData['OrderItem']['tma_slide_id'];
+                    if (! $this->TmaSlide->save($newSlideData, false)) {
+                        $removeDone = false;
                     }
                 }
             }
             
             // -> Update order line
-            if ($remove_done && $order_item_data['OrderItem']['order_line_id']) {
-                $order_line = array();
-                $order_line['OrderLine']['status'] = "pending";
+            if ($removeDone && $orderItemData['OrderItem']['order_line_id']) {
+                $orderLine = array();
+                $orderLine['OrderLine']['status'] = "pending";
                 $this->OrderLine->addWritableField(array(
                     'status'
                 ));
-                $this->OrderLine->id = $order_item_data['OrderItem']['order_line_id'];
-                if (! $this->OrderLine->save($order_line, false)) {
-                    $remove_done = false;
+                $this->OrderLine->id = $orderItemData['OrderItem']['order_line_id'];
+                if (! $this->OrderLine->save($orderLine, false)) {
+                    $removeDone = false;
                 }
             }
             
-            $hook_link = $this->hook('postsave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('postsave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
             // Redirect
-            if ($remove_done) {
-                $this->atimFlash(__('your data has been removed - update the aliquot in stock data'), $redirect_url);
+            if ($removeDone) {
+                $this->atimFlash(__('your data has been removed - update the aliquot in stock data'), $redirectUrl);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), $redirect_url);
+                $this->atimFlashError(__('error deleting data - contact administrator'), $redirectUrl);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), $redirect_url);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), $redirectUrl);
         }
     }
 
@@ -655,8 +655,8 @@ class ShipmentsController extends OrderAppController
         $this->layout = 'ajax';
         // debug = 0 to avoid printing debug queries that would break the javascript array
         Configure::write('debug', 0);
-        $contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
-        $this->request->data = $contacts_model->find('all');
+        $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
+        $this->request->data = $contactsModel->find('all');
     }
 
     function saveContact()
@@ -667,8 +667,8 @@ class ShipmentsController extends OrderAppController
         Configure::write('debug', 0);
         
         if (! empty($this->request->data) && isset($this->request->data['Shipment'])) {
-            $contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
-            $shipment_contact_keys = array_fill_keys(array(
+            $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
+            $shipmentContactKeys = array_fill_keys(array(
                 "recipient",
                 "facility",
                 "delivery_street_address",
@@ -680,19 +680,19 @@ class ShipmentsController extends OrderAppController
                 "delivery_notes",
                 "delivery_department_or_door"
             ), null);
-            $shipment_data = array_intersect_key($this->request->data['Shipment'], $shipment_contact_keys);
+            $shipmentData = array_intersect_key($this->request->data['Shipment'], $shipmentContactKeys);
             
-            $contacts_model->save($shipment_data);
+            $contactsModel->save($shipmentData);
             
             echo __('your data has been saved');
             exit();
         }
     }
 
-    function deleteContact($contact_id)
+    function deleteContact($contactId)
     {
-        $contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
-        $contacts_model->atimDelete($contact_id);
+        $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
+        $contactsModel->atimDelete($contactId);
         exit();
     }
 }

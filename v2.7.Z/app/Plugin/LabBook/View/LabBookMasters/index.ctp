@@ -3,18 +3,18 @@ $settings = array(
     'actions' => false,
     'header' => __('search type', null) . ': ' . __('lab book', null)
 );
-$add_links = array();
+$addLinks = array();
 
-foreach ($lab_book_controls_list as $control) {
-    $add_links[__($control['LabBookControl']['book_type'])] = '/labbook/LabBookMasters/add/' . $control['LabBookControl']['id'];
+foreach ($labBookControlsList as $control) {
+    $addLinks[__($control['LabBookControl']['book_type'])] = '/labbook/LabBookMasters/add/' . $control['LabBookControl']['id'];
 }
-ksort($add_links);
-$structure_links['bottom'] = array(
-    'add' => $add_links
+ksort($addLinks);
+$structureLinks['bottom'] = array(
+    'add' => $addLinks
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'search',
     'links' => array(
         'top' => array(
@@ -24,24 +24,24 @@ $final_options = array(
     'settings' => $settings
 );
 
-$final_atim_structure2 = $empty_structure;
-$final_options2 = array(
+$finalAtimStructure2 = $emptyStructure;
+$finalOptions2 = array(
     'links' => array(
         'bottom' => array(
-            'add' => $add_links
+            'add' => $addLinks
         )
     ),
     'extras' => '<div class="ajax_search_results"></div>'
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
-$this->Structures->build($final_atim_structure2, $final_options2);
+$this->Structures->build($finalAtimStructure, $finalOptions);
+$this->Structures->build($finalAtimStructure2, $finalOptions2);
 
 ?>

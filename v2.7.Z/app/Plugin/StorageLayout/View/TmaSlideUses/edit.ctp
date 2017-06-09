@@ -1,29 +1,29 @@
 <?php
-$structure_links = array(
-    'top' => '/StorageLayout/TmaSlideUses/edit/' . $atim_menu_variables['TmaSlideUse.id'],
+$structureLinks = array(
+    'top' => '/StorageLayout/TmaSlideUses/edit/' . $atimMenuVariables['TmaSlideUse.id'],
     'bottom' => array(
-        'cancel' => '/StorageLayout/TmaSlides/detail/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id']
+        'cancel' => '/StorageLayout/TmaSlides/detail/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id']
     )
 );
 
-$structure_override = array();
+$structureOverride = array();
 $settings = array(
     'header' => __('tma slide uses')
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'settings' => $settings
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

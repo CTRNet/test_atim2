@@ -26,29 +26,29 @@ class StorageControlsController extends AdministrateAppController
         
         $this->StorageCtrl->validatesAllStorageControls();
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($storage_category, $duplicated_parent_storage_control_id = null)
+    function add($storageCategory, $duplicatedParentStorageControlId = null)
     {
-        if ($duplicated_parent_storage_control_id && empty($this->request->data)) {
-            $this->request->data = $this->StorageCtrl->getOrRedirect($duplicated_parent_storage_control_id);
+        if ($duplicatedParentStorageControlId && empty($this->request->data)) {
+            $this->request->data = $this->StorageCtrl->getOrRedirect($duplicatedParentStorageControlId);
             $this->request->data['StorageCtrl']['storage_type'] = '';
-            $storage_category = $this->StorageCtrl->getStorageCategory($this->request->data);
+            $storageCategory = $this->StorageCtrl->getStorageCategory($this->request->data);
         }
-        $this->set('storage_category', $storage_category);
-        $this->set('atim_menu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
-        $this->Structures->set($this->StorageCtrl->getStructure($storage_category));
+        $this->set('storageCategory', $storageCategory);
+        $this->set('atimMenu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
+        $this->Structures->set($this->StorageCtrl->getStructure($storageCategory));
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (! $duplicated_parent_storage_control_id && ! empty($this->request->data)) {
+        if (! $duplicatedParentStorageControlId && ! empty($this->request->data)) {
             // Set system value
             $this->request->data['StorageCtrl']['databrowser_label'] = 'custom#storage types#' . $this->request->data['StorageCtrl']['storage_type'];
             if (! isset($this->request->data['StorageCtrl']['set_temperature']))
@@ -56,12 +56,12 @@ class StorageControlsController extends AdministrateAppController
             if (! isset($this->request->data['StorageCtrl']['check_conflicts']))
                 $this->request->data['StorageCtrl']['check_conflicts'] = '0';
             $this->request->data['StorageCtrl']['flag_active'] = '0';
-            $this->request->data['StorageCtrl']['is_tma_block'] = ($storage_category == 'tma') ? '1' : '0';
-            $this->request->data['StorageCtrl']['detail_tablename'] = ($storage_category == 'tma') ? 'std_tma_blocks' : 'std_customs';
-            $detail_form_alias = array();
-            if ($storage_category == 'tma')
-                $detail_form_alias[] = 'std_tma_blocks';
-            $this->request->data['StorageCtrl']['detail_form_alias'] = implode(',', $detail_form_alias);
+            $this->request->data['StorageCtrl']['is_tma_block'] = ($storageCategory == 'tma') ? '1' : '0';
+            $this->request->data['StorageCtrl']['detail_tablename'] = ($storageCategory == 'tma') ? 'std_tma_blocks' : 'std_customs';
+            $detailFormAlias = array();
+            if ($storageCategory == 'tma')
+                $detailFormAlias[] = 'std_tma_blocks';
+            $this->request->data['StorageCtrl']['detail_form_alias'] = implode(',', $detailFormAlias);
             $this->StorageCtrl->addWritableField(array(
                 'databrowser_label',
                 'set_temperature',
@@ -72,63 +72,63 @@ class StorageControlsController extends AdministrateAppController
                 'detail_form_alias'
             ));
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 $this->StorageCtrl->id = null;
                 if ($this->StorageCtrl->save($this->request->data)) {
-                    $storage_control_id = $this->StorageCtrl->getLastInsertId();
-                    $control_data = $this->StructurePermissibleValuesCustomControl->find('first', array(
+                    $storageControlId = $this->StorageCtrl->getLastInsertId();
+                    $controlData = $this->StructurePermissibleValuesCustomControl->find('first', array(
                         'conditions' => array(
                             'StructurePermissibleValuesCustomControl.name' => 'storage types'
                         )
                     ));
-                    if (empty($control_data))
+                    if (empty($controlData))
                         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                    $existing_value = $this->StructurePermissibleValuesCustom->find('count', array(
+                    $existingValue = $this->StructurePermissibleValuesCustom->find('count', array(
                         'conditions' => array(
-                            'StructurePermissibleValuesCustom.control_id' => $control_data['StructurePermissibleValuesCustomControl']['id'],
+                            'StructurePermissibleValuesCustom.control_id' => $controlData['StructurePermissibleValuesCustomControl']['id'],
                             'StructurePermissibleValuesCustom.value' => $this->request->data['StorageCtrl']['storage_type']
                         )
                     ));
-                    if (! $existing_value) {
-                        $data_unit = array();
-                        $data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_data['StructurePermissibleValuesCustomControl']['id'];
-                        $data_unit['StructurePermissibleValuesCustom']['value'] = $this->request->data['StorageCtrl']['storage_type'];
+                    if (! $existingValue) {
+                        $dataUnit = array();
+                        $dataUnit['StructurePermissibleValuesCustom']['control_id'] = $controlData['StructurePermissibleValuesCustomControl']['id'];
+                        $dataUnit['StructurePermissibleValuesCustom']['value'] = $this->request->data['StorageCtrl']['storage_type'];
                         $this->StructurePermissibleValuesCustom->addWritableField(array(
                             'control_id',
                             'value'
                         ));
                         $this->StructurePermissibleValuesCustom->id = null;
-                        if (! $this->StructurePermissibleValuesCustom->save($data_unit))
+                        if (! $this->StructurePermissibleValuesCustom->save($dataUnit))
                             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
                     
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
                     
-                    $this->atimFlash(__('your data has been saved') . '<br>' . __('please use custom drop down list administration tool to add storage type translations'), '/Administrate/StorageControls/seeStorageLayout/' . $storage_control_id);
+                    $this->atimFlash(__('your data has been saved') . '<br>' . __('please use custom drop down list administration tool to add storage type translations'), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
                 }
             }
         }
     }
 
-    function edit($storage_control_id)
+    function edit($storageControlId)
     {
-        $storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
-        if ($storage_control_data['StorageCtrl']['flag_active']) {
+        $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
+        if ($storageControlData['StorageCtrl']['flag_active']) {
             $this->atimFlash(__('you are not allowed to work on active storage type'), 'javascript:history.go(-1)');
             return;
         } elseif ($this->StorageMaster->find('count', array(
             'conditions' => array(
-                'StorageMaster.storage_control_id' => $storage_control_id,
+                'StorageMaster.storage_control_id' => $storageControlId,
                 'StorageMaster.deleted' => array(
                     '0',
                     '1'
@@ -139,88 +139,88 @@ class StorageControlsController extends AdministrateAppController
             return;
         }
         
-        $storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
-        $this->set('storage_category', $storage_category);
-        $this->set('atim_menu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
-        $this->Structures->set($this->StorageCtrl->getStructure($storage_category));
-        $this->set('atim_menu_variables', array(
-            'StorageCtrl.id' => $storage_control_id
+        $storageCategory = $this->StorageCtrl->getStorageCategory($storageControlData);
+        $this->set('storageCategory', $storageCategory);
+        $this->set('atimMenu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
+        $this->Structures->set($this->StorageCtrl->getStructure($storageCategory));
+        $this->set('atimMenuVariables', array(
+            'StorageCtrl.id' => $storageControlId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $storage_control_data;
+            $this->request->data = $storageControlData;
         } else {
             // Validates and set additional data
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            if ($this->request->data['StorageCtrl']['storage_type'] != $storage_control_data['StorageCtrl']['storage_type'])
+            if ($this->request->data['StorageCtrl']['storage_type'] != $storageControlData['StorageCtrl']['storage_type'])
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                
-                // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+            
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 // Save storage data
-                $this->StorageCtrl->id = $storage_control_id;
+                $this->StorageCtrl->id = $storageControlId;
                 if ($this->StorageCtrl->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/seeStorageLayout/' . $storage_control_id);
+                    $this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/seeStorageLayout/' . $storageControlId);
                 }
             }
         }
     }
 
-    function changeActiveStatus($storage_control_id, $redirect_to = 'listAll')
+    function changeActiveStatus($storageControlId, $redirectTo = 'listAll')
     {
-        $storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
+        $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         
-        $new_data = array();
-        if ($storage_control_data['StorageCtrl']['flag_active']) {
+        $newData = array();
+        if ($storageControlData['StorageCtrl']['flag_active']) {
             // Check no Storage Master use it
-            $existing_storage_count = $this->StorageMaster->find('count', array(
+            $existingStorageCount = $this->StorageMaster->find('count', array(
                 'conditions' => array(
-                    'StorageMaster.storage_control_id' => $storage_control_id
+                    'StorageMaster.storage_control_id' => $storageControlId
                 )
             ));
-            if ($existing_storage_count) {
+            if ($existingStorageCount) {
                 $this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), 'javascript:history.go(-1)');
                 return;
             }
-            $new_data['StorageCtrl']['flag_active'] = '0';
+            $newData['StorageCtrl']['flag_active'] = '0';
         } else {
-            $new_data['StorageCtrl']['flag_active'] = '1';
+            $newData['StorageCtrl']['flag_active'] = '1';
         }
         $this->StorageCtrl->addWritableField(array(
             'flag_active'
         ));
         
         $this->StorageCtrl->data = array();
-        $this->StorageCtrl->id = $storage_control_id;
-        if ($this->StorageCtrl->save($new_data)) {
-            $this->atimFlash(__('your data has been updated'), "/Administrate/StorageControls/$redirect_to/$storage_control_id");
+        $this->StorageCtrl->id = $storageControlId;
+        if ($this->StorageCtrl->save($newData)) {
+            $this->atimFlash(__('your data has been updated'), "/Administrate/StorageControls/$redirectTo/$storageControlId");
         }
     }
 
     /**
      * Display the content of a storage into a layout.
      *
-     * @param $storage_master_id Id
+     * @param $storageMasterId Id
      *            of the studied storage.
-     * @param $is_ajax: Tells
+     * @param $isAjax: Tells
      *            wheter the request has to be treated as ajax
      *            query (required to counter issues in Chrome 15 back/forward button on the
      *            page and Opera 11.51 first ajax query that is not recognized as such)
@@ -228,29 +228,29 @@ class StorageControlsController extends AdministrateAppController
      * @author N. Luc
      * @since 2007-05-22
      */
-    function seeStorageLayout($storage_control_id)
+    function seeStorageLayout($storageControlId)
     {
-        $storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
-        $storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
+        $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
+        $storageCategory = $this->StorageCtrl->getStorageCategory($storageControlData);
         $this->Structures->set('storage_controls');
         
-        $no_layout_msg = '';
-        if ($storage_category == 'no_d') {
-            $no_layout_msg = 'no layout exists';
-        } elseif ($storage_control_data['StorageCtrl']['coord_x_type'] == 'list') {
-            $no_layout_msg = 'custom layout will be built adding coordinates to a created storage';
+        $noLayoutMsg = '';
+        if ($storageCategory == 'no_d') {
+            $noLayoutMsg = 'no layout exists';
+        } elseif ($storageControlData['StorageCtrl']['coord_x_type'] == 'list') {
+            $noLayoutMsg = 'custom layout will be built adding coordinates to a created storage';
         }
-        $this->set('no_layout_msg', $no_layout_msg);
+        $this->set('noLayoutMsg', $noLayoutMsg);
         
-        $translated_storage_type = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storage_control_data['StorageCtrl']['storage_type']);
-        $storage_control_data['StorageCtrl']['translated_storage_type'] = ($translated_storage_type !== false) ? $translated_storage_type : $storage_control_data['StorageCtrl']['storage_type'];
-        $this->set('storage_control_data', $storage_control_data);
+        $translatedStorageType = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storageControlData['StorageCtrl']['storage_type']);
+        $storageControlData['StorageCtrl']['translated_storage_type'] = ($translatedStorageType !== false) ? $translatedStorageType : $storageControlData['StorageCtrl']['storage_type'];
+        $this->set('storageControlData', $storageControlData);
         
-        $this->set('atim_menu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
-        $this->set('atim_menu_variables', array(
-            'StorageCtrl.id' => $storage_control_id
+        $this->set('atimMenu', $this->Menus->get('/Administrate/StorageControls/listAll/'));
+        $this->set('atimMenuVariables', array(
+            'StorageCtrl.id' => $storageControlId
         ));
         
-        $this->Structures->set('empty', 'empty_structure');
+        $this->Structures->set('empty', 'emptyStructure');
     }
 }

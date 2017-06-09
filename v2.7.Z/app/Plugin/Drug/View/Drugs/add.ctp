@@ -1,14 +1,14 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => '/Drug/Drugs/add/',
     'bottom' => array(
         'cancel' => '/Drug/Drugs/search/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'settings' => array(
         'pagination' => false,
         'add_fields' => true,
@@ -18,12 +18,12 @@ $final_options = array(
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

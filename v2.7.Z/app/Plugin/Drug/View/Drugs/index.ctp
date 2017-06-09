@@ -1,12 +1,12 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
         'add' => '/Drug/Drugs/add/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'search',
     'links' => array(
         'top' => array(
@@ -19,20 +19,20 @@ $final_options = array(
     )
 );
 
-$final_atim_structure2 = $empty_structure;
-$final_options2 = array(
-    'links' => $structure_links,
+$finalAtimStructure2 = $emptyStructure;
+$finalOptions2 = array(
+    'links' => $structureLinks,
     'extras' => '<div class="ajax_search_results"></div>'
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
-$this->Structures->build($final_atim_structure2, $final_options2);
+$this->Structures->build($finalAtimStructure, $finalOptions);
+$this->Structures->build($finalAtimStructure2, $finalOptions2);
 
 ?>

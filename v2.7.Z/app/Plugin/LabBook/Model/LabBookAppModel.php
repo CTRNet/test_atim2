@@ -5,20 +5,20 @@ class LabBookAppModel extends AppModel
 
     /**
      *
-     * @param int $lab_book_ctrl_id            
+     * @param int $labBookCtrlId            
      * @return array The fields managed by the lab book or false if the process_ctrl_id is invalid
      */
-    function getFields($lab_book_ctrl_id)
+    function getFields($labBookCtrlId)
     {
         $control = AppModel::getInstance("LabBook", "LabBookControl", true);
-        $data = $control->findById($lab_book_ctrl_id);
+        $data = $control->findById($labBookCtrlId);
         if (! empty($data)) {
-            $detail_model = new AppModel(array(
+            $detailModel = new AppModel(array(
                 'table' => $data['LabBookControl']['detail_tablename'],
                 'name' => "LabBookDetail",
                 'alias' => "LabBookDetail"
             ));
-            $fields = array_keys($detail_model->_schema);
+            $fields = array_keys($detailModel->_schema);
             return array_diff($fields, array(
                 "id",
                 "lab_book_master_id",

@@ -1,12 +1,12 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
-        'edit' => '/Administrate/PreferencesAdmin/edit/' . $atim_menu_variables['Group.id'] . '/' . $atim_menu_variables['User.id']
+        'edit' => '/Administrate/PreferencesAdmin/edit/' . $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id']
     )
 );
 
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'detail',
-    'links' => $structure_links
+    'links' => $structureLinks
 ));
 ?>

@@ -5,12 +5,13 @@
  *
  * If StorageLayout.StorageControl model is used, the MasterDetailBehavior.afterSave() function
  * is called by any StorageControl->save() function of this controller generating an error.
- * (The following test "if($is_control_model)" return true launching code execution to save detail data).
+ * (The following test "if($isControlModel)" return true launching code execution to save detail data).
  *
  * To be sure MasterDetailBehavior Model is not called, created following model changing Control suffix to Ctrl.
  */
 class StorageCtrl extends AdministrateAppModel
 {
+
     //
     public $name = 'StorageCtrl';
 
@@ -18,21 +19,21 @@ class StorageCtrl extends AdministrateAppModel
 
     function getStorageCategory($data)
     {
-        $storage_category = 'no_d';
+        $storageCategory = 'no_d';
         if ($data['StorageCtrl']['is_tma_block']) {
-            $storage_category = 'tma';
+            $storageCategory = 'tma';
         } elseif ($data['StorageCtrl']['coord_y_title']) {
-            $storage_category = '2d';
+            $storageCategory = '2d';
         } elseif ($data['StorageCtrl']['coord_x_title']) {
-            $storage_category = '1d';
+            $storageCategory = '1d';
         }
-        return $storage_category;
+        return $storageCategory;
     }
 
-    function getStructure($storage_category)
+    function getStructure($storageCategory)
     {
         $structures = null;
-        switch ($storage_category) {
+        switch ($storageCategory) {
             case 'no_d':
                 $structures = 'storage_control_no_d';
                 break;
@@ -79,7 +80,7 @@ class StorageCtrl extends AdministrateAppModel
 
     function getListArgs($passedArgs)
     {
-        $list_args = array();
+        $listArgs = array();
         foreach ($passedArgs as $key => $val)
             if ($key && in_array($key, array(
                 'limit',
@@ -87,17 +88,17 @@ class StorageCtrl extends AdministrateAppModel
                 'direction',
                 'page'
             )))
-                $list_args[$key] = $val;
-        return $list_args;
+                $listArgs[$key] = $val;
+        return $listArgs;
     }
 
     function validatesAllStorageControls()
     {
         $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-        $translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array(
+        $translatedStorageTypes = $StructurePermissibleValuesCustom->getCustomDropdown(array(
             'storage types'
         ));
-        $translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
+        $translatedStorageTypes = array_merge($translatedStorageTypes['defined'], $translatedStorageTypes['previously_defined']);
         $query = "SELECT storage_type
 			FROM storage_controls
 			WHERE coord_x_type IS NULL
@@ -141,10 +142,10 @@ class StorageCtrl extends AdministrateAppModel
 				OR display_y_size IS NULL
 				OR display_y_size = '0'
 				OR (coord_x_size != (display_x_size*display_y_size)));";
-        foreach ($this->query($query) as $new_str_ctrl) {
-            $storage_type = $new_str_ctrl[0]['storage_type'];
-            $storage_type = isset($translated_storage_types[$storage_type]) ? $translated_storage_types[$storage_type] : $storage_type;
-            AppController::addWarningMsg(__('storage control data of the storage type [%s] are not correctly set - please contact your administartor', $storage_type));
+        foreach ($this->query($query) as $newStrCtrl) {
+            $storageType = $newStrCtrl[0]['storage_type'];
+            $storageType = isset($translatedStorageTypes[$storageType]) ? $translatedStorageTypes[$storageType] : $storageType;
+            AppController::addWarningMsg(__('storage control data of the storage type [%s] are not correctly set - please contact your administartor', $storageType));
         }
     }
 }	

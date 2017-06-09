@@ -7,7 +7,7 @@ if (! isset($channel)) :
 
 endif;
 if (! isset($channel['title'])) :
-    $channel['title'] = $title_for_layout;
+    $channel['title'] = $titleForLayout;
 
 
 

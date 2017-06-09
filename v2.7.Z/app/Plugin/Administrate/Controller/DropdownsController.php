@@ -19,9 +19,9 @@ class DropdownsController extends AdministrateAppController
         // Nothing to do
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
@@ -33,9 +33,9 @@ class DropdownsController extends AdministrateAppController
             'not_empty'
         )))
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-        $counter_sort_option = false;
+        $counterSortOption = false;
         if (isset($this->passedArgs['sort']) && $this->passedArgs['sort'] == 'Generated.custom_permissible_values_counter') {
-            $counter_sort_option = $this->passedArgs['direction'];
+            $counterSortOption = $this->passedArgs['direction'];
         }
         $conditions = array(
             'StructurePermissibleValuesCustomControl.flag_active' => '1'
@@ -46,7 +46,7 @@ class DropdownsController extends AdministrateAppController
             $conditions[] = 'StructurePermissibleValuesCustomControl.values_counter != 0';
         $this->request->data = $this->paginate($this->StructurePermissibleValuesCustomControl, $conditions);
         // Add fields list
-        foreach ($this->request->data as &$new_list) {
+        foreach ($this->request->data as &$newList) {
             $query = "SELECT DISTINCT
 				str.alias AS structure_alias,
 				sfi.plugin AS plugin,
@@ -62,27 +62,27 @@ class DropdownsController extends AdministrateAppController
 				INNER JOIN structures str ON str.id = sfo.structure_id
 				INNER JOIN structure_value_domains svd ON svd.id = sfi.structure_value_domain
 				WHERE (sfo.flag_add =1 OR sfo.flag_addgrid =1 OR sfo.flag_index =1 OR sfo.flag_detail)
-				AND svd.source LIKE 'StructurePermissibleValuesCustom::getCustomDropdown(''" . str_replace("'", "''", $new_list['StructurePermissibleValuesCustomControl']['name']) . "'')'";
-            $all_fields_data = $this->StructurePermissibleValuesCustomControl->query($query);
-            $fields_list = array();
-            foreach ($all_fields_data as $new_field) {
-                $value = $new_field['sfi']['model'] . ' :: ' . __($new_field['0']['language_label']) . (strlen($new_field['0']['language_tag']) ? ' ' . __($new_field['0']['language_label']) : '');
-                $fields_list[$value] = '-';
+				AND svd.source LIKE 'StructurePermissibleValuesCustom::getCustomDropdown(''" . str_replace("'", "''", $newList['StructurePermissibleValuesCustomControl']['name']) . "'')'";
+            $allFieldsData = $this->StructurePermissibleValuesCustomControl->query($query);
+            $fieldsList = array();
+            foreach ($allFieldsData as $newField) {
+                $value = $newField['sfi']['model'] . ' :: ' . __($newField['0']['language_label']) . (strlen($newField['0']['language_tag']) ? ' ' . __($newField['0']['language_label']) : '');
+                $fieldsList[$value] = '-';
             }
-            ksort($fields_list);
-            $new_list['Generated']['fields_linked_to_custom_list'] = implode("\n", array_keys($fields_list));
+            ksort($fieldsList);
+            $newList['Generated']['fields_linked_to_custom_list'] = implode("\n", array_keys($fieldsList));
         }
         $this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
     }
 
-    function view($control_id)
+    function view($controlId)
     {
-        $control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
-        $this->set("control_data", $control_data);
+        $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
+        $this->set("controlData", $controlData);
         
         $this->request->data = $this->StructurePermissibleValuesCustom->find('all', array(
             'conditions' => array(
-                'StructurePermissibleValuesCustom.control_id' => $control_id
+                'StructurePermissibleValuesCustom.control_id' => $controlId
             ),
             'order' => array(
                 'display_order',
@@ -92,10 +92,10 @@ class DropdownsController extends AdministrateAppController
         $this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
     }
 
-    function add($control_id)
+    function add($controlId)
     {
-        $control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
-        $this->set("control_data", $control_data);
+        $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
+        $this->set("controlData", $controlData);
         
         $this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
         if (empty($this->request->data)) {
@@ -109,120 +109,120 @@ class DropdownsController extends AdministrateAppController
         } else {
             // validate and save
             
-            $errors_tracking = array();
+            $errorsTracking = array();
             
             // A - Launch Business Rules Validation
             
-            $current_values = array();
-            $current_en = array();
-            $current_fr = array();
+            $currentValues = array();
+            $currentEn = array();
+            $currentFr = array();
             $this->StructurePermissibleValuesCustom->schema();
-            $max_length = min($this->StructurePermissibleValuesCustom->_schema['value']['length'], $control_data["StructurePermissibleValuesCustomControl"]["values_max_length"]);
+            $maxLength = min($this->StructurePermissibleValuesCustom->_schema['value']['length'], $controlData["StructurePermissibleValuesCustomControl"]["values_max_length"]);
             $break = false;
             $tmp = $this->StructurePermissibleValuesCustom->find('all', array(
                 'conditions' => array(
-                    'control_id' => $control_id
+                    'control_id' => $controlId
                 ),
                 'recursive' => - 1
             ));
-            $existing_values = array();
-            $existing_en = array();
-            $existing_fr = array();
+            $existingValues = array();
+            $existingEn = array();
+            $existingFr = array();
             foreach ($tmp as $unit) {
-                $existing_values[$unit['StructurePermissibleValuesCustom']['value']] = null;
-                $existing_en[$unit['StructurePermissibleValuesCustom']['en']] = null;
-                $existing_fr[$unit['StructurePermissibleValuesCustom']['fr']] = null;
+                $existingValues[$unit['StructurePermissibleValuesCustom']['value']] = null;
+                $existingEn[$unit['StructurePermissibleValuesCustom']['en']] = null;
+                $existingFr[$unit['StructurePermissibleValuesCustom']['fr']] = null;
             }
             
-            $row_counter = 0;
-            foreach ($this->request->data as &$data_unit) {
-                $row_counter ++;
+            $rowCounter = 0;
+            foreach ($this->request->data as &$dataUnit) {
+                $rowCounter ++;
                 
                 // 1- Check 'value'
                 
-                $data_unit['StructurePermissibleValuesCustom'] = array_map("trim", $data_unit['StructurePermissibleValuesCustom']);
-                if (array_key_exists($data_unit['StructurePermissibleValuesCustom']['value'], $existing_values)) {
-                    $errors_tracking['value'][__('a specified %s already exists for that dropdown', __("value"))][] = $row_counter;
+                $dataUnit['StructurePermissibleValuesCustom'] = array_map("trim", $dataUnit['StructurePermissibleValuesCustom']);
+                if (array_key_exists($dataUnit['StructurePermissibleValuesCustom']['value'], $existingValues)) {
+                    $errorsTracking['value'][__('a specified %s already exists for that dropdown', __("value"))][] = $rowCounter;
                 }
-                if (array_key_exists($data_unit['StructurePermissibleValuesCustom']['value'], $current_values)) {
-                    $errors_tracking['value'][__('you cannot declare the same %s more than once', __("value"))][] = $row_counter;
+                if (array_key_exists($dataUnit['StructurePermissibleValuesCustom']['value'], $currentValues)) {
+                    $errorsTracking['value'][__('you cannot declare the same %s more than once', __("value"))][] = $rowCounter;
                 }
-                if (strlen($data_unit['StructurePermissibleValuesCustom']['value']) > $max_length) {
-                    $errors_tracking['value'][__('%s cannot exceed %d characters', __("value"), $max_length)][] = $row_counter;
+                if (strlen($dataUnit['StructurePermissibleValuesCustom']['value']) > $maxLength) {
+                    $errorsTracking['value'][__('%s cannot exceed %d characters', __("value"), $maxLength)][] = $rowCounter;
                 }
                 
                 // 2- Check 'en'
                 
-                if (! (is_null($data_unit['StructurePermissibleValuesCustom']['en']) || ($data_unit['StructurePermissibleValuesCustom']['en'] == ''))) {
-                    if (array_key_exists($data_unit['StructurePermissibleValuesCustom']['en'], $existing_en)) {
-                        $errors_tracking['en'][__('a specified %s already exists for that dropdown', __("english translation"))][] = $row_counter;
+                if (! (is_null($dataUnit['StructurePermissibleValuesCustom']['en']) || ($dataUnit['StructurePermissibleValuesCustom']['en'] == ''))) {
+                    if (array_key_exists($dataUnit['StructurePermissibleValuesCustom']['en'], $existingEn)) {
+                        $errorsTracking['en'][__('a specified %s already exists for that dropdown', __("english translation"))][] = $rowCounter;
                     }
-                    if (array_key_exists($data_unit['StructurePermissibleValuesCustom']['en'], $current_en)) {
-                        $errors_tracking['en'][__('you cannot declare the same %s more than once', __("english translation"))][] = $row_counter;
+                    if (array_key_exists($dataUnit['StructurePermissibleValuesCustom']['en'], $currentEn)) {
+                        $errorsTracking['en'][__('you cannot declare the same %s more than once', __("english translation"))][] = $rowCounter;
                     }
                 }
-                if (strlen($data_unit['StructurePermissibleValuesCustom']['en']) > $this->StructurePermissibleValuesCustom->_schema['en']['length']) {
-                    $errors_tracking['en'][__('%s cannot exceed %d characters', __("english translation"), $this->StructurePermissibleValuesCustom->_schema['en']['length'])][] = $row_counter;
+                if (strlen($dataUnit['StructurePermissibleValuesCustom']['en']) > $this->StructurePermissibleValuesCustom->_schema['en']['length']) {
+                    $errorsTracking['en'][__('%s cannot exceed %d characters', __("english translation"), $this->StructurePermissibleValuesCustom->_schema['en']['length'])][] = $rowCounter;
                 }
                 
                 // 3- Check 'fr'
                 
-                if (! (is_null($data_unit['StructurePermissibleValuesCustom']['fr']) || ($data_unit['StructurePermissibleValuesCustom']['fr'] == ''))) {
-                    if (array_key_exists($data_unit['StructurePermissibleValuesCustom']['fr'], $existing_fr)) {
-                        $errors_tracking['fr'][__('a specified %s already exists for that dropdown', __("french translation"))][] = $row_counter;
+                if (! (is_null($dataUnit['StructurePermissibleValuesCustom']['fr']) || ($dataUnit['StructurePermissibleValuesCustom']['fr'] == ''))) {
+                    if (array_key_exists($dataUnit['StructurePermissibleValuesCustom']['fr'], $existingFr)) {
+                        $errorsTracking['fr'][__('a specified %s already exists for that dropdown', __("french translation"))][] = $rowCounter;
                     }
-                    if (array_key_exists($data_unit['StructurePermissibleValuesCustom']['fr'], $current_fr)) {
-                        $errors_tracking['fr'][__('you cannot declare the same %s more than once', __("french translation"))][] = $row_counter;
+                    if (array_key_exists($dataUnit['StructurePermissibleValuesCustom']['fr'], $currentFr)) {
+                        $errorsTracking['fr'][__('you cannot declare the same %s more than once', __("french translation"))][] = $rowCounter;
                     }
                 }
-                if (strlen($data_unit['StructurePermissibleValuesCustom']['fr']) > $this->StructurePermissibleValuesCustom->_schema['fr']['length']) {
-                    $errors_tracking['fr'][__('%s cannot exceed %d characters', __("french translation"), $this->StructurePermissibleValuesCustom->_schema['fr']['length'])][] = $row_counter;
+                if (strlen($dataUnit['StructurePermissibleValuesCustom']['fr']) > $this->StructurePermissibleValuesCustom->_schema['fr']['length']) {
+                    $errorsTracking['fr'][__('%s cannot exceed %d characters', __("french translation"), $this->StructurePermissibleValuesCustom->_schema['fr']['length'])][] = $rowCounter;
                 }
                 
-                $current_values[$data_unit['StructurePermissibleValuesCustom']['value']] = null;
-                $current_en[$data_unit['StructurePermissibleValuesCustom']['en']] = null;
-                $current_fr[$data_unit['StructurePermissibleValuesCustom']['fr']] = null;
+                $currentValues[$dataUnit['StructurePermissibleValuesCustom']['value']] = null;
+                $currentEn[$dataUnit['StructurePermissibleValuesCustom']['en']] = null;
+                $currentFr[$dataUnit['StructurePermissibleValuesCustom']['fr']] = null;
             }
-            unset($data_unit);
+            unset($dataUnit);
             
             // B - Launch Structure Fields Validation
             
-            $row_counter = 0;
-            foreach ($this->request->data as $data_unit) {
-                $row_counter ++;
+            $rowCounter = 0;
+            foreach ($this->request->data as $dataUnit) {
+                $rowCounter ++;
                 $this->StructurePermissibleValuesCustom->id = null;
-                $data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
-                $this->StructurePermissibleValuesCustom->set($data_unit);
+                $dataUnit['StructurePermissibleValuesCustom']['control_id'] = $controlId;
+                $this->StructurePermissibleValuesCustom->set($dataUnit);
                 if (! $this->StructurePermissibleValuesCustom->validates()) {
                     foreach ($this->StructurePermissibleValuesCustom->validationErrors as $field => $msgs) {
                         $msgs = is_array($msgs) ? $msgs : array(
                             $msgs
                         );
                         foreach ($msgs as $msg)
-                            $errors_tracking[$field][$msg][] = $row_counter;
+                            $errorsTracking[$field][$msg][] = $rowCounter;
                     }
                 }
             }
             
             // Launch Save Process
-            if (empty($errors_tracking)) {
+            if (empty($errorsTracking)) {
                 // save all
-                $tmp_data = AppController::cloneArray($this->request->data);
+                $tmpData = AppController::cloneArray($this->request->data);
                 $this->StructurePermissibleValuesCustom->addWritableField('control_id');
-                $this->StructurePermissibleValuesCustom->writable_fields_mode = 'addgrid';
-                while ($data_unit = array_pop($tmp_data)) {
+                $this->StructurePermissibleValuesCustom->writableFieldsMode = 'addgrid';
+                while ($dataUnit = array_pop($tmpData)) {
                     $this->StructurePermissibleValuesCustom->id = null;
-                    $data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
-                    $this->StructurePermissibleValuesCustom->set($data_unit);
-                    if (! $this->StructurePermissibleValuesCustom->save($data_unit)) {
+                    $dataUnit['StructurePermissibleValuesCustom']['control_id'] = $controlId;
+                    $this->StructurePermissibleValuesCustom->set($dataUnit);
+                    if (! $this->StructurePermissibleValuesCustom->save($dataUnit)) {
                         $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
                     }
                 }
-                $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $control_id);
+                $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $controlId);
             } else {
                 $this->StructurePermissibleValuesCustomControl->validationErrors = array();
-                foreach ($errors_tracking as $field => $msg_and_lines) {
-                    foreach ($msg_and_lines as $msg => $lines) {
+                foreach ($errorsTracking as $field => $msgAndLines) {
+                    foreach ($msgAndLines as $msg => $lines) {
                         $this->StructurePermissibleValuesCustomControl->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
                     }
                 }
@@ -230,96 +230,96 @@ class DropdownsController extends AdministrateAppController
         }
     }
 
-    function edit($control_id, $value_id)
+    function edit($controlId, $valueId)
     {
-        $control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
-        $this->set("control_data", $control_data);
+        $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
+        $this->set("controlData", $controlData);
         
-        $this->set('atim_menu_variables', array(
-            'StructurePermissibleValuesCustom.id' => $value_id,
-            'StructurePermissibleValuesCustom.control_id' => $control_id
+        $this->set('atimMenuVariables', array(
+            'StructurePermissibleValuesCustom.id' => $valueId,
+            'StructurePermissibleValuesCustom.control_id' => $controlId
         ));
         
-        $value_data = $this->StructurePermissibleValuesCustom->find('first', array(
+        $valueData = $this->StructurePermissibleValuesCustom->find('first', array(
             'conditions' => array(
-                'StructurePermissibleValuesCustom.control_id' => $control_id,
-                'StructurePermissibleValuesCustom.id' => $value_id
+                'StructurePermissibleValuesCustom.control_id' => $controlId,
+                'StructurePermissibleValuesCustom.id' => $valueId
             )
         ));
-        if (empty($value_data)) {
+        if (empty($valueData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         $this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
         
         if (empty($this->request->data)) {
-            $this->request->data = $value_data;
+            $this->request->data = $valueData;
         } else {
-            $this->StructurePermissibleValuesCustom->id = $value_id;
-            $skip_save = false;
+            $this->StructurePermissibleValuesCustom->id = $valueId;
+            $skipSave = false;
             
             // 1- Check 'en'
             
-            if (! (is_null($this->request->data['StructurePermissibleValuesCustom']['en']) || ($this->request->data['StructurePermissibleValuesCustom']['en'] == '') || ($this->request->data['StructurePermissibleValuesCustom']['en'] == $value_data['StructurePermissibleValuesCustom']['en']))) {
+            if (! (is_null($this->request->data['StructurePermissibleValuesCustom']['en']) || ($this->request->data['StructurePermissibleValuesCustom']['en'] == '') || ($this->request->data['StructurePermissibleValuesCustom']['en'] == $valueData['StructurePermissibleValuesCustom']['en']))) {
                 $tmp = $this->StructurePermissibleValuesCustom->find('first', array(
                     'conditions' => array(
                         'StructurePermissibleValuesCustom.en' => $this->request->data['StructurePermissibleValuesCustom']['en'],
-                        'StructurePermissibleValuesCustom.id != ' . $value_id,
-                        'StructurePermissibleValuesCustom.control_id' => $control_id
+                        'StructurePermissibleValuesCustom.id != ' . $valueId,
+                        'StructurePermissibleValuesCustom.control_id' => $controlId
                     )
                 ));
                 if (! empty($tmp)) {
                     $this->StructurePermissibleValuesCustom->validationErrors['en'][] = __('a specified %s already exists for that dropdown', __("english translation"));
-                    $skip_save = true;
+                    $skipSave = true;
                 }
                 if (strlen($this->request->data['StructurePermissibleValuesCustom']['en']) > $this->StructurePermissibleValuesCustom->_schema['en']['length']) {
                     $this->StructurePermissibleValuesCustom->validationErrors['en'][] = __('%s cannot exceed %d characters', __("english translation"), $this->StructurePermissibleValuesCustom->_schema['en']['length']);
-                    $skip_save = true;
+                    $skipSave = true;
                 }
             }
             
             // 2- Check 'fr'
             
-            if (! (is_null($this->request->data['StructurePermissibleValuesCustom']['fr']) || ($this->request->data['StructurePermissibleValuesCustom']['fr'] == '') || ($this->request->data['StructurePermissibleValuesCustom']['fr'] == $value_data['StructurePermissibleValuesCustom']['fr']))) {
+            if (! (is_null($this->request->data['StructurePermissibleValuesCustom']['fr']) || ($this->request->data['StructurePermissibleValuesCustom']['fr'] == '') || ($this->request->data['StructurePermissibleValuesCustom']['fr'] == $valueData['StructurePermissibleValuesCustom']['fr']))) {
                 $tmp = $this->StructurePermissibleValuesCustom->find('first', array(
                     'conditions' => array(
                         'StructurePermissibleValuesCustom.fr' => $this->request->data['StructurePermissibleValuesCustom']['fr'],
-                        'StructurePermissibleValuesCustom.id != ' . $value_id,
-                        'StructurePermissibleValuesCustom.control_id' => $control_id
+                        'StructurePermissibleValuesCustom.id != ' . $valueId,
+                        'StructurePermissibleValuesCustom.control_id' => $controlId
                     )
                 ));
                 if (! empty($tmp)) {
                     $this->StructurePermissibleValuesCustom->validationErrors['fr'][] = __('a specified %s already exists for that dropdown', __("french translation"));
-                    $skip_save = true;
+                    $skipSave = true;
                 }
                 if (strlen($this->request->data['StructurePermissibleValuesCustom']['fr']) > $this->StructurePermissibleValuesCustom->_schema['fr']['length']) {
                     $this->StructurePermissibleValuesCustom->validationErrors['fr'][] = __('%s cannot exceed %d characters', __("french translation"), $this->StructurePermissibleValuesCustom->_schema['fr']['length']);
-                    $skip_save = true;
+                    $skipSave = true;
                 }
             }
             
-            if (! $skip_save) {
+            if (! $skipSave) {
                 if (! $this->StructurePermissibleValuesCustom->save($this->request->data)) {
                     $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
                 }
-                $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $control_id);
+                $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $controlId);
             }
         }
     }
 
-    function configure($control_id)
+    function configure($controlId)
     {
         $this->Structures->set('administrate_dropdown_values');
         if (empty($this->request->data)) {
-            $control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
-            $this->set("control_data", $control_data);
-            $this->set('atim_menu_variables', array(
-                'StructurePermissibleValuesCustom.control_id' => $control_id
+            $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
+            $this->set("controlData", $controlData);
+            $this->set('atimMenuVariables', array(
+                'StructurePermissibleValuesCustom.control_id' => $controlId
             ));
             
             $this->request->data = $this->StructurePermissibleValuesCustom->find('all', array(
                 'conditions' => array(
-                    'StructurePermissibleValuesCustom.control_id' => $control_id
+                    'StructurePermissibleValuesCustom.control_id' => $controlId
                 ),
                 'recursive' => - 1,
                 'order' => array(
@@ -330,7 +330,7 @@ class DropdownsController extends AdministrateAppController
             if (empty($this->request->data)) {
                 $this->atimFlashWarning(__("you cannot configure an empty list"), "javascript:history.back();", 5);
             }
-            $this->set('alpha_order', $this->request->data[0]['StructurePermissibleValuesCustom']['display_order'] == 0);
+            $this->set('alphaOrder', $this->request->data[0]['StructurePermissibleValuesCustom']['display_order'] == 0);
         } else {
             $data = array();
             if (isset($this->request->data[0]['default_order'])) {
@@ -354,7 +354,7 @@ class DropdownsController extends AdministrateAppController
             
             $ids = $this->StructurePermissibleValuesCustom->find('all', array(
                 'conditions' => array(
-                    'StructurePermissibleValuesCustom.control_id' => $control_id
+                    'StructurePermissibleValuesCustom.control_id' => $controlId
                 ),
                 'recursive' => - 1,
                 'fields' => 'id'
@@ -364,23 +364,23 @@ class DropdownsController extends AdministrateAppController
                 // hack detected
                 $this->redirect('/Pages/err_plugin_system_error', NULL, true);
             }
-            foreach ($data as &$data_unit) {
-                if (! isset($ids[$data_unit['id']])) {
+            foreach ($data as &$dataUnit) {
+                if (! isset($ids[$dataUnit['id']])) {
                     // hack detected
                     $this->redirect('/Pages/err_plugin_system_error', NULL, true);
                 }
             }
             
             $this->StructurePermissibleValuesCustom->addWritableField('display_order');
-            $this->StructurePermissibleValuesCustom->writable_fields_mode = 'editgrid';
+            $this->StructurePermissibleValuesCustom->writableFieldsMode = 'editgrid';
             $this->StructurePermissibleValuesCustom->getDataSource()->begin();
-            foreach ($data as &$data_unit) {
+            foreach ($data as &$dataUnit) {
                 $this->StructurePermissibleValuesCustom->data = null;
-                $this->StructurePermissibleValuesCustom->id = $data_unit['id'];
-                $this->StructurePermissibleValuesCustom->save($data_unit);
+                $this->StructurePermissibleValuesCustom->id = $dataUnit['id'];
+                $this->StructurePermissibleValuesCustom->save($dataUnit);
             }
             $this->StructurePermissibleValuesCustom->getDataSource()->commit();
-            $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $control_id);
+            $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $controlId);
         }
     }
 }

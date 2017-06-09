@@ -3,7 +3,7 @@
 class TreatmentExtendControl extends ClinicalAnnotationAppModel
 {
 
-    public $master_form_alias = 'treatment_extend_masters';
+    public $masterFormAlias = 'treatment_extend_masters';
 
     function getPrecisionTypeValues()
     {
@@ -14,8 +14,8 @@ class TreatmentExtendControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $tx_extend_ctrl) {
-            $result[$tx_extend_ctrl['TreatmentExtendControl']['type']] = __($tx_extend_ctrl['TreatmentExtendControl']['type']);
+        )) as $txExtendCtrl) {
+            $result[$txExtendCtrl['TreatmentExtendControl']['type']] = __($txExtendCtrl['TreatmentExtendControl']['type']);
         }
         natcasesort($result);
         

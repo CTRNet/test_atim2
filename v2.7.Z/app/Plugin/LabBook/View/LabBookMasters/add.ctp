@@ -1,37 +1,37 @@
 <?php
-$bottom_buttons = array();
+$bottomButtons = array();
 $settings = array();
 
-if ($is_ajax) {
+if ($isAjax) {
     $settings['header'] = array(
         'title' => __('add lab book'),
-        'description' => $book_type
+        'description' => $bookType
     );
 } else {
-    $bottom_buttons['cancel'] = '/labbook/LabBookMasters/index/';
+    $bottomButtons['cancel'] = '/labbook/LabBookMasters/index/';
 }
 
-$structure_links = array(
-    'top' => '/labbook/LabBookMasters/add/' . $atim_menu_variables['LabBookControl.id'] . '/' . $is_ajax,
-    'bottom' => $bottom_buttons
+$structureLinks = array(
+    'top' => '/labbook/LabBookMasters/add/' . $atimMenuVariables['LabBookControl.id'] . '/' . $isAjax,
+    'bottom' => $bottomButtons
 );
 
-$structure_override = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
-    'override' => $structure_override,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride,
     'settings' => $settings
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

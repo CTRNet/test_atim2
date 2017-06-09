@@ -1,49 +1,48 @@
 <?php
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/EventMasters/add/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['EventControl.id'] . '/',
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/EventMasters/add/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['EventControl.id'] . '/',
     'bottom' => array(
-        'cancel' => '/ClinicalAnnotation/EventMasters/listall/' . $atim_menu_variables['EventControl.event_group'] . '/' . $atim_menu_variables['Participant.id']
+        'cancel' => '/ClinicalAnnotation/EventMasters/listall/' . $atimMenuVariables['EventControl.event_group'] . '/' . $atimMenuVariables['Participant.id']
     )
 );
 
 // 1- EVENT DATA
 
-$structure_settings = array(
+$structureSettings = array(
     'actions' => false,
-    'header' => $ev_header,
+    'header' => $evHeader,
     'form_bottom' => false
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'settings' => $structure_settings,
-    'links' => $structure_links
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'settings' => $structureSettings,
+    'links' => $structureLinks
 );
 
-if ($use_addgrid) {
+if ($useAddgrid) {
     // *** Add new events in batch ***
-    $final_options['settings'] = array_merge($final_options['settings'], array(
+    $finalOptions['settings'] = array_merge($finalOptions['settings'], array(
         'pagination' => false,
         'add_fields' => true,
         'del_fields' => true
     ));
-    $final_options['type'] = 'addgrid';
+    $finalOptions['type'] = 'addgrid';
 }
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 // 2- DIAGNOSTICS
-
 // Define radio should be checked
-$radio_checked = $initial_display || empty($this->request->data['EventMaster']['diagnosis_master_id']);
-$final_options = array(
+$radioChecked = $initialDisplay || empty($this->request->data['EventMaster']['diagnosis_master_id']);
+$finalOptions = array(
     'type' => 'tree',
-    'data' => $data_for_checklist,
+    'data' => $dataForChecklist,
     'settings' => array(
         'form_top' => false,
         'header' => __('related diagnosis'),
@@ -53,12 +52,12 @@ $final_options = array(
         'form_inputs' => false
     ),
     'extras' => array(
-        'start' => '<input type="radio" name="data[EventMaster][diagnosis_master_id]" value="" ' . ($radio_checked ? 'checked="checked"' : '') . '/>' . __('n/a', null)
+        'start' => '<input type="radio" name="data[EventMaster][diagnosis_master_id]" value="" ' . ($radioChecked ? 'checked="checked"' : '') . '/>' . __('n/a', null)
     ),
     'links' => array(
-        'top' => '/ClinicalAnnotation/EventMasters/add/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['EventControl.id'] . '/',
+        'top' => '/ClinicalAnnotation/EventMasters/add/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['EventControl.id'] . '/',
         'bottom' => array(
-            'cancel' => '/ClinicalAnnotation/EventMasters/listall/' . $atim_menu_variables['EventControl.event_group'] . '/' . $atim_menu_variables['Participant.id']
+            'cancel' => '/ClinicalAnnotation/EventMasters/listall/' . $atimMenuVariables['EventControl.event_group'] . '/' . $atimMenuVariables['Participant.id']
         ),
         'tree' => array(
             'DiagnosisMaster' => array(
@@ -69,21 +68,24 @@ $final_options = array(
         )
     )
 );
-$final_atim_structure = array(
-    'DiagnosisMaster' => $diagnosis_structure
+$finalAtimStructure = array(
+    'DiagnosisMaster' => $diagnosisStructure
 );
 
-$display_next_sub_form = true;
+$displayNextSubForm = true;
 
-$hook_link = $this->Structures->hook('dx_list');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('dx_list');
+if ($hookLink) {
+    require ($hookLink);
 }
 
-if ($display_next_sub_form)
-    $this->Structures->build($final_atim_structure, $final_options);
+if ($displayNextSubForm) {
+//    debug($finalOptions);
+//    die('test');
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+}
 ?>
 <script>
-var treeView = true;
-var copyControl = true;
+    var treeView = true;
+    var copyControl = true;
 </script>

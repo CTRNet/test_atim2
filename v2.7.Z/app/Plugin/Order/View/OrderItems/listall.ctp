@@ -1,7 +1,7 @@
 <?php
-$structure_links = array();
+$structureLinks = array();
 
-$structure_links['index'] = array(
+$structureLinks['index'] = array(
     'items details' => array(
         'link' => '%%Generated.item_detail_link%%/',
         'icon' => 'detail'
@@ -9,69 +9,69 @@ $structure_links['index'] = array(
 );
 switch ($status) {
     case 'pending':
-        $structure_links['index']['edit addition to order data'] = array(
-            'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $main_form_model . '/',
+        $structureLinks['index']['edit addition to order data'] = array(
+            'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $mainFormModel . '/',
             'icon' => 'edit'
         );
-        $structure_links['index']['remove from order'] = array(
-            'link' => '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $main_form_model . '/',
+        $structureLinks['index']['remove from order'] = array(
+            'link' => '/Order/OrderItems/delete/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $mainFormModel . '/',
             'icon' => 'remove_from_order'
         );
         break;
     case 'shipped':
-        $structure_links['index']['shipment details'] = array(
+        $structureLinks['index']['shipment details'] = array(
             'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
             'icon' => 'shipments'
         );
-        $structure_links['index']['remove from shipment'] = array(
-            'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/' . $main_form_model . '/',
+        $structureLinks['index']['remove from shipment'] = array(
+            'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/' . $mainFormModel . '/',
             'icon' => 'remove_from_shipment'
         );
-        $structure_links['index']['define order item as returned'] = array(
+        $structureLinks['index']['define order item as returned'] = array(
             'link' => '/Order/OrderItems/defineOrderItemsReturned/%%OrderItem.order_id%%/0/0/%%OrderItem.id%%/',
             'icon' => 'order items returned'
         );
         break;
     case 'shipped & returned':
-        $structure_links['index']['edit return data'] = array(
-            'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $main_form_model . '/',
+        $structureLinks['index']['edit return data'] = array(
+            'link' => '/Order/OrderItems/edit/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $mainFormModel . '/',
             'icon' => 'edit'
         );
-        $structure_links['index']['shipment details'] = array(
+        $structureLinks['index']['shipment details'] = array(
             'link' => '/Order/Shipments/detail/%%OrderItem.order_id%%/%%Shipment.id%%/',
             'icon' => 'shipments'
         );
-        $structure_links['index']['remove from shipment'] = array(
-            'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/' . $main_form_model . '/',
+        $structureLinks['index']['remove from shipment'] = array(
+            'link' => '/Order/Shipments/deleteFromShipment/%%OrderItem.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/' . $mainFormModel . '/',
             'icon' => 'remove_from_shipment'
         );
-        $structure_links['index']['change status to shipped'] = array(
-            'link' => '/Order/OrderItems/removeFlagReturned/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $main_form_model . '/',
+        $structureLinks['index']['change status to shipped'] = array(
+            'link' => '/Order/OrderItems/removeFlagReturned/%%OrderItem.order_id%%/%%OrderItem.id%%/' . $mainFormModel . '/',
             'icon' => 'remove flag returned'
         );
         break;
 }
 
-if (! empty($atim_menu_variables['OrderLine.id'])) {
-    unset($structure_links['index']['order line details']);
+if (! empty($atimMenuVariables['OrderLine.id'])) {
+    unset($structureLinks['index']['order line details']);
 }
 
-$structure_override = array();
+$structureOverride = array();
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links,
-    'override' => $structure_override
+    'links' => $structureLinks,
+    'override' => $structureOverride
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

@@ -1,31 +1,31 @@
 <?php
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/TreatmentMasters/edit/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id']
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/TreatmentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id']
 );
 
 // 1- TRT
-$structure_settings = array(
+$structureSettings = array(
     'actions' => false,
     'header' => __('data', null),
     'form_bottom' => false
 );
 
-$final_options = array(
-    'links' => $structure_links,
-    'settings' => $structure_settings
+$finalOptions = array(
+    'links' => $structureLinks,
+    'settings' => $structureSettings
 );
-$final_atim_structure = $atim_structure;
+$finalAtimStructure = $atimStructure;
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 // 2- SEPARATOR & HEADER
 
-$structure_settings = array(
+$structureSettings = array(
     'header' => __('related diagnosis', null),
     'form_top' => false,
     'tree' => array(
@@ -36,8 +36,8 @@ $structure_settings = array(
 
 // Define radio should be checked
 
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/TreatmentMasters/edit/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'],
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/TreatmentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'],
     'tree' => array(
         'DiagnosisMaster' => array(
             'radiolist' => array(
@@ -46,33 +46,33 @@ $structure_links = array(
         )
     ),
     'bottom' => array(
-        'cancel' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id']
+        'cancel' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id']
     )
 );
 
-$final_options = array(
+$finalOptions = array(
     'type' => 'tree',
-    'data' => $data_for_checklist,
-    'settings' => $structure_settings,
-    'links' => $structure_links,
+    'data' => $dataForChecklist,
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
     'extras' => array(
-        'start' => '<input type="radio" name="data[TreatmentMaster][diagnosis_master_id]" ' . (! $radio_checked ? ' checked="checked"' : '') . ' value=""/>' . __('n/a', null)
+        'start' => '<input type="radio" name="data[TreatmentMaster][diagnosis_master_id]" ' . (! $radioChecked ? ' checked="checked"' : '') . ' value=""/>' . __('n/a', null)
     )
 );
 
-$final_atim_structure = array(
-    'DiagnosisMaster' => $diagnosis_structure
+$finalAtimStructure = array(
+    'DiagnosisMaster' => $diagnosisStructure
 );
 
-$display_next_sub_form = true;
+$displayNextSubForm = true;
 
-$hook_link = $this->Structures->hook('dx_list');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('dx_list');
+if ($hookLink) {
+    require ($hookLink);
 }
 
-if ($display_next_sub_form)
-    $this->Structures->build($final_atim_structure, $final_options);
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 ?>
 <script>
 var treeView = true;

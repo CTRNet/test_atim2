@@ -1,11 +1,11 @@
 <?php
-$structure_links = array(
-    'top' => '/Administrate/PasswordsAdmin/index/' . $atim_menu_variables['Group.id'] . '/' . $atim_menu_variables['User.id']
+$structureLinks = array(
+    'top' => '/Administrate/PasswordsAdmin/index/' . $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id']
 );
 
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'edit',
-    'links' => $structure_links,
+    'links' => $structureLinks,
     'settings' => array(
         'stretch' => false
     )

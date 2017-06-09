@@ -9,7 +9,7 @@ class ProfilesController extends CustomizeAppController
         'User'
     );
 
-    static $database_user_encrypted_string = '**************';
+    static $databaseUserEncryptedString = '**************';
 
     function index()
     {
@@ -24,8 +24,8 @@ class ProfilesController extends CustomizeAppController
         ));
         
         if (Configure::read('reset_forgotten_password_feature')) {
-            foreach ($this->User->getForgottenPasswordResetFormFields() as $question_field_name => $answer_field_name) {
-                $this->request->data['User'][$answer_field_name] = strlen($this->request->data['User'][$answer_field_name]) ? self::$database_user_encrypted_string : '';
+            foreach ($this->User->getForgottenPasswordResetFormFields() as $questionFieldName => $answerFieldName) {
+                $this->request->data['User'][$answerFieldName] = strlen($this->request->data['User'][$answerFieldName]) ? self::$databaseUserEncryptedString : '';
             }
         }
     }
@@ -34,17 +34,17 @@ class ProfilesController extends CustomizeAppController
     {
         $this->Structures->set('users' . (Configure::read('reset_forgotten_password_feature') ? ',forgotten_password_reset_questions' : ''));
         
-        $user_data = $this->User->getOrRedirect($this->Session->read('Auth.User.id'));
+        $userData = $this->User->getOrRedirect($this->Session->read('Auth.User.id'));
         
         $this->hook();
         
         if (empty($this->request->data)) {
             
-            $this->request->data = $user_data;
+            $this->request->data = $userData;
             
             if (Configure::read('reset_forgotten_password_feature')) {
-                foreach ($this->User->getForgottenPasswordResetFormFields() as $question_field_name => $answer_field_name) {
-                    $this->request->data['User'][$answer_field_name] = strlen($this->request->data['User'][$answer_field_name]) ? self::$database_user_encrypted_string : '';
+                foreach ($this->User->getForgottenPasswordResetFormFields() as $questionFieldName => $answerFieldName) {
+                    $this->request->data['User'][$answerFieldName] = strlen($this->request->data['User'][$answerFieldName]) ? self::$databaseUserEncryptedString : '';
                 }
             }
         } else {
@@ -55,71 +55,71 @@ class ProfilesController extends CustomizeAppController
             
             $this->User->id = $this->Session->read('Auth.User.id');
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
-            if ($this->request->data['User']['username'] != $user_data['User']['username']) {
+            if ($this->request->data['User']['username'] != $userData['User']['username']) {
                 $this->User->validationErrors['username'][] = __('a user name can not be changed');
-                $submitted_data_validates = false;
+                $submittedDataValidates = false;
             }
             
             if (array_key_exists('flag_active', $this->request->data['User']) && ! $this->request->data['User']['flag_active']) {
                 unset($this->request->data['User']['flag_active']);
                 $this->User->validationErrors[][] = __('you cannot deactivate yourself');
-                $submitted_data_validates = false;
+                $submittedDataValidates = false;
             }
             
             if (Configure::read('reset_forgotten_password_feature')) {
-                $unique_question = array();
-                $unique_answer = array();
-                $formatted_answers = array();
-                foreach ($this->User->getForgottenPasswordResetFormFields() as $question_field_name => $answer_field_name) {
+                $uniqueQuestion = array();
+                $uniqueAnswer = array();
+                $formattedAnswers = array();
+                foreach ($this->User->getForgottenPasswordResetFormFields() as $questionFieldName => $answerFieldName) {
                     // Format answer
-                    $this->request->data['User'][$answer_field_name] = trim($this->request->data['User'][$answer_field_name]);
+                    $this->request->data['User'][$answerFieldName] = trim($this->request->data['User'][$answerFieldName]);
                     // Check answer
-                    if ($this->request->data['User'][$answer_field_name] === self::$database_user_encrypted_string) {
+                    if ($this->request->data['User'][$answerFieldName] === self::$databaseUserEncryptedString) {
                         // User won't change the question/answer set
-                        if ($user_data['User'][$question_field_name] !== $this->request->data['User'][$question_field_name]) {
-                            $this->User->validationErrors[$question_field_name][] = __('the question has been modified. please enter a new answer.');
-                            $submitted_data_validates = false;
+                        if ($userData['User'][$questionFieldName] !== $this->request->data['User'][$questionFieldName]) {
+                            $this->User->validationErrors[$questionFieldName][] = __('the question has been modified. please enter a new answer.');
+                            $submittedDataValidates = false;
                         }
                     } else {
                         // New question answer
                         // - Check question is unique
-                        if (in_array($this->request->data['User'][$question_field_name], $unique_question)) {
-                            $this->User->validationErrors[$question_field_name][] = __('a question can not be used twice.');
-                            $submitted_data_validates = false;
+                        if (in_array($this->request->data['User'][$questionFieldName], $uniqueQuestion)) {
+                            $this->User->validationErrors[$questionFieldName][] = __('a question can not be used twice.');
+                            $submittedDataValidates = false;
                         }
-                        $unique_question[] = $this->request->data['User'][$question_field_name];
+                        $uniqueQuestion[] = $this->request->data['User'][$questionFieldName];
                         // - Check answer is unique
-                        if (in_array($this->request->data['User'][$answer_field_name], $unique_answer)) {
-                            $this->User->validationErrors[$answer_field_name][] = __('a same answer can not be written twice.');
-                            $submitted_data_validates = false;
+                        if (in_array($this->request->data['User'][$answerFieldName], $uniqueAnswer)) {
+                            $this->User->validationErrors[$answerFieldName][] = __('a same answer can not be written twice.');
+                            $submittedDataValidates = false;
                         }
-                        $unique_answer[] = $this->request->data['User'][$answer_field_name];
+                        $uniqueAnswer[] = $this->request->data['User'][$answerFieldName];
                         // - Check anser length
-                        if (strlen($this->request->data['User'][$answer_field_name]) < 10) {
-                            $this->User->validationErrors[$answer_field_name][] = __('the length of the answer should be bigger than 10.');
-                            $submitted_data_validates = false;
+                        if (strlen($this->request->data['User'][$answerFieldName]) < 10) {
+                            $this->User->validationErrors[$answerFieldName][] = __('the length of the answer should be bigger than 10.');
+                            $submittedDataValidates = false;
                         }
                     }
                 }
             }
             unset($this->request->data['User']['username']);
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 if (Configure::read('reset_forgotten_password_feature')) {
-                    foreach ($this->User->getForgottenPasswordResetFormFields() as $question_field_name => $answer_field_name) {
-                        if ($this->request->data['User'][$answer_field_name] === self::$database_user_encrypted_string) {
-                            unset($this->request->data['User'][$question_field_name]);
-                            unset($this->request->data['User'][$answer_field_name]);
+                    foreach ($this->User->getForgottenPasswordResetFormFields() as $questionFieldName => $answerFieldName) {
+                        if ($this->request->data['User'][$answerFieldName] === self::$databaseUserEncryptedString) {
+                            unset($this->request->data['User'][$questionFieldName]);
+                            unset($this->request->data['User'][$answerFieldName]);
                         } else {
-                            $this->request->data['User'][$answer_field_name] = $this->User->hashSecuritAsnwer($this->request->data['User'][$answer_field_name]);
+                            $this->request->data['User'][$answerFieldName] = $this->User->hashSecuritAsnwer($this->request->data['User'][$answerFieldName]);
                         }
                     }
                 }
@@ -128,9 +128,9 @@ class ProfilesController extends CustomizeAppController
                     'group_id'
                 ));
                 if ($this->User->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
                     $this->atimFlash(__('your data has been updated'), '/Customize/Profiles/index');
                     return;
@@ -138,7 +138,7 @@ class ProfilesController extends CustomizeAppController
             }
             
             // Reset username
-            $this->request->data['User']['username'] = $user_data['User']['username'];
+            $this->request->data['User']['username'] = $userData['User']['username'];
         }
     }
 }

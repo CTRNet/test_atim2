@@ -1,23 +1,23 @@
 <?php
-$structure_links = array(
-    'top' => '/InventoryManagement/Collections/add/' . $atim_variables['Collection.id'] . '/' . $copy_source,
+$structureLinks = array(
+    'top' => '/InventoryManagement/Collections/add/' . $atimVariables['Collection.id'] . '/' . $copySource,
     'bottom' => array(
         'cancel' => 'javascript:history.go(-1)'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

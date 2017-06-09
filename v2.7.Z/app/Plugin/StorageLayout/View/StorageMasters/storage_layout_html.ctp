@@ -49,75 +49,75 @@ ob_start();
 if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
     if (isset($data['parent']['StorageControl']['horizontal_display']) && $data['parent']['StorageControl']['horizontal_display']) {
         echo ("<tr>");
-        foreach ($data['parent']['list'] as $list_item) {
-            echo ("<td class='droppable mycell'>" . '<b>' . $list_item['StorageCoordinate']['coordinate_value'] . '</b>' . '<ul id="s_' . $atim_menu_variables['StorageMaster.id'] . '_c_' . $list_item['StorageCoordinate']['id'] . '_1"/>' . '</td>');
+        foreach ($data['parent']['list'] as $listItem) {
+            echo ("<td class='droppable mycell'>" . '<b>' . $listItem['StorageCoordinate']['coordinate_value'] . '</b>' . '<ul id="s_' . $atimMenuVariables['StorageMaster.id'] . '_c_' . $listItem['StorageCoordinate']['id'] . '_1"/>' . '</td>');
         }
         echo ("</tr>\n");
     } else {
-        foreach ($data['parent']['list'] as $list_item) {
-            echo ("<tr><td class='droppable mycell'>" . '<b>' . $list_item['StorageCoordinate']['coordinate_value'] . '</b>' . '<ul id="s_' . $atim_menu_variables['StorageMaster.id'] . '_c_' . $list_item['StorageCoordinate']['id'] . '_1"/>' . "</td></tr>\n");
+        foreach ($data['parent']['list'] as $listItem) {
+            echo ("<tr><td class='droppable mycell'>" . '<b>' . $listItem['StorageCoordinate']['coordinate_value'] . '</b>' . '<ul id="s_' . $atimMenuVariables['StorageMaster.id'] . '_c_' . $listItem['StorageCoordinate']['id'] . '_1"/>' . "</td></tr>\n");
         }
     }
 } else {
-    $x_size = $data['parent']['StorageControl']['coord_x_size'];
-    $y_size = $data['parent']['StorageControl']['coord_y_size'];
-    if ((strlen($x_size) == 0 || strlen($y_size) == 0) && ($data['parent']['StorageControl']['display_x_size'] > 0 || $data['parent']['StorageControl']['display_y_size'] > 0)) {
+    $xSize = $data['parent']['StorageControl']['coord_x_size'];
+    $ySize = $data['parent']['StorageControl']['coord_y_size'];
+    if ((strlen($xSize) == 0 || strlen($ySize) == 0) && ($data['parent']['StorageControl']['display_x_size'] > 0 || $data['parent']['StorageControl']['display_y_size'] > 0)) {
         // continuous numbering with 2 dimensions
-        $use_width = $y_size = max(1, $data['parent']['StorageControl']['display_x_size']);
-        $use_height = $x_size = max(1, $data['parent']['StorageControl']['display_y_size']);
-        $one_coord_to_display_as_two_axis = true;
+        $useWidth = $ySize = max(1, $data['parent']['StorageControl']['display_x_size']);
+        $useHeight = $xSize = max(1, $data['parent']['StorageControl']['display_y_size']);
+        $oneCoordToDisplayAsTwoAxis = true;
         // Validate that the number of displayed cells is the same as the number of actual cells
-        if (max(1, $data['parent']['StorageControl']['coord_x_size']) * max(1, $data['parent']['StorageControl']['coord_y_size']) != $x_size * $y_size) {
+        if (max(1, $data['parent']['StorageControl']['coord_x_size']) * max(1, $data['parent']['StorageControl']['coord_y_size']) != $xSize * $ySize) {
             echo ("The current box properties are invalid. The storage cells count and the cells count to display doesn't match. Contact ATiM support.<br/>");
             echo ("Real storage cells: " . (($data['parent']['StorageControl']['coord_x_size']) * max(1, $data['parent']['StorageControl']['coord_y_size'])) . "<br/>");
-            echo ("Display cells: " . $x_size * $y_size . "<br/>");
+            echo ("Display cells: " . $xSize * $ySize . "<br/>");
             print_r($data['parent']['StorageControl']);
             exit();
         }
     } else {
-        $one_coord_to_display_as_two_axis = false;
-        if (strlen($x_size) == 0 || $x_size < 1) {
-            $x_size = 1;
+        $oneCoordToDisplayAsTwoAxis = false;
+        if (strlen($xSize) == 0 || $xSize < 1) {
+            $xSize = 1;
         }
-        if (strlen($y_size) == 0 || $y_size < 1) {
-            $y_size = 1;
+        if (strlen($ySize) == 0 || $ySize < 1) {
+            $ySize = 1;
         }
-        $use_width = $x_size;
-        $use_height = $y_size;
+        $useWidth = $xSize;
+        $useHeight = $ySize;
     }
-    $x_alpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
-    $y_alpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
-    $horizontal_increment = $data['parent']['StorageControl']['horizontal_increment'];
+    $xAlpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
+    $yAlpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
+    $horizontalIncrement = $data['parent']['StorageControl']['horizontal_increment'];
     // table display loop and inner loop
     $j = null;
-    while (axisLoopCondition($j, $data['parent']['StorageControl']['reverse_y_numbering'], $use_height)) {
+    while (axisLoopCondition($j, $data['parent']['StorageControl']['reverse_y_numbering'], $useHeight)) {
         echo ("<tr>");
-        if (! $one_coord_to_display_as_two_axis) {
-            $y_val = $y_alpha ? chr($j + 64) : $j;
+        if (! $oneCoordToDisplayAsTwoAxis) {
+            $yVal = $yAlpha ? chr($j + 64) : $j;
         }
         $i = null;
-        while (axisLoopCondition($i, $data['parent']['StorageControl']['reverse_x_numbering'], $use_width)) {
-            if ($one_coord_to_display_as_two_axis) {
-                if ($horizontal_increment) {
-                    $display_value = ($j - 1) * $y_size + $i;
+        while (axisLoopCondition($i, $data['parent']['StorageControl']['reverse_x_numbering'], $useWidth)) {
+            if ($oneCoordToDisplayAsTwoAxis) {
+                if ($horizontalIncrement) {
+                    $displayValue = ($j - 1) * $ySize + $i;
                 } else {
-                    $display_value = ($i - 1) * $x_size + $j;
+                    $displayValue = ($i - 1) * $xSize + $j;
                 }
-                $display_value = $x_alpha ? chr($display_value + 64) : $display_value;
-                $use_value = $display_value . "_1"; // static y = 1
+                $displayValue = $xAlpha ? chr($displayValue + 64) : $displayValue;
+                $useValue = $displayValue . "_1"; // static y = 1
             } else {
-                $x_val = $x_alpha ? chr($i + 64) : $i;
-                $use_value = $x_val . "_" . $y_val;
-                if ($use_height == 1) {
-                    $display_value = $x_val;
+                $xVal = $xAlpha ? chr($i + 64) : $i;
+                $useValue = $xVal . "_" . $yVal;
+                if ($useHeight == 1) {
+                    $displayValue = $xVal;
                 } else 
-                    if ($use_width == 1) {
-                        $display_value = $y_val;
+                    if ($useWidth == 1) {
+                        $displayValue = $yVal;
                     } else {
-                        $display_value = $x_val . "-" . $y_val;
+                        $displayValue = $xVal . "-" . $yVal;
                     }
             }
-            echo ("<td class='droppable'>" . '<b>' . $display_value . "</b><ul id='s_" . $atim_menu_variables['StorageMaster.id'] . "_c_" . $use_value . "' /></td>");
+            echo ("<td class='droppable'>" . '<b>' . $displayValue . "</b><ul id='s_" . $atimMenuVariables['StorageMaster.id'] . "_c_" . $useValue . "' /></td>");
         }
         echo ("</tr>\n");
     }
@@ -143,7 +143,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
 				<div class="droppable"
 					style="padding-top: 5px; border: solid 1px transparent;">
 					<ul
-						id="s_<?php echo $atim_menu_variables['StorageMaster.id']; ?>_c_u_u"
+						id="s_<?php echo $atimMenuVariables['StorageMaster.id']; ?>_c_u_u"
 						class="unclassified" style="margin-right: 5px;"></ul>
 					<span class="button TrashUnclassified"><span
 						class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified")); ?></span>
@@ -172,15 +172,15 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
 <?php
 $content = ob_get_clean();
 
-$children_display = array();
-foreach ($data['children'] as $children_array) {
-    $children_display[] = $children_array['DisplayData'];
+$childrenDisplay = array();
+foreach ($data['children'] as $childrenArray) {
+    $childrenDisplay[] = $childrenArray['DisplayData'];
 }
 
 echo json_encode(array(
     'valid' => 1,
     'content' => $content,
-    'positions' => $children_display,
+    'positions' => $childrenDisplay,
     'check_conflicts' => $data['parent']['StorageControl']['check_conflicts']
 ));
 

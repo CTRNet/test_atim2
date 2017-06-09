@@ -6,7 +6,7 @@ class MenusController extends AdministrateAppController
     public $uses = array(
         'Menu'
     );
-    
+
     // temp beforefilter to allow permissions, ACL tables not updated yet
     function beforeFilter()
     {
@@ -26,40 +26,40 @@ class MenusController extends AdministrateAppController
         ));
     }
 
-    function detail($menu_id)
+    function detail($menuId)
     {
-        $this->set('atim_menu_variables', array(
-            'Menu.id' => $menu_id
+        $this->set('atimMenuVariables', array(
+            'Menu.id' => $menuId
         ));
         $this->hook();
         $this->request->data = $this->Menu->find('first', array(
             'conditions' => array(
-                'Menu.id' => $menu_id
+                'Menu.id' => $menuId
             )
         ));
     }
 
-    function edit($bank_id)
+    function edit($bankId)
     {
-        $this->set('atim_menu_variables', array(
-            'Menu.id' => $menu_id
+        $this->set('atimMenuVariables', array(
+            'Menu.id' => $menuId
         ));
         
         $this->hook();
         
         if (! empty($this->request->data)) {
-            $this->Menu->id = $bank_id;
+            $this->Menu->id = $bankId;
             if ($this->Menu->save($this->request->data)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been updated'), '/Administrate/Menus/detail/' . $menu_id);
+                $this->atimFlash(__('your data has been updated'), '/Administrate/Menus/detail/' . $menuId);
             }
         } else {
             $this->request->data = $this->Menu->find('first', array(
                 'conditions' => array(
-                    'Menu.id' => $menu_id
+                    'Menu.id' => $menuId
                 )
             ));
         }

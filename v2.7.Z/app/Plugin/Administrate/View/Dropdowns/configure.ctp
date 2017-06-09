@@ -1,16 +1,16 @@
 <?php
 $links = array(
-    'top' => '/Administrate/Dropdowns/configure/' . $atim_menu_variables['StructurePermissibleValuesCustom.control_id'] . '/',
+    'top' => '/Administrate/Dropdowns/configure/' . $atimMenuVariables['StructurePermissibleValuesCustom.control_id'] . '/',
     'radiolist' => array(
         'StructurePermissibleValuesCustom.id' => '%%StructurePermissibleValuesCustom.id%%'
     ),
     'bottom' => array(
-        'cancel' => '/Administrate/Dropdowns/view/' . $atim_menu_variables['StructurePermissibleValuesCustom.control_id'] . '/'
+        'cancel' => '/Administrate/Dropdowns/view/' . $atimMenuVariables['StructurePermissibleValuesCustom.control_id'] . '/'
     )
 );
 
 $desc = __('dropdown_config_desc');
-$this->Structures->build($atim_structure, array(
+$this->Structures->build($atimStructure, array(
     'type' => 'editgrid',
     'settings' => array(
         'header' => array(
@@ -26,5 +26,5 @@ $this->Structures->build($atim_structure, array(
 <script>
 	var dropdownConfig = true;
 	var alphabeticalOrderingStr = "<?php echo __('alphabetical ordering'); ?>";
-	var alphaOrderChecked = <?php echo $alpha_order ? "true" : "false"; ?>;
+	var alphaOrderChecked = <?php echo $alphaOrder ? "true" : "false"; ?>;
 </script>

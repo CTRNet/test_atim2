@@ -10,7 +10,7 @@ class EventMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    public $browsing_search_dropdown_info = array(
+    public $browsingSearchDropdownInfo = array(
         'browsing_filter' => array(
             1 => array(
                 'lang' => 'keep entries with the most recent date per participant',
@@ -62,34 +62,34 @@ class EventMaster extends ClinicalAnnotationAppModel
      * Compares dx data with a cap report and generates warning when there are
      * mismatches.
      *
-     * @param array $diagnosis_data            
-     * @param array $event_data            
+     * @param array $diagnosisData            
+     * @param array $eventData            
      */
-    static function generateDxCompatWarnings(array $diagnosis_data, array $event_data)
+    static function generateDxCompatWarnings(array $diagnosisData, array $eventData)
     {
-        $diagnosis_data = $diagnosis_data['DiagnosisMaster'];
-        $event_data = $event_data['EventDetail'];
+        $diagnosisData = $diagnosisData['DiagnosisMaster'];
+        $eventData = $eventData['EventDetail'];
         
-        $to_check = array(
+        $toCheck = array(
             // field => untranslated language label
             'path_tstage' => 'path tstage',
             'path_nstage' => 'path nstage',
             'path_mstage' => 'path mstage',
             'tumour_grade' => 'histologic grade'
         );
-        foreach ($to_check as $field => $language_label) {
-            if (array_key_exists($field, $event_data) && $diagnosis_data[$field] != $event_data[$field]) {
-                AppController::addWarningMsg(sprintf(__('the diagnosis value for %s does not match the cap report value'), __($language_label)));
+        foreach ($toCheck as $field => $languageLabel) {
+            if (array_key_exists($field, $eventData) && $diagnosisData[$field] != $eventData[$field]) {
+                AppController::addWarningMsg(sprintf(__('the diagnosis value for %s does not match the cap report value'), __($languageLabel)));
             }
         }
     }
 
-    function allowDeletion($event_master_id)
+    function allowDeletion($eventMasterId)
     {
-        $collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
-        if ($collection_model->find('first', array(
+        $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection');
+        if ($collectionModel->find('first', array(
             'conditions' => array(
-                'Collection.event_master_id' => $event_master_id
+                'Collection.event_master_id' => $eventMasterId
             )
         ))) {
             return array(

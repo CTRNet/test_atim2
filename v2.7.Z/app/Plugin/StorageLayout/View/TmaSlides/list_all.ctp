@@ -1,31 +1,31 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'index' => array(
-        'detail' => '/StorageLayout/TmaSlides/detail/' . $atim_menu_variables['StorageMaster.id'] . '/%%TmaSlide.id%%',
-        'edit' => '/StorageLayout/TmaSlides/edit/' . $atim_menu_variables['StorageMaster.id'] . '/%%TmaSlide.id%%',
-        'delete' => '/StorageLayout/TmaSlides/delete/' . $atim_menu_variables['StorageMaster.id'] . '/%%TmaSlide.id%%',
+        'detail' => '/StorageLayout/TmaSlides/detail/' . $atimMenuVariables['StorageMaster.id'] . '/%%TmaSlide.id%%',
+        'edit' => '/StorageLayout/TmaSlides/edit/' . $atimMenuVariables['StorageMaster.id'] . '/%%TmaSlide.id%%',
+        'delete' => '/StorageLayout/TmaSlides/delete/' . $atimMenuVariables['StorageMaster.id'] . '/%%TmaSlide.id%%',
         'add to order' => array(
             "link" => '/Order/OrderItems/addOrderItemsInBatch/TmaSlide/%%TmaSlide.id%%/',
             "icon" => "add_to_order"
         )
     ),
     'bottom' => array(
-        'add' => '/StorageLayout/TmaSlides/add/' . $atim_menu_variables['StorageMaster.id'] . '/'
+        'add' => '/StorageLayout/TmaSlides/add/' . $atimMenuVariables['StorageMaster.id'] . '/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

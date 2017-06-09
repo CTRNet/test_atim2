@@ -1,16 +1,16 @@
 <?php
 $links = array(
-    'top' => '/InventoryManagement/QualityCtrls/add/' . $atim_menu_variables['SampleMaster.id'],
+    'top' => '/InventoryManagement/QualityCtrls/add/' . $atimMenuVariables['SampleMaster.id'],
     'bottom' => array(
-        'cancel' => '/InventoryManagement/QualityCtrls/listAll/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/'
+        'cancel' => '/InventoryManagement/QualityCtrls/listAll/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/'
     ),
     'radiolist' => array(
         'ViewAliquot.aliquot_master_id' => '%%AliquotMaster.id%%'
     )
 );
 
-$final_atim_structure = $empty_structure;
-$final_options = array(
+$finalAtimStructure = $emptyStructure;
+$finalOptions = array(
     'type' => 'detail',
     'links' => $links,
     'data' => array(),
@@ -22,11 +22,11 @@ $final_options = array(
         'form_bottom' => false
     )
 );
-$hook_link = $this->Structures->hook('empty');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('empty');
+if ($hookLink) {
+    require ($hookLink);
 }
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 echo "<div style='padding: 10px;'>", $this->Form->radio('ViewAliquot.aliquot_master_id', array(
     '' => __('unspecified')
@@ -34,16 +34,16 @@ echo "<div style='padding: 10px;'>", $this->Form->radio('ViewAliquot.aliquot_mas
     'value' => ''
 )), "</div>";
 
-foreach ($aliquot_data_vol as &$aliquot_data_unit) {
-    unset($aliquot_data_unit['ViewAliquot']['aliquot_master_id']);
+foreach ($aliquotDataVol as &$aliquotDataUnit) {
+    unset($aliquotDataUnit['ViewAliquot']['aliquot_master_id']);
 }
-unset($aliquot_data_unit);
+unset($aliquotDataUnit);
 
-$final_atim_structure = $aliquot_structure_vol;
-$final_options = array(
+$finalAtimStructure = $aliquotStructureVol;
+$finalOptions = array(
     'type' => 'index',
     'links' => $links,
-    'data' => $aliquot_data_vol,
+    'data' => $aliquotDataVol,
     'settings' => array(
         'pagination' => false,
         'form_inputs' => false,
@@ -54,21 +54,21 @@ $final_options = array(
     )
 );
 
-$hook_link = $this->Structures->hook('aliquot_vol');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('aliquot_vol');
+if ($hookLink) {
+    require ($hookLink);
 }
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-foreach ($aliquot_data_no_vol as &$aliquot_data_unit) {
-    unset($aliquot_data_unit['ViewAliquot']['aliquot_master_id']);
+foreach ($aliquotDataNoVol as &$aliquotDataUnit) {
+    unset($aliquotDataUnit['ViewAliquot']['aliquot_master_id']);
 }
-unset($aliquot_data_unit);
-$final_atim_structure = $aliquot_structure_no_vol;
-$final_options = array(
+unset($aliquotDataUnit);
+$finalAtimStructure = $aliquotStructureNoVol;
+$finalOptions = array(
     'type' => 'index',
     'links' => $links,
-    'data' => $aliquot_data_no_vol,
+    'data' => $aliquotDataNoVol,
     'settings' => array(
         'pagination' => false,
         'form_inputs' => false,
@@ -77,8 +77,8 @@ $final_options = array(
     )
 );
 
-$hook_link = $this->Structures->hook('aliquot_no_vol');
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook('aliquot_no_vol');
+if ($hookLink) {
+    require ($hookLink);
 }
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);

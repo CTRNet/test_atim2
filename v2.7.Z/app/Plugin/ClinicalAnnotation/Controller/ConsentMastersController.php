@@ -18,18 +18,18 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participant_id)
+    function listall($participantId)
     {
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         $this->request->data = $this->paginate($this->ConsentMaster, array(
-            'ConsentMaster.participant_id' => $participant_id
+            'ConsentMaster.participant_id' => $participantId
         ));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
-        $this->set('consent_controls_list', $this->ConsentControl->find('all', array(
+        $this->set('consentControlsList', $this->ConsentControl->find('all', array(
             'conditions' => array(
                 'ConsentControl.flag_active' => '1'
             )
@@ -37,203 +37,203 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         $this->Structures->set('consent_masters');
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($participant_id, $consent_master_id)
+    function detail($participantId, $consentMasterId)
     {
         
         // MANAGE DATA
-        $consent_master_data = $this->ConsentMaster->find('first', array(
+        $consentMasterData = $this->ConsentMaster->find('first', array(
             'conditions' => array(
-                'ConsentMaster.id' => $consent_master_id,
-                'ConsentMaster.participant_id' => $participant_id
+                'ConsentMaster.id' => $consentMasterId,
+                'ConsentMaster.participant_id' => $participantId
             )
         ));
-        if (empty($consent_master_data)) {
+        if (empty($consentMasterData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->request->data = $consent_master_data;
+        $this->request->data = $consentMasterData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ConsentMaster.id' => $consent_master_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ConsentMaster.id' => $consentMasterId
         ));
-        $consent_control_data = $this->ConsentControl->find('first', array(
+        $consentControlData = $this->ConsentControl->find('first', array(
             'conditions' => array(
                 'ConsentControl.id' => $this->request->data['ConsentMaster']['consent_control_id']
             )
         ));
-        $this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
+        $this->Structures->set($consentControlData['ConsentControl']['form_alias']);
         
-        $this->set('consent_type', $consent_control_data['ConsentControl']['controls_type']);
-        $this->set('is_ajax', $this->request->is('ajax'));
+        $this->set('consentType', $consentControlData['ConsentControl']['controls_type']);
+        $this->set('isAjax', $this->request->is('ajax'));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($participant_id, $consent_control_id)
+    function add($participantId, $consentControlId)
     {
         
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ConsentControl.id' => $consent_control_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ConsentControl.id' => $consentControlId
         ));
-        $consent_control_data = $this->ConsentControl->find('first', array(
+        $consentControlData = $this->ConsentControl->find('first', array(
             'conditions' => array(
-                'ConsentControl.id' => $consent_control_id
+                'ConsentControl.id' => $consentControlId
             )
         ));
-        $this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
-        $this->Structures->set('empty', 'empty_structure');
+        $this->Structures->set($consentControlData['ConsentControl']['form_alias']);
+        $this->Structures->set('empty', 'emptyStructure');
         
-        $this->set('consent_type', $consent_control_data['ConsentControl']['controls_type']);
+        $this->set('consentType', $consentControlData['ConsentControl']['controls_type']);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (! empty($this->request->data)) {
-            $this->request->data['ConsentMaster']['participant_id'] = $participant_id;
-            $this->request->data['ConsentMaster']['consent_control_id'] = $consent_control_id;
+            $this->request->data['ConsentMaster']['participant_id'] = $participantId;
+            $this->request->data['ConsentMaster']['consent_control_id'] = $consentControlId;
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 $this->ConsentMaster->addWritableField(array(
                     'participant_id',
                     'consent_control_id'
                 ));
                 if ($this->ConsentMaster->save($this->request->data)) {
-                    $url_to_flash = '/ClinicalAnnotation/ConsentMasters/detail/' . $participant_id . '/' . $this->ConsentMaster->id;
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $urlToFlash = '/ClinicalAnnotation/ConsentMasters/detail/' . $participantId . '/' . $this->ConsentMaster->id;
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been saved'), $url_to_flash);
+                    $this->atimFlash(__('your data has been saved'), $urlToFlash);
                 }
             }
         }
     }
 
-    function edit($participant_id, $consent_master_id)
+    function edit($participantId, $consentMasterId)
     {
         
         // MANAGE DATA
-        $consent_master_data = $this->ConsentMaster->find('first', array(
+        $consentMasterData = $this->ConsentMaster->find('first', array(
             'conditions' => array(
-                'ConsentMaster.id' => $consent_master_id,
-                'ConsentMaster.participant_id' => $participant_id
+                'ConsentMaster.id' => $consentMasterId,
+                'ConsentMaster.participant_id' => $participantId
             )
         ));
-        if (empty($consent_master_data)) {
+        if (empty($consentMasterData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ConsentMaster.id' => $consent_master_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ConsentMaster.id' => $consentMasterId
         ));
-        $consent_control_data = $this->ConsentControl->find('first', array(
+        $consentControlData = $this->ConsentControl->find('first', array(
             'conditions' => array(
-                'ConsentControl.id' => $consent_master_data['ConsentMaster']['consent_control_id']
+                'ConsentControl.id' => $consentMasterData['ConsentMaster']['consent_control_id']
             )
         ));
-        $this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
+        $this->Structures->set($consentControlData['ConsentControl']['form_alias']);
         
-        $this->set('consent_type', $consent_control_data['ConsentControl']['controls_type']);
+        $this->set('consentType', $consentControlData['ConsentControl']['controls_type']);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $consent_master_data['FunctionManagement']['autocomplete_consent_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array(
+            $consentMasterData['FunctionManagement']['autocomplete_consent_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array(
                 'StudySummary' => array(
-                    'id' => $consent_master_data['ConsentMaster']['study_summary_id']
+                    'id' => $consentMasterData['ConsentMaster']['study_summary_id']
                 )
             ));
-            $this->request->data = $consent_master_data;
+            $this->request->data = $consentMasterData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->ConsentMaster->id = $consent_master_id;
+            if ($submittedDataValidates) {
+                $this->ConsentMaster->id = $consentMasterId;
                 if ($this->ConsentMaster->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ConsentMasters/detail/' . $participant_id . '/' . $consent_master_id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ConsentMasters/detail/' . $participantId . '/' . $consentMasterId);
                 }
             }
         }
     }
 
-    function delete($participant_id, $consent_master_id)
+    function delete($participantId, $consentMasterId)
     {
         // MANAGE DATA
-        $consent_master_data = $this->ConsentMaster->find('first', array(
+        $consentMasterData = $this->ConsentMaster->find('first', array(
             'conditions' => array(
-                'ConsentMaster.id' => $consent_master_id,
-                'ConsentMaster.participant_id' => $participant_id
+                'ConsentMaster.id' => $consentMasterId,
+                'ConsentMaster.participant_id' => $participantId
             )
         ));
-        if (empty($consent_master_data)) {
+        if (empty($consentMasterData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->ConsentMaster->allowDeletion($consent_master_id);
+        $arrAllowDeletion = $this->ConsentMaster->allowDeletion($consentMasterId);
         
         // CUSTOM CODE
-        $hook_link = $this->hook('delete');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($arr_allow_deletion['allow_deletion']) {
-            if ($this->ConsentMaster->atimDelete($consent_master_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+        if ($arrAllowDeletion['allow_deletion']) {
+            if ($this->ConsentMaster->atimDelete($consentMasterId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ConsentMasters/listall/' . $participant_id);
+                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ConsentMasters/listall/' . $participantId);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ConsentMasters/listall/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ConsentMasters/listall/' . $participantId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ConsentMasters/detail/' . $participant_id . '/' . $consent_master_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/ConsentMasters/detail/' . $participantId . '/' . $consentMasterId);
         }
     }
 }

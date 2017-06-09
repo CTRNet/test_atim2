@@ -15,14 +15,14 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$use_buffer = false;
+$useBuffer = false;
 if (! headers_sent()) {
     if (Configure::read('use_compression')) {
         assert(ob_start('ob_gzhandler')) or die('Failed to start compression buffer. Make sure ZLIB is installed properley (http://php.net/zlib) or turn compression off via use_compression in core.php.');
-        $use_buffer = true;
+        $useBuffer = true;
     }
     header('Content-type: text/html; charset=utf-8');
-    AppController::atimSetCookie(isset($skip_expiration_cookie) && $skip_expiration_cookie);
+    AppController::atimSetCookie(isset($skipExpirationCookie) && $skipExpirationCookie);
 }
 ?>
 <!DOCTYPE html>
@@ -30,10 +30,10 @@ if (! headers_sent()) {
 <head>
 	<?php
 $header = $this->Shell->header(array(
-    'atim_menu_for_header' => $atim_menu_for_header,
-    'atim_sub_menu_for_header' => $atim_sub_menu_for_header,
-    'atim_menu' => $atim_menu,
-    'atim_menu_variables' => $atim_menu_variables
+    'atim_menu_for_header' => $atimMenuForHeader,
+    'atim_sub_menu_for_header' => $atimSubMenuForHeader,
+    'atim_menu' => $atimMenu,
+    'atim_menu_variables' => $atimMenuVariables
 ));
 $title = $this->Shell->pageTitle;
 ?>
@@ -139,7 +139,7 @@ echo $this->Html->script('form/jquery.form.js') . "\n";
 </body>
 </html>
 <?php
-if ($use_buffer) {
+if ($useBuffer) {
     ob_end_flush();
 }
 ?>

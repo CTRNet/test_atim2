@@ -30,7 +30,7 @@ if (isset($debugKitInHistoryMode)) {
 <h2><?php echo __d('debug_kit', 'Sql Logs')?></h2>
 
 <?php
-if (count($_SESSION['query']['previous'])!=0){
+if (isset ($_SESSION['query']['previous']) && is_array($_SESSION['query']['previous']) && count($_SESSION['query']['previous'])!=0){
     foreach ($_SESSION['query']['previous'] as $query){
         echo($query);
         echo"<hr>";

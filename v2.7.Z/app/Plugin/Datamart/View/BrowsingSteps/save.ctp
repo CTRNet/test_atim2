@@ -1,8 +1,8 @@
 <?php
-$form = $this->Structures->build($atim_structure, array(
+$form = $this->Structures->build($atimStructure, array(
     'type' => 'add',
     'links' => array(
-        'top' => '/Datamart/BrowsingSteps/save/' . $node_id
+        'top' => '/Datamart/BrowsingSteps/save/' . $nodeId
     ),
     'settings' => array(
         'header' => __('save browsing steps'),

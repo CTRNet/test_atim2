@@ -1,13 +1,13 @@
 <?php
-$atim_content = array();
+$atimContent = array();
 
-$atim_content['page'] = '
+$atimContent['page'] = '
 		<h3>' . __($data['Page']['language_title'], true) . '</h3>
 		' . $data['Page']['language_body'] . '
 	';
 if (isset($data['err_trace'])) {
-    $atim_content['page'] .= "<br/>" . $data['err_trace'];
+    $atimContent['page'] .= "<br/>" . $data['err_trace'];
 }
 
-echo $this->Structures->generateContentWrapper($atim_content);
+echo $this->Structures->generateContentWrapper($atimContent);
 ?>

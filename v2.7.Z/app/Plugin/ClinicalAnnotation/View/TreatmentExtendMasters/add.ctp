@@ -1,31 +1,31 @@
 <?php
-$structure_links = array(
-    'top' => '/ClinicalAnnotation/TreatmentExtendMasters/add/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id'],
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/TreatmentExtendMasters/add/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id'],
     'bottom' => array(
-        'cancel' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $atim_menu_variables['Participant.id'] . '/' . $atim_menu_variables['TreatmentMaster.id']
+        'cancel' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['TreatmentMaster.id']
     )
 );
 
-$structure_settings = array(
-    'header' => ($tx_extend_type ? __($tx_extend_type, null) : __('precision', null)),
+$structureSettings = array(
+    'header' => ($txExtendType ? __($txExtendType, null) : __('precision', null)),
     'pagination' => false,
     'add_fields' => true,
     'del_fields' => true
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'type' => 'addgrid',
-    'settings' => $structure_settings
+    'settings' => $structureSettings
 );
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <script type="text/javascript">

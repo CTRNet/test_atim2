@@ -1,13 +1,13 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'bottom' => array(
-        'new search' => OrderAppController::$search_links,
-        'edit' => '/Order/OrderLines/edit/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'],
-        'delete' => '/Order/OrderLines/delete/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'],
+        'new search' => OrderAppController::$searchLinks,
+        'edit' => '/Order/OrderLines/edit/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'],
+        'delete' => '/Order/OrderLines/delete/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'],
         'order items' => array(),
         'shipments' => array(
             'add' => array(
-                'link' => '/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/',
+                'link' => '/Order/Shipments/add/' . $atimMenuVariables['Order.id'] . '/',
                 'icon' => 'create_shipment'
             )
         )
@@ -16,93 +16,93 @@ $structure_links = array(
 // Add item links management
 switch (Configure::read('order_item_type_config')) {
     case '1':
-        $structure_links['bottom']['order items'][__('add items to order line') . ' : ' . __('tma slide')] = array(
-            'link' => '/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'] . '/TmaSlide',
+        $structureLinks['bottom']['order items'][__('add items to order line') . ' : ' . __('tma slide')] = array(
+            'link' => '/Order/OrderItems/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/TmaSlide',
             'icon' => 'add_to_order'
         );
-        $structure_links['bottom']['order items'][__('add items to order line') . ' : ' . __('aliquot')] = array(
-            'link' => '/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'] . '/AliquotMaster',
+        $structureLinks['bottom']['order items'][__('add items to order line') . ' : ' . __('aliquot')] = array(
+            'link' => '/Order/OrderItems/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/AliquotMaster',
             'icon' => 'add_to_order'
         );
         break;
     case '2':
-        $structure_links['bottom']['order items'][__('add items to order line') . ' : ' . __('aliquot')] = array(
-            'link' => '/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'] . '/AliquotMaster',
+        $structureLinks['bottom']['order items'][__('add items to order line') . ' : ' . __('aliquot')] = array(
+            'link' => '/Order/OrderItems/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/AliquotMaster',
             'icon' => 'add_to_order'
         );
         break;
     case '3':
-        $structure_links['bottom']['order items'][__('add items to order line') . ' : ' . __('tma slide')] = array(
-            'link' => '/Order/OrderItems/add/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'] . '/TmaSlide',
+        $structureLinks['bottom']['order items'][__('add items to order line') . ' : ' . __('tma slide')] = array(
+            'link' => '/Order/OrderItems/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/TmaSlide',
             'icon' => 'add_to_order'
         );
         break;
 }
-$structure_links['bottom']['order items']['define order items returned'] = array(
-    'link' => '/Order/OrderItems/defineOrderItemsReturned/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['OrderLine.id'] . '/',
+$structureLinks['bottom']['order items']['define order items returned'] = array(
+    'link' => '/Order/OrderItems/defineOrderItemsReturned/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/',
     'icon' => 'order items returned'
 );
 // Add to shipment links management
-$add_to_shipment_links = array();
-foreach ($shipments_list as $shipment) {
-    $add_to_shipment_links[$shipment['Shipment']['shipment_code']] = array(
-        'link' => '/Order/Shipments/addToShipment/' . $shipment['Shipment']['order_id'] . '/' . $shipment['Shipment']['id'] . '/' . $atim_menu_variables['OrderLine.id'],
+$addToShipmentLinks = array();
+foreach ($shipmentsList as $shipment) {
+    $addToShipmentLinks[$shipment['Shipment']['shipment_code']] = array(
+        'link' => '/Order/Shipments/addToShipment/' . $shipment['Shipment']['order_id'] . '/' . $shipment['Shipment']['id'] . '/' . $atimMenuVariables['OrderLine.id'],
         'icon' => 'add_to_shipment'
     );
 }
-ksort($add_to_shipment_links);
-foreach ($add_to_shipment_links as $shipment_key => $shipment_link)
-    $structure_links['bottom']['shipments'][__('add items to shipment') . ' # ' . $shipment_key] = $shipment_link;
+ksort($addToShipmentLinks);
+foreach ($addToShipmentLinks as $shipmentKey => $shipmentLink)
+    $structureLinks['bottom']['shipments'][__('add items to shipment') . ' # ' . $shipmentKey] = $shipmentLink;
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links,
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
     'settings' => array(
         'actions' => false
     )
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 // Items list
 
 $counter = 0;
-$all_status = array(
+$allStatus = array(
     'pending',
     'shipped',
     'shipped & returned'
 );
-foreach ($all_status as $status) {
+foreach ($allStatus as $status) {
     $counter ++;
-    $final_atim_structure = array();
-    $final_options = array(
-        'links' => $structure_links,
+    $finalAtimStructure = array();
+    $finalOptions = array(
+        'links' => $structureLinks,
         'settings' => array(
             'language_heading' => __($status, null),
             'actions' => false
         ),
         'extras' => array(
-            'end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/' . $atim_menu_variables['Order.id'] . '/' . $status . '/' . $atim_menu_variables['OrderLine.id'] . '/0/OrderLine/')
+            'end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/' . $atimMenuVariables['Order.id'] . '/' . $status . '/' . $atimMenuVariables['OrderLine.id'] . '/0/OrderLine/')
         )
     );
     if ($counter == 1)
-        $final_options['settings']['header'] = __('order items', null);
-    if ($counter == sizeof($all_status))
-        $final_options['settings']['actions'] = true;
+        $finalOptions['settings']['header'] = __('order items', null);
+    if ($counter == sizeof($allStatus))
+        $finalOptions['settings']['actions'] = true;
         
         // CUSTOM CODE
-    $hook_link = $this->Structures->hook('line_items');
-    if ($hook_link) {
-        require ($hook_link);
+    $hookLink = $this->Structures->hook('line_items');
+    if ($hookLink) {
+        require ($hookLink);
     }
     
     // BUILD FORM
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
 }

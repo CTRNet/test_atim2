@@ -100,8 +100,6 @@ Configure::write('App.encoding', 'UTF-8');
  *
  *
  *
- *
- *
  * htaccess
  * files:
  *

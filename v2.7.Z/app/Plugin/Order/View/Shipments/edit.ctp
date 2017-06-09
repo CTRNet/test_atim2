@@ -1,8 +1,8 @@
 <?php
-$structure_links = array(
-    'top' => '/Order/Shipments/edit/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['Shipment.id'] . '/',
+$structureLinks = array(
+    'top' => '/Order/Shipments/edit/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
     'bottom' => array(
-        'cancel' => '/Order/Shipments/detail/' . $atim_menu_variables['Order.id'] . '/' . $atim_menu_variables['Shipment.id'] . '/',
+        'cancel' => '/Order/Shipments/detail/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['Shipment.id'] . '/',
         'manage recipients' => array(
             'select recipient' => array(
                 'icon' => 'detail',
@@ -16,18 +16,18 @@ $structure_links = array(
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 require ("contacts_functions.php");

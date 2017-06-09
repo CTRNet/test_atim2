@@ -1,25 +1,25 @@
 <?php
-$structure_links = array(
+$structureLinks = array(
     'top' => NULL,
-    'index' => '/Study/StudyEthicsBoards/detail/' . $atim_menu_variables['StudySummary.id'] . '/%%StudyEthicsBoard.id%%/',
+    'index' => '/Study/StudyEthicsBoards/detail/' . $atimMenuVariables['StudySummary.id'] . '/%%StudyEthicsBoard.id%%/',
     'bottom' => array(
-        'add' => '/Study/StudyEthicsBoards/add/' . $atim_menu_variables['StudySummary.id'] . '/'
+        'add' => '/Study/StudyEthicsBoards/add/' . $atimMenuVariables['StudySummary.id'] . '/'
     )
 );
 
 // Set form structure and option
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'index',
-    'links' => $structure_links
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 ?>

@@ -1,7 +1,7 @@
 <?php
 
 // SETTINGS
-$structure_settings = array(
+$structureSettings = array(
     'tree' => array(
         'StorageMaster' => 'StorageMaster',
         'AliquotMaster' => 'AliquotMaster',
@@ -16,16 +16,16 @@ $bottom = array();
 if (isset($search)) {
     $bottom = array(
         'search' => '/StorageLayout/StorageMasters/search',
-        'add' => $add_links
+        'add' => $addLinks
     );
 } else 
-    if (! $is_ajax && isset($add_links)) {
+    if (! $isAjax && isset($addLinks)) {
         $bottom = array(
-            'add to storage' => $add_links
+            'add to storage' => $addLinks
         );
     }
 
-$structure_links = array(
+$structureLinks = array(
     'tree' => array(
         'StorageMaster' => array(
             'detail' => array(
@@ -69,7 +69,7 @@ $structure_links = array(
         ),
         'Generated' => array(
             'access to the list' => array(
-                'link' => '/StorageLayout/StorageMasters/contentListView/' . $atim_menu_variables['StorageMaster.id'],
+                'link' => '/StorageLayout/StorageMasters/contentListView/' . $atimMenuVariables['StorageMaster.id'],
                 'icon' => 'detail'
             )
         )
@@ -93,26 +93,26 @@ $structure_links = array(
 
 // EXTRAS
 
-$structure_extras = array();
-$structure_extras[10] = '<div id="frame"></div>';
+$structureExtras = array();
+$structureExtras[10] = '<div id="frame"></div>';
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'tree',
-    'settings' => $structure_settings,
-    'links' => $structure_links,
-    'extras' => $structure_extras
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
+    'extras' => $structureExtras
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 	
 //	pr($this->data);
-//	pr($final_atim_structure['TmaBlock']);
+//	pr($finalAtimStructure['TmaBlock']);
 	

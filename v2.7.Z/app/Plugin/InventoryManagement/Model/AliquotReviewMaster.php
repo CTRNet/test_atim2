@@ -18,7 +18,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
         )
     );
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewAliquotUse' => array(
             'AliquotReviewMaster.id'
         )
@@ -31,52 +31,52 @@ class AliquotReviewMaster extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getAliquotListForReview($sample_master_id = null, $specific_aliquot_type = null)
+    function getAliquotListForReview($sampleMasterId = null, $specificAliquotType = null)
     {
         $result = array(
             '' => ''
         );
         
-        if (! empty($sample_master_id)) {
+        if (! empty($sampleMasterId)) {
             if (! isset($this->AliquotMaster)) {
                 $this->AliquotMaster = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
             }
             
             $conditions = array(
-                'AliquotMaster.sample_master_id' => $sample_master_id
+                'AliquotMaster.sample_master_id' => $sampleMasterId
             );
-            if (! empty($specific_aliquot_type)) {
-                $conditions['AliquotControl.aliquot_type'] = explode(',', $specific_aliquot_type);
+            if (! empty($specificAliquotType)) {
+                $conditions['AliquotControl.aliquot_type'] = explode(',', $specificAliquotType);
             }
             
             foreach ($this->AliquotMaster->find('all', array(
                 'conditions' => $conditions,
                 'order' => 'AliquotMaster.barcode ASC',
                 'recursive' => '0'
-            )) as $new_aliquot) {
-                $result[$new_aliquot['AliquotMaster']['id']] = $this->generateLabelOfReviewedAliquot($new_aliquot['AliquotMaster']['id'], $new_aliquot);
+            )) as $newAliquot) {
+                $result[$newAliquot['AliquotMaster']['id']] = $this->generateLabelOfReviewedAliquot($newAliquot['AliquotMaster']['id'], $newAliquot);
             }
         }
         
         return $result;
     }
 
-    function generateLabelOfReviewedAliquot($aliquot_master_id, $aliquot_data = null)
+    function generateLabelOfReviewedAliquot($aliquotMasterId, $aliquotData = null)
     {
-        if (! ($aliquot_data && isset($aliquot_data['AliquotMaster']))) {
+        if (! ($aliquotData && isset($aliquotData['AliquotMaster']))) {
             if (! isset($this->AliquotMaster)) {
                 $this->AliquotMaster = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
             }
-            $aliquot_data = $this->AliquotMaster->getOrRedirect($aliquot_master_id);
+            $aliquotData = $this->AliquotMaster->getOrRedirect($aliquotMasterId);
         }
-        return $aliquot_data['AliquotMaster']['barcode'];
+        return $aliquotData['AliquotMaster']['barcode'];
     }
 
     function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
-        foreach ($results as &$new_review) {
-            $new_review['Generated']['reviewed_aliquot_label_for_display'] = (isset($new_review['AliquotMaster']) && $new_review['AliquotMaster']['id']) ? $this->generateLabelOfReviewedAliquot($new_review['AliquotMaster']['id'], $new_review) : '';
+        foreach ($results as &$newReview) {
+            $newReview['Generated']['reviewed_aliquot_label_for_display'] = (isset($newReview['AliquotMaster']) && $newReview['AliquotMaster']['id']) ? $this->generateLabelOfReviewedAliquot($newReview['AliquotMaster']['id'], $newReview) : '';
         }
         return $results;
     }

@@ -14,91 +14,91 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participant_id)
+    function listall($participantId)
     {
         // MANAGE DATA
-        $participant_data = $this->Participant->getOrRedirect($participant_id);
+        $participantData = $this->Participant->getOrRedirect($participantId);
         
         $this->request->data = $this->paginate($this->ParticipantMessage, array(
-            'ParticipantMessage.participant_id' => $participant_id
+            'ParticipantMessage.participant_id' => $participantId
         ));
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function detail($participant_id, $participant_message_id)
+    function detail($participantId, $participantMessageId)
     {
         // MANAGE DATA
-        $participant_messsage_data = $this->ParticipantMessage->find('first', array(
+        $participantMesssageData = $this->ParticipantMessage->find('first', array(
             'conditions' => array(
-                'ParticipantMessage.id' => $participant_message_id,
-                'ParticipantMessage.participant_id' => $participant_id
+                'ParticipantMessage.id' => $participantMessageId,
+                'ParticipantMessage.participant_id' => $participantId
             ),
             'recursive' => '-1'
         ));
-        if (empty($participant_messsage_data)) {
+        if (empty($participantMesssageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
-        $this->request->data = $participant_messsage_data;
+        $this->request->data = $participantMesssageData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ParticipantMessage.id' => $participant_message_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ParticipantMessage.id' => $participantMessageId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 
-    function add($participant_id = null)
+    function add($participantId = null)
     {
         // GET DATA
-        $initial_display = false;
-        $participant_ids = array();
+        $initialDisplay = false;
+        $participantIds = array();
         
         $this->setUrlToCancel();
-        $url_to_cancel = $this->request->data['url_to_cancel'];
+        $urlToCancel = $this->request->data['url_to_cancel'];
         unset($this->request->data['url_to_cancel']);
         
-        if ($participant_id) {
+        if ($participantId) {
             // User is working on a participant
-            $participant_ids = array(
-                $participant_id
+            $participantIds = array(
+                $participantId
             );
             if (empty($this->request->data))
-                $initial_display = true;
+                $initialDisplay = true;
         } elseif (isset($this->request->data['Participant']['id'])) {
             // User launched an action from the DataBrowser or a Report Form
             if ($this->request->data['Participant']['id'] == 'all' && isset($this->request->data['node'])) {
                 // The displayed elements number was higher than the databrowser_and_report_results_display_limit
                 $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-                $browsing_result = $this->BrowsingResult->find('first', array(
+                $browsingResult = $this->BrowsingResult->find('first', array(
                     'conditions' => array(
                         'BrowsingResult.id' => $this->request->data['node']['id']
                     )
                 ));
-                $this->request->data['Participant']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+                $this->request->data['Participant']['id'] = explode(",", $browsingResult['BrowsingResult']['id_csv']);
             }
-            $participant_ids = array_filter($this->request->data['Participant']['id']);
-            $initial_display = true;
+            $participantIds = array_filter($this->request->data['Participant']['id']);
+            $initialDisplay = true;
         } elseif (isset($this->request->data['participant_ids'])) {
-            $participant_ids = explode(',', $this->request->data['participant_ids']);
+            $participantIds = explode(',', $this->request->data['participant_ids']);
             unset($this->request->data['participant_ids']);
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $url_to_cancel, 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
             return;
         }
         
@@ -106,49 +106,49 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         
         $participants = $this->Participant->find('all', array(
             'conditions' => array(
-                'Participant.id' => $participant_ids
+                'Participant.id' => $participantIds
             ),
             'recursive' => '0'
         ));
         if (! $participants)
-            $this->atimFlashWarning(__('at least one participant should be selected'), $url_to_cancel, 5);
-        $display_limit = Configure::read('ParticipantMessageCreation_processed_participants_limit');
-        if (sizeof($participants) > $display_limit)
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$display_limit)", $url_to_cancel, 5);
-        $this->set('participant_ids', implode(',', $participant_ids));
+            $this->atimFlashWarning(__('at least one participant should be selected'), $urlToCancel, 5);
+        $displayLimit = Configure::read('ParticipantMessageCreation_processed_participants_limit');
+        if (sizeof($participants) > $displayLimit)
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", $urlToCancel, 5);
+        $this->set('participantIds', implode(',', $participantIds));
         
-        if ($participant_id)
-            $url_to_cancel = '/ClinicalAnnotation/ParticipantMessages/listall/' . $participant_id;
+        if ($participantId)
+            $urlToCancel = '/ClinicalAnnotation/ParticipantMessages/listall/' . $participantId;
         
-        $this->set('url_to_cancel', $url_to_cancel);
+        $this->set('urlToCancel', $urlToCancel);
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId
         ));
-        if (! $participant_id) {
-            $this->set('atim_menu', $this->Menus->get('/InventoryManagement/'));
+        if (! $participantId) {
+            $this->set('atimMenu', $this->Menus->get('/InventoryManagement/'));
         }
         
         // MANAGE DATA
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if ($initial_display) {
+        if ($initialDisplay) {
             
             $this->request->data = array();
             
-            $hook_link = $this->hook('initial_display');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             
             // Validation
             
@@ -156,157 +156,157 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             $this->ParticipantMessage->data = null;
             $this->ParticipantMessage->set($this->request->data);
             if (! $this->ParticipantMessage->validates())
-                $submitted_data_validates = false;
+                $submittedDataValidates = false;
             $this->request->data = $this->ParticipantMessage->data;
             
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
+            if ($submittedDataValidates) {
                 
                 // saving
                 
                 $this->ParticipantMessage->addWritableField(array(
                     'participant_id'
                 ));
-                $this->ParticipantMessage->writable_fields_mode = 'add';
-                foreach ($participant_ids as $message_participant_id) {
+                $this->ParticipantMessage->writableFieldsMode = 'add';
+                foreach ($participantIds as $messageParticipantId) {
                     $this->ParticipantMessage->id = null;
                     $this->ParticipantMessage->data = null;
-                    $this->request->data['ParticipantMessage']['participant_id'] = $message_participant_id;
+                    $this->request->data['ParticipantMessage']['participant_id'] = $messageParticipantId;
                     if (! $this->ParticipantMessage->save($this->request->data, false))
                         $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
                 
-                if ($participant_id) {
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantMessages/detail/' . $participant_id . '/' . $this->ParticipantMessage->id);
+                if ($participantId) {
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantMessages/detail/' . $participantId . '/' . $this->ParticipantMessage->id);
                 } else {
                     // batch
-                    $batch_ids = $participant_ids;
-                    $datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+                    $batchIds = $participantIds;
+                    $datamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
                     
-                    $batch_set_data = array(
+                    $batchSetData = array(
                         'BatchSet' => array(
-                            'datamart_structure_id' => $datamart_structure->getIdByModelName('Participant'),
+                            'datamart_structure_id' => $datamartStructure->getIdByModelName('Participant'),
                             'flag_tmp' => true
                         )
                     );
                     
-                    $batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
-                    $batch_set_model->saveWithIds($batch_set_data, $batch_ids);
+                    $batchSetModel = AppModel::getInstance('Datamart', 'BatchSet', true);
+                    $batchSetModel->saveWithIds($batchSetData, $batchIds);
                     
-                    $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batch_set_model->getLastInsertId());
+                    $this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/' . $batchSetModel->getLastInsertId());
                 }
             }
         }
     }
 
-    function edit($participant_id, $participant_message_id)
+    function edit($participantId, $participantMessageId)
     {
-        if (! $participant_id && ! $participant_message_id) {
+        if (! $participantId && ! $participantMessageId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         }
         
         // MANAGE DATA
-        $participant_message_data = $this->ParticipantMessage->find('first', array(
+        $participantMessageData = $this->ParticipantMessage->find('first', array(
             'conditions' => array(
-                'ParticipantMessage.id' => $participant_message_id,
-                'ParticipantMessage.participant_id' => $participant_id
+                'ParticipantMessage.id' => $participantMessageId,
+                'ParticipantMessage.participant_id' => $participantId
             ),
             'recursive' => '-1'
         ));
-        if (empty($participant_message_data)) {
+        if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
-        $this->set('atim_menu_variables', array(
-            'Participant.id' => $participant_id,
-            'ParticipantMessage.id' => $participant_message_id
+        $this->set('atimMenuVariables', array(
+            'Participant.id' => $participantId,
+            'ParticipantMessage.id' => $participantMessageId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = $participant_message_data;
+            $this->request->data = $participantMessageData;
         } else {
-            $submitted_data_validates = true;
+            $submittedDataValidates = true;
             // ... special validations
             
             // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-            $hook_link = $this->hook('presave_process');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
-            if ($submitted_data_validates) {
-                $this->ParticipantMessage->id = $participant_message_id;
+            if ($submittedDataValidates) {
+                $this->ParticipantMessage->id = $participantMessageId;
                 if ($this->ParticipantMessage->save($this->request->data)) {
-                    $hook_link = $this->hook('postsave_process');
-                    if ($hook_link) {
-                        require ($hook_link);
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
                     }
-                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantMessages/detail/' . $participant_id . '/' . $participant_message_id);
+                    $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ParticipantMessages/detail/' . $participantId . '/' . $participantMessageId);
                 }
             }
         }
     }
 
-    function delete($participant_id, $participant_message_id)
+    function delete($participantId, $participantMessageId)
     {
         // MANAGE DATA
-        $participant_message_data = $this->ParticipantMessage->find('first', array(
+        $participantMessageData = $this->ParticipantMessage->find('first', array(
             'conditions' => array(
-                'ParticipantMessage.id' => $participant_message_id,
-                'ParticipantMessage.participant_id' => $participant_id
+                'ParticipantMessage.id' => $participantMessageId,
+                'ParticipantMessage.participant_id' => $participantId
             ),
             'recursive' => '-1'
         ));
-        if (empty($participant_message_data)) {
+        if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $arr_allow_deletion = $this->ParticipantMessage->allowDeletion($participant_message_id);
+        $arrAllowDeletion = $this->ParticipantMessage->allowDeletion($participantMessageId);
         
-        if ($arr_allow_deletion['allow_deletion']) {
+        if ($arrAllowDeletion['allow_deletion']) {
             
-            if ($this->ParticipantMessage->atimDelete($participant_message_id)) {
-                $hook_link = $this->hook('postsave_process');
-                if ($hook_link) {
-                    require ($hook_link);
+            if ($this->ParticipantMessage->atimDelete($participantMessageId)) {
+                $hookLink = $this->hook('postsave_process');
+                if ($hookLink) {
+                    require ($hookLink);
                 }
-                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantMessages/listall/' . $participant_id);
+                $this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantMessages/listall/' . $participantId);
             } else {
-                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantMessages/listall/' . $participant_id);
+                $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantMessages/listall/' . $participantId);
             }
         } else {
-            $this->atimFlashWarning(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ParticipantMessages/detail/' . $participant_id . '/' . $participant_message_id);
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/ClinicalAnnotation/ParticipantMessages/detail/' . $participantId . '/' . $participantMessageId);
         }
     }
 
-    function search($search_id = 0)
+    function search($searchId = 0)
     {
-        $this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
-        $this->searchHandler($search_id, $this->ParticipantMessage, 'participantmessages', '/ClinicalAnnotation/ParticipantMessages/search');
+        $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
+        $this->searchHandler($searchId, $this->ParticipantMessage, 'participantmessages', '/ClinicalAnnotation/ParticipantMessages/search');
         $this->Structures->set('participantmessages');
         
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
         
-        if (empty($search_id)) {
+        if (empty($searchId)) {
             // index
             $this->render('index');
         }

@@ -41,12 +41,12 @@ class ViewAliquotUse extends InventoryManagementAppModel
 
     const STUDY_TITLE = 18;
 
-    public $base_model = "AliquotInternalUse";
+    public $baseModel = "AliquotInternalUse";
 
-    public $base_plugin = 'InventoryManagement';
-    
+    public $basePlugin = 'InventoryManagement';
+
     // Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
-    static $table_create_query = "CREATE TABLE view_aliquot_uses (
+    static $tableCreateQuery = "CREATE TABLE view_aliquot_uses (
 		  id int(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
 		  use_definition varchar(50) DEFAULT NULL,
@@ -67,7 +67,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
 		  study_summary_title varchar(45) DEFAULT NULL
 		)";
 
-    static $table_query = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+    static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -279,26 +279,26 @@ class ViewAliquotUse extends InventoryManagementAppModel
         // Add custom uses
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
         $StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-        $use_and_event_types = $StructurePermissibleValuesCustom->find('all', array(
+        $useAndEventTypes = $StructurePermissibleValuesCustom->find('all', array(
             'conditions' => array(
                 'StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types'
             )
         ));
-        foreach ($use_and_event_types as $new_type)
-            $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang]) ? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
-            
-            // Develop sample derivative creation
+        foreach ($useAndEventTypes as $newType)
+            $result[$newType['StructurePermissibleValuesCustom']['value']] = strlen($newType['StructurePermissibleValuesCustom'][$lang]) ? $newType['StructurePermissibleValuesCustom'][$lang] : $newType['StructurePermissibleValuesCustom']['value'];
+        
+        // Develop sample derivative creation
         $this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
-        $sample_controls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
-        foreach ($sample_controls as $sampl_control_id => $sample_type) {
-            $result['sample derivative creation#' . $sampl_control_id] = __('sample derivative creation#') . $sample_type;
+        $sampleControls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
+        foreach ($sampleControls as $samplControlId => $sampleType) {
+            $result['sample derivative creation#' . $samplControlId] = __('sample derivative creation#') . $sampleType;
         }
         
         natcasesort($result);
         
         return $result;
     }
-    
+
     // must respect concat(id, #) order
     private $models = array(
         'SourceAliquot',
@@ -316,9 +316,9 @@ class ViewAliquotUse extends InventoryManagementAppModel
         $model = null;
         if (preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches)) {
             $pkey = $matches[1];
-            $model_id = $matches[2];
-            if ($model_id < 8 && $model_id > 0) {
-                $model = $this->models[$model_id - 1];
+            $modelId = $matches[2];
+            if ($modelId < 8 && $modelId > 0) {
+                $model = $this->models[$modelId - 1];
             } else {
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }

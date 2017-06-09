@@ -46,17 +46,19 @@ class AliquotMaster extends InventoryManagementAppModel
         'in_stock_order' => 'IF(AliquotMaster.in_stock = "yes - available", 1, IF(AliquotMaster.in_stock = "yes - not available", 2, 3))'
     );
 
-    private static $warning_field = "barcode";
+    private static $warningField = "barcode";
+
     // can be overriden into a custom model
-    public static $aliquot_type_dropdown = array();
+    public static $aliquotTypeDropdown = array();
 
-    public static $storage_model = null;
+    public static $storageModel = null;
 
-    public static $study_model = null;
+    public static $studyModel = null;
 
     private $barcodes = array();
+
     // barcode validation, key = barcode, value = id
-    public static $volume_condition = array(
+    public static $volumeCondition = array(
         'OR' => array(
             array(
                 'AliquotControl.volume_unit' => NULL
@@ -67,7 +69,7 @@ class AliquotMaster extends InventoryManagementAppModel
         )
     );
 
-    public static $join_aliquot_control_on_dup = array(
+    public static $joinAliquotControlOnDup = array(
         'table' => 'aliquot_controls',
         'alias' => 'AliquotControl',
         'type' => 'LEFT',
@@ -76,7 +78,7 @@ class AliquotMaster extends InventoryManagementAppModel
         )
     );
 
-    public $registered_view = array(
+    public $registeredView = array(
         'InventoryManagement.ViewAliquot' => array(
             'AliquotMaster.id'
         ),
@@ -119,26 +121,26 @@ class AliquotMaster extends InventoryManagementAppModel
         return $return;
     }
 
-    function getStorageHistory($aliquot_master_id)
+    function getStorageHistory($aliquotMasterId)
     {
-        $storage_data = array();
+        $storageData = array();
         
         $qry = "SELECT sm.*, am.* FROM aliquot_masters_revs AS am
 				LEFT JOIN  aliquot_masters_revs AS amn ON amn.version_id=(SELECT version_id FROM aliquot_masters_revs WHERE id=am.id AND version_id > am.version_id ORDER BY version_id ASC LIMIT 1)
 				LEFT JOIN storage_masters_revs AS sm ON am.storage_master_id=sm.id
 				LEFT JOIN storage_masters_revs AS smn ON smn.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=sm.id AND version_id > sm.version_id ORDER BY version_id ASC LIMIT 1)
-				WHERE am.id='" . $aliquot_master_id . "' AND (
+				WHERE am.id='" . $aliquotMasterId . "' AND (
 					(am.version_created >= sm.version_created AND 
 					(am.version_created < smn.version_created OR smn.version_created IS NULL)) OR 
 					(sm.version_created > am.version_created AND (sm.version_created <= amn.version_created OR amn.version_created IS NULL)) 
 					OR am.storage_master_id IS NULL)";
-        $storage_data_tmp = $this->tryCatchQuery($qry);
+        $storageDataTmp = $this->tryCatchQuery($qry);
         
-        $previous = array_shift($storage_data_tmp);
-        while ($current = array_shift($storage_data_tmp)) {
+        $previous = array_shift($storageDataTmp);
+        while ($current = array_shift($storageDataTmp)) {
             if ($previous['sm']['id'] != $current['sm']['id']) {
                 // filter 1 - new storage
-                $storage_data[]['custom'] = array(
+                $storageData[]['custom'] = array(
                     'date' => $current['am']['version_created'],
                     'event' => __('new storage') . " " . __('from') . ": [" . (strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label'] . ", " . __('position') . ": (" . $previous['am']['storage_coord_x'] . ", " . $previous['am']['storage_coord_y'] . "), " . __('temperature') . ": " . $previous['sm']['temperature'] . __($previous['sm']['temp_unit']) : __('no storage')) . "] " . __('to') . ": [" . (strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label'] . ", " . __('position') . ": (" . $current['am']['storage_coord_x'] . ", " . $current['am']['storage_coord_y'] . "), " . __('temperature') . ": " . $current['sm']['temperature'] . __($current['sm']['temp_unit']) : __('no storage')) . "]"
                 );
@@ -151,24 +153,24 @@ class AliquotMaster extends InventoryManagementAppModel
                 if ($previous['sm']['selection_label'] != $current['sm']['selection_label']) {
                     $event .= __("selection label updated") . ". " . __("from") . ": " . $previous['sm']['selection_label'] . " " . __("to") . ": " . $current['sm']['selection_label'] . ". ";
                 }
-                $storage_data[]['custom'] = array(
+                $storageData[]['custom'] = array(
                     'date' => $current['sm']['version_created'],
                     'event' => $event
                 );
             } elseif ($previous['am']['storage_coord_x'] != $current['am']['storage_coord_x'] || $previous['am']['storage_coord_y'] != $current['am']['storage_coord_y']) {
                 // filter 3, aliquot position change
-                $coord_from = $previous['am']['storage_coord_x'] . ", " . $previous['am']['storage_coord_y'];
-                $coord_to = $current['am']['storage_coord_x'] . ", " . $current['am']['storage_coord_y'];
-                $storage_data[]['custom'] = array(
+                $coordFrom = $previous['am']['storage_coord_x'] . ", " . $previous['am']['storage_coord_y'];
+                $coordTo = $current['am']['storage_coord_x'] . ", " . $current['am']['storage_coord_y'];
+                $storageData[]['custom'] = array(
                     'date' => $current['am']['version_created'],
-                    'event' => __('moved within storage') . " " . __('from') . ": [" . $coord_from . "] " . __('to') . ": [" . $coord_to . "]. "
+                    'event' => __('moved within storage') . " " . __('from') . ": [" . $coordFrom . "] " . __('to') . ": [" . $coordTo . "]. "
                 );
             }
             
             $previous = $current;
         }
         
-        return $storage_data;
+        return $storageData;
     }
 
     /**
@@ -177,9 +179,9 @@ class AliquotMaster extends InventoryManagementAppModel
      * @deprecated
      *
      */
-    function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false)
+    function updateAliquotUseAndVolume($aliquotMasterId, $updateCurrentVolume = true, $updateUsesCounter = true, $removeFromStockIfEmptyVolume = false)
     {
-        return $this->updateAliquotVolume($aliquot_master_id, $remove_from_stock_if_empty_volume);
+        return $this->updateAliquotVolume($aliquotMasterId, $removeFromStockIfEmptyVolume);
     }
 
     /**
@@ -189,7 +191,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * - When the intial volume is null, the current volume will be set to null.
      * - Status and status reason won't be updated.
      *
-     * @param $aliquot_master_id Master
+     * @param $aliquotMasterId Master
      *            Id of the aliquot.
      *            @remove_from_stock_if_empty boolean Will set in stock to false and remove the aliquot from storage
      *            
@@ -198,68 +200,68 @@ class AliquotMaster extends InventoryManagementAppModel
      * @author N. Luc
      *         @date 2007-08-15
      */
-    function updateAliquotVolume($aliquot_master_id, $remove_from_stock_if_empty_volume = false)
+    function updateAliquotVolume($aliquotMasterId, $removeFromStockIfEmptyVolume = false)
     {
-        if (empty($aliquot_master_id)) {
+        if (empty($aliquotMasterId)) {
             AppController::getInstance()->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Get aliquot data
-        $aliquot_data = $this->getOrRedirect($aliquot_master_id);
+        $aliquotData = $this->getOrRedirect($aliquotMasterId);
         
         // Set variables
-        $aliquot_data_to_save = array();
-        $aliquot_uses = null;
+        $aliquotDataToSave = array();
+        $aliquotUses = null;
         
         // MANAGE CURRENT VOLUME
         
-        $initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
+        $initialVolume = $aliquotData['AliquotMaster']['initial_volume'];
         
         // Manage new current volume
-        if (empty($initial_volume)) {
+        if (empty($initialVolume)) {
             // Initial_volume is null or equal to 0
             // To be sure value and type of both variables are identical
-            $current_volume = $initial_volume;
+            $currentVolume = $initialVolume;
         } else {
             // A value has been set for the intial volume
-            if ((! is_numeric($initial_volume)) || ($initial_volume < 0)) {
+            if ((! is_numeric($initialVolume)) || ($initialVolume < 0)) {
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
-            $total_used_volume = 0;
-            $view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-            $aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
-            foreach ($aliquot_uses as $aliquot_use) {
-                $used_volume = $aliquot_use['0']['used_volume'];
-                if (! empty($used_volume)) {
+            $totalUsedVolume = 0;
+            $viewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
+            $aliquotUses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquotMasterId", $viewAliquotUse::$tableQuery));
+            foreach ($aliquotUses as $aliquotUse) {
+                $usedVolume = $aliquotUse['0']['used_volume'];
+                if (! empty($usedVolume)) {
                     // Take used volume in consideration only when this one is not empty
-                    if ((! is_numeric($used_volume)) || ($used_volume < 0)) {
+                    if ((! is_numeric($usedVolume)) || ($usedVolume < 0)) {
                         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
-                    $total_used_volume += $used_volume;
+                    $totalUsedVolume += $usedVolume;
                 }
             }
             
-            $current_volume = round(($initial_volume - $total_used_volume), 5);
-            if ($current_volume < 0) {
-                $current_volume = 0;
-                $tmp_msg = __("the aliquot with barcode [%s] has reached a volume below 0");
-                AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+            $currentVolume = round(($initialVolume - $totalUsedVolume), 5);
+            if ($currentVolume < 0) {
+                $currentVolume = 0;
+                $tmpMsg = __("the aliquot with barcode [%s] has reached a volume below 0");
+                AppController::addWarningMsg(sprintf($tmpMsg, $aliquotData['AliquotMaster']['barcode']));
             }
         }
         
-        $aliquot_data_to_save["current_volume"] = $current_volume;
-        if ($current_volume <= 0 && $remove_from_stock_if_empty_volume) {
-            $aliquot_data_to_save['storage_master_id'] = NULL;
-            $aliquot_data_to_save['storage_coord_x'] = NULL;
-            $aliquot_data_to_save['storage_coord_y'] = NULL;
-            $aliquot_data_to_save['in_stock'] = 'no';
-            $aliquot_data_to_save['in_stock_detail'] = 'empty';
+        $aliquotDataToSave["current_volume"] = $currentVolume;
+        if ($currentVolume <= 0 && $removeFromStockIfEmptyVolume) {
+            $aliquotDataToSave['storage_master_id'] = NULL;
+            $aliquotDataToSave['storage_coord_x'] = NULL;
+            $aliquotDataToSave['storage_coord_y'] = NULL;
+            $aliquotDataToSave['in_stock'] = 'no';
+            $aliquotDataToSave['in_stock_detail'] = 'empty';
         }
         
         // SAVE DATA
         
-        $aliquot_data_to_save['id'] = $aliquot_master_id;
+        $aliquotDataToSave['id'] = $aliquotMasterId;
         
         // ---------------------------------------------------------
         // Set data to empty array to guaranty
@@ -267,29 +269,29 @@ class AliquotMaster extends InventoryManagementAppModel
         // when AliquotMaster set() function will be called again.
         // ---------------------------------------------------------
         $this->data = array(); //
-        $this->id = $aliquot_master_id;
+        $this->id = $aliquotMasterId;
         $this->read();
-        $save_required = false;
-        foreach ($aliquot_data_to_save as $key_to_save => $value_to_save) {
-            if ($key_to_save == "current_volume")
-                $this->data['AliquotMaster'][$key_to_save] = str_replace('0.00000', '0', $this->data['AliquotMaster'][$key_to_save]);
-            if (strcmp($this->data['AliquotMaster'][$key_to_save], $value_to_save)) {
-                $save_required = true;
+        $saveRequired = false;
+        foreach ($aliquotDataToSave as $keyToSave => $valueToSave) {
+            if ($keyToSave == "current_volume")
+                $this->data['AliquotMaster'][$keyToSave] = str_replace('0.00000', '0', $this->data['AliquotMaster'][$keyToSave]);
+            if (strcmp($this->data['AliquotMaster'][$keyToSave], $valueToSave)) {
+                $saveRequired = true;
             }
         }
         
-        $prev_check_writable_fields = $this->check_writable_fields;
-        $this->check_writable_fields = false;
-        $result = $save_required && ! $this->save(array(
-            "AliquotMaster" => $aliquot_data_to_save
+        $prevCheckWritableFields = $this->checkWritableFields;
+        $this->checkWritableFields = false;
+        $result = $saveRequired && ! $this->save(array(
+            "AliquotMaster" => $aliquotDataToSave
         ), false);
-        $this->check_writable_fields = $prev_check_writable_fields;
+        $this->checkWritableFields = $prevCheckWritableFields;
         return ! $result;
     }
 
     public function getRealiquotDropdown()
     {
-        return self::$aliquot_type_dropdown;
+        return self::$aliquotTypeDropdown;
     }
 
     /**
@@ -319,30 +321,30 @@ class AliquotMaster extends InventoryManagementAppModel
      */
     function validateAndUpdateAliquotStorageData()
     {
-        $aliquot_data = & $this->data;
+        $aliquotData = & $this->data;
         
         // check data structure
-        $tmp_arr_to_check = array_values($aliquot_data);
-        if ((! is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+        $tmpArrToCheck = array_values($aliquotData);
+        if ((! is_array($aliquotData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['AliquotMaster']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Load model
-        if (self::$storage_model == null) {
-            self::$storage_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+        if (self::$storageModel == null) {
+            self::$storageModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
         }
         
         // Launch validation
-        if (array_key_exists('FunctionManagement', $aliquot_data) && array_key_exists('recorded_storage_selection_label', $aliquot_data['FunctionManagement'])) {
-            if (! isset($aliquot_data['AliquotControl']['aliquot_type'])) {
+        if (array_key_exists('FunctionManagement', $aliquotData) && array_key_exists('recorded_storage_selection_label', $aliquotData['FunctionManagement'])) {
+            if (! isset($aliquotData['AliquotControl']['aliquot_type'])) {
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            $is_sample_core = ($aliquot_data['AliquotControl']['aliquot_type'] == 'core');
+            $isSampleCore = ($aliquotData['AliquotControl']['aliquot_type'] == 'core');
             
             // Check the aliquot storage definition
-            $arr_storage_selection_results = self::$storage_model->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
+            $arrStorageSelectionResults = self::$storageModel->validateAndGetStorageData($aliquotData['FunctionManagement']['recorded_storage_selection_label'], $aliquotData['AliquotMaster']['storage_coord_x'], $aliquotData['AliquotMaster']['storage_coord_y'], $isSampleCore);
             
-            $set_storage = false;
+            $setStorage = false;
             foreach (array(
                 'storage_data',
                 'storage_definition_error',
@@ -351,50 +353,50 @@ class AliquotMaster extends InventoryManagementAppModel
                 'change_position_x_to_uppercase',
                 'change_position_y_to_uppercase'
             ) as $key) {
-                if (! empty($arr_storage_selection_results[$key])) {
-                    $set_storage = true;
+                if (! empty($arrStorageSelectionResults[$key])) {
+                    $setStorage = true;
                 }
             }
             
-            if ($set_storage) {
+            if ($setStorage) {
                 // Update aliquot data
-                $aliquot_data['AliquotMaster']['storage_master_id'] = isset($arr_storage_selection_results['storage_data']['StorageMaster']['id']) ? $arr_storage_selection_results['storage_data']['StorageMaster']['id'] : null;
-                if ($arr_storage_selection_results['change_position_x_to_uppercase']) {
-                    $aliquot_data['AliquotMaster']['storage_coord_x'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_x']);
+                $aliquotData['AliquotMaster']['storage_master_id'] = isset($arrStorageSelectionResults['storage_data']['StorageMaster']['id']) ? $arrStorageSelectionResults['storage_data']['StorageMaster']['id'] : null;
+                if ($arrStorageSelectionResults['change_position_x_to_uppercase']) {
+                    $aliquotData['AliquotMaster']['storage_coord_x'] = strtoupper($aliquotData['AliquotMaster']['storage_coord_x']);
                 }
-                if ($arr_storage_selection_results['change_position_y_to_uppercase']) {
-                    $aliquot_data['AliquotMaster']['storage_coord_y'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_y']);
+                if ($arrStorageSelectionResults['change_position_y_to_uppercase']) {
+                    $aliquotData['AliquotMaster']['storage_coord_y'] = strtoupper($aliquotData['AliquotMaster']['storage_coord_y']);
                 }
                 
                 // Set error
-                if (! empty($arr_storage_selection_results['storage_definition_error'])) {
-                    $this->validationErrors['recorded_storage_selection_label'][] = $arr_storage_selection_results['storage_definition_error'];
+                if (! empty($arrStorageSelectionResults['storage_definition_error'])) {
+                    $this->validationErrors['recorded_storage_selection_label'][] = $arrStorageSelectionResults['storage_definition_error'];
                 }
-                if (! empty($arr_storage_selection_results['position_x_error'])) {
-                    $this->validationErrors['storage_coord_x'][] = $arr_storage_selection_results['position_x_error'];
+                if (! empty($arrStorageSelectionResults['position_x_error'])) {
+                    $this->validationErrors['storage_coord_x'][] = $arrStorageSelectionResults['position_x_error'];
                 }
-                if (! empty($arr_storage_selection_results['position_y_error'])) {
-                    $this->validationErrors['storage_coord_y'][] = $arr_storage_selection_results['position_y_error'];
+                if (! empty($arrStorageSelectionResults['position_y_error'])) {
+                    $this->validationErrors['storage_coord_y'][] = $arrStorageSelectionResults['position_y_error'];
                 }
                 
-                if (empty($this->validationErrors['storage_coord_x']) && empty($this->validationErrors['storage_coord_y']) && array_key_exists('StorageControl', $arr_storage_selection_results['storage_data']) && $arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] && (strlen($aliquot_data['AliquotMaster']['storage_coord_x']) > 0 || strlen($aliquot_data['AliquotMaster']['storage_coord_y']) > 0)) {
+                if (empty($this->validationErrors['storage_coord_x']) && empty($this->validationErrors['storage_coord_y']) && array_key_exists('StorageControl', $arrStorageSelectionResults['storage_data']) && $arrStorageSelectionResults['storage_data']['StorageControl']['check_conflicts'] && (strlen($aliquotData['AliquotMaster']['storage_coord_x']) > 0 || strlen($aliquotData['AliquotMaster']['storage_coord_y']) > 0)) {
                     $exception = $this->id ? array(
                         'AliquotMaster' => $this->id
                     ) : array();
-                    $position_status = $this->StorageMaster->positionStatusQuick($arr_storage_selection_results['storage_data']['StorageMaster']['id'], array(
-                        'x' => $aliquot_data['AliquotMaster']['storage_coord_x'],
-                        'y' => $aliquot_data['AliquotMaster']['storage_coord_y']
+                    $positionStatus = $this->StorageMaster->positionStatusQuick($arrStorageSelectionResults['storage_data']['StorageMaster']['id'], array(
+                        'x' => $aliquotData['AliquotMaster']['storage_coord_x'],
+                        'y' => $aliquotData['AliquotMaster']['storage_coord_y']
                     ), $exception);
                     
                     $msg = null;
-                    if ($position_status == StorageMaster::POSITION_OCCUPIED) {
+                    if ($positionStatus == StorageMaster::POSITIONOCCUPIED) {
                         $msg = __('the storage [%s] already contained something at position [%s, %s]');
-                    } elseif ($position_status == StorageMaster::POSITION_DOUBLE_SET) {
+                    } elseif ($positionStatus == StorageMaster::POSITIONDOUBLESET) {
                         $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
                     }
                     if ($msg != null) {
-                        $msg = sprintf($msg, $arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y']);
-                        if ($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1) {
+                        $msg = sprintf($msg, $arrStorageSelectionResults['storage_data']['StorageMaster']['selection_label'], $aliquotData['AliquotMaster']['storage_coord_x'], $aliquotData['AliquotMaster']['storage_coord_y']);
+                        if ($arrStorageSelectionResults['storage_data']['StorageControl']['check_conflicts'] == 1) {
                             AppController::addWarningMsg($msg);
                         } else {
                             $this->validationErrors['storage_coord_x'][] = $msg;
@@ -402,9 +404,9 @@ class AliquotMaster extends InventoryManagementAppModel
                     }
                 }
             } else {
-                $aliquot_data['AliquotMaster']['storage_master_id'] = null;
+                $aliquotData['AliquotMaster']['storage_master_id'] = null;
             }
-        } elseif ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster']) && ! empty($aliquot_data['AliquotMaster']['storage_coord_x'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']) && ! empty($aliquot_data['AliquotMaster']['storage_coord_y']))) {
+        } elseif ((array_key_exists('storage_coord_x', $aliquotData['AliquotMaster']) && ! empty($aliquotData['AliquotMaster']['storage_coord_x'])) || (array_key_exists('storage_coord_y', $aliquotData['AliquotMaster']) && ! empty($aliquotData['AliquotMaster']['storage_coord_y']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
     }
@@ -414,34 +416,34 @@ class AliquotMaster extends InventoryManagementAppModel
      */
     function validateAndUpdateAliquotStudyData()
     {
-        $aliquot_data = & $this->data;
+        $aliquotData = & $this->data;
         
         // check data structure
-        $tmp_arr_to_check = array_values($aliquot_data);
-        if ((! is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+        $tmpArrToCheck = array_values($aliquotData);
+        if ((! is_array($aliquotData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['AliquotMaster']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // Launch validation
-        if (array_key_exists('FunctionManagement', $aliquot_data) && array_key_exists('autocomplete_aliquot_master_study_summary_id', $aliquot_data['FunctionManagement'])) {
-            $aliquot_data['AliquotMaster']['study_summary_id'] = null;
-            $aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = trim($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
-            if (strlen($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'])) {
+        if (array_key_exists('FunctionManagement', $aliquotData) && array_key_exists('autocomplete_aliquot_master_study_summary_id', $aliquotData['FunctionManagement'])) {
+            $aliquotData['AliquotMaster']['study_summary_id'] = null;
+            $aliquotData['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = trim($aliquotData['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
+            if (strlen($aliquotData['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'])) {
                 // Load model
-                if (self::$study_model == null)
-                    self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
-                    
-                    // Check the aliquot study definition
-                $arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
+                if (self::$studyModel == null)
+                    self::$studyModel = AppModel::getInstance("Study", "StudySummary", true);
+                
+                // Check the aliquot study definition
+                $arrStudySelectionResults = self::$studyModel->getStudyIdFromStudyDataAndCode($aliquotData['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
                 
                 // Set study summary id
-                if (isset($arr_study_selection_results['StudySummary'])) {
-                    $aliquot_data['AliquotMaster']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+                if (isset($arrStudySelectionResults['StudySummary'])) {
+                    $aliquotData['AliquotMaster']['study_summary_id'] = $arrStudySelectionResults['StudySummary']['id'];
                 }
                 
                 // Set error
-                if (isset($arr_study_selection_results['error'])) {
-                    $this->validationErrors['autocomplete_aliquot_master_study_summary_id'][] = $arr_study_selection_results['error'];
+                if (isset($arrStudySelectionResults['error'])) {
+                    $this->validationErrors['autocomplete_aliquot_master_study_summary_id'][] = $arrStudySelectionResults['error'];
                 }
             }
         }
@@ -454,31 +456,31 @@ class AliquotMaster extends InventoryManagementAppModel
      * - This function supports form data structure built by either 'add' form or 'datagrid' form.
      * - Has been created to allow customisation.
      *
-     * @param $aliquots_data Aliquots
+     * @param $aliquotsData Aliquots
      *            data stored into an array having structure like either:
-     *            - $aliquots_data = array('AliquotMaster' => array(...))
+     *            - $aliquotsData = array('AliquotMaster' => array(...))
      *            or
-     *            - $aliquots_data = array(array('AliquotMaster' => array(...)))
+     *            - $aliquotsData = array(array('AliquotMaster' => array(...)))
      *            
      * @return Following results array:
      *         array(
      *         'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
-     *         'messages' => array($message_1, $message_2, ...)
+     *         'messages' => array($message1, $message2, ...)
      *         )
      *        
      * @author N. Luc
      *         @date 2007-08-15
      */
-    function checkDuplicatedAliquotBarcode($aliquot_data)
+    function checkDuplicatedAliquotBarcode($aliquotData)
     {
         
         // check data structure
-        $tmp_arr_to_check = array_values($aliquot_data);
-        if ((! is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+        $tmpArrToCheck = array_values($aliquotData);
+        if ((! is_array($aliquotData)) || (is_array($tmpArrToCheck) && isset($tmpArrToCheck[0]['AliquotMaster']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
-        $barcode = $aliquot_data['AliquotMaster']['barcode'];
+        $barcode = $aliquotData['AliquotMaster']['barcode'];
         
         // Check duplicated barcode into submited record
         if (! strlen($barcode)) {
@@ -493,23 +495,23 @@ class AliquotMaster extends InventoryManagementAppModel
         $criteria = array(
             'AliquotMaster.barcode' => $barcode
         );
-        $aliquots_having_duplicated_barcode = $this->find('all', array(
+        $aliquotsHavingDuplicatedBarcode = $this->find('all', array(
             'conditions' => array(
                 'AliquotMaster.barcode' => $barcode
             ),
             'recursive' => - 1
         ));
         ;
-        if (! empty($aliquots_having_duplicated_barcode)) {
-            foreach ($aliquots_having_duplicated_barcode as $duplicate) {
-                if ((! array_key_exists('id', $aliquot_data['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquot_data['AliquotMaster']['id'])) {
+        if (! empty($aliquotsHavingDuplicatedBarcode)) {
+            foreach ($aliquotsHavingDuplicatedBarcode as $duplicate) {
+                if ((! array_key_exists('id', $aliquotData['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquotData['AliquotMaster']['id'])) {
                     $this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded'));
                 }
             }
         }
     }
 
-    function hasChild(array $aliquot_master_ids)
+    function hasChild(array $aliquotMasterIds)
     {
         $ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
         return array_unique(array_filter($ViewAliquotUse->find('list', array(
@@ -517,7 +519,7 @@ class AliquotMaster extends InventoryManagementAppModel
                 'ViewAliquotUse.aliquot_master_id'
             ),
             'conditions' => array(
-                'ViewAliquotUse.aliquot_master_id' => $aliquot_master_ids
+                'ViewAliquotUse.aliquot_master_id' => $aliquotMasterIds
             )
         ))));
     }
@@ -525,7 +527,7 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Get default storage date for a new created aliquot.
      *
-     * @param $sample_master_data Master
+     * @param $sampleMasterData Master
      *            data of the studied sample.
      *            
      * @return Default storage date.
@@ -536,16 +538,16 @@ class AliquotMaster extends InventoryManagementAppModel
      * @deprecated
      *
      */
-    function getDefaultStorageDate($sample_master_data)
+    function getDefaultStorageDate($sampleMasterData)
     {
-        list ($date, $date_accuaracy) = $this->getDefaultStorageDateAndAccuracy($sample_master_data);
+        list ($date, $dateAccuaracy) = $this->getDefaultStorageDateAndAccuracy($sampleMasterData);
         return strlen($date) ? $date : null;
     }
 
     /**
      * Get default storage date and accuracy for a new created aliquot.
      *
-     * @param $sample_master_data Master
+     * @param $sampleMasterData Master
      *            data of the studied sample.
      *            
      * @return array(default storage date, accuracy).
@@ -554,34 +556,34 @@ class AliquotMaster extends InventoryManagementAppModel
      * @since 2016-09-29
      *        @updated N. Luc
      */
-    function getDefaultStorageDateAndAccuracy($sample_master_data)
+    function getDefaultStorageDateAndAccuracy($sampleMasterData)
     {
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
-        $derivative_detail_model = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
-        switch ($sample_master_data['SampleControl']['sample_category']) {
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $derivativeDetailModel = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
+        switch ($sampleMasterData['SampleControl']['sample_category']) {
             case 'specimen':
                 // Default creation date will be the specimen reception date
-                $sample_master = $sample_master_model->getOrRedirect($sample_master_data['SampleMaster']['id']);
+                $sampleMaster = $sampleMasterModel->getOrRedirect($sampleMasterData['SampleMaster']['id']);
                 return array(
-                    $sample_master['SpecimenDetail']['reception_datetime'],
-                    $sample_master['SpecimenDetail']['reception_datetime_accuracy']
+                    $sampleMaster['SpecimenDetail']['reception_datetime'],
+                    $sampleMaster['SpecimenDetail']['reception_datetime_accuracy']
                 );
             
             case 'derivative':
                 // Default creation date will be the derivative creation date or Specimen reception date
-                $derivative_detail_data = $derivative_detail_model->find('first', array(
+                $derivativeDetailData = $derivativeDetailModel->find('first', array(
                     'conditions' => array(
-                        'DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']
+                        'DerivativeDetail.sample_master_id' => $sampleMasterData['SampleMaster']['id']
                     ),
                     'recursive' => '-1'
                 ));
-                if (empty($derivative_detail_data)) {
+                if (empty($derivativeDetailData)) {
                     $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 
                 return array(
-                    $derivative_detail_data['DerivativeDetail']['creation_datetime'],
-                    $derivative_detail_data['DerivativeDetail']['creation_datetime_accuracy']
+                    $derivativeDetailData['DerivativeDetail']['creation_datetime'],
+                    $derivativeDetailData['DerivativeDetail']['creation_datetime_accuracy']
                 );
             
             default:
@@ -597,7 +599,7 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Check if an aliquot can be deleted.
      *
-     * @param $aliquot_master_id Id
+     * @param $aliquotMasterId Id
      *            of the studied sample.
      *            
      * @return Return results as array:
@@ -607,17 +609,17 @@ class AliquotMaster extends InventoryManagementAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($aliquot_master_id)
+    function allowDeletion($aliquotMasterId)
     {
         // Check aliquot has no use
-        $aliquot_internal_use_model = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
-        $returned_nbr = $aliquot_internal_use_model->find('count', array(
+        $aliquotInternalUseModel = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
+        $returnedNbr = $aliquotInternalUseModel->find('count', array(
             'conditions' => array(
-                'AliquotInternalUse.aliquot_master_id' => $aliquot_master_id
+                'AliquotInternalUse.aliquot_master_id' => $aliquotMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'use exists for the deleted aliquot'
@@ -625,14 +627,14 @@ class AliquotMaster extends InventoryManagementAppModel
         }
         
         // Check aliquot is not linked to realiquoting process
-        $realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
-        $returned_nbr = $realiquoting_model->find('count', array(
+        $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+        $returnedNbr = $realiquotingModel->find('count', array(
             'conditions' => array(
-                'Realiquoting.parent_aliquot_master_id' => $aliquot_master_id
+                'Realiquoting.parent_aliquot_master_id' => $aliquotMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'realiquoting data exists for the deleted aliquot'
@@ -640,14 +642,14 @@ class AliquotMaster extends InventoryManagementAppModel
         }
         
         // Check aliquot is not linked to review
-        $aliquot_review_master_model = AppModel::getInstance("InventoryManagement", "AliquotReviewMaster", true);
-        $returned_nbr = $aliquot_review_master_model->find('count', array(
+        $aliquotReviewMasterModel = AppModel::getInstance("InventoryManagement", "AliquotReviewMaster", true);
+        $returnedNbr = $aliquotReviewMasterModel->find('count', array(
             'conditions' => array(
-                'AliquotReviewMaster.aliquot_master_id' => $aliquot_master_id
+                'AliquotReviewMaster.aliquot_master_id' => $aliquotMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'review exists for the deleted aliquot'
@@ -655,14 +657,14 @@ class AliquotMaster extends InventoryManagementAppModel
         }
         
         // Check aliquot is not linked to order
-        $order_item_model = AppModel::getInstance("Order", "OrderItem", true);
-        $returned_nbr = $order_item_model->find('count', array(
+        $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
+        $returnedNbr = $orderItemModel->find('count', array(
             'conditions' => array(
-                'OrderItem.aliquot_master_id' => $aliquot_master_id
+                'OrderItem.aliquot_master_id' => $aliquotMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'order exists for the deleted aliquot'
@@ -670,14 +672,14 @@ class AliquotMaster extends InventoryManagementAppModel
         }
         
         // Check aliquot is not linked to a qc
-        $quality_ctrl_model = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
-        $returned_nbr = $quality_ctrl_model->find('count', array(
+        $qualityCtrlModel = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
+        $returnedNbr = $qualityCtrlModel->find('count', array(
             'conditions' => array(
-                'QualityCtrl.aliquot_master_id' => $aliquot_master_id
+                'QualityCtrl.aliquot_master_id' => $aliquotMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'quality control data exists for the deleted aliquot'
@@ -685,14 +687,14 @@ class AliquotMaster extends InventoryManagementAppModel
         }
         
         // Check aliquot is not linked to a derivative
-        $source_aliquot_model = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-        $returned_nbr = $source_aliquot_model->find('count', array(
+        $sourceAliquotModel = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
+        $returnedNbr = $sourceAliquotModel->find('count', array(
             'conditions' => array(
-                'SourceAliquot.aliquot_master_id' => $aliquot_master_id
+                'SourceAliquot.aliquot_master_id' => $aliquotMasterId
             ),
             'recursive' => '-1'
         ));
-        if ($returned_nbr > 0) {
+        if ($returnedNbr > 0) {
             return array(
                 'allow_deletion' => false,
                 'msg' => 'derivative creation data exists for the deleted aliquot'
@@ -708,7 +710,7 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Get the default realiquoting date.
      *
-     * @param $aliquot_data_for_selection Sample
+     * @param $aliquotDataForSelection Sample
      *            Aliquots that could be defined as child.
      *            
      * @return Default realiquoting date.
@@ -717,10 +719,10 @@ class AliquotMaster extends InventoryManagementAppModel
      * @since 2009-09-11
      *        @updated N. Luc
      */
-    function getDefaultRealiquotingDate($aliquot_data_for_selection)
+    function getDefaultRealiquotingDate($aliquotDataForSelection)
     {
         // Get first found storage datetime
-        foreach ($aliquot_data_for_selection as $aliquot) {
+        foreach ($aliquotDataForSelection as $aliquot) {
             if (! empty($aliquot['AliquotMaster']['storage_datetime'])) {
                 return $aliquot['AliquotMaster']['storage_datetime'];
             }
@@ -733,17 +735,17 @@ class AliquotMaster extends InventoryManagementAppModel
      * @param array $aliquot
      *            with either a key 'id' referring to an array
      *            of ids, or a key 'data' referring to AliquotMaster.
-     * @param $model_name If
+     * @param $modelName If
      *            the aliquot array contains data, the model name
      *            to use.
      * @return an array having unconsented aliquot as key and their consent
      *         status as value. This function refers to
      *         ViewCollection->getUnconsentedCollections.
      */
-    function getUnconsentedAliquots(array $aliquot, $model_name = 'AliquotMaster')
+    function getUnconsentedAliquots(array $aliquot, $modelName = 'AliquotMaster')
     {
         $data = null;
-        $key_name = null;
+        $keyName = null;
         // preping to fetch the collection ids
         if (array_key_exists('id', $aliquot)) {
             $data = $this->find('all', array(
@@ -756,35 +758,35 @@ class AliquotMaster extends InventoryManagementAppModel
                 ),
                 'recursive' => - 1
             ));
-            $model_name = 'AliquotMaster';
-            $key_name = 'id';
+            $modelName = 'AliquotMaster';
+            $keyName = 'id';
         } else {
-            $data = array_key_exists($model_name, $aliquot) ? array(
+            $data = array_key_exists($modelName, $aliquot) ? array(
                 $aliquot
             ) : $aliquot;
-            if ($model_name == 'ViewAliquot') {
-                $key_name = $model_name == 'AliquotMaster' ? 'id' : 'aliquot_master_id';
+            if ($modelName == 'ViewAliquot') {
+                $keyName = $modelName == 'AliquotMaster' ? 'id' : 'aliquot_master_id';
             }
         }
         
         // collections ids and collection/aliquot assocs
-        $collection_aliquot_assoc = array();
-        $collection_ids = array();
-        foreach ($data as &$data_unit) {
-            $collection_aliquot_assoc[$data_unit[$model_name]['collection_id']][] = $data_unit[$model_name][$key_name];
-            $collection_ids[] = $data_unit[$model_name]['collection_id'];
+        $collectionAliquotAssoc = array();
+        $collectionIds = array();
+        foreach ($data as &$dataUnit) {
+            $collectionAliquotAssoc[$dataUnit[$modelName]['collection_id']][] = $dataUnit[$modelName][$keyName];
+            $collectionIds[] = $dataUnit[$modelName]['collection_id'];
         }
         
         // getting unconsented collections
-        $collection_model = AppModel::getInstance("InventoryManagement", "ViewCollection", true);
-        $unconsented_collections = $collection_model->getUnconsentedParticipantCollections(array(
-            'id' => $collection_ids
+        $collectionModel = AppModel::getInstance("InventoryManagement", "ViewCollection", true);
+        $unconsentedCollections = $collectionModel->getUnconsentedParticipantCollections(array(
+            'id' => $collectionIds
         ));
         
         // building the result array
         $results = array();
-        foreach ($unconsented_collections as $collection_id => $status) {
-            $results += array_fill_keys($collection_aliquot_assoc[$collection_id], $status);
+        foreach ($unconsentedCollections as $collectionId => $status) {
+            $results += array_fill_keys($collectionAliquotAssoc[$collectionId], $status);
         }
         
         return $results;
@@ -817,20 +819,20 @@ class AliquotMaster extends InventoryManagementAppModel
         return $queryData;
     }
 
-    function atimDelete($model_id, $cascade = true)
+    function atimDelete($modelId, $cascade = true)
     {
-        if (parent::atimDelete($model_id, $cascade)) {
+        if (parent::atimDelete($modelId, $cascade)) {
             // delete realiquotings where current id is child
-            $realiquoting_model = AppModel::getInstance('InventoryManagement', 'Realiquoting', true);
-            $realiquotings = $realiquoting_model->find('all', array(
+            $realiquotingModel = AppModel::getInstance('InventoryManagement', 'Realiquoting', true);
+            $realiquotings = $realiquotingModel->find('all', array(
                 'conditions' => array(
-                    'Realiquoting.child_aliquot_master_id' => $model_id
+                    'Realiquoting.child_aliquot_master_id' => $modelId
                 )
             ));
             $parents = array();
             foreach ($realiquotings as $realiquoting) {
                 $parents[] = $realiquoting['Realiquoting']['parent_aliquot_master_id'];
-                $realiquoting_model->atimDelete($realiquoting['Realiquoting']['id']);
+                $realiquotingModel->atimDelete($realiquoting['Realiquoting']['id']);
             }
             $parents = array_unique($parents);
             foreach ($parents as $parent) {
@@ -841,41 +843,41 @@ class AliquotMaster extends InventoryManagementAppModel
         return false;
     }
 
-    static function joinOnAliquotDup($on_field)
+    static function joinOnAliquotDup($onField)
     {
         return array(
             'table' => 'aliquot_masters',
             'alias' => 'aliquot_masters_dup',
             'type' => 'LEFT',
             'conditions' => array(
-                $on_field . ' = aliquot_masters_dup.id'
+                $onField . ' = aliquot_masters_dup.id'
             )
         );
     }
 
-    function validateAliquotMasterDataUpdateInBatch($function_management_data, $submitted_aliquot_master_data, $aliquot_ids)
+    function validateAliquotMasterDataUpdateInBatch($functionManagementData, $submittedAliquotMasterData, $aliquotIds)
     {
         // Set in_stock value
         // Use of field 'FunctionManagement.in_stock' to support empty value that means 'in_stock' value has not to be changed
         // (Can not use field AliquotMaster.in_stock value because this one is linked to a 'not empty' validation)
-        $submitted_aliquot_master_data['in_stock'] = $function_management_data['in_stock'];
+        $submittedAliquotMasterData['in_stock'] = $functionManagementData['in_stock'];
         
         $validates = true;
         
         // Check submitted data conflicts
         
-        if (strlen($function_management_data['recorded_storage_selection_label']) && (($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no'))) {
+        if (strlen($functionManagementData['recorded_storage_selection_label']) && (($functionManagementData['remove_from_storage'] == '1') || ($submittedAliquotMasterData['in_stock'] == 'no'))) {
             $validates = false;
             $this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: you can not remove aliquot and set a storage');
-            if ($submitted_aliquot_master_data['in_stock'] == 'no')
+            if ($submittedAliquotMasterData['in_stock'] == 'no')
                 $this->validationErrors['in_stock'][] = __('data conflict: you can not remove aliquot and set a storage');
         }
-        if (isset($function_management_data['autocomplete_aliquot_master_study_summary_id']) && strlen($function_management_data['autocomplete_aliquot_master_study_summary_id']) && $function_management_data['remove_study_summary_id'] == '1') {
+        if (isset($functionManagementData['autocomplete_aliquot_master_study_summary_id']) && strlen($functionManagementData['autocomplete_aliquot_master_study_summary_id']) && $functionManagementData['remove_study_summary_id'] == '1') {
             $validates = false;
             $this->validationErrors['autocomplete_aliquot_master_study_summary_id'][] = __('data conflict: you can not delete data and set a new one');
         }
-        foreach ($submitted_aliquot_master_data as $key => $value) {
-            if (strlen($submitted_aliquot_master_data[$key]) && array_key_exists('remove_' . $key, $function_management_data) && $function_management_data['remove_' . $key] == '1') {
+        foreach ($submittedAliquotMasterData as $key => $value) {
+            if (strlen($submittedAliquotMasterData[$key]) && array_key_exists('remove_' . $key, $functionManagementData) && $functionManagementData['remove_' . $key] == '1') {
                 $validates = false;
                 $this->validationErrors[$key][] = __('data conflict: you can not delete data and set a new one');
             }
@@ -883,46 +885,46 @@ class AliquotMaster extends InventoryManagementAppModel
         
         // Set gerenated aliquot master data plus launch validation on this data set
         
-        $aliquot_master_data_to_update = array(
-            'AliquotMaster' => array_filter($submitted_aliquot_master_data)
+        $aliquotMasterDataToUpdate = array(
+            'AliquotMaster' => array_filter($submittedAliquotMasterData)
         );
-        $position_deletion_warning_message = null;
+        $positionDeletionWarningMessage = null;
         
         if ($validates) {
             // Work on storage data
-            if ($function_management_data['recorded_storage_selection_label']) {
-                $aliquot_master_data_to_update['FunctionManagement']['recorded_storage_selection_label'] = $function_management_data['recorded_storage_selection_label'];
-                $aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
-                $aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
+            if ($functionManagementData['recorded_storage_selection_label']) {
+                $aliquotMasterDataToUpdate['FunctionManagement']['recorded_storage_selection_label'] = $functionManagementData['recorded_storage_selection_label'];
+                $aliquotMasterDataToUpdate['AliquotMaster']['storage_coord_x'] = null;
+                $aliquotMasterDataToUpdate['AliquotMaster']['storage_coord_y'] = null;
                 $this->addWritableField(array(
                     'storage_master_id',
                     'storage_coord_x',
                     'storage_coord_y'
                 ));
                 
-                $position_deletion_warning_message = 'aliquots positions have been deleted';
+                $positionDeletionWarningMessage = 'aliquots positions have been deleted';
                 
-                if (empty($submitted_aliquot_master_data['in_stock'])) {
+                if (empty($submittedAliquotMasterData['in_stock'])) {
                     // New stock value has not been set then won't be updated: Control above detected no conflict - Check data in db
                     $condtions = array(
-                        'AliquotMaster.id' => $aliquot_ids,
+                        'AliquotMaster.id' => $aliquotIds,
                         'AliquotMaster.in_stock' => 'no'
                     );
-                    $aliquot_not_in_stock = $this->find('count', array(
+                    $aliquotNotInStock = $this->find('count', array(
                         'conditions' => $condtions,
                         'recursive' => '-1'
                     ));
-                    if ($aliquot_not_in_stock) {
+                    if ($aliquotNotInStock) {
                         $validates = false;
-                        $position_deletion_warning_message = '';
+                        $positionDeletionWarningMessage = '';
                         $this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value');
                     }
                 }
-            } elseif (($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no')) {
+            } elseif (($functionManagementData['remove_from_storage'] == '1') || ($submittedAliquotMasterData['in_stock'] == 'no')) {
                 // Aliquots not in stcok anymore : Erase storage data
-                $aliquot_master_data_to_update['AliquotMaster']['storage_master_id'] = null;
-                $aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
-                $aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
+                $aliquotMasterDataToUpdate['AliquotMaster']['storage_master_id'] = null;
+                $aliquotMasterDataToUpdate['AliquotMaster']['storage_coord_x'] = null;
+                $aliquotMasterDataToUpdate['AliquotMaster']['storage_coord_y'] = null;
                 $this->addWritableField(array(
                     'storage_master_id',
                     'storage_coord_x',
@@ -930,56 +932,56 @@ class AliquotMaster extends InventoryManagementAppModel
                 ));
             }
             // Work on study
-            if (isset($function_management_data['autocomplete_aliquot_master_study_summary_id']) && $function_management_data['autocomplete_aliquot_master_study_summary_id']) {
-                $aliquot_master_data_to_update['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = $function_management_data['autocomplete_aliquot_master_study_summary_id'];
+            if (isset($functionManagementData['autocomplete_aliquot_master_study_summary_id']) && $functionManagementData['autocomplete_aliquot_master_study_summary_id']) {
+                $aliquotMasterDataToUpdate['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = $functionManagementData['autocomplete_aliquot_master_study_summary_id'];
                 $this->addWritableField(array(
                     'study_summary_id'
                 ));
-            } elseif (isset($function_management_data['remove_study_summary_id']) && ($function_management_data['remove_study_summary_id'] == '1')) {
-                $aliquot_master_data_to_update['AliquotMaster']['study_summary_id'] = null;
+            } elseif (isset($functionManagementData['remove_study_summary_id']) && ($functionManagementData['remove_study_summary_id'] == '1')) {
+                $aliquotMasterDataToUpdate['AliquotMaster']['study_summary_id'] = null;
                 $this->addWritableField(array(
                     'study_summary_id'
                 ));
             }
             // Work on other data
-            foreach ($submitted_aliquot_master_data as $key => $value) {
-                if (array_key_exists('remove_' . $key, $function_management_data) && $function_management_data['remove_' . $key] == '1') {
-                    $aliquot_master_data_to_update['AliquotMaster'][$key] = null;
+            foreach ($submittedAliquotMasterData as $key => $value) {
+                if (array_key_exists('remove_' . $key, $functionManagementData) && $functionManagementData['remove_' . $key] == '1') {
+                    $aliquotMasterDataToUpdate['AliquotMaster'][$key] = null;
                 }
             }
         }
         if ($validates) {
-            $aliquot_master_data_to_update['AliquotMaster']['aliquot_control_id'] = 1; // to allow validation, remove afterward
-            $not_core_nbr = $this->find('count', array(
+            $aliquotMasterDataToUpdate['AliquotMaster']['aliquot_control_id'] = 1; // to allow validation, remove afterward
+            $notCoreNbr = $this->find('count', array(
                 'conditions' => array(
-                    'AliquotMaster.id' => $aliquot_ids,
+                    'AliquotMaster.id' => $aliquotIds,
                     "AliquotControl.aliquot_type != 'core'"
                 )
             ));
-            $aliquot_master_data_to_update['AliquotControl']['aliquot_type'] = $not_core_nbr ? 'not core' : 'core'; // to allow tma storage check (check aliquot != than core is not stored into TMA block), remove afterward
-            $this->set($aliquot_master_data_to_update);
+            $aliquotMasterDataToUpdate['AliquotControl']['aliquot_type'] = $notCoreNbr ? 'not core' : 'core'; // to allow tma storage check (check aliquot != than core is not stored into TMA block), remove afterward
+            $this->set($aliquotMasterDataToUpdate);
             if (! $this->validates()) {
                 $validates = false;
             }
-            $aliquot_master_data_to_update = $this->data;
-            unset($aliquot_master_data_to_update['AliquotMaster']['aliquot_control_id']);
-            unset($aliquot_master_data_to_update['AliquotControl']['aliquot_type']);
+            $aliquotMasterDataToUpdate = $this->data;
+            unset($aliquotMasterDataToUpdate['AliquotMaster']['aliquot_control_id']);
+            unset($aliquotMasterDataToUpdate['AliquotControl']['aliquot_type']);
         }
         
-        if (sizeof($aliquot_master_data_to_update['AliquotMaster']) == '1' && array_key_exists('__validated__', $aliquot_master_data_to_update['AliquotMaster']))
-            $aliquot_master_data_to_update['AliquotMaster'] = array(); // No data to save
+        if (sizeof($aliquotMasterDataToUpdate['AliquotMaster']) == '1' && array_key_exists('__validated__', $aliquotMasterDataToUpdate['AliquotMaster']))
+            $aliquotMasterDataToUpdate['AliquotMaster'] = array(); // No data to save
         
         return array(
-            $aliquot_master_data_to_update,
+            $aliquotMasterDataToUpdate,
             $validates,
-            $position_deletion_warning_message
+            $positionDeletionWarningMessage
         );
     }
 
     function getAliquotDataStorageAndStockToApplyToAll($data)
     {
         $errors = array();
-        $used_aliquot_data_to_apply_to_all = array();
+        $usedAliquotDataToApplyToAll = array();
         if (isset($data['FunctionManagement']) && array_key_exists('in_stock', $data['FunctionManagement'])) {
             if ($data['FunctionManagement']['remove_in_stock_detail'] && strlen($data['AliquotMaster']['in_stock_detail'])) {
                 $errors['in_stock_detail'][__('data conflict: you can not delete data and set a new one')][] = __('data to apply to all');
@@ -990,16 +992,16 @@ class AliquotMaster extends InventoryManagementAppModel
             foreach (array(
                 'FunctionManagement',
                 'AliquotMaster'
-            ) as $tmp_model) {
-                if (isset($data[$tmp_model])) {
-                    foreach ($data[$tmp_model] as $tmp_field => $tmp_field_value) {
-                        if (! empty($data[$tmp_model][$tmp_field])) {
-                            if ($tmp_model . '.' . $tmp_field == 'FunctionManagement.in_stock') {
-                                $used_aliquot_data_to_apply_to_all['AliquotMaster'][$tmp_field] = $data[$tmp_model][$tmp_field];
-                            } elseif ($tmp_model . '.' . $tmp_field == 'FunctionManagement.remove_in_stock_detail') {
-                                $used_aliquot_data_to_apply_to_all['AliquotMaster']['in_stock_detail'] = '';
+            ) as $tmpModel) {
+                if (isset($data[$tmpModel])) {
+                    foreach ($data[$tmpModel] as $tmpField => $tmpFieldValue) {
+                        if (! empty($data[$tmpModel][$tmpField])) {
+                            if ($tmpModel . '.' . $tmpField == 'FunctionManagement.in_stock') {
+                                $usedAliquotDataToApplyToAll['AliquotMaster'][$tmpField] = $data[$tmpModel][$tmpField];
+                            } elseif ($tmpModel . '.' . $tmpField == 'FunctionManagement.remove_in_stock_detail') {
+                                $usedAliquotDataToApplyToAll['AliquotMaster']['in_stock_detail'] = '';
                             } else {
-                                $used_aliquot_data_to_apply_to_all[$tmp_model][$tmp_field] = $data[$tmp_model][$tmp_field];
+                                $usedAliquotDataToApplyToAll[$tmpModel][$tmpField] = $data[$tmpModel][$tmpField];
                             }
                         }
                     }
@@ -1007,7 +1009,7 @@ class AliquotMaster extends InventoryManagementAppModel
             }
         }
         return array(
-            $used_aliquot_data_to_apply_to_all,
+            $usedAliquotDataToApplyToAll,
             $errors
         );
     }

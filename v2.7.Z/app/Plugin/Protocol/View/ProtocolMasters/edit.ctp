@@ -1,23 +1,23 @@
 <?php
-$structure_links = array(
-    'top' => '/Protocol/ProtocolMasters/edit/' . $atim_menu_variables['ProtocolMaster.id'] . '/',
+$structureLinks = array(
+    'top' => '/Protocol/ProtocolMasters/edit/' . $atimMenuVariables['ProtocolMaster.id'] . '/',
     'bottom' => array(
-        'cancel' => '/Protocol/ProtocolMasters/detail/' . $atim_menu_variables['ProtocolMaster.id'] . '/'
+        'cancel' => '/Protocol/ProtocolMasters/detail/' . $atimMenuVariables['ProtocolMaster.id'] . '/'
     )
 );
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
-    'links' => $structure_links
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>

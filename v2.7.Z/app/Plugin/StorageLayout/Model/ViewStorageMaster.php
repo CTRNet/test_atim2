@@ -5,9 +5,9 @@ class ViewStorageMaster extends StorageLayoutAppModel
 
     public $primaryKey = 'id';
 
-    public $base_model = "StorageMaster";
+    public $baseModel = "StorageMaster";
 
-    public $base_plugin = 'StorageLayout';
+    public $basePlugin = 'StorageLayout';
 
     public $belongsTo = array(
         'StorageControl' => array(
@@ -23,7 +23,7 @@ class ViewStorageMaster extends StorageLayoutAppModel
 
     public $alias = 'ViewStorageMaster';
 
-    static $table_query = '
+    static $tableQuery = '
 		SELECT StorageMaster.*, 
 		StorageControl.is_tma_block,
 		IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(ChildStorageMaster.id)) AS empty_spaces 

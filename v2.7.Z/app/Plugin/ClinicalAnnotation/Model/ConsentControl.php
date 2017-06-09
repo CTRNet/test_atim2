@@ -3,7 +3,7 @@
 class ConsentControl extends ClinicalAnnotationAppModel
 {
 
-    public $master_form_alias = 'consent_masters';
+    public $masterFormAlias = 'consent_masters';
 
     /**
      * Get permissible values array gathering all existing consent types.
@@ -21,8 +21,8 @@ class ConsentControl extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'flag_active = 1'
             )
-        )) as $consent_control) {
-            $result[$consent_control['ConsentControl']['id']] = __($consent_control['ConsentControl']['controls_type']);
+        )) as $consentControl) {
+            $result[$consentControl['ConsentControl']['id']] = __($consentControl['ConsentControl']['controls_type']);
         }
         natcasesort($result);
         

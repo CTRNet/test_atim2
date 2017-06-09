@@ -13,11 +13,11 @@ class AnnouncementsController extends CustomizeAppController
         )
     );
 
-    function index($list_type = '')
+    function index($listType = '')
     {
-        $this->set('list_type', $list_type);
+        $this->set('listType', $listType);
         
-        if (! in_array($list_type, array(
+        if (! in_array($listType, array(
             'all',
             'current'
         ))) {
@@ -25,9 +25,9 @@ class AnnouncementsController extends CustomizeAppController
             // Nothing to do
             
             // CUSTOM CODE: FORMAT DISPLAY DATA
-            $hook_link = $this->hook('format');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('format');
+            if ($hookLink) {
+                require ($hookLink);
             }
         } else {
             
@@ -43,7 +43,7 @@ class AnnouncementsController extends CustomizeAppController
                 )
             );
             
-            if ($list_type == 'current') {
+            if ($listType == 'current') {
                 $conditions = array(
                     $conditions,
                     array(
@@ -61,29 +61,29 @@ class AnnouncementsController extends CustomizeAppController
             }
             
             // CUSTOM CODE: FORMAT DISPLAY DATA
-            $hook_link = $this->hook('format_conditions');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('format_conditions');
+            if ($hookLink) {
+                require ($hookLink);
             }
             
             $this->request->data = $this->paginate($this->Announcement, $conditions);
             
             // CUSTOM CODE: FORMAT DISPLAY DATA
-            $hook_link = $this->hook('format_all_and_current');
-            if ($hook_link) {
-                require ($hook_link);
+            $hookLink = $this->hook('format_all_and_current');
+            if ($hookLink) {
+                require ($hookLink);
             }
         }
     }
 
-    function detail($announcement_id = NULL)
+    function detail($announcementId = NULL)
     {
-        $this->request->data = $this->Announcement->getOrRedirect($announcement_id);
+        $this->request->data = $this->Announcement->getOrRedirect($announcementId);
         
         // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hook_link = $this->hook('format');
-        if ($hook_link) {
-            require ($hook_link);
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
         }
     }
 }

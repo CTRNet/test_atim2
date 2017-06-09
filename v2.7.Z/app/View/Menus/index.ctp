@@ -1,17 +1,17 @@
 <?php
-$atim_content = array(
+$atimContent = array(
     'menu' => ''
 );
 
-if (count($menu_data)) {
+if (count($menuData)) {
     
-    $atim_content['menu'] .= '
+    $atimContent['menu'] .= '
 				<ul id="big_menu_main" class="big_menu">
 		';
     
     $count = 0;
     $class = null;
-    foreach ($menu_data as $menu) {
+    foreach ($menuData as $menu) {
         
         $title = __($menu['Menu']['language_title']);
         
@@ -25,7 +25,7 @@ if (count($menu_data)) {
             $class = 'icon32 ' . $this->Structures->generateLinkClass('plugin ' . $menu['Menu']['use_link']);
         }
         
-        $atim_content['menu'] .= '
+        $atimContent['menu'] .= '
 				<!-- ' . $menu['Menu']['id'] . ' -->
 				<li class="' . ($menu['Menu']['at'] ? 'at ' : '') . 'count_' . $count . '">' . $this->Html->link('<div class="row"><span class="cell"><span class="' . $class . '"></span></span><span class="menuLabel cell">' . __($menu['Menu']['language_title']) . '<span class="menuDesc">' . __($menu['Menu']['language_description']) . '</span></span></div>', $menu['Menu']['use_link'], array(
             'title' => $title,
@@ -37,20 +37,20 @@ if (count($menu_data)) {
         $count ++;
     }
     
-    $atim_content['menu'] .= '
+    $atimContent['menu'] .= '
 			</ul>
 		';
 }
 
-$due_msg_cond = isset($due_messages_count) && $due_messages_count > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/');
-$coll_cond = isset($unlinked_part_coll) && $unlinked_part_coll > 0 && AppController::checkLinkPermission('/InventoryManagement/Collections/search/');
-$complete_forgotten_password_answers = isset($missing_forgotten_password_reset_answers) && $missing_forgotten_password_reset_answers && AppController::checkLinkPermission('/Customize/Profiles/index/');
-$due_annoucements_cond = isset($due_annoucements_count) && $due_annoucements_count > 0 && AppController::checkLinkPermission('/Customize/Announcements/index/');
+$dueMsgCond = isset($dueMessagesCount) && $dueMessagesCount > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/');
+$collCond = isset($unlinkedPartColl) && $unlinkedPartColl > 0 && AppController::checkLinkPermission('/InventoryManagement/Collections/search/');
+$completeForgottenPasswordAnswers = isset($missingForgottenPasswordResetAnswers) && $missingForgottenPasswordResetAnswers && AppController::checkLinkPermission('/Customize/Profiles/index/');
+$dueAnnoucementsCond = isset($dueAnnoucementsCount) && $dueAnnoucementsCount > 0 && AppController::checkLinkPermission('/Customize/Announcements/index/');
 
-if ($due_msg_cond || $coll_cond || $complete_forgotten_password_answers || $due_annoucements_cond) {
-    $atim_content['messages'] = '';
-    if ($due_msg_cond) {
-        $atim_content['messages'] = '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('not done participant messages having reached their due date') . ': ' . $due_messages_count . '.
+if ($dueMsgCond || $collCond || $completeForgottenPasswordAnswers || $dueAnnoucementsCond) {
+    $atimContent['messages'] = '';
+    if ($dueMsgCond) {
+        $atimContent['messages'] = '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('not done participant messages having reached their due date') . ': ' . $dueMessagesCount . '.
 				<a id="goToNotDue" href="javascript:goToNotDoneDueMessages()">' . __('click here to see them') . '</a>.
 				</li></ul>
 				<form action="' . $this->request->webroot . 'ClinicalAnnotation/ParticipantMessages/search/' . AppController::getNewSearchId() . '" method="POST" id="doneDueMessages">
@@ -59,34 +59,34 @@ if ($due_msg_cond || $coll_cond || $complete_forgotten_password_answers || $due_
 				</form>
 			';
     }
-    if ($coll_cond) {
-        $for_bank_part = isset($bank_filter) ? __('for your bank') : __('for all banks');
-        $atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('unlinked participant collections') . ' (' . $for_bank_part . '): ' . $unlinked_part_coll . '.
+    if ($collCond) {
+        $forBankPart = isset($bankFilter) ? __('for your bank') : __('for all banks');
+        $atimContent['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('unlinked participant collections') . ' (' . $forBankPart . '): ' . $unlinkedPartColl . '.
 				 <a id="goToUnlinkedColl" href="' . $this->request->webroot . 'InventoryManagement/Collections/search/' . AppController::getNewSearchId() . '/unlinkedParticipants:/ ">' . __('click here to see them') . '</a>.
 				</li></ul>
 			';
     }
-    if ($complete_forgotten_password_answers) {
-        $atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('user questions to reset forgotten password are not completed - update your profile with the customize tool') . '
+    if ($completeForgottenPasswordAnswers) {
+        $atimContent['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('user questions to reset forgotten password are not completed - update your profile with the customize tool') . '
 				 <a id="goToNotDue" href="' . $this->request->webroot . 'Customize/Profiles/index/">' . __('click here to update') . '</a>.
 				</li></ul>
 			';
     }
-    if ($due_annoucements_cond) {
-        $atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('you have %s due annoucements', $due_annoucements_count) . '
+    if ($dueAnnoucementsCond) {
+        $atimContent['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>' . __('you have %s due annoucements', $dueAnnoucementsCount) . '
 				 <a id="goToNotDue" href="' . $this->request->webroot . 'Customize/Announcements/index/">' . __('click here to see them') . '</a>.
 				</li></ul>
 			';
     }
 }
 
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
-if (isset($set_of_menus)) {
-    echo $this->Structures->generateContentWrapper($atim_content, array(
+if (isset($setOfMenus)) {
+    echo $this->Structures->generateContentWrapper($atimContent, array(
         'links' => array(
             'bottom' => array(
                 'back to main menu' => '/Menus'
@@ -94,7 +94,7 @@ if (isset($set_of_menus)) {
         )
     ));
 } else {
-    echo $this->Structures->generateContentWrapper($atim_content);
+    echo $this->Structures->generateContentWrapper($atimContent);
 }
 ?>
 <script>

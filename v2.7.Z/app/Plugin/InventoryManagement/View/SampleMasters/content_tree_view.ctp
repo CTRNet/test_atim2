@@ -1,7 +1,7 @@
 <?php
 
 // SETTINGS
-$structure_settings = array(
+$structureSettings = array(
     'tree' => array(
         'SampleMaster' => 'SampleMaster',
         'AliquotMaster' => 'AliquotMaster'
@@ -10,23 +10,23 @@ $structure_settings = array(
 
 // LINKS
 $bottom = array();
-if (! $is_ajax) {
+if (! $isAjax) {
     
-    $add_links = array();
-    foreach ($specimen_sample_controls_list as $sample_control) {
-        $add_links[__($sample_control['SampleControl']['sample_type'])] = '/InventoryManagement/SampleMasters/add/' . $collection_id . '/' . $sample_control['SampleControl']['id'];
+    $addLinks = array();
+    foreach ($specimenSampleControlsList as $sampleControl) {
+        $addLinks[__($sampleControl['SampleControl']['sample_type'])] = '/InventoryManagement/SampleMasters/add/' . $collectionId . '/' . $sampleControl['SampleControl']['id'];
     }
-    ksort($add_links);
+    ksort($addLinks);
     
     $bottom = array(
-        'add specimen' => $add_links
+        'add specimen' => $addLinks
     );
     if (! empty($templates)) {
         $bottom['add from template'] = $templates;
     }
 }
 
-$structure_links = array(
+$structureLinks = array(
     'tree' => array(
         'SampleMaster' => array(
             'detail' => array(
@@ -68,25 +68,25 @@ $structure_links = array(
 
 // EXTRAS
 
-$structure_extras = array();
-$structure_extras[10] = '<div id="frame"></div>';
+$structureExtras = array();
+$structureExtras[10] = '<div id="frame"></div>';
 
 // BUILD
 
-$final_atim_structure = $atim_structure;
-$final_options = array(
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
     'type' => 'tree',
-    'settings' => $structure_settings,
-    'links' => $structure_links,
-    'extras' => $structure_extras
+    'settings' => $structureSettings,
+    'links' => $structureLinks,
+    'extras' => $structureExtras
 );
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook();
-if ($hook_link) {
-    require ($hook_link);
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options);	
+$this->Structures->build($finalAtimStructure, $finalOptions);	
 	
