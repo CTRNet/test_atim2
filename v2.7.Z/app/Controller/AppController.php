@@ -427,7 +427,7 @@ class AppController extends Controller
         $configResults = $configDataModel->getConfig(CakeSession::read('Auth.User.group_id'), CakeSession::read('Auth.User.id'));
         // parse result, set configs/defines
         if ($configResults) {
-            
+
             Configure::write('Config.language', $configResults['Config']['config_language']);
             foreach ($configResults['Config'] as $configKey => $configData) {
                 if (strpos($configKey, '_') !== false) {
@@ -441,11 +441,11 @@ class AppController extends Controller
                     if ($configFormat == 'define') {
                         
                         // override DATATABLE value with URI PARAM value
-                        if ($configKey == 'pagination_amount' && isset($requestUriParams['per'])) {
+                        if ($configKey == 'PAGINATION_AMOUNT' && isset($requestUriParams['per'])) {
                             $configData = $requestUriParams['per'];
                         }
                         
-                        define($configKey, $configData);
+                        define(strtoupper($configKey), $configData);
                     } elseif ($configFormat == 'config') {
                         Configure::write($configKey, $configData);
                     }
@@ -506,9 +506,9 @@ class AppController extends Controller
                 $monthStr = AppController::getCalInfo($shortMonths);
                 $month = $month > 0 && $month < 13 ? $monthStr[(int) $month] : "-";
             }
-            if (date_format == 'MDY') {
+            if (DATE_FORMAT == 'MDY') {
                 $result = $month . (empty($month) ? "" : $divider) . $day . (empty($day) ? "" : $divider) . $year;
-            } elseif (date_format == 'YMD') {
+            } elseif (DATE_FORMAT == 'YMD') {
                 $result = $year . (empty($month) ? "" : $divider) . $month . (empty($day) ? "" : $divider) . $day;
             } else { // default of DATE_FORMAT=='DMY'
                 $result = $day . (empty($day) ? "" : $divider) . $month . (empty($month) ? "" : $divider) . $year;
@@ -519,7 +519,7 @@ class AppController extends Controller
 
     static function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
     {
-        if (time_format == 12) {
+        if (TIME_FORMAT == 12) {
             $meridiem = $hour >= 12 ? "PM" : "AM";
             $hour %= 12;
             if ($hour == 0) {
@@ -1032,9 +1032,9 @@ class AppController extends Controller
      */
     function setControlerPaginatorSettings($model)
     {
-        if (pagination_amount)
+        if (PAGINATION_AMOUNT)
             $this->Paginator->settings = array_merge($this->Paginator->settings, array(
-                'limit' => pagination_amount
+                'limit' => PAGINATION_AMOUNT
             ));
         if ($model && isset($this->paginate[$model->name])) {
             $this->Paginator->settings = array_merge($this->Paginator->settings, $this->paginate[$model->name]);

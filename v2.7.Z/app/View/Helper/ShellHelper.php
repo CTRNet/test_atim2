@@ -462,7 +462,7 @@ class ShellHelper extends Helper
             
             $returnSummary = '';
             $summaries = array_filter($summaries);
-            if (show_summary && count($summaries)) {
+            if (SHOW_SUMMARY && count($summaries)) {
                 $returnSummary .= '
 					<ul id="summary">
 						<li>

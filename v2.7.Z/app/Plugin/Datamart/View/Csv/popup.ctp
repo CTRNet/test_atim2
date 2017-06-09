@@ -1,8 +1,8 @@
 <?php
 $override = array(
     'Config.config_language' => $_SESSION['Config']['language'],
-    'Config.define_csv_separator' => csv_separator,
-    'Config.define_csv_encoding' => csv_encoding
+    'Config.define_csv_separator' => CSV_SEPARATOR,
+    'Config.define_csv_encoding' => CSV_ENCODING
 );
 $this->Structures->build($atimStructure, array(
     'type' => 'add',
