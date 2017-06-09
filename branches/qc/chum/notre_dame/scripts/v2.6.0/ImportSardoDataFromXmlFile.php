@@ -1211,25 +1211,11 @@ function linkCollectionToSardoTreatment($db_schema) {
 	while($res = mysqli_fetch_assoc($query_res))
 		$import_summary['Collection']['WARNING']["Collection cannot be linked to more than one SARDO treatments - Only one treatment will be linked to the collection"][] = "See collection on ".$res['collection_datetime']." for the participant ".formatNoLabosForSummary($res['identifier_value'])." (NoLabo of bank ".$res['bank_name'].").";
 	//Set collections.treatment_master_id
+	// - Exact matches on dates and approximatively match on patho # for collection with tissue first then collection with patho # only
+	// - Exact matches on dates and no collection patho #
 	customQuery("UPDATE collections SET treatment_master_id = null;", __LINE__);
 	customQuery("UPDATE collections_revs SET treatment_master_id = null;", __LINE__);	//Value can be set if user updated a collection already linked to a treatment
-	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl, sample_masters SampleMaster, sample_controls SampleControl
-		SET Collection.treatment_master_id = TreatmentMaster.id
-		WHERE Collection.deleted <> 1
-		AND Collection.treatment_master_id IS NULL
-		AND TreatmentMaster.deleted <> 1
-		AND TreatmentMaster.participant_id = Collection.participant_id
-		AND TreatmentMaster.treatment_control_id = TreatmentControl.id 
-	    AND TreatmentControl.flag_active = 1 
-	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
-		AND SampleMaster.deleted <> 1
-		AND SampleMaster.collection_id = Collection.id
-		AND SampleMaster.sample_control_id = SampleControl.id
-		AND SampleControl.sample_type = 'tissue'
-		AND Collection.collection_datetime IS NOT NULL
-		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
-        AND (TreatmentMaster.start_date_accuracy = Collection.collection_datetime_accuracy OR (TreatmentMaster.start_date_accuracy = 'c' AND Collection.collection_datetime_accuracy = 'h'));";
-	customQuery($query, __LINE__);
+	//.... Both dates are exact (0000-00-00) & dates match & collection patho # is completed (length > 2) and matches approximatively the patho # of the sardo biop/surg
 	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl
 		SET Collection.treatment_master_id = TreatmentMaster.id
 		WHERE Collection.deleted <> 1
@@ -1241,10 +1227,113 @@ function linkCollectionToSardoTreatment($db_schema) {
 	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
 		AND Collection.collection_datetime IS NOT NULL
 		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
-        AND (TreatmentMaster.start_date_accuracy = Collection.collection_datetime_accuracy OR (TreatmentMaster.start_date_accuracy = 'c' AND Collection.collection_datetime_accuracy = 'h'))
-	    AND TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs LIKE CONCAT('%', Collection.qc_nd_pathology_nbr, '%')
-        AND LENGTH(Collection.qc_nd_pathology_nbr) >= 7;";
+        AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+	    AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+	    AND (TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs LIKE CONCAT('%', Collection.qc_nd_pathology_nbr, '%') OR Collection.qc_nd_pathology_nbr LIKE CONCAT('%', TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs, '%'))
+        AND LENGTH(Collection.qc_nd_pathology_nbr) >= 2
+	    AND LENGTH(TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs) >= 2;";
 	customQuery($query, __LINE__);
+	//.... Both dates are exact (0000-00-00) & dates match & collection contains tissue & collection patho # is not completed
+	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl, sample_masters SampleMaster, sample_controls SampleControl
+		SET Collection.treatment_master_id = TreatmentMaster.id
+		WHERE Collection.deleted <> 1
+		AND Collection.treatment_master_id IS NULL
+		AND TreatmentMaster.deleted <> 1
+		AND TreatmentMaster.participant_id = Collection.participant_id
+		AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+	    AND TreatmentControl.flag_active = 1
+	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+		AND SampleMaster.deleted <> 1
+		AND SampleMaster.collection_id = Collection.id
+		AND SampleMaster.sample_control_id = SampleControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND Collection.collection_datetime IS NOT NULL
+		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+        AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+	    AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+        AND (Collection.qc_nd_pathology_nbr IS NULL OR Collection.qc_nd_pathology_nbr = '');";
+	customQuery($query, __LINE__);
+	//.... Both dates are exact (0000-00-00) & dates match & collection contains tissue & collection patho # is completed (length > 2) & biops/surg patho# is not completed
+	$query = "UPDATE collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl, sample_masters SampleMaster, sample_controls SampleControl
+		SET Collection.treatment_master_id = TreatmentMaster.id
+		WHERE Collection.deleted <> 1
+		AND Collection.treatment_master_id IS NULL
+		AND TreatmentMaster.deleted <> 1
+		AND TreatmentMaster.participant_id = Collection.participant_id
+		AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+	    AND TreatmentControl.flag_active = 1
+	    AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+		AND SampleMaster.deleted <> 1
+		AND SampleMaster.collection_id = Collection.id
+		AND SampleMaster.sample_control_id = SampleControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND Collection.collection_datetime IS NOT NULL
+		AND TreatmentMaster.start_date = DATE(Collection.collection_datetime)
+        AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+	    AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+	    AND LENGTH(Collection.qc_nd_pathology_nbr) >= 2
+        AND (TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs IS NULL OR TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs = '');";
+    // Data Integrity Warning: Approximatively the same patho # but dates are diferent probably
+	$query = "SELECT
+    	Collection.participant_id,
+    	DATE(Collection.collection_datetime),
+    	Collection.collection_datetime_accuracy,
+    	TreatmentMaster.start_date,
+    	TreatmentMaster.start_date_accuracy,
+    	Collection.qc_nd_pathology_nbr,
+    	TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs,
+	    TreatmentMaster.qc_nd_sardo_tx_detail_summary
+    	FROM collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl
+    	WHERE Collection.deleted <> 1
+    	AND Collection.treatment_master_id IS NULL
+    	AND TreatmentMaster.deleted <> 1
+    	AND TreatmentMaster.participant_id = Collection.participant_id
+    	AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+    	AND TreatmentControl.flag_active = 1
+    	AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+    	AND (TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs LIKE CONCAT('%', Collection.qc_nd_pathology_nbr, '%') OR Collection.qc_nd_pathology_nbr LIKE CONCAT('%', TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs, '%'))
+    	AND LENGTH(Collection.qc_nd_pathology_nbr) >= 2
+    	AND LENGTH(TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs) >= 2;";
+	$query_res_collection_treatment_error = customQuery($query, __LINE__);
+	while($atim_collection_treatment_error = mysqli_fetch_assoc($query_res_collection_treatment_error)) {
+	    $import_summary['Unlinked Collection to SARDO BIOP/SURG : Data integrity check']['WARNING']["Pathology numbers are approximatively the same but dates are different"][] = 
+    	    "ATiM Collection on '".$atim_collection_treatment_error['collection_datetime']." (".$atim_collection_treatment_error['collection_datetime_accuracy'].")' with Patho# '".$atim_collection_treatment_error['qc_nd_pathology_nbr']."'".
+    	    " vs ".
+    	    "SARDO BIOP/SURG on '".$atim_collection_treatment_error['start_date']." (".$atim_collection_treatment_error['start_date_accuracy'].")' with Patho# '".$atim_collection_treatment_error['qc_nd_sardo_tx_all_patho_nbrs']."' (".$atim_collection_treatment_error['qc_nd_sardo_tx_detail_summary'].")";
+	}
+	// Warning: Approximatively the same day of tissue collection and date of surgery
+	$query = "SELECT DISTINCT
+    	Collection.participant_id,
+    	DATE(Collection.collection_datetime),
+    	Collection.collection_datetime_accuracy,
+    	TreatmentMaster.start_date,
+    	TreatmentMaster.start_date_accuracy,
+    	Collection.qc_nd_pathology_nbr,
+    	TreatmentMaster.qc_nd_sardo_tx_all_patho_nbrs,
+	    TreatmentMaster.qc_nd_sardo_tx_detail_summary
+    	FROM collections Collection, treatment_masters TreatmentMaster, treatment_controls TreatmentControl, sample_masters SampleMaster, sample_controls SampleControl
+    	WHERE Collection.deleted <> 1
+    	AND Collection.treatment_master_id IS NULL
+    	AND TreatmentMaster.deleted <> 1
+    	AND TreatmentMaster.participant_id = Collection.participant_id
+    	AND TreatmentMaster.treatment_control_id = TreatmentControl.id
+    	AND TreatmentControl.flag_active = 1
+    	AND TreatmentControl.tx_method = 'sardo treatment - chir/biop'
+    	AND SampleMaster.deleted <> 1
+    	AND SampleMaster.collection_id = Collection.id
+    	AND SampleMaster.sample_control_id = SampleControl.id
+    	AND SampleControl.sample_type = 'tissue'
+    	AND Collection.collection_datetime IS NOT NULL
+        AND TreatmentMaster.start_date IS NOT NULL
+        AND TreatmentMaster.start_date_accuracy NOT IN ('y','m','d')
+        AND Collection.collection_datetime_accuracy NOT IN ('y','m','d')
+    	AND ABS(DATEDIFF(TreatmentMaster.start_date, DATE(Collection.collection_datetime))) <= 2;";
+	while($atim_collection_treatment_error = mysqli_fetch_assoc($query_res_collection_treatment_error)) {
+	    $import_summary['Unlinked Collection to SARDO BIOP/SURG : Data integrity check']['WARNING']["2 days exist between the 2 events"][] = 
+            "ATiM Collection on '".$atim_collection_treatment_error['collection_datetime']." (".$atim_collection_treatment_error['collection_datetime_accuracy'].")' with Patho# '".$atim_collection_treatment_error['qc_nd_pathology_nbr']."'".
+            " vs ".
+            "SARDO BIOP/SURG on '".$atim_collection_treatment_error['start_date']." (".$atim_collection_treatment_error['start_date_accuracy'].")' with Patho# '".$atim_collection_treatment_error['qc_nd_sardo_tx_all_patho_nbrs']."' (".$atim_collection_treatment_error['qc_nd_sardo_tx_detail_summary'].")";
+	}
 	//Update view_collections
 	$query = "SELECT COUNT(*) AS field_exists
 	   FROM information_schema.COLUMNS

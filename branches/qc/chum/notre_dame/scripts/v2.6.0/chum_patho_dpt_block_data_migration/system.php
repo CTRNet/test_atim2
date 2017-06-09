@@ -286,8 +286,8 @@ function dislayErrorAndMessage($commit = false) {
 		}
 	}
 	if($commit) {
-		$query = "UPDATE versions SET permissions_regenerated = 0;";
-		customQuery($query);
+//		$query = "UPDATE versions SET permissions_regenerated = 0;";
+//		customQuery($query);
 		mysqli_commit($db_connection);
 		$ccl = '& Commited';
 	} else {
