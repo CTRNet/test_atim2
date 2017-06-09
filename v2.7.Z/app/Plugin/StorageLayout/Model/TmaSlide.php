@@ -88,9 +88,9 @@ class TmaSlide extends StorageLayoutAppModel
                     'y' => $tmaSlideData['TmaSlide']['storage_coord_y']
                 ), $exception);
                 $msg = null;
-                if ($positionStatus == StorageMaster::POSITIONOCCUPIED) {
+                if ($positionStatus == StorageMaster::POSITION_OCCUPIED) {
                     $msg = __('the storage [%s] already contained something at position [%s, %s]');
-                } elseif ($positionStatus == StorageMaster::POSITIONDOUBLESET) {
+                } elseif ($positionStatus == StorageMaster::POSITION_DOUBLE_SET) {
                     $msg = __('you have set more than one element in storage [%s] at position [%s, %s]');
                 }
                 if ($msg != null) {

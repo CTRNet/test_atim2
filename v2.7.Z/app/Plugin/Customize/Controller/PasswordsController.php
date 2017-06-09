@@ -12,11 +12,9 @@ class PasswordsController extends CustomizeAppController
     function index()
     {
         $this->Structures->set('password_update_by_user');
-        
         $this->User->id = $this->Session->read('Auth.User.id');
         
         $this->hook();
-        
         if (empty($this->request->data)) {
             if ($this->Session->read('Auth.User.force_password_reset'))
                 AppController::addWarningMsg(__('your password has expired. please change your password for security reason.'));

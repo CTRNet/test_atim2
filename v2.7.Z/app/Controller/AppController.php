@@ -427,7 +427,7 @@ class AppController extends Controller
         $configResults = $configDataModel->getConfig(CakeSession::read('Auth.User.group_id'), CakeSession::read('Auth.User.id'));
         // parse result, set configs/defines
         if ($configResults) {
-
+            
             Configure::write('Config.language', $configResults['Config']['config_language']);
             foreach ($configResults['Config'] as $configKey => $configData) {
                 if (strpos($configKey, '_') !== false) {

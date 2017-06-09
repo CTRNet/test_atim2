@@ -214,7 +214,7 @@ class User extends AppModel
                 if (! preg_match('/[1-9]+/', $data['User']['new_password']))
                     $passwordFormatError = true;
             case 1:
-                if (strlen($data['User']['new_password']) < self::PASSWORDMINIMALLENGTH)
+                if (strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH)
                     $passwordFormatError = true;
                 if (! preg_match('/[a-z]+/', $data['User']['new_password']))
                     $passwordFormatError = true;

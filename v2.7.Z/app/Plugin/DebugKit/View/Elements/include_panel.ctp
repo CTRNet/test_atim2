@@ -20,17 +20,15 @@
 
 <h4>Include Paths</h4>
 <?php
-foreach ($content['paths'] as $i => $path) {
-    if (strstr($path, CAKE)) {
-        $content['paths'][$i] = '-> ' . $path;
-        break;
-    }
-}
-echo $this->Toolbar->makeNeatArray(array_filter($content['paths']));
-unset($content['paths']);
+	foreach ($content['paths'] as $i => $path) {
+		if (strstr($path, CAKE)) {
+			$content['paths'][$i] = '-> ' . $path;
+			break;
+		}
+	}
+	echo $this->Toolbar->makeNeatArray(array_filter($content['paths']));
+	unset($content['paths']);
 ?>
 
 <h4>Included Files</h4>
-<?php
-
-echo $this->Toolbar->makeNeatArray($content);
+<?php echo $this->Toolbar->makeNeatArray($content);

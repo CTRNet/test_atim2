@@ -22,34 +22,17 @@
 	<?php foreach ($content->logs as $logName => $logs): ?>
 		<h3><?php echo $logName ?></h3>
 		<?php
-        $len = count($logs);
-        if ($len > 0) :
-            $headers = array(
-                __d('debug_kit', 'Time'),
-                __d('debug_kit', 'Message')
-            );
-            $rows = array();
-            for ($i = 0; $i < $len; $i ++) :
-                $rows[] = array(
-                    $logs[$i][0],
-                    h($logs[$i][1])
-                );
-            endfor
-            ;
-            echo $this->Toolbar->table($rows, $headers, array(
-                'title' => $logName
-            ));
-        
-        
-        
-        
-        
-        
-        
-        
-        
-			endif;
-        ?>
+			$len = count($logs);
+			if ($len > 0):
+				$headers = array(__d('debug_kit', 'Time'), __d('debug_kit', 'Message'));
+				$rows = array();
+				for ($i = 0; $i < $len; $i++):
+					$rows[] = array(
+						$logs[$i][0], h($logs[$i][1])
+					);
+				endfor;
+				echo $this->Toolbar->table($rows, $headers, array('title' => $logName));
+			endif; ?>
 	<?php endforeach; ?>
 	<?php if (empty($content->logs)): ?>
 		<p class="info"><?php echo __d('debug_kit', 'There were no log entries made this request'); ?></p>
