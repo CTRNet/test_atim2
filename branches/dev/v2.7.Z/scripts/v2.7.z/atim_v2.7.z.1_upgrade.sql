@@ -58,3 +58,21 @@ UPDATE structure_fields SET sortable = '0' WHERE model IN ('0', 'FunctionManagem
 -- -------------------------------------------------------------------------------------
 
 UPDATE structure_validations SET rule='notBlank' WHERE rule='notEmpty';
+
+
+-- -------------------------------------------------------------------------------------
+-- Correct one word's spell
+-- -------------------------------------------------------------------------------------
+UPDATE `i18n`
+SET 
+	id='please complete the security questions',
+	en='please complete the security questions'
+WHERE 
+	id='please conplete the security questions'
+	
+	
+	
+	
+
+
+
