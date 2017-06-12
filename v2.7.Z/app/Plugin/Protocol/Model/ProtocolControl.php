@@ -12,7 +12,7 @@ class ProtocolControl extends ProtocolAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getProtocolTypePermissibleValues()
+    public function getProtocolTypePermissibleValues()
     {
         $result = array();
         
@@ -36,7 +36,7 @@ class ProtocolControl extends ProtocolAppModel
      * @since 2009-09-11
      *        @updated N. Luc
      */
-    function getProtocolTumourGroupPermissibleValues()
+    public function getProtocolTumourGroupPermissibleValues()
     {
         $result = array();
         
@@ -53,7 +53,7 @@ class ProtocolControl extends ProtocolAppModel
         return $result;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

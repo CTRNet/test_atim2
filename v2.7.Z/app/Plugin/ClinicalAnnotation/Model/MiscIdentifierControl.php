@@ -12,7 +12,7 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getMiscIdentifierNamePermissibleValues()
+    public function getMiscIdentifierNamePermissibleValues()
     {
         $result = array();
         
@@ -36,7 +36,7 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getMiscIdentifierNamePermissibleValuesFromId()
+    public function getMiscIdentifierNamePermissibleValuesFromId()
     {
         $result = array();
         
@@ -53,7 +53,7 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function getConfidentialIds()
+    public function getConfidentialIds()
     {
         if ($this->confidentialIds == null) {
             $miscControls = $this->find('all', array(

@@ -35,7 +35,7 @@ class StructureField extends AppModel
     );
 
     // when building SUMMARIES, function used to look up, translate, and return translated VALUE
-    function findPermissibleValue($plugin = NULL, $model = NULL, $fieldAndValue = array())
+    public function findPermissibleValue($plugin = NULL, $model = NULL, $fieldAndValue = array())
     {
         $return = NULL;
         

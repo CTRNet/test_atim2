@@ -69,9 +69,9 @@ echo $this->Form->input("data[DiagnosisControl][id]", array(
 		var dropdownOptions = "<?php echo addslashes(json_encode($options)); ?>";
 		var secondaryCtrlId = [<?php echo implode(", ", $secondaryCtrlId); ?>];
 
-		function addPopup(diagnosisMasterId, diagnosisControlId){
+		public function addPopup(diagnosisMasterId, diagnosisControlId){
 			if($("#addPopup").length == 0){
-				buildDialog("addPopup", "Select a type to add", "<div id='target'></div>", new Array(
+				buildDialog("addPopup", "Select a type to add", "<div id='target'></div>", new array
 					{"label" : STR_CANCEL, "icon" : "cancel", "action" : function(){ $("#addPopup").popup("close"); }}, 
 					{ "label" : STR_OK, "icon" : "add", "action" : function(){ document.location = root_url + $("#addPopup select").val() + '/' + $("#addPopup").data("dx_id"); } }));
 				$("#popupSelect").appendTo("#target").show();
@@ -104,7 +104,7 @@ echo $this->Form->input("data[DiagnosisControl][id]", array(
 			$("#addPopup").data("dx_id", diagnosisMasterId).popup();
 		}
 
-		function initTree(section){
+		public function initTree(section){
 			$("a.add").each(function(){
 				if($(this).prop("href").indexOf("javascript:addPopup(") == 0){
 					//remove add button for "unknown" nodes
@@ -116,7 +116,7 @@ echo $this->Form->input("data[DiagnosisControl][id]", array(
 			});
 		}
 
-		function initPage(){
+		public function initPage(){
 			dropdownOptions = $.parseJSON(dropdownOptions);
 			initTree($("body"));
 		}

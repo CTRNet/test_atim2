@@ -13,12 +13,12 @@ class RtbformsController extends RtbformAppController
         )
     );
 
-    function index()
+    public function index()
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
     }
 
-    function search($searchId)
+    public function search($searchId)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         $this->set('atimMenu', $this->Menus->get('/rtbform/rtbforms/index'));
@@ -30,7 +30,7 @@ class RtbformsController extends RtbformAppController
         }
     }
 
-    function profile($rtbformId = null)
+    public function profile($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         if (! $rtbformId) {
@@ -50,7 +50,7 @@ class RtbformsController extends RtbformAppController
         ));
     }
 
-    function add()
+    public function add()
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         $this->hook();
@@ -61,7 +61,7 @@ class RtbformsController extends RtbformAppController
         }
     }
 
-    function edit($rtbformId = null)
+    public function edit($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         if (! $rtbformId) {
@@ -88,7 +88,7 @@ class RtbformsController extends RtbformAppController
         }
     }
 
-    function delete($rtbformId = null)
+    public function delete($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
         if (! $rtbformId) {

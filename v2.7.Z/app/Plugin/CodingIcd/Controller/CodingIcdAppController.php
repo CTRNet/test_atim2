@@ -3,7 +3,7 @@
 class CodingIcdAppController extends AppController
 {
 
-    function tool($useIcdType)
+    public function tool($useIcdType)
     {
         $this->layout = 'ajax';
         $this->Structures->set('simple_search');
@@ -20,7 +20,7 @@ class CodingIcdAppController extends AppController
      * @param $searchFieldsPrefix array
      *            The fields prefix to base the search on
      */
-    function globalSearch($isTool, $modelToUse)
+    public function globalSearch($isTool, $modelToUse)
     {
         if ($isTool) {
             $modelNameToUse = $modelToUse->name;
@@ -45,7 +45,7 @@ class CodingIcdAppController extends AppController
         }
     }
 
-    function globalAutocomplete($modelToUse)
+    public function globalAutocomplete($modelToUse)
     {
         // layout = ajax to avoid printing layout
         $this->layout = 'ajax';

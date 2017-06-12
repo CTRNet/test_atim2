@@ -18,7 +18,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participantId)
+    public function listall($participantId)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
         $this->request->data = $this->paginate($this->ConsentMaster, array(
@@ -43,7 +43,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $consentMasterId)
+    public function detail($participantId, $consentMasterId)
     {
         
         // MANAGE DATA
@@ -80,7 +80,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId, $consentControlId)
+    public function add($participantId, $consentControlId)
     {
         
         // MANAGE DATA
@@ -137,7 +137,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $consentMasterId)
+    public function edit($participantId, $consentMasterId)
     {
         
         // MANAGE DATA
@@ -201,7 +201,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $consentMasterId)
+    public function delete($participantId, $consentMasterId)
     {
         // MANAGE DATA
         $consentMasterData = $this->ConsentMaster->find('first', array(

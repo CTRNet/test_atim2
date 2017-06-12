@@ -15,13 +15,13 @@ class GroupsController extends AppController
         'Aro'
     );
 
-    function index()
+    public function index()
     {
         $this->Group->recursive = 0;
         $this->set('groups', $this->paginate());
     }
 
-    function view($id = null)
+    public function view($id = null)
     {
         if (! $id) {
             $this->Session->setFlash(__('Invalid Group.'));
@@ -32,7 +32,7 @@ class GroupsController extends AppController
         $this->set('group', $this->Group->read(null, $id));
     }
 
-    function add()
+    public function add()
     {
         if (! empty($this->request->data)) {
             $this->Group->create();
@@ -57,7 +57,7 @@ class GroupsController extends AppController
         }
     }
 
-    function edit($id = null)
+    public function edit($id = null)
     {
         if (! $id && empty($this->request->data)) {
             $this->Session->setFlash(__('Invalid Group'));
@@ -123,7 +123,7 @@ class GroupsController extends AppController
         $this->set('acoOptions', $acoOptions);
     }
 
-    function delete($id = null)
+    public function delete($id = null)
     {
         if (! $id) {
             $this->Session->setFlash(__('Invalid id for Group'));

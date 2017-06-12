@@ -5,7 +5,7 @@ class Report extends DatamartAppModel
 
     public $useTable = 'datamart_reports';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = array();
         

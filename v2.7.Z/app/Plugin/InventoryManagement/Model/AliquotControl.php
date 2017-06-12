@@ -12,7 +12,7 @@ class AliquotControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getAliquotTypePermissibleValuesFromId()
+    public function getAliquotTypePermissibleValuesFromId()
     {
         return $this->getAliquotsTypePermissibleValues(true, null);
     }
@@ -24,12 +24,12 @@ class AliquotControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getAliquotTypePermissibleValues()
+    public function getAliquotTypePermissibleValues()
     {
         return $this->getAliquotsTypePermissibleValues(false, null);
     }
 
-    function getAliquotsTypePermissibleValues($useId, $parentSampleControlId)
+    public function getAliquotsTypePermissibleValues($useId, $parentSampleControlId)
     {
         $result = array();
         
@@ -73,7 +73,7 @@ class AliquotControl extends InventoryManagementAppModel
         return $result;
     }
 
-    function getPermissibleAliquotsArray($parentSampleControlId)
+    public function getPermissibleAliquotsArray($parentSampleControlId)
     {
         $conditions = array(
             'AliquotControl.flag_active' => true,
@@ -98,7 +98,7 @@ class AliquotControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSampleAliquotTypesPermissibleValues()
+    public function getSampleAliquotTypesPermissibleValues()
     {
         // Get list of active sample type
         $conditions = array(
@@ -161,7 +161,7 @@ class AliquotControl extends InventoryManagementAppModel
         return $workingArray;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

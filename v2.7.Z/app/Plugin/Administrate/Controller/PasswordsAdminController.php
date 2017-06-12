@@ -9,7 +9,7 @@ class PasswordsAdminController extends AdministrateAppController
         'User'
     );
 
-    function index($groupId, $userId)
+    public function index($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId,

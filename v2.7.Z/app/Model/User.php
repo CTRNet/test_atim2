@@ -21,7 +21,7 @@ class User extends AppModel
      * @return array
      * @throws Exception
      */
-    function parentNode()
+    public function parentNode()
     {
         if (isset($this->data['User']['group_id'])) {
             return array(
@@ -61,7 +61,7 @@ class User extends AppModel
      *            
      * @return array|bool
      */
-    function summary(array $variables)
+    public function summary(array $variables)
     {
         $return = false;
         
@@ -97,7 +97,7 @@ class User extends AppModel
      *
      * @return array
      */
-    function getUsersList()
+    public function getUsersList()
     {
         $allUsersData = $this->find('all', array(
             'recursive' => '-1'
@@ -118,7 +118,7 @@ class User extends AppModel
      *
      * @return True|False if save failed
      */
-    function savePassword(array $data, $modifiedByUser = true)
+    public function savePassword(array $data, $modifiedByUser = true)
     {
         assert($this->id);
         if ($this->validatePassword($data)) {
@@ -154,7 +154,7 @@ class User extends AppModel
      *            
      * @return bool true if validation passes
      */
-    function validatePassword(array $data, $createdUserName = null)
+    public function validatePassword(array $data, $createdUserName = null)
     {
         $validationErrors = array();
         
@@ -234,7 +234,7 @@ class User extends AppModel
      * @return bool True if the IP adress is still defiend as disabled|False if not.
      * @throws CakeException when you try to construct an interface or abstract class.
      */
-    function shouldLoginFromIpBeDisabledAfterFailedAttempts()
+    public function shouldLoginFromIpBeDisabledAfterFailedAttempts()
     {
         // Test last login results from IP address
         $maxLoginAttemptsFromIP = Configure::read('max_login_attempts_from_IP');
@@ -296,7 +296,7 @@ class User extends AppModel
      * @return bool True if function disabled user|False if not.
      * @throws CakeException when you try to construct an interface or abstract class.
      */
-    function disableUserAfterTooManyFailedAttempts($userName)
+    public function disableUserAfterTooManyFailedAttempts($userName)
     {
         // Test last user login results
         $maxUserLoginAttempts = Configure::read('max_user_login_attempts');
@@ -374,7 +374,7 @@ class User extends AppModel
      *            
      * @return void
      */
-    function showErrorIfInternetExplorerIsBelowVersion($version)
+    public function showErrorIfInternetExplorerIsBelowVersion($version)
     {
         $matches = array();
         if (preg_match('/MSIE ([\d]+)/', $_SERVER['HTTP_USER_AGENT'], $matches)) {
@@ -389,7 +389,7 @@ class User extends AppModel
      *
      * @return bool
      */
-    function isPasswordResetRequired()
+    public function isPasswordResetRequired()
     {
         // Check administartor forced user to reset the password
         if (AuthComponent::user('force_password_reset')) {
@@ -422,7 +422,7 @@ class User extends AppModel
      *
      * @return array Table fields (key=[question field]/value=[answer field])
      */
-    function getForgottenPasswordResetFormFields()
+    public function getForgottenPasswordResetFormFields()
     {
         $formFields = array();
         for ($questionId = 1; $questionId < 4; $questionId ++) {
@@ -436,7 +436,7 @@ class User extends AppModel
      *
      * @return string encrypted answer
      */
-    function hashSecuritAsnwer($answer)
+    public function hashSecuritAsnwer($answer)
     {
         return Security::hash(strtolower(trim($answer)), null, true);
     }

@@ -22,7 +22,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
     );
 
     /* ----------------------------- TMA SLIDES ANALYSIS ------------------------ */
-    function add($tmaSlideId = null)
+    public function add($tmaSlideId = null)
     {
         // GET DATA
         $initialDisplay = false;
@@ -229,7 +229,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
     }
 
-    function listAll($tmaBlockStorageMasterId, $tmaSlideId)
+    public function listAll($tmaBlockStorageMasterId, $tmaSlideId)
     {
         // MANAGE DATA
         
@@ -255,7 +255,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
     }
 
-    function edit($tmaSlideUseId)
+    public function edit($tmaSlideUseId)
     {
         // MANAGE DATA
         
@@ -337,7 +337,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
     }
 
-    function editInBatch()
+    public function editInBatch()
     {
         // MANAGE DATA
         $this->setUrlToCancel();
@@ -537,7 +537,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
     }
 
-    function delete($tmaSlideUseId)
+    public function delete($tmaSlideUseId)
     {
         // MANAGE DATA
         

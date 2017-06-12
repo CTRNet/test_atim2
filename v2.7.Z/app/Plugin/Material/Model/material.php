@@ -7,7 +7,7 @@ class Material extends AppModel
 
     public $useTable = 'materials';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         

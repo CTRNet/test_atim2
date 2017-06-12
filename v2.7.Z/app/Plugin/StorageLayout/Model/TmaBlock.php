@@ -11,7 +11,7 @@ class TmaBlock extends StorageLayoutAppModel
 
     public $useTable = 'view_storage_masters';
 
-    function beforeFind($queryData)
+    public function beforeFind($queryData)
     {
         if (! is_array($queryData['conditions']))
             $queryData['conditions'] = array(

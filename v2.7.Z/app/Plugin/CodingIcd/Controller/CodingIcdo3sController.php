@@ -16,25 +16,25 @@ class CodingIcdo3sController extends CodingIcdAppController
      * Forms Helper appends a "tool" link to the "add" and "edit" form types
      * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
      */
-    function tool($useIcdType)
+    public function tool($useIcdType)
     {
         parent::tool($useIcdType);
         $this->set("useIcdType", $useIcdType);
     }
 
-    function search($useIcdType = "topo", $isTool = true)
+    public function search($useIcdType = "topo", $isTool = true)
     {
         $modelToUse = $this->getIcdo3Type($useIcdType);
         parent::globalSearch($isTool, $modelToUse);
         $this->set("useIcdType", $useIcdType);
     }
 
-    function autocomplete($useIcdType = "topo")
+    public function autocomplete($useIcdType = "topo")
     {
         parent::globalAutocomplete($this->getIcdo3Type($useIcdType));
     }
 
-    function getIcdo3Type($icdTypeName)
+    public function getIcdo3Type($icdTypeName)
     {
         $modelToUse = null;
         if ($icdTypeName == "topo") {

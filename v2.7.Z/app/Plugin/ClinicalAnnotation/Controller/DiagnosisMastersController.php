@@ -25,7 +25,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participantId, $parentDxId = null, $isAjax = 0)
+    public function listall($participantId, $parentDxId = null, $isAjax = 0)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -155,7 +155,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $diagnosisMasterId)
+    public function detail($participantId, $diagnosisMasterId)
     {
         // MANAGE DATA
         $dxMasterData = $this->DiagnosisMaster->find('first', array(
@@ -288,7 +288,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         $this->Structures->set('empty', 'emptyStructure');
     }
 
-    function add($participantId, $dxControlId, $parentId)
+    public function add($participantId, $dxControlId, $parentId)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -398,7 +398,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $diagnosisMasterId, $redefinedPrimaryControlId = null)
+    public function edit($participantId, $diagnosisMasterId, $redefinedPrimaryControlId = null)
     {
         
         // MANAGE DATA
@@ -497,7 +497,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $diagnosisMasterId)
+    public function delete($participantId, $diagnosisMasterId)
     {
         // MANAGE DATA
         $diagnosisMasterData = $this->DiagnosisMaster->find('first', array(
@@ -533,7 +533,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function setDiagnosisMenu($dxMasterData, $additionalMenuVariables = array())
+    public function setDiagnosisMenu($dxMasterData, $additionalMenuVariables = array())
     {
         if (! isset($dxMasterData['DiagnosisMaster']['id'])) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

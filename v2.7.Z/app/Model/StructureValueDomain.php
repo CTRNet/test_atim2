@@ -47,7 +47,7 @@ class StructureValueDomain extends AppModel
         return $results;
     }
 
-    function updateDropdownResult(array $structureValueDomain, &$dropdownResult)
+    public function updateDropdownResult(array $structureValueDomain, &$dropdownResult)
     {
         if (strlen($structureValueDomain['source']) > 0) {
             // load source

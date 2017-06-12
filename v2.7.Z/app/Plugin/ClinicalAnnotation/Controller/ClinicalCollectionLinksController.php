@@ -20,7 +20,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         'Codingicd.CodingIcdo3Topo'
     );
 
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         
@@ -43,7 +43,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
     }
 
     // var $paginate = array('Collection' => array('order'=>'Collection.acquisition_label ASC'));
-    function listall($participantId)
+    public function listall($participantId)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -184,7 +184,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $collectionId)
+    public function detail($participantId, $collectionId)
     {
         $collectionData = $this->Collection->getOrRedirect($collectionId);
         if ($collectionData['Collection']['participant_id'] != $participantId) {
@@ -230,7 +230,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId)
+    public function add($participantId)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -373,7 +373,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $collectionId)
+    public function edit($participantId, $collectionId)
     {
         $collectionData = $this->Collection->getOrRedirect($collectionId);
         if ($collectionData['Collection']['participant_id'] != $participantId) {
@@ -501,7 +501,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $collectionId)
+    public function delete($participantId, $collectionId)
     {
         $collectionData = $this->Collection->getOrRedirect($collectionId);
         if ($collectionData['Collection']['participant_id'] != $participantId) {

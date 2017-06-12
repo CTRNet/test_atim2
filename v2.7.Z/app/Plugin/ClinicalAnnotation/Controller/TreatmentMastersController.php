@@ -19,7 +19,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participantId, $treatmentControlId = null)
+    public function listall($participantId, $treatmentControlId = null)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -84,7 +84,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $txMasterId)
+    public function detail($participantId, $txMasterId)
     {
         // MANAGE DATA
         $treatmentMasterData = $this->TreatmentMaster->find('first', array(
@@ -133,7 +133,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $txMasterId)
+    public function edit($participantId, $txMasterId)
     {
         // MANAGE DATA
         $treatmentMasterData = $this->TreatmentMaster->find('first', array(
@@ -218,7 +218,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId, $txControlId, $diagnosisMasterId = null)
+    public function add($participantId, $txControlId, $diagnosisMasterId = null)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
             $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
@@ -413,7 +413,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $txMasterId)
+    public function delete($participantId, $txMasterId)
     {
         
         // MANAGE DATA

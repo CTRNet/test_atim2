@@ -5,7 +5,7 @@ class StructuresComponent extends Component
 
     public $controller;
 
-    static $singleton;
+    public static $singleton;
 
     private $structureAlias;
 
@@ -33,7 +33,7 @@ class StructuresComponent extends Component
      * @param $structureName Structure name (by default name will be 'atim_structure')
      * @param array $parameters
      */
-    function set($alias = NULL, $structureName = 'atimStructure', array $parameters = array())
+    public function set($alias = NULL, $structureName = 'atimStructure', array $parameters = array())
     {
         if (! is_array($alias)) {
             $alias = array_filter(explode(",", $alias));
@@ -112,7 +112,8 @@ $parameters);
         } elseif (count($structure['Structure']) == 1) {
             $structure['Structure'] = $structure['Structure'][0];
         }
-        $structureName = AppController::snakeToCamel($structureName);
+        $structureName = Inflector::variable($structureName);
+//        $structureName = AppController::snakeToCamel($structureName);
         $this->controller->set($structureName, $structure);
     }
 
@@ -161,7 +162,7 @@ $parameters);
         }
     }
 
-    function get($mode = null, $alias = NULL)
+    public function get($mode = null, $alias = NULL)
     {
         $result = array(
             'structure' => array(
@@ -197,7 +198,7 @@ $parameters);
         return $result;
     }
 
-    function getSingleStructure($alias = NULL)
+    public function getSingleStructure($alias = NULL)
     {
         $return = array();
         $alias = $alias ? trim(strtolower($alias)) : str_replace('_', '', $this->controller->params['controller']);
@@ -286,7 +287,7 @@ $parameters);
         }
     }
 
-    function parseSearchConditions($atimStructure = NULL, $autoAccuracy = true)
+    public function parseSearchConditions($atimStructure = NULL, $autoAccuracy = true)
     {
         // conditions to ultimately return
         $conditions = array();
@@ -531,12 +532,12 @@ $parameters);
         return $conditions;
     }
 
-    static function myFilter($val)
+    static public function myFilter($val)
     {
         return strlen($val) > 0;
     }
 
-    function parseSqlConditions($sql = NULL, $conditions = NULL)
+    public function parseSqlConditions($sql = NULL, $conditions = NULL)
     {
         $sqlWithSearchTerms = $sql;
         $sqlWithoutSearchTerms = $sql;
@@ -675,7 +676,7 @@ $parameters);
         );
     }
 
-    function getFormById($id)
+    public function getFormById($id)
     {
         if (! isset($this->ComponentStructure)) {
             // when debug is off, Component_Structure is not initialized
@@ -698,7 +699,7 @@ $parameters);
      *
      * @param unknown_type $source            
      */
-    static function getPulldownFromSource($source)
+    static public function getPulldownFromSource($source)
     {
         // Get arguments
         $args = null;

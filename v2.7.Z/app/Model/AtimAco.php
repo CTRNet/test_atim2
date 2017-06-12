@@ -13,7 +13,7 @@ class AtimAco extends Aco
      * @return array Node found in database
      * @access public
      */
-    function node($ref = null)
+    public function node($ref = null)
     {
         $db = ConnectionManager::getDataSource($this->useDbConfig);
         $type = $this->alias;

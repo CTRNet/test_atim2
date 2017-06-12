@@ -9,7 +9,7 @@ class PasswordsController extends CustomizeAppController
         'User'
     );
 
-    function index()
+    public function index()
     {
         $this->Structures->set('password_update_by_user');
         $this->User->id = $this->Session->read('Auth.User.id');

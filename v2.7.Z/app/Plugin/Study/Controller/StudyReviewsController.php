@@ -14,7 +14,7 @@ class StudyReviewsController extends StudyAppController
         )
     );
 
-    function listall($studySummaryId)
+    public function listall($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -50,7 +50,7 @@ class StudyReviewsController extends StudyAppController
         }
     }
 
-    function detail($studySummaryId, $studyReviewsId)
+    public function detail($studySummaryId, $studyReviewsId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -87,7 +87,7 @@ class StudyReviewsController extends StudyAppController
         }
     }
 
-    function add($studySummaryId)
+    public function add($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -154,7 +154,7 @@ class StudyReviewsController extends StudyAppController
         }
     }
 
-    function edit($studySummaryId, $studyReviewsId)
+    public function edit($studySummaryId, $studyReviewsId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -224,7 +224,7 @@ class StudyReviewsController extends StudyAppController
         }
     }
 
-    function delete($studySummaryId, $studyReviewsId)
+    public function delete($studySummaryId, $studyReviewsId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

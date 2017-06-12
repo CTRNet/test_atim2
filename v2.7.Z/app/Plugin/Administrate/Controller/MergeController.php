@@ -3,13 +3,13 @@
 class MergeController extends AdministrateAppController
 {
 
-    function index()
+    public function index()
     {
         $this->Structures->set('merge_index');
         AppController::addWarningMsg(__('merge operations are not reversible'));
     }
 
-    function mergeCollections()
+    public function mergeCollections()
     {
         $this->set('atimMenu', $this->Menus->get('/Administrate/Merge/index/'));
         
@@ -58,7 +58,7 @@ class MergeController extends AdministrateAppController
         }
     }
 
-    function mergeParticipants()
+    public function mergeParticipants()
     {
         $this->set('atimMenu', $this->Menus->get('/Administrate/Merge/index/'));
         

@@ -28,7 +28,7 @@ class CollectionsController extends InventoryManagementAppController
         )
     );
 
-    function search($searchId = 0, $isCclAjax = false)
+    public function search($searchId = 0, $isCclAjax = false)
     {
         if ($isCclAjax && $this->request->data) {
             // custom result handling for ccl
@@ -104,7 +104,7 @@ class CollectionsController extends InventoryManagementAppController
         }
     }
 
-    function detail($collectionId, $hideHeader = false)
+    public function detail($collectionId, $hideHeader = false)
     {
         unset($_SESSION['InventoryManagement']['TemplateInit']);
         
@@ -161,7 +161,7 @@ class CollectionsController extends InventoryManagementAppController
         }
     }
 
-    function add($collectionId = 0, $copySource = 0)
+    public function add($collectionId = 0, $copySource = 0)
     {
         $collectionData = null;
         if ($collectionId > 0) {
@@ -280,7 +280,7 @@ class CollectionsController extends InventoryManagementAppController
         }
     }
 
-    function edit($collectionId)
+    public function edit($collectionId)
     {
         $this->Collection->unbindModel(array(
             'hasMany' => array(
@@ -335,7 +335,7 @@ class CollectionsController extends InventoryManagementAppController
         }
     }
 
-    function delete($collectionId)
+    public function delete($collectionId)
     {
         // Get collection data
         $collectionData = $this->Collection->getOrRedirect($collectionId);
@@ -366,7 +366,7 @@ class CollectionsController extends InventoryManagementAppController
         }
     }
 
-    function template($collectionId, $templateId)
+    public function template($collectionId, $templateId)
     {
         $this->set('atimMenuVariables', array(
             'Collection.id' => $collectionId
@@ -431,7 +431,7 @@ class CollectionsController extends InventoryManagementAppController
         $this->render('/../../Tools/View/Template/tree');
     }
 
-    function templateInit($collectionId, $templateId)
+    public function templateInit($collectionId, $templateId)
     {
         $template = null;
         if ($templateId != 0) {

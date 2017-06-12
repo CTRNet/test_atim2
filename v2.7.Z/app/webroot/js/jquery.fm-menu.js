@@ -158,7 +158,7 @@ jQuery.fn.fmMenu = function(options){
  */
 FmMenu.prototype.buildMenuRecur = function(menuData, parentName, grandParentName, displayFunction){
 	var options = '';
-	var indexedLi = new Array();
+	var indexedLi = new array();
 	var index = 0;
 	for(i in menuData){
 		var currentName = parentName + '_' + i;
@@ -274,7 +274,7 @@ FmMenu.prototype.keyBack = function(){
 };
 
 //All existing key binding functions
-FmMenu.prototype.keyFunction = new Array();
+FmMenu.prototype.keyFunction = new array();
 FmMenu.prototype.keyFunction[13] = function(event){ return event.data.keySelect(); };//enter
 FmMenu.prototype.keyFunction[32] = function(event){ return event.data.keySelect(); };//space
 FmMenu.prototype.keyFunction[39] = function(event){ return event.data.keySelect(); };//right arrow

@@ -11,7 +11,7 @@ class StudySummary extends StudyAppModel
 
     public $studyDataAndCodeForDisplayAlreadySet = array();
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -49,7 +49,7 @@ class StudySummary extends StudyAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getStudyPermissibleValues()
+    public function getStudyPermissibleValues()
     {
         $result = array();
         
@@ -63,7 +63,7 @@ class StudySummary extends StudyAppModel
         return $result;
     }
 
-    function getStudyDataAndCodeForDisplay($studyData)
+    public function getStudyDataAndCodeForDisplay($studyData)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -94,7 +94,7 @@ class StudySummary extends StudyAppModel
         return $formattedData;
     }
 
-    function getStudyIdFromStudyDataAndCode($studyDataAndCode)
+    public function getStudyIdFromStudyDataAndCode($studyDataAndCode)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -149,14 +149,14 @@ class StudySummary extends StudyAppModel
         return $this->studyTitlesAlreadyChecked[$studyDataAndCode];
     }
 
-    function getStudyPermissibleValuesForView()
+    public function getStudyPermissibleValuesForView()
     {
         $result = $this->getStudyPermissibleValues();
         $result['-1'] = __('not applicable');
         return $result;
     }
 
-    function allowDeletion($studySummaryId)
+    public function allowDeletion($studySummaryId)
     {
         $ctrlModel = AppModel::getInstance("Study", "StudyFunding", true);
         $ctrlValue = $ctrlModel->find('count', array(

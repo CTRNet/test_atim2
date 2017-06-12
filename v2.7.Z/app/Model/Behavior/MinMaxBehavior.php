@@ -11,7 +11,7 @@
 class MinMaxBehavior extends ModelBehavior
 {
 
-    function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, $query)
     {
         if (isset($query['conditions'])) {
             $toFix = array(); // contains the model -> fields to fix.

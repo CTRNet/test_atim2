@@ -29,7 +29,7 @@ class OrderLine extends OrderAppModel
 
     public static $studyModel = null;
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -72,7 +72,7 @@ class OrderLine extends OrderAppModel
         return $return;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $this->validateAndUpdateOrderLineStudyData();
         
@@ -88,7 +88,7 @@ class OrderLine extends OrderAppModel
     /**
      * Check order line study definition and set error if required.
      */
-    function validateAndUpdateOrderLineStudyData()
+    public function validateAndUpdateOrderLineStudyData()
     {
         $orderLineData = & $this->data;
         
@@ -126,7 +126,7 @@ class OrderLine extends OrderAppModel
         }
     }
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         $retVal = parent::beforeSave($options);
         if (isset($this->data['FunctionManagement']['product_type'])) {
@@ -148,7 +148,7 @@ class OrderLine extends OrderAppModel
         return $retVal;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results, $primary);
         
@@ -212,7 +212,7 @@ class OrderLine extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($orderLineId)
+    public function allowDeletion($orderLineId)
     {
         // Check no order item exists
         $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
@@ -235,7 +235,7 @@ class OrderLine extends OrderAppModel
         );
     }
 
-    function getProductTypes()
+    public function getProductTypes()
     {
         $producteTypes = array();
         if (Configure::read('order_item_type_config') != 2)

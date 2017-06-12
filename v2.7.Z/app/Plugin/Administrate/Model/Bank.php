@@ -15,7 +15,7 @@ class Bank extends AdministrateAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         if (isset($variables['Bank.id'])) {
@@ -48,7 +48,7 @@ class Bank extends AdministrateAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getBankPermissibleValues()
+    public function getBankPermissibleValues()
     {
         $result = array();
         foreach ($this->find('all', array(
@@ -59,7 +59,7 @@ class Bank extends AdministrateAppModel
         return $result;
     }
 
-    function allowDeletion($bankId)
+    public function allowDeletion($bankId)
     {
         $GroupModel = AppModel::getInstance("", "Group", true);
         $data = $GroupModel->find('first', array(

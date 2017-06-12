@@ -49,7 +49,7 @@ class StudySummariesController extends StudyAppController
         )
     );
 
-    function search($searchId = '')
+    public function search($searchId = '')
     {
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
@@ -71,7 +71,7 @@ class StudySummariesController extends StudyAppController
         }
     }
 
-    function detail($studySummaryId)
+    public function detail($studySummaryId)
     {
         // MANAGE DATA
         $this->request->data = $this->StudySummary->getOrRedirect($studySummaryId);
@@ -90,7 +90,7 @@ class StudySummariesController extends StudyAppController
         }
     }
 
-    function add()
+    public function add()
     {
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
@@ -124,7 +124,7 @@ class StudySummariesController extends StudyAppController
         }
     }
 
-    function edit($studySummaryId)
+    public function edit($studySummaryId)
     {
         // MANAGE DATA
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
@@ -165,7 +165,7 @@ class StudySummariesController extends StudyAppController
         }
     }
 
-    function delete($studySummaryId)
+    public function delete($studySummaryId)
     {
         // MANAGE DATA
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
@@ -194,7 +194,7 @@ class StudySummariesController extends StudyAppController
         }
     }
 
-    function listAllLinkedRecords($studySummaryId, $specificListHeader = null)
+    public function listAllLinkedRecords($studySummaryId, $specificListHeader = null)
     {
         if (! $this->request->is('ajax')) {
             $this->set('atimMenu', $this->Menus->get('/Study/StudySummaries/listAllLinkedRecords/%%StudySummary.id%%/'));
@@ -297,7 +297,7 @@ class StudySummariesController extends StudyAppController
         }
     }
 
-    function autocompleteStudy()
+    public function autocompleteStudy()
     {
         
         // -- NOTE ----------------------------------------------------------

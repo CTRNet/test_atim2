@@ -116,7 +116,7 @@ function initActions(){
 			if($("#actionsTarget input[type=hidden]").val() == ""){
 				errors.push(errorYouMustSelectAnAction);
 			}
-			if($(":checkbox").length > 0 && $(":checkbox:checked").length == 0){
+			if($(":checkbox:visible").length > 0 && $(":checkbox:checked").length == 0){
 				errors.push(errorYouNeedToSelectAtLeastOneItem);
 			}else if($("form").prop("action").indexOf("remove") != -1 && !removeConfirmed){
 				//popup do you wish do remove

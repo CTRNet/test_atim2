@@ -14,7 +14,7 @@ class ProtocolMastersController extends ProtocolAppController
         )
     );
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
         $this->searchHandler($searchId, $this->ProtocolMaster, 'protocolmasters', '/Protocol/ProtocolMasters/search');
@@ -35,7 +35,7 @@ class ProtocolMastersController extends ProtocolAppController
         }
     }
 
-    function add($protocolControlId)
+    public function add($protocolControlId)
     {
         $protocolControlData = $this->ProtocolControl->find('first', array(
             'conditions' => array(
@@ -84,7 +84,7 @@ class ProtocolMastersController extends ProtocolAppController
         }
     }
 
-    function detail($protocolMasterId)
+    public function detail($protocolMasterId)
     {
         $protocolData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
         $this->request->data = $protocolData;
@@ -107,7 +107,7 @@ class ProtocolMastersController extends ProtocolAppController
         }
     }
 
-    function edit($protocolMasterId)
+    public function edit($protocolMasterId)
     {
         $protocolData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
         
@@ -147,7 +147,7 @@ class ProtocolMastersController extends ProtocolAppController
         }
     }
 
-    function delete($protocolMasterId)
+    public function delete($protocolMasterId)
     {
         $protocolData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
         

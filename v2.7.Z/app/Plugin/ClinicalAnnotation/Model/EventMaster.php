@@ -27,7 +27,7 @@ class EventMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -65,7 +65,7 @@ class EventMaster extends ClinicalAnnotationAppModel
      * @param array $diagnosisData            
      * @param array $eventData            
      */
-    static function generateDxCompatWarnings(array $diagnosisData, array $eventData)
+    static public function generateDxCompatWarnings(array $diagnosisData, array $eventData)
     {
         $diagnosisData = $diagnosisData['DiagnosisMaster'];
         $eventData = $eventData['EventDetail'];
@@ -84,7 +84,7 @@ class EventMaster extends ClinicalAnnotationAppModel
         }
     }
 
-    function allowDeletion($eventMasterId)
+    public function allowDeletion($eventMasterId)
     {
         $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection');
         if ($collectionModel->find('first', array(
@@ -104,7 +104,7 @@ class EventMaster extends ClinicalAnnotationAppModel
         );
     }
 
-    function calculatedDetailFields(array &$data)
+    public function calculatedDetailFields(array &$data)
     {
         if (($data['EventControl']['detail_tablename'] == 'ed_all_lifestyle_smokings') && array_key_exists('started_on', $data['EventDetail']) && array_key_exists('stopped_on', $data['EventDetail'])) {
             // for smoking, smoked for and stopped since fields

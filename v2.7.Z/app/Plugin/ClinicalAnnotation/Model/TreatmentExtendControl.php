@@ -5,7 +5,7 @@ class TreatmentExtendControl extends ClinicalAnnotationAppModel
 
     public $masterFormAlias = 'treatment_extend_masters';
 
-    function getPrecisionTypeValues()
+    public function getPrecisionTypeValues()
     {
         $result = array();
         
@@ -22,7 +22,7 @@ class TreatmentExtendControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

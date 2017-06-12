@@ -12,7 +12,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getDiseaseSitePermissibleValues()
+    public function getDiseaseSitePermissibleValues()
     {
         $result = array();
         
@@ -36,7 +36,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getMethodPermissibleValues()
+    public function getMethodPermissibleValues()
     {
         $result = array();
         
@@ -53,7 +53,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function getAddLinks($participantId, $diagnosisMasterId = '')
+    public function getAddLinks($participantId, $diagnosisMasterId = '')
     {
         $treatmentControls = $this->find('all', array(
             'conditions' => array(
@@ -68,7 +68,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel
         return $addLinks;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

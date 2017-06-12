@@ -13,7 +13,7 @@ class MaterialsController extends MaterialAppController
         )
     );
 
-    function index()
+    public function index()
     {
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
@@ -22,7 +22,7 @@ class MaterialsController extends MaterialAppController
         }
     }
 
-    function search($searchId)
+    public function search($searchId)
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
@@ -36,7 +36,7 @@ class MaterialsController extends MaterialAppController
         }
     }
 
-    function add()
+    public function add()
     {
         $this->set('atimMenu', $this->Menus->get('/material/materials/index/'));
         
@@ -64,7 +64,7 @@ class MaterialsController extends MaterialAppController
         }
     }
 
-    function edit($materialId = null)
+    public function edit($materialId = null)
     {
         $materialData = $this->Material->getOrRedirect($materialId);
         
@@ -101,7 +101,7 @@ class MaterialsController extends MaterialAppController
         }
     }
 
-    function detail($materialId = null)
+    public function detail($materialId = null)
     {
         if (! $materialId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -124,7 +124,7 @@ class MaterialsController extends MaterialAppController
         }
     }
 
-    function delete($materialId = null)
+    public function delete($materialId = null)
     {
         if (! $materialId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);

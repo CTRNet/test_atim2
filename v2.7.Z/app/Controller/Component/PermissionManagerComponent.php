@@ -56,7 +56,7 @@ class PermissionManagerComponent extends Component
     /**
      * initiate PERMISSIONS
      */
-    function initDB()
+    public function initDB()
     {
         $group = & $this->controller->User->Group;
         $user = & $this->controller->User;
@@ -98,7 +98,7 @@ class PermissionManagerComponent extends Component
         }
     }
 
-    function getControllerMethods($plugin, $ctrlName)
+    public function getControllerMethods($plugin, $ctrlName)
     {
         if (! $plugin || $plugin == 'App') {
             $filePath = APP . 'Controller' . DS . $ctrlName . '.php';
@@ -140,7 +140,7 @@ class PermissionManagerComponent extends Component
      *
      * @return void
      */
-    function buildAcl()
+    public function buildAcl()
     {
         $aco = & $this->controller->Acl->Aco;
         
@@ -269,7 +269,7 @@ class PermissionManagerComponent extends Component
         $this->removeMissingNodes('controllers', $pluginNodeIds);
     }
 
-    function removeMissingNodes($path, $knownIds = array())
+    public function removeMissingNodes($path, $knownIds = array())
     {
         $aco = & $this->controller->Acl->Aco;
         
@@ -318,7 +318,7 @@ class PermissionManagerComponent extends Component
      * @return array of plugin names.
      *        
      */
-    function getPluginControllerNames()
+    public function getPluginControllerNames()
     {
         App::uses('Folder', 'Utility');
         $folder = new Folder();

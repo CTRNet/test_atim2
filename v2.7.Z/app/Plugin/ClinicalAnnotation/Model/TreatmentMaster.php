@@ -27,7 +27,7 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -71,7 +71,7 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2010-04-18
      */
-    function allowDeletion($txMasterId)
+    public function allowDeletion($txMasterId)
     {
         if ($txMasterId != $this->id) {
             // not the same, fetch

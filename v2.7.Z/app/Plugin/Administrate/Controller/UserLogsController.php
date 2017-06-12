@@ -13,7 +13,7 @@ class UserLogsController extends AdministrateAppController
         )
     );
 
-    function index($groupId, $userId)
+    public function index($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId,

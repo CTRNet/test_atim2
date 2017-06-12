@@ -5,7 +5,7 @@ class BrowsingControl extends DatamartAppModel
 
     public $useTable = 'datamart_browsing_controls';
 
-    function find1ToN($elem1Id, $elemNId = null)
+    public function find1ToN($elem1Id, $elemNId = null)
     {
         $conditions = array(
             'BrowsingControl.id2' => $elem1Id
@@ -18,7 +18,7 @@ class BrowsingControl extends DatamartAppModel
         ));
     }
 
-    function findNTo1($elemNId, $elem1Id = null)
+    public function findNTo1($elemNId, $elem1Id = null)
     {
         $conditions = array(
             'BrowsingControl.id1' => $elemNId
@@ -31,7 +31,7 @@ class BrowsingControl extends DatamartAppModel
         ));
     }
 
-    function completeData(array &$data)
+    public function completeData(array &$data)
     {
         $datamartStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
         $datamartStructures = $datamartStructureModel->find('all', array(
@@ -91,7 +91,7 @@ class BrowsingControl extends DatamartAppModel
      * @param array $idsFilter            
      * @return array The join array
      */
-    function getInnerJoinArray($a, $b, array $idsFilter = null)
+    public function getInnerJoinArray($a, $b, array $idsFilter = null)
     {
         $browsingStructureIdA = self::getBrowsingStructureId($a);
         $browsingStructureIdB = self::getBrowsingStructureId($b);

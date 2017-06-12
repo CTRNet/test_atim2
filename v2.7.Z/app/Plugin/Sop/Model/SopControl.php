@@ -7,7 +7,7 @@ class SopControl extends SopAppModel
 
     public $masterFormAlias = 'sopmasters';
 
-    function getTypePermissibleValues()
+    public function getTypePermissibleValues()
     {
         $result = array();
         
@@ -24,7 +24,7 @@ class SopControl extends SopAppModel
         return $result;
     }
 
-    function getGroupPermissibleValues()
+    public function getGroupPermissibleValues()
     {
         $result = array();
         
@@ -41,7 +41,7 @@ class SopControl extends SopAppModel
         return $result;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

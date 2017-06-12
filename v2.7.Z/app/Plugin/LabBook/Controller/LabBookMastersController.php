@@ -25,7 +25,7 @@ class LabBookMastersController extends LabBookAppController
      * DISPLAY FUNCTIONS
      * --------------------------------------------------------------------------
      */
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/labbook/LabBookMasters/search/'));
         $this->searchHandler($searchId, $this->LabBookMaster, 'labbookmasters', '/labbook/LabBookMasters/search');
@@ -49,7 +49,7 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
-    function detail($labBookMasterId, $fullDetailScreen = true)
+    public function detail($labBookMasterId, $fullDetailScreen = true)
     {
         if (! $labBookMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -91,7 +91,7 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
-    function add($controlId, $isAjax = false)
+    public function add($controlId, $isAjax = false)
     {
         if (! $controlId) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -172,7 +172,7 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
-    function edit($labBookMasterId)
+    public function edit($labBookMasterId)
     {
         if (! $labBookMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -228,7 +228,7 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
-    function editSynchOptions($labBookMasterId)
+    public function editSynchOptions($labBookMasterId)
     {
         if (! $labBookMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -328,7 +328,7 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
-    function delete($labBookMasterId)
+    public function delete($labBookMasterId)
     {
         if (! $labBookMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -357,7 +357,7 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
-    function autocomplete()
+    public function autocomplete()
     {
         // layout = ajax to avoid printing layout
         $this->layout = 'ajax';

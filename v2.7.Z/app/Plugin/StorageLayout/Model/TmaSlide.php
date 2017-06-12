@@ -29,7 +29,7 @@ class TmaSlide extends StorageLayoutAppModel
     private $barcodes = array();
 
     // barcode validation, key = barcode, value = id
-    function validates($options = array())
+    public function validates($options = array())
     {
         if (isset($this->data['TmaSlide']['in_stock']) && $this->data['TmaSlide']['in_stock'] == 'no' && (! empty($this->data['TmaSlide']['storage_master_id']) || ! empty($this->data['FunctionManagement']['recorded_storage_selection_label']))) {
             $this->validationErrors['in_stock'][] = 'a tma slide being not in stock can not be linked to a storage';
@@ -46,7 +46,7 @@ class TmaSlide extends StorageLayoutAppModel
         return parent::validates($options);
     }
 
-    function validateAndUpdateTmaSlideStorageData()
+    public function validateAndUpdateTmaSlideStorageData()
     {
         $tmaSlideData = & $this->data;
         // Load model
@@ -107,7 +107,7 @@ class TmaSlide extends StorageLayoutAppModel
         }
     }
 
-    function isDuplicatedTmaSlideBarcode($tmaSlideData)
+    public function isDuplicatedTmaSlideBarcode($tmaSlideData)
     {
         // check data structure
         $tmpArrToCheck = array_values($tmaSlideData);
@@ -146,7 +146,7 @@ class TmaSlide extends StorageLayoutAppModel
         }
     }
 
-    function validateAndUpdateTmaSlideStudyData()
+    public function validateAndUpdateTmaSlideStudyData()
     {
         $tmaSlideData = & $this->data;
         
@@ -184,7 +184,7 @@ class TmaSlide extends StorageLayoutAppModel
         }
     }
 
-    function allowDeletion($tmaSlideId)
+    public function allowDeletion($tmaSlideId)
     {
         // Check no use exists
         $tmaSlideUseModel = AppModel::getInstance("StorageLayout", "TmaSlideUse", true);

@@ -10,7 +10,7 @@ class PreferencesAdminController extends AdministrateAppController
         'Config'
     );
 
-    function index($groupId, $userId)
+    public function index($groupId, $userId)
     {
         $this->Structures->set('preferences');
         $this->set('atimMenuVariables', array(
@@ -30,7 +30,7 @@ class PreferencesAdminController extends AdministrateAppController
         $this->request->data['Config'] = $configResults['Config'];
     }
 
-    function edit($groupId, $userId)
+    public function edit($groupId, $userId)
     {
         $this->Structures->set('preferences');
         $this->set('atimMenuVariables', array(

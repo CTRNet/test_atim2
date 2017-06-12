@@ -26,7 +26,7 @@ class TmaSlidesController extends StorageLayoutAppController
      * DISPLAY FUNCTIONS
      * --------------------------------------------------------------------------
      */
-    function listAll($tmaBlockStorageMasterId)
+    public function listAll($tmaBlockStorageMasterId)
     {
         // MANAGE DATA
         
@@ -67,7 +67,7 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
-    function add($tmaBlockStorageMasterId = null)
+    public function add($tmaBlockStorageMasterId = null)
     {
         // GET DATA
         $initialDisplay = false;
@@ -283,7 +283,7 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
-    function detail($tmaBlockStorageMasterId, $tmaSlideId, $isFromTreeViewOrLayout = 0)
+    public function detail($tmaBlockStorageMasterId, $tmaSlideId, $isFromTreeViewOrLayout = 0)
     {
         // $isFromTreeViewOrLayout : 0-Normal, 1-Tree view, 2-Stoarge layout
         
@@ -338,7 +338,7 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
-    function edit($tmaBlockStorageMasterId, $tmaSlideId, $fromSlidePage = 0)
+    public function edit($tmaBlockStorageMasterId, $tmaSlideId, $fromSlidePage = 0)
     {
         // MANAGE DATA
         
@@ -443,7 +443,7 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
-    function editInBatch()
+    public function editInBatch()
     {
         // MANAGE DATA
         $this->setUrlToCancel();
@@ -638,7 +638,7 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
-    function delete($tmaBlockStorageMasterId, $tmaSlideId)
+    public function delete($tmaBlockStorageMasterId, $tmaSlideId)
     {
         // MANAGE DATA
         
@@ -687,7 +687,7 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
-    function autocompleteBarcode()
+    public function autocompleteBarcode()
     {
         
         // layout = ajax to avoid printing layout
@@ -743,7 +743,7 @@ class TmaSlidesController extends StorageLayoutAppController
         $this->set('result', "[" . $result . "]");
     }
 
-    function autocompleteTmaSlideImmunochemistry()
+    public function autocompleteTmaSlideImmunochemistry()
     {
         
         // layout = ajax to avoid printing layout

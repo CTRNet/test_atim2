@@ -188,7 +188,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean Result of the operation.
      * @access public
      */
-    function hardDelete(&$model, $id, $cascade = true)
+    public function hardDelete(&$model, $id, $cascade = true)
     {
         $onFind = $this->__settings[$model->alias]['find'];
         $onDelete = $this->__settings[$model->alias]['delete'];
@@ -213,7 +213,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean Result of the operation.
      * @access public
      */
-    function purge(&$model, $cascade = true)
+    public function purge(&$model, $cascade = true)
     {
         $purged = false;
         
@@ -246,7 +246,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean Result of the operation.
      * @access public
      */
-    function undelete(&$Model, $id = null, $attributes = array())
+    public function undelete(&$Model, $id = null, $attributes = array())
     {
         if ($Model->hasField($this->__settings[$Model->alias]['field'])) {
             if (empty($id)) {
@@ -296,7 +296,7 @@ class SoftDeletableBehavior extends ModelBehavior
      *            If specified method should be overriden.
      * @access public
      */
-    function enableSoftDeletable(&$Model, $methods, $enable = true)
+    public function enableSoftDeletable(&$Model, $methods, $enable = true)
     {
         if (is_bool($methods)) {
             $enable = $methods;

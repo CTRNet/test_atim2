@@ -24,6 +24,8 @@
  * its action called 'display', and we pass a param to select the view file
  * to use (in this case, /app/View/Pages/home.ctp)...
  */
+
+
 Router::connect('/Menus', array(
     'controller' => 'Menus',
     'action' => 'index'
@@ -51,7 +53,6 @@ Router::connect('/', array(
     'controller' => 'Users',
     'action' => 'login'
 ));
-
 foreach (CakePlugin::loaded() as $plugin) {
     Router::connect('/' . $plugin . '/:controller', array(
         'plugin' => $plugin,

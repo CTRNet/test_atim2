@@ -22,7 +22,7 @@ class DatamartAppModel extends AppModel
      * @param boolean $addCsvAction
      *            Flag to add csv action (set to true by default)
      */
-    function getDropdownOptions($pluginName, $modelName, $modelPkey, $structureName, $dataModel, $dataPkey, $batchSetId = null, $addCsvAction = true)
+    public function getDropdownOptions($pluginName, $modelName, $modelPkey, $structureName, $dataModel, $dataPkey, $batchSetId = null, $addCsvAction = true)
     {
         $batchSetModel = AppModel::getInstance("Datamart", "BatchSet", true);
         $datamartStructureModel = AppModel::getInstance("Datamart", "DatamartStructure", true);

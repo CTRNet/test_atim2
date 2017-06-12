@@ -88,7 +88,7 @@ class AliquotMaster extends InventoryManagementAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -121,7 +121,7 @@ class AliquotMaster extends InventoryManagementAppModel
         return $return;
     }
 
-    function getStorageHistory($aliquotMasterId)
+    public function getStorageHistory($aliquotMasterId)
     {
         $storageData = array();
         
@@ -179,7 +179,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @deprecated
      *
      */
-    function updateAliquotUseAndVolume($aliquotMasterId, $updateCurrentVolume = true, $updateUsesCounter = true, $removeFromStockIfEmptyVolume = false)
+    public function updateAliquotUseAndVolume($aliquotMasterId, $updateCurrentVolume = true, $updateUsesCounter = true, $removeFromStockIfEmptyVolume = false)
     {
         return $this->updateAliquotVolume($aliquotMasterId, $removeFromStockIfEmptyVolume);
     }
@@ -200,7 +200,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @author N. Luc
      *         @date 2007-08-15
      */
-    function updateAliquotVolume($aliquotMasterId, $removeFromStockIfEmptyVolume = false)
+    public function updateAliquotVolume($aliquotMasterId, $removeFromStockIfEmptyVolume = false)
     {
         if (empty($aliquotMasterId)) {
             AppController::getInstance()->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -299,7 +299,7 @@ class AliquotMaster extends InventoryManagementAppModel
      *
      * @see Model::validates()
      */
-    function validates($options = array())
+    public function validates($options = array())
     {
         if (isset($this->data['AliquotMaster']['in_stock']) && $this->data['AliquotMaster']['in_stock'] == 'no' && (! empty($this->data['AliquotMaster']['storage_master_id']) || ! empty($this->data['FunctionManagement']['recorded_storage_selection_label']))) {
             $this->validationErrors['in_stock'][] = 'an aliquot being not in stock can not be linked to a storage';
@@ -319,7 +319,7 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Check both aliquot storage definition and aliquot positions and set error if required.
      */
-    function validateAndUpdateAliquotStorageData()
+    public function validateAndUpdateAliquotStorageData()
     {
         $aliquotData = & $this->data;
         
@@ -414,7 +414,7 @@ class AliquotMaster extends InventoryManagementAppModel
     /**
      * Check aliquot study definition and set error if required.
      */
-    function validateAndUpdateAliquotStudyData()
+    public function validateAndUpdateAliquotStudyData()
     {
         $aliquotData = & $this->data;
         
@@ -471,7 +471,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @author N. Luc
      *         @date 2007-08-15
      */
-    function checkDuplicatedAliquotBarcode($aliquotData)
+    public function checkDuplicatedAliquotBarcode($aliquotData)
     {
         
         // check data structure
@@ -511,7 +511,7 @@ class AliquotMaster extends InventoryManagementAppModel
         }
     }
 
-    function hasChild(array $aliquotMasterIds)
+    public function hasChild(array $aliquotMasterIds)
     {
         $ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
         return array_unique(array_filter($ViewAliquotUse->find('list', array(
@@ -538,7 +538,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @deprecated
      *
      */
-    function getDefaultStorageDate($sampleMasterData)
+    public function getDefaultStorageDate($sampleMasterData)
     {
         list ($date, $dateAccuaracy) = $this->getDefaultStorageDateAndAccuracy($sampleMasterData);
         return strlen($date) ? $date : null;
@@ -556,7 +556,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @since 2016-09-29
      *        @updated N. Luc
      */
-    function getDefaultStorageDateAndAccuracy($sampleMasterData)
+    public function getDefaultStorageDateAndAccuracy($sampleMasterData)
     {
         $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         $derivativeDetailModel = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
@@ -609,7 +609,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($aliquotMasterId)
+    public function allowDeletion($aliquotMasterId)
     {
         // Check aliquot has no use
         $aliquotInternalUseModel = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
@@ -719,7 +719,7 @@ class AliquotMaster extends InventoryManagementAppModel
      * @since 2009-09-11
      *        @updated N. Luc
      */
-    function getDefaultRealiquotingDate($aliquotDataForSelection)
+    public function getDefaultRealiquotingDate($aliquotDataForSelection)
     {
         // Get first found storage datetime
         foreach ($aliquotDataForSelection as $aliquot) {
@@ -742,7 +742,7 @@ class AliquotMaster extends InventoryManagementAppModel
      *         status as value. This function refers to
      *         ViewCollection->getUnconsentedCollections.
      */
-    function getUnconsentedAliquots(array $aliquot, $modelName = 'AliquotMaster')
+    public function getUnconsentedAliquots(array $aliquot, $modelName = 'AliquotMaster')
     {
         $data = null;
         $keyName = null;
@@ -792,7 +792,7 @@ class AliquotMaster extends InventoryManagementAppModel
         return $results;
     }
 
-    function beforeFind($queryData)
+    public function beforeFind($queryData)
     {
         $queryData['joins'][] = array(
             'table' => 'sample_masters',
@@ -819,7 +819,7 @@ class AliquotMaster extends InventoryManagementAppModel
         return $queryData;
     }
 
-    function atimDelete($modelId, $cascade = true)
+    public function atimDelete($modelId, $cascade = true)
     {
         if (parent::atimDelete($modelId, $cascade)) {
             // delete realiquotings where current id is child
@@ -843,7 +843,7 @@ class AliquotMaster extends InventoryManagementAppModel
         return false;
     }
 
-    static function joinOnAliquotDup($onField)
+    static public function joinOnAliquotDup($onField)
     {
         return array(
             'table' => 'aliquot_masters',
@@ -855,7 +855,7 @@ class AliquotMaster extends InventoryManagementAppModel
         );
     }
 
-    function validateAliquotMasterDataUpdateInBatch($functionManagementData, $submittedAliquotMasterData, $aliquotIds)
+    public function validateAliquotMasterDataUpdateInBatch($functionManagementData, $submittedAliquotMasterData, $aliquotIds)
     {
         // Set in_stock value
         // Use of field 'FunctionManagement.in_stock' to support empty value that means 'in_stock' value has not to be changed
@@ -978,7 +978,7 @@ class AliquotMaster extends InventoryManagementAppModel
         );
     }
 
-    function getAliquotDataStorageAndStockToApplyToAll($data)
+    public function getAliquotDataStorageAndStockToApplyToAll($data)
     {
         $errors = array();
         $usedAliquotDataToApplyToAll = array();

@@ -46,7 +46,7 @@ class ViewAliquot extends InventoryManagementAppModel
         )
     );
 
-    static $tableQuery = 'SELECT 
+    public static $tableQuery = 'SELECT 
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id, 
@@ -118,13 +118,13 @@ class ViewAliquot extends InventoryManagementAppModel
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
-    static $minValueFields = array(
+    public static $minValueFields = array(
         'coll_to_stor_spent_time_msg',
         'rec_to_stor_spent_time_msg',
         'creat_to_stor_spent_time_msg'
     );
 
-    function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
+    public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
         if ($this->fieldsReplace == null) {
             $this->fieldsReplace = array(

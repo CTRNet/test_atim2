@@ -14,7 +14,7 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
         )
     );
 
-    function getActiveSamples()
+    public function getActiveSamples()
     {
         $data = $this->find('all', array(
             'conditions' => array(

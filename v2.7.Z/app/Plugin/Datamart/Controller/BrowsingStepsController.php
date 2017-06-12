@@ -9,7 +9,7 @@ class BrowsingStepsController extends DatamartAppController
         'Datamart.Browser'
     );
 
-    function listall()
+    public function listall()
     {
         // Load datamart structure
         $tmpDatamartStructures = $this->DatamartStructure->find('all', array(
@@ -98,7 +98,7 @@ class BrowsingStepsController extends DatamartAppController
         $this->Structures->set('datamart_saved_browsing');
     }
 
-    function save($nodeId)
+    public function save($nodeId)
     {
         Configure::write('debug', 0);
         $this->set('nodeId', $nodeId);
@@ -148,7 +148,7 @@ class BrowsingStepsController extends DatamartAppController
         }
     }
 
-    function edit($id)
+    public function edit($id)
     {
         $this->Structures->set('datamart_saved_browsing');
         $browsingIndex = $this->SavedBrowsingIndex->find('first', array(
@@ -174,7 +174,7 @@ class BrowsingStepsController extends DatamartAppController
         ));
     }
 
-    function delete($id)
+    public function delete($id)
     {
         $browsingIndex = $this->SavedBrowsingIndex->find('first', array(
             'conditions' => array_merge($this->SavedBrowsingIndex->getOwnershipConditions(), array(

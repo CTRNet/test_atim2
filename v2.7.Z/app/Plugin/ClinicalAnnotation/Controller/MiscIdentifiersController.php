@@ -19,7 +19,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         )
     );
 
-    function search($searchId = '')
+    public function search($searchId = '')
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
         
@@ -36,7 +36,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId, $miscIdentifierControlId)
+    public function add($participantId, $miscIdentifierControlId)
     {
         $this->Participant->getOrRedirect($participantId);
         $controls = $this->MiscIdentifierControl->getOrRedirect($miscIdentifierControlId);
@@ -152,7 +152,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $miscIdentifierId)
+    public function edit($participantId, $miscIdentifierId)
     {
         $this->Participant->getOrRedirect($participantId);
         $this->MiscIdentifier->getOrRedirect($miscIdentifierId);
@@ -245,7 +245,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $miscIdentifierId)
+    public function delete($participantId, $miscIdentifierId)
     {
         $miscIdentifierData = $this->MiscIdentifier->getOrRedirect($miscIdentifierId);
         
@@ -312,7 +312,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
-    function reuse($participantId, $miscIdentifierCtrlId, $submited = false)
+    public function reuse($participantId, $miscIdentifierCtrlId, $submited = false)
     {
         $this->Participant->getOrRedirect($participantId);
         $this->MiscIdentifierControl->getOrRedirect($miscIdentifierCtrlId);
@@ -421,7 +421,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
-    function listall($participantId)
+    public function listall($participantId)
     {
         // only for permissions
         // since identifiers are all loaded within participants to build the menu,

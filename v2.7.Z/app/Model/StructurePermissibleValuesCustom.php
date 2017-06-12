@@ -26,7 +26,7 @@ class StructurePermissibleValuesCustom extends AppModel
         return self::$lang;
     }
 
-    function getCustomDropdown(array $args)
+    public function getCustomDropdown(array $args)
     {
         $controlName = null;
         if (sizeof($args) == 1) {
@@ -81,7 +81,7 @@ class StructurePermissibleValuesCustom extends AppModel
         return $result;
     }
 
-    function getTranslatedCustomDropdownValue($controlName, $value)
+    public function getTranslatedCustomDropdownValue($controlName, $value)
     {
         $lang = self::getLanguage();
         
@@ -102,7 +102,7 @@ class StructurePermissibleValuesCustom extends AppModel
         return (isset($data['StructurePermissibleValuesCustom'][$lang]) && (! empty($data['StructurePermissibleValuesCustom'][$lang]))) ? $data['StructurePermissibleValuesCustom'][$lang] : $value;
     }
 
-    function afterSave($created, $options = Array())
+    public function afterSave($created, $options = array())
     {
         $controlId = null;
         if (isset($this->data['StructurePermissibleValuesCustom']['control_id'])) {

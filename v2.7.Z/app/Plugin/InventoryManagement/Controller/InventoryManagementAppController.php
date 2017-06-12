@@ -3,7 +3,7 @@
 class InventoryManagementAppController extends AppController
 {
 
-    function setBatchMenu(array $data)
+    public function setBatchMenu(array $data)
     {
         if (array_key_exists('SampleMaster', $data) && ! empty($data['SampleMaster'])) {
             $id = null;
@@ -61,7 +61,7 @@ class InventoryManagementAppController extends AppController
         }
     }
 
-    function setAliquotMenu($data, $isRealiquotedList = false)
+    public function setAliquotMenu($data, $isRealiquotedList = false)
     {
         if (! isset($data['SampleControl']) || ! isset($data['SampleMaster']) || ! isset($data['AliquotMaster'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

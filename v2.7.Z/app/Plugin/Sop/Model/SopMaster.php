@@ -14,7 +14,7 @@ class SopMaster extends SopAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -51,7 +51,7 @@ class SopMaster extends SopAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getCollectionSopPermissibleValues()
+    public function getCollectionSopPermissibleValues()
     {
         return $this->getAllSopPermissibleValues();
     }
@@ -64,7 +64,7 @@ class SopMaster extends SopAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSampleSopPermissibleValues()
+    public function getSampleSopPermissibleValues()
     {
         return $this->getAllSopPermissibleValues();
     }
@@ -77,7 +77,7 @@ class SopMaster extends SopAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getAliquotSopPermissibleValues()
+    public function getAliquotSopPermissibleValues()
     {
         return $this->getAllSopPermissibleValues();
     }
@@ -90,7 +90,7 @@ class SopMaster extends SopAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getTmaBlockSopPermissibleValues()
+    public function getTmaBlockSopPermissibleValues()
     {
         return $this->getAllSopPermissibleValues();
     }
@@ -103,12 +103,12 @@ class SopMaster extends SopAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getTmaSlideSopPermissibleValues()
+    public function getTmaSlideSopPermissibleValues()
     {
         return $this->getAllSopPermissibleValues();
     }
 
-    function getAllSopPermissibleValues()
+    public function getAllSopPermissibleValues()
     {
         $result = array();
         
@@ -123,7 +123,7 @@ class SopMaster extends SopAppModel
         return $result;
     }
 
-    function allowDeletion($sopMasterId)
+    public function allowDeletion($sopMasterId)
     {
         $ctrlModel = AppModel::getInstance("StorageLayout", "TmaSlide", true);
         $ctrlValue = $ctrlModel->find('count', array(

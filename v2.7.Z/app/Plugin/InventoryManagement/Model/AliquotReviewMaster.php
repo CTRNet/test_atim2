@@ -31,7 +31,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getAliquotListForReview($sampleMasterId = null, $specificAliquotType = null)
+    public function getAliquotListForReview($sampleMasterId = null, $specificAliquotType = null)
     {
         $result = array(
             '' => ''
@@ -61,7 +61,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
         return $result;
     }
 
-    function generateLabelOfReviewedAliquot($aliquotMasterId, $aliquotData = null)
+    public function generateLabelOfReviewedAliquot($aliquotMasterId, $aliquotData = null)
     {
         if (! ($aliquotData && isset($aliquotData['AliquotMaster']))) {
             if (! isset($this->AliquotMaster)) {
@@ -72,7 +72,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
         return $aliquotData['AliquotMaster']['barcode'];
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
         foreach ($results as &$newReview) {

@@ -8,7 +8,7 @@ class ReusableMiscIdentifiersController extends AdministrateAppController
         'ClinicalAnnotation.MiscIdentifierControl'
     );
 
-    function index()
+    public function index()
     {
         $joins = array(
             array(
@@ -58,7 +58,7 @@ class ReusableMiscIdentifiersController extends AdministrateAppController
         }
     }
 
-    function manage($miCtrlId)
+    public function manage($miCtrlId)
     {
         $this->MiscIdentifierControl->getOrRedirect($miCtrlId);
         $miControl = $this->MiscIdentifierControl->findById($miCtrlId);

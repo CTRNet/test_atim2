@@ -24,7 +24,7 @@ class StorageCoordinatesController extends StorageLayoutAppController
      * DISPLAY FUNCTIONS
      * --------------------------------------------------------------------------
      */
-    function listAll($storageMasterId)
+    public function listAll($storageMasterId)
     {
         
         // MANAGE DATA
@@ -64,7 +64,7 @@ class StorageCoordinatesController extends StorageLayoutAppController
         }
     }
 
-    function add($storageMasterId)
+    public function add($storageMasterId)
     {
         // MANAGE DATA
         
@@ -134,7 +134,7 @@ class StorageCoordinatesController extends StorageLayoutAppController
         }
     }
 
-    function delete($storageMasterId, $storageCoordinateId)
+    public function delete($storageMasterId, $storageCoordinateId)
     {
         
         // MANAGE DATA

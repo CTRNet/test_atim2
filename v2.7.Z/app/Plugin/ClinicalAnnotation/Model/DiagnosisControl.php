@@ -12,7 +12,7 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getDiagnosisTypePermissibleValuesFromId()
+    public function getDiagnosisTypePermissibleValuesFromId()
     {
         $result = array();
         
@@ -29,7 +29,7 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function getTypePermissibleValues()
+    public function getTypePermissibleValues()
     {
         $result = array();
         
@@ -46,7 +46,7 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function getCategoryPermissibleValues()
+    public function getCategoryPermissibleValues()
     {
         $result = array();
         
@@ -63,7 +63,7 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

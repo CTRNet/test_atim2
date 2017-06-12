@@ -26,7 +26,7 @@ class StorageCoordinate extends StorageLayoutAppModel
      * @since 2008-02-04
      *        @updated A. Suggitt
      */
-    function allowDeletion($storageMasterId, $storageCoordinateData = array())
+    public function allowDeletion($storageMasterId, $storageCoordinateData = array())
     {
         // Check storage contains no chlidren storage stored within this position
         $storageMasterModel = AppModel::getInstance("StorageLayout", "StorageMaster", true);
@@ -80,7 +80,7 @@ class StorageCoordinate extends StorageLayoutAppModel
      * @since 2008-02-04
      *        @updated A. Suggitt
      */
-    function isDuplicatedValue($storageMasterId, $newCoordinateValue)
+    public function isDuplicatedValue($storageMasterId, $newCoordinateValue)
     {
         $nbrCoordValues = $this->find('count', array(
             'conditions' => array(
@@ -114,7 +114,7 @@ class StorageCoordinate extends StorageLayoutAppModel
      * @since 2008-02-04
      *        @updated A. Suggitt
      */
-    function isDuplicatedOrder($storageMasterId, $newCoordinateOrder)
+    public function isDuplicatedOrder($storageMasterId, $newCoordinateOrder)
     {
         $nbrCoordValues = $this->find('count', array(
             'conditions' => array(

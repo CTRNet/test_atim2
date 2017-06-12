@@ -14,7 +14,7 @@ class UsersController extends AppController
      *
      * @return void
      */
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         if (Configure::read('reset_forgotten_password_feature')) {
@@ -38,7 +38,7 @@ class UsersController extends AppController
      *
      * @return \Cake\Network\Response|null
      */
-    function login()
+    public function login()
     {
         if ($this->request->is('ajax') && ! isset($this->passedArgs['login'])) {
             echo json_encode(array(
@@ -56,6 +56,7 @@ class UsersController extends AppController
         ));
         $this->Version->id = $versionData[0]['id'];
         $this->Version->read();
+
         if ($this->Version->data['Version']['permissions_regenerated'] == 0) {
             $this->newVersionSetup();
         }
@@ -114,7 +115,7 @@ class UsersController extends AppController
      *
      * @return void
      */
-    function _setSessionSearchId()
+    public function _setSessionSearchId()
     {
         if (! $this->Session->read('search_id')) {
             $this->Session->write('search_id', 1);
@@ -127,7 +128,7 @@ class UsersController extends AppController
      *
      * @return void
      */
-    function logout()
+    public function logout()
     {
         $this->Acl->flushCache();
         $this->redirect($this->Auth->logout());
@@ -138,7 +139,7 @@ class UsersController extends AppController
      *
      * @return void
      */
-    function _initializeNotificationSessionVariables()
+    public function _initializeNotificationSessionVariables()
     {
         // Init Session variables
         $this->Session->write('ctrapp_core.warning_no_trace_msg', array());
@@ -151,7 +152,7 @@ class UsersController extends AppController
      *
      * @return \Cake\Network\Response|null
      */
-    function resetForgottenPassword()
+    public function resetForgottenPassword()
     {
         if (! Configure::read('reset_forgotten_password_feature')) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

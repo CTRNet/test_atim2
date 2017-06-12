@@ -16,14 +16,14 @@ class TmaSlideUse extends StorageLayoutAppModel
 
     public static $studyModel = null;
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $this->validateAndUpdateTmaSlideUseStudyData();
         
         return parent::validates($options);
     }
 
-    function validateAndUpdateTmaSlideUseStudyData()
+    public function validateAndUpdateTmaSlideUseStudyData()
     {
         $tmaSlideUseData = & $this->data;
         

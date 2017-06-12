@@ -10,7 +10,7 @@ class ShellHelper extends Helper
         'Form'
     );
 
-    function header($options = array())
+    public function header($options = array())
     {
         $return = '';
         // get/set menu for menu BAR
@@ -163,7 +163,7 @@ class ShellHelper extends Helper
         return $return;
     }
 
-    function getValidationLine($class, $msg, $collapsable = null)
+    public function getValidationLine($class, $msg, $collapsable = null)
     {
         $result = '<li><span class="icon16 ' . $class . ' mr5px"></span>' . $msg;
         if ($collapsable) {
@@ -172,7 +172,7 @@ class ShellHelper extends Helper
         return $result . '</li>';
     }
 
-    function validationHtml()
+    public function validationHtml()
     {
         $displayErrorsHtml = $this->validationErrors();
         
@@ -237,7 +237,7 @@ class ShellHelper extends Helper
         return $return;
     }
 
-    function validationErrors()
+    public function validationErrors()
     {
         $result = "";
         $displayErrors = array();
@@ -261,7 +261,7 @@ class ShellHelper extends Helper
         return $result;
     }
 
-    function footer($options = array())
+    public function footer($options = array())
     {
         $return = '';
         
@@ -284,7 +284,7 @@ class ShellHelper extends Helper
         return $return;
     }
 
-    function menu($atimMenu = array(), $options = array())
+    public function menu($atimMenu = array(), $options = array())
     {
         $pageTitle = array();
         if (! isset($this->pageTitle)) {
@@ -523,7 +523,7 @@ class ShellHelper extends Helper
      * @param unknown_type $options            
      * @return array('short' => short summary, 'long' => long summary)
      */
-    function fetchSummary($summary, $options)
+    public function fetchSummary($summary, $options)
     {
         $result = array(
             "short" => null,

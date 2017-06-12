@@ -13,7 +13,7 @@ class MenusController extends AppController
         'Announcement'
     );
 
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         
@@ -26,7 +26,7 @@ class MenusController extends AppController
         }
     }
 
-    function index($setOfMenus = NULL)
+    public function index($setOfMenus = NULL)
     {
         if (! $setOfMenus) {
             $menuData = $this->Menu->find('all', array(
@@ -146,7 +146,7 @@ class MenusController extends AppController
         $this->set('setOfMenus', $setOfMenus);
     }
 
-    function update()
+    public function update()
     {
         $passedInVariables = $_GET;
         

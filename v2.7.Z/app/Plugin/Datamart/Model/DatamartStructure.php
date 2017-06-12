@@ -5,7 +5,7 @@ class DatamartStructure extends DatamartAppModel
 
     public $useTable = 'datamart_structures';
 
-    function getIdByModelName($modelName)
+    public function getIdByModelName($modelName)
     {
         $data = $this->find('first', array(
             'conditions' => array(
@@ -26,7 +26,7 @@ class DatamartStructure extends DatamartAppModel
         return null;
     }
 
-    function getDisplayNameFromId()
+    public function getDisplayNameFromId()
     {
         $result = array();
         
@@ -49,13 +49,13 @@ class DatamartStructure extends DatamartAppModel
      *            If null, the model defined in the db will be used. If not, $modelName will be.
      * @return AppModel
      */
-    function getModel($id, $modelName = null)
+    public function getModel($id, $modelName = null)
     {
         $d = $this->findById($id);
         return AppModel::getInstance($d['DatamartStructure']['plugin'], $modelName ?: $d['DatamartStructure']['model']);
     }
 
-    function getDisplayNameFromModel()
+    public function getDisplayNameFromModel()
     {
         $data = $this->find('all', array(
             'conditions' => array(),

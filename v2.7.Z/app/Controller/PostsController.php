@@ -10,7 +10,7 @@ class PostsController extends AppController
         'Form'
     );
 
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         $this->Auth->allowedActions = array(
@@ -19,13 +19,13 @@ class PostsController extends AppController
         );
     }
 
-    function index()
+    public function index()
     {
         $this->Post->recursive = 0;
         $this->set('posts', $this->paginate());
     }
 
-    function view($id = null)
+    public function view($id = null)
     {
         if (! $id) {
             $this->Session->setFlash(__('Invalid Post.'));
@@ -36,7 +36,7 @@ class PostsController extends AppController
         $this->set('post', $this->Post->read(null, $id));
     }
 
-    function add()
+    public function add()
     {
         if (! empty($this->request->data)) {
             $this->Post->create();
@@ -51,7 +51,7 @@ class PostsController extends AppController
         }
     }
 
-    function edit($id = null)
+    public function edit($id = null)
     {
         if (! $id && empty($this->request->data)) {
             $this->Session->setFlash(__('Invalid Post'));
@@ -74,7 +74,7 @@ class PostsController extends AppController
         }
     }
 
-    function delete($id = null)
+    public function delete($id = null)
     {
         if (! $id) {
             $this->Session->setFlash(__('Invalid id for Post'));

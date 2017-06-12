@@ -24,13 +24,13 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
 
     public $validate = array();
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         self::$singleton = $this;
     }
 
-    static function validateId($id)
+    static public function validateId($id)
     {
         $tmpId = null;
         if (is_array($id)) {
@@ -43,7 +43,7 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
         return (is_numeric($tmpId) || strlen($tmpId) == 0) ? self::$singleton->globalValidateId($id) : false;
     }
 
-    static function getSingleton()
+    static public function getSingleton()
     {
         return self::$singleton;
     }

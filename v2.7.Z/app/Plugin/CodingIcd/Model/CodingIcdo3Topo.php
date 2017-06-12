@@ -25,23 +25,23 @@ class CodingIcdo3Topo extends CodingIcdAppModel
 
     public $validate = array();
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         self::$singleton = $this;
     }
 
-    static function validateId($id)
+    static public function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
-    static function getSingleton()
+    static public function getSingleton()
     {
         return self::$singleton;
     }
 
-    static function getTopoCategoriesCodes()
+    static public function getTopoCategoriesCodes()
     {
         $data = array();
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";

@@ -18,7 +18,7 @@ class ProtocolMaster extends ProtocolAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -54,7 +54,7 @@ class ProtocolMaster extends ProtocolAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getProtocolPermissibleValuesFromId($protocolControlId = null)
+    public function getProtocolPermissibleValuesFromId($protocolControlId = null)
     {
         // Build tmp array to sort according translation
         $criteria = array();
@@ -88,7 +88,7 @@ class ProtocolMaster extends ProtocolAppModel
      * @since 2010-04-18
      *        @moved from controller to model on 2010-06-08 by Mich
      */
-    function isLinkedToTreatment($protocolMasterId)
+    public function isLinkedToTreatment($protocolMasterId)
     {
         $this->TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
         $nbrTrtMasters = $this->TreatmentMaster->find('count', array(
@@ -110,7 +110,7 @@ class ProtocolMaster extends ProtocolAppModel
         );
     }
 
-    function allowDeletion($protocolMasterId)
+    public function allowDeletion($protocolMasterId)
     {
         if ($protocolMasterId != $this->id) {
             // not the same, fetch

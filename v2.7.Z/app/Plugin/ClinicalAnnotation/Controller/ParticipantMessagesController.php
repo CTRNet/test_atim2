@@ -14,7 +14,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participantId)
+    public function listall($participantId)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -35,7 +35,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $participantMessageId)
+    public function detail($participantId, $participantMessageId)
     {
         // MANAGE DATA
         $participantMesssageData = $this->ParticipantMessage->find('first', array(
@@ -63,7 +63,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId = null)
+    public function add($participantId = null)
     {
         // GET DATA
         $initialDisplay = false;
@@ -208,7 +208,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $participantMessageId)
+    public function edit($participantId, $participantMessageId)
     {
         if (! $participantId && ! $participantMessageId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -263,7 +263,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $participantMessageId)
+    public function delete($participantId, $participantMessageId)
     {
         // MANAGE DATA
         $participantMessageData = $this->ParticipantMessage->find('first', array(
@@ -295,7 +295,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
         $this->searchHandler($searchId, $this->ParticipantMessage, 'participantmessages', '/ClinicalAnnotation/ParticipantMessages/search');

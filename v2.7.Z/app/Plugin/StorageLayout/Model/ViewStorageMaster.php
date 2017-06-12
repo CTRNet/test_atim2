@@ -23,7 +23,7 @@ class ViewStorageMaster extends StorageLayoutAppModel
 
     public $alias = 'ViewStorageMaster';
 
-    static $tableQuery = '
+    public static $tableQuery = '
 		SELECT StorageMaster.*, 
 		StorageControl.is_tma_block,
 		IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(ChildStorageMaster.id)) AS empty_spaces 

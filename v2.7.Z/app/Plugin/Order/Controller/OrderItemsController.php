@@ -33,7 +33,7 @@ class OrderItemsController extends OrderAppController
         )
     );
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
         $this->searchHandler($searchId, $this->OrderItem, 'orderitems', '/InventoryManagement/OrderItems/search');
@@ -49,7 +49,7 @@ class OrderItemsController extends OrderAppController
         }
     }
 
-    function listall($orderId, $status = 'all', $orderLineId = null, $shipmentId = null, $mainFormModel = null)
+    public function listall($orderId, $status = 'all', $orderLineId = null, $shipmentId = null, $mainFormModel = null)
     {
         // MANAGE DATA
         if ($orderLineId && $shipmentId)
@@ -146,7 +146,7 @@ class OrderItemsController extends OrderAppController
      * @param unknown $objectId
      *            Id of the boject
      */
-    function listAllOrderItemsLinkedToOneObject($objectModelName, $objectId)
+    public function listAllOrderItemsLinkedToOneObject($objectModelName, $objectId)
     {
         if (! in_array($objectModelName, array(
             'AliquotMaster',
@@ -191,7 +191,7 @@ class OrderItemsController extends OrderAppController
         }
     }
 
-    function add($orderId, $orderLineId = 0, $objectModelName = 'AliquotMaster')
+    public function add($orderId, $orderLineId = 0, $objectModelName = 'AliquotMaster')
     {
         if ((! $orderId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -419,12 +419,12 @@ class OrderItemsController extends OrderAppController
      *
      * @deprecated Replaced by addOrderItemsInBatch()
      */
-    function addAliquotsInBatch($aliquotMasterId = null)
+    public function addAliquotsInBatch($aliquotMasterId = null)
     {
         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
     }
 
-    function addOrderItemsInBatch($objectModelName, $objectId = null)
+    public function addOrderItemsInBatch($objectModelName, $objectId = null)
     {
         // MANAGE DATA
         if (! in_array($objectModelName, array(
@@ -741,7 +741,7 @@ class OrderItemsController extends OrderAppController
         }
     }
 
-    function edit($orderId, $orderItemId, $mainFormModel = null)
+    public function edit($orderId, $orderItemId, $mainFormModel = null)
     {
         if ((! $orderId) || (! $orderItemId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -818,7 +818,7 @@ class OrderItemsController extends OrderAppController
         }
     }
 
-    function editInBatch()
+    public function editInBatch()
     {
         // MANAGE DATA
         $this->setUrlToCancel();
@@ -1023,7 +1023,7 @@ class OrderItemsController extends OrderAppController
         }
     }
 
-    function delete($orderId, $orderItemId, $mainFormModel = null)
+    public function delete($orderId, $orderItemId, $mainFormModel = null)
     {
         
         // MANAGE DATA
@@ -1149,7 +1149,7 @@ class OrderItemsController extends OrderAppController
         }
     }
 
-    function defineOrderItemsReturned($orderId = 0, $orderLineId = 0, $shipmentId = 0, $orderItemId = 0)
+    public function defineOrderItemsReturned($orderId = 0, $orderLineId = 0, $shipmentId = 0, $orderItemId = 0)
     {
         // MANAGE DATA
         $this->setUrlToCancel();
@@ -1461,7 +1461,7 @@ class OrderItemsController extends OrderAppController
         }
     }
 
-    function removeFlagReturned($orderId, $orderItemId, $mainFormModel = null)
+    public function removeFlagReturned($orderId, $orderItemId, $mainFormModel = null)
     {
         
         // MANAGE DATA

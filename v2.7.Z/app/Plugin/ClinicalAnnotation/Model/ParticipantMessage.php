@@ -3,7 +3,7 @@
 class ParticipantMessage extends ClinicalAnnotationAppModel
 {
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
