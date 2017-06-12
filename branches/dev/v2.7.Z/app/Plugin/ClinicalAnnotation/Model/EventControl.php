@@ -12,7 +12,7 @@ class EventControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getEventDiseaseSitePermissibleValues()
+    public function getEventDiseaseSitePermissibleValues()
     {
         $result = array();
         
@@ -29,7 +29,7 @@ class EventControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function getEventGroupPermissibleValues()
+    public function getEventGroupPermissibleValues()
     {
         $result = array();
         
@@ -53,7 +53,7 @@ class EventControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getEventTypePermissibleValues()
+    public function getEventTypePermissibleValues()
     {
         $result = array();
         
@@ -70,7 +70,7 @@ class EventControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function buildAddLinks($eventCtrlData, $participantId, $eventGroup)
+    public function buildAddLinks($eventCtrlData, $participantId, $eventGroup)
     {
         $links = array();
         foreach ($eventCtrlData as $eventCtrl) {
@@ -84,7 +84,7 @@ class EventControl extends ClinicalAnnotationAppModel
         return $links;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

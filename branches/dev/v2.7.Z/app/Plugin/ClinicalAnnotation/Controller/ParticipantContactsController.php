@@ -14,7 +14,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participantId)
+    public function listall($participantId)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -35,7 +35,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $participantContactId)
+    public function detail($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -71,7 +71,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId)
+    public function add($participantId)
     {
         if (! $participantId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -119,7 +119,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $participantContactId)
+    public function edit($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -181,7 +181,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $participantContactId)
+    public function delete($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);

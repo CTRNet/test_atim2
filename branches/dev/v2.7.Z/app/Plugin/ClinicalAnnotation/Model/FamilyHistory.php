@@ -3,7 +3,7 @@
 class FamilyHistory extends ClinicalAnnotationAppModel
 {
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -26,7 +26,7 @@ class FamilyHistory extends ClinicalAnnotationAppModel
      * @param
      *            $participantArray
      */
-    function patchIcd10NullValues(&$participantArray)
+    public function patchIcd10NullValues(&$participantArray)
     {
         if (array_key_exists('primary_icd10_code', $participantArray['FamilyHistory']) && strlen(trim($participantArray['FamilyHistory']['primary_icd10_code'])) == 0) {
             $participantArray['FamilyHistory']['primary_icd10_code'] = null;

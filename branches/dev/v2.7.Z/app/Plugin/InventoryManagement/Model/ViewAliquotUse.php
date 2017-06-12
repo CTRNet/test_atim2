@@ -46,7 +46,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
     public $basePlugin = 'InventoryManagement';
 
     // Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
-    static $tableCreateQuery = "CREATE TABLE view_aliquot_uses (
+    public static $tableCreateQuery = "CREATE TABLE view_aliquot_uses (
 		  id int(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
 		  use_definition varchar(50) DEFAULT NULL,
@@ -67,7 +67,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
 		  study_summary_title varchar(45) DEFAULT NULL
 		)";
 
-    static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+    public static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -264,7 +264,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 
-    function getUseDefinitions()
+    public function getUseDefinitions()
     {
         $result = array(
             'aliquot shipment' => __('aliquot shipment'),
@@ -310,7 +310,7 @@ class ViewAliquotUse extends InventoryManagementAppModel
         'OrderItem'
     );
 
-    function getPkeyAndModelToCheck($data)
+    public function getPkeyAndModelToCheck($data)
     {
         $pkey = null;
         $model = null;

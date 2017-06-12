@@ -19,7 +19,7 @@ class StorageControlsController extends AdministrateAppController
         )
     );
 
-    function listAll()
+    public function listAll()
     {
         $this->Structures->set('storage_controls');
         $this->request->data = $this->paginate($this->StorageCtrl, array());
@@ -32,7 +32,7 @@ class StorageControlsController extends AdministrateAppController
         }
     }
 
-    function add($storageCategory, $duplicatedParentStorageControlId = null)
+    public function add($storageCategory, $duplicatedParentStorageControlId = null)
     {
         if ($duplicatedParentStorageControlId && empty($this->request->data)) {
             $this->request->data = $this->StorageCtrl->getOrRedirect($duplicatedParentStorageControlId);
@@ -120,7 +120,7 @@ class StorageControlsController extends AdministrateAppController
         }
     }
 
-    function edit($storageControlId)
+    public function edit($storageControlId)
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         if ($storageControlData['StorageCtrl']['flag_active']) {
@@ -184,7 +184,7 @@ class StorageControlsController extends AdministrateAppController
         }
     }
 
-    function changeActiveStatus($storageControlId, $redirectTo = 'listAll')
+    public function changeActiveStatus($storageControlId, $redirectTo = 'listAll')
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         
@@ -228,7 +228,7 @@ class StorageControlsController extends AdministrateAppController
      * @author N. Luc
      * @since 2007-05-22
      */
-    function seeStorageLayout($storageControlId)
+    public function seeStorageLayout($storageControlId)
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
         $storageCategory = $this->StorageCtrl->getStorageCategory($storageControlData);

@@ -13,7 +13,7 @@ class BanksController extends AdministrateAppController
         )
     );
 
-    function add()
+    public function add()
     {
         $this->set('atimMenu', $this->Menus->get('/Administrate/Banks/index'));
         
@@ -30,13 +30,13 @@ class BanksController extends AdministrateAppController
         }
     }
 
-    function index()
+    public function index()
     {
         $this->hook();
         $this->request->data = $this->paginate($this->Bank);
     }
 
-    function detail($bankId)
+    public function detail($bankId)
     {
         $this->set('atimMenuVariables', array(
             'Bank.id' => $bankId
@@ -49,7 +49,7 @@ class BanksController extends AdministrateAppController
         ));
     }
 
-    function edit($bankId)
+    public function edit($bankId)
     {
         $this->set('atimMenuVariables', array(
             'Bank.id' => $bankId
@@ -75,7 +75,7 @@ class BanksController extends AdministrateAppController
         }
     }
 
-    function delete($bankId)
+    public function delete($bankId)
     {
         $arrAllowDeletion = $this->Bank->allowDeletion($bankId);
         

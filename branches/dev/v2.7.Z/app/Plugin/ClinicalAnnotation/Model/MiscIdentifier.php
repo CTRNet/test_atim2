@@ -22,7 +22,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
 
     public static $studyModel = null;
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -41,7 +41,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return $return;
     }
 
-    function beforeFind($queryData)
+    public function beforeFind($queryData)
     {
         if (! AppController::getInstance()->Session->read('flag_show_confidential') && is_array($queryData['conditions']) && AppModel::isFieldUsedAsCondition("MiscIdentifier.identifier_value", $queryData['conditions'])) {
             if ($this->confidWarningAbsent) {
@@ -57,7 +57,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return $queryData;
     }
 
-    function find($type = 'first', $query = array())
+    public function find($type = 'first', $query = array())
     {
         if (isset($query['conditions'])) {
             $gtKey = array_key_exists('MiscIdentifier.identifier_value >=', $query['conditions']);
@@ -91,7 +91,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return parent::find($type, $query);
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
         if (! AppController::getInstance()->Session->read('flag_show_confidential') && isset($results[0]) && isset($results[0]['MiscIdentifier'])) {
@@ -125,7 +125,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return $results;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $errors = parent::validates($options);
         
@@ -165,7 +165,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
     /**
      * Check MiscIdentifier study definition and set error if required.
      */
-    function validateAndUpdateMiscIdentifierStudyData()
+    public function validateAndUpdateMiscIdentifierStudyData()
     {
         $miscIdentifierData = & $this->data;
         

@@ -17,7 +17,7 @@ class StorageCtrl extends AdministrateAppModel
 
     public $useTable = 'storage_controls';
 
-    function getStorageCategory($data)
+    public function getStorageCategory($data)
     {
         $storageCategory = 'no_d';
         if ($data['StorageCtrl']['is_tma_block']) {
@@ -30,7 +30,7 @@ class StorageCtrl extends AdministrateAppModel
         return $storageCategory;
     }
 
-    function getStructure($storageCategory)
+    public function getStructure($storageCategory)
     {
         $structures = null;
         switch ($storageCategory) {
@@ -52,7 +52,7 @@ class StorageCtrl extends AdministrateAppModel
         return $structures;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         if (isset($this->data['StorageCtrl']['coord_x_title']) && isset($this->data['StorageCtrl']['coord_y_title'])) {
             // 2d storage
@@ -78,7 +78,7 @@ class StorageCtrl extends AdministrateAppModel
         return parent::validates($options);
     }
 
-    function getListArgs($passedArgs)
+    public function getListArgs($passedArgs)
     {
         $listArgs = array();
         foreach ($passedArgs as $key => $val)
@@ -92,7 +92,7 @@ class StorageCtrl extends AdministrateAppModel
         return $listArgs;
     }
 
-    function validatesAllStorageControls()
+    public function validatesAllStorageControls()
     {
         $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
         $translatedStorageTypes = $StructurePermissibleValuesCustom->getCustomDropdown(array(

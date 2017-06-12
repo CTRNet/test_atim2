@@ -30,7 +30,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         )
     );
 
-    function search($searchId = '')
+    public function search($searchId = '')
     {
         $this->searchHandler($searchId, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
         // CUSTOM CODE: FORMAT DISPLAY DATA
@@ -54,7 +54,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
-    function profile($participantId)
+    public function profile($participantId)
     {
         // MANAGE DATA
         $this->request->data = $this->Participant->getOrRedirect($participantId);
@@ -115,7 +115,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         $this->set('isAjax', $this->request->is('ajax'));
     }
 
-    function add()
+    public function add()
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
@@ -153,7 +153,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId)
+    public function edit($participantId)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -194,7 +194,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId)
+    public function delete($participantId)
     {
         
         // MANAGE DATA
@@ -223,7 +223,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
-    function chronology($participantId)
+    public function chronology($participantId)
     {
         $tmpArray = array();
         $this->set('atimMenuVariables', array(
@@ -506,7 +506,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
-    function batchEdit()
+    public function batchEdit()
     {
         // TODO not supported anymore
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

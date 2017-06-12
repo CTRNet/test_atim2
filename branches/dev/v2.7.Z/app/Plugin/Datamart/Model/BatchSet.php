@@ -24,7 +24,7 @@ class BatchSet extends DatamartAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = array(
             'menu' => array(
@@ -67,7 +67,7 @@ class BatchSet extends DatamartAppModel
      *
      * @deprecated : Use a standard find and then call isUserAuthorizedToRw
      */
-    function getBatchSet($batchSetId)
+    public function getBatchSet($batchSetId)
     {
         $conditions = array(
             'BatchSet.id' => $batchSetId,
@@ -202,7 +202,7 @@ class BatchSet extends DatamartAppModel
      * @param
      *            array &$dataArray
      */
-    function completeData(array &$dataArray)
+    public function completeData(array &$dataArray)
     {
         $datamartStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
         foreach ($dataArray as $key => &$data) {
@@ -219,7 +219,7 @@ class BatchSet extends DatamartAppModel
         }
     }
 
-    function saveWithIds(array $batchSetData, array $ids)
+    public function saveWithIds(array $batchSetData, array $ids)
     {
         $batchIdModel = AppModel::getInstance('Datamart', 'BatchId', true);
         $prevCheckMode = $batchIdModel->checkWritableFields;
@@ -250,7 +250,7 @@ class BatchSet extends DatamartAppModel
         $batchIdModel->checkWritableFields = $prevCheckMode;
     }
 
-    function allowToUnlock($batchSetId)
+    public function allowToUnlock($batchSetId)
     {
         $conditions = array(
             'BatchSet.id' => $batchSetId
@@ -288,7 +288,7 @@ class BatchSet extends DatamartAppModel
      *            data of the batch set
      * @return string The label
      */
-    function getBatchSetLabel($batchSetData)
+    public function getBatchSetLabel($batchSetData)
     {
         return $batchSetData['title'];
     }

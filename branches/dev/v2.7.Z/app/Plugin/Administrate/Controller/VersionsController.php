@@ -13,7 +13,7 @@ class VersionsController extends AdministrateAppController
         )
     );
 
-    function detail()
+    public function detail()
     {
         // MANAGE DATA
         $versionData = $this->Version->find('all', array(
@@ -38,7 +38,7 @@ class VersionsController extends AdministrateAppController
         }
     }
 
-    function test()
+    public function test()
     {
         // tests all master details models, this is not a user function
         $toTest = array(
@@ -99,6 +99,6 @@ class VersionsController extends AdministrateAppController
         $this->render(false);
     }
 
-    function latencyTest()
+    public function latencyTest()
     {}
 }

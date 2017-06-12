@@ -12,7 +12,7 @@ class UserLoginAttempt extends AppModel
      *            Username
      * @return mixed On success Model::$data if its not empty or true, false on failure
      */
-    function saveSuccessfulLogin($username)
+    public function saveSuccessfulLogin($username)
     {
         $loginData = array(
             "username" => $username,
@@ -31,7 +31,7 @@ class UserLoginAttempt extends AppModel
      *            Username
      * @return mixed On success Model::$data if its not empty or true, false on failure
      */
-    function saveFailedLogin($username)
+    public function saveFailedLogin($username)
     {
         $loginData = array(
             "username" => $username,

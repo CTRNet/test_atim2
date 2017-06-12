@@ -13,14 +13,14 @@ class StructuresController extends AdministrateAppController
         )
     );
 
-    function index()
+    public function index()
     {
         $this->hook();
         
         $this->request->data = $this->paginate($this->Structure);
     }
 
-    function detail($structureId)
+    public function detail($structureId)
     {
         $this->set('atimMenuVariables', array(
             'Structure.id' => $structureId
@@ -35,7 +35,7 @@ class StructuresController extends AdministrateAppController
         ));
     }
 
-    function edit($structureId)
+    public function edit($structureId)
     {
         $this->set('atimMenuVariables', array(
             'v.id' => $structureId

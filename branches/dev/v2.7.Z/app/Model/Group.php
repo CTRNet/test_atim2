@@ -13,12 +13,12 @@ class Group extends AppModel
         'User'
     );
 
-    function parentNode()
+    public function parentNode()
     {
         return null;
     }
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -45,7 +45,7 @@ class Group extends AppModel
         return $return;
     }
 
-    function bindToPermissions()
+    public function bindToPermissions()
     {
         $this->bindModel(array(
             'hasOne' => array(
@@ -79,7 +79,7 @@ class Group extends AppModel
      * @param
      *            $groupId
      */
-    function hasPermissions($groupId)
+    public function hasPermissions($groupId)
     {
         $data = $this->find('first', array(
             'joins' => array(
@@ -114,7 +114,7 @@ class Group extends AppModel
         return ! empty($data);
     }
 
-    function getList()
+    public function getList()
     {
         return $this->find('list', array(
             'fields' => array(

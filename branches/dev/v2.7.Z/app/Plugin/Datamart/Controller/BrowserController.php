@@ -14,7 +14,7 @@ class BrowserController extends DatamartAppController
         'ExternalLink'
     );
 
-    function index()
+    public function index()
     {
         $this->Structures->set("datamart_browsing_indexes");
         $tmpBrowsing = $this->BrowsingIndex->find('all', array(
@@ -44,7 +44,7 @@ class BrowserController extends DatamartAppController
         ));
     }
 
-    function edit($indexId)
+    public function edit($indexId)
     {
         $this->set("indexId", $indexId);
         $this->Structures->set("datamart_browsing_indexes");
@@ -70,7 +70,7 @@ class BrowserController extends DatamartAppController
         }
     }
 
-    function delete($indexId)
+    public function delete($indexId)
     {
         $this->BrowsingResult; // lazy load
         $this->request->data = $this->BrowsingIndex->find('first', array(
@@ -121,7 +121,7 @@ class BrowserController extends DatamartAppController
      * @param int $mergeTo
      *            If a merged display is required, the node id to merge to. The merge direction is always from node_id to merge_to
      */
-    function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
+    public function browse($nodeId = 0, $controlId = 0, $mergeTo = 0)
     {
         $this->BrowsingResult->checkWritableFields = false;
         $this->BrowsingIndex->checkWritableFields = false;
@@ -401,7 +401,7 @@ $checkList) // this is a checklist
      * @param int $parentId            
      * @param int $mergeTo            
      */
-    function csv($allFields, $nodeId, $mergeTo)
+    public function csv($allFields, $nodeId, $mergeTo)
     {
         $config = array_merge($this->request->data['Config'], $this->request->data[0]);
         
@@ -549,7 +549,7 @@ $checkList) // this is a checklist
      *
      * @param String $model            
      */
-    function batchToDatabrowser($model, $source = 'batchset')
+    public function batchToDatabrowser($model, $source = 'batchset')
     {
         $dmStructure = $this->DatamartStructure->find('first', array(
             'conditions' => array(
@@ -616,7 +616,7 @@ $checkList) // this is a checklist
         $this->redirect('/Datamart/Browser/browse/' . $nodeId);
     }
 
-    function save($indexId)
+    public function save($indexId)
     {
         $this->BrowsingResult; // lazy load
         $this->request->data = $this->BrowsingIndex->find('first', array(
@@ -643,7 +643,7 @@ $checkList) // this is a checklist
      *
      * @param int $nodeId            
      */
-    function unusedParent($nodeId)
+    public function unusedParent($nodeId)
     {
         Configure::write('debug', 0);
         $childData = $this->BrowsingResult->findById($nodeId);
@@ -759,7 +759,7 @@ $checkList) // this is a checklist
         exit();
     }
 
-    function applyBrowsingSteps($startingNodeId, $browsingStepIndexId)
+    public function applyBrowsingSteps($startingNodeId, $browsingStepIndexId)
     {
         $this->BrowsingResult->checkWritableFields = false;
         $browsingSteps = $this->SavedBrowsingIndex->find('first', array(

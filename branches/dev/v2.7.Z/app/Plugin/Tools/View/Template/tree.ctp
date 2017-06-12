@@ -89,7 +89,7 @@ if (isset($isAjax)) {
 		$(".tree_root .delete:first").remove();
 
 		$("input[type=submit]").click(function(){
-			tree = new Array();
+			tree = new array();
 			$(".tree_root li").each(function(){
 				tree.push(JSON.stringify($(this).data()));
 			});
@@ -161,12 +161,12 @@ if (isset($isAjax)) {
 		});
 		$(scope).find(".add").unbind('click').click(function(){
 			if($("#addDialog").length == 0){
-				buildDialog("addDialog", "", "<select></select><input type='number' size='1' min='1' max='50'></input>", new Array( 
+				buildDialog("addDialog", "", "<select></select><input type='number' size='1' min='1' max='50'></input>", new array 
 					{ "label" : STR_ADD, "icon" : "add", "action" : function(){
 							if(numberValidation($("#addDialog input"), null)){
 								data = new Object();
 								data.datamart_structure_id = $("#addDialog select").val() > 0 ? 5 : 1;
-								data.children = new Array();
+								data.children = new array();
 								data.control_id = $("#addDialog select").val();
 								data.label =  $("#addDialog select option[value='" + data.control_id + "']").text();
 								data.id = 0;
@@ -399,7 +399,7 @@ if (isset($isAjax)) {
 	
 	function confirmReset(){
 		if($("#confirmReset").length == 0){
-			buildConfirmDialog("confirmReset", "<?php echo __('are you sure you want to reset?'); ?>", new Array(
+			buildConfirmDialog("confirmReset", "<?php echo __('are you sure you want to reset?'); ?>", new array
 				{icon : "detail", label : STR_YES, "action" : function(){ document.location = root_url + "/Tools/Template/edit/<?php echo $templateId; ?>";}},
 				{"icon" : "cancel", label : STR_CANCEL, "action" : function(){ $("#confirmReset").popup('close'); }})
 			);

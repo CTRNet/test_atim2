@@ -94,7 +94,7 @@ class Collection extends InventoryManagementAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -107,7 +107,7 @@ class Collection extends InventoryManagementAppModel
      *            The collection ids whom child existence will be verified
      * @return array The collection ids having a child
      */
-    function hasChild(array $collectionIds)
+    public function hasChild(array $collectionIds)
     {
         $sampleMaster = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         return array_unique(array_filter($sampleMaster->find('list', array(
@@ -134,7 +134,7 @@ class Collection extends InventoryManagementAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($collectionId)
+    public function allowDeletion($collectionId)
     {
         // Check collection has no sample
         $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
@@ -174,7 +174,7 @@ class Collection extends InventoryManagementAppModel
      *         ['allow_deletion'] = true/false
      *         ['msg'] = message to display when previous field equals false
      */
-    function allowLinkDeletion($collectionId)
+    public function allowLinkDeletion($collectionId)
     {
         return array(
             'allow_deletion' => true,
@@ -182,7 +182,7 @@ class Collection extends InventoryManagementAppModel
         );
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         // make sure all linked model are owned by the right participant
         $tmpData = $this->data;

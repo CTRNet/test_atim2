@@ -107,7 +107,7 @@ class AppModel extends Model
      *            The previous model prior to that new creation (purely for convenience)
      * @see parent::__construct
      */
-    function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
+    public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
         if ($detailTable != null && $baseModelName != null) {
             $this->hasOne[$baseModelName . 'Detail'] = array(
@@ -209,7 +209,7 @@ class AppModel extends Model
      *
      * @see Model::save()
      */
-    function save($data = null, $validate = true, $fieldList = array())
+    public function save($data = null, $validate = true, $fieldList = array())
     {
         if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
             AppController::addWarningMsg('Pkey safeguard on model ' . $this->name, true);
@@ -239,7 +239,7 @@ class AppModel extends Model
      * Checks Writable fields, sets trackability, manages floats ("," and ".")
      * and date strings.
      */
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         if ($this->checkWritableFields) {
             $this->checkWritableFields();
@@ -446,7 +446,7 @@ class AppModel extends Model
      * ATiM 2.0 function
      * used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
      */
-    function atimDelete($modelId, $cascade = true)
+    public function atimDelete($modelId, $cascade = true)
     {
         $this->id = $modelId;
         $this->registerModelsToCheck();
@@ -467,7 +467,7 @@ class AppModel extends Model
      * ATiM 2.0 function
      * acts like find('all') but returns array with ID values as arrays key values
      */
-    function atimList($options = array())
+    public function atimList($options = array())
     {
         $return = false;
         
@@ -497,7 +497,7 @@ class AppModel extends Model
         return $return;
     }
 
-    function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra)
+    public function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra)
     {
         $params = array(
             'fields' => $fields,
@@ -530,7 +530,7 @@ class AppModel extends Model
      *            If true, date/time will be patched as much as possible
      * @return mixed The resulting data that should be assigned to a field
      */
-    function deconstruct($field, $data, $isEnd = false, $isSearch = false)
+    public function deconstruct($field, $data, $isEnd = false, $isSearch = false)
     {
         if (! is_array($data)) {
             return $data;
@@ -675,7 +675,7 @@ class AppModel extends Model
      *            - The min length of the key increment part. If the retrieved key is too short, 0 will be prepended.
      * @return string The string with the replaced value or false when SQL error happens
      */
-    function getKeyIncrement($key, $str, $padToLength = 0)
+    public function getKeyIncrement($key, $str, $padToLength = 0)
     {
         $this->query('LOCK TABLE key_increments WRITE');
         $result = $this->query('SELECT key_value FROM key_increments WHERE key_name="' . $key . '"');
@@ -693,7 +693,7 @@ class AppModel extends Model
         return str_replace("%%key_increment%%", str_pad($result[0]['key_increments']['key_value'], $padToLength, '0', STR_PAD_LEFT), $str);
     }
 
-    static function getMagicCodingIcdTriggerArray()
+    static public function getMagicCodingIcdTriggerArray()
     {
         return self::$magicCodingIcdTriggerArray;
     }
@@ -812,15 +812,13 @@ class AppModel extends Model
         }
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         if (! $this->_schema) {
             $this->schema();
         }
         if (! isset(self::$autoValidation[$this->name]) && isset($this->Behaviors->MasterDetail) && (strpos($this->name, 'Detail') === false || ! array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->__settings))) {
             // build master validation (detail validation are built within the validation function)
-            // debug($this->_schema);
-            // die();
             self::buildAutoValidation($this->name, $this);
             if (array_key_exists($this->name, self::$autoValidation)) {
                 $this->validate = array_merge_recursive($this->validate, self::$autoValidation[$this->name]);
@@ -920,7 +918,7 @@ class AppModel extends Model
         return false;
     }
 
-    static function getInstance($pluginName, $className, $errorViewOnNull = true)
+    static public function getInstance($pluginName, $className, $errorViewOnNull = true)
     {
         $instance = ClassRegistry::getObject($className);
         if ($instance !== false && $instance instanceof $className) {
@@ -963,7 +961,7 @@ class AppModel extends Model
      *            The table to use
      * @return The instantiated class
      */
-    static function atimInstantiateExtend($class, $tableName)
+    static public function atimInstantiateExtend($class, $tableName)
     {
         ClassRegistry::removeObject($class->name);
         $extend = new $class(false, $tableName);
@@ -979,7 +977,7 @@ class AppModel extends Model
      * @param Model $model
      *            The model to base the validations on
      */
-    static function buildAutoValidation($useName, Model $model)
+    static public function buildAutoValidation($useName, Model $model)
     {
         if (! is_array($model->_schema)) {
             $model->schema();
@@ -1122,7 +1120,7 @@ class AppModel extends Model
      *            CakePHP SQL conditionnal array
      * @return true if the field was found
      */
-    static function isFieldUsedAsCondition($field, array $conditions)
+    static public function isFieldUsedAsCondition($field, array $conditions)
     {
         foreach ($conditions as $key => $value) {
             $isArray = is_array($value);
@@ -1172,7 +1170,7 @@ class AppModel extends Model
      * @author N. Luc
      * @since 2007-06-20
      */
-    static function getSpentTime($startDatetime, $endDatetime)
+    static public function getSpentTime($startDatetime, $endDatetime)
     {
         $arrSpentTime = array(
             'message' => null,
@@ -1235,7 +1233,7 @@ class AppModel extends Model
      * @author N. Luc
      * @since 2007-06-20
      */
-    static function getTimeStamp($dateString)
+    static public function getTimeStamp($dateString)
     {
         list ($date, $time) = explode(' ', $dateString);
         list ($year, $month, $day) = explode('-', $date);
@@ -1244,7 +1242,7 @@ class AppModel extends Model
         return mktime($hour, $minute, $second, $month, $day, $year);
     }
 
-    static function manageSpentTimeDataDisplay($spentTimeData, $withTime = true)
+    static public function manageSpentTimeDataDisplay($spentTimeData, $withTime = true)
     {
         $spentTimeMsg = '';
         if (! empty($spentTimeData)) {
@@ -1266,7 +1264,7 @@ class AppModel extends Model
         return $spentTimeMsg;
     }
 
-    static function translateDateValueAndUnit($spentTimeData, $timeUnit)
+    static public function translateDateValueAndUnit($spentTimeData, $timeUnit)
     {
         if (array_key_exists($timeUnit, $spentTimeData)) {
             return (((! empty($spentTimeData[$timeUnit])) && ($spentTimeData[$timeUnit] != '00')) ? ($spentTimeData[$timeUnit] . ' ' . ($spentTimeData[$timeUnit] == 1 ? __(substr($timeUnit, 0, - 1)) : __($timeUnit)) . ' ') : '');
@@ -1283,7 +1281,7 @@ class AppModel extends Model
      *            The controller passed arguments. (From the controller, $this->passedArgs)
      * @return The data sorted if the passed_args were compatible with it
      */
-    static function sortWithUrl(array $data, array $passedArgs)
+    static public function sortWithUrl(array $data, array $passedArgs)
     {
         $order = array();
         if (isset($passedArgs['sort'])) {
@@ -1315,7 +1313,7 @@ class AppModel extends Model
      *         whether the element can be deleted or not and the second one being msg,
      *         a string that telles why, if relevant, the element cannot be deleted.
      */
-    function allowDeletion($id)
+    public function allowDeletion($id)
     {
         return array(
             'allow_deletion' => true,
@@ -1336,7 +1334,7 @@ class AppModel extends Model
      * @return null if $return is true and the data exists, the data, null otherwise
      * @deprecated Use getOrRedirect instead. TODO: Remove in ATiM 2.6
      */
-    function redirectIfNonExistent($id, $method, $line, $return = false)
+    public function redirectIfNonExistent($id, $method, $line, $return = false)
     {
         $this->id = $id;
         if ($result = $this->read()) {
@@ -1357,7 +1355,7 @@ class AppModel extends Model
      *            The model primary key to fetch
      * @return The model data if it succeeds
      */
-    function getOrRedirect($id)
+    public function getOrRedirect($id)
     {
         $this->id = $id;
         if ($result = $this->read()) {
@@ -1418,7 +1416,7 @@ class AppModel extends Model
      *
      * @return array (array formated for dropdown)
      */
-    function getBrowsingFilter()
+    public function getBrowsingFilter()
     {
         $result = array();
         if (isset($this->browsingSearchDropdownInfo['browsing_filter'])) {
@@ -1437,7 +1435,7 @@ class AppModel extends Model
      * @param string $fieldName            
      * @return array if the field config is found, null otherwise
      */
-    function getBrowsingAdvSearchArray($fieldName)
+    public function getBrowsingAdvSearchArray($fieldName)
     {
         if (isset($this->browsingSearchDropdownInfo[$fieldName])) {
             return $this->browsingSearchDropdownInfo[$fieldName];
@@ -1455,7 +1453,7 @@ class AppModel extends Model
      * @param array $fieldName            
      * @return array An array formated for dropdown use
      */
-    function getBrowsingAdvSearch($fieldName)
+    public function getBrowsingAdvSearch($fieldName)
     {
         $fieldName = $fieldName[0];
         $result = array();
@@ -1500,7 +1498,7 @@ class AppModel extends Model
         return $result;
     }
 
-    function getOwnershipConditions()
+    public function getOwnershipConditions()
     {
         return array(
             'OR' => array(
@@ -1519,7 +1517,7 @@ class AppModel extends Model
         );
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         if (isset($this->fieldsReplace) && isset($results[0][$this->name])) {
             $currentFieldsReplace = $this->fieldsReplace;
@@ -1587,13 +1585,13 @@ class AppModel extends Model
         }
     }
 
-    function afterSave($created, $options = Array())
+    public function afterSave($created, $options = array())
     {
         $this->updateRegisteredViews();
         $this->updateRegisteredModels();
     }
 
-    function makeTree(array &$in)
+    public function makeTree(array &$in)
     {
         if (! empty($in)) {
             $startingPkey = $in[0][$this->name][$this->primaryKey];
@@ -1615,7 +1613,7 @@ class AppModel extends Model
         }
     }
 
-    function getPluginName()
+    public function getPluginName()
     {
         $class = new ReflectionClass($this);
         $matches = array();
@@ -1632,7 +1630,7 @@ class AppModel extends Model
      * -0 is appened to a direct float (eg.: ".52 => 0.52", "-.42 => -0.42")
      * -white spaces are trimmed
      */
-    function checkFloats()
+    public function checkFloats()
     {
         foreach ($this->_schema as $fieldName => $fieldProperties) {
             $tmpType = $fieldProperties['type'];
@@ -1653,7 +1651,7 @@ class AppModel extends Model
         }
     }
 
-    function tryCatchQuery($sql, $cache = false)
+    public function tryCatchQuery($sql, $cache = false)
     {
         try {
             return parent::query($sql, $cache);
@@ -1677,7 +1675,7 @@ class AppModel extends Model
      * @param array|string $order
      *            The ordered pkeys in either an array or a comma separated string.
      */
-    function sortForDisplay(array &$data, $order)
+    public function sortForDisplay(array &$data, $order)
     {
         $tmpData = AppController::defineArrayKey($data, $this->name, $this->primaryKey, true);
         if (is_string($order)) {
@@ -1691,7 +1689,7 @@ class AppModel extends Model
         unset($tmpData);
     }
 
-    static function acquireBatchViewsUpdateLock()
+    static public function acquireBatchViewsUpdateLock()
     {
         if (self::$lockedViewsUpdate) {
             throw new Exception('Deadlock in acquireBatchViewsUpdateLock');
@@ -1699,7 +1697,7 @@ class AppModel extends Model
         self::$lockedViewsUpdate = true;
     }
 
-    static function manageViewUpdate($modelTable, $foreignKey, $ids, $queryPart)
+    static public function manageViewUpdate($modelTable, $foreignKey, $ids, $queryPart)
     {
         if (self::$lockedViewsUpdate) {
             if (! isset(self::$cachedViewsUpdate[$modelTable])) {
@@ -1722,7 +1720,7 @@ class AppModel extends Model
         }
     }
 
-    static function releaseBatchViewsUpdateLock()
+    static public function releaseBatchViewsUpdateLock()
     {
         // just "some" model to do the work
         $pages = AppModel::getInstance("", "Page");
@@ -1756,7 +1754,7 @@ class AppModel extends Model
         self::$lockedViewsUpdate = false;
     }
 
-    static function getRemoteIPAddress()
+    static public function getRemoteIPAddress()
     {
         return (! empty($_SERVER['HTTP_CLIENT_IP'])) ? $_SERVER['HTTP_CLIENT_IP'] : ((! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
     }

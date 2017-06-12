@@ -7,7 +7,7 @@ class SystemVar extends Model
 
     private static $cache = array();
 
-    function getVar($key)
+    public function getVar($key)
     {
         if (isset(self::$cache[$key])) {
             return self::$cache[$key];
@@ -25,7 +25,7 @@ class SystemVar extends Model
         return $val;
     }
 
-    function setVar($key, $val)
+    public function setVar($key, $val)
     {
         $this->save(array(
             'k' => $key,

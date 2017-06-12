@@ -12,7 +12,7 @@ class StorageControl extends StorageLayoutAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getStorageTypePermissibleValues()
+    public function getStorageTypePermissibleValues()
     {
         $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
         $translatedStorageTypes = $StructurePermissibleValuesCustom->getCustomDropdown(array(
@@ -34,7 +34,7 @@ class StorageControl extends StorageLayoutAppModel
         return $result;
     }
 
-    function getNonTmaBlockStorageTypePermissibleValues()
+    public function getNonTmaBlockStorageTypePermissibleValues()
     {
         $storageTypesFromId = $this->getStorageTypePermissibleValues();
         foreach ($this->find('all', array(
@@ -52,7 +52,7 @@ class StorageControl extends StorageLayoutAppModel
         return $storageTypesFromId;
     }
 
-    function getTmaBlockStorageTypePermissibleValues()
+    public function getTmaBlockStorageTypePermissibleValues()
     {
         $storageTypesFromId = $this->getStorageTypePermissibleValues();
         $tmaBlockControlIds = array();
@@ -73,7 +73,7 @@ class StorageControl extends StorageLayoutAppModel
         return $storageTypesFromId;
     }
 
-    function getAddStorageStructureLinks($storageMasterId = null)
+    public function getAddStorageStructureLinks($storageMasterId = null)
     {
         $storageTypesFromId = $this->getStorageTypePermissibleValues();
         $tmaBlockControlIds = array();
@@ -118,7 +118,7 @@ class StorageControl extends StorageLayoutAppModel
      * @since 2008-02-04
      *        @updated A. Suggitt
      */
-    function allowCustomCoordinates($storageControlId, $storageControlData = null)
+    public function allowCustomCoordinates($storageControlId, $storageControlData = null)
     {
         // Check for storage control data, if none get the control data
         if (empty($storageControlData)) {
@@ -137,7 +137,7 @@ class StorageControl extends StorageLayoutAppModel
         return true;
     }
 
-    function getStorageLayoutDescription($storageControlData)
+    public function getStorageLayoutDescription($storageControlData)
     {
         $description = '';
         
@@ -177,7 +177,7 @@ class StorageControl extends StorageLayoutAppModel
         return (empty($description) ? 'n/a' : $description);
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

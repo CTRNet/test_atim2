@@ -18,7 +18,7 @@ class QualityCtrlsController extends InventoryManagementAppController
         )
     );
 
-    function listAll($collectionId, $sampleMasterId)
+    public function listAll($collectionId, $sampleMasterId)
     {
         // MANAGE DATA
         $sampleData = $this->SampleMaster->find('first', array(
@@ -55,7 +55,7 @@ class QualityCtrlsController extends InventoryManagementAppController
         }
     }
 
-    function addInit($collectionId, $sampleMasterId)
+    public function addInit($collectionId, $sampleMasterId)
     {
         $this->setBatchMenu(array(
             'SampleMaster' => $sampleMasterId
@@ -82,7 +82,7 @@ class QualityCtrlsController extends InventoryManagementAppController
         }
     }
 
-    function add($sampleMasterId = null)
+    public function add($sampleMasterId = null)
     {
         $this->Structures->set('view_sample_joined_to_collection', "samples_structure");
         $this->Structures->set('used_aliq_in_stock_details', "aliquots_structure");
@@ -471,7 +471,7 @@ class QualityCtrlsController extends InventoryManagementAppController
         $this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
     }
 
-    function detail($collectionId, $sampleMasterId, $qualityCtrlId, $isFromTreeView = false)
+    public function detail($collectionId, $sampleMasterId, $qualityCtrlId, $isFromTreeView = false)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $qualityCtrlId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -531,7 +531,7 @@ class QualityCtrlsController extends InventoryManagementAppController
         }
     }
 
-    function edit($collectionId, $sampleMasterId, $qualityCtrlId)
+    public function edit($collectionId, $sampleMasterId, $qualityCtrlId)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $qualityCtrlId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -648,7 +648,7 @@ class QualityCtrlsController extends InventoryManagementAppController
         )));
     }
 
-    function delete($collectionId, $sampleMasterId, $qualityCtrlId)
+    public function delete($collectionId, $sampleMasterId, $qualityCtrlId)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $qualityCtrlId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

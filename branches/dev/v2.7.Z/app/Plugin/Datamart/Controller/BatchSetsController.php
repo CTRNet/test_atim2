@@ -3,7 +3,7 @@
 class BatchSetsController extends DatamartAppController
 {
 
-    static $tmpBatchSetLimit = 5;
+    public static $tmpBatchSetLimit = 5;
 
     public $uses = array(
         'Datamart.BatchSet',
@@ -21,7 +21,7 @@ class BatchSetsController extends DatamartAppController
         )
     );
 
-    function index($typeOfList = null)
+    public function index($typeOfList = null)
     {
         if ($typeOfList && in_array($typeOfList, array(
             'temporary',
@@ -83,7 +83,7 @@ class BatchSetsController extends DatamartAppController
         $this->set('typeOfList', $typeOfList);
     }
 
-    function listall($batchSetId)
+    public function listall($batchSetId)
     {
         $this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');
         $lookupIds = array();
@@ -236,7 +236,7 @@ class BatchSetsController extends DatamartAppController
         $this->set('displayUnlockButton', $this->BatchSet->allowToUnlock($batchSetId));
     }
 
-    function add($targetBatchSetId = 0)
+    public function add($targetBatchSetId = 0)
     {
         // if not an already existing Batch SET...
         $isGeneric = $targetBatchSetId == - 1;
@@ -429,7 +429,7 @@ class BatchSetsController extends DatamartAppController
         exit();
     }
 
-    function edit($batchSetId = 0)
+    public function edit($batchSetId = 0)
     {
         $this->set('atimMenuVariables', array(
             'BatchSet.id' => $batchSetId
@@ -461,7 +461,7 @@ class BatchSetsController extends DatamartAppController
         }
     }
 
-    function delete($batchSetId = 0)
+    public function delete($batchSetId = 0)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchSetId);
         if (! $this->BatchSet->isUserAuthorizedToRw($batchSet, true)) {
@@ -471,7 +471,7 @@ class BatchSetsController extends DatamartAppController
         $this->atimFlash(__('your data has been deleted'), '/Datamart/BatchSets/index');
     }
 
-    function deleteInBatch()
+    public function deleteInBatch()
     {
         // Get all user batchset
         $availableBatchsetsConditions = array(
@@ -518,7 +518,7 @@ class BatchSetsController extends DatamartAppController
         }
     }
 
-    function remove($batchSetId)
+    public function remove($batchSetId)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchSetId);
         if (! $this->BatchSet->isUserAuthorizedToRw($batchSet, true)) {
@@ -551,7 +551,7 @@ class BatchSetsController extends DatamartAppController
         exit();
     }
 
-    function save($batchId)
+    public function save($batchId)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchId);
         if ($batchSet['BatchSet']['user_id'] == $this->Session->read('Auth.User.id')) {
@@ -566,7 +566,7 @@ class BatchSetsController extends DatamartAppController
         }
     }
 
-    function unlock($batchSetId)
+    public function unlock($batchSetId)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchSetId);
         if ($this->BatchSet->allowToUnlock($batchSetId)) {

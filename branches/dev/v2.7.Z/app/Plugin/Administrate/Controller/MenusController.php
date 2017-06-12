@@ -8,7 +8,7 @@ class MenusController extends AdministrateAppController
     );
 
     // temp beforefilter to allow permissions, ACL tables not updated yet
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         $this->Auth->allowedActions = array(
@@ -16,7 +16,7 @@ class MenusController extends AdministrateAppController
         );
     }
 
-    function index()
+    public function index()
     {
         $this->hook();
         $this->request->data = $this->Menu->find('threaded', array(
@@ -26,7 +26,7 @@ class MenusController extends AdministrateAppController
         ));
     }
 
-    function detail($menuId)
+    public function detail($menuId)
     {
         $this->set('atimMenuVariables', array(
             'Menu.id' => $menuId
@@ -39,7 +39,7 @@ class MenusController extends AdministrateAppController
         ));
     }
 
-    function edit($bankId)
+    public function edit($bankId)
     {
         $this->set('atimMenuVariables', array(
             'Menu.id' => $menuId

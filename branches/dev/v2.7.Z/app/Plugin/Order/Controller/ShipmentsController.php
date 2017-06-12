@@ -21,7 +21,7 @@ class ShipmentsController extends OrderAppController
         )
     );
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
         $this->searchHandler($searchId, $this->Shipment, 'shipments', '/InventoryManagement/Shipments/search');
@@ -37,7 +37,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function listall($orderId = null)
+    public function listall($orderId = null)
     {
         if (! $orderId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -67,7 +67,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function add($orderId, $copiedShipmentId = null)
+    public function add($orderId, $copiedShipmentId = null)
     {
         
         // MANAGE DATA
@@ -126,7 +126,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function edit($orderId = null, $shipmentId = null)
+    public function edit($orderId = null, $shipmentId = null)
     {
         if ((! $orderId) || (! $shipmentId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -178,7 +178,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function detail($orderId = null, $shipmentId = null, $isFromTreeView = false)
+    public function detail($orderId = null, $shipmentId = null, $isFromTreeView = false)
     {
         
         // MANAGE DATA
@@ -224,7 +224,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function delete($orderId = null, $shipmentId = null)
+    public function delete($orderId = null, $shipmentId = null)
     {
         if ((! $orderId) || (! $shipmentId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -259,7 +259,7 @@ class ShipmentsController extends OrderAppController
     }
 
     /* ----------------------------- SHIPPED ITEMS ---------------------------- */
-    function addToShipment($orderId, $shipmentId, $orderLineId = null, $offset = null, $limit = null)
+    public function addToShipment($orderId, $shipmentId, $orderLineId = null, $offset = null, $limit = null)
     {
         
         // MANAGE DATA
@@ -457,7 +457,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function formatDataForShippedItemsSelection($orderItems)
+    public function formatDataForShippedItemsSelection($orderItems)
     {
         $sampleControlModel = AppModel::getInstance('InventoryManagement', 'SampleControl');
         $aliquotControlModel = AppModel::getInstance('InventoryManagement', 'AliquotControl');
@@ -500,7 +500,7 @@ class ShipmentsController extends OrderAppController
         return $data;
     }
 
-    function deleteFromShipment($orderId, $orderItemId, $shipmentId, $mainFormModel = null)
+    public function deleteFromShipment($orderId, $orderItemId, $shipmentId, $mainFormModel = null)
     {
         // MANAGE DATA
         
@@ -648,7 +648,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function manageContact()
+    public function manageContact()
     {
         $this->Structures->set('shipment_recipients');
         // layout = ajax to avoid printing layout
@@ -659,7 +659,7 @@ class ShipmentsController extends OrderAppController
         $this->request->data = $contactsModel->find('all');
     }
 
-    function saveContact()
+    public function saveContact()
     {
         // layout = ajax to avoid printing layout
         $this->layout = 'ajax';
@@ -689,7 +689,7 @@ class ShipmentsController extends OrderAppController
         }
     }
 
-    function deleteContact($contactId)
+    public function deleteContact($contactId)
     {
         $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);
         $contactsModel->atimDelete($contactId);

@@ -27,7 +27,7 @@ class StorageMastersController extends StorageLayoutAppController
         )
     );
 
-    function search($searchId = 0, $fromLayoutPage = false)
+    public function search($searchId = 0, $fromLayoutPage = false)
     {
         $modelToUse = $this->ViewStorageMaster;
         $structureAlias = 'view_storage_masters';
@@ -87,7 +87,7 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
-    function detail($storageMasterId, $isFromTreeViewOrLayout = 0, $storageCategory = null)
+    public function detail($storageMasterId, $isFromTreeViewOrLayout = 0, $storageCategory = null)
     {
         // $isFromTreeViewOrLayout : 0-Normal, 1-Tree view, 2-Stoarge layout
         
@@ -240,7 +240,7 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
-    function add($storageControlId, $predefinedParentStorageId = null)
+    public function add($storageControlId, $predefinedParentStorageId = null)
     {
         // MANAGE DATA
         $storageControlData = $this->StorageControl->getOrRedirect($storageControlId);
@@ -362,7 +362,7 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
-    function edit($storageMasterId)
+    public function edit($storageMasterId)
     {
         // MANAGE DATA
         // Get the storage data
@@ -487,7 +487,7 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
-    function delete($storageMasterId)
+    public function delete($storageMasterId)
     {
         // Get the storage data
         $storageData = $this->StorageMaster->getOrRedirect($storageMasterId);
@@ -570,7 +570,7 @@ class StorageMastersController extends StorageLayoutAppController
      * @since 2007-05-22
      *        @updated A. Suggitt
      */
-    function contentTreeView($storageMasterId = 0, $isAjax = false)
+    public function contentTreeView($storageMasterId = 0, $isAjax = false)
     {
         if ($isAjax) {
             $this->layout = 'ajax';
@@ -792,7 +792,7 @@ class StorageMastersController extends StorageLayoutAppController
      * @author N. Luc
      * @since 2007-05-22
      */
-    function storageLayout($storageMasterId, $isAjax = false, $csvCreation = false)
+    public function storageLayout($storageMasterId, $isAjax = false, $csvCreation = false)
     {
         // MANAGE STORAGE DATA
         
@@ -1076,7 +1076,7 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
-    function autocompleteLabel()
+    public function autocompleteLabel()
     {
         
         // -- NOTE ----------------------------------------------------------
@@ -1149,7 +1149,7 @@ class StorageMastersController extends StorageLayoutAppController
         $this->set('result', "[" . $result . "]");
     }
 
-    function contentListView($storageMasterId, $model = null)
+    public function contentListView($storageMasterId, $model = null)
     {
         $storageMasterData = $this->StorageMaster->getOrRedirect($storageMasterId);
         

@@ -11,7 +11,7 @@ class Drug extends DrugAppModel
 
     public $drugDataAndCodeForDisplayAlreadySet = array();
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -47,7 +47,7 @@ class Drug extends DrugAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getDrugPermissibleValues()
+    public function getDrugPermissibleValues()
     {
         $result = array();
         foreach ($this->find('all', array(
@@ -73,7 +73,7 @@ class Drug extends DrugAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($drugId)
+    public function allowDeletion($drugId)
     {
         $TreatmentExtendMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentExtendMaster", true);
         $returnedNbr = $TreatmentExtendMaster->find('count', array(
@@ -109,7 +109,7 @@ class Drug extends DrugAppModel
         );
     }
 
-    function getDrugDataAndCodeForDisplay($drugData)
+    public function getDrugDataAndCodeForDisplay($drugData)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -140,7 +140,7 @@ class Drug extends DrugAppModel
         return $formattedData;
     }
 
-    function getDrugIdFromDrugDataAndCode($drugDataAndCode)
+    public function getDrugIdFromDrugDataAndCode($drugDataAndCode)
     {
         
         // -- NOTE ----------------------------------------------------------------

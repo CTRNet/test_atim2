@@ -14,7 +14,7 @@ class SopMastersController extends SopAppController
         )
     );
 
-    function listall()
+    public function listall()
     {
         $this->request->data = $this->paginate($this->SopMaster, array());
         
@@ -31,7 +31,7 @@ class SopMastersController extends SopAppController
         }
     }
 
-    function add($sopControlId)
+    public function add($sopControlId)
     {
         $this->set('atimMenuVariables', array(
             'SopControl.id' => $sopControlId
@@ -84,7 +84,7 @@ class SopMastersController extends SopAppController
         }
     }
 
-    function detail($sopMasterId)
+    public function detail($sopMasterId)
     {
         if (! $sopMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -105,7 +105,7 @@ class SopMastersController extends SopAppController
         }
     }
 
-    function edit($sopMasterId)
+    public function edit($sopMasterId)
     {
         $this->set('atimMenuVariables', array(
             'SopMaster.id' => $sopMasterId
@@ -145,7 +145,7 @@ class SopMastersController extends SopAppController
         }
     }
 
-    function delete($sopMasterId)
+    public function delete($sopMasterId)
     {
         if (! $sopMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);

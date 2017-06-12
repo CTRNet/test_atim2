@@ -80,8 +80,6 @@ if ($hookLink) {
 }
 
 if ($displayNextSubForm) {
-//    debug($finalOptions);
-//    die('test');
     $this->Structures->build($finalAtimStructure, $finalOptions);
 }
 ?>

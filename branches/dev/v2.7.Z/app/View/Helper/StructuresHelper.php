@@ -186,7 +186,7 @@ class StructuresHelper extends Helper
         'labbook' => null
     );
 
-    function __construct(View $View, $settings = array())
+    public function __construct(View $View, $settings = array())
     {
         parent::__construct($View, $settings);
         
@@ -194,7 +194,7 @@ class StructuresHelper extends Helper
         $this->StructureValueDomain = new StructureValueDomain();
     }
 
-    function hook($hookExtension = '')
+    public function hook($hookExtension = '')
     {
         if ($hookExtension) {
             $hookExtension = '_' . $hookExtension;
@@ -427,7 +427,7 @@ class StructuresHelper extends Helper
      *            The various options indicating how to build the structures. refer to self::$default for all options
      * @return depending on the return option, echoes the structure and returns true or returns the string
      */
-    function build(array $atimStructure = array(), array $options = array())
+    public function build(array $atimStructure = array(), array $options = array())
     {
         if (Configure::read('debug')) {
             $tmp = array();
@@ -1680,7 +1680,7 @@ class StructuresHelper extends Helper
      *            Enconding
      * @return array $tableStructure Processed structrue
      */
-    function titleHtmlSpecialCharsDecode($tableStructure, $encoding)
+    public function titleHtmlSpecialCharsDecode($tableStructure, $encoding)
     {
         foreach ($tableStructure as &$tableColumn) {
             foreach ($tableColumn as &$tableRow) {
@@ -1702,7 +1702,7 @@ class StructuresHelper extends Helper
      * @param array $fieldType
      *            date or datetime
      */
-    function getDateValuesFormattedForExcel($modelData, $field, $fieldType)
+    public function getDateValuesFormattedForExcel($modelData, $field, $fieldType)
     {
         $reformattedDate = array();
         if (isset($modelData[$field])) {
@@ -1751,8 +1751,6 @@ class StructuresHelper extends Helper
      */
     private function buildTree(array $atimStructures, array $options, array $data)
     {
-        // debug($data);
-        // die('test');
         // prebuild links
         if (count($data)) {
             foreach ($options['links']['tree'] as $modelName => $links) {
@@ -2888,7 +2886,7 @@ $confirmationMsg); // confirmation message
     /**
      * FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value
      */
-    function strReplaceLink($link = '', $data = array())
+    public function strReplaceLink($link = '', $data = array())
     {
         if (is_array($data)) {
             foreach ($data as $model => $fields) {
@@ -2910,7 +2908,7 @@ $confirmationMsg); // confirmation message
         return $link;
     }
 
-    function &arrayMergeRecursiveDistinct(&$array1, &$array2 = null)
+    public function &arrayMergeRecursiveDistinct(&$array1, &$array2 = null)
     {
         $merged = $array1;
         if (is_array($array2)) {
@@ -3195,7 +3193,7 @@ $confirmationMsg); // confirmation message
         return $result;
     }
 
-    function getChecklist(array $rawChecklist, array $data)
+    public function getChecklist(array $rawChecklist, array $data)
     {
         $result = '';
         $defaultSettingsWoClass = self::$defaultSettingsArr;
@@ -3234,7 +3232,7 @@ $confirmationMsg); // confirmation message
         }
     }
 
-    function generateSelectItem($searchUrl, $name)
+    public function generateSelectItem($searchUrl, $name)
     {
         return '
 		<div class="selectItemZone">
@@ -3244,7 +3242,7 @@ $confirmationMsg); // confirmation message
 		';
     }
 
-    function ajaxIndex($indexUrl)
+    public function ajaxIndex($indexUrl)
     {
         return AppController::checkLinkPermission($indexUrl) ? '
 		<div class="indexZone" data-url="' . $indexUrl . '">

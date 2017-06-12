@@ -16,14 +16,14 @@ class GroupsController extends AdministrateAppController
         )
     );
 
-    function index()
+    public function index()
     {
         $this->set("atimMenu", $this->Menus->get('/Administrate/Groups/index'));
         $this->hook();
         $this->request->data = $this->paginate($this->Group, array());
     }
 
-    function detail($groupId)
+    public function detail($groupId)
     {
         $this->set('displayEditButton', (($groupId == 1) ? false : true));
         if ($groupId == 1)
@@ -39,7 +39,7 @@ class GroupsController extends AdministrateAppController
         ));
     }
 
-    function add()
+    public function add()
     {
         $this->set("atimMenu", $this->Menus->get('/Administrate/Groups/index'));
         $this->hook();
@@ -73,7 +73,7 @@ class GroupsController extends AdministrateAppController
         }
     }
 
-    function edit($groupId)
+    public function edit($groupId)
     {
         if ($groupId == 1) {
             $this->atimFlashWarning(__('the group administrators cannot be edited'), '/Administrate/Groups/detail/1');
@@ -152,7 +152,7 @@ class GroupsController extends AdministrateAppController
         $this->set('acoOptions', $acoOptions);
     }
 
-    function delete($groupId)
+    public function delete($groupId)
     {
         if ($groupId == 1) {
             $this->atimFlashWarning(__('the group administrators cannot be deleted'), '/Administrate/Groups/detail/1');

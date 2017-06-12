@@ -8,7 +8,7 @@ class LabBookAppModel extends AppModel
      * @param int $labBookCtrlId            
      * @return array The fields managed by the lab book or false if the process_ctrl_id is invalid
      */
-    function getFields($labBookCtrlId)
+    public function getFields($labBookCtrlId)
     {
         $control = AppModel::getInstance("LabBook", "LabBookControl", true);
         $data = $control->findById($labBookCtrlId);

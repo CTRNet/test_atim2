@@ -13,7 +13,7 @@ class Shipment extends OrderAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -52,7 +52,7 @@ class Shipment extends OrderAppModel
      * @since 2009-09-11
      *        @updated N. Luc
      */
-    function getShipmentPermissibleValues($orderId = null)
+    public function getShipmentPermissibleValues($orderId = null)
     {
         $result = array();
         
@@ -82,7 +82,7 @@ class Shipment extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($shipmentId)
+    public function allowDeletion($shipmentId)
     {
         // Check no item is linked to this shipment
         $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
@@ -120,7 +120,7 @@ class Shipment extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowItemRemoveFromShipment($orderItemId, $shipmentId)
+    public function allowItemRemoveFromShipment($orderItemId, $shipmentId)
     {
         return array(
             'allow_deletion' => true,

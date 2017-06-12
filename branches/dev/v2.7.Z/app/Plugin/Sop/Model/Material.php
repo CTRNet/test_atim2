@@ -3,7 +3,7 @@
 class Material extends AppModel
 {
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         

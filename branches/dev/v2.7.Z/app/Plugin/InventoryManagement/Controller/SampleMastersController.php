@@ -42,7 +42,7 @@ class SampleMastersController extends InventoryManagementAppController
         )
     );
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/InventoryManagement/Collections/search'));
         
@@ -70,7 +70,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
-    function contentTreeView($collectionId, $sampleMasterId = 0, $isAjax = false)
+    public function contentTreeView($collectionId, $sampleMasterId = 0, $isAjax = false)
     {
         $this->Collection->getOrRedirect($collectionId);
         
@@ -203,7 +203,7 @@ class SampleMastersController extends InventoryManagementAppController
      * @param $specimenSampleId sample_master_id
      *            of the specimen
      */
-    function listAllDerivatives($collectionId, $specimenSampleMasterId)
+    public function listAllDerivatives($collectionId, $specimenSampleMasterId)
     {
         if ((! $collectionId) || (! $specimenSampleMasterId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -262,7 +262,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
-    function detail($collectionId, $sampleMasterId, $isFromTreeView = 0)
+    public function detail($collectionId, $sampleMasterId, $isFromTreeView = 0)
     {
         // $isFromTreeView : 0-Normal, 1-Tree view
         
@@ -424,7 +424,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
-    function add($collectionId, $sampleControlId, $parentSampleMasterId = 0)
+    public function add($collectionId, $sampleControlId, $parentSampleMasterId = 0)
     {
         if ($this->request->is('ajax')) {
             $this->layout = 'ajax';
@@ -704,7 +704,7 @@ class SampleMastersController extends InventoryManagementAppController
         $this->set('isAjax', $this->request->is('ajax'));
     }
 
-    function edit($collectionId, $sampleMasterId)
+    public function edit($collectionId, $sampleMasterId)
     {
         if ((! $collectionId) || (! $sampleMasterId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -905,7 +905,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
-    function delete($collectionId, $sampleMasterId)
+    public function delete($collectionId, $sampleMasterId)
     {
         // Get the sample data
         $sampleData = $this->SampleMaster->find('first', array(
@@ -960,7 +960,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
-    function batchDerivativeInit($aliquotMasterId = null)
+    public function batchDerivativeInit($aliquotMasterId = null)
     {
         // Get Data
         $model = null;
@@ -1093,7 +1093,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
-    function batchDerivativeInit2($aliquotMasterId = null)
+    public function batchDerivativeInit2($aliquotMasterId = null)
     {
         if (! isset($this->request->data['SampleMaster']['ids']) || ! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1149,7 +1149,7 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
-    function batchDerivative($aliquotMasterId = null)
+    public function batchDerivative($aliquotMasterId = null)
     {
         $urlToCancel = isset($this->request->data['url_to_cancel']) ? $this->request->data['url_to_cancel'] : 'javascript:history.go(-1)';
         

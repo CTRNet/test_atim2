@@ -38,7 +38,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
      */
     
     /* ==> Note: Reuse flash() messages as they are into this controller! */
-    function listall($participantId)
+    public function listall($participantId)
     {
         
         // MANAGE DATA
@@ -66,7 +66,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $familyHistoryId)
+    public function detail($participantId, $familyHistoryId)
     {
         // MANAGE DATA
         $familyHistoryData = $this->FamilyHistory->find('first', array(
@@ -98,7 +98,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId = null)
+    public function add($participantId = null)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -187,7 +187,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $familyHistoryId)
+    public function edit($participantId, $familyHistoryId)
     {
         
         // MANAGE DATA
@@ -254,7 +254,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $familyHistoryId)
+    public function delete($participantId, $familyHistoryId)
     {
         
         // MANAGE DATA

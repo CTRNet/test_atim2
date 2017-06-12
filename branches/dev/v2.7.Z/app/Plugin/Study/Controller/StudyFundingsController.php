@@ -15,7 +15,7 @@ class StudyFundingsController extends StudyAppController
         )
     );
 
-    function add($studySummaryId)
+    public function add($studySummaryId)
     {
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
         
@@ -67,7 +67,7 @@ class StudyFundingsController extends StudyAppController
         }
     }
 
-    function listall($studySummaryId)
+    public function listall($studySummaryId)
     {
         // MANAGE DATA
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
@@ -89,7 +89,7 @@ class StudyFundingsController extends StudyAppController
         }
     }
 
-    function detail($studySummaryId, $studyFundingId)
+    public function detail($studySummaryId, $studyFundingId)
     {
         // MANAGE DATA
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
@@ -108,7 +108,7 @@ class StudyFundingsController extends StudyAppController
         }
     }
 
-    function edit($studySummaryId, $studyFundingId)
+    public function edit($studySummaryId, $studyFundingId)
     {
         // MANAGE DATA
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
@@ -156,7 +156,7 @@ class StudyFundingsController extends StudyAppController
         }
     }
 
-    function delete($studySummaryId, $studyFundingId)
+    public function delete($studySummaryId, $studyFundingId)
     {
         // MANAGE DATA
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);

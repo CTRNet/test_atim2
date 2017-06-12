@@ -23,7 +23,7 @@ class SpecimenReviewControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSpecimenTypePermissibleValues()
+    public function getSpecimenTypePermissibleValues()
     {
         $result = array();
         
@@ -45,7 +45,7 @@ class SpecimenReviewControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getReviewTypePermissibleValues()
+    public function getReviewTypePermissibleValues()
     {
         $result = array();
         

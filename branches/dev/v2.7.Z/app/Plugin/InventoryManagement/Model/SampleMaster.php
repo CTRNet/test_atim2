@@ -75,7 +75,7 @@ class SampleMaster extends InventoryManagementAppModel
         )
     );
 
-    function specimenSummary($variables = array())
+    public function specimenSummary($variables = array())
     {
         $return = false;
         
@@ -131,7 +131,7 @@ class SampleMaster extends InventoryManagementAppModel
         return $return;
     }
 
-    function derivativeSummary($variables = array())
+    public function derivativeSummary($variables = array())
     {
         $return = false;
         
@@ -185,7 +185,7 @@ class SampleMaster extends InventoryManagementAppModel
      *            The sample master ids whom child existence will be verified
      * @return array The sample master ids having a child
      */
-    function hasChild(array $sampleMasterIds)
+    public function hasChild(array $sampleMasterIds)
     {
         // fetch the sample ids having samples as child
         $result = array_unique(array_filter($this->find('list', array(
@@ -225,7 +225,7 @@ class SampleMaster extends InventoryManagementAppModel
      *            If true, will synch with the lab book when it's valid
      * @return An empty string on success, an error string on failure.
      */
-    function validateLabBook(array &$data, $labBook, $labBookCtrlId, $sync)
+    public function validateLabBook(array &$data, $labBook, $labBookCtrlId, $sync)
     {
         $msg = "";
         // set lab_book_master_id to null by default to erase previous labbook in edit mode if required
@@ -267,7 +267,7 @@ class SampleMaster extends InventoryManagementAppModel
      * @deprecated
      *
      */
-    function createCode($sampleMasterId, $sampleMasterData, $sampleControlData)
+    public function createCode($sampleMasterId, $sampleMasterData, $sampleControlData)
     {
         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $sampleCode = $sampleControlData['SampleControl']['sample_type_code'] . ' - ' . $sampleMasterId;
@@ -287,7 +287,7 @@ class SampleMaster extends InventoryManagementAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($sampleMasterId)
+    public function allowDeletion($sampleMasterId)
     {
         // Check sample has no chidlren
         $returnedNbr = $this->find('count', array(
@@ -379,7 +379,7 @@ class SampleMaster extends InventoryManagementAppModel
      * @author N. Luc
      * @since 2009-09-11
      */
-    function formatParentSampleDataForDisplay($parentSampleData)
+    public function formatParentSampleDataForDisplay($parentSampleData)
     {
         $formattedData = array();
         if (! empty($parentSampleData)) {
@@ -394,7 +394,7 @@ class SampleMaster extends InventoryManagementAppModel
         return $formattedData;
     }
 
-    function atimDelete($modelId, $cascade = true)
+    public function atimDelete($modelId, $cascade = true)
     {
         if (parent::atimDelete($modelId, $cascade)) {
             // delete source_aliquots
@@ -421,7 +421,7 @@ class SampleMaster extends InventoryManagementAppModel
         return false;
     }
 
-    static function joinOnSampleDup($onField)
+    static public function joinOnSampleDup($onField)
     {
         return array(
             'table' => 'sample_masters',

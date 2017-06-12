@@ -22,7 +22,7 @@ class AliquotInternalUse extends InventoryManagementAppModel
 
     public static $studyModel = null;
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $this->validateAndUpdateAliquotInternalUseStudyData();
         
@@ -32,7 +32,7 @@ class AliquotInternalUse extends InventoryManagementAppModel
     /**
      * Check internal use study definition and set error if required.
      */
-    function validateAndUpdateAliquotInternalUseStudyData()
+    public function validateAndUpdateAliquotInternalUseStudyData()
     {
         $aliquotInternalUseData = & $this->data;
         

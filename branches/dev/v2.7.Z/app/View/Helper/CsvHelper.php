@@ -14,40 +14,40 @@ class CsvHelper extends AppHelper
     public $csvSeparator = ";";
 
     // var $csvSeparator = CSV_SEPARATOR; See Issue# 3318: Fixe following notice: Notice (8): Use of undefined constant CSV_SEPARATOR
-    static $nodesInfo = null;
+    public static $nodesInfo = null;
 
-    static $structures = null;
+    public static $structures = null;
 
     // function CsvHelper() : This methode of calling constructor is deprecated in PHP 7.0
-    function __construct(View $view)
+    public function __construct(View $view)
     {
         parent::__construct($view);
         $this->clear();
     }
 
-    function clear()
+    public function clear()
     {
         $this->line = array();
         $this->buffer = fopen('php://temp/maxmemory:' . (5 * 1024 * 1024), 'r+');
     }
 
-    function addField($value)
+    public function addField($value)
     {
         $this->line[] = $value;
     }
 
-    function endRow()
+    public function endRow()
     {
         $this->addRow($this->line);
         $this->line = array();
     }
 
-    function addRow($row)
+    public function addRow($row)
     {
         fputcsv($this->buffer, $row, $this->csvSeparator, $this->enclosure);
     }
 
-    function renderHeaders()
+    public function renderHeaders()
     {
         header("Content-Type: application/force-download");
         header("Content-Type: application/octet-stream");
@@ -56,7 +56,7 @@ class CsvHelper extends AppHelper
         header("Content-disposition:attachment;filename=" . $this->filename . '_' . date('YMd_Hi') . '.csv');
     }
 
-    function setFilename($filename)
+    public function setFilename($filename)
     {
         $this->filename = $filename;
         /*
@@ -66,7 +66,7 @@ class CsvHelper extends AppHelper
          */
     }
 
-    function render($outputHeaders = true, $toEncoding = null, $fromEncoding = "auto")
+    public function render($outputHeaders = true, $toEncoding = null, $fromEncoding = "auto")
     {
         if ($outputHeaders) {
             if (is_string($outputHeaders)) {

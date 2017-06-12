@@ -20,7 +20,7 @@ class QualityCtrl extends InventoryManagementAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -67,7 +67,7 @@ class QualityCtrl extends InventoryManagementAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($qualityCtrlId)
+    public function allowDeletion($qualityCtrlId)
     {
         return array(
             'allow_deletion' => true,
@@ -93,12 +93,12 @@ class QualityCtrl extends InventoryManagementAppModel
      * @deprecated
      *
      */
-    function createCode($qcId, $storageData, $qcData = null, $sampleData = null)
+    public function createCode($qcId, $storageData, $qcData = null, $sampleData = null)
     {
         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
     }
 
-    function generateQcCode()
+    public function generateQcCode()
     {
         $qcToUpdate = $this->find('all', array(
             'conditions' => array(

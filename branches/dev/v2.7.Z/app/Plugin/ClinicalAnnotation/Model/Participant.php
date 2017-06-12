@@ -19,7 +19,7 @@ class Participant extends ClinicalAnnotationAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -52,7 +52,7 @@ class Participant extends ClinicalAnnotationAppModel
      *
      * @param array $participantArray            
      */
-    function patchIcd10NullValues(array &$participant)
+    public function patchIcd10NullValues(array &$participant)
     {
         if (isset($participant['Participant']['cod_icd10_code']) && strlen(trim($participant['Participant']['cod_icd10_code'])) == 0) {
             $participant['Participant']['cod_icd10_code'] = null;
@@ -75,7 +75,7 @@ class Participant extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($participantId)
+    public function allowDeletion($participantId)
     {
         $arrAllowDeletion = array(
             'allow_deletion' => true,
@@ -202,7 +202,7 @@ class Participant extends ClinicalAnnotationAppModel
         return $arrAllowDeletion;
     }
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         if ($this->whitelist && ! in_array('last_modification', $this->whitelist))
             $this->whitelist = array_merge($this->whitelist, array(

@@ -12,7 +12,7 @@ class PermissionsController extends AdministrateAppController
         'Permission'
     );
 
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         
@@ -23,10 +23,10 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
-    function index()
+    public function index()
     {}
 
-    function regenerate()
+    public function regenerate()
     {
         $this->PermissionManager->buildAcl();
         $this->set('log', $this->PermissionManager->log);
@@ -34,7 +34,7 @@ class PermissionsController extends AdministrateAppController
         Cache::clear(false, "menus");
     }
 
-    function update($aroId, $acoId, $state)
+    public function update($aroId, $acoId, $state)
     {
         $this->autoRender = false;
         
@@ -105,7 +105,7 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
-    function tree($groupId = 0, $userId = 0)
+    public function tree($groupId = 0, $userId = 0)
     {
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId,
@@ -280,7 +280,7 @@ class PermissionsController extends AdministrateAppController
         )));
     }
 
-    function addPermissionStateToThreadedData($threadedData = array())
+    public function addPermissionStateToThreadedData($threadedData = array())
     {
         foreach ($threadedData as $k => $v) {
             if (isset($v['Aro'][0]) && isset($v['Aro'][0]['ArosAco']) && isset($v['Aro'][0]['ArosAco']['_create']) && $v['Aro'][0]['ArosAco']['_create'] != 0) {
@@ -297,7 +297,7 @@ class PermissionsController extends AdministrateAppController
         return $threadedData;
     }
 
-    function savePreset()
+    public function savePreset()
     {
         $this->Structures->set('permission_save_preset');
         // layout = ajax to avoid printing layout
@@ -344,7 +344,7 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
-    function loadPreset()
+    public function loadPreset()
     {
         $this->Structures->set('permission_save_preset');
         // layout = ajax to avoid printing layout
@@ -361,7 +361,7 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
-    function deletePreset($presetId)
+    public function deletePreset($presetId)
     {
         $this->layout = false;
         $this->render(false);

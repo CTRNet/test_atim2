@@ -30,7 +30,7 @@ class SessionAclComponent extends AclComponent
         $controller->Acl = $this;
     }
 
-    function check($aro, $aco, $action = "*")
+    public function check($aro, $aco, $action = "*")
     {
         if ($aco == "controllers/App/Users/logout") {
             // always allow logout
@@ -49,7 +49,7 @@ class SessionAclComponent extends AclComponent
     /**
      * Allow
      */
-    function allow($aro, $aco, $action = "*")
+    public function allow($aro, $aco, $action = "*")
     {
         parent::allow($aro, $aco, $action);
         $this->__delete($aro, $aco, $action);
@@ -58,7 +58,7 @@ class SessionAclComponent extends AclComponent
     /**
      * Deny method.
      */
-    function deny($aro, $aco, $action = "*")
+    public function deny($aro, $aco, $action = "*")
     {
         parent::deny($aro, $aco, $action);
         $this->__delete($aro, $aco, $action);
@@ -79,7 +79,7 @@ class SessionAclComponent extends AclComponent
      *            Action (defaults to *)
      * @access public
      */
-    function inherit($aro, $aco, $action = "*")
+    public function inherit($aro, $aco, $action = "*")
     {
         parent::inherit($aro, $aco, $action);
         $this->__delete($aro, $aco, $action);
@@ -97,7 +97,7 @@ class SessionAclComponent extends AclComponent
      *            Boolean to return only the path to the ACO or the full path to the permission.
      * @access private
      */
-    function __cachePath($aro, $aco, $action, $acoPath = false)
+    public function __cachePath($aro, $aco, $action, $acoPath = false)
     {
         if ($action != "*") {
             $aco .= '/' . $action;
@@ -124,7 +124,7 @@ class SessionAclComponent extends AclComponent
     /**
      * Deletes the cache reference in Session, if found
      */
-    function __delete($aro, $aco, $action)
+    public function __delete($aro, $aco, $action)
     {
         $key = $this->__cachePath($aro, $aco, $action, true);
         if ($this->Session->check($key)) {
@@ -135,7 +135,7 @@ class SessionAclComponent extends AclComponent
     /**
      * Deletes the whole cache from the Session variable
      */
-    function flushCache()
+    public function flushCache()
     {
         $this->Session->delete('Acl');
     }
@@ -143,7 +143,7 @@ class SessionAclComponent extends AclComponent
     /**
      * Checks that ALL of given pairs of aco-action are satisfied
      */
-    function all($aro, $pairs)
+    public function all($aro, $pairs)
     {
         foreach ($pairs as $aco => $action) {
             if (! $this->check($aro, $aco, $action)) {
@@ -156,7 +156,7 @@ class SessionAclComponent extends AclComponent
     /**
      * Checks that AT LEAST ONE of given pairs of aco-action is satisfied
      */
-    function one($aro, $pairs)
+    public function one($aro, $pairs)
     {
         foreach ($pairs as $aco => $action) {
             if ($this->check($aro, $aco, $action)) {
@@ -169,7 +169,7 @@ class SessionAclComponent extends AclComponent
     /**
      * Returns an array of booleans for each $aco-$aro pair
      */
-    function can($aro, $pairs)
+    public function can($aro, $pairs)
     {
         $can = array();
         $i = 0;

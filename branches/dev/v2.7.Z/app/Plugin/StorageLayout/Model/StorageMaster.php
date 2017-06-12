@@ -45,7 +45,7 @@ class StorageMaster extends StorageLayoutAppModel
 
     const CONFLICTS_ERR = 2;
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -99,7 +99,7 @@ class StorageMaster extends StorageLayoutAppModel
         return false;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         if (! (array_key_exists('FunctionManagement', $this->data) && array_key_exists('recorded_storage_selection_label', $this->data['FunctionManagement']))) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -171,7 +171,7 @@ class StorageMaster extends StorageLayoutAppModel
         return parent::validates($options);
     }
 
-    function isDuplicatedStorageBarCode($storageData)
+    public function isDuplicatedStorageBarCode($storageData)
     {
         if (empty($storageData['StorageMaster']['barcode'])) {
             return false;
@@ -195,12 +195,12 @@ class StorageMaster extends StorageLayoutAppModel
         }
     }
 
-    static function getStoragesDropdown()
+    static public function getStoragesDropdown()
     {
         return array();
     }
 
-    function validateAndGetStorageData($recordedSelectionLabel, $positionX, $positionY, $isSampleCore = false)
+    public function validateAndGetStorageData($recordedSelectionLabel, $positionX, $positionY, $isSampleCore = false)
     {
         $storageData = array();
         $storageDefinitionError = null;
@@ -288,7 +288,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @author N. Luc
      * @since 2009-08-16
      */
-    function validatePositionValue($storageData, $position, $coord)
+    public function validatePositionValue($storageData, $position, $coord)
     {
         $validationResults = array(
             'validated' => true,
@@ -357,7 +357,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @since 2007-05-22
      *        @updated A. Suggitt
      */
-    function buildAllowedStoragePosition($storageData, $coord)
+    public function buildAllowedStoragePosition($storageData, $coord)
     {
         if (! array_key_exists('coord_' . $coord . '_type', $storageData['StorageControl'])) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -424,7 +424,7 @@ class StorageMaster extends StorageLayoutAppModel
      *            a single string with the format "label [code]"
      * @return storage data (array('StorageMaster' => array(), 'StorageControl' => array()) when found, array('error' => message) otherwise
      */
-    function getStorageDataFromStorageLabelAndCode($storageLabelAndCode)
+    public function getStorageDataFromStorageLabelAndCode($storageLabelAndCode)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -476,7 +476,7 @@ class StorageMaster extends StorageLayoutAppModel
         return $this->storageSelectionLabelsAlreadyChecked[$storageLabelAndCode];
     }
 
-    function getStorageLabelAndCodeForDisplay($storageData)
+    public function getStorageLabelAndCodeForDisplay($storageData)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -519,7 +519,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @author N. Luc
      * @since 2009-08-12
      */
-    function getStoragePath($studiedStorageMasterId)
+    public function getStoragePath($studiedStorageMasterId)
     {
         $storagePathData = $this->getPath($studiedStorageMasterId, null, '0');
         
@@ -545,7 +545,7 @@ class StorageMaster extends StorageLayoutAppModel
      *            The storage master ids whom child existence will be verified
      * @return array Returns the storage master ids having child
      */
-    function hasChild(array $storageMasterIds)
+    public function hasChild(array $storageMasterIds)
     {
         // child can be a storage or an aliquot
         $result = array_unique(array_filter($this->find('list', array(
@@ -584,12 +584,12 @@ class StorageMaster extends StorageLayoutAppModel
      * @param unknown_type $typeKey            
      * @param unknown_type $labelKey            
      */
-    function getLabel(array $childrenArray, $typeKey, $labelKey)
+    public function getLabel(array $childrenArray, $typeKey, $labelKey)
     {
         return $childrenArray[$typeKey][$labelKey];
     }
 
-    function allowDeletion($storageMasterId)
+    public function allowDeletion($storageMasterId)
     {
         // Check storage contains no chlidren storage
         $nbrChildrenStorages = $this->find('count', array(
@@ -655,7 +655,7 @@ class StorageMaster extends StorageLayoutAppModel
         );
     }
 
-    function manageTemperature(&$storageData, $storageControlData)
+    public function manageTemperature(&$storageData, $storageControlData)
     {
         if ($storageData['StorageMaster']['storage_control_id'] != $storageControlData['StorageControl']['id'])
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -694,7 +694,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @author N. Luc
      * @since 2009-09-13
      */
-    function getSelectionLabel($storageData)
+    public function getSelectionLabel($storageData)
     {
         if (empty($storageData['StorageMaster']['parent_id'])) {
             // No parent exists: Selection Label equals short label
@@ -728,7 +728,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @author N. Luc
      * @since 2009-09-13
      */
-    function createSelectionLabel($storageData, $parentStorageData)
+    public function createSelectionLabel($storageData, $parentStorageData)
     {
         if (! array_key_exists('selection_label', $parentStorageData['StorageMaster'])) {
             AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -754,7 +754,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @since 2008-01-31
      *        @updated A. Suggitt
      */
-    function updateChildrenStorageSelectionLabel($parentStorageId, $parentStorageData)
+    public function updateChildrenStorageSelectionLabel($parentStorageId, $parentStorageData)
     {
         $arrStudiedParentsData = array(
             $parentStorageId => $parentStorageData
@@ -814,7 +814,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @deprecated
      *
      */
-    function createCode($storageMasterId, $storageData, $storageControlData)
+    public function createCode($storageMasterId, $storageData, $storageControlData)
     {
         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $storageCode = $storageMasterId;
@@ -839,7 +839,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @since 2007-05-22
      *        @updated A. Suggitt
      */
-    function updateChildrenSurroundingTemperature($parentStorageMasterId, $parentTemperature, $parentTempUnit)
+    public function updateChildrenSurroundingTemperature($parentStorageMasterId, $parentTemperature, $parentTempUnit)
     {
         $studiedParentStorageIds = array(
             $parentStorageMasterId => $parentStorageMasterId
@@ -917,7 +917,7 @@ class StorageMaster extends StorageLayoutAppModel
      * @param
      *            storage_control
      */
-    function updateAndSaveDataArray($dataArray, $type, $xKey, $yKey, $storageParentKey, $rcvData, $updaterModel, array $storageControls, &$updatedRecordCounter)
+    public function updateAndSaveDataArray($dataArray, $type, $xKey, $yKey, $storageParentKey, $rcvData, $updaterModel, array $storageControls, &$updatedRecordCounter)
     {
         $errorFound = false;
         foreach ($dataArray as &$initDataUnit) {
@@ -1010,7 +1010,7 @@ class StorageMaster extends StorageLayoutAppModel
         return $errorFound;
     }
 
-    function buildChildrenArray(&$childrenArray, $typeKey, $xKey, $yKey, $labelKey, $coordinateList, $link, $iconName = "detail")
+    public function buildChildrenArray(&$childrenArray, $typeKey, $xKey, $yKey, $labelKey, $coordinateList, $link, $iconName = "detail")
     {
         $childrenArray['DisplayData']['id'] = $childrenArray[$typeKey]['id'];
         $childrenArray['DisplayData']['y'] = strlen($childrenArray[$typeKey][$yKey]) > 0 ? $childrenArray[$typeKey][$yKey] : 1;
@@ -1046,7 +1046,7 @@ class StorageMaster extends StorageLayoutAppModel
      *            checking availability. Usefull when editing something.
      * @return const POSITION_*
      */
-    function positionStatusQuick($storageMasterId, array $position, array $exception = array())
+    public function positionStatusQuick($storageMasterId, array $position, array $exception = array())
     {
         // check if an aliquot occupies the position
         $conditions = array(
@@ -1122,7 +1122,7 @@ class StorageMaster extends StorageLayoutAppModel
     /**
      * Checks conflicts for batch layout
      */
-    function checkBatchLayoutConflicts(&$data, $modelName, $labelName, &$cumulStorageData)
+    public function checkBatchLayoutConflicts(&$data, $modelName, $labelName, &$cumulStorageData)
     {
         $conflictsFound = false;
         if (isset($data[$modelName])) {
@@ -1161,7 +1161,7 @@ class StorageMaster extends StorageLayoutAppModel
         return $conflictsFound;
     }
 
-    function contentNatCaseSort($modelsAndFields, $contentsToSort, $descOrder = false)
+    public function contentNatCaseSort($modelsAndFields, $contentsToSort, $descOrder = false)
     {
         $valueToKey = array();
         $valuesToSort = array();

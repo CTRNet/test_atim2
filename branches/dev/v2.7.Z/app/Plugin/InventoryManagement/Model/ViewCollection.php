@@ -29,7 +29,7 @@ class ViewCollection extends InventoryManagementAppModel
         )
     );
 
-    static $tableQuery = '
+    public static $tableQuery = '
 		SELECT 
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
@@ -51,7 +51,7 @@ class ViewCollection extends InventoryManagementAppModel
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -106,7 +106,7 @@ class ViewCollection extends InventoryManagementAppModel
      *         other than 'obtained' as key. Their value will null if there is no linked
      *         consent or the consent status otherwise.
      */
-    function getUnconsentedParticipantCollections(array $collection)
+    public function getUnconsentedParticipantCollections(array $collection)
     {
         $data = null;
         if (array_key_exists('id', $collection)) {

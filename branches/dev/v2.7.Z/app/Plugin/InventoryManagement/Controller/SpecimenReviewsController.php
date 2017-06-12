@@ -28,7 +28,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         )
     );
 
-    function listAll($collectionId, $sampleMasterId)
+    public function listAll($collectionId, $sampleMasterId)
     {
         // MANAGE DATA
         $sampleData = $this->SampleMaster->find('first', array(
@@ -78,7 +78,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
-    function add($collectionId, $sampleMasterId, $specimenReviewControlId)
+    public function add($collectionId, $sampleMasterId, $specimenReviewControlId)
     {
         // MANAGE DATA
         $sampleData = $this->SampleMaster->find('first', array(
@@ -256,7 +256,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
-    function detail($collectionId, $sampleMasterId, $specimenReviewId, $aliquotMasterIdFromTreeView = false)
+    public function detail($collectionId, $sampleMasterId, $specimenReviewId, $aliquotMasterIdFromTreeView = false)
     {
         
         // MANAGE DATA
@@ -334,7 +334,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
-    function edit($collectionId, $sampleMasterId, $specimenReviewId, $undo = false)
+    public function edit($collectionId, $sampleMasterId, $specimenReviewId, $undo = false)
     {
         // MANAGE DATA
         
@@ -573,7 +573,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
-    function delete($collectionId, $sampleMasterId, $specimenReviewId)
+    public function delete($collectionId, $sampleMasterId, $specimenReviewId)
     {
         // MANAGE DATA
         

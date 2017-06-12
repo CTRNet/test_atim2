@@ -16,13 +16,13 @@ class EventMastersController extends ClinicalAnnotationAppController
         )
     );
 
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         $this->set('atimMenu', $this->Menus->get('/' . $this->params['plugin'] . '/' . $this->params['controller'] . '/' . $this->params['action'] . '/' . $this->params['pass'][0]));
     }
 
-    function listall($eventGroup, $participantId, $eventControlId = null)
+    public function listall($eventGroup, $participantId, $eventControlId = null)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -96,7 +96,7 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $eventMasterId, $isAjax = 0)
+    public function detail($participantId, $eventMasterId, $isAjax = 0)
     {
         // MANAGE DATA
         $this->request->data = $this->EventMaster->find('first', array(
@@ -140,7 +140,7 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId, $eventControlId, $diagnosisMasterId = null)
+    public function add($participantId, $eventControlId, $diagnosisMasterId = null)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
             $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
@@ -305,7 +305,7 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $eventMasterId)
+    public function edit($participantId, $eventMasterId)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
             $this->atimFlashError(__('you need privileges to access this page'), 'javascript:history.back()');
@@ -380,7 +380,7 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $eventMasterId)
+    public function delete($participantId, $eventMasterId)
     {
         $eventMasterData = $this->EventMaster->find('first', array(
             'conditions' => array(

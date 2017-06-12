@@ -32,7 +32,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
 
     public static $studyModel = null;
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $this->validateAndUpdateConsentStudyData();
         
@@ -42,7 +42,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
     /**
      * Check consent study definition and set error if required.
      */
-    function validateAndUpdateConsentStudyData()
+    public function validateAndUpdateConsentStudyData()
     {
         $consentData = & $this->data;
         
@@ -93,7 +93,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($consentMasterId)
+    public function allowDeletion($consentMasterId)
     {
         $arrAllowDeletion = array(
             'allow_deletion' => true,
@@ -113,7 +113,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
         return $arrAllowDeletion;
     }
 
-    static function joinOnConsentDup($onField)
+    static public function joinOnConsentDup($onField)
     {
         return array(
             'table' => 'consent_masters',

@@ -18,7 +18,7 @@ class OrderLinesController extends OrderAppController
         )
     );
 
-    function listall($orderId)
+    public function listall($orderId)
     {
         // MANAGE DATA
         $orderData = $this->Order->getOrRedirect($orderId);
@@ -43,7 +43,7 @@ class OrderLinesController extends OrderAppController
         }
     }
 
-    function add($orderId)
+    public function add($orderId)
     {
         if (! $orderId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -155,7 +155,7 @@ class OrderLinesController extends OrderAppController
         }
     }
 
-    function edit($orderId, $orderLineId)
+    public function edit($orderId, $orderLineId)
     {
         if ((! $orderId) || (! $orderLineId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -215,7 +215,7 @@ class OrderLinesController extends OrderAppController
         }
     }
 
-    function detail($orderId, $orderLineId)
+    public function detail($orderId, $orderLineId)
     {
         if ((! $orderId) || (! $orderLineId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -255,7 +255,7 @@ class OrderLinesController extends OrderAppController
         }
     }
 
-    function delete($orderId, $orderLineId)
+    public function delete($orderId, $orderLineId)
     {
         // MANAGE DATA
         $orderLineData = $this->OrderLine->find('first', array(

@@ -20,14 +20,14 @@ class TreatmentExtendMaster extends ClinicalAnnotationAppModel
 
     public static $drugModel = null;
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $this->validateAndUpdateTreatmentExtendDrugData();
         
         return parent::validates($options);
     }
 
-    function validateAndUpdateTreatmentExtendDrugData()
+    public function validateAndUpdateTreatmentExtendDrugData()
     {
         $treatmentExtendData = & $this->data;
         

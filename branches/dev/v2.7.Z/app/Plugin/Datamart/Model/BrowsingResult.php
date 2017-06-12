@@ -37,7 +37,7 @@ class BrowsingResult extends DatamartAppModel
      * @param mixed $node
      *            Either a browsing result id or the data array related to it
      */
-    function getModelAndStructureForNode($browsingResult)
+    public function getModelAndStructureForNode($browsingResult)
     {
         if (is_integer($browsingResult)) {
             $browsingResult = $this->getOrRedirect($browsingResult);
@@ -101,7 +101,7 @@ class BrowsingResult extends DatamartAppModel
         );
     }
 
-    function getSingleLineMergeableNodes($startingNodeId)
+    public function getSingleLineMergeableNodes($startingNodeId)
     {
         $startingNode = $this->getOrRedirect($startingNodeId);
         $requiredFields = array(
@@ -210,7 +210,7 @@ class BrowsingResult extends DatamartAppModel
         );
     }
 
-    function getJoins($baseNodeId, $targetNodeId)
+    public function getJoins($baseNodeId, $targetNodeId)
     {
         $mergeOn = array();
         $baseBrowsingResult = null;
@@ -248,7 +248,7 @@ class BrowsingResult extends DatamartAppModel
         return $joins;
     }
 
-    function countMaxDuplicates($baseNodeId, $targetNodeId)
+    public function countMaxDuplicates($baseNodeId, $targetNodeId)
     {
         $joins = $this->getJoins($baseNodeId, $targetNodeId);
         

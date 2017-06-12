@@ -18,7 +18,7 @@ class RealiquotingControl extends InventoryManagementAppModel
      *
      * @return An array of the form $data[parent_sample_control_id][parent_aliquot_control_id] = array(possible realiquots control id)
      */
-    function getPossiblities()
+    public function getPossiblities()
     {
         $realiquotDataRaw = $this->find('all', array(
             'recursive' => 2
@@ -30,7 +30,7 @@ class RealiquotingControl extends InventoryManagementAppModel
         return $realiquotData;
     }
 
-    function getAllowedChildrenCtrlId($sampleControlId, $parentAliquotControlId)
+    public function getAllowedChildrenCtrlId($sampleControlId, $parentAliquotControlId)
     {
         $criteria = array(
             'ParentAliquotControl.sample_control_id' => $sampleControlId,
@@ -52,7 +52,7 @@ class RealiquotingControl extends InventoryManagementAppModel
         return $allowedChildrenAliquotControlIds;
     }
 
-    function getLabBookCtrlId($parentSampleCtrlId, $parentAliquotCtrlId, $childAliquotCtrlId)
+    public function getLabBookCtrlId($parentSampleCtrlId, $parentAliquotCtrlId, $childAliquotCtrlId)
     {
         $criteria = array(
             'ParentAliquotControl.sample_control_id' => $parentSampleCtrlId,

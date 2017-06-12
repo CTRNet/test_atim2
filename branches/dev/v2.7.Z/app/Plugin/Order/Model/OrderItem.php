@@ -32,7 +32,7 @@ class OrderItem extends OrderAppModel
         )
     );
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
         foreach ($results as &$newItem) {
@@ -77,7 +77,7 @@ class OrderItem extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($orderLineData)
+    public function allowDeletion($orderLineData)
     {
         // Check aliquot is not gel matrix used to create either core
         if (! empty($orderLineData['Shipment']['id'])) {
@@ -110,7 +110,7 @@ class OrderItem extends OrderAppModel
      * @author N. Luc
      * @since 2016-05-16
      */
-    function checkOrderItemStatusCanBeSetToPendingOrShipped($foreignKeyField, $objectId, $orderItemId = '-1')
+    public function checkOrderItemStatusCanBeSetToPendingOrShipped($foreignKeyField, $objectId, $orderItemId = '-1')
     {
         $res = $this->find('count', array(
             'conditions' => array(

@@ -22,7 +22,7 @@ class OrdersController extends OrderAppController
         )
     );
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
         
@@ -44,7 +44,7 @@ class OrdersController extends OrderAppController
         }
     }
 
-    function add()
+    public function add()
     {
         // MANAGE DATA
         
@@ -76,7 +76,7 @@ class OrdersController extends OrderAppController
         }
     }
 
-    function detail($orderId, $isFromTreeView = false)
+    public function detail($orderId, $isFromTreeView = false)
     {
         // MANAGE DATA
         $orderData = $this->Order->getOrRedirect($orderId);
@@ -110,7 +110,7 @@ class OrdersController extends OrderAppController
         }
     }
 
-    function edit($orderId)
+    public function edit($orderId)
     {
         // MANAGE DATA
         $orderData = $this->Order->getOrRedirect($orderId);
@@ -157,7 +157,7 @@ class OrdersController extends OrderAppController
         }
     }
 
-    function delete($orderId)
+    public function delete($orderId)
     {
         if (! $orderId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

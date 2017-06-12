@@ -26,13 +26,13 @@ class Structure extends AppModel
 
     private $simple = true;
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->setModeSimplified();
     }
 
-    function setModeComplete()
+    public function setModeComplete()
     {
         $this->contain(array(
             'StructureFormat' => array(
@@ -45,7 +45,7 @@ class Structure extends AppModel
         $this->simple = false;
     }
 
-    function setModeSimplified()
+    public function setModeSimplified()
     {
         $this->contain(array(
             'Sfs' => array(
@@ -58,7 +58,7 @@ class Structure extends AppModel
         $this->simple = true;
     }
 
-    function find($conditions = null, $fields = array(), $order = null, $recursive = null)
+    public function find($conditions = null, $fields = array(), $order = null, $recursive = null)
     {
         $structure = parent::find('first', $fields, $order, $recursive);
         $rules = array();

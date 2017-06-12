@@ -15,7 +15,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
 
     public $paginate = array();
 
-    function listall($protocolMasterId)
+    public function listall($protocolMasterId)
     {
         $protocolMasterData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
         if (! $protocolMasterData['ProtocolControl']['protocol_extend_control_id']) {
@@ -40,7 +40,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
-    function detail($protocolMasterId, $protocolExtendMasterId)
+    public function detail($protocolMasterId, $protocolExtendMasterId)
     {
         // Get treatment master row for extended data
         $protocolMasterData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
@@ -77,7 +77,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
-    function add($protocolMasterId)
+    public function add($protocolMasterId)
     {
         if (! $protocolMasterId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -129,7 +129,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
-    function edit($protocolMasterId, $protocolExtendMasterId)
+    public function edit($protocolMasterId, $protocolExtendMasterId)
     {
         if ((! $protocolMasterId) || (! $protocolExtendMasterId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -200,7 +200,7 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
-    function delete($protocolMasterId, $protocolExtendMasterId)
+    public function delete($protocolMasterId, $protocolExtendMasterId)
     {
         if ((! $protocolMasterId) || (! $protocolExtendMasterId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);

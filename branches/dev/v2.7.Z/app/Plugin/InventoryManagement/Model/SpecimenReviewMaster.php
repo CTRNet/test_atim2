@@ -17,7 +17,7 @@ class SpecimenReviewMaster extends InventoryManagementAppModel
         )
     );
 
-    function allowSpecimeReviewDeletion($specimenReviewId)
+    public function allowSpecimeReviewDeletion($specimenReviewId)
     {
         return array(
             'allow_deletion' => true,

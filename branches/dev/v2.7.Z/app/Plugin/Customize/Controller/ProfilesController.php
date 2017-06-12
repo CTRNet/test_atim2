@@ -9,9 +9,9 @@ class ProfilesController extends CustomizeAppController
         'User'
     );
 
-    static $databaseUserEncryptedString = '**************';
+    public static $databaseUserEncryptedString = '**************';
 
-    function index()
+    public function index()
     {
         $this->Structures->set('users' . (Configure::read('reset_forgotten_password_feature') ? ',forgotten_password_reset_questions' : ''));
         
@@ -30,7 +30,7 @@ class ProfilesController extends CustomizeAppController
         }
     }
 
-    function edit()
+    public function edit()
     {
         $this->Structures->set('users' . (Configure::read('reset_forgotten_password_feature') ? ',forgotten_password_reset_questions' : ''));
         

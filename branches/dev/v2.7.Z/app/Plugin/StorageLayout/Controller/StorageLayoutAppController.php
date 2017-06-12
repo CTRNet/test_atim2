@@ -14,7 +14,7 @@ class StorageLayoutAppController extends AppController
      * @author N. Luc
      * @since 2009-08-12
      */
-    function inactivateStorageCoordinateMenu($atimMenu)
+    public function inactivateStorageCoordinateMenu($atimMenu)
     {
         foreach ($atimMenu as $menuGroupId => $menuGroup) {
             foreach ($menuGroup as $menuId => $menuData) {
@@ -39,7 +39,7 @@ class StorageLayoutAppController extends AppController
      * @author N. Luc
      * @since 2009-08-12
      */
-    function inactivateStorageLayoutMenu($atimMenu)
+    public function inactivateStorageLayoutMenu($atimMenu)
     {
         foreach ($atimMenu as $menuGroupId => $menuGroup) {
             foreach ($menuGroup as $menuId => $menuData) {

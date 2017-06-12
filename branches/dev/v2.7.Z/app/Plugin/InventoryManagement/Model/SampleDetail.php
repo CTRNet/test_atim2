@@ -5,7 +5,7 @@ class SampleDetail extends InventoryManagementAppModel
 
     public $useTable = false;
 
-    function getTissueSourcePermissibleValues()
+    public function getTissueSourcePermissibleValues()
     {
         return array();
     }

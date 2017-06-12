@@ -16,7 +16,7 @@ class SopExtendsController extends SopAppController
         )
     );
 
-    function listall($sopMasterId)
+    public function listall($sopMasterId)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $this->set('atimMenuVariables', array(
@@ -51,7 +51,7 @@ class SopExtendsController extends SopAppController
         $this->set('materialList', $materialList);
     }
 
-    function detail($sopMasterId = null, $sopExtendId = null)
+    public function detail($sopMasterId = null, $sopExtendId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $this->set('atimMenuVariables', array(
@@ -91,7 +91,7 @@ class SopExtendsController extends SopAppController
         $this->set('materialList', $materialList);
     }
 
-    function add($sopMasterId = null)
+    public function add($sopMasterId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $this->set('atimMenuVariables', array(
@@ -131,7 +131,7 @@ class SopExtendsController extends SopAppController
         }
     }
 
-    function edit($sopMasterId = null, $sopExtendId = null)
+    public function edit($sopMasterId = null, $sopExtendId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $this->set('atimMenuVariables', array(
@@ -180,7 +180,7 @@ class SopExtendsController extends SopAppController
         }
     }
 
-    function delete($sopMasterId = null, $sopExtendId = null)
+    public function delete($sopMasterId = null, $sopExtendId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $this->hook();

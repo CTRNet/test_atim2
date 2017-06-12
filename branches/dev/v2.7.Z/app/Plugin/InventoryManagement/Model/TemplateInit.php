@@ -5,7 +5,7 @@ class TemplateInit extends InventoryManagementAppModel
 
     public $useTable = false;
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $this->_schema = array();
         $result = parent::validates($options);

@@ -10,7 +10,7 @@ class LabBookMaster extends LabBookAppModel
         )
     );
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -38,7 +38,7 @@ class LabBookMaster extends LabBookAppModel
         return $return;
     }
 
-    function getLabBookPermissibleValuesFromId($labBookControlId = null)
+    public function getLabBookPermissibleValuesFromId($labBookControlId = null)
     {
         $result = array(
             '' => ''
@@ -71,7 +71,7 @@ class LabBookMaster extends LabBookAppModel
      * @param int $expectedCtrlId
      *            If not null, will validate that the lab book code control id match the expected one.
      */
-    function syncData(array &$data, array $models, $labBookCode, $expectedCtrlId = '-1')
+    public function syncData(array &$data, array $models, $labBookCode, $expectedCtrlId = '-1')
     {
         $result = null;
         $labBook = $this->find('first', array(
@@ -140,7 +140,7 @@ class LabBookMaster extends LabBookAppModel
         return empty($lb) ? false : array_pop($lb);
     }
 
-    function allowLabBookDeletion($labBookMasterId)
+    public function allowLabBookDeletion($labBookMasterId)
     {
         $derivativeDetailModel = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
         $nbrDerivatives = $derivativeDetailModel->find('count', array(
@@ -174,7 +174,7 @@ class LabBookMaster extends LabBookAppModel
         );
     }
 
-    function getLabBookDerivativesList($labBookMasterId)
+    public function getLabBookDerivativesList($labBookMasterId)
     {
         $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         
@@ -205,7 +205,7 @@ class LabBookMaster extends LabBookAppModel
         ));
     }
 
-    function getLabBookRealiquotingsList($labBookMasterId)
+    public function getLabBookRealiquotingsList($labBookMasterId)
     {
         $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
@@ -258,7 +258,7 @@ class LabBookMaster extends LabBookAppModel
         return $realiquotingModelsList;
     }
 
-    function synchLabbookRecords($labBookMasterId, $labBookDetail = null)
+    public function synchLabbookRecords($labBookMasterId, $labBookDetail = null)
     {
         $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);

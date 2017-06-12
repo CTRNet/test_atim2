@@ -9,13 +9,13 @@ class TemplateController extends AppController
         'Group'
     );
 
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         $this->Auth->actionPath = 'controllers/';
     }
 
-    function index()
+    public function index()
     {
         $this->set('atimMenu', $this->Menus->get('/Tools/Template/index'));
         $this->Structures->set('template');
@@ -31,7 +31,7 @@ class TemplateController extends AppController
     /*
      * Create the Collection Template setting properties
      */
-    function add()
+    public function add()
     {
         $this->Structures->set('template');
         
@@ -61,7 +61,7 @@ class TemplateController extends AppController
     /*
      * Build The Collection Template
      */
-    function edit($templateId)
+    public function edit($templateId)
     {
         // the following business rules apply to received data
         // controlId = 0 -> collection root
@@ -219,7 +219,7 @@ class TemplateController extends AppController
         $this->render('tree');
     }
 
-    function editProperties($templateId)
+    public function editProperties($templateId)
     {
         $templateData = $this->Template->getTemplates('template edition', $templateId);
         if (empty($templateData))
@@ -264,7 +264,7 @@ class TemplateController extends AppController
         }
     }
 
-    function delete($templateId)
+    public function delete($templateId)
     {
         $templateData = $this->Template->getTemplates('template edition', $templateId);
         if (empty($templateData))

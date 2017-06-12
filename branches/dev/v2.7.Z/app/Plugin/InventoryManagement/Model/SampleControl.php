@@ -19,12 +19,12 @@ class SampleControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSampleTypePermissibleValuesFromId()
+    public function getSampleTypePermissibleValuesFromId()
     {
         return $this->getSamplesPermissibleValues(true, false);
     }
 
-    function getParentSampleTypePermissibleValuesFromId()
+    public function getParentSampleTypePermissibleValuesFromId()
     {
         return $this->getSamplesPermissibleValues(true, false, false);
     }
@@ -36,12 +36,12 @@ class SampleControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSampleTypePermissibleValues()
+    public function getSampleTypePermissibleValues()
     {
         return $this->getSamplesPermissibleValues(false, false);
     }
 
-    function getParentSampleTypePermissibleValues()
+    public function getParentSampleTypePermissibleValues()
     {
         return $this->getSamplesPermissibleValues(false, false, false);
     }
@@ -53,7 +53,7 @@ class SampleControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSpecimenSampleTypePermissibleValues()
+    public function getSpecimenSampleTypePermissibleValues()
     {
         return $this->getSamplesPermissibleValues(false, true);
     }
@@ -65,12 +65,12 @@ class SampleControl extends InventoryManagementAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getSpecimenSampleTypePermissibleValuesFromId()
+    public function getSpecimenSampleTypePermissibleValuesFromId()
     {
         return $this->getSamplesPermissibleValues(true, true);
     }
 
-    function getSamplesPermissibleValues($byId, $onlySpecimen, $dontLimitToSamplesThatCanBeParents = true)
+    public function getSamplesPermissibleValues($byId, $onlySpecimen, $dontLimitToSamplesThatCanBeParents = true)
     {
         $result = array();
         
@@ -133,7 +133,7 @@ class SampleControl extends InventoryManagementAppModel
      * @since 2009-11-01
      * @author FMLH 2010-08-04 (new flag_active policy)
      */
-    function getPermissibleSamplesArray($parentId)
+    public function getPermissibleSamplesArray($parentId)
     {
         $conditions = array(
             'ParentToDerivativeSampleControl.flag_active' => true
@@ -158,7 +158,7 @@ class SampleControl extends InventoryManagementAppModel
         return $specimenSampleControlsList;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

@@ -12,7 +12,7 @@ class ConsentControl extends ClinicalAnnotationAppModel
      * @since 2010-05-26
      *        @updated N. Luc
      */
-    function getConsentTypePermissibleValuesFromId()
+    public function getConsentTypePermissibleValuesFromId()
     {
         $result = array();
         
@@ -29,7 +29,7 @@ class ConsentControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);
     }

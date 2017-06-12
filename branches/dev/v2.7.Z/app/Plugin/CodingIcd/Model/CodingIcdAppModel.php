@@ -16,7 +16,7 @@ class CodingIcdAppModel extends AppModel
      * @return the description of an icd code
      *         @note: This is CodingIcdAppModel, thus this function must work for all coding
      */
-    function getDescription($id, $isSearchForm = false, $dataArray = null)
+    public function getDescription($id, $isSearchForm = false, $dataArray = null)
     {
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
         if (isset(AppController::getInstance()->csvConfig) && isset(AppController::getInstance()->csvConfig['config_language'])) {
@@ -38,7 +38,7 @@ class CodingIcdAppModel extends AppModel
         return $description ? implode(' - ', $description) : '-';
     }
 
-    function globalValidateId($id)
+    public function globalValidateId($id)
     {
         if (is_array($id)) {
             $id = array_values($id);
@@ -51,7 +51,7 @@ class CodingIcdAppModel extends AppModel
         )) > 0 : true;
     }
 
-    function globalSearch(array $terms, $exactSearch, $searchOnId, $limit)
+    public function globalSearch(array $terms, $exactSearch, $searchOnId, $limit)
     {
         if (! $db = ConnectionManager::getDataSource($this->useDbConfig)) {
             return false;
@@ -128,7 +128,7 @@ class CodingIcdAppModel extends AppModel
      *            The CodingIcd* data array to convert
      * @return The converted array
      */
-    static function convertDataToNeutralIcd(array $dataArray)
+    static public function convertDataToNeutralIcd(array $dataArray)
     {
         $result = array();
         if (count($dataArray) > 0) {
@@ -143,7 +143,7 @@ class CodingIcdAppModel extends AppModel
         return $result;
     }
 
-    function getCastedSearchParams(array $terms, $exactSearch)
+    public function getCastedSearchParams(array $terms, $exactSearch)
     {
         $searchResult = $this->globalSearch($terms, $exactSearch, true, false);
         $data = array();

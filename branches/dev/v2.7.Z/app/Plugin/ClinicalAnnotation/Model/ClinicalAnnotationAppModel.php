@@ -3,43 +3,43 @@
 class ClinicalAnnotationAppModel extends AppModel
 {
 
-    function validateIcd10WhoCode($id)
+    public function validateIcd10WhoCode($id)
     {
         $icd10Model = AppModel::getInstance('CodingIcd', 'CodingIcd10Who', true);
         return $icd10Model::validateId($id);
     }
 
-    function getSecondaryIcd10WhoCodesList()
+    public function getSecondaryIcd10WhoCodesList()
     {
         $icd10Model = AppModel::getInstance('CodingIcd', 'CodingIcd10Who', true);
         return $icd10Model::getSecondaryDiagnosisList();
     }
 
-    function validateIcd10CaCode($id)
+    public function validateIcd10CaCode($id)
     {
         $icd10Model = AppModel::getInstance('CodingIcd', 'CodingIcd10Ca', true);
         return $icd10Model::validateId($id);
     }
 
-    function validateIcdo3TopoCode($id)
+    public function validateIcdo3TopoCode($id)
     {
         $icdO3TopoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
         return $icdO3TopoModel::validateId($id);
     }
 
-    function getIcdO3TopoCategoriesCodes()
+    public function getIcdO3TopoCategoriesCodes()
     {
         $icdO3TopoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
         return $icdO3TopoModel::getTopoCategoriesCodes();
     }
 
-    function validateIcdo3MorphoCode($id)
+    public function validateIcdo3MorphoCode($id)
     {
         $icdO3MorphoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Morpho', true);
         return $icdO3MorphoModel::validateId($id);
     }
 
-    function afterSave($created, $options = Array())
+    public function afterSave($created, $options = array())
     {
         if ($this->name != 'Participant') {
             // manages Participant.last_modification and Participant.last_modification_ds_id

@@ -7,7 +7,7 @@ class Rtbform extends RtbFormAppModel
 
     public $useTable = 'rtbforms';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         

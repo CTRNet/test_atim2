@@ -18,7 +18,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
 
     public $paginate = array();
 
-    function add($participantId, $txMasterId)
+    public function add($participantId, $txMasterId)
     {
         // Get treatment data
         $txMasterData = $this->TreatmentMaster->getOrRedirect($txMasterId);
@@ -126,7 +126,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $txMasterId, $txExtendId)
+    public function edit($participantId, $txMasterId, $txExtendId)
     {
         // Get treatment extend data
         $txExtendData = $this->TreatmentExtendMaster->getOrRedirect($txExtendId);
@@ -186,7 +186,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $txMasterId, $txExtendId)
+    public function delete($participantId, $txMasterId, $txExtendId)
     {
         // Get treatment extend data
         $txExtendData = $this->TreatmentExtendMaster->getOrRedirect($txExtendId);
@@ -217,7 +217,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         }
     }
 
-    function importDrugFromChemoProtocol($participantId, $txMasterId)
+    public function importDrugFromChemoProtocol($participantId, $txMasterId)
     {
         $txMasterData = $this->TreatmentMaster->getOrRedirect($txMasterId);
         if ($txMasterData['TreatmentMaster']['participant_id'] != $participantId)

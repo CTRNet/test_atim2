@@ -7,7 +7,7 @@ class AtimAcl extends DbAcl
     /**
      * Constructor
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         if (! class_exists('AclNode')) {
@@ -35,7 +35,7 @@ class AtimAcl extends DbAcl
      * @return boolean Success (true if ARO has access to action in ACO, false otherwise)
      * @access public
      */
-    function check($aro, $aco, $action = "*")
+    public function check($aro, $aco, $action = "*")
     {
         if ($aro == null || $aco == null) {
             return false;

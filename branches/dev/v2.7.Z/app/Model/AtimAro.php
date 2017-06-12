@@ -11,7 +11,7 @@ class AtimAro extends Aro
      * @return array Node found in database
      * @access public
      */
-    function node($ref = null)
+    public function node($ref = null)
     {
         $db = ConnectionManager::getDataSource($this->useDbConfig);
         $type = $this->alias;

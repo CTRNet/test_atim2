@@ -101,7 +101,7 @@ class ViewShell extends AppShell
         }
     }
 
-    function help()
+    public function help()
     {
         $this->out('Available commands:');
         $this->out(sprintf('-%-12s Stores the view commands.', 'store'));
@@ -112,7 +112,7 @@ class ViewShell extends AppShell
         $this->out(sprintf('-%-12s Prints this message.', 'help'));
     }
 
-    function getViews()
+    public function getViews()
     {
         $results = $this->User->query("SHOW TABLES LIKE 'view_%'");
         $results = Set::flatten($results);

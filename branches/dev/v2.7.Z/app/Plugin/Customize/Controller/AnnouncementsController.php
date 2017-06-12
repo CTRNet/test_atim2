@@ -13,7 +13,7 @@ class AnnouncementsController extends CustomizeAppController
         )
     );
 
-    function index($listType = '')
+    public function index($listType = '')
     {
         $this->set('listType', $listType);
         
@@ -76,7 +76,7 @@ class AnnouncementsController extends CustomizeAppController
         }
     }
 
-    function detail($announcementId = NULL)
+    public function detail($announcementId = NULL)
     {
         $this->request->data = $this->Announcement->getOrRedirect($announcementId);
         

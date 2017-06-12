@@ -3,7 +3,7 @@
 class MiscIdentifiersComponent extends Object
 {
 
-    function initialize(&$controller, $settings = array())
+    public function initialize(&$controller, $settings = array())
     {
         $this->controller = & $controller;
     }

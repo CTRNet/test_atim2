@@ -14,7 +14,7 @@ class DropdownsController extends AdministrateAppController
         )
     );
 
-    function index()
+    public function index()
     {
         // Nothing to do
         
@@ -25,7 +25,7 @@ class DropdownsController extends AdministrateAppController
         }
     }
 
-    function subIndex($filter = 'all')
+    public function subIndex($filter = 'all')
     {
         if (! in_array($filter, array(
             'all',
@@ -75,7 +75,7 @@ class DropdownsController extends AdministrateAppController
         $this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
     }
 
-    function view($controlId)
+    public function view($controlId)
     {
         $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
         $this->set("controlData", $controlData);
@@ -92,7 +92,7 @@ class DropdownsController extends AdministrateAppController
         $this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
     }
 
-    function add($controlId)
+    public function add($controlId)
     {
         $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
         $this->set("controlData", $controlData);
@@ -230,7 +230,7 @@ class DropdownsController extends AdministrateAppController
         }
     }
 
-    function edit($controlId, $valueId)
+    public function edit($controlId, $valueId)
     {
         $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
         $this->set("controlData", $controlData);
@@ -307,7 +307,7 @@ class DropdownsController extends AdministrateAppController
         }
     }
 
-    function configure($controlId)
+    public function configure($controlId)
     {
         $this->Structures->set('administrate_dropdown_values');
         if (empty($this->request->data)) {

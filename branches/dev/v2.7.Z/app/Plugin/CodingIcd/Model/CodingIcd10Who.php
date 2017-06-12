@@ -26,23 +26,23 @@ class CodingIcd10Who extends CodingIcdAppModel
 
     public $validate = array();
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         self::$singleton = $this;
     }
 
-    static function validateId($id)
+    static public function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
-    static function getSingleton()
+    static public function getSingleton()
     {
         return self::$singleton;
     }
 
-    static function getSecondaryDiagnosisList()
+    static public function getSecondaryDiagnosisList()
     {
         $data = array();
         foreach (self::$singleton->find('all', array(

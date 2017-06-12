@@ -898,7 +898,7 @@ class RevisionBehavior extends ModelBehavior
      * @param boolean $created            
      * @return boolean
      */
-    public function afterSave(Model $model, $created, $options = Array())
+    public function afterSave(Model $model, $created, $options = array())
     {
         if ($this->settings[$model->alias]['auto'] === false) {
             return true;
@@ -1045,7 +1045,7 @@ class RevisionBehavior extends ModelBehavior
      * @param object $Model            
      * @return boolean
      */
-    public function beforeSave(Model $model, $options = Array())
+    public function beforeSave(Model $model, $options = array())
     {
         if ($this->settings[$model->alias]['auto'] === false) {
             return true;

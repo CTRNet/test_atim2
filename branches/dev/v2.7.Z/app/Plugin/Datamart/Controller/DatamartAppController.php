@@ -3,7 +3,7 @@
 class DatamartAppController extends AppController
 {
 
-    static function printList($options, $label, $webroot)
+    static public function printList($options, $label, $webroot)
     {
         foreach ($options as $option) {
             $currLabel = $label . " &gt; " . $option['label'];

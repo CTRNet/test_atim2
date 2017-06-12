@@ -9,7 +9,7 @@ class StoredItemBehavior extends ModelBehavior
 
     private $previousStorageMasterId = null;
 
-    public function beforeSave(Model $model, $options = Array())
+    public function beforeSave(Model $model, $options = array())
     {
         if ($model->id) {
             $prevData = $model->find('first', array(
@@ -22,7 +22,7 @@ class StoredItemBehavior extends ModelBehavior
         return true;
     }
 
-    public function afterSave(Model $model, $created, $options = Array())
+    public function afterSave(Model $model, $created, $options = array())
     {
         $viewStorageMasterModel = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
         $useKey = $model->name == 'StorageMaster' ? 'parent_id' : 'storage_master_id';

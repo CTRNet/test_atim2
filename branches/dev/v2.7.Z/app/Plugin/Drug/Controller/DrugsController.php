@@ -13,7 +13,7 @@ class DrugsController extends DrugAppController
         )
     );
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->searchHandler($searchId, $this->Drug, 'drugs', '/Drug/Drugs/search');
         
@@ -29,7 +29,7 @@ class DrugsController extends DrugAppController
         }
     }
 
-    function add()
+    public function add()
     {
         $this->set('atimMenu', $this->Menus->get('/Drug/Drugs/search/'));
         
@@ -107,7 +107,7 @@ class DrugsController extends DrugAppController
         }
     }
 
-    function edit($drugId)
+    public function edit($drugId)
     {
         $drugData = $this->Drug->getOrRedirect($drugId);
         
@@ -143,7 +143,7 @@ class DrugsController extends DrugAppController
         }
     }
 
-    function detail($drugId)
+    public function detail($drugId)
     {
         $this->request->data = $this->Drug->getOrRedirect($drugId);
         
@@ -157,7 +157,7 @@ class DrugsController extends DrugAppController
         }
     }
 
-    function delete($drugId)
+    public function delete($drugId)
     {
         $drugData = $this->Drug->getOrRedirect($drugId);
         $arrAllowDeletion = $this->Drug->allowDeletion($drugId);
@@ -185,7 +185,7 @@ class DrugsController extends DrugAppController
         }
     }
 
-    function autocompleteDrug()
+    public function autocompleteDrug()
     {
         
         // -- NOTE ----------------------------------------------------------

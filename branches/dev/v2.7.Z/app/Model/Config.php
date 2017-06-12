@@ -3,7 +3,7 @@
 class Config extends AppModel
 {
 
-    function getConfig($groupId, $userId)
+    public function getConfig($groupId, $userId)
     {
         $configResults = $this->find('first', array(
             'conditions' => array(
@@ -81,7 +81,7 @@ class Config extends AppModel
         ));
     }
 
-    function preSave($configResults, &$requestData, $groupId, $userId)
+    public function preSave($configResults, &$requestData, $groupId, $userId)
     {
         if ($configResults['Config']['user_id'] != 0) {
             // own config, edit, otherwise will create a new one

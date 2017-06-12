@@ -10,7 +10,7 @@ class CsvController extends DatamartAppController
      * Too many params so they are received via the /key:value/ syntax
      * Either generates the CSV popup or the CSV file.
      */
-    function csv()
+    public function csv()
     {
         AppController::atimSetCookie(false);
         if (isset($this->passedArgs['popup'])) {

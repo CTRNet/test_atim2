@@ -115,7 +115,7 @@ class AppController extends Controller
 
     private static $calInfoLongTranslated = false;
 
-    static $highlightMissingTranslations = true;
+    public static $highlightMissingTranslations = true;
 
     // Used as a set from the array keys
     public $allowedFilePrefixes = array();
@@ -125,7 +125,7 @@ class AppController extends Controller
      * It’s a
      * handy place to check for an active session or inspect user permissions.
      */
-    function beforeFilter()
+    public function beforeFilter()
     {
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
@@ -211,7 +211,7 @@ class AppController extends Controller
         }
     }
 
-    function hook($hookExtension = '')
+    public function hook($hookExtension = '')
     {
         if ($hookExtension) {
             $hookExtension = '_' . $hookExtension;
@@ -269,7 +269,7 @@ class AppController extends Controller
      * This callback is not used often, but may be needed if you are calling
      * render() manually before the end of a given action.
      */
-    function beforeRender()
+    public function beforeRender()
     {
         if (isset($this->request->query['file'])) {
             return $this->handleFileRequest();
@@ -295,7 +295,7 @@ class AppController extends Controller
         }
     }
 
-    function afterFilter()
+    public function afterFilter()
     {
         // global $startTime;
         // echo("Exec time (sec): ".(AppController::microtimeFloat() - $startTime));
@@ -316,13 +316,13 @@ class AppController extends Controller
     /**
      * Simple function to replicate PHP 5 behaviour
      */
-    static function microtimeFloat()
+    static public function microtimeFloat()
     {
         list ($usec, $sec) = explode(" ", microtime());
         return ((float) $usec + (float) $sec);
     }
 
-    static function missingTranslation(&$word)
+    static public function missingTranslation(&$word)
     {
         if (! is_numeric($word) && strpos($word, "<span class='untranslated'>") === false) {
             AppController::$missingTranslations[] = $word;
@@ -332,7 +332,7 @@ class AppController extends Controller
         }
     }
 
-    function atimFlash($message, $url, $type = self::CONFIRM)
+    public function atimFlash($message, $url, $type = self::CONFIRM)
     {
         if ($type == self::CONFIRM) {
             $_SESSION['ctrapp_core']['confirm_msg'] = $message;
@@ -346,32 +346,32 @@ class AppController extends Controller
         $this->redirect($url);
     }
 
-    function atimFlashError($message, $url, $compatibility)
+    public function atimFlashError($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::ERROR);
     }
 
-    function atimFlashInfo($message, $url, $compatibility)
+    public function atimFlashInfo($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::INFORMATION);
     }
 
-    function atimFlashConfirm($message, $url, $compatibility)
+    public function atimFlashConfirm($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::CONFIRM);
     }
 
-    function atimFlashWarning($message, $url, $compatibility)
+    public function atimFlashWarning($message, $url, $compatibility)
     {
         $this->atimFlash($message, $url, self::WARNING);
     }
 
-    static function getInstance()
+    static public function getInstance()
     {
         return AppController::$me;
     }
 
-    static function init()
+    static public function init()
     {
         Configure::write('Config.language', 'eng');
         Configure::write('Acl.classname', 'AtimAcl');
@@ -466,7 +466,7 @@ class AppController extends Controller
      *            Wheter to return short or long month names
      * @return an associative array containing the translated months names so that key = month_number and value = month_name
      */
-    static function getCalInfo($short = true)
+    static public function getCalInfo($short = true)
     {
         if ($short) {
             if (! AppController::$calInfoShortTranslated) {
@@ -495,7 +495,7 @@ class AppController extends Controller
      *            True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
-    static function getFormatedDateString($year, $month, $day, $nbspSpaces = true, $shortMonths = true)
+    static public function getFormatedDateString($year, $month, $day, $nbspSpaces = true, $shortMonths = true)
     {
         $result = null;
         if (empty($year) && empty($month) && empty($day)) {
@@ -517,7 +517,7 @@ class AppController extends Controller
         return $result;
     }
 
-    static function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
+    static public function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
     {
         if (TIME_FORMAT == 12) {
             $meridiem = $hour >= 12 ? "PM" : "AM";
@@ -545,7 +545,7 @@ class AppController extends Controller
      *            True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
-    static function getFormatedDatetimeString($datetimeString, $nbspSpaces = true, $shortMonths = true)
+    static public function getFormatedDatetimeString($datetimeString, $nbspSpaces = true, $shortMonths = true)
     {
         $month = null;
         $day = null;
@@ -597,7 +597,7 @@ class AppController extends Controller
      *            
      * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
      */
-    static function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
+    static public function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
     {
         $formattedDate = '';
         switch ($dateType) {
@@ -668,7 +668,7 @@ class AppController extends Controller
      * @param array $arr
      *            The array to clone
      */
-    static function cloneArray(array $arr)
+    static public function cloneArray(array $arr)
     {
         $result = array();
         foreach ($arr as $k => $v) {
@@ -681,7 +681,7 @@ class AppController extends Controller
         return $result;
     }
 
-    static function addWarningMsg($msg, $withTrace = false)
+    static public function addWarningMsg($msg, $withTrace = false)
     {
         if ($withTrace) {
             $_SESSION['ctrapp_core']['warning_trace_msg'][] = array(
@@ -697,7 +697,7 @@ class AppController extends Controller
         }
     }
 
-    static function addInfoMsg($msg)
+    static public function addInfoMsg($msg)
     {
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
             $_SESSION['ctrapp_core']['info_msg'][$msg] ++;
@@ -706,7 +706,7 @@ class AppController extends Controller
         }
     }
 
-    static function getStackTrace()
+    static public function getStackTrace()
     {
         $bt = debug_backtrace();
         $result = array();
@@ -722,7 +722,7 @@ class AppController extends Controller
      * @param
      *            array They data array to build the values with
      */
-    static function getUpdateAllValues(array $data)
+    static public function getUpdateAllValues(array $data)
     {
         $result = array();
         foreach ($data as $model => $fields) {
@@ -743,7 +743,7 @@ class AppController extends Controller
      * cookie manipulation to counter cake problems.
      * see eventum #1032
      */
-    static function atimSetCookie($skipExpirationCookie)
+    static public function atimSetCookie($skipExpirationCookie)
     {
         $sessionExpiration = time() + Configure::read("Session.timeout");
         
@@ -775,7 +775,7 @@ class AppController extends Controller
      *            The possibilities parent key to base the search on
      * @return An array with the ids and the possibilities
      */
-    function batchInit($model, $dataModelName, $dataKey, $controlKeyName, $possibilitiesModel, $possibilitiesParentKey, $noPossibilitiesMsg)
+    public function batchInit($model, $dataModelName, $dataKey, $controlKeyName, $possibilitiesModel, $possibilitiesParentKey, $noPossibilitiesMsg)
     {
         if (empty($this->request->data)) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -853,7 +853,7 @@ class AppController extends Controller
      *            If true, the array block will be directly under the model.field, not in an array.
      * @return array
      */
-    static function defineArrayKey($inArray, $model, $field, $unique = false)
+    static public function defineArrayKey($inArray, $model, $field, $unique = false)
     {
         $outArray = array();
         if ($unique) {
@@ -879,7 +879,7 @@ class AppController extends Controller
      * @param
      *            array &$data
      */
-    static function removeEmptyValues(array &$data)
+    static public function removeEmptyValues(array &$data)
     {
         foreach ($data as $key => &$val) {
             if (is_array($val)) {
@@ -891,7 +891,7 @@ class AppController extends Controller
         }
     }
 
-    static function getNewSearchId()
+    static public function getNewSearchId()
     {
         return AppController::getInstance()->Session->write('search_id', AppController::getInstance()->Session->read('search_id') + 1);
     }
@@ -902,7 +902,7 @@ class AppController extends Controller
      *            The link to check
      * @return True if the user can access that page, false otherwise
      */
-    static function checkLinkPermission($link)
+    static public function checkLinkPermission($link)
     {
         if (strpos($link, 'javascript:') === 0 || strpos($link, '#') === 0) {
             return true;
@@ -920,7 +920,7 @@ class AppController extends Controller
         return strpos($acoAlias, 'Controller/Users') !== false || strpos($acoAlias, 'Controller/Pages') !== false || $acoAlias == "Controller/Menus/index" || $instance->SessionAcl->check('Group::' . $instance->Session->read('Auth.User.group_id'), $acoAlias);
     }
 
-    static function applyTranslation(&$inArray, $model, $field)
+    static public function applyTranslation(&$inArray, $model, $field)
     {
         foreach ($inArray as &$part) {
             $part[$model][$field] = __($part[$model][$field]);
@@ -975,7 +975,7 @@ class AppController extends Controller
      * @param mixed $limit
      *            If false, will make a paginate call, if an int greater than 0, will make a find with the limit
      */
-    function searchHandler($searchId, $model, $structureAlias, $url, $ignoreDetail = false, $limit = false)
+    public function searchHandler($searchId, $model, $structureAlias, $url, $ignoreDetail = false, $limit = false)
     {
         // setting structure
         $structure = $this->Structures->get('form', $structureAlias);
@@ -1030,7 +1030,7 @@ class AppController extends Controller
      * @param Object $model
      *            The model to search upon
      */
-    function setControlerPaginatorSettings($model)
+    public function setControlerPaginatorSettings($model)
     {
         if (PAGINATION_AMOUNT)
             $this->Paginator->settings = array_merge($this->Paginator->settings, array(
@@ -1051,7 +1051,7 @@ class AppController extends Controller
      * @param
      *            string &$structureAlias
      */
-    static function buildDetailBinding(&$model, array $conditions, &$structureAlias)
+    static public function buildDetailBinding(&$model, array $conditions, &$structureAlias)
     {
         $controller = AppController::getInstance();
         $masterClassName = isset($model->baseModel) ? $model->baseModel : $model->name;
@@ -1161,7 +1161,7 @@ class AppController extends Controller
      *            An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
      *            The label must be translated already.
      */
-    static function buildBottomMenuOptions(array &$menuOptions)
+    static public function buildBottomMenuOptions(array &$menuOptions)
     {
         $tmp = array();
         foreach ($menuOptions as $menuOption) {
@@ -1180,7 +1180,7 @@ class AppController extends Controller
      * If a similar entry exists, the value is decremented.
      * Otherwise, url_to_cancel is uses as such.
      */
-    function setUrlToCancel()
+    public function setUrlToCancel()
     {
         if (isset($this->request->data['url_to_cancel'])) {
             $pattern = '/^javascript:history.go\((-?[0-9]*)\)$/';
@@ -1196,7 +1196,7 @@ class AppController extends Controller
         $this->set('urlToCancel', $this->request->data['url_to_cancel']);
     }
 
-    function resetPermissions()
+    public function resetPermissions()
     {
         if ($this->Auth->user()) {
             $userModel = AppModel::getInstance('', 'User', true);
@@ -1208,7 +1208,7 @@ class AppController extends Controller
         }
     }
 
-    function setForRadiolist(array &$list, $lModel, $lKey, array $data, $dModel, $dKey)
+    public function setForRadiolist(array &$list, $lModel, $lKey, array $data, $dModel, $dKey)
     {
         foreach ($list as &$unit) {
             if ($data[$dModel][$dKey] == $unit[$lModel][$lKey]) {
@@ -1227,7 +1227,7 @@ class AppController extends Controller
      * @param
      *            strint or null $data
      */
-    static function getCancelLink($data)
+    static public function getCancelLink($data)
     {
         $result = null;
         if (isset($data['node']['id'])) {
@@ -1250,7 +1250,7 @@ class AppController extends Controller
      * -Delete all browserIndex > Limit
      * -databrowser lft rght
      */
-    function newVersionSetup()
+    public function newVersionSetup()
     {
         // new version installed!
         
@@ -1956,7 +1956,7 @@ class AppController extends Controller
         }
     }
 
-    function configureCsv($config)
+    public function configureCsv($config)
     {
         $this->csvConfig = $config;
         $this->Session->write('Config.language', $config['config_language']);
@@ -1983,22 +1983,23 @@ class AppController extends Controller
         return $out;
     }
 
-    public static function snakeToCamel($val)
-    {
-        preg_match('#^_*#', $val, $underscores);
-        $underscores = current($underscores);
-        $camel = str_replace('||||', '', ucwords(str_replace('_', '||||', $val), '||||'));
-        $camel = strtolower(substr($camel, 0, 1)) . substr($camel, 1);
-        
-        return $underscores . $camel;
-    }
+//    public static function snakeToCamel($val)
+//    {
+//        preg_match('#^_*#', $val, $underscores);
+//        $underscores = current($underscores);
+//        $camel = str_replace('||||', '', ucwords(str_replace('_', '||||', $val), '||||'));
+//        $camel = strtolower(substr($camel, 0, 1)) . substr($camel, 1);
+//        
+//        return $underscores . $camel;
+//    }
 
     public static function convertArrayKeyFromSnakeToCamel($array = null)
     {
         $answer = [];
         if ($array) {
             foreach ($array as $key => $value) {
-                $answer[self::snakeToCamel($key)] = $value;
+//                $answer[self::snakeToCamel($key)] = $value;
+                $answer[Inflector::variable($key)] = $value;
             }
         }
         return $answer;

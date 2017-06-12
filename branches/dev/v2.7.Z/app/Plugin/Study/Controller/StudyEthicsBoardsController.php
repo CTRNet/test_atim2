@@ -14,7 +14,7 @@ class StudyEthicsBoardsController extends StudyAppController
         )
     );
 
-    function listall($studySummaryId)
+    public function listall($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -51,7 +51,7 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
-    function detail($studySummaryId, $studyEthicsBoardId)
+    public function detail($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -88,7 +88,7 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
-    function add($studySummaryId)
+    public function add($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -155,7 +155,7 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
-    function edit($studySummaryId, $studyEthicsBoardId)
+    public function edit($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -225,7 +225,7 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
-    function delete($studySummaryId, $studyEthicsBoardId)
+    public function delete($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
         $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

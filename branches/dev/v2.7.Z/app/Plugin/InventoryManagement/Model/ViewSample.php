@@ -45,7 +45,7 @@ class ViewSample extends InventoryManagementAppModel
         )
     );
 
-    static $tableQuery = '
+    public static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -94,12 +94,12 @@ class ViewSample extends InventoryManagementAppModel
 
     public $fieldsReplace = null;
 
-    static $minValueFields = array(
+    public static $minValueFields = array(
         'coll_to_creation_spent_time_msg',
         'coll_to_rec_spent_time_msg'
     );
 
-    function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
+    public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
         if ($this->fieldsReplace == null) {
             $this->fieldsReplace = array(

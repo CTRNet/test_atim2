@@ -217,7 +217,7 @@ class MasterDetailBehavior extends ModelBehavior
         return $query;
     }
 
-    public function afterSave(Model $model, $created, $options = Array())
+    public function afterSave(Model $model, $created, $options = array())
     {
         // make all SETTINGS into individual VARIABLES, with the KEYS as names
         extract(AppController::convertArrayKeyFromSnakeToCamel($this->__settings[$model->alias]));
@@ -302,7 +302,7 @@ class MasterDetailBehavior extends ModelBehavior
         return true;
     }
 
-    function getControlName(Model $model)
+    public function getControlName(Model $model)
     {
         if (isset($model->baseModel)) {
             $model = AppModel::getInstance($model->basePlugin, $model->baseModel, true);
@@ -310,7 +310,7 @@ class MasterDetailBehavior extends ModelBehavior
         return isset($this->__settings[$model->alias]['control_class']) ? $this->__settings[$model->alias]['control_class'] : null;
     }
 
-    function getControlForeign(Model $model)
+    public function getControlForeign(Model $model)
     {
         if (isset($model->baseModel)) {
             $model = AppModel::getInstance($model->basePlugin, $model->baseModel, true);
@@ -327,7 +327,7 @@ class MasterDetailBehavior extends ModelBehavior
      * @param unknown_type $results            
      * @param unknown_type $primary            
      */
-    function applyMasterFormAlias(Model $model, $results, $primary)
+    public function applyMasterFormAlias(Model $model, $results, $primary)
     {
         if (! $primary && isset($results[0][$model->alias]['detail_form_alias'])) {
             foreach ($results as &$row) {
@@ -337,7 +337,7 @@ class MasterDetailBehavior extends ModelBehavior
         return $results;
     }
 
-    function getDetailModel($model, $controlId)
+    public function getDetailModel($model, $controlId)
     {
         extract(AppController::convertArrayKeyFromSnakeToCamel($this->__settings[$model->alias]));
         if (! $isMasterModel) {

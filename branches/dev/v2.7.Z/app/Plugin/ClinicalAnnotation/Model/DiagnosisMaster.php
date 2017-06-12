@@ -43,22 +43,22 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         )
     );
 
-    function primarySummary($variables = array())
+    public function primarySummary($variables = array())
     {
         return $this->summary($variables['DiagnosisMaster.primary_id']);
     }
 
-    function progression1Summary($variables = array())
+    public function progression1Summary($variables = array())
     {
         return $this->summary($variables['DiagnosisMaster.progression_1_id']);
     }
 
-    function progression2Summary($variables = array())
+    public function progression2Summary($variables = array())
     {
         return $this->summary($variables['DiagnosisMaster.progression_2_id']);
     }
 
-    function summary($diagnosisMasterId = null)
+    public function summary($diagnosisMasterId = null)
     {
         $return = false;
         if (! is_null($diagnosisMasterId)) {
@@ -102,7 +102,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
      * @param
      *            $participantArray
      */
-    function patchIcd10NullValues(&$participantArray)
+    public function patchIcd10NullValues(&$participantArray)
     {
         if (array_key_exists('icd10_code', $participantArray['DiagnosisMaster']) && strlen(trim($participantArray['DiagnosisMaster']['icd10_code'])) == 0) {
             $participantArray['DiagnosisMaster']['icd10_code'] = null;
@@ -122,7 +122,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($diagnosisMasterId)
+    public function allowDeletion($diagnosisMasterId)
     {
         $arrAllowDeletion = array(
             'allow_deletion' => true,
@@ -190,7 +190,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $arrAllowDeletion;
     }
 
-    function getExistingDx($participantId, $currentDxId = '0', $currentDxPrimaryNumber = '')
+    public function getExistingDx($participantId, $currentDxId = '0', $currentDxPrimaryNumber = '')
     {
         $existingDx = $this->find('all', array(
             'conditions' => array(
@@ -220,7 +220,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $sortedDx;
     }
 
-    function hasChild(array $diagnosisMasterIds)
+    public function hasChild(array $diagnosisMasterIds)
     {
         $txModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
         $eventMasterModel = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
@@ -251,7 +251,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
     /**
      * Arranges the threaded data
      */
-    function arrangeThreadedDataForView(array &$threadedDxData, $seekingDxId, $seekingModelName)
+    public function arrangeThreadedDataForView(array &$threadedDxData, $seekingDxId, $seekingModelName)
     {
         $stack = array();
         $currentArray = &$threadedDxData;
@@ -272,7 +272,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $foundDx;
     }
 
-    function getRelatedDiagnosisEvents($diagnosisMasterId)
+    public function getRelatedDiagnosisEvents($diagnosisMasterId)
     {
         $relatedDiagnosisData = array();
         
@@ -311,7 +311,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $relatedDiagnosisData;
     }
 
-    static function joinOnDiagnosisDup($onField)
+    static public function joinOnDiagnosisDup($onField)
     {
         return array(
             'table' => 'diagnosis_masters',
@@ -323,7 +323,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         );
     }
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         $retVal = parent::beforeSave($options);
         if (isset($this->data['DiagnosisMaster']['topography']) && preg_match('/^(C[0-9]{2})[0-9]$/', $this->data['DiagnosisMaster']['topography'], $matches)) {

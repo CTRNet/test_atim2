@@ -10,7 +10,7 @@ class PreferencesController extends CustomizeAppController
         'Config'
     );
 
-    function index()
+    public function index()
     {
         $this->Structures->set('preferences');
         
@@ -21,7 +21,7 @@ class PreferencesController extends CustomizeAppController
         $this->request->data['Config'] = $configResults['Config'];
     }
 
-    function edit()
+    public function edit()
     {
         $this->Structures->set('preferences');
         

@@ -14,7 +14,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         )
     );
 
-    function listall($participantId)
+    public function listall($participantId)
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -35,7 +35,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function detail($participantId, $reproductiveHistoryId)
+    public function detail($participantId, $reproductiveHistoryId)
     {
         if (! $participantId && ! $reproductiveHistoryId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -72,7 +72,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function add($participantId = null)
+    public function add($participantId = null)
     {
         if (! $participantId) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -118,7 +118,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function edit($participantId, $reproductiveHistoryId)
+    public function edit($participantId, $reproductiveHistoryId)
     {
         if ((! $participantId) && (! $reproductiveHistoryId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
@@ -172,7 +172,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
-    function delete($participantId, $reproductiveHistoryId)
+    public function delete($participantId, $reproductiveHistoryId)
     {
         if ((! $participantId) && (! $reproductiveHistoryId)) {
             $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);

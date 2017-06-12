@@ -14,13 +14,13 @@ class AdminUsersController extends AdministrateAppController
         )
     );
 
-    function beforeFilter()
+    public function beforeFilter()
     {
         parent::beforeFilter();
         $this->Structures->set('users');
     }
 
-    function listall($groupId)
+    public function listall($groupId)
     {
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId
@@ -34,7 +34,7 @@ class AdminUsersController extends AdministrateAppController
         ));
     }
 
-    function detail($groupId, $userId)
+    public function detail($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId,
@@ -47,7 +47,7 @@ class AdminUsersController extends AdministrateAppController
         $this->request->data = $this->User->getOrRedirect($userId);
     }
 
-    function add($groupId)
+    public function add($groupId)
     {
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId
@@ -114,7 +114,7 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
-    function edit($groupId, $userId)
+    public function edit($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(
             'Group.id' => $groupId,
@@ -171,7 +171,7 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
-    function delete($groupId, $userId)
+    public function delete($groupId, $userId)
     {
         // to be used in a hook
         $arrAllowDeletion = array(
@@ -201,7 +201,7 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
-    function search($searchId = 0)
+    public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Administrate/Groups/index'));
         $this->searchHandler($searchId, $this->User, 'users', '/Administrate/AdminUsers/search');
@@ -215,7 +215,7 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
-    function changeGroup($groupId, $userId)
+    public function changeGroup($groupId, $userId)
     {
         $user = $this->User->getOrRedirect($userId);
         if ($user['Group']['id'] != $groupId) {

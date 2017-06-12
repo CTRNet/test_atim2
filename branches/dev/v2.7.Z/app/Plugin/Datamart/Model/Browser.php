@@ -63,21 +63,21 @@ class Browser extends DatamartAppModel
      *
      * @var boolean
      */
-    static $hierarchicalDropdown = false;
+    public static $hierarchicalDropdown = false;
 
     /**
      * The character used to separate model ids in the url
      *
      * @var string
      */
-    static $modelSeparatorStr = "_";
+    public static $modelSeparatorStr = "_";
 
     /**
      * The character used to separate sub model id in the url
      *
      * @var string
      */
-    static $subModelSeparatorStr = "-";
+    public static $subModelSeparatorStr = "-";
 
     /**
      *
@@ -96,7 +96,7 @@ class Browser extends DatamartAppModel
      *            An array with ControlModel => array(ids) to filter the sub models id
      * @return Returns an array representing the options to display in the action drop down
      */
-    function getBrowserDropdownOptions($startingCtrlId, $nodeId, $pluginName, $modelName, $dataModel, $modelPkey, $dataPkey, array $subModelsIdFilter = null)
+    public function getBrowserDropdownOptions($startingCtrlId, $nodeId, $pluginName, $modelName, $dataModel, $modelPkey, $dataPkey, array $subModelsIdFilter = null)
     {
         $prevSetting = AppController::$highlightMissingTranslations;
         AppController::$highlightMissingTranslations = false;
@@ -236,7 +236,7 @@ class Browser extends DatamartAppModel
         return $result;
     }
 
-    function buildBrowsableOptionsRecur(array $fromTo, $currentId, array $browsingStructures, array $subModelsIdFilter = null, array $stack)
+    public function buildBrowsableOptionsRecur(array $fromTo, $currentId, array $browsingStructures, array $subModelsIdFilter = null, array $stack)
     {
         $result = null;
         if (isset($fromTo[$currentId]) && isset($browsingStructures[$currentId])) {
@@ -277,7 +277,7 @@ class Browser extends DatamartAppModel
      *            An array with ControlModel => array(ids) to filter the sub models id
      * @return An array representing the browsable portion of the action menu
      */
-    function buildBrowsableOptions(array $fromTo, $currentId, array $browsingStructures, array $subModelsIdFilter = null)
+    public function buildBrowsableOptions(array $fromTo, $currentId, array $browsingStructures, array $subModelsIdFilter = null)
     {
         if (Browser::$hierarchicalDropdown) {
             return $this->buildBrowsableOptionsRecur($fromTo, $currentId, $browsingStructures, $subModelsIdFilter, array());
@@ -352,7 +352,7 @@ class Browser extends DatamartAppModel
         return $result;
     }
 
-    function buildItemOptions(array &$result, array &$browsingStructures, &$currentId, array &$subModelsIdFilter)
+    public function buildItemOptions(array &$result, array &$browsingStructures, &$currentId, array &$subModelsIdFilter)
     {
         $result['children'] = array(
             array(
@@ -385,7 +385,7 @@ class Browser extends DatamartAppModel
      *            array ids_filter An array to filter the controls ids of the current sub model
      * @return array The data about the submodels of the given model
      */
-    static function getSubModels(array $mainModelInfo, $prependValue, array $idsFilter = null)
+    static public function getSubModels(array $mainModelInfo, $prependValue, array $idsFilter = null)
     {
         // we need to fetch the controls
         $mainModel = AppModel::getInstance($mainModelInfo['DatamartStructure']['plugin'], $mainModelInfo['DatamartStructure']['model'], true);
@@ -446,7 +446,7 @@ class Browser extends DatamartAppModel
      *            Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
      * @return An array representing the search tree
      */
-    static function getTree($nodeId, $activeNode, $mergedIds, array &$linkedTypesDown = array(), array &$linkedTypesUp = array())
+    static public function getTree($nodeId, $activeNode, $mergedIds, array &$linkedTypesDown = array(), array &$linkedTypesUp = array())
     {
         $BrowsingResult = new BrowsingResult();
         $result = $BrowsingResult->find('all', array(
@@ -531,7 +531,7 @@ class Browser extends DatamartAppModel
      * @param Int $y
      *            The current y location
      */
-    static function buildTree(array $treeNode, &$tree = array(), $x = 0, &$y = 0)
+    static public function buildTree(array $treeNode, &$tree = array(), $x = 0, &$y = 0)
     {
         if ($treeNode['active'] && $tree != null) {
             self::drawActiveLine($tree, $x, $y);
@@ -685,7 +685,7 @@ class Browser extends DatamartAppModel
      *            The webroot of ATiM
      * @return the html of the table search tree
      */
-    static function getPrintableTree($currentNode, array $mergedIds, $webrootUrl)
+    static public function getPrintableTree($currentNode, array $mergedIds, $webrootUrl)
     {
         $result = "";
         $BrowsingResult = new BrowsingResult();
@@ -832,7 +832,7 @@ class Browser extends DatamartAppModel
      *            Expect result returned in html format else txt
      * @return An html string of a table containing the search formated params
      */
-    static function formatSearchToPrint(array $params, $htmlFormat = true)
+    static public function formatSearchToPrint(array $params, $htmlFormat = true)
     {
         $searchConditions = $params['search']['search_conditions'];
         
@@ -1016,7 +1016,7 @@ class Browser extends DatamartAppModel
      *            The id of the alternate structure to retrieve
      * @return string The info of the alternate structure
      */
-    static function getAlternateStructureInfo($plugin, $controlModel, $id)
+    static public function getAlternateStructureInfo($plugin, $controlModel, $id)
     {
         $modelToUse = AppModel::getInstance($plugin, $controlModel, true);
         $data = $modelToUse->find('first', array(
@@ -1036,7 +1036,7 @@ class Browser extends DatamartAppModel
      * @param string $prevPkey            
      * @param string $newPkey            
      */
-    static function updateIndexLink($link, $prevModel, $newModel, $prevPkey, $newPkey)
+    static public function updateIndexLink($link, $prevModel, $newModel, $prevPkey, $newPkey)
     {
         return str_replace("%%" . $prevModel . ".", "%%" . $newModel . ".", str_replace("%%" . $prevModel . "." . $prevPkey . "%%", "%%" . $newModel . "." . $newPkey . "%%", $link));
     }
@@ -1050,7 +1050,7 @@ class Browser extends DatamartAppModel
      *            The DatamartStructure and BrowsingResult data to base the filtering on.
      * @return An array with the ControlModel => array(ids to filter with)
      */
-    static function getDropdownSubFiltering(array $browsing)
+    static public function getDropdownSubFiltering(array $browsing)
     {
         $subModelsIdFilter = array();
         if ($browsing['DatamartStructure']['id'] == 5) {
@@ -1156,7 +1156,7 @@ class Browser extends DatamartAppModel
      *            The label to translate
      * @return string The translated label
      */
-    static function getTranslatedDatabrowserLabel($label)
+    static public function getTranslatedDatabrowserLabel($label)
     {
         $parts = explode("|", $label);
         $StructurePermissibleValuesCustom = null;
@@ -1550,7 +1550,7 @@ class Browser extends DatamartAppModel
      * @param array $params            
      * @return null on success, a model display_name string if a parent node has not a 1:1 relation with it's descendant
      */
-    function buildAdvancedSearchParameters(array &$params)
+    public function buildAdvancedSearchParameters(array &$params)
     {
         $browsingResultModel = AppModel::getInstance('Datamart', 'BrowsingResult', true);
         $browsingControlModel = AppModel::getInstance('Datamart', 'BrowsingControl', true);
@@ -1646,7 +1646,7 @@ class Browser extends DatamartAppModel
         return null;
     }
 
-    function createNode($params)
+    public function createNode($params)
     {
         $dmStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
         $browsingResultModel = AppModel::getInstance('Datamart', 'BrowsingResult', true);
@@ -2050,7 +2050,7 @@ $browsingFilter['attribute']);
         );
     }
 
-    function buildDrillDownIfNeeded($data, &$nodeId)
+    public function buildDrillDownIfNeeded($data, &$nodeId)
     {
         if ($nodeId == 0) {
             return;

@@ -7,13 +7,13 @@ class Template extends AppModel
 
     public $tree = null;
 
-    static $sharing = array(
+    public static $sharing = array(
         'user' => 0,
         'bank' => 1,
         'all' => 2
     );
 
-    function init()
+    public function init()
     {
         $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
         $tree = $templateNodeModel->find('all', array(
@@ -43,7 +43,7 @@ class Template extends AppModel
      * When $templateId is set, system defined if template properties can be edited or not by the user
      * (Only user who created the template or administrators can change template properties or delete)
      */
-    function getTemplates($useDefintion, $templateId = null)
+    public function getTemplates($useDefintion, $templateId = null)
     {
         $conditions = array();
         $findType = $templateId ? 'first' : 'all';
@@ -110,7 +110,7 @@ class Template extends AppModel
     /*
      * Get code for 'Add From Template' button to build collection content from template
      */
-    function getAddFromTemplateMenu($collectionId)
+    public function getAddFromTemplateMenu($collectionId)
     {
         $visibleNodes = $this->getTemplates('template use');
         $options['empty template'] = array(
@@ -127,7 +127,7 @@ class Template extends AppModel
         return $options;
     }
 
-    function setOwnerAndVisibility(&$tempateData, $createdBy = null)
+    public function setOwnerAndVisibility(&$tempateData, $createdBy = null)
     {
         if (Template::$sharing[$tempateData['Template']['visibility']] < Template::$sharing[$tempateData['Template']['owner']]) {
             $tempateData['Template']['owner'] = $tempateData['Template']['visibility'];

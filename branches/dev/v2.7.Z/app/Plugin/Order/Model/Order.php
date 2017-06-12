@@ -29,7 +29,7 @@ class Order extends OrderAppModel
 
     public static $studyModel = null;
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -59,7 +59,7 @@ class Order extends OrderAppModel
         return $return;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $this->validateAndUpdateOrderStudyData();
         
@@ -69,7 +69,7 @@ class Order extends OrderAppModel
     /**
      * Check order study definition and set error if required.
      */
-    function validateAndUpdateOrderStudyData()
+    public function validateAndUpdateOrderStudyData()
     {
         $orderData = & $this->data;
         
@@ -120,7 +120,7 @@ class Order extends OrderAppModel
      * @author N. Luc
      * @since 2007-10-16
      */
-    function allowDeletion($orderId)
+    public function allowDeletion($orderId)
     {
         // Check no order line exists
         $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
@@ -173,7 +173,7 @@ class Order extends OrderAppModel
         );
     }
 
-    function warnUnconsentedAliquots($orderId)
+    public function warnUnconsentedAliquots($orderId)
     {
         $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);
         $orderItemData = $orderItemModel->find('all', array(
