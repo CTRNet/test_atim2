@@ -195,7 +195,7 @@ class StorageMaster extends StorageLayoutAppModel
         }
     }
 
-    static public function getStoragesDropdown()
+    public static function getStoragesDropdown()
     {
         return array();
     }

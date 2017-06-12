@@ -562,7 +562,7 @@ class BatchSetsController extends DatamartAppController
             ));
             $this->atimFlash(__('your data has been updated'), "/Datamart/BatchSets/index");
         } else {
-            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
     }
 

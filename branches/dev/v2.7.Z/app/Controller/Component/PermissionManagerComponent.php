@@ -251,7 +251,7 @@ class PermissionManagerComponent extends Component
                             'alias' => $method,
                             'plugin' => $plugin
                         ));
-                        $aco->id = NULL;
+                        $aco->id = null;
                         $methodNode = $aco->save();
                         $this->log[] = 'Created Aco node for ' . $plugin . '.' . $ctrlName . '.' . $method;
                         $methodNodeIds[] = $aco->id;

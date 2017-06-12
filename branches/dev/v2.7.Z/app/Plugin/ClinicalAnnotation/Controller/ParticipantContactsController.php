@@ -38,7 +38,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     public function detail($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA
@@ -74,7 +74,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     public function add($participantId)
     {
         if (! $participantId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA
@@ -122,7 +122,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     public function edit($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA
@@ -184,7 +184,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     public function delete($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA

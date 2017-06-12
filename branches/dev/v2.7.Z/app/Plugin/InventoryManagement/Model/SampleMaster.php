@@ -421,7 +421,7 @@ class SampleMaster extends InventoryManagementAppModel
         return false;
     }
 
-    static public function joinOnSampleDup($onField)
+    public static function joinOnSampleDup($onField)
     {
         return array(
             'table' => 'sample_masters',

@@ -28,11 +28,11 @@ class SopMaster extends SopAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     __($result['SopMaster']['code'], true)
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     __($result['SopMaster']['code'], true)
                 ),
                 'data' => $result,

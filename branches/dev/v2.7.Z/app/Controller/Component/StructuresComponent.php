@@ -33,7 +33,7 @@ class StructuresComponent extends Component
      * @param $structureName Structure name (by default name will be 'atim_structure')
      * @param array $parameters
      */
-    public function set($alias = NULL, $structureName = 'atimStructure', array $parameters = array())
+    public function set($alias = null, $structureName = 'atimStructure', array $parameters = array())
     {
         if (! is_array($alias)) {
             $alias = array_filter(explode(",", $alias));
@@ -162,7 +162,7 @@ $parameters);
         }
     }
 
-    public function get($mode = null, $alias = NULL)
+    public function get($mode = null, $alias = null)
     {
         $result = array(
             'structure' => array(
@@ -198,7 +198,7 @@ $parameters);
         return $result;
     }
 
-    public function getSingleStructure($alias = NULL)
+    public function getSingleStructure($alias = null)
     {
         $return = array();
         $alias = $alias ? trim(strtolower($alias)) : str_replace('_', '', $this->controller->params['controller']);
@@ -287,7 +287,7 @@ $parameters);
         }
     }
 
-    public function parseSearchConditions($atimStructure = NULL, $autoAccuracy = true)
+    public function parseSearchConditions($atimStructure = null, $autoAccuracy = true)
     {
         // conditions to ultimately return
         $conditions = array();
@@ -297,7 +297,7 @@ $parameters);
         $accuracyFields = array();
         
         // if no STRUCTURE provided, try and get one
-        if ($atimStructure === NULL) {
+        if ($atimStructure === null) {
             $atimStructure = $this->getSingleStructure();
             $atimStructure = $atimStructure['structure'];
         }
@@ -532,12 +532,12 @@ $parameters);
         return $conditions;
     }
 
-    static public function myFilter($val)
+    public static function myFilter($val)
     {
         return strlen($val) > 0;
     }
 
-    public function parseSqlConditions($sql = NULL, $conditions = NULL)
+    public function parseSqlConditions($sql = null, $conditions = null)
     {
         $sqlWithSearchTerms = $sql;
         $sqlWithoutSearchTerms = $sql;
@@ -699,7 +699,7 @@ $parameters);
      *
      * @param unknown_type $source            
      */
-    static public function getPulldownFromSource($source)
+    public static function getPulldownFromSource($source)
     {
         // Get arguments
         $args = null;
@@ -711,7 +711,7 @@ $parameters);
         }
         
         list ($pulldownModel, $pulldownFunction) = explode('::', $source);
-        $pulldownPlugin = NULL;
+        $pulldownPlugin = null;
         if (strpos($pulldownModel, '.') !== false) {
             $combinedPluginModelName = $pulldownModel;
             list ($pulldownPlugin, $pulldownModel) = explode('.', $combinedPluginModelName);

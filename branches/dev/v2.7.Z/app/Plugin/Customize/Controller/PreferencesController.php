@@ -35,7 +35,7 @@ class PreferencesController extends CustomizeAppController
             if ($this->Config->save()) {
                 $this->atimFlash(__('your data has been updated'), '/Customize/Preferences/index');
             } else {
-                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
         } else {
             $this->request->data = $this->User->find('first', array(

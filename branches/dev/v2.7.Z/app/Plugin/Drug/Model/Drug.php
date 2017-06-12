@@ -25,11 +25,11 @@ class Drug extends DrugAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $result['Drug']['generic_name']
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $result['Drug']['generic_name']
                 ),
                 'data' => $result,

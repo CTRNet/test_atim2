@@ -32,11 +32,11 @@ class Participant extends ClinicalAnnotationAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     ($result['Participant']['participant_identifier'])
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     ($result['Participant']['participant_identifier'])
                 ),
                 'structure alias' => 'participants',

@@ -31,8 +31,8 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         // $result = $this->find('first', array('conditions'=>array('MiscIdentifier.id'=>$variables['MiscIdentifier.id'])));
         //
         // $return = array(
-        // 'name' => array( NULL, $result['MiscIdentifier']['name']),
-        // 'participant_id' => array( NULL, $result['MiscIdentifier']['participant_id']),
+        // 'name' => array( null, $result['MiscIdentifier']['name']),
+        // 'participant_id' => array( null, $result['MiscIdentifier']['participant_id']),
         // 'data' => $result,
         // 'structure alias'=>'miscidentifiers'
         // );

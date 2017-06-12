@@ -153,7 +153,7 @@ class BrowserController extends DatamartAppController
                 }
             } elseif ($controlId == 0) {
                 // error, the control_id should't be 0
-                $this->redirect('/Pages/err_internal?p[]=control_id', NULL, true);
+                $this->redirect('/Pages/err_internal?p[]=control_id', null, true);
             } else {
                 $checkList = true;
             }
@@ -562,7 +562,7 @@ $checkList) // this is a checklist
         ));
         
         if ($dmStructure == null) {
-            $this->redirect('/Pages/err_internal?p[]=model+not+found', NULL, true);
+            $this->redirect('/Pages/err_internal?p[]=model+not+found', null, true);
         }
         
         $model = null;
@@ -571,13 +571,13 @@ $checkList) // this is a checklist
         } elseif (array_key_exists($dmStructure['DatamartStructure']['control_master_model'], $this->request->data)) {
             $model = AppModel::getInstance($dmStructure['DatamartStructure']['plugin'], $dmStructure['DatamartStructure']['control_master_model'], true);
         } else {
-            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         $ids = $this->request->data[$model->name][$model->primaryKey];
         $ids = array_filter($ids);
         
         if (empty($ids)) {
-            $this->redirect('/Pages/err_internal?p[]=no+ids', NULL, true);
+            $this->redirect('/Pages/err_internal?p[]=no+ids', null, true);
         }
         
         sort($ids);
@@ -626,7 +626,7 @@ $checkList) // this is a checklist
             )
         ));
         if (empty($this->request->data)) {
-            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_internal?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } else {
             $this->request->data['BrowsingIndex']['temporary'] = false;
             $this->BrowsingIndex->pkeySafeguard = false;

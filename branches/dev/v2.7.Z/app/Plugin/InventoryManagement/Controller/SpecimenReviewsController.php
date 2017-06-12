@@ -143,7 +143,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
         
         if (empty($this->request->data)) {
-            $this->request->data = NULL;
+            $this->request->data = null;
             $this->set('specimenReviewData', array());
             $this->set('aliquotReviewData', array());
             
@@ -158,7 +158,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
             unset($this->request->data['SpecimenReviewMaster']);
             unset($this->request->data['SpecimenReviewDetail']);
             $aliquotReviewData = $this->request->data;
-            $this->request->data = NULL;
+            $this->request->data = null;
             
             $specimenReviewData['SpecimenReviewMaster']['specimen_review_control_id'] = $specimenReviewControlId;
             $specimenReviewData['SpecimenReviewMaster']['collection_id'] = $collectionId;
@@ -260,7 +260,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
     {
         
         // MANAGE DATA
-        $this->request->data = NULL;
+        $this->request->data = null;
         
         $sampleData = $this->SampleMaster->find('first', array(
             'conditions' => array(
@@ -414,7 +414,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
         
         if (empty($this->request->data) || $undo) {
-            $this->request->data = NULL;
+            $this->request->data = null;
             $this->set('specimenReviewData', $initialSpecimenReviewData);
             $this->set('aliquotReviewData', $initialAliquotReviewDataList);
             
@@ -429,7 +429,7 @@ class SpecimenReviewsController extends InventoryManagementAppController
             unset($this->request->data['SpecimenReviewMaster']);
             unset($this->request->data['SpecimenReviewDetail']);
             $aliquotReviewData = array_values($this->request->data); // compact the array as some key might be missing
-            $this->request->data = NULL;
+            $this->request->data = null;
             
             $this->set('specimenReviewData', $specimenReviewData);
             $this->set('aliquotReviewData', $aliquotReviewData);

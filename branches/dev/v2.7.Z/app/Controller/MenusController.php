@@ -26,7 +26,7 @@ class MenusController extends AppController
         }
     }
 
-    public function index($setOfMenus = NULL)
+    public function index($setOfMenus = null)
     {
         if (! $setOfMenus) {
             $menuData = $this->Menu->find('all', array(

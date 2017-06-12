@@ -53,7 +53,7 @@ class OrderItemsController extends OrderAppController
     {
         // MANAGE DATA
         if ($orderLineId && $shipmentId)
-            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         
         if ($orderLineId) {
             // List all items of an order line
@@ -364,7 +364,7 @@ class OrderItemsController extends OrderAppController
                     $this->OrderItem->id = null;
                     $this->OrderItem->data = array();
                     if (! $this->OrderItem->save($newDataToSave, false))
-                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     if ($objectModelName == 'AliquotMaster') {
                         // Update aliquot master status
                         $newAliquotMasterData = array();

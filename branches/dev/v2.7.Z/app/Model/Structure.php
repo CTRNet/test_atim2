@@ -93,8 +93,8 @@ class Structure extends AppModel
                         $rules[$sf['model']] = array();
                     }
                     $tmpType = $sf['type'];
-                    $tmpRule = NULL;
-                    $tmpMsg = NULL;
+                    $tmpRule = null;
+                    $tmpMsg = null;
                     if ($tmpType == "integer") {
                         $tmpRule = VALID_INTEGER;
                         $tmpMsg = "error_must_be_integer";
@@ -117,11 +117,11 @@ class Structure extends AppModel
                         $tmpRule = VALID_24TIME;
                         $tmpMsg = "this is not a time";
                     }
-                    if ($tmpRule != NULL) {
+                    if ($tmpRule != null) {
                         $sf['StructureValidation'][] = array(
                             'structure_field_id' => $sf['structure_field_id'],
                             'rule' => $tmpRule,
-                            'on_action' => NULL,
+                            'on_action' => null,
                             'language_message' => $tmpMsg
                         );
                     }

@@ -71,14 +71,14 @@ class GroupsController extends AppController
                     if ($permission['remove'] && $permission['id']) {
                         $this->Permission->delete($permission['id']);
                     } elseif (! $permission['remove']) {
-                        $this->Permission->id = isset($permission['id']) ? $permission['id'] : NULL;
+                        $this->Permission->id = isset($permission['id']) ? $permission['id'] : null;
                         $permission['_read'] = $permission['_create'];
                         $permission['_update'] = $permission['_create'];
                         $permission['_delete'] = $permission['_create'];
                         $this->Permission->save(array(
                             'Permission' => $permission
                         ));
-                        $this->Permission->id = NULL;
+                        $this->Permission->id = null;
                     }
                 }
                 $this->Session->setFlash(__('The Group has been saved'));

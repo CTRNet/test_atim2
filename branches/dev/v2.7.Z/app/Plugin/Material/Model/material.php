@@ -21,11 +21,11 @@ class Material extends AppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $result['Material']['item_name']
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $result['Material']['item_name']
                 ),
                 'data' => $result,

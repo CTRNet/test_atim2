@@ -41,11 +41,11 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     __($result['TreatmentControl']['tx_method'], true) . (empty($result['TreatmentControl']['disease_site']) ? '' : ' - ' . __($result['TreatmentControl']['disease_site'], true))
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     __('treatment', true)
                 ),
                 'data' => $result,

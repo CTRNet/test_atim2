@@ -30,11 +30,11 @@ class Group extends AppModel
             ));
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $result['Group']['name']
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $result['Group']['name']
                 ),
                 'data' => $result,

@@ -215,7 +215,7 @@ class DropdownsController extends AdministrateAppController
                     $dataUnit['StructurePermissibleValuesCustom']['control_id'] = $controlId;
                     $this->StructurePermissibleValuesCustom->set($dataUnit);
                     if (! $this->StructurePermissibleValuesCustom->save($dataUnit)) {
-                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
                 }
                 $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $controlId);
@@ -247,7 +247,7 @@ class DropdownsController extends AdministrateAppController
             )
         ));
         if (empty($valueData)) {
-            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
@@ -300,7 +300,7 @@ class DropdownsController extends AdministrateAppController
             
             if (! $skipSave) {
                 if (! $this->StructurePermissibleValuesCustom->save($this->request->data)) {
-                    $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                    $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 $this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/' . $controlId);
             }
@@ -362,12 +362,12 @@ class DropdownsController extends AdministrateAppController
             $ids = AppController::defineArrayKey($ids, 'StructurePermissibleValuesCustom', 'id', true);
             if (count($ids) != count($data)) {
                 // hack detected
-                $this->redirect('/Pages/err_plugin_system_error', NULL, true);
+                $this->redirect('/Pages/err_plugin_system_error', null, true);
             }
             foreach ($data as &$dataUnit) {
                 if (! isset($ids[$dataUnit['id']])) {
                     // hack detected
-                    $this->redirect('/Pages/err_plugin_system_error', NULL, true);
+                    $this->redirect('/Pages/err_plugin_system_error', null, true);
                 }
             }
             

@@ -340,7 +340,7 @@ class ShellHelper extends Helper
                             if ($menuItem['Menu']['at']) {
                                 $isRoot = $menuItem['Menu']['is_root'];
                                 
-                                $summaryItem = $menuItem['Menu']['use_summary'] ? NULL : array(
+                                $summaryItem = $menuItem['Menu']['use_summary'] ? null : array(
                                     'class' => 'without_summary'
                                 );
                                 
@@ -542,7 +542,7 @@ class ShellHelper extends Helper
             
             if ($model) {
                 // if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
-                $plugin = NULL;
+                $plugin = null;
                 if (strpos($model, '.') !== false) {
                     $pluginModelName = $model;
                     list ($plugin, $model) = explode('.', $pluginModelName);

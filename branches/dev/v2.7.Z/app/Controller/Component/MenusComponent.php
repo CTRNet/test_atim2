@@ -19,7 +19,7 @@ class MenusComponent extends Component
         $this->controller = $controller;
     }
 
-    public function get($alias = NULL, $replace = array())
+    public function get($alias = null, $replace = array())
     {
         $aroAlias = 'Group::' . $this->Session->read('Auth.User.group_id');
         

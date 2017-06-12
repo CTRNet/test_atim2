@@ -1560,7 +1560,7 @@ class AliquotMastersController extends InventoryManagementAppController
                     'AliquotControl.volume_unit' => ''
                 ),
                 array(
-                    'AliquotControl.volume_unit' => NULL
+                    'AliquotControl.volume_unit' => null
                 )
             ),
             'NOT' => array(
@@ -1578,7 +1578,7 @@ class AliquotMastersController extends InventoryManagementAppController
                 'AliquotControl.volume_unit' => ''
             ),
             array(
-                'AliquotControl.volume_unit' => NULL
+                'AliquotControl.volume_unit' => null
             )
         );
         $availableSampleAliquotsWVolume = $this->AliquotMaster->find('all', array(
@@ -2517,7 +2517,7 @@ class AliquotMastersController extends InventoryManagementAppController
                         $realiquotingData['Realiquoting']['lab_book_master_id'] = $labBookId;
                         $realiquotingData['Realiquoting']['sync_with_lab_book'] = $syncWithLabBook;
                         
-                        $this->Realiquoting->id = NULL;
+                        $this->Realiquoting->id = null;
                         $this->Realiquoting->data = array(); // *** To guaranty no merge will be done with previous data ***
                         if (! $this->Realiquoting->save($realiquotingData, false)) {
                             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -2970,7 +2970,7 @@ class AliquotMastersController extends InventoryManagementAppController
                             $childrenAliquotToSave['Realiquoting']['lab_book_master_id'] = $labBookId;
                             $childrenAliquotToSave['Realiquoting']['sync_with_lab_book'] = $syncWithLabBook;
                             
-                            $this->Realiquoting->id = NULL;
+                            $this->Realiquoting->id = null;
                             $this->Realiquoting->data = null;
                             if (! $this->Realiquoting->save(array(
                                 'Realiquoting' => $childrenAliquotToSave['Realiquoting']

@@ -82,11 +82,11 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     __($result['DiagnosisControl']['category'], true) . ' - ' . __($result['DiagnosisControl']['controls_type'], true)
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     __($result['DiagnosisControl']['category'], true)
                 ),
                 'data' => $result,
@@ -311,7 +311,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $relatedDiagnosisData;
     }
 
-    static public function joinOnDiagnosisDup($onField)
+    public static function joinOnDiagnosisDup($onField)
     {
         return array(
             'table' => 'diagnosis_masters',

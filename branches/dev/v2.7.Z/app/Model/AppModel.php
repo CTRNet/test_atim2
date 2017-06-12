@@ -472,12 +472,12 @@ class AppModel extends Model
         $return = false;
         
         $defaults = array(
-            'conditions' => NULL,
-            'fields' => NULL,
-            'order' => NULL,
-            'group' => NULL,
-            'limit' => NULL,
-            'page' => NULL,
+            'conditions' => null,
+            'fields' => null,
+            'order' => null,
+            'group' => null,
+            'limit' => null,
+            'page' => null,
             'recursive' => 1,
             'callbacks' => true
         );
@@ -693,7 +693,7 @@ class AppModel extends Model
         return str_replace("%%key_increment%%", str_pad($result[0]['key_increments']['key_value'], $padToLength, '0', STR_PAD_LEFT), $str);
     }
 
-    static public function getMagicCodingIcdTriggerArray()
+    public static function getMagicCodingIcdTriggerArray()
     {
         return self::$magicCodingIcdTriggerArray;
     }
@@ -836,7 +836,7 @@ class AppModel extends Model
             $formAlias = $settings['form_alias'];
             $detailField = $settings['detail_field'];
             
-            $associated = NULL;
+            $associated = null;
             if (isset($this->data[$masterClass][$controlForeign]) && $this->data[$masterClass][$controlForeign]) {
                 // use CONTROL_ID to get control row
                 $associated = $this->$controlClass->find('first', array(
@@ -860,9 +860,9 @@ class AppModel extends Model
                 ));
             }
             
-            if ($associated == NULL || empty($associated)) {
+            if ($associated == null || empty($associated)) {
                 // FAIL!, we ABSOLUTELY WANT validations
-                AppController::getInstance()->redirect('/Pages/err_internal?p[]=' . __CLASS__ . " @ line " . __LINE__ . " (the detail control id was not found for " . $masterClass . ")", NULL, true);
+                AppController::getInstance()->redirect('/Pages/err_internal?p[]=' . __CLASS__ . " @ line " . __LINE__ . " (the detail control id was not found for " . $masterClass . ")", null, true);
                 exit();
             }
             
@@ -918,7 +918,7 @@ class AppModel extends Model
         return false;
     }
 
-    static public function getInstance($pluginName, $className, $errorViewOnNull = true)
+    public static function getInstance($pluginName, $className, $errorViewOnNull = true)
     {
         $instance = ClassRegistry::getObject($className);
         if ($instance !== false && $instance instanceof $className) {
@@ -943,7 +943,7 @@ class AppModel extends Model
                 pr(AppController::getStackTrace());
                 die('died in AppModel::getInstance [' . $pluginName . $className . '] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');
             } else {
-                AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $className, NULL, true);
+                AppController::getInstance()->redirect('/Pages/err_model_import_failed?p[]=' . $className, null, true);
             }
         }
         
@@ -961,7 +961,7 @@ class AppModel extends Model
      *            The table to use
      * @return The instantiated class
      */
-    static public function atimInstantiateExtend($class, $tableName)
+    public static function atimInstantiateExtend($class, $tableName)
     {
         ClassRegistry::removeObject($class->name);
         $extend = new $class(false, $tableName);
@@ -977,7 +977,7 @@ class AppModel extends Model
      * @param Model $model
      *            The model to base the validations on
      */
-    static public function buildAutoValidation($useName, Model $model)
+    public static function buildAutoValidation($useName, Model $model)
     {
         if (! is_array($model->_schema)) {
             $model->schema();
@@ -1120,7 +1120,7 @@ class AppModel extends Model
      *            CakePHP SQL conditionnal array
      * @return true if the field was found
      */
-    static public function isFieldUsedAsCondition($field, array $conditions)
+    public static function isFieldUsedAsCondition($field, array $conditions)
     {
         foreach ($conditions as $key => $value) {
             $isArray = is_array($value);
@@ -1170,7 +1170,7 @@ class AppModel extends Model
      * @author N. Luc
      * @since 2007-06-20
      */
-    static public function getSpentTime($startDatetime, $endDatetime)
+    public static function getSpentTime($startDatetime, $endDatetime)
     {
         $arrSpentTime = array(
             'message' => null,
@@ -1233,7 +1233,7 @@ class AppModel extends Model
      * @author N. Luc
      * @since 2007-06-20
      */
-    static public function getTimeStamp($dateString)
+    public static function getTimeStamp($dateString)
     {
         list ($date, $time) = explode(' ', $dateString);
         list ($year, $month, $day) = explode('-', $date);
@@ -1242,7 +1242,7 @@ class AppModel extends Model
         return mktime($hour, $minute, $second, $month, $day, $year);
     }
 
-    static public function manageSpentTimeDataDisplay($spentTimeData, $withTime = true)
+    public static function manageSpentTimeDataDisplay($spentTimeData, $withTime = true)
     {
         $spentTimeMsg = '';
         if (! empty($spentTimeData)) {
@@ -1264,7 +1264,7 @@ class AppModel extends Model
         return $spentTimeMsg;
     }
 
-    static public function translateDateValueAndUnit($spentTimeData, $timeUnit)
+    public static function translateDateValueAndUnit($spentTimeData, $timeUnit)
     {
         if (array_key_exists($timeUnit, $spentTimeData)) {
             return (((! empty($spentTimeData[$timeUnit])) && ($spentTimeData[$timeUnit] != '00')) ? ($spentTimeData[$timeUnit] . ' ' . ($spentTimeData[$timeUnit] == 1 ? __(substr($timeUnit, 0, - 1)) : __($timeUnit)) . ' ') : '');
@@ -1281,7 +1281,7 @@ class AppModel extends Model
      *            The controller passed arguments. (From the controller, $this->passedArgs)
      * @return The data sorted if the passed_args were compatible with it
      */
-    static public function sortWithUrl(array $data, array $passedArgs)
+    public static function sortWithUrl(array $data, array $passedArgs)
     {
         $order = array();
         if (isset($passedArgs['sort'])) {
@@ -1689,7 +1689,7 @@ class AppModel extends Model
         unset($tmpData);
     }
 
-    static public function acquireBatchViewsUpdateLock()
+    public static function acquireBatchViewsUpdateLock()
     {
         if (self::$lockedViewsUpdate) {
             throw new Exception('Deadlock in acquireBatchViewsUpdateLock');
@@ -1697,7 +1697,7 @@ class AppModel extends Model
         self::$lockedViewsUpdate = true;
     }
 
-    static public function manageViewUpdate($modelTable, $foreignKey, $ids, $queryPart)
+    public static function manageViewUpdate($modelTable, $foreignKey, $ids, $queryPart)
     {
         if (self::$lockedViewsUpdate) {
             if (! isset(self::$cachedViewsUpdate[$modelTable])) {
@@ -1720,7 +1720,7 @@ class AppModel extends Model
         }
     }
 
-    static public function releaseBatchViewsUpdateLock()
+    public static function releaseBatchViewsUpdateLock()
     {
         // just "some" model to do the work
         $pages = AppModel::getInstance("", "Page");
@@ -1754,7 +1754,7 @@ class AppModel extends Model
         self::$lockedViewsUpdate = false;
     }
 
-    static public function getRemoteIPAddress()
+    public static function getRemoteIPAddress()
     {
         return (! empty($_SERVER['HTTP_CLIENT_IP'])) ? $_SERVER['HTTP_CLIENT_IP'] : ((! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
     }

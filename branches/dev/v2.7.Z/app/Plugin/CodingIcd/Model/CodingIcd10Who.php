@@ -32,17 +32,17 @@ class CodingIcd10Who extends CodingIcdAppModel
         self::$singleton = $this;
     }
 
-    static public function validateId($id)
+    public static function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
-    static public function getSingleton()
+    public static function getSingleton()
     {
         return self::$singleton;
     }
 
-    static public function getSecondaryDiagnosisList()
+    public static function getSecondaryDiagnosisList()
     {
         $data = array();
         foreach (self::$singleton->find('all', array(
