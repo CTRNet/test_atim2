@@ -46,7 +46,7 @@ class StructuresHelper extends Helper
 
     // default options
     private static $defaults = array(
-        'type' => NULL,
+        'type' => null,
         'data' => false, // override $this->request->data values, will not work properly for EDIT forms
         'settings' => array(
             'return' => false, // FALSE echos structure, TRUE returns it as string
@@ -58,7 +58,7 @@ class StructuresHelper extends Helper
             'tabindex' => 0, // when setting TAB indexes, add this value to the number, useful for stacked forms
             'form_inputs' => true, // if TRUE, use inputs when supposed to, if FALSE use static display values regardless
             'form_bottom' => true,
-            'name_prefix' => NULL,
+            'name_prefix' => null,
             'pagination' => true,
             'sorting' => false, // if pagination is false, sorting can still be turned on (if pagination is on, sorting is ignored). Consists of an array with sorting URL parameters
             'columns_names' => array(), // columns names - usefull for reports. only works in detail views
@@ -1382,9 +1382,9 @@ class StructuresHelper extends Helper
 										</span>
 										
 										<span class="links">
-											', $this->Paginator->prev(__('prev'), NULL, __('prev')), '
+											', $this->Paginator->prev(__('prev'), null, __('prev')), '
 											', $this->Paginator->numbers(), '
-											', $this->Paginator->next(__('next'), NULL, __('next')), '
+											', $this->Paginator->next(__('next'), null, __('next')), '
 										</span>';
                         $limits = array(
                             5,
@@ -2612,7 +2612,7 @@ class StructuresHelper extends Helper
 			</table>
 		';
         
-        return $returnString . $this->generateLinksList(NULL, isset($options['links']) ? $options['links'] : array(), 'bottom');
+        return $returnString . $this->generateLinksList(null, isset($options['links']) ? $options['links'] : array(), 'bottom');
     }
 
     private function generateLinksList($data, array $optionLinks, $state = 'index')
@@ -2674,7 +2674,7 @@ class StructuresHelper extends Helper
                     $class = strlen($icon) > 0 ? $icon : $displayClassName;
                     
                     // set Javascript confirmation msg...
-                    $confirmationMsg = NULL;
+                    $confirmationMsg = null;
                     
                     if ($data != null) {
                         $linkLocation = $this->strReplaceLink($linkLocation, $data);
@@ -2815,7 +2815,7 @@ $confirmationMsg); // confirmation message
         return $returnString;
     }
 
-    public function generateLinkClass($linkName = NULL, $linkLocation = NULL)
+    public function generateLinkClass($linkName = null, $linkLocation = null)
     {
         $displayClassName = '';
         $displayClassArray = array();
@@ -2874,7 +2874,7 @@ $confirmationMsg); // confirmation message
             
             $displayClassName = 'plugin ' . $displayClassName;
         } elseif ($linkName && $linkLocation) {
-            $displayClassName = $this->generateLinkClass(NULL, $linkLocation);
+            $displayClassName = $this->generateLinkClass(null, $linkLocation);
         } else {
             $displayClassName = 'default';
         }

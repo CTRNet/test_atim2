@@ -33,12 +33,12 @@ class CodingIcd10Ca extends CodingIcdAppModel
         self::$singleton = $this;
     }
 
-    static public function validateId($id)
+    public static function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
-    static public function getSingleton()
+    public static function getSingleton()
     {
         return self::$singleton;
     }

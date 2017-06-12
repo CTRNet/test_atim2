@@ -48,7 +48,7 @@ class PreferencesAdminController extends AdministrateAppController
             if ($this->Config->save()) {
                 $this->atimFlash(__('your data has been updated'), '/Administrate/PreferencesAdmin/index/' . $groupId . '/' . $userId);
             } else {
-                $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
         } else {
             

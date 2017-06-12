@@ -41,11 +41,11 @@ class EventMaster extends ClinicalAnnotationAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     __($result['EventControl']['event_type'], true) . (empty($result['EventControl']['disease_site']) ? '' : ' - ' . __($result['EventControl']['disease_site'], true))
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     __('annotation', true)
                 ),
                 'data' => $result,
@@ -65,7 +65,7 @@ class EventMaster extends ClinicalAnnotationAppModel
      * @param array $diagnosisData            
      * @param array $eventData            
      */
-    static public function generateDxCompatWarnings(array $diagnosisData, array $eventData)
+    public static function generateDxCompatWarnings(array $diagnosisData, array $eventData)
     {
         $diagnosisData = $diagnosisData['DiagnosisMaster'];
         $eventData = $eventData['EventDetail'];

@@ -88,7 +88,7 @@ class DrugsController extends DrugAppController
                     $this->Drug->id = null;
                     $this->Drug->data = array();
                     if (! $this->Drug->save($newDataToSave, false))
-                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 $hookLink = $this->hook('postsave_process_batch');
                 if ($hookLink) {

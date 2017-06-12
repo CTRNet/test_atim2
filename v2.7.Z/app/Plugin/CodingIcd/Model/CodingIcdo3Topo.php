@@ -31,17 +31,17 @@ class CodingIcdo3Topo extends CodingIcdAppModel
         self::$singleton = $this;
     }
 
-    static public function validateId($id)
+    public static function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
-    static public function getSingleton()
+    public static function getSingleton()
     {
         return self::$singleton;
     }
 
-    static public function getTopoCategoriesCodes()
+    public static function getTopoCategoriesCodes()
     {
         $data = array();
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";

@@ -21,11 +21,11 @@ class Rtbform extends RtbFormAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $result['Rtbform']['frmTitle']
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $result['Rtbform']['frmTitle']
                 ),
                 'data' => $result,

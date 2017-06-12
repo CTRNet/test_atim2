@@ -15,12 +15,12 @@ class RtbformsController extends RtbformAppController
 
     public function index()
     {
-        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
     }
 
     public function search($searchId)
     {
-        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $this->set('atimMenu', $this->Menus->get('/rtbform/rtbforms/index'));
         $this->searchHandler($searchId, $this->Rtbform, 'rtbforms', '/rtbform/rtbforms/search');
         
@@ -32,9 +32,9 @@ class RtbformsController extends RtbformAppController
 
     public function profile($rtbformId = null)
     {
-        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! $rtbformId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->set('atimMenuVariables', array(
@@ -52,7 +52,7 @@ class RtbformsController extends RtbformAppController
 
     public function add()
     {
-        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         $this->hook();
         
         if (! empty($this->request->data)) {
@@ -63,9 +63,9 @@ class RtbformsController extends RtbformAppController
 
     public function edit($rtbformId = null)
     {
-        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! $rtbformId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->set('atimMenuVariables', array(
@@ -90,9 +90,9 @@ class RtbformsController extends RtbformAppController
 
     public function delete($rtbformId = null)
     {
-        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         if (! $rtbformId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->hook();

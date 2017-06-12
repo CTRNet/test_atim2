@@ -113,7 +113,7 @@ class ConsentMaster extends ClinicalAnnotationAppModel
         return $arrAllowDeletion;
     }
 
-    static public function joinOnConsentDup($onField)
+    public static function joinOnConsentDup($onField)
     {
         return array(
             'table' => 'consent_masters',

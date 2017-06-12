@@ -15,7 +15,7 @@ class StructureFormatsController extends AdministrateAppController
 
     public function listall($structureId)
     {
-        $this->set('atimStructure', $this->Structures->get(NULL, 'fields'));
+        $this->set('atimStructure', $this->Structures->get(null, 'fields'));
         $this->set('atimMenuVariables', array(
             'Structure.id' => $structureId
         ));
@@ -29,7 +29,7 @@ class StructureFormatsController extends AdministrateAppController
 
     public function detail($structureId, $structureFormatId)
     {
-        $this->set('atimStructure', $this->Structures->get(NULL, 'fields'));
+        $this->set('atimStructure', $this->Structures->get(null, 'fields'));
         $this->set('atimMenuVariables', array(
             'Structure.id' => $structureId,
             'StructureFormat.id' => $structureFormatId
@@ -46,7 +46,7 @@ class StructureFormatsController extends AdministrateAppController
 
     public function edit($structureId, $structureFormatId)
     {
-        $this->set('atimStructure', $this->Structures->get(NULL, 'fields'));
+        $this->set('atimStructure', $this->Structures->get(null, 'fields'));
         $this->set('atimMenuVariables', array(
             'Structure.id' => $structureId,
             'StructureFormat.id' => $structureFormatId

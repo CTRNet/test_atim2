@@ -12,8 +12,8 @@ class ParticipantMessage extends ClinicalAnnotationAppModel
         // $result = $this->find('first', array('conditions'=>array('ParticipantMessage.id'=>$variables['ParticipantMessage.id'])));
         //
         // $return = array(
-        // 'title' => array(NULL, $result['ParticipantMessage']['title']),
-        // 'type' => array(NULL, $result['ParticipantMessage']['type']),
+        // 'title' => array(null, $result['ParticipantMessage']['title']),
+        // 'type' => array(null, $result['ParticipantMessage']['type']),
         // 'data' => $result,
         // 'structure alias'=>'participantmessages'
         // );

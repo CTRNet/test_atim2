@@ -27,11 +27,11 @@ class Bank extends AdministrateAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $result['Bank']['name']
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $result['Bank']['name']
                 ),
                 'data' => $result,

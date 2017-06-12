@@ -76,7 +76,7 @@ class AnnouncementsController extends CustomizeAppController
         }
     }
 
-    public function detail($announcementId = NULL)
+    public function detail($announcementId = null)
     {
         $this->request->data = $this->Announcement->getOrRedirect($announcementId);
         

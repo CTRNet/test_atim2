@@ -25,12 +25,12 @@ class StudySummary extends StudyAppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $result['StudySummary']['title'],
                     true
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $result['StudySummary']['title'],
                     true
                 ),

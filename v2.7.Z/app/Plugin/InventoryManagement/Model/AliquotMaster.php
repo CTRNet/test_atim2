@@ -61,7 +61,7 @@ class AliquotMaster extends InventoryManagementAppModel
     public static $volumeCondition = array(
         'OR' => array(
             array(
-                'AliquotControl.volume_unit' => NULL
+                'AliquotControl.volume_unit' => null
             ),
             array(
                 'AliquotControl.volume_unit' => ''
@@ -252,9 +252,9 @@ class AliquotMaster extends InventoryManagementAppModel
         
         $aliquotDataToSave["current_volume"] = $currentVolume;
         if ($currentVolume <= 0 && $removeFromStockIfEmptyVolume) {
-            $aliquotDataToSave['storage_master_id'] = NULL;
-            $aliquotDataToSave['storage_coord_x'] = NULL;
-            $aliquotDataToSave['storage_coord_y'] = NULL;
+            $aliquotDataToSave['storage_master_id'] = null;
+            $aliquotDataToSave['storage_coord_x'] = null;
+            $aliquotDataToSave['storage_coord_y'] = null;
             $aliquotDataToSave['in_stock'] = 'no';
             $aliquotDataToSave['in_stock_detail'] = 'empty';
         }
@@ -843,7 +843,7 @@ class AliquotMaster extends InventoryManagementAppModel
         return false;
     }
 
-    static public function joinOnAliquotDup($onField)
+    public static function joinOnAliquotDup($onField)
     {
         return array(
             'table' => 'aliquot_masters',

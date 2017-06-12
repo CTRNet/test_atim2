@@ -34,7 +34,7 @@ class AppController extends Controller
 
     private static $missingTranslations = array();
 
-    private static $me = NULL;
+    private static $me = null;
 
     private static $acl = null;
 
@@ -316,13 +316,13 @@ class AppController extends Controller
     /**
      * Simple function to replicate PHP 5 behaviour
      */
-    static public function microtimeFloat()
+    public static function microtimeFloat()
     {
         list ($usec, $sec) = explode(" ", microtime());
         return ((float) $usec + (float) $sec);
     }
 
-    static public function missingTranslation(&$word)
+    public static function missingTranslation(&$word)
     {
         if (! is_numeric($word) && strpos($word, "<span class='untranslated'>") === false) {
             AppController::$missingTranslations[] = $word;
@@ -366,12 +366,12 @@ class AppController extends Controller
         $this->atimFlash($message, $url, self::WARNING);
     }
 
-    static public function getInstance()
+    public static function getInstance()
     {
         return AppController::$me;
     }
 
-    static public function init()
+    public static function init()
     {
         Configure::write('Config.language', 'eng');
         Configure::write('Acl.classname', 'AtimAcl');
@@ -466,7 +466,7 @@ class AppController extends Controller
      *            Wheter to return short or long month names
      * @return an associative array containing the translated months names so that key = month_number and value = month_name
      */
-    static public function getCalInfo($short = true)
+    public static function getCalInfo($short = true)
     {
         if ($short) {
             if (! AppController::$calInfoShortTranslated) {
@@ -495,7 +495,7 @@ class AppController extends Controller
      *            True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
-    static public function getFormatedDateString($year, $month, $day, $nbspSpaces = true, $shortMonths = true)
+    public static function getFormatedDateString($year, $month, $day, $nbspSpaces = true, $shortMonths = true)
     {
         $result = null;
         if (empty($year) && empty($month) && empty($day)) {
@@ -517,7 +517,7 @@ class AppController extends Controller
         return $result;
     }
 
-    static public function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
+    public static function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
     {
         if (TIME_FORMAT == 12) {
             $meridiem = $hour >= 12 ? "PM" : "AM";
@@ -545,7 +545,7 @@ class AppController extends Controller
      *            True if months names should be short (used if $month is an int)
      * @return string The formated datestring with user preferences
      */
-    static public function getFormatedDatetimeString($datetimeString, $nbspSpaces = true, $shortMonths = true)
+    public static function getFormatedDatetimeString($datetimeString, $nbspSpaces = true, $shortMonths = true)
     {
         $month = null;
         $day = null;
@@ -597,7 +597,7 @@ class AppController extends Controller
      *            
      * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
      */
-    static public function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
+    public static function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
     {
         $formattedDate = '';
         switch ($dateType) {
@@ -668,7 +668,7 @@ class AppController extends Controller
      * @param array $arr
      *            The array to clone
      */
-    static public function cloneArray(array $arr)
+    public static function cloneArray(array $arr)
     {
         $result = array();
         foreach ($arr as $k => $v) {
@@ -681,7 +681,7 @@ class AppController extends Controller
         return $result;
     }
 
-    static public function addWarningMsg($msg, $withTrace = false)
+    public static function addWarningMsg($msg, $withTrace = false)
     {
         if ($withTrace) {
             $_SESSION['ctrapp_core']['warning_trace_msg'][] = array(
@@ -697,7 +697,7 @@ class AppController extends Controller
         }
     }
 
-    static public function addInfoMsg($msg)
+    public static function addInfoMsg($msg)
     {
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
             $_SESSION['ctrapp_core']['info_msg'][$msg] ++;
@@ -706,7 +706,7 @@ class AppController extends Controller
         }
     }
 
-    static public function getStackTrace()
+    public static function getStackTrace()
     {
         $bt = debug_backtrace();
         $result = array();
@@ -722,7 +722,7 @@ class AppController extends Controller
      * @param
      *            array They data array to build the values with
      */
-    static public function getUpdateAllValues(array $data)
+    public static function getUpdateAllValues(array $data)
     {
         $result = array();
         foreach ($data as $model => $fields) {
@@ -743,7 +743,7 @@ class AppController extends Controller
      * cookie manipulation to counter cake problems.
      * see eventum #1032
      */
-    static public function atimSetCookie($skipExpirationCookie)
+    public static function atimSetCookie($skipExpirationCookie)
     {
         $sessionExpiration = time() + Configure::read("Session.timeout");
         
@@ -853,7 +853,7 @@ class AppController extends Controller
      *            If true, the array block will be directly under the model.field, not in an array.
      * @return array
      */
-    static public function defineArrayKey($inArray, $model, $field, $unique = false)
+    public static function defineArrayKey($inArray, $model, $field, $unique = false)
     {
         $outArray = array();
         if ($unique) {
@@ -879,7 +879,7 @@ class AppController extends Controller
      * @param
      *            array &$data
      */
-    static public function removeEmptyValues(array &$data)
+    public static function removeEmptyValues(array &$data)
     {
         foreach ($data as $key => &$val) {
             if (is_array($val)) {
@@ -891,7 +891,7 @@ class AppController extends Controller
         }
     }
 
-    static public function getNewSearchId()
+    public static function getNewSearchId()
     {
         return AppController::getInstance()->Session->write('search_id', AppController::getInstance()->Session->read('search_id') + 1);
     }
@@ -902,7 +902,7 @@ class AppController extends Controller
      *            The link to check
      * @return True if the user can access that page, false otherwise
      */
-    static public function checkLinkPermission($link)
+    public static function checkLinkPermission($link)
     {
         if (strpos($link, 'javascript:') === 0 || strpos($link, '#') === 0) {
             return true;
@@ -920,7 +920,7 @@ class AppController extends Controller
         return strpos($acoAlias, 'Controller/Users') !== false || strpos($acoAlias, 'Controller/Pages') !== false || $acoAlias == "Controller/Menus/index" || $instance->SessionAcl->check('Group::' . $instance->Session->read('Auth.User.group_id'), $acoAlias);
     }
 
-    static public function applyTranslation(&$inArray, $model, $field)
+    public static function applyTranslation(&$inArray, $model, $field)
     {
         foreach ($inArray as &$part) {
             $part[$model][$field] = __($part[$model][$field]);
@@ -1051,7 +1051,7 @@ class AppController extends Controller
      * @param
      *            string &$structureAlias
      */
-    static public function buildDetailBinding(&$model, array $conditions, &$structureAlias)
+    public static function buildDetailBinding(&$model, array $conditions, &$structureAlias)
     {
         $controller = AppController::getInstance();
         $masterClassName = isset($model->baseModel) ? $model->baseModel : $model->name;
@@ -1161,7 +1161,7 @@ class AppController extends Controller
      *            An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
      *            The label must be translated already.
      */
-    static public function buildBottomMenuOptions(array &$menuOptions)
+    public static function buildBottomMenuOptions(array &$menuOptions)
     {
         $tmp = array();
         foreach ($menuOptions as $menuOption) {
@@ -1227,7 +1227,7 @@ class AppController extends Controller
      * @param
      *            strint or null $data
      */
-    static public function getCancelLink($data)
+    public static function getCancelLink($data)
     {
         $result = null;
         if (isset($data['node']['id'])) {
@@ -1371,9 +1371,9 @@ class AppController extends Controller
         $result = $browsingResultModel->find('first', array(
             'conditions' => array(
                 'NOT' => array(
-                    'BrowsingResult.parent_id' => NULL
+                    'BrowsingResult.parent_id' => null
                 ),
-                'BrowsingResult.lft' => NULL
+                'BrowsingResult.lft' => null
             )
         ));
         if ($result || $forceRebuildLeftRght) {
@@ -1632,7 +1632,7 @@ class AppController extends Controller
         $this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
         
         $conditions = array(
-            'ParentToDerivativeSampleControl.parent_sample_control_id' => NULL,
+            'ParentToDerivativeSampleControl.parent_sample_control_id' => null,
             'ParentToDerivativeSampleControl.flag_active' => true
         );
         while ($activeParentSampleTypes = $this->ParentToDerivativeSampleControl->find('all', array(
@@ -1685,9 +1685,9 @@ class AppController extends Controller
         $result = $storageMasterModel->find('first', array(
             'conditions' => array(
                 'NOT' => array(
-                    'StorageMaster.parent_id' => NULL
+                    'StorageMaster.parent_id' => null
                 ),
-                'StorageMaster.lft' => NULL
+                'StorageMaster.lft' => null
             )
         ));
         if ($result) {

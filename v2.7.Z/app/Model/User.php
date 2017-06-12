@@ -77,11 +77,11 @@ class User extends AppModel
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $displayName
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $displayName
                 ),
                 'data' => $result,

@@ -136,7 +136,7 @@ class OrderLinesController extends OrderAppController
                     $this->OrderLine->id = null;
                     $this->OrderLine->data = array();
                     if (! $this->OrderLine->save($newDataToSave, false))
-                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                        $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
                 $hookLink = $this->hook('postsave_process');
                 if ($hookLink) {

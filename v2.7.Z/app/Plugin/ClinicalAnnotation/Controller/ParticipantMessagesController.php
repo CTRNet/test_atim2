@@ -211,7 +211,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
     public function edit($participantId, $participantMessageId)
     {
         if (! $participantId && ! $participantMessageId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         // MANAGE DATA

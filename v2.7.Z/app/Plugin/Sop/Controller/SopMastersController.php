@@ -87,7 +87,7 @@ class SopMastersController extends SopAppController
     public function detail($sopMasterId)
     {
         if (! $sopMasterId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         
         $this->set('atimMenuVariables', array(
@@ -148,7 +148,7 @@ class SopMastersController extends SopAppController
     public function delete($sopMasterId)
     {
         if (! $sopMasterId) {
-            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         $thisData = $this->SopMaster->find('first', array(
             'conditions' => array(

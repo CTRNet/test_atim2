@@ -128,7 +128,7 @@ class CodingIcdAppModel extends AppModel
      *            The CodingIcd* data array to convert
      * @return The converted array
      */
-    static public function convertDataToNeutralIcd(array $dataArray)
+    public static function convertDataToNeutralIcd(array $dataArray)
     {
         $result = array();
         if (count($dataArray) > 0) {

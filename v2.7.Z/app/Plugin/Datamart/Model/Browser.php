@@ -385,7 +385,7 @@ class Browser extends DatamartAppModel
      *            array ids_filter An array to filter the controls ids of the current sub model
      * @return array The data about the submodels of the given model
      */
-    static public function getSubModels(array $mainModelInfo, $prependValue, array $idsFilter = null)
+    public static function getSubModels(array $mainModelInfo, $prependValue, array $idsFilter = null)
     {
         // we need to fetch the controls
         $mainModel = AppModel::getInstance($mainModelInfo['DatamartStructure']['plugin'], $mainModelInfo['DatamartStructure']['model'], true);
@@ -446,7 +446,7 @@ class Browser extends DatamartAppModel
      *            Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
      * @return An array representing the search tree
      */
-    static public function getTree($nodeId, $activeNode, $mergedIds, array &$linkedTypesDown = array(), array &$linkedTypesUp = array())
+    public static function getTree($nodeId, $activeNode, $mergedIds, array &$linkedTypesDown = array(), array &$linkedTypesUp = array())
     {
         $BrowsingResult = new BrowsingResult();
         $result = $BrowsingResult->find('all', array(
@@ -456,7 +456,7 @@ class Browser extends DatamartAppModel
             ),
             'recursive' => 1
         ));
-        $treeNode = NULL;
+        $treeNode = null;
         if ($treeNode = array_shift($result)) {
             $treeNode['active'] = $nodeId == $activeNode;
             $treeNode['children'] = array();
@@ -531,7 +531,7 @@ class Browser extends DatamartAppModel
      * @param Int $y
      *            The current y location
      */
-    static public function buildTree(array $treeNode, &$tree = array(), $x = 0, &$y = 0)
+    public static function buildTree(array $treeNode, &$tree = array(), $x = 0, &$y = 0)
     {
         if ($treeNode['active'] && $tree != null) {
             self::drawActiveLine($tree, $x, $y);
@@ -540,8 +540,8 @@ class Browser extends DatamartAppModel
         $tree[$y][$x] = $treeNode;
         if (count($treeNode['children'])) {
             $looped = false;
-            $lastArrowX = NULL;
-            $lastArrowY = NULL;
+            $lastArrowX = null;
+            $lastArrowY = null;
             foreach ($treeNode['children'] as $pos => $child) {
                 $merge = isset($treeNode['paint_merged']) && isset($child['paint_merged']) ? " merged" : "";
                 $tree[$y][$x + 1] = "h-line" . $merge;
@@ -570,7 +570,7 @@ class Browser extends DatamartAppModel
             }
             
             $y --;
-            if ($lastArrowX !== NULL) {
+            if ($lastArrowX !== null) {
                 $checkUpMerge = false;
                 $applyMerge = false;
                 if ($tree[$lastArrowY][$lastArrowX] == "arrow") {
@@ -685,13 +685,13 @@ class Browser extends DatamartAppModel
      *            The webroot of ATiM
      * @return the html of the table search tree
      */
-    static public function getPrintableTree($currentNode, array $mergedIds, $webrootUrl)
+    public static function getPrintableTree($currentNode, array $mergedIds, $webrootUrl)
     {
         $result = "";
         $BrowsingResult = new BrowsingResult();
         $browsingStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure');
         $tmpNode = $currentNode;
-        $prevNode = NULL;
+        $prevNode = null;
         $currentNodeDatamartStructureId = null;
         do {
             $prevNode = $tmpNode;
@@ -832,7 +832,7 @@ class Browser extends DatamartAppModel
      *            Expect result returned in html format else txt
      * @return An html string of a table containing the search formated params
      */
-    static public function formatSearchToPrint(array $params, $htmlFormat = true)
+    public static function formatSearchToPrint(array $params, $htmlFormat = true)
     {
         $searchConditions = $params['search']['search_conditions'];
         
@@ -1016,7 +1016,7 @@ class Browser extends DatamartAppModel
      *            The id of the alternate structure to retrieve
      * @return string The info of the alternate structure
      */
-    static public function getAlternateStructureInfo($plugin, $controlModel, $id)
+    public static function getAlternateStructureInfo($plugin, $controlModel, $id)
     {
         $modelToUse = AppModel::getInstance($plugin, $controlModel, true);
         $data = $modelToUse->find('first', array(
@@ -1036,7 +1036,7 @@ class Browser extends DatamartAppModel
      * @param string $prevPkey            
      * @param string $newPkey            
      */
-    static public function updateIndexLink($link, $prevModel, $newModel, $prevPkey, $newPkey)
+    public static function updateIndexLink($link, $prevModel, $newModel, $prevPkey, $newPkey)
     {
         return str_replace("%%" . $prevModel . ".", "%%" . $newModel . ".", str_replace("%%" . $prevModel . "." . $prevPkey . "%%", "%%" . $newModel . "." . $newPkey . "%%", $link));
     }
@@ -1050,7 +1050,7 @@ class Browser extends DatamartAppModel
      *            The DatamartStructure and BrowsingResult data to base the filtering on.
      * @return An array with the ControlModel => array(ids to filter with)
      */
-    static public function getDropdownSubFiltering(array $browsing)
+    public static function getDropdownSubFiltering(array $browsing)
     {
         $subModelsIdFilter = array();
         if ($browsing['DatamartStructure']['id'] == 5) {
@@ -1156,7 +1156,7 @@ class Browser extends DatamartAppModel
      *            The label to translate
      * @return string The translated label
      */
-    static public function getTranslatedDatabrowserLabel($label)
+    public static function getTranslatedDatabrowserLabel($label)
     {
         $parts = explode("|", $label);
         $StructurePermissibleValuesCustom = null;
@@ -1325,7 +1325,7 @@ class Browser extends DatamartAppModel
     public function initDataLoad(array $browsing, $mergeTo, array $primaryNodeIds, $order = null)
     {
         $result = array();
-        $startId = NULL;
+        $startId = null;
         $endId = null;
         $nodeId = $browsing['BrowsingResult']['id'];
         $mainData = array(); // $this->checklistData;
@@ -1581,7 +1581,7 @@ class Browser extends DatamartAppModel
                             
                             if ($parentBrowsingModel->name == $advField['model'] && ! $parentBrowsingModel->schema($advField['field'])) {
                                 // error, the field doesn't exist
-                                AppController::getInstance()->redirect('/Pages/err_internal?p[]=model+field+not+found', NULL, true);
+                                AppController::getInstance()->redirect('/Pages/err_internal?p[]=model+field+not+found', null, true);
                             }
                             
                             $conditions = array();

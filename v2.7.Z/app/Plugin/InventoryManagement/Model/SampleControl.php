@@ -95,7 +95,7 @@ class SampleControl extends InventoryManagementAppModel
         } else {
             $modelName = 'ParentSampleControl';
             $conditions['NOT'] = array(
-                'ParentToDerivativeSampleControl.parent_sample_control_id' => NULL
+                'ParentToDerivativeSampleControl.parent_sample_control_id' => null
             );
             $controls = $this->ParentToDerivativeSampleControl->find('all', array(
                 'conditions' => $conditions,

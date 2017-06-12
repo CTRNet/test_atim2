@@ -392,7 +392,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
                         $this->TreatmentMaster->id = null;
                         $this->TreatmentMaster->data = array();
                         if (! $this->TreatmentMaster->save($newDataToSave, false))
-                            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
                     $urlToFlash = '/ClinicalAnnotation/TreatmentMasters/listall/' . $participantId . '/';
                     $hookLink = $this->hook('postsave_process_batch');

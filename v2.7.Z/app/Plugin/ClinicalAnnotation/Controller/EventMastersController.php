@@ -284,7 +284,7 @@ class EventMastersController extends ClinicalAnnotationAppController
                         $this->EventMaster->id = null;
                         $this->EventMaster->data = array();
                         if (! $this->EventMaster->save($newDataToSave, false))
-                            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, NULL, true);
+                            $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
                     $urlToFlash = '/ClinicalAnnotation/EventMasters/listall/' . $eventGroup . '/' . $participantId . '/';
                     $hookLink = $this->hook('postsave_process_batch');
