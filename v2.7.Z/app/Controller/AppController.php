@@ -211,6 +211,12 @@ class AppController extends Controller
         }
     }
 
+    public function __construct($request = null, $response = null) {
+        $class_name = get_class($this);
+        $this->name = substr($class_name, 0, strlen(get_class($this)) - (strpos($class_name, 'ControllerCustom') === false ? 10 : 16));
+        parent::__construct($request, $response);
+    }    
+    
     public function hook($hookExtension = '')
     {
         if ($hookExtension) {
@@ -2003,10 +2009,20 @@ class AppController extends Controller
             }
         }
         return $answer;
-    }
+    }    
 }
 
 AppController::init();
+
+/**
+ * Returns the date in a classic format (useful for SQL)
+ *
+ * @throws Exception
+ */
+function now()
+{
+    return date("Y-m-d H:i:s");
+}    
 
 function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null)
 {
@@ -2031,14 +2047,4 @@ function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null)
         }
     }
     return false;
-}
-
-/**
- * Returns the date in a classic format (usefull for SQL)
- *
- * @throws Exception
- */
-function now()
-{
-    return date("Y-m-d H:i:s");
 }
