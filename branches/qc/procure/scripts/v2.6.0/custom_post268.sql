@@ -284,7 +284,7 @@ SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with 'Date' equals 
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 WHERE EventMaster.deleted <> 1
-AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL AND EventDetail.biopsy_pre_surgery_date NOT LIKE '')
+AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL)
 AND EventMaster.id NOT IN (
 	SELECT DxBiopsyRec.event_master_id
 	FROM (
@@ -292,7 +292,7 @@ AND EventMaster.id NOT IN (
 		FROM event_masters EventMaster
 		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
-		AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL AND EventDetail.biopsy_pre_surgery_date NOT LIKE '')
+		AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL)
 	) DxBiopsyRec,
 	(
 		SELECT EventMaster.participant_id, EventMaster.event_date, EventMaster.event_date_accuracy
@@ -301,7 +301,7 @@ AND EventMaster.id NOT IN (
 		WHERE EventMaster.deleted <> 1
 		AND EventDetail.type = 'biopsy'
 		AND EventDetail.results = 'positive'
-		AND (EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE '')
+		AND (EventMaster.event_date IS NOT NULL)
 	) ExamBiopsyRec
 	WHERE DxBiopsyRec.participant_id = ExamBiopsyRec.participant_id
 	AND DxBiopsyRec.biopsy_pre_surgery_date = ExamBiopsyRec.event_date
@@ -315,7 +315,7 @@ CONCAT("Created by migration process (v268) from 'Diagnosis' form '", EventMaste
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 WHERE EventMaster.deleted <> 1
-AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL AND EventDetail.biopsy_pre_surgery_date NOT LIKE '')
+AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL)
 AND EventMaster.id NOT IN (
 	SELECT DxBiopsyRec.event_master_id
 	FROM (
@@ -323,7 +323,7 @@ AND EventMaster.id NOT IN (
 		FROM event_masters EventMaster
 		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
-		AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL AND EventDetail.biopsy_pre_surgery_date NOT LIKE '')
+		AND (EventDetail.biopsy_pre_surgery_date IS NOT NULL)
 	) DxBiopsyRec,
 	(
 		SELECT EventMaster.participant_id, EventMaster.event_date, EventMaster.event_date_accuracy
@@ -332,7 +332,7 @@ AND EventMaster.id NOT IN (
 		WHERE EventMaster.deleted <> 1
 		AND EventDetail.type = 'biopsy'
 		AND EventDetail.results = 'positive'
-		AND (EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE '')
+		AND (EventMaster.event_date IS NOT NULL)
 	) ExamBiopsyRec
 	WHERE DxBiopsyRec.participant_id = ExamBiopsyRec.participant_id
 	AND DxBiopsyRec.biopsy_pre_surgery_date = ExamBiopsyRec.event_date
@@ -345,7 +345,7 @@ SELECT CONCAT("Created ", count(*)," 'Clinical Exam' records with 'Date' equals 
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 WHERE EventMaster.deleted <> 1
-AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+AND (EventDetail.biopsy_date IS NOT NULL)
 AND EventMaster.id NOT IN (
 	SELECT DxBiopsyRec.event_master_id
 	FROM (
@@ -353,7 +353,7 @@ AND EventMaster.id NOT IN (
 		FROM event_masters EventMaster
 		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
-		AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+		AND (EventDetail.biopsy_date IS NOT NULL)
 	) DxBiopsyRec,
 	(
 		SELECT EventMaster.participant_id, EventMaster.event_date, EventMaster.event_date_accuracy
@@ -361,7 +361,7 @@ AND EventMaster.id NOT IN (
 		INNER JOIN procure_ed_prostate_cancer_clinical_exams EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
 		AND EventDetail.type = 'biopsy'
-		AND (EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE '')
+		AND (EventMaster.event_date IS NOT NULL)
 	) ExamBiopsyRec
 	WHERE DxBiopsyRec.participant_id = ExamBiopsyRec.participant_id
 	AND DxBiopsyRec.biopsy_date = ExamBiopsyRec.event_date
@@ -375,7 +375,7 @@ CONCAT("Created by migration process (v268) from 'Diagnosis' form '", EventMaste
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 WHERE EventMaster.deleted <> 1
-AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+AND (EventDetail.biopsy_date IS NOT NULL)
 AND EventMaster.id NOT IN (
 	SELECT DxBiopsyRec.event_master_id
 	FROM (
@@ -383,7 +383,7 @@ AND EventMaster.id NOT IN (
 		FROM event_masters EventMaster
 		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
-		AND (EventDetail.biopsy_date IS NOT NULL AND EventDetail.biopsy_date NOT LIKE '')
+		AND (EventDetail.biopsy_date IS NOT NULL)
 	) DxBiopsyRec,
 	(
 		SELECT EventMaster.participant_id, EventMaster.event_date, EventMaster.event_date_accuracy
@@ -391,7 +391,7 @@ AND EventMaster.id NOT IN (
 		INNER JOIN procure_ed_prostate_cancer_clinical_exams EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
 		AND EventDetail.type = 'biopsy'
-		AND (EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE '')
+		AND (EventMaster.event_date IS NOT NULL)
 	) ExamBiopsyRec
 	WHERE DxBiopsyRec.participant_id = ExamBiopsyRec.participant_id
 	AND DxBiopsyRec.biopsy_date = ExamBiopsyRec.event_date
@@ -443,7 +443,7 @@ WHERE Participant.deleted <> 1
 AND EventMaster.deleted <> 1
 AND (((EventDetail.aps_pre_surgery_date IS NULL OR EventDetail.aps_pre_surgery_date LIKE '')
 AND ((EventDetail.aps_pre_surgery_total_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_total_ng_ml NOT LIKE '') OR (EventDetail.aps_pre_surgery_free_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_free_ng_ml NOT LIKE '')))
-OR ((EventDetail.aps_pre_surgery_date IS NOT NULL AND EventDetail.aps_pre_surgery_date NOT LIKE '')
+OR ((EventDetail.aps_pre_surgery_date IS NOT NULL)
 AND ((EventDetail.aps_pre_surgery_total_ng_ml IS NULL OR EventDetail.aps_pre_surgery_total_ng_ml LIKE '') AND (EventDetail.aps_pre_surgery_free_ng_ml IS NULL OR EventDetail.aps_pre_surgery_free_ng_ml LIKE ''))));
 
 ALTER TABLE event_masters 
@@ -465,7 +465,7 @@ CONCAT("Created by migration process (v268) from 'Diagnosis' form '", EventMaste
 FROM event_masters EventMaster
 INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 WHERE EventMaster.deleted <> 1
-AND EventDetail.aps_pre_surgery_date IS NOT NULL AND EventDetail.aps_pre_surgery_date NOT LIKE ''
+AND EventDetail.aps_pre_surgery_date IS NOT NULL
 AND ((EventDetail.aps_pre_surgery_total_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_total_ng_ml NOT LIKE '') OR (EventDetail.aps_pre_surgery_free_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_free_ng_ml NOT LIKE ''))
 AND EventMaster.id NOT IN (
 	SELECT DxPsaRec.event_master_id
@@ -474,7 +474,7 @@ AND EventMaster.id NOT IN (
 		FROM event_masters EventMaster
 		INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
-		AND EventDetail.aps_pre_surgery_date IS NOT NULL AND EventDetail.aps_pre_surgery_date NOT LIKE ''
+		AND EventDetail.aps_pre_surgery_date IS NOT NULL
 		AND ((EventDetail.aps_pre_surgery_total_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_total_ng_ml NOT LIKE '') OR (EventDetail.aps_pre_surgery_free_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_free_ng_ml NOT LIKE ''))
 	) DxPsaRec,
 	(
@@ -482,7 +482,7 @@ AND EventMaster.id NOT IN (
 		FROM event_masters EventMaster
 		INNER JOIN procure_ed_prostate_cancer_laboratory EventDetail ON EventMaster.id = EventDetail.event_master_id
 		WHERE EventMaster.deleted <> 1
-		AND EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE ''
+		AND EventMaster.event_date IS NOT NULL
 		AND psa_total_ngml NOT LIKE '' AND psa_total_ngml IS NOT NULL
 	) PsaRec
 	WHERE DxPsaRec.participant_id = PsaRec.participant_id
@@ -502,7 +502,7 @@ FROM (
 	FROM event_masters EventMaster
 	INNER JOIN procure_ed_prostate_cancer_diagnosis EventDetail ON EventMaster.id = EventDetail.event_master_id
 	WHERE EventMaster.deleted <> 1
-	AND EventDetail.aps_pre_surgery_date IS NOT NULL AND EventDetail.aps_pre_surgery_date NOT LIKE ''
+	AND EventDetail.aps_pre_surgery_date IS NOT NULL
 	AND EventDetail.aps_pre_surgery_total_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_total_ng_ml NOT LIKE '' AND EventDetail.aps_pre_surgery_free_ng_ml IS NOT NULL AND EventDetail.aps_pre_surgery_free_ng_ml NOT LIKE ''
 ) DxPsaRec,
 (
@@ -510,7 +510,7 @@ FROM (
 	FROM event_masters EventMaster
 	INNER JOIN procure_ed_prostate_cancer_laboratory EventDetail ON EventMaster.id = EventDetail.event_master_id
 	WHERE EventMaster.deleted <> 1
-	AND EventMaster.event_date IS NOT NULL AND EventMaster.event_date NOT LIKE ''
+	AND EventMaster.event_date IS NOT NULL
 	AND psa_total_ngml NOT LIKE '' AND psa_total_ngml IS NOT NULL
 	AND (psa_free_ngml IS NULL OR psa_free_ngml LIKE '')
 ) PsaRec
@@ -968,7 +968,7 @@ WHERE EventMaster.deleted <> 1 AND surgery_site IS NOT NULL AND surgery_site NOT
 
 SELECT CONCAT("Created ", count(*)," 'Treatment' records with 'Treatment Date' equals 'Surgery for Metastases : Date', a type equals to 'Surgery' and site information in notes (site to complete after migration) based on the 'Surgery for Metastases' fields ('Surgery for Metastases' set to yes and/or 'Date' not empty and/or 'Site' not empty) in 'F1 - Follow-up Worksheet'") AS '###MESSAGE###'
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
-WHERE deleted <> 1 AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL AND surgery_date NOT LIKE '') OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE ''));
+WHERE deleted <> 1 AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL) OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE ''));
 
 SELECT Participant.participant_identifier '### WARNING ### : Participant with surgery for metastases defined but some information is missing. Please validate and complete after mifration if required', 
 surgery_for_metastases 'Suregery For Metastases Value', surgery_date 'Surgery Date', surgery_site 'Surgery Site'
@@ -976,7 +976,7 @@ FROM participants Participant
 INNER JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id
 INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
 WHERE EventMaster.deleted <> 1 
-AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL AND surgery_date NOT LIKE '') OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE ''))
+AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL) OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE ''))
 AND (surgery_for_metastases IS NULL OR surgery_for_metastases != 'y' OR surgery_date IS NULL OR surgery_date LIKE '' OR surgery_site IS NULL OR surgery_site LIKE '');
 
 INSERT INTO treatment_masters (treatment_control_id, start_date, start_date_accuracy, 
@@ -986,7 +986,7 @@ participant_id, procure_created_by_bank, created, created_by, modified, modified
 CONCAT("Surgery for Metastases. Site '", IFNULL(IF(surgery_site = '', null, surgery_site), 'unknown'),"'. (Created by migration process (v268) from previous ATiM Version form '", EventMaster.procure_deprecated_field_procure_form_identification,"'", IF((IFNULL(event_date, '') = ''), '', CONCAT(' (visite on ', event_date, ')')), " based on 'Surgery for Metastases' fields)."),
 participant_id, procure_created_by_bank, @modified, @modified_by, @modified, @modified_by 
 FROM event_masters EventMaster INNER JOIN procure_ed_visits EventDetail ON EventMaster.id = EventDetail.event_master_id 
-WHERE deleted <> 1 AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL AND surgery_date NOT LIKE '') OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE '')));
+WHERE deleted <> 1 AND (surgery_for_metastases = 'y' OR (surgery_date IS NOT NULL) OR (surgery_site IS NOT NULL AND surgery_site NOT LIKE '')));
 INSERT INTO procure_txd_treatments (treatment_master_id, treatment_type)
 (SELECT id, 'surgery' 
 FROM treatment_masters  
@@ -1375,7 +1375,7 @@ WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND Participant.id = TreatmentMaster.participant_id
 AND benign_hyperplasia != 'y'
-AND ((benign_hyperplasia_place_and_date IS NOT NULL AND benign_hyperplasia_place_and_date NOt LIKE '')
+AND ((benign_hyperplasia_place_and_date IS NOT NULL)
 OR (benign_hyperplasia_notes IS NOT NULL AND benign_hyperplasia_notes NOt LIKE ''));
 
 UPDATE treatment_masters TreatmentMaster, procure_txd_medications TreatmentDetail
@@ -2489,7 +2489,7 @@ UPDATE versions SET branch_build_number = '6680' WHERE version_number = '2.6.8';
 -- Query should be executed on all server
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE realiquotings SET realiquoting_datetime = null where realiquoting_datetime like '0000-%';
+UPDATE realiquotings SET realiquoting_datetime = null where realiquoting_datetime like '0000-00-00';
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2497,6 +2497,229 @@ UPDATE realiquotings SET realiquoting_datetime = null where realiquoting_datetim
 UPDATE versions SET branch_build_number = '6710', site_branch_build_number = '?' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
 
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- NEW UPDATE 2017-06-15
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- CRPC
+
+SELECT "Please validate Annotation Note Type 'CRPC' exists on the local installation (to do if section above is empty)" as '###MESSAGE###'
+UNION ALL
+SELECT 'CRPC value still created on the local version of ATiM' as '###MESSAGE###' FROM structure_permissible_values_customs WHERE value = 'CRPC' AND control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Note Types');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_CRPC', 'yes_no',  NULL , '0', '', '', '', 'CRPC', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_CRPC' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='CRPC' AND `language_tag`=''), '0', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+INSERT INTO i18n (id,en,fr) VALUE ('CRPC', 'CRPC', 'CRPC');
+
+UPDATE structure_formats SET `display_order`='44', `language_heading`='CRPC' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_CRPC' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Follow-up report
+
+UPDATE structure_fields SET sortable = 0 WHERE field LIKE 'procure_next_followup_%';
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_next_followup_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-17' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `language_label`='participant identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20,class=range file' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_participant identifier' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0' AND `sortable`='1');
+UPDATE structure_fields SET `type`='input' WHERE model='0' AND tablename='' AND field='procure_next_followup_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET `type`='input' WHERE model='0' AND tablename='' AND field='procure_next_followup_finish_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('visit date', 'Visit Date', 'Date de visite'),
+('blood collection', 'Blood Collection', 'Collection de sang'),
+('urine collection', 'Urine Collection', 'Collection de''urine'),
+('followup date', 'Followup Date', 'Date de suivi'),
+('collected by', 'Collected by', 'Collecté(e) par'),
+('yellow', 'Yellow', 'Jaune'),
+('blood collection', 'Blood Collection', 'Collection de sang'),
+('purple', 'Purple', 'Mauve'),
+('brown', 'Brown', 'Marron');
+
+-- Dx & Tx Report
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_first_clinical_recurrence_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_sites') , '0', '', '', '', '', 'site');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_first_clinical_recurrence_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_sites')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='site'), '0', '73', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('procure_first_clinical_recurrence_test_help', "First 'Clinical Exam' flagged as clinical relapse into the system after prostatectomy.", "Premier 'Examen clinique' défini comme 'Récidive clinique' après la prostatectomie.");
+UPDATE structure_fields SET language_label = 'clinical relapse', language_help = 'procure_first_clinical_recurrence_test_help' WHERE field = 'procure_first_clinical_recurrence_date';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_first_positive_exam_date', 'date',  NULL , '0', '', '', '', 'first positive exam', ''), 
+('Datamart', '0', '', 'procure_first_positive_exam_test', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_types') , '0', '', '', '', '', 'exam'), 
+('Datamart', '0', '', 'procure_first_positive_exam_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_sites') , '0', '', '', '', '', 'site');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_first_positive_exam_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='first positive exam' AND `language_tag`=''), '0', '78', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_first_positive_exam_test' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='exam'), '0', '79', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_first_positive_exam_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_sites')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='site'), '0', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_fields SET language_help = 'procure_first_positive_exam_test_help' WHERE field = 'procure_first_positive_exam_test';
+INSERT INTO i18n (id,en,fr) VALUES ('procure_first_positive_exam_test_help', "First 'Clinical Exam' flagged as positive into the system after prostatectomy.", "Premier 'Examen clinique' défini comme positif après la prostatectomie.");
+
+-- Dx & Tx Report
+
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `associated_datamart_structure_id`, `limit_access_from_datamart_structrue_function`) 
+VALUES
+(null, 'procure bank activity report', 'procure bank activity report description', 'procure_report_criteria_and_result', 'procure_bank_activity_report', 'detail', 'procureBankActivityReport', 1, null, 0);
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('procure bank activity report', 'PROCURE - Bank Activity Report', 'PROCURE - Rapport d''activités de banque'),
+('procure bank activity report description', 
+'Number of new records into ATiM for different types of data (Participant visit, Sample Collection, RNa extraction, etc) for a period of time.', 
+'Nombre de nouveaux enregistrements dans ATiM pour différents types de données (visite de participants, collections d''échantillons, extraction d''ARN, etc.) pour une période donnée.');
+
+INSERT INTO structures(`alias`) VALUES ('procure_bank_activity_report');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'procure_nbr_of_participants_with_collection_and_visit', 'integer',  NULL , '0', 'size=3', '', '', 'encountered patients', ''), 
+('Datamart', '0', '', 'procure_nbr_of_participants_with_collection', 'integer',  NULL , '0', 'size=3', '', '', 'encountered patients with collection', ''), 
+('Datamart', '0', '', 'procure_nbr_of_participants_with_visit_only', 'integer',  NULL , '0', 'size=3', '', '', 'encountered patients with collection with no collection', ''), 
+('Datamart', '0', '', 'procure_nbr_of_participants_with_collection_post_bcr', 'integer',  NULL , '0', 'size=3', '', '', 'encountered patients with collection post bcr', ''), 
+('Datamart', '0', '', 'procure_nbr_of_participants_with_collection_pre_bcr', 'integer',  NULL , '0', 'size=3', '', '', 'encountered patients with collection pre bcr', ''), 
+('Datamart', '0', '', 'procure_nbr_of_participants_with_pbmc_extraction', 'integer',  NULL , '0', 'size=3', '', '', 'patients whose pbmc has been extracted', ''), 
+('Datamart', '0', '', 'procure_nbr_of_participants_with_rna_extraction', 'integer',  NULL , '0', 'size=3', '', '', 'patients whose rna has been extracted', ''), 
+('Datamart', '0', '', 'procure_nbr_of_participants_with_clinical_data_update', 'integer',  NULL , '0', 'size=3', '', '', 'patients whose clinical data have been updated', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_collection_and_visit'), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_collection'), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_visit_only'), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_collection_post_bcr'), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_collection_pre_bcr'), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_pbmc_extraction'), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_rna_extraction'), '0', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_bank_activity_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_nbr_of_participants_with_clinical_data_update'), '0', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('encountered patients', 'Encountered patients', "Patients recontrés"),
+('encountered patients with collection', 'Encountered patients with collection', "Patients recontrés avec collection"),
+('encountered patients with collection with no collection', 'Encountered patients with collection with no collection', "Patients recontrés sans collection"),
+('encountered patients with collection post bcr', 'Encountered patients with collection post bcr', "Patients recontrés avec collection post 'BCR'"),
+('encountered patients with collection pre bcr', 'Encountered patients with collection pre bcr', "Patients recontrés avec collection pré 'BCR'"),
+('patients whose pbmc has been extracted', 'Patients whose pbmc has been extracted', "Patients dont le pbmc a été extrait"),
+('patients whose rna has been extracted', 'Patients whose rna has been extracted', "Patients dont l'ARN a été extrait"),
+('patients whose clinical data have been updated', 'Patients whose clinical data have been updated', "Patients dont les données cliniques ont été mises à jour");
+
+-- SOP
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='derivatives'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample sop' AND `language_tag`=''), '0', '400', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Sop/SopMasters/%';
+UPDATE sop_controls SET flag_active = 0;
+INSERT INTO `sop_controls` (`id`, `sop_group`, `type`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `created`, `created_by`, `modified`, `modified_by`, `flag_active`) VALUES
+(0, 'inventory', 'procure', 'sopd_inventory_alls', 'sopd_inventory_all', '', '', 0, NULL, 0, NULL, 0, 1);
+UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL ,  `setting`='size=5' WHERE model='SopMaster' AND tablename='sop_masters' AND field='version' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_sop_verisons');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+SELECT CONCAT(username, '[', IFNULL(first_name, ''), ' ', IFNULL(last_name, ''), ']') "###MESSAGE### Following user will be repalced by 'system' user for any datamigration, etc" from users where id = 2;
+UPDATE users set flag_active = 0, username = 'system', last_name = '', first_name = '', password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE id = 2;
+SET @created_by = (SELECT id FROM users where username = 'system');
+SET @created = (SELECT NOW() FROM users where username = 'system'); 
+INSERT INTO sop_masters(`code`, `version`, `status`, `sop_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('Prot. PBMC', '001', 'activated', (SELECT id FROM sop_controls WHERE type = 'procure'), @created, @created, @created_by, @created_by);
+INSERT INTO sopd_inventory_alls (`sop_master_id`) (SELECT id FROM sop_masters WHERE code = 'Prot. PBMC');
+INSERT INTO sop_masters_revs(`code`, `version`, `status`, `sop_control_id`, `modified_by`, `id`, `version_created`) 
+(SELECT `code`, `version`, `status`, `sop_control_id`, `modified_by`, `id`, `modified` FROM sop_masters WHERE code = 'Prot. PBMC');
+INSERT INTO sopd_inventory_alls_revs (`sop_master_id`, version_created) (SELECT id, modified FROM sop_masters WHERE code = 'Prot. PBMC');
+UPDATE sample_masters 
+SET sop_master_id = (SELECT id FROM sop_masters WHERE code = 'Prot. PBMC'), modified =  @created, modified_by = @created_by
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc')
+AND deleted <> 1;
+INSERT INTO sample_masters_revs(id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, 
+parent_sample_type, sop_master_id, product_code, is_problematic, notes, procure_created_by_bank, modified_by, version_created)
+(SELECT id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, 
+parent_sample_type, sop_master_id, product_code, is_problematic, notes, procure_created_by_bank, modified_by, modified
+FROM sample_masters WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc')
+AND modified =  @created AND modified_by = @created_by);
+INSERT INTO derivative_details_revs (sample_master_id, creation_site, creation_by, creation_datetime, lab_book_master_id, sync_with_lab_book, version_created, creation_datetime_accuracy)
+(SELECT sample_master_id, creation_site, creation_by, creation_datetime, lab_book_master_id, sync_with_lab_book, modified, creation_datetime_accuracy
+FROM derivative_details INNER JOIN sample_masters ON id = sample_master_id
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc')
+AND modified =  @created AND modified_by = @created_by);
+INSERT INTO sd_der_pbmcs_revs (sample_master_id, version_created)
+(SELECT sample_master_id, modified
+FROM sd_der_pbmcs INNER JOIN sample_masters ON id = sample_master_id
+WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc')
+AND modified =  @created AND modified_by = @created_by);
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('time past (months)', 'Time past (months)', 'Temps écoulé (mois)'),
+('last testosterone - nmol/l', 'Last Testosterone (nmol/l)', 'Dernière Téstostérone (nmol/l)');
+
+-- Treatment
+
+UPDATE structure_fields SET  `language_label`='dose' WHERE model='TreatmentDetail' AND tablename='procure_txd_treatments' AND field='dosage' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='frequency' WHERE model='TreatmentDetail' AND tablename='procure_txd_treatments' AND field='duration' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Types (PROCURE values only)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, created, created_by, modified, modified_by) 
+VALUES 
+('immunotherapy' ,'Immunotherapy', 'Immunothérapie', '1', @control_id, NOW(), '1', NOW(), '1');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+('immunotherapy','immunotherapy');
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_drug_type"), 
+(SELECT id FROM structure_permissible_values WHERE value="immunotherapy" AND language_alias="immunotherapy"), "1", "1");
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('immunotherapy' ,'Immunotherapy', 'Immunothérapie');
+
+-- ....
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='notes' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- PBMC
+
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_sd_pbmcs') WHERE sample_type = 'pbmc';
+ALTER TABLE sd_der_pbmcs ADD COLUMN procure_blood_volume_used_ml decimal(10,5) DEFAULT NULL;
+ALTER TABLE sd_der_pbmcs_revs ADD COLUMN procure_blood_volume_used_ml decimal(10,5) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('procure_sd_pbmcs');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_pbmcs', 'procure_blood_volume_used_ml', 'float_positive',  NULL , '0', 'size=5', '', '', 'blood volume used ml', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_sd_pbmcs'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='procure_blood_volume_used_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='blood volume used ml' AND `language_tag`=''), '2', '500', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUEs ('blood volume used ml', 'Blood Volume Used (ml)', 'Volume Sang Utilisé (ml)');
+UPDATE structure_formats SET `display_column`='0', `display_order`='698', `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_pbmc_tube') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_time_at_minus_80_days' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0', `display_order`='697' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_pbmc_tube') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_date_at_minus_80' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('date at -80', 'Date at -80°C (Temporary Storage)', 'Date -80°C (Entreposage temporaire)');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('storage dates precisions do not allow system to calculate the days at -80',
+'Storage dates precisions do not allow system to calculate the days at -80°C',
+"Les précisions des dates d'entreposage ne permettent pas au système de calculer les jours à -80°C");
+
+SET @aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc'));
+SET @modified = (SELECT NOW() FROM users limit 0, 1);
+SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
+UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail
+SET AliquotDetail.procure_time_at_minus_80_days = DATEDIFF(AliquotMaster.storage_datetime, AliquotDetail.procure_date_at_minus_80),
+AliquotMaster.modified = @modified,
+AliquotMaster.modified_by = @modified_by
+WHERE AliquotMaster.id = AliquotDetail.aliquot_master_id
+AND AliquotMaster.aliquot_control_id = @aliquot_control_id
+AND AliquotMaster.storage_datetime_accuracy IN ('c', '', 'h', 'i')
+AND AliquotDetail.procure_date_at_minus_80_accuracy = 'c'
+AND AliquotDetail.procure_date_at_minus_80 <= AliquotMaster.storage_datetime
+AND (AliquotDetail.procure_time_at_minus_80_days IS NULL OR AliquotDetail.procure_time_at_minus_80_days != DATEDIFF(AliquotMaster.storage_datetime, AliquotDetail.procure_date_at_minus_80))
+AND AliquotMaster.deleted <> 1;
+INSERT INTO aliquot_masters_revs (id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, 
+study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, 
+procure_created_by_bank,
+modified_by, version_created)
+(SELECT id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, 
+study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, product_code, notes, 
+procure_created_by_bank,
+modified_by, modified
+FROM aliquot_masters WHERE modified = @modified AND modified_by = @modified_by AND aliquot_control_id = @aliquot_control_id);
+INSERT INTO ad_tubes_revs (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, cell_viability, hemolysis_signs, 
+procure_deprecated_field_expiration_date, procure_tube_weight_gr, procure_total_quantity_ug, procure_concentration_nanodrop, procure_concentration_unit_nanodrop, procure_total_quantity_ug_nanodrop,
+procure_time_at_minus_80_days, procure_date_at_minus_80, procure_date_at_minus_80_accuracy,
+version_created)
+(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, cell_viability, hemolysis_signs, 
+procure_deprecated_field_expiration_date, procure_tube_weight_gr, procure_total_quantity_ug, procure_concentration_nanodrop, procure_concentration_unit_nanodrop, procure_total_quantity_ug_nanodrop,
+procure_time_at_minus_80_days, procure_date_at_minus_80, procure_date_at_minus_80_accuracy,
+modified
+FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE modified = @modified AND modified_by = @modified_by AND aliquot_control_id = @aliquot_control_id);
 
 
 
@@ -2504,6 +2727,11 @@ UPDATE versions SET permissions_regenerated = 0;
 
 
 
+
+
+Claire veut changer un type de drug.
+Importer le site de lucie sur central. Voire pourquoi si on cherche bcr sur central.... on a un site sans sans le flag du site 'PS...' comme PS1, PS2, etc.
+Voir si on peut nettoyer les données des sites. Ex: Clinical Exam les champs positif, clinical replase peuvent etre compltetes a partir des notes;
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO
@@ -2521,5 +2749,7 @@ UPDATE versions SET permissions_regenerated = 0;
 --   
 --   See email sent to Valerie on 2017-02-24 with the list of values (ICD-O-3 Topo (International classification) && Clinical Exam - Sites (PROCURE Defintion)
 --     &&  Treatment Sites (PROCURE Defintion) && Other Tumor Site (PROCURE Defintion based on ICD-O-/ Topo))
+-- 
+-- -4- Mettre champ du site dans le label (ex: Protocol (Ch. CUSM)
 -- 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -2,6 +2,8 @@
 	
 	$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
 	
+	$procure_chronology_warnings = array();
+	
 	// *** Treatment ***
 	
 	$procure_treatment_types_values = $this->StructurePermissibleValuesCustom->getCustomDropdown(array('Treatment Types (PROCURE values only)'));
