@@ -21,6 +21,7 @@
 			// -1- Set Default Data For BANK
 			
 			$set_default_value = true;
+			$tmp_default_aliquot_data = array();
 			
 			$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $new_sample_record['parent']['ViewSample']['sample_master_id']), 'recursive' => '0'));
 			
@@ -76,6 +77,15 @@
 				case 'pbmc-tube':		
 					$barcode_suffix = '-PBMC';
 					$default_volume = '1';
+					$tmp_default_aliquot_data['AliquotDetail.procure_date_at_minus_80'] = substr($default_storage_datetime, 0, 10);
+					$tmp_default_aliquot_data['AliquotDetail.procure_date_at_minus_80_accuracy'] = str_replace(array('', 'i', 'h'), array('c', 'c', 'c'), $default_storage_datetime_accuracy);
+					if($tmp_default_aliquot_data['AliquotDetail.procure_date_at_minus_80_accuracy'] == 'c') {
+					    $default_storage_datetime = date('Y-m-d', strtotime($tmp_default_aliquot_data['AliquotDetail.procure_date_at_minus_80']."+1 day"));
+                        $default_storage_datetime_accuracy = 'h';
+					} else {
+					    $default_storage_datetime = '';
+                        $default_storage_datetime_accuracy = '';
+					}
 					break;
 				case 'buffy coat-tube':		
 					$barcode_suffix = '-BFC';
@@ -123,7 +133,6 @@
 			
 			// SET data 
 			
-			$tmp_default_aliquot_data = array();
 			if($set_default_value) {
 				$tmp_default_aliquot_data['AliquotMaster.barcode'] = $participant_identifier . ' ' . $visite . ' ' . $barcode_suffix;
 				$tmp_default_aliquot_data['AliquotMaster.in_stock'] = $default_in_stock_value;
@@ -133,7 +142,6 @@
 				if($default_concentration_unit) $tmp_default_aliquot_data['AliquotDetail.concentration_unit'] = $default_concentration_unit;
 				if($default_hemolysis_signs) $tmp_default_aliquot_data['AliquotDetail.hemolysis_signs'] = $default_hemolysis_signs;
 				if($default_storage) $tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = $default_storage;
-				
 				//Add barcode suffix number
 				$counter = 0;
 				foreach($new_sample_record['children'] AS &$new_aliquot) {
@@ -144,9 +152,8 @@
 					}
 					$new_aliquot['AliquotMaster']['barcode'] = $tmp_default_aliquot_data['AliquotMaster.barcode'].$counter;	
 				}
-			}	
-			
-			$default_aliquot_data[$new_sample_record['parent']['ViewSample']['sample_master_id']] = $tmp_default_aliquot_data;
+                $default_aliquot_data[$new_sample_record['parent']['ViewSample']['sample_master_id']] = $tmp_default_aliquot_data;
+			}
 			
 		} else if(Configure::read('procure_atim_version') == 'PROCESSING') {
 			
