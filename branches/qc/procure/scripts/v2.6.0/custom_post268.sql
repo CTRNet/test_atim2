@@ -2552,6 +2552,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_first_positive_exam_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_clinical_exam_sites')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='site'), '0', '80', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 UPDATE structure_fields SET language_help = 'procure_first_positive_exam_test_help' WHERE field = 'procure_first_positive_exam_test';
 INSERT INTO i18n (id,en,fr) VALUES ('procure_first_positive_exam_test_help', "First 'Clinical Exam' flagged as positive into the system after prostatectomy.", "Premier 'Examen clinique' défini comme positif après la prostatectomie.");
+INSERT INTO i18n (id,en,fr) values ('first positive exam', 'First Positive Exam', '1er examen positif');
 
 -- Dx & Tx Report
 
@@ -2690,7 +2691,7 @@ VALUES
 
 SET @aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc'));
 SET @modified = (SELECT NOW() FROM users limit 0, 1);
-SET @modified_by = (SELECT id FROM users WHERE username IN ('NicoEn', 'administrator') ORDER by username desc LIMIT 0, 1);
+SET @created = (SELECT id FROM users where username = 'system'); 
 UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail
 SET AliquotDetail.procure_time_at_minus_80_days = DATEDIFF(AliquotMaster.storage_datetime, AliquotDetail.procure_date_at_minus_80),
 AliquotMaster.modified = @modified,
@@ -2724,8 +2725,8 @@ FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE modifie
 
 
 
-
-
+UPDATE versions SET branch_build_number = '6739', site_branch_build_number = '????' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
 
 
 

@@ -1787,7 +1787,7 @@ class ReportsControllerCustom extends ReportsController {
 		$start_date= str_replace($end_date_year, ($end_date_year -1), $end_date);
 
 		//Get participants ids
-		$query = "SELECT
+		$query = "SELECT DISTINCT
 			Participant.id
 			FROM participants Participant
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
@@ -1796,7 +1796,7 @@ class ReportsControllerCustom extends ReportsController {
 		    $participant_ids[] = $new_participant_id['Participant']['id'];
 		}
 		$participant_ids_strg = empty($participant_ids)? '-1': implode(',',$participant_ids); 
-
+		
         // Get number of participants with visit and/or collection
 		
 		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
@@ -1955,6 +1955,7 @@ class ReportsControllerCustom extends ReportsController {
             		FROM participants_revs
             		WHERE version_created > '$start_date' 
                     AND version_created <= '$end_date'
+                    AND id IN ($participant_ids_strg)
             		UNION All
             		SELECT DISTINCT participant_id, 
             		YEAR(version_created) AS event_year,
@@ -1962,6 +1963,7 @@ class ReportsControllerCustom extends ReportsController {
             		FROM event_masters_revs
             		WHERE version_created > '$start_date'
                     AND version_created <= '$end_date'   
+                    AND participant_id IN ($participant_ids_strg)
             		UNION All
             		SELECT DISTINCT participant_id, 
             		YEAR(version_created) AS event_year,
@@ -1969,6 +1971,7 @@ class ReportsControllerCustom extends ReportsController {
             		FROM treatment_masters_revs
             		WHERE version_created > '$start_date'
                     AND version_created <= '$end_date'
+                    AND participant_id IN ($participant_ids_strg)
                 ) AS res1
     		) AS res
     		 GROUP BY res.record_year, res.record_month;";
