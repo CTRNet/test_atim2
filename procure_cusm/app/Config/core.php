@@ -389,7 +389,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
@@ -517,7 +517,7 @@ unset($debug);
  * 	- 1 to 4 for the 4 collections sites
  *  - p for the processing bank
  */
-Configure::write('procure_bank_id', '1');
+Configure::write('procure_bank_id', '3');
 
 /**
  * PROCURE ATiM Version: 'procure_atim_version'

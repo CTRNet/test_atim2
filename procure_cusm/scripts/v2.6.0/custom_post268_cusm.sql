@@ -102,5 +102,5 @@ UPDATE menus SET flag_active = 1 WHERE use_link = '/Order/Orders/search/';
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE versions SET site_branch_build_number = '6740' WHERE version_number = '2.6.8';
+UPDATE versions SET site_branch_build_number = '6741' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
