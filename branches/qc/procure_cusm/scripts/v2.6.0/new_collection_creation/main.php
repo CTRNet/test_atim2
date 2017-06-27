@@ -111,6 +111,7 @@ for($visit_id = 1; $visit_id < 11; $visit_id++) {
 								'collection_datetime_accuracy' => $collection_datetime_accuracy,
 								'collection_notes' => "Created by migration script on '".substr ($import_date, 0, 10)."'.",
 								'participant_id' => $participant_id,
+							    'collection_property' => 'participant collection',
 								'procure_visit' => $visit_nbr,
 								'procure_collected_by_bank' => $procure_bank_id
 							)
@@ -380,6 +381,7 @@ for($visit_id = 1; $visit_id < 11; $visit_id++) {
 								'collection_datetime_accuracy' => $collection_datetime_accuracy,
 								'collection_notes' => "Created by migration script on '".substr ($import_date, 0, 10)."'.",
 								'participant_id' => $participant_id,
+							    'collection_property' => 'participant collection',
 								'procure_visit' => $visit_nbr,
 								'procure_collected_by_bank' => $procure_bank_id
 							)

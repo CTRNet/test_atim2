@@ -13,7 +13,7 @@ $db_charset		= "utf8";
 
 $excel_files_paths = 'C:/_NicolasLuc/Server/www/procure_cusm/scripts/v2.6.0/new_collection_creation/';
 $excel_file_name = 'NOV2016Copy of 2015migration donnees.xls';
-$migration_user_id = 1;
+$migration_user_id = 2;
 
 
 ?>
