@@ -2722,17 +2722,24 @@ procure_time_at_minus_80_days, procure_date_at_minus_80, procure_date_at_minus_8
 modified
 FROM aliquot_masters INNER JOIN ad_tubes ON id = aliquot_master_id WHERE modified = @modified AND modified_by = @modified_by AND aliquot_control_id = @aliquot_control_id);
 
-
-
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Versions....
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '6739', site_branch_build_number = '????' WHERE version_number = '2.6.8';
 UPDATE versions SET permissions_regenerated = 0;
 
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Versions....
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET branch_build_number = '6743', site_branch_build_number = '????' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
 
 
-Claire veut changer un type de drug.
-Importer le site de lucie sur central. Voire pourquoi si on cherche bcr sur central.... on a un site sans sans le flag du site 'PS...' comme PS1, PS2, etc.
-Voir si on peut nettoyer les données des sites. Ex: Clinical Exam les champs positif, clinical replase peuvent etre compltetes a partir des notes;
+-- Claire veut changer un type de drug.
+-- Importer le site de lucie sur central. Voire pourquoi si on cherche bcr sur central.... on a un site sans sans le flag du site 'PS...' comme PS1, PS2, etc.
+-- Voir si on peut nettoyer les données des sites. Ex: Clinical Exam les champs positif, clinical replase peuvent etre compltetes a partir des notes;
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO

@@ -92,8 +92,8 @@ class DrugCustom extends Drug {
 	}
 	
 	function allowDeletion($drug_id){
-		$TreatmentdMaster = AppModel::getInstance("ClinicalAnnotation", "$TreatmentdMaster", true);
-		$returned_nbr = $TreatmentExtendMaster->find('count', array('conditions' => array('$TreatmentdMaster.procure_drug_id' => $drug_id), 'recursive' => '1'));
+		$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+		$returned_nbr = $TreatmentMaster->find('count', array('conditions' => array('TreatmentMaster.procure_drug_id' => $drug_id), 'recursive' => '1'));
 		if($returned_nbr > 0) {
 			return array('allow_deletion' => false, 'msg' => 'drug is defined as a component of at least one participant treatment');
 		}
