@@ -23,6 +23,7 @@
 			}
 		}
 		$child_writable_fields['aliquot_masters']['addgrid'] = array_merge($child_writable_fields['aliquot_masters']['addgrid'], array('procure_created_by_bank'));
+		if(!isset($child_writable_fields[$child_aliquot_ctrl['AliquotControl']['detail_tablename']]['addgrid'])) $child_writable_fields[$child_aliquot_ctrl['AliquotControl']['detail_tablename']]['addgrid'] = array();
 		$child_writable_fields[$child_aliquot_ctrl['AliquotControl']['detail_tablename']]['addgrid'] = array_merge($child_writable_fields[$child_aliquot_ctrl['AliquotControl']['detail_tablename']]['addgrid'], array('procure_total_quantity_ug', 'procure_total_quantity_ug_nanodrop'));
 	}
 	

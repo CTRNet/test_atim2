@@ -52,3 +52,9 @@ UPDATE versions SET site_branch_build_number = '6663' WHERE version_number = '2.
 UPDATE versions SET permissions_regenerated = 0;
 
 UPDATE versions SET site_branch_build_number = '6668' WHERE version_number = '2.6.8';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE versions SET site_branch_build_number = '6746' WHERE version_number = '2.6.8';
+UPDATE versions SET permissions_regenerated = 0;
