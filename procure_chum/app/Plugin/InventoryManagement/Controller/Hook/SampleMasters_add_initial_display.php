@@ -76,7 +76,8 @@
 		//  SERUM, PLASMA, PBMC, Buffy coat
 		//--------------------------------------------------------------------------------
 		
-		$sample_control_ids = $this->SampleControl->find('list', array('conditions' => array('sample_type' => array('serum', 'plasma', 'buffy coat', 'pbmc'))));
+		$procure_sample_types = ($sample_control_data['SampleControl']['sample_type'] == 'serum')? array('serum') : array('plasma', 'buffy coat', 'pbmc');
+	    $sample_control_ids = $this->SampleControl->find('list', array('conditions' => array('sample_type' => $procure_sample_types)));
 		$collection_blood_derivatives = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_control_id' => $sample_control_ids), 'order' => array('DerivativeDetail.creation_datetime DESC'), 'recursive' => '0'));
 		if($collection_blood_derivatives) {
 			$this->request->data['DerivativeDetail']['creation_datetime'] = $collection_blood_derivatives['DerivativeDetail']['creation_datetime'];
