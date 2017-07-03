@@ -88,7 +88,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 						$this->validationErrors[$fied][] = __('field [%s] can only be completed for following treatment(s) : %s', __($field_label), $msg);
 					}
 				}
-			}	
+			}
 		}
 		
 		return $result;
