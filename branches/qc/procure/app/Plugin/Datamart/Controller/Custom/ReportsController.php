@@ -1742,17 +1742,24 @@ class ReportsControllerCustom extends ReportsController {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		if(isset($parameters['0']['procure_participant_identifier_prefix'])) {
-		    
-		    pr('todo');pr($parameters);exit;
-			$procure_created_by_bank  = array_filter($parameters['']['procure_created_by_bank']);
-			$conditions[] = ".procure_created_by_bank IN ('".implode("','",$procure_created_by_bank)."')";
-			$header = array(
-                'title' => __('report linuited to').' :' .implode(" ,",$procure_created_by_bank).'.',
-                'description' => '');
-			if(in_array('p', $procure_created_by_bank) || in_array('s', $procure_created_by_bank)) {
-				$check_procure_created_by_bank = implode('',$procure_created_by_bank);
-				if(in_array($check_procure_created_by_bank, array('p','s','ps','sp'))) $conditions = array(".procure_created_by_bank = '-1'");
-			}
+		    $tmp_conditions = array();
+		    $procure_ps_nbrs = array();
+		    foreach($parameters['0']['procure_participant_identifier_prefix'] as $tmp_new_prefix) {
+		        if(in_array($tmp_new_prefix, array('1', '2', '3', '4'))) {
+		          $tmp_conditions[] = "Participant.participant_identifier LIKE 'PS$tmp_new_prefix%'";
+		          $procure_ps_nbrs[] = "PS$tmp_new_prefix";
+		        } else if(strlen($tmp_new_prefix)) {
+		          $tmp_conditions[] = "Participant.participant_identifier LIKE '-1'";
+		        }
+		    }
+		    if($tmp_conditions) {
+		        $conditions[] = "(".implode(' OR ', $tmp_conditions).")";
+		    }
+		    if($procure_ps_nbrs) {
+    		    $header = array(
+                    'title' => __('report limited to').' : ' .implode(", ",$procure_ps_nbrs).'.',
+                    'description' => '');
+		    }
 		}
 		
 		//Get Data
@@ -1795,7 +1802,7 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($participant_model->query($query) as $new_participant_id) {
 		    $participant_ids[] = $new_participant_id['Participant']['id'];
 		}
-		$participant_ids_strg = empty($participant_ids)? '-1': implode(',',$participant_ids); 
+		$participant_ids_strg = empty($participant_ids)? '-1': implode(',',$participant_ids);
 		
         // Get number of participants with visit and/or collection
 		
@@ -1948,29 +1955,37 @@ class ReportsControllerCustom extends ReportsController {
 		// Get number of participants with clinical data updated
 		
 		$query = "SELECT COUNT(*) as 'nbr_of_records', CONCAT(res.record_year,'-', res.record_month) as y_m  FROM (
-            SELECT DISTINCT res1.participant_id, res1.record_year, res1.record_month FROM (
-                SELECT DISTINCT id as participant_id, 
-            		YEAR(version_created) AS record_year,
-                    LPAD(MONTH(version_created), 2, '0') AS record_month
-            		FROM participants_revs
-            		WHERE version_created > '$start_date' 
-                    AND version_created <= '$end_date'
+                SELECT DISTINCT res1.participant_id, res1.record_year, res1.record_month FROM (
+                    SELECT DISTINCT id as participant_id, 
+            		YEAR(date_of_death) AS record_year,
+                    LPAD(MONTH(date_of_death), 2, '0') AS record_month
+            		FROM participants
+            		WHERE date_of_death > '$start_date' 
+                    AND date_of_death <= '$end_date'
                     AND id IN ($participant_ids_strg)
             		UNION All
             		SELECT DISTINCT participant_id, 
-            		YEAR(version_created) AS event_year,
-                    LPAD(MONTH(version_created), 2, '0') AS event_month
-            		FROM event_masters_revs
-            		WHERE version_created > '$start_date'
-                    AND version_created <= '$end_date'   
+            		YEAR(event_date) AS event_year,
+                    LPAD(MONTH(event_date), 2, '0') AS event_month
+            		FROM event_masters
+            		WHERE event_date > '$start_date'
+                    AND event_date <= '$end_date'   
                     AND participant_id IN ($participant_ids_strg)
             		UNION All
             		SELECT DISTINCT participant_id, 
-            		YEAR(version_created) AS event_year,
-                    LPAD(MONTH(version_created), 2, '0') AS event_month
-            		FROM treatment_masters_revs
-            		WHERE version_created > '$start_date'
-                    AND version_created <= '$end_date'
+            		YEAR(start_date) AS event_year,
+                    LPAD(MONTH(start_date), 2, '0') AS event_month
+            		FROM treatment_masters
+            		WHERE start_date > '$start_date'
+                    AND start_date <= '$end_date'
+                    AND participant_id IN ($participant_ids_strg)
+            		UNION All
+            		SELECT DISTINCT participant_id, 
+            		YEAR(finish_date) AS event_year,
+                    LPAD(MONTH(finish_date), 2, '0') AS event_month
+            		FROM treatment_masters
+            		WHERE finish_date > '$start_date'
+                    AND finish_date <= '$end_date'
                     AND participant_id IN ($participant_ids_strg)
                 ) AS res1
     		) AS res
@@ -1992,6 +2007,13 @@ class ReportsControllerCustom extends ReportsController {
 		        }
 		    }
 		}
+		
+		if(empty($date_key_list)) {
+		    $date_key_list = array(__('no data'));
+    		foreach($data as $key => $val_arr)
+    		$data[$key] = array('no data' => __('n/a'));
+		}
+		
         sort($date_key_list);
 		$array_to_return = array(
 			'header' => $header, 
