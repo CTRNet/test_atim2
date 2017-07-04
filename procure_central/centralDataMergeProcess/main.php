@@ -1,7 +1,19 @@
 <?php
 
+$track_queries = false;
+
+$sitecodes_to_sites = array(
+		'p' => 'PROCESSING SITE',
+		'1' => 'CHUM',
+		'2' => 'CHUQ',
+		'4' => 'CHUS',
+		'3' => 'CUSM'
+);
+
 require_once 'system.php';
 require_once 'config.php';
+
+displayMergeTitle('PROCURE CENTRAL ATIM : Data Sites Merge Process');
 
 //**********************************************************************************************************************************************************************************************
 //
@@ -18,26 +30,24 @@ $bank_databases = array(
 	'CUSM' => $db_cusm_schemas
 );
 foreach($bank_databases as $site => $db_schema) {
-	if(!testDbSchemas($db_schema, $site)) $bank_databases[$site] = null;
+	if(!testDbSchemas($db_schema, $site)) {
+		recordErrorAndMessage('ATiM Controls Data Check',
+			'@@WARNING@@',
+			"Bank/Site data missing",
+			'',
+			"The database of the site/bank '$site' does not exist on the server. No data of the bank will be imported into the 'ATiM Central' database.");
+		$bank_databases[$site] = null;
+	}
 }
 
-if(!testDbSchemas($db_processing_schemas, 'PROCESSING SITE')) $db_processing_schemas = null;
-
-//**********************************************************************************************************************************************************************************************
-// VARIOUS ACTIONS & VARIABLES 
-//**********************************************************************************************************************************************************************************************
-
-displayMergeTitle('PROCURE CENTRAL ATIM : Data Sites Merge Process');
-
-$track_queries = false;
-
-$sitecodes_to_sites = array(
-	'p' => 'PROCESSING SITE',
-	'1' => 'CHUM',
-	'2' => 'CHUQ',
-	'4' => 'CHUS',
-	'3' => 'CUSM'
-);
+if(!testDbSchemas($db_processing_schemas, 'PROCESSING SITE')) {
+	recordErrorAndMessage('ATiM Controls Data Check',
+		'@@WARNING@@',
+		"Bank/Site data missing",
+		'',
+		"The database of the site/bank 'Processing Site' does not exist on the server. No data of the bank will be imported into the 'ATiM Central' database.");
+	$db_processing_schemas = null;
+}
 
 //**********************************************************************************************************************************************************************************************
 //
@@ -47,12 +57,12 @@ $sitecodes_to_sites = array(
 //    - Compare the content of all of them to validate id and detail_tablename are similar.
 //
 // 2- MiscIdentifierControl :
-//    - Just Import 'participant study number' from processing site.
-//    - So no control done at this level.
+//    - Just Import 'participant study number' from bank and site
+//    - The 'participant study number' misc_identifier_controls of each site will be renamed as 'participant study number ({bank or site name})' to be considered as unique
 //
 // 3- StorageControl:
 //    - Will import the storage_controls data of each bank and site
-//    -  all be recorded as different storage type.
+//    - All storage controls will be recorded as different storage type.
 //    - So no control done at this level.
 //
 //**********************************************************************************************************************************************************************************************
@@ -180,7 +190,6 @@ $tables_to_truncate = array();
 //Orders
 $tables_to_truncate[] = 'order_items';
 $tables_to_truncate[] = 'shipments';
-$tables_to_truncate[] = 'order_lines';
 $tables_to_truncate[] = 'orders';
 //Inventory
 foreach($sites_atim_controls['central']['specimen_review_controls'] as $control_type => $control_data) {
@@ -211,38 +220,105 @@ foreach($sites_atim_controls['central']['consent_controls'] as $control_type => 
 $tables_to_truncate[] = 'consent_masters';
 $tables_to_truncate[] = 'misc_identifiers';
 $tables_to_truncate[] = 'misc_identifier_controls';
+$tables_to_truncate[] = 'participant_messages';
 $tables_to_truncate[] = 'participants';
 //StorageLayout
+$tables_to_truncate[] = 'tma_slides';
 foreach($sites_atim_controls['central']['storage_controls'] as $control_type => $control_data) $tables_to_truncate[$control_data['detail_tablename']] = $control_data['detail_tablename'];
 $tables_to_truncate[] = 'storage_masters';
 $tables_to_truncate[] = 'storage_masters_revs';
 $tables_to_truncate[] = 'storage_controls';
 //Study
+$tables_to_truncate[] = 'study_fundings';
+$tables_to_truncate[] = 'study_investigators';
 $tables_to_truncate[] = 'study_summaries';
 //...
 $tables_to_truncate[] = 'datamart_batch_ids';
 $tables_to_truncate[] = 'datamart_batch_sets';
 $tables_to_truncate[] = 'datamart_browsing_indexes';
 $tables_to_truncate[] = 'datamart_browsing_results';
+
 $structure_permissible_values_custom_control_names = array(
-	'Aliquot Use and Event Types',
-	'Consent Form Versions',
-	'Laboratory Sites',
 	'Laboratory Staff',
+	'Laboratory Sites',
+	'Specimen Collection Sites',
+	'Specimen Supplier Departments',
+	'Quality Control Tools',
+	'SOP Versions ',
+	'Consent Form Versions',
+	'Orders Institutions',
+	'Orders Contacts',
+	'Aliquot Use and Event Types',
 	'Questionnaire version date',
-	'Radiotherapy Sites',
-	'Shipping Conditions',
+	'Storage Types',
 	'Storage Coordinate Titles',
-	'Storage Coordinate Titles');
+	'Treatment Sites (PROCURE values only)',
+	'Xenograft Species',
+	'Xenograft Implantation Sites ',
+	'Xenograft Tissues Sources',
+	'Shipping Conditions',
+	'Participant Message Types',
+	'Password Reset Questions',
+	'Clinical Exam - Sites (PROCURE values only)',
+	'Progressions & Comorbidities (PROCURE values only)',
+	'Clinical Note Types',
+	'Surgery Types (PROCURE values only)',
+	'Clinical Exam - Results (PROCURE values only)',
+	'Clinical Exam - Types (PROCURE values only)',
+	'Treatment Precisions (PROCURE values only)',
+	'Treatment Types (PROCURE values only)',
+	'Slide Review : Tissue Type',
+	'Tissue Slide Stains',
+	'TMA Slide Stains');
+
+
+//TODO Check list of $structure_permissible_values_custom_control_names
+/*
+'Laboratory Staff',
+'Laboratory Sites',
+'Specimen Collection Sites',
+'Specimen Supplier Departments',
+'Quality Control Tools',
+'SOP Versions ',
+'Consent Form Versions',
+'Orders Institutions',
+'Orders Contacts',
+'Aliquot Use and Event Types',
+'Questionnaire version date',
+'Storage Types',
+'Storage Coordinate Titles',
+'Treatment Sites (PROCURE values only)',
+'Xenograft Species',
+'Xenograft Implantation Sites ',
+'Xenograft Tissues Sources',
+'Shipping Conditions',
+'Participant Message Types',
+'Password Reset Questions',
+'Clinical Exam - Sites (PROCURE values only)',
+'Progressions & Comorbidities (PROCURE values only)',
+'Clinical Note Types',
+'Surgery Types (PROCURE values only)',
+'Clinical Exam - Results (PROCURE values only)',
+'Clinical Exam - Types (PROCURE values only)',
+'Treatment Precisions (PROCURE values only)',
+'Treatment Types (PROCURE values only)',
+'Slide Review : Tissue Type',
+'Tissue Slide Stains',
+'TMA Slide Stains',
+*/
+//END TODO Check list of $structure_permissible_values_custom_control_names
+
 $all_queries = array(
 	"UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null",
 	"UPDATE storage_masters SET parent_id = null",
 	"DELETE FROM structure_permissible_values_customs WHERE control_id IN (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('".implode("','",$structure_permissible_values_custom_control_names)."'))",
 	"DELETE FROM structure_permissible_values_customs WHERE control_id IN (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types')"
 );
-foreach($tables_to_truncate as $new_table) $all_queries[] = "DELETE FROM $new_table";
+foreach($tables_to_truncate as $new_table) {
+	$all_queries[] = "DELETE FROM $new_table";
+	$all_queries[] = "ALTER TABLE $new_table AUTO_INCREMENT = 1";
+}
 foreach($all_queries as $new_query) customQuery($new_query);
-remettre les autocincremente a 0
 
 //==============================================================================================
 // 3- Import Data From The 4 Banks (Collection Sites) + Processing Site
@@ -259,62 +335,62 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		
 		// I - STUDY
 		
-		if($site == 'PROCESSING SITE') magicSelectInsert($site_schema, 'study_summaries');
+		magicSelectInsert($site_schema, 'study_summaries');
+		magicSelectInsert($site_schema, 'study_fundings', array('study_summary_id' => 'study_summaries'));
+		magicSelectInsert($site_schema, 'study_investigators', array('study_summary_id' => 'study_summaries'));
 		
 		// II - PARTICIPANTS
 		
 		magicSelectInsert($site_schema, 'participants');
+		magicSelectInsert($site_schema, 'participant_messages', array('participant_id' => 'participants'));
 		
 		// III - IDENTIFIERS
 		
-		if($site == 'PROCESSING SITE') {
-			magicSelectInsert($site_schema, 'misc_identifier_controls');
-			magicSelectInsert($site_schema, 'misc_identifiers', array('participant_id' => 'participants', 'study_summary_id' => 'study_summaries', 'misc_identifier_control_id' => 'misc_identifier_controls'));			
+		customQuery("UPDATE $site_schema.misc_identifier_controls SET misc_identifier_name = CONCAT(misc_identifier_name, ' $site');");
+		magicSelectInsert($site_schema, 'misc_identifier_controls');
+		magicSelectInsert($site_schema, 'misc_identifiers', array('participant_id' => 'participants', 'study_summary_id' => 'study_summaries', 'misc_identifier_control_id' => 'misc_identifier_controls'));
+		customQuery("UPDATE $site_schema.misc_identifier_controls SET misc_identifier_name = REPLACE(misc_identifier_name, ' $site', '');");
+		
+		// IV - CONSENTS
+		
+		magicSelectInsert($site_schema, 'consent_masters', array('participant_id' => 'participants'));
+		// Detail
+		$detail_table_names_already_imported = array();
+		foreach($sites_atim_controls['central']['consent_controls'] as $control_type => $control_data) {
+			$detail_table_name = $control_data['detail_tablename'];
+			if(!in_array($detail_table_name, $detail_table_names_already_imported)) {
+				magicSelectInsert($site_schema, $detail_table_name, array('consent_master_id' => 'consent_masters'));
+				$detail_table_names_already_imported[] = $detail_table_name;
+			}
 		}
 		
-		if($site != 'PROCESSING SITE') {
-			
-			// IV - CONSENTS
-			
-			magicSelectInsert($site_schema, 'consent_masters', array('participant_id' => 'participants'));
-			// Detail
-			$detail_table_names_already_imported = array();
-			foreach($sites_atim_controls['central']['consent_controls'] as $control_type => $control_data) {
-				$detail_table_name = $control_data['detail_tablename'];
-				if(!in_array($detail_table_name, $detail_table_names_already_imported)) {
-					magicSelectInsert($site_schema, $detail_table_name, array('consent_master_id' => 'consent_masters'));
-					$detail_table_names_already_imported[] = $detail_table_name;
-				}
-			}
-			
-			// V - EVENTS
-			
-			magicSelectInsert($site_schema, 'event_masters', array('participant_id' => 'participants'));
-			// Detail
-			$detail_table_names_already_imported = array();
-			foreach($sites_atim_controls['central']['event_controls'] as $control_type => $control_data) {
-				$detail_table_name = $control_data['detail_tablename'];
-				if(!in_array($detail_table_name, $detail_table_names_already_imported)) {
-					magicSelectInsert($site_schema, $detail_table_name, array('event_master_id' => 'event_masters'));
-					$detail_table_names_already_imported[] = $detail_table_name;
-				}
-			}
+		// V - EVENTS
 		
-			// VI - TREATMENTS & DRUGS
-			
-			//Drugs
-			magicSelectInsert($site_schema, 'drugs', array());
-			//Treatment masters
-			magicSelectInsert($site_schema, 'treatment_masters', array('participant_id' => 'participants'));
-			// Detail
-			$detail_table_names_already_imported = array();
-			foreach($sites_atim_controls['central']['treatment_controls'] as $control_type => $control_data) {
-				$detail_table_name = $control_data['detail_tablename'];
-				if(!in_array($detail_table_name, $detail_table_names_already_imported)) {
-					magicSelectInsert($site_schema, $detail_table_name, array('treatment_master_id' => 'treatment_masters', 'drug_id' => 'drugs'));
-					$detail_table_names_already_imported[] = $detail_table_name;
-				}
-			}			
+		magicSelectInsert($site_schema, 'event_masters', array('participant_id' => 'participants'));
+		// Detail
+		$detail_table_names_already_imported = array();
+		foreach($sites_atim_controls['central']['event_controls'] as $control_type => $control_data) {
+			$detail_table_name = $control_data['detail_tablename'];
+			if(!in_array($detail_table_name, $detail_table_names_already_imported)) {
+				magicSelectInsert($site_schema, $detail_table_name, array('event_master_id' => 'event_masters'));
+				$detail_table_names_already_imported[] = $detail_table_name;
+			}
+		}
+	
+		// VI - TREATMENTS & DRUGS
+		
+		//Drugs
+		magicSelectInsert($site_schema, 'drugs', array());
+		//Treatment masters
+		magicSelectInsert($site_schema, 'treatment_masters', array('participant_id' => 'participants', 'procure_drug_id' => 'drugs'));
+		// Detail
+		$detail_table_names_already_imported = array();
+		foreach($sites_atim_controls['central']['treatment_controls'] as $control_type => $control_data) {
+			$detail_table_name = $control_data['detail_tablename'];
+			if(!in_array($detail_table_name, $detail_table_names_already_imported)) {
+				magicSelectInsert($site_schema, $detail_table_name, array('treatment_master_id' => 'treatment_masters'));
+				$detail_table_names_already_imported[] = $detail_table_name;
+			}
 		}
 		
 		// VII - COLLECTION
@@ -346,8 +422,8 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		$atim_control_id = getSelectQueryResult("SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types'");
 		if(!($atim_control_id && $atim_control_id['0']['id'])) mergeDie('ERR_MISSING_STORAGE_TYPE_VALUES_CONTROL');
 		$atim_control_id = $atim_control_id['0']['id'];
-		$query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id)
-			(SELECT CONCAT(value,' [$site_code]'), IF(en = '', '', CONCAT(en,' [$site_code]')), IF(fr = '', '', CONCAT(fr,' [$site_code]')), use_as_input, $atim_control_id
+		$query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id, created, created_by, modified, modified_by)
+			(SELECT CONCAT(value,' [$site_code]'), IF(en = '', '', CONCAT(en,' [$site_code]')), IF(fr = '', '', CONCAT(fr,' [$site_code]')), use_as_input, $atim_control_id, NOW(), '1', NOW(), '1'
 			FROM $site_schema.structure_permissible_values_custom_controls ctrl INNER JOIN $site_schema.structure_permissible_values_customs val ON val.control_id = ctrl.id
 			WHERE ctrl.name = 'Storage Types' AND val.deleted <> 1)";
 		customQuery($query);
@@ -366,6 +442,8 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		}
 		//StorageMastersRevs
 		magicSelectInsert($site_schema, 'storage_masters_revs', array('id' => 'storage_masters', 'storage_control_id' => 'storage_controls', 'parent_id' => 'storage_masters'));
+		//Tma slide
+		magicSelectInsert($site_schema, 'tma_slides', array('storage_master_id' => 'storage_masters', 'tma_block_storage_master_id' => 'storage_masters', 'study_summary_id' => 'study_summaries'));
 		
 		// X - Aliquot
 
@@ -387,7 +465,7 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		// Source Aliquot
 		magicSelectInsert($site_schema, 'source_aliquots', array('sample_master_id' => 'sample_masters', 'aliquot_master_id' => 'aliquot_masters'));
 		// Aliquot Internal Uses
-		magicSelectInsert($site_schema, 'aliquot_internal_uses', array('aliquot_master_id' => 'aliquot_masters'));
+		magicSelectInsert($site_schema, 'aliquot_internal_uses', array('aliquot_master_id' => 'aliquot_masters', 'study_summary_id' => 'study_summaries'));
 
 		// XI - QUALITY CONTROL
 		
@@ -414,12 +492,9 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 		
 		// XIII - ORDERS
 		
-		if($site == 'PROCESSING SITE') {
-			magicSelectInsert($site_schema, 'orders', array('default_study_summary_id' => 'study_summaries'));
-			magicSelectInsert($site_schema, 'order_lines', array('order_id' => 'orders', 'study_summary_id' => 'study_summaries'));
-			magicSelectInsert($site_schema, 'shipments', array('order_id' => 'orders'));
-			magicSelectInsert($site_schema, 'order_items', array('order_id' => 'orders', 'order_line_id' => 'order_lines', 'aliquot_master_id' => 'aliquot_masters', 'shipment_id' => 'shipments'));
-		}
+		magicSelectInsert($site_schema, 'orders', array('default_study_summary_id' => 'study_summaries'));
+		magicSelectInsert($site_schema, 'shipments', array('order_id' => 'orders'));
+		magicSelectInsert($site_schema, 'order_items', array('order_id' => 'orders', 'aliquot_master_id' => 'aliquot_masters', 'tma_slide_id' => 'tma_slides', 'shipment_id' => 'shipments'));
 		
 		// End of bank data import : Get max value of each primary key
 		
@@ -431,8 +506,8 @@ foreach(array_merge(array('PROCESSING SITE' => $db_processing_schemas), $bank_da
 			$atim_control_id = getSelectQueryResult("SELECT id FROM structure_permissible_values_custom_controls WHERE name = '$control_name'");
 			if(!($atim_control_id && $atim_control_id['0']['id'])) mergeDie('ERR_MISSING_VALUES_CONTROL::'.$control_name);
 			$atim_control_id = $atim_control_id['0']['id'];
-			$query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id)
-				(SELECT site_val.value, site_val.en, site_val.fr, site_val.use_as_input, $atim_control_id
+			$query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id, created, created_by, modified, modified_by)
+				(SELECT site_val.value, site_val.en, site_val.fr, site_val.use_as_input, $atim_control_id, NOW(), 1, NOW(), 1
 				FROM $site_schema.structure_permissible_values_custom_controls site_ctrl
 				INNER JOIN $site_schema.structure_permissible_values_customs site_val ON site_val.control_id = site_ctrl.id
 				WHERE site_ctrl.name = '$control_name'
@@ -507,6 +582,10 @@ foreach($duplicated_participants as $new_duplicated_participants_data) {
 	$participants_banks = array($participants_data_to_display['procure_last_modification_by_bank']);
 	$all_notes_to_merge = strlen($participants_data_to_display['notes'])? array($participants_data_to_display['notes']) : array();
 	$check_all_flagged_as_transferred = ($participants_data_to_display['procure_transferred_participant'] == 'y')? true : false;
+	
+	
+//TODO	procure_transferred_participant == n/a - created for transferred aliquot ????
+	
 	$check_all_data_similar = true;
 	foreach($participants_data as $duplicated_participant) {
 		$matching_participant_ids[$participants_data_to_display['id']][] = $duplicated_participant['id'];
@@ -561,6 +640,8 @@ foreach($queries as $query) customQuery($query);
 // 5- Import Data From Processing Site
 //==============================================================================================
 
+//TODO Review all section 5- Import Data From Processing Site
+/*
 // 1- Link Bank aliquots to Psp aliquots when match exists on barcode
 //    and change the procure_created_by_bank field of these aliquots from bank code to 'p'
 
@@ -789,6 +870,8 @@ if(!($atim_control_id && $atim_control_id['0']['id'])) mergeDie('ERR_MISSING_VAL
 $atim_control_id = $atim_control_id['0']['id'];
 $query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id) VALUES ('###system_transfer_flag###' ,'Transfer (System Record)', 'Transfert (donnée système)', '1', $atim_control_id);";
 customQuery($query);
+*/
+//END TODO Review all section 5- Import Data From Processing Site
 
 //==============================================================================================
 // 6 - Recreates ALiquot and Participant batchsets
@@ -835,24 +918,6 @@ $site_replace = array();
 foreach($sitecodes_to_sites as $code => $site) {
 	$site_search[] = substr($code, 2, 1);
 	$site_replace[] = "'$site'";
-}
-
-// Duplicated PROCURE form Identification (tx, cst, event)
-
-foreach(array('consent_masters' => 'Consents', 'treatment_masters' => 'Treatments', 'event_masters' => 'Events') as $table_name => $data_type) {
-	$query = "SELECT procure_created_by_banks, procure_form_identification
-		FROM (
-			SELECT GROUP_CONCAT(procure_created_by_bank) as procure_created_by_banks, procure_form_identification FROM $table_name WHERE deleted <> 1 AND procure_form_identification NOT LIKE '%Vx%' GROUP BY procure_form_identification
-		) res WHERE procure_created_by_banks LIKE '%,%'
-		ORDER BY procure_form_identification;";
-	$duplicated_forms = getSelectQueryResult($query);
-	foreach($duplicated_forms as $new_form_set) {
-		recordErrorAndMessage($data_type, 
-			'@@WARNING@@', 
-			"Form Identification Duplicated", 
-			'', 
-			$new_form_set['procure_form_identification']."' in bank(s) ".str_replace($site_search, $site_replace, $new_form_set['procure_created_by_banks']));
-	}
 }
 
 // Duplicated PROCURE aliquot barcode
@@ -987,7 +1052,7 @@ $query = "SELECT count(*) AS nbr, BankAliquotMaster.procure_created_by_bank, Ban
 	AND BankAliquotMaster.id = TransferLink.parent_aliquot_master_id
 	AND BankAliquotControl.id = BankAliquotMaster.aliquot_control_id
 	AND BankAliquotMaster.in_stock IN ('yes - available', 'yes - not available')
-	GROUP BY BankAliquotMaster.procure_created_by_bank
+	GROUP BY BankAliquotMaster.procure_created_by_bank,  BankAliquotControl.databrowser_label
 	ORDER BY BankAliquotMaster.procure_created_by_bank, BankAliquotControl.databrowser_label";
 $available_transferred_aliquot_count = getSelectQueryResult($query);
 foreach($available_transferred_aliquot_count as $new_count) {
@@ -1012,7 +1077,9 @@ $storage_control_id = customQuery($query, true);
 $atim_control_id = getSelectQueryResult("SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types'");
 if(!($atim_control_id && $atim_control_id['0']['id'])) mergeDie('ERR_MISSING_STORAGE_TYPE_VALUES_CONTROL');
 $atim_control_id = $atim_control_id['0']['id'];
-$query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id) VALUES ('site', 'Site', 'Site', 1, $atim_control_id)";
+$query = "INSERT INTO structure_permissible_values_customs (value, en, fr, use_as_input, control_id, created, created_by, modified, modified_by) 
+    VALUES 
+    ('site', 'Site', 'Site', 1, $atim_control_id, NOW(), 1, NOW(), 1)";
 customQuery($query);
 
 foreach($sitecodes_to_sites as $site_code => $bank_site) {

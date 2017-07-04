@@ -6,11 +6,13 @@ $db_pwd		= 	"";
 $db_charset		= "utf8";
 
 $db_central_schemas	= "procurecentral";
-$db_chum_schemas = "procure_chum_central_copy";
-$db_chuq_schemas = "procure_chuq_central_copy";
-$db_chus_schemas = "procure_chus_central_copy";
-$db_cusm_schemas = "procure_cusm_central_copy";
-$db_processing_schemas = "procure_processing_site_central_copy";
-$db_processing_schemas = "procure_processing_site_copy";
+$db_chum_schemas = "procurechum";
+$db_chuq_schemas = "procurechuq";
+$db_chus_schemas = "procurechus";
+$db_cusm_schemas = "procurecusm6744";
+$db_processing_schemas = "";
+$db_processing_schemas = "";
+
+$track_queries = false;
 
 ?>

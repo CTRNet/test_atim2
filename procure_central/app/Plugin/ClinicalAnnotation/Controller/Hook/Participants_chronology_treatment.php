@@ -21,10 +21,13 @@
 			$treatment_details = implode(' - ', $treatment_details);
 			$chronolgy_data_treatment_start['event'] = "$treatment_type $start_suffix_msg";
 			$chronolgy_data_treatment_start['chronology_details'] = $treatment_details;
+			if(isset($tx['TreatmentDetail']['surgery_type']) && $tx['TreatmentDetail']['surgery_type'] == 'prostatectomy') {
+			    $tmp_date = strlen($chronolgy_data_treatment_start['date'])? substr($chronolgy_data_treatment_start['date'], 0, ($chronolgy_data_treatment_start['date_accuracy'] == 'c'? 10 : ($chronolgy_data_treatment_start['date_accuracy'] == 'd'? 7 : 4))) : '?';
+                $procure_chronology_warnings[$tmp_date][] = $tmp_date.' - '.__('prostatectomy');
+			}
 			if($chronolgy_data_treatment_finish){	
 				$chronolgy_data_treatment_finish['event'] = "$treatment_type $finish_suffix_msg";
 				$chronolgy_data_treatment_finish['chronology_details'] = $treatment_details;
 			}
 			break;
 	}
-	
