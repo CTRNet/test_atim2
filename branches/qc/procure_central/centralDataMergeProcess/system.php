@@ -69,7 +69,6 @@ $collection_table_query = '
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
-Collection.procure_patient_identity_verified AS procure_patient_identity_verified,
 Collection.procure_visit AS procure_visit,
 Collection.procure_collected_by_bank AS procure_collected_by_bank,
 		Participant.participant_identifier AS participant_identifier,
@@ -90,17 +89,17 @@ $sample_table_query = '
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
-
+	
 		Collection.bank_id,
 		Collection.sop_master_id,
 		Collection.participant_id,
-
+	
 		Participant.participant_identifier,
 Participant.procure_participant_attribution_number,
-
+	
 		Collection.acquisition_label,
 Collection.procure_visit AS procure_visit,
-
+	
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,
@@ -110,7 +109,7 @@ Collection.procure_visit AS procure_visit,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
 SampleMaster.procure_created_by_bank,
-
+	
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
@@ -122,7 +121,7 @@ SampleMaster.procure_created_by_bank,
 		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg
-
+	
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
@@ -133,82 +132,86 @@ SampleMaster.procure_created_by_bank,
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-		WHERE SampleMaster.deleted != 1 %%WHERE%%';
+		WHERE SampleMaster.deleted != 1 %%WHERE%%';	
 
-$aliquot_table_query =
-'SELECT
-			AliquotMaster.id AS aliquot_master_id,
-			AliquotMaster.sample_master_id AS sample_master_id,
-			AliquotMaster.collection_id AS collection_id,
-			Collection.bank_id,
-			AliquotMaster.storage_master_id AS storage_master_id,
-			Collection.participant_id,
-		
-			Participant.participant_identifier,
+$aliquot_table_query = '
+		SELECT
+		AliquotMaster.id AS aliquot_master_id,
+		AliquotMaster.sample_master_id AS sample_master_id,
+		AliquotMaster.collection_id AS collection_id,
+		Collection.bank_id,
+		AliquotMaster.storage_master_id AS storage_master_id,
+		Collection.participant_id,
+	
+		Participant.participant_identifier,
 Participant.procure_participant_attribution_number,
 		
-			Collection.acquisition_label,
+		Collection.acquisition_label,
 Collection.procure_visit AS procure_visit,
 		
-			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
-			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
-			ParentSampleControl.sample_type AS parent_sample_type,
-			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
-			SampleControl.sample_type,
-			SampleMaster.sample_control_id,
-		
-			AliquotMaster.barcode,
-			AliquotMaster.aliquot_label,
-			AliquotControl.aliquot_type,
-			AliquotMaster.aliquot_control_id,
-			AliquotMaster.in_stock,
+		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
+		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
+		ParentSampleControl.sample_type AS parent_sample_type,
+		ParentSampleMaster.sample_control_id AS parent_sample_control_id,
+		SampleControl.sample_type,
+		SampleMaster.sample_control_id,
+	
+		AliquotMaster.barcode,
+		AliquotMaster.aliquot_label,
+		AliquotControl.aliquot_type,
+		AliquotMaster.aliquot_control_id,
+		AliquotMaster.in_stock,
+		AliquotMaster.in_stock_detail,
+		StudySummary.title AS study_summary_title,
+		StudySummary.id AS study_summary_id,
 AliquotMaster.procure_created_by_bank,
 		
-			StorageMaster.code,
-			StorageMaster.selection_label,
-			AliquotMaster.storage_coord_x,
-			AliquotMaster.storage_coord_y,
-		
-			StorageMaster.temperature,
-			StorageMaster.temp_unit,
-		
-			AliquotMaster.created,
-		
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(Collection.collection_datetime IS NULL, -1,
-			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(SpecimenDetail.reception_datetime IS NULL, -1,
-			 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(DerivativeDetail.creation_datetime IS NULL, -1,
-			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
+		StorageMaster.code,
+		StorageMaster.selection_label,
+		AliquotMaster.storage_coord_x,
+		AliquotMaster.storage_coord_y,
+	
+		StorageMaster.temperature,
+		StorageMaster.temp_unit,
+	
+		AliquotMaster.created,
+	
+		IF(AliquotMaster.storage_datetime IS NULL, NULL,
+		 IF(Collection.collection_datetime IS NULL, -1,
+		 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+		 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
+		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
+		IF(AliquotMaster.storage_datetime IS NULL, NULL,
+		 IF(SpecimenDetail.reception_datetime IS NULL, -1,
+		 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+		 IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
+		 TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
+		IF(AliquotMaster.storage_datetime IS NULL, NULL,
+		 IF(DerivativeDetail.creation_datetime IS NULL, -1,
+		 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+		 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
+		 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
 
-			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
-		
-			FROM aliquot_masters AS AliquotMaster
-			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
-			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
-			INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
-			LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
-			LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
-			LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
-			LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
-			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
-			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
-			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
-			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
+		IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
+	
+		FROM aliquot_masters AS AliquotMaster
+		INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
+		INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
+		LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
+		LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
+		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
+		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
+		LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
+		LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
+		LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
+		WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
-$use_table_query =
-"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+$use_table_query = "
+		SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -224,16 +227,18 @@ $use_table_query =
 		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		AliquotInternalUse.study_summary_id AS study_summary_id,
+		StudySummary.id AS study_summary_id,
+		StudySummary.title AS study_title,
 AliquotInternalUse.procure_created_by_bank AS procure_created_by_bank
 		FROM aliquot_internal_uses AS AliquotInternalUse
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotInternalUse.study_summary_id AND StudySummary.deleted != 1
 		WHERE AliquotInternalUse.deleted <> 1 %%WHERE%%
-
+	
 		UNION ALL
-
+	
 		SELECT CONCAT(SourceAliquot.id,1) AS `id`,
 		AliquotMaster.id AS aliquot_master_id,
 		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
@@ -243,14 +248,15 @@ AliquotInternalUse.procure_created_by_bank AS procure_created_by_bank
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		DerivativeDetail.creation_datetime AS use_datetime,
 		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
-		'' AS `duration`,
+		NULL AS `duration`,
 		'' AS `duration_unit`,
 		DerivativeDetail.creation_by AS used_by,
 		SourceAliquot.created AS created,
 		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
 		SampleMaster2.id AS sample_master_id,
 		SampleMaster2.collection_id AS collection_id,
-		'-1' AS study_summary_id,
+		NULL AS study_summary_id,
+		'' AS study_title,
 SampleMaster.procure_created_by_bank AS procure_created_by_bank
 		FROM source_aliquots AS SourceAliquot
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
@@ -259,9 +265,9 @@ SampleMaster.procure_created_by_bank AS procure_created_by_bank
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
 		WHERE SourceAliquot.deleted <> 1 %%WHERE%%
-
+	
 		UNION ALL
-
+	
 		SELECT CONCAT(Realiquoting.id ,2) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 IF(Realiquoting.procure_central_is_transfer = '1', '###system_transfer_flag###', 'realiquoted to') AS use_definition,
@@ -271,14 +277,15 @@ IF(Realiquoting.procure_central_is_transfer = '1', '###system_transfer_flag###',
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		Realiquoting.realiquoting_datetime AS use_datetime,
 		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		Realiquoting.realiquoted_by AS used_by,
 		Realiquoting.created AS created,
 		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id,
+		NULL AS study_summary_id,
+		'' AS study_title,
 AliquotMasterChild.procure_created_by_bank AS procure_created_by_bank
 		FROM realiquotings AS Realiquoting
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
@@ -286,9 +293,9 @@ AliquotMasterChild.procure_created_by_bank AS procure_created_by_bank
 		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE Realiquoting.deleted <> 1 %%WHERE%%
-
+	
 		UNION ALL
-
+	
 		SELECT CONCAT(QualityCtrl.id,3) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'quality control' AS use_definition,
@@ -298,51 +305,91 @@ AliquotMasterChild.procure_created_by_bank AS procure_created_by_bank
 		AliquotControl.volume_unit AS aliquot_volume_unit,
 		QualityCtrl.date AS use_datetime,
 		QualityCtrl.date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		QualityCtrl.run_by AS used_by,
 		QualityCtrl.created AS created,
 		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id,
+		NULL AS study_summary_id,
+		'' AS study_title,
 QualityCtrl.procure_created_by_bank AS procure_created_by_bank
 		FROM quality_ctrls AS QualityCtrl
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
-
+	
 		UNION ALL
-
-		SELECT CONCAT(OrderItem.id,4) AS id,
+	
+		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
-		'aliquot shipment' AS use_definition,
+		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
+		IF(OrderItem.shipment_id, Shipment.shipment_code, Order.order_number) AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped, OrderItem.date_added) AS use_datetime,
+		IF(OrderItem.shipment_id, Shipment.datetime_shipped_accuracy, IF(OrderItem.date_added_accuracy = 'c', 'h', OrderItem.date_added_accuracy)) AS use_datetime_accuracy,
+		NULL AS duration,
+		'' AS duration_unit,
+		IF(OrderItem.shipment_id, Shipment.shipped_by, OrderItem.added_by) AS used_by,
+		IF(OrderItem.shipment_id, Shipment.created, OrderItem.created) AS created,
+		IF(OrderItem.shipment_id,
+				CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id),
+				IF(OrderItem.order_line_id,
+						CONCAT('/Order/OrderLines/detail/',OrderItem.order_id,'/',OrderItem.order_line_id),
+						CONCAT('/Order/Orders/detail/',OrderItem.order_id))
+		) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title,
+OrderItem.procure_created_by_bank
+		FROM order_items OrderItem
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		LEFT JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
+		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
+		WHERE OrderItem.deleted <> 1 %%WHERE%%
+	
+		UNION ALL
+	
+		SELECT CONCAT(OrderItem.id, 7) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'shipped aliquot return' AS use_definition,
 		Shipment.shipment_code AS use_code,
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
-		Shipment.datetime_shipped AS use_datetime,
-		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		OrderItem.date_returned AS use_datetime,
+		IF(OrderItem.date_returned_accuracy = 'c', 'h', OrderItem.date_returned_accuracy) AS use_datetime_accuracy,
+		NULL AS duration,
 		'' AS duration_unit,
-		Shipment.shipped_by AS used_by,
-		Shipment.created AS created,
-		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		OrderItem.reception_by AS used_by,
+		OrderItem.modified AS created,
+		CONCAT('/Order/Shipments/detail/',OrderItem.order_id,'/',OrderItem.shipment_id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
 		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id,
-'p' AS procure_created_by_bank
+		IF(OrderLine.study_summary_id, OrderLineStudySummary.title, OrderStudySummary.title) AS study_title,
+OrderItem.procure_created_by_bank
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
 		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		LEFT JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		LEFT JOIN study_summaries AS OrderLineStudySummary ON OrderLineStudySummary.id = OrderLine.study_summary_id AND OrderLineStudySummary.deleted != 1
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
-		WHERE OrderItem.deleted <> 1 %%WHERE%%
-
+		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
+		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
+	
 		UNION ALL
-
+	
 		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'specimen review' AS use_definition,
@@ -352,15 +399,16 @@ QualityCtrl.procure_created_by_bank AS procure_created_by_bank
 		'' AS aliquot_volume_unit,
 		SpecimenReviewMaster.review_date AS use_datetime,
 		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
+		NULL AS duration,
 		'' AS duration_unit,
 		'' AS used_by,
 		AliquotReviewMaster.created AS created,
 		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id,
-'' AS procure_created_by_bank
+		NULL AS study_summary_id,
+		'' AS study_title,
+AliquotReviewMaster.procure_created_by_bank
 		FROM aliquot_review_masters AS AliquotReviewMaster
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
@@ -411,6 +459,7 @@ function testDbSchemas($db_schema, $site) {
 
 	if($db_schema) {
 		if(!mysqli_query($db_connection, "SELECT count(*) from $db_schema.aliquot_controls")) {
+			pr("SELECT count(*) from $db_schema.aliquot_controls");exit;
 			recordErrorAndMessage('ATiM Database Check', '@@ERROR@@', "Wrong DB schema and/or content", '', "Unable to connect to the schema $db_schema defined for site $site (or to the aliquot_controls table). No data will be imported from this site.");
 			return false;
 		} else {
@@ -776,7 +825,7 @@ function getSelectQueryResult($query) {
 
 function magicSelectInsert($bank_schema, $table_name, $table_foreign_keys = array(), $specific_select_field_rules = array()) {
 	$table_information = getTablesInformation($table_name);
-
+    
 	//Get fields of table
 	$insert_table_fields = $select_table_fields = $table_information['fields'];
 

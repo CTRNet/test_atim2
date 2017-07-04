@@ -29,7 +29,27 @@ class AliquotMasterCustom extends AliquotMaster {
 			}
 			if(array_key_exists('procure_freezing_type', $this->data['AliquotDetail']) && $this->data['AliquotDetail']['procure_freezing_type'] == 'OCT'){
 				AppController::addWarningMsg(__('block freezing type OCT has not to be used anymore'));
-			}	
+			}
+			if(array_key_exists('procure_date_at_minus_80', $this->data['AliquotDetail'])) {
+			    $procure_time_at_minus_80_days = '';
+			    if($this->data['AliquotDetail']['procure_date_at_minus_80'] && $this->data['AliquotMaster']['storage_datetime']) {
+			        if($this->data['AliquotDetail']['procure_date_at_minus_80_accuracy'] == 'c' && in_array($this->data['AliquotMaster']['storage_datetime_accuracy'], array('c','h','i',''))) {
+                        $datetime1 = new DateTime($this->data['AliquotDetail']['procure_date_at_minus_80']);
+			            $datetime2 = new DateTime(substr($this->data['AliquotMaster']['storage_datetime'], 0, 10));
+			            $interval = $datetime1->diff($datetime2);
+			            if($interval->invert) {
+			                $this->validationErrors['procure_date_at_minus_80'][] = 'error in the date definitions';
+                            $val_res = false;
+			            } else {
+			                $procure_time_at_minus_80_days = $interval->days;
+			            }
+			        } else {
+			            AppController::addWarningMsg(__('storage dates precisions do not allow system to calculate the days at -80'));
+			        }
+			    }
+			    $this->data['AliquotDetail']['procure_time_at_minus_80_days'] = $procure_time_at_minus_80_days;
+			    $this->addWritableField(array('procure_time_at_minus_80_days'));
+			}
 		}
 		
 		return $val_res;
