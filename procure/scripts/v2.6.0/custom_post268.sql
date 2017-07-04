@@ -2489,7 +2489,7 @@ UPDATE versions SET branch_build_number = '6680' WHERE version_number = '2.6.8';
 -- Query should be executed on all server
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE realiquotings SET realiquoting_datetime = null where realiquoting_datetime like '0000-00-00';
+UPDATE realiquotings SET realiquoting_datetime = NULL WHERE CAST(realiquoting_datetime AS CHAR(20)) = '0000-00-00 00:00:00';
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2691,7 +2691,7 @@ VALUES
 
 SET @aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc'));
 SET @modified = (SELECT NOW() FROM users limit 0, 1);
-SET @created = (SELECT id FROM users where username = 'system'); 
+SET @modified_by = (SELECT id FROM users where username = 'system'); 
 UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail
 SET AliquotDetail.procure_time_at_minus_80_days = DATEDIFF(AliquotMaster.storage_datetime, AliquotDetail.procure_date_at_minus_80),
 AliquotMaster.modified = @modified,
@@ -2761,3 +2761,23 @@ UPDATE versions SET permissions_regenerated = 0;
 -- -4- Mettre champ du site dans le label (ex: Protocol (Ch. CUSM)
 -- 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
