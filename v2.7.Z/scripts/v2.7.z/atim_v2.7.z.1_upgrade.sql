@@ -68,10 +68,14 @@ SET
 	id='please complete the security questions',
 	en='please complete the security questions'
 WHERE 
-	id='please conplete the security questions'
+	id='please conplete the security questions';
 	
 	
-	
+-- -------------------------------------------------------------------------------------
+-- Add a case that there is not any recorde correspond to the ID
+-- -------------------------------------------------------------------------------------
+INSERT into `i18n` (`id`, `page_id`, `en`, `fr`) 
+values ('error_There are no fields matching ID', '', 'There are no fields matching ID', 'Il n\'y a aucun champs correspond à ID');
 	
 
 
