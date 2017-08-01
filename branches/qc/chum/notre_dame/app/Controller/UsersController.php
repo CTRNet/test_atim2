@@ -32,69 +32,94 @@ class UsersController extends AppController {
  *
  * @return \Cake\Network\Response|null
  */
-	function login() {
-		if ($this->request->is('ajax') && !isset($this->passedArgs['login'])) {
-			echo json_encode(array('logged_in' => isset($_SESSION['Auth']['User']), 'server_time' => time()));
-			exit;
-		}
-		
-		// Load version data and check if initialization is required
-		$versionData = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
-		$this->Version->id = $versionData[0]['id'];
-		$this->Version->read();
-		if ($this->Version->data['Version']['permissions_regenerated'] == 0) {
-			$this->newVersionSetup();
-		}
-			
-		$this->set('skip_expiration_cookie', true);
-		
-		if($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
-			// Too many login attempts - froze atim for couple of minutes
-			$this->request->data = array();
-			$this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily'));
+    public function login()
+    {
+        if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
+            return $this->redirect('/Menus');
+        }
+        
+        if ($this->request->is('ajax') && ! isset($this->passedArgs['login'])) {
+            echo json_encode(array(
+                'logged_in' => isset($_SESSION['Auth']['User']),
+                'server_time' => time()
+            ));
+            exit();
+        }
+        
+        // Load version data and check if initialization is required
+        $versionData = $this->Version->find('first', array(
+            'fields' => array(
+                'MAX(id) AS id'
+            )
+        ));
+        $this->Version->id = $versionData[0]['id'];
+        $this->Version->read();
 
-		} else if ($this->Auth->login() && (!isset($this->passedArgs['login']))) {
-			// Log in user
-			if($this->request->data['User']['username']) $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
-			$this->_initializeNotificationSessionVariables();
-			
-			$this->_setSessionSearchId();
-			$this->resetPermissions();
-			
-			//Authentication credentials expiration
-			if ($this->User->isPasswordResetRequired()) {
-				$this->Session->write('Auth.User.force_password_reset', '1');
-				return $this->redirect('/Customize/Passwords/index');
-			}
-			
-			if (isset($this->passedArgs['login'])) {
-				return $this->render('ok');
-			} else {
-				return $this->redirect('/Menus');
-			}
-			
-		} else if(isset($this->request->data['User']['username'])) {
-				// Save failed login attempt
-				$this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
-				if($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
-					AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
-				}
-				$this->request->data = array();
-				$this->Auth->flash(__('login failed - invalid username or password or disabled user'));
-		}
+        if ($this->Version->data['Version']['permissions_regenerated'] == 0) {
+            $this->newVersionSetup();
+        }
+        
+        $this->set('skipExpirationCookie', true);
+        
+        if ($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
+            // Too many login attempts - froze atim for couple of minutes
+            $this->request->data = array();
+            $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily'));
+        } elseif ((! isset($this->passedArgs['login'])) && $this->Auth->login()) {
+            // Log in user
+            if ($this->request->data['User']['username'])
+                $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+            $this->_initializeNotificationSessionVariables();
+            
+            $this->_setSessionSearchId();
+            $this->resetPermissions();
+            
+            // Authentication credentials expiration
+            if ($this->User->isPasswordResetRequired()) {
+                $this->Session->write('Auth.User.force_password_reset', '1');
+                return $this->redirect('/Customize/Passwords/index');
+            }
+            
+            if (isset($this->passedArgs['login'])) {
+                return $this->render('ok');
+            } else {
+                return $this->redirect('/Menus');
+            }
+        } elseif (isset($this->request->data['User']['username'])&&! isset($this->passedArgs['login'])) {
+            // Save failed login attempt
+            $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
+            if ($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
+                AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
+            }
+            $this->request->data = array();
+            $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
+        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login'])){
+            if ($this->Auth->login()) {
+                // Log in user
+                if ($this->request->data['User']['username']) {
+                    $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+                }
+                $this->_initializeNotificationSessionVariables();
 
-		//User got returned to the login page, tell him why
-		if (isset($_SESSION['Message']['auth']['message'])) {
-			$this->User->validationErrors[] = __($_SESSION['Message']['auth']['message']).($_SESSION['Message']['auth']['message'] == "You are not authorized to access that location."? __("if you were logged id, your session expired.") : '');
-			unset($_SESSION['Message']['auth']);
-		}
-		
-		if (isset($this->passedArgs['login'])) {
-			AppController::addInfoMsg(__('your session has expired'));
-		}
-		
-		$this->User->showErrorIfInternetExplorerIsBelowVersion(8);
-	}
+                $this->_setSessionSearchId();
+                $this->resetPermissions();
+                return $this->render('ok');
+            }
+        }
+        
+        // User got returned to the login page, tell him why
+        if (isset($_SESSION['Message']['auth']['message'])) {
+            $this->User->validationErrors[] = __($_SESSION['Message']['auth']['message']) . ($_SESSION['Message']['auth']['message'] == "You are not authorized to access that location." ? __("if you were logged id, your session expired.") : '');
+            unset($_SESSION['Message']['auth']);
+        }
+        
+        if (isset($this->passedArgs['login'])) {
+            AppController::addInfoMsg(__('your session has expired'));
+        }
+        
+        $this->User->showErrorIfInternetExplorerIsBelowVersion(8);
+    }
+
 
 /**
  * Set Session Search Id
