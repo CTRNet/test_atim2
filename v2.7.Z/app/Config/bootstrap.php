@@ -27,9 +27,6 @@ Cache::config('default', array(
     'engine' => $engine
 ));
 
-//Load the shared functions and variable between all of the projects Controllers, Model & View
-require 'api.php';
-
 /**
  * The settings below can be used to set additional paths to models, views and controllers.
  *
@@ -119,9 +116,5 @@ CakeLog::config('error', array(
     ),
     'file' => 'error'
 ));
-if(!session_status()!=PHP_SESSION_ACTIVE){
-    session_start();
-}
-$APIGlobalVariable=0;
-$ATiMGlobalVariable=0;
+
 CakePlugin::loadAll(); // Loads all plugins at once

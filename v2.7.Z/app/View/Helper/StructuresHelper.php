@@ -1,9 +1,8 @@
 <?php
-App::uses('HttpSocket', 'Network\http');
 
 class StructuresHelper extends Helper
 {
-    
+
     public $helpers = array(
         'Csv',
         'Html',
@@ -13,7 +12,7 @@ class StructuresHelper extends Helper
         'Paginator',
         'Session'
     );
-    
+
     // an hidden field will be printed for the following field types if they are in readonly mode
     public $structureAlias = '';
 
@@ -313,18 +312,14 @@ class StructuresHelper extends Helper
         }
     }
 
-    private function putInTable($structureSfs)
+    private function putInTable($tmp)
     {
         $htmlResult = "";
         $temp = [];
-        foreach ($structureSfs as $key => &$values) {
+        foreach ($tmp as $key => &$values) {
             if ($values) {
                 foreach ($values as $alias => $structures) {
-                    if (!is_int($alias)){
-                        $temp[$alias] = $structures;
-                    }else{
-                        $temp[$structures['Structure']['alias']] = $structures;
-                    }
+                    $temp[$alias] = $structures;
                 }
             }
         }
@@ -368,7 +363,7 @@ class StructuresHelper extends Helper
             'StructureValidation'
         ];
         if (Configure::read('debug')) {
-            $tmp = array($atimStructure);
+            // $tmp = array($atimStructure);
             if (isset($atimStructure['Structure'][0])) {
                 foreach ($atimStructure['Structure'] as $struct) {
                     if (isset($struct['alias'])) {
@@ -405,7 +400,7 @@ class StructuresHelper extends Helper
         $tmp = [];
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
-                $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure[$possible]['Sfs'];
+                $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure['Sfs'];
                 $this->remove($tmp[$atimStructure[$possible]['Structure']['alias']], $unimportantFields);
             }
         }
@@ -632,15 +627,25 @@ class StructuresHelper extends Helper
                 $this->myValidationErrors = array_merge($validationErrorArr, $this->myValidationErrors);
             }
         }
-
+        
         if ($type == 'summary') {
             $this->buildSummary($atimStructure, $options, $data);
-        } elseif (in_array($type, ['index', 'addgrid', 'editgrid'])) {
+        } elseif (in_array($type, array(
+            'index',
+            'addgrid',
+            'editgrid'
+        ))) {
             if ($type == 'addgrid' || $type == 'editgrid') {
                 $options['settings']['pagination'] = false;
             }
             $this->buildTable($atimStructure, $options, $data);
-        } elseif (in_array($type, ['detail', 'add', 'edit', 'search', 'batchedit'])) {
+        } elseif (in_array($type, array(
+            'detail',
+            'add',
+            'edit',
+            'search',
+            'batchedit'
+        ))) {
             $this->buildDetail($atimStructure, $options, $data);
         } elseif ($type == 'tree') {
             $options['type'] = 'index';
@@ -657,14 +662,6 @@ class StructuresHelper extends Helper
             $this->buildDetail($atimStructure, $options, $data);
         }
         
-        if (isset($options['type']) && !in_array($options['type'], ['index', 'summary'])) {
-            //d('type:  '.$options['type']);
-            if (API::isAPIMode()) {
-                API::addToQueue('type: ' . $options['type']);
-                $this->APIGetStructure($atimStructure, $options);
-            }
-        }
-
         if (isset($options['extras']['end'])) {
             echo '
 				<div class="extra">' . $options['extras']['end'] . '</div>
@@ -759,8 +756,6 @@ class StructuresHelper extends Helper
     private function buildDetail(array $atimStructure, array $options, $dataUnit)
     {
         $tableIndex = $this->buildStack($atimStructure, $options);
-        $this->APIGetStructure($tableIndex, $atimStructure, $options);
-        //$this->APIStructure=$tableIndex;
         // display table...
         $stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" ';
         echo '
@@ -832,7 +827,12 @@ class StructuresHelper extends Helper
                         
                         // value
                         $currentValue = null;
-                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$rangeTypes) ? ["_start", "_end"] : [""];
+                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$rangeTypes) ? array(
+                            "_start",
+                            "_end"
+                        ) : array(
+                            ""
+                        );
                         foreach ($suffixes as $suffix) {
                             $currentValue = self::getCurrentValue($dataUnit, $tableRowPart, $suffix, $options);
                             if ($manyColumns) {
@@ -1004,6 +1004,7 @@ class StructuresHelper extends Helper
                 if ($options['type'] != "search" && isset(AppModel::$accuracyConfig[$tableRowPart['tablename']][$tableRowPart['field']])) {
                     $display = "<div class='accuracy_target_blue'></div>";
                 }
+                
                 $display .= self::getDateInputs($fieldName, $date, $tableRowPart['settings']);
                 unset($tableRowPart['settings']['required']);
                 $display .= self::getTimeInputs($fieldName, $time, $tableRowPart['settings']);
@@ -1237,12 +1238,11 @@ class StructuresHelper extends Helper
         }
         
         $tableStructure = $this->buildStack($atimStructure, $options);
+        
         $structureCount = 0;
         $structureIndex = array(
             1 => $tableStructure
         );
-        
-        //$this->APIStructure=$structureIndex;
         
         $stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" ';
         $class = 'structure ' . $options['type'];
@@ -2471,7 +2471,12 @@ class StructuresHelper extends Helper
                         );
                         if ($sfs['type'] == "select") {
                             $addBlank = true;
-                            if (count($sfs['StructureValidation']) > 0 && (in_array($options['type'], ['edit', 'editgrid', 'add', 'addgrid']))) {
+                            if (count($sfs['StructureValidation']) > 0 && (in_array($options['type'], array(
+                                'edit',
+                                'editgrid',
+                                'add',
+                                'addgrid'
+                            )))) {
                                 // check if the field can be empty or not
                                 foreach ($sfs['StructureValidation'] as $validation) {
                                     if ($validation['rule'] == 'notBlank') {
@@ -3164,13 +3169,13 @@ $confirmationMsg); // confirmation message
 
     private function getRadiolist(array $rawRadiolist, array $data)
     {
+        // debug(AppController::getStackTrace());
+        // die('test');
         $result = '';
         $defaultSettingsWoClass = self::$defaultSettingsArr;
         unset($defaultSettingsWoClass['class']);
         foreach ($rawRadiolist as $radiobuttonName => $radiobuttonValue) {
-            //I changed it because it was a "." between two words and not "\." which caused error in this line.
-            //list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
-            list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
+            list ($tmpModel, $tmpField) = explode("\.", $radiobuttonName);
             $radiobuttonValue = $this->strReplaceLink($radiobuttonValue, $data);
             $tmpAttributes = array(
                 'legend' => false,
@@ -3243,158 +3248,5 @@ $confirmationMsg); // confirmation message
 		<div class="indexZone" data-url="' . $indexUrl . '">
 		</div>
 		' : '<div>' . __('You are not authorized to access that location.') . '</div>';
-    }
-    
-    private function removeHTMLTags($text)
-    {
-        $text=strip_tags($text);
-        $text= trim($text);
-        $text=str_replace('&nbsp;', '', $text);
-        return $text;
-    }
- 
-    private function APISetField(&$response, $item, &$i, $suffixes)
-    {
-        if($suffixes==null){
-            $response['fields'][$i]['field']=$item['field'];
-            $response['fields'][$i]['name'] = $item['model'] . '[' . $item['field'] . ']';
-            $response['example'][$item['model']][] = $item['field'];            
-            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                $response['fields'][$i]['defined'] = $item['settings']['options']['defined'];
-            }
-            $response['fields'][$i]['type'] = $item['type'];
-            $response['fields'][$i]['flag_confidential'] = $item['flag_confidential'];
-            $response['fields'][$i]['help'] = $this->removeHTMLTags($item['help']);
-            if (isset($item['settings']['required'])) {
-                $response['fields'][$i]['required'] = $item['settings']['required'];
-            }
-            $i++;
-        }else if (is_array($suffixes)){
-            foreach ($suffixes as $suffix){
-                $response['fields'][$i]['field']=$item['field'].$suffix;
-                $response['fields'][$i]['name'] = $item['model'] . '[' . $item['field'] .$suffix. ']';
-                $response['example'][$item['model']][] = $item['field'.$suffix];
-                if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                    $response['fields'][$i]['defined'] = $item['settings']['options']['defined'];
-                }
-                $response['fields'][$i]['type'] = $item['type'];
-                $response['fields'][$i]['flag_confidential'] = $item['flag_confidential'];
-                $response['fields'][$i]['help'] = $this->removeHTMLTags($item['help']);
-                if (isset($item['settings']['required'])) {
-                    $response['fields'][$i]['required'] = $item['settings']['required'];
-                }
-                $i++;
-            }
-        }else{
-            $response['fields'][$i]['field']=$item['field'].$suffixes;
-            $response['fields'][$i]['name'] = $item['model'] . '[' . $item['field'].']'.$suffixes;
-            $response['example'][$item['model']][] = $item['field'.$suffix];
-            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                $response['fields'][$i]['defined'] = $item['settings']['options']['defined'];
-            }
-            $response['fields'][$i]['type'] = $item['type'];
-            $response['fields'][$i]['flag_confidential'] = $item['flag_confidential'];
-            $response['fields'][$i]['help'] = $this->removeHTMLTags($item['help']);
-            if (isset($item['settings']['required'])) {
-                $response['fields'][$i]['required'] = $item['settings']['required'];
-            }
-            $i++;
-        }
-        
-    }
-    
-    private function APISetDate(&$response, $item, &$i, $suffixes, $type='date')
-    {
-        if(!$suffixes){
-            $response['fields'][$i]['field']=$item['field'];
-            $response['fields'][$i]['name']['year']['name'] = $item['model'] . '[' . $item['field'] . '][year]';
-            $response['fields'][$i]['name']['year']['defined'] = ['1900..2100'];
-            $response['fields'][$i]['name']['month']['name'] = $item['model'] . '[' . $item['field'] . '][month]';
-            $response['fields'][$i]['name']['month']['defined'] = ['01..12'];
-            $response['fields'][$i]['name']['day']['name'] = $item['model'] . '[' . $item['field'] . '][day]';
-            $response['fields'][$i]['name']['day']['defined'] = ['01..31'];
-            $response['example'][$item['model']][$item['field']] = ['year', 'month', 'day'];
-            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                $response['fields'][$i]['defined'] = $item['settings']['options']['defined'];
-            }
-            $response['fields'][$i]['type'] = $item['type'];
-            $response['fields'][$i]['flag_confidential'] = $item['flag_confidential'];
-            $response['fields'][$i]['help'] = $this->removeHTMLTags($item['help']);
-            if (isset($item['settings']['required'])) {
-                $response['fields'][$i]['required'] = $item['settings']['required'];
-            }
-            $i++;
-        }else{
-            foreach ($suffixes as $suffix){
-                $response['fields'][$i]['field']=$item['field'].$suffix;
-                $response['fields'][$i]['name']['year']['name'] = $item['model'] . '[' . $item['field'].$suffix . '][year]';
-                $response['fields'][$i]['name']['year']['defined'] = ['1900..2100'];
-                $response['fields'][$i]['name']['month']['name'] = $item['model'] . '[' . $item['field'].$suffix . '][month]';
-                $response['fields'][$i]['name']['month']['defined'] = ['01..12'];
-                $response['fields'][$i]['name']['day']['name'] = $item['model'] . '[' . $item['field'].$suffix . '][day]';
-                $response['fields'][$i]['name']['day']['defined'] = ['01..31'];
-                if ($type=='datetime'){
-                    $response['fields'][$i]['name']['hour']['name'] = $item['model'] . '[' . $item['field'].$suffix . '][hour]';
-                    $response['fields'][$i]['name']['hour']['defined'] = ['00..23'];
-                    $response['fields'][$i]['name']['min']['name'] = $item['model'] . '[' . $item['field'].$suffix . '][min]';
-                    $response['fields'][$i]['name']['min']['defined'] = ['00..59'];
-                    $response['example'][$item['model']][$item['field'].$suffix] = ['year', 'month', 'day', 'hour', 'min'];
-                }else if($type=='date'){
-                    $response['example'][$item['model']][$item['field'].$suffix] = ['year', 'month', 'day'];
-                }
-                if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
-                    $response['fields'][$i]['defined'] = $item['settings']['options']['defined'];
-                }
-                $response['fields'][$i]['type'] = $item['type'];
-                $response['fields'][$i]['flag_confidential'] = $item['flag_confidential'];
-                $response['fields'][$i]['help'] = $this->removeHTMLTags($item['help']);
-                if (isset($item['settings']['required'])) {
-                    $response['fields'][$i]['required'] = $item['settings']['required'];
-                }
-                $i++;
-            }
-        }
-    }
-    
-    private function APICreateStructure($tableIndex, $structures, $option)
-    {
-//        if (API::getAction()=='search'){
-//            $tableIndex=$tableIndex[1];
-//        }
-        $i=0;
-        $response=['fields'=>[], 'example'=>[]];
-//        API::addToBundle($tableIndex, 'testStructure');
-//        return;
-        foreach ($tableIndex as $columns) {
-            foreach ($columns as $column) {
-                foreach ($column as $item) {
-                    $suffixes=null;
-                    if (API::getAction() == "search") {
-                        $suffixes =in_array($item['type'], StructuresComponent::$rangeTypes) ? ["_start", "_end"] : "[]";
-                    }
-                    if (in_array($item['type'], ['date', 'datetime'])) {
-                        $this->APISetDate($response, $item, $i, $suffixes, $item['type']);
-                    } elseif (in_array($item['type'], ["select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input"])) {
-                        $this->APISetField($response, $item, $i, $suffixes);
-                    } else {
-                        //API::sendTo($structures);
-                        continue;
-                    }
-                    if ($i >= 8) {
-                        API::sendTo($response);
-                    }
-                }
-            }
-        }
-        return $response; 
-    }
-    
-    public function APIGetStructure($tableIndex, $structure, $option)
-    {
-        if (API::isStructMode()){
-        return $this->APICreateStructure($tableIndex, $structure, $option);
-        }else{
-            return null;
-        }
     }
 }

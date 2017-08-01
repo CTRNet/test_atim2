@@ -31,7 +31,7 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller
 {
-    
+
     private static $missingTranslations = array();
 
     private static $me = null;
@@ -120,26 +120,6 @@ class AppController extends Controller
     // Used as a set from the array keys
     public $allowedFilePrefixes = array();
 
-    public function afterFilter()
-    {
-        // global $startTime;
-        // echo("Exec time (sec): ".(AppController::microtimeFloat() - $startTime));
-        if (sizeof(AppController::$missingTranslations) > 0) {
-            App::uses('MissingTranslation', 'Model');
-            $mt = new MissingTranslation();
-            foreach (AppController::$missingTranslations as $missingTranslation) {
-                $mt->set(array(
-                    "MissingTranslation" => array(
-                        "id" => $missingTranslation
-                    )
-                ));
-                $mt->save(); // ignore errors, kind of insert ingnore
-            }
-        }        
-        API::addToQueue('afterFilter');
-        API::sendDataToAPI($this->request->data);
-    }    
-    
     /**
      * This function is executed before every action in the controller.
      * It’s a
@@ -147,10 +127,6 @@ class AppController extends Controller
      */
     public function beforeFilter()
     {
-        parent::beforeFilter();
-        //Verify if the request come from RESTApi not ATiM
-        API::checkData($this->request->data, $this->modelClass);
-        API::addToQueue('beforeFilter');
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -233,11 +209,8 @@ class AppController extends Controller
         if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
             AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
         }
-        if (isset($this->passedArgs['true_json'])) { 
-            $this->layout = 'true_json';             
-        } 
     }
-    
+
     public function __construct($request = null, $response = null) {
         $class_name = get_class($this);
         $this->name = substr($class_name, 0, strlen(get_class($this)) - (strpos($class_name, 'ControllerCustom') === false ? 10 : 16));
@@ -327,9 +300,27 @@ class AppController extends Controller
             ));
         }
     }
-    
+
+    public function afterFilter()
+    {
+        // global $startTime;
+        // echo("Exec time (sec): ".(AppController::microtimeFloat() - $startTime));
+        if (sizeof(AppController::$missingTranslations) > 0) {
+            App::uses('MissingTranslation', 'Model');
+            $mt = new MissingTranslation();
+            foreach (AppController::$missingTranslations as $missingTranslation) {
+                $mt->set(array(
+                    "MissingTranslation" => array(
+                        "id" => $missingTranslation
+                    )
+                ));
+                $mt->save(); // ignore errors, kind of insert ingnore
+            }
+        }
+    }
+
     /**
-     * Simple function to replicate PHP 5 behavior
+     * Simple function to replicate PHP 5 behaviour
      */
     public static function microtimeFloat()
     {
@@ -346,7 +337,7 @@ class AppController extends Controller
             }
         }
     }
-            
+
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
         if ($type == self::CONFIRM) {
@@ -358,23 +349,7 @@ class AppController extends Controller
         } elseif ($type == self::ERROR) {
             $_SESSION['ctrapp_core']['error_msg'][] = $message;
         }
-        
-        if (!API::isAPIMode()){
-            $this->redirect($url);
-        }
-        else{
-            $messageType=[
-                self::CONFIRM => 'confirms',
-                self::ERROR => 'errors',
-                self::WARNING => 'warnings',
-                self::INFORMATION => 'informations'
-            ];
-            //debug(strtolower($this->modelClass));
-            
-            if ($_SESSION[MODEL_NAME]!='missingtranslation' && $_SESSION[MODEL_NAME]!='userlog' ){
-                API::addToBundle(['message'=>$message], $messageType[$type]);
-            }
-        }
+        $this->redirect($url);
     }
 
     public function atimFlashError($message, $url, $compatibility)
@@ -1050,8 +1025,6 @@ class AppController extends Controller
         }
         
         if ($this->request->is('ajax')) {
-//            var_dump([$searchId, $structureAlias, $url, $ignoreDetail, $limit]);
-//            die('die');
             Configure::write('debug', 0);
             $this->set('isAjax', true);
         }
@@ -2037,16 +2010,6 @@ class AppController extends Controller
         }
         return $answer;
     }    
-    
-    public function set($one, $two = null, $three=null) {
-        parent::set($one, $two);
-        if ($three){
-            $message=[];
-            $message['message']=$two;
-            $message['info']='test';
-//            API::addToBundle($message, 'data');
-        }
-    }
 }
 
 AppController::init();

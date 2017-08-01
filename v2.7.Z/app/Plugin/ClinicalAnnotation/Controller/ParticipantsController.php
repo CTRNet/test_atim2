@@ -48,8 +48,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
                 'order' => array(
                     'Participant.created DESC'
                 ),
-                'limit' => 5,
-//                'page' =>2
+                'limit' => 5
             ));
             $this->render('index');
         }
@@ -59,6 +58,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
     {
         // MANAGE DATA
         $this->request->data = $this->Participant->getOrRedirect($participantId);
+        
         // Set data for identifier list
         $participantIdentifiersData = $this->paginate($this->MiscIdentifier, array(
             'MiscIdentifier.participant_id' => $participantId
@@ -98,7 +98,6 @@ class ParticipantsController extends ClinicalAnnotationAppController
         $identifierControlsList = $this->MiscIdentifierControl->find('all', array(
             'conditions' => $conditions
         ));
-
         foreach ($identifierControlsList as &$unit) {
             if (! empty($unit['MiscIdentifierControl']['autoincrement_name']) && array_key_exists($unit['MiscIdentifierControl']['id'], $reusable)) {
                 $unit['reusable'] = true;
@@ -158,6 +157,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
     {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
+        
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenuVariables', array(
             'Participant.id' => $participantId
@@ -168,7 +168,6 @@ class ParticipantsController extends ClinicalAnnotationAppController
         if ($hookLink) {
             require ($hookLink);
         }
-        
         if (empty($this->request->data)) {
             $this->request->data = $participantData;
         } else {
@@ -180,7 +179,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
             if ($hookLink) {
                 require ($hookLink);
             }
-
+            
             if ($submittedDataValidates) {
                 $this->Participant->id = $participantId;
                 $this->Participant->data = array();
@@ -197,6 +196,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
 
     public function delete($participantId)
     {
+        
         // MANAGE DATA
         $this->request->data = $this->Participant->getOrRedirect($participantId);
         
@@ -207,6 +207,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         if ($hookLink) {
             require ($hookLink);
         }
+        
         if ($arrAllowDeletion['allow_deletion']) {
             if ($this->Participant->atimDelete($participantId)) {
                 $hookLink = $this->hook('postsave_process');
