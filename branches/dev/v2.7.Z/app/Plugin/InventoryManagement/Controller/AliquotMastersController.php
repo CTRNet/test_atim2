@@ -930,15 +930,11 @@ class AliquotMastersController extends InventoryManagementAppController
             }
             
             $recordCounter = 0;
-            
-            
             foreach ($previousData as $keyAliquotMasterId => $dataUnit) {
                 $recordCounter ++;
                 
                 if ($usedAliquotDataToApplyToAll)
                     $dataUnit = array_replace_recursive($dataUnit, $usedAliquotDataToApplyToAll);
-
-
                 
                 if (! array_key_exists($keyAliquotMasterId, $sortedAliquotData)) {
                     $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -960,8 +956,6 @@ class AliquotMastersController extends InventoryManagementAppController
                             $errors[$field][$msg][$recordCounter] = $recordCounter;
                     }
                 }
-            //TODO:: Should fine a way to send the data to this function, the standard is [master-id=>data, master-id=>data]
-            //APISendTo($dataUnit);
                 $aliquotDataToSave[] = array(
                     'id' => $keyAliquotMasterId,
                     'aliquot_control_id' => $aliquotData['AliquotControl']['id'],
@@ -1050,7 +1044,6 @@ class AliquotMastersController extends InventoryManagementAppController
                     
                     $this->AliquotMaster->data = array();
                     $this->AliquotMaster->id = $newAliquotToSave['id'];
-                    //debug($newAliquotToSave);
                     if (! $this->AliquotMaster->save($newAliquotToSave, false))
                         $this->redirect('/Pages/err_plugin_record_err?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }

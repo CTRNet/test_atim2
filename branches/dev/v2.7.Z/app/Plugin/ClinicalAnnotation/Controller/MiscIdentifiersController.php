@@ -426,24 +426,5 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         // only for permissions
         // since identifiers are all loaded within participants to build the menu,
         // it's useless to have an ajax callback aftewards
-
-        // MANAGE DATA
-        $data = $this->Participant->getOrRedirect($participantId);
-        // Set data for identifier list
-        $this->request->data = $this->paginate($this->MiscIdentifier, array(
-            'MiscIdentifier.participant_id' => $participantId
-        ));
-        $this->set('atimMenuVariables', array(
-            'Participant.id' => $participantId
-        ));
-        $this->set('participantIdentifiersData', $this->request->data);
-        // Set form for identifier list
-        $this->Structures->set('miscidentifiers', 'atimStructureForMiscIdentifiers');
-
-        // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hookLink = $this->hook('format');
-        if ($hookLink) {
-            require ($hookLink);
-        }        
     }
 }

@@ -40,3 +40,4 @@ if ($hookLink) {
 // BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);
 $this->Structures->build($finalAtimStructure2, $finalOptions2);
+?>

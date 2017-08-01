@@ -1,5 +1,4 @@
 <?php
-API::addToQueue('default.ctf BEGIN');
 /**
  *
  *
@@ -81,6 +80,7 @@ if (__('clin_english') == "Anglais") {
 			var STR_LOADING = "<?php echo __('loading'); ?>";
 			var STR_OK = "<?php echo __('ok'); ?>";
 			var STR_CANCEL = "<?php echo __('cancel'); ?>";
+			var STR_LOADING = "<?php echo __('loading'); ?>";
 			var STR_BACK = "<?php echo __('back'); ?>";
 			var STR_NODE_SELECTION = "<?php echo __('nodes selection'); ?>";
 						
@@ -142,8 +142,4 @@ echo $this->Html->script('form/jquery.form.js') . "\n";
 if ($useBuffer) {
     ob_end_flush();
 }
-if (API::isAPIMode()){
-    //API::sendDataAndClear();
-    //API::sendTo('Default.ctp');
-}
-API::addToQueue('default.ctf END');
+?>
