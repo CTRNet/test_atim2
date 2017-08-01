@@ -61,25 +61,20 @@ $parameters);
             $allStructures[] = $structUnit;
             
             if ($parameters['set_validation']) {
-                foreach ($structUnit['rules'] as $model => $rules) {
-                    // reset validate for newly loaded structure models
-                    if (! $this->controller->{ $model }) {
-                        $this->controller->{ $model } = new AppModel();
+                if (isset($structUnit['rules']) && is_array($structUnit['rules'])){
+                    foreach ($structUnit['rules'] as $model => $rules) {
+                        // reset validate for newly loaded structure models
+                        if (! $this->controller->{ $model }) {
+                            $this->controller->{ $model } = new AppModel();
+                        }
+                        $this->controller->{ $model }->validate = array();
                     }
-                    $this->controller->{ $model }->validate = array();
                 }
-                
                 if (isset($structUnit['structure']['Sfs'])) {
                     foreach ($structUnit['structure']['Sfs'] as $sfs) {
                         $tablename = isset($parameters['model_table_assoc'][$sfs['model']]) ? $parameters['model_table_assoc'][$sfs['model']] : $sfs['tablename'];
                         if ($tablename) {
-                            foreach (array(
-                                'add',
-                                'edit',
-                                'addgrid',
-                                'editgrid',
-                                'batchedit'
-                            ) as $flag) {
+                            foreach (['add', 'edit', 'addgrid', 'editgrid', 'batchedit'] as $flag) {
                                 if ($sfs['flag_' . $flag] && ! $sfs['flag_' . $flag . '_readonly'] && $sfs['type'] != 'hidden') {
                                     AppModel::$writableFields[$tablename][$flag][] = $sfs['field'];
                                     if ($sfs['type'] == 'date' || $sfs['type'] == 'datetime') {
@@ -99,22 +94,22 @@ $parameters);
                 $structure['Structure']['CodingIcdCheck'] = $structUnit['structure']['Structure']['CodingIcdCheck'];
             }
         }
-        
         foreach ($allStructures as &$structUnit) {
-            foreach ($structUnit['rules'] as $model => $rules) {
-                // rules are formatted, apply them
-                $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+            if (isset($structUnit['rules']) && is_array($structUnit['rules'])){
+                foreach ($structUnit['rules'] as $model => $rules) {
+                    // rules are formatted, apply them
+                    $this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+                }
             }
         }
-        
         if (count($alias) > 1) {
             self::sortStructure($structure);
         } elseif (count($structure['Structure']) == 1) {
             $structure['Structure'] = $structure['Structure'][0];
         }
         $structureName = Inflector::variable($structureName);
-//        $structureName = AppController::snakeToCamel($structureName);
-        $this->controller->set($structureName, $structure);
+
+        $this->controller->set($structureName, $structure, 1);
     }
 
     /**
@@ -251,18 +246,19 @@ $parameters);
         }
         
         // seek file fields
-        foreach ($return as $structure) {
-            if (! isset($structure['Sfs'])) {
-                continue;
-            }
-            foreach ($structure['Sfs'] as $field) {
-                if ($field['type'] == 'file') {
-                    $prefix = $field['model'] . '.' . $field['field'];
-                    $this->controller->allowedFilePrefixes[$prefix] = null;
+        if (isset($return) && is_array($return)){
+            foreach ($return as $structure) {
+                if (! isset($structure['Sfs'])) {
+                    continue;
+                }
+                foreach ($structure['Sfs'] as $field) {
+                    if ($field['type'] == 'file') {
+                        $prefix = $field['model'] . '.' . $field['field'];
+                        $this->controller->allowedFilePrefixes[$prefix] = null;
+                    }
                 }
             }
         }
-        
         return $return;
     }
 
