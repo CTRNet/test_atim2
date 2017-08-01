@@ -6,7 +6,6 @@ var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 var sessionTimeout = new Object();
 
-
 jQuery.fn.fullWidth = function(){
 	return parseInt($(this).width()) + parseInt($(this).css("margin-left")) + parseInt($(this).css("margin-right")) + parseInt($(this).css("padding-left")) + parseInt($(this).css("padding-right")) + parseInt($(this).css("border-left-width")) + parseInt($(this).css("border-right-width")); 
 };
@@ -1075,7 +1074,7 @@ function initJsControls(){
                                 }
                         };
                         $("form").ajaxForm({
-                                url		: $("form").attr("action"),
+                                url : $("form").attr("action"),
                                 success	: successFct,
                                 beforeSubmit: beforeSubmitFct,
                                 error : function(){console.log("ERROR");}
@@ -1766,7 +1765,7 @@ function initIndexZones(useCache){
                                 indexZone.html(page);
                                 fctLinksToAjax(indexZone);
 
-                                history.state.indexZone[url] = page;
+                                history.state.indexZone[url] = "page";
                                 history.replaceState(history.state, "foo");
                         };
                         var errorFct = function(jqXHR, textStatus, errorThrown){
@@ -1775,7 +1774,7 @@ function initIndexZones(useCache){
 
                         $.ajax({
                                 type	: "GET",
-                                url		: root_url + url + "/noActions:/",
+                                url	: root_url + url + "/noActions:/",
                                 cache	: false,
                                 success	: successFct,
                                 error	: errorFct
@@ -1844,7 +1843,3 @@ function dataBrowserHelp(){
         var diagram_url =	root_url + 'app/webroot/img/dataBrowser/datamart_structures_relationships_' + STR_LANGUAGE + '.png';
         $("#default_popup").html('<form enctype="multipart/form-data"><div class="descriptive_heading"><h4>' + STR_DATAMART_STRUCTURE_RELATIONSHIPS + '</h4><p></p></div><div style="padding: 10px; background-color: #fff;"><img src="' + diagram_url + '"/></div></form>').popup();
 }
-
-//debugger;
-//$('input[type="password"]').attr('autocomplete', 'off');
-//$('input').attr('autocomplete', 'off');

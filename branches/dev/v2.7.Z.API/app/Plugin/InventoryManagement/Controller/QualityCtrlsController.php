@@ -529,6 +529,8 @@ class QualityCtrlsController extends InventoryManagementAppController
         if ($hookLink) {
             require ($hookLink);
         }
+        //TODO:: Check if this line of code create the problem with line 512 or no. I add it for using in Appcontroller->afterFilter for sendeing the data to API
+        $this->request->data=$qualityCtrlData;
     }
 
     public function edit($collectionId, $sampleMasterId, $qualityCtrlId)
