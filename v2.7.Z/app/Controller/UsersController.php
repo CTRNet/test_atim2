@@ -40,6 +40,10 @@ class UsersController extends AppController
      */
     public function login()
     {
+        if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
+            return $this->redirect('/Menus');
+        }
+        
         if ($this->request->is('ajax') && ! isset($this->passedArgs['login'])) {
             echo json_encode(array(
                 'logged_in' => isset($_SESSION['Auth']['User']),
@@ -67,7 +71,7 @@ class UsersController extends AppController
             // Too many login attempts - froze atim for couple of minutes
             $this->request->data = array();
             $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily'));
-        } elseif ($this->Auth->login() && (! isset($this->passedArgs['login']))) {
+        } elseif ((! isset($this->passedArgs['login'])) && $this->Auth->login()) {
             // Log in user
             if ($this->request->data['User']['username'])
                 $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
@@ -87,7 +91,7 @@ class UsersController extends AppController
             } else {
                 return $this->redirect('/Menus');
             }
-        } elseif (isset($this->request->data['User']['username'])) {
+        } elseif (isset($this->request->data['User']['username'])&&! isset($this->passedArgs['login'])) {
             // Save failed login attempt
             $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
             if ($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
@@ -95,6 +99,18 @@ class UsersController extends AppController
             }
             $this->request->data = array();
             $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
+        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login'])){
+            if ($this->Auth->login()) {
+                // Log in user
+                if ($this->request->data['User']['username']) {
+                    $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+                }
+                $this->_initializeNotificationSessionVariables();
+
+                $this->_setSessionSearchId();
+                $this->resetPermissions();
+                return $this->render('ok');
+            }
         }
         
         // User got returned to the login page, tell him why
