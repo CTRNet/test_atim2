@@ -114,5 +114,5 @@ foreach ($aliquotDataVol as $aliquotUnit) {
 }
 ?>
 <script>
-	var volumeIds = new array"<?php echo implode('", "', $aliquotVolIds); ?>");
+	var volumeIds = new Array"<?php echo implode('", "', $aliquotVolIds); ?>");
 </script>

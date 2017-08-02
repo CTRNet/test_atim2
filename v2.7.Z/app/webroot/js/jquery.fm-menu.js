@@ -158,7 +158,7 @@ jQuery.fn.fmMenu = function(options){
  */
 FmMenu.prototype.buildMenuRecur = function(menuData, parentName, grandParentName, displayFunction){
 	var options = '';
-	var indexedLi = new array();
+	var indexedLi = new Array();
 	var index = 0;
 	for(i in menuData){
 		var currentName = parentName + '_' + i;
