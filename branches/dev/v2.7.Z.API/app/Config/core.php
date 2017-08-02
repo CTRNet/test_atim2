@@ -227,7 +227,7 @@ Configure::write('App.encoding', 'UTF-8');
  */
 Configure::write('Session', array(
     'defaults' => 'cake',
-    'cookie' => 'ATiMC'
+    'cookie' => 'PHPSESSID'
 ));
 /**
  * A random string used in security hashing methods.
@@ -415,7 +415,7 @@ Cache::config('default', array(
 ));
 
 Configure::write('use_compression', false);
-Configure::write('Session.timeout', $debug ? 3600 : 600);
+Configure::write('Session.timeout', $debug ? 600 : 600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
 

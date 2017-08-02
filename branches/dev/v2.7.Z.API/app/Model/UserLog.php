@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class UserLog
+ */
 class UserLog extends AppModel
 {
 

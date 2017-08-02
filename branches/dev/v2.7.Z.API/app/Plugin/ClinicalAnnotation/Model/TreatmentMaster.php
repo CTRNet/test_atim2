@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TreatmentMaster
+ */
 class TreatmentMaster extends ClinicalAnnotationAppModel
 {
 
@@ -27,6 +30,10 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;

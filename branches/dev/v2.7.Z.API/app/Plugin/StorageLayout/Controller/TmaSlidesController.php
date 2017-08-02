@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TmaSlidesController
+ */
 class TmaSlidesController extends StorageLayoutAppController
 {
 
@@ -25,6 +28,9 @@ class TmaSlidesController extends StorageLayoutAppController
      * --------------------------------------------------------------------------
      * DISPLAY FUNCTIONS
      * --------------------------------------------------------------------------
+     */
+    /**
+     * @param $tmaBlockStorageMasterId
      */
     public function listAll($tmaBlockStorageMasterId)
     {
@@ -67,6 +73,9 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param null $tmaBlockStorageMasterId
+     */
     public function add($tmaBlockStorageMasterId = null)
     {
         // GET DATA
@@ -283,6 +292,11 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $tmaBlockStorageMasterId
+     * @param $tmaSlideId
+     * @param int $isFromTreeViewOrLayout
+     */
     public function detail($tmaBlockStorageMasterId, $tmaSlideId, $isFromTreeViewOrLayout = 0)
     {
         // $isFromTreeViewOrLayout : 0-Normal, 1-Tree view, 2-Stoarge layout
@@ -338,6 +352,11 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $tmaBlockStorageMasterId
+     * @param $tmaSlideId
+     * @param int $fromSlidePage
+     */
     public function edit($tmaBlockStorageMasterId, $tmaSlideId, $fromSlidePage = 0)
     {
         // MANAGE DATA
@@ -638,6 +657,10 @@ class TmaSlidesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $tmaBlockStorageMasterId
+     * @param $tmaSlideId
+     */
     public function delete($tmaBlockStorageMasterId, $tmaSlideId)
     {
         // MANAGE DATA

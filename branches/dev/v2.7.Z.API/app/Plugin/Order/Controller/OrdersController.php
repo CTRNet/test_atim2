@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class OrdersController
+ */
 class OrdersController extends OrderAppController
 {
 
@@ -22,6 +25,9 @@ class OrdersController extends OrderAppController
         )
     );
 
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
@@ -76,6 +82,10 @@ class OrdersController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param bool $isFromTreeView
+     */
     public function detail($orderId, $isFromTreeView = false)
     {
         // MANAGE DATA
@@ -110,6 +120,9 @@ class OrdersController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     */
     public function edit($orderId)
     {
         // MANAGE DATA
@@ -157,6 +170,9 @@ class OrdersController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     */
     public function delete($orderId)
     {
         if (! $orderId) {

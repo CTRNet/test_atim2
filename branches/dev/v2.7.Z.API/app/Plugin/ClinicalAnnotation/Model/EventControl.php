@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class EventControl
+ */
 class EventControl extends ClinicalAnnotationAppModel
 {
 
@@ -29,6 +32,9 @@ class EventControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @return array
+     */
     public function getEventGroupPermissibleValues()
     {
         $result = array();
@@ -70,6 +76,12 @@ class EventControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @param $eventCtrlData
+     * @param $participantId
+     * @param $eventGroup
+     * @return array
+     */
     public function buildAddLinks($eventCtrlData, $participantId, $eventGroup)
     {
         $links = array();
@@ -84,6 +96,11 @@ class EventControl extends ClinicalAnnotationAppModel
         return $links;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class DiagnosisMastersController
+ */
 class DiagnosisMastersController extends ClinicalAnnotationAppController
 {
 
@@ -25,6 +28,11 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param $participantId
+     * @param null $parentDxId
+     * @param int $isAjax
+     */
     public function listall($participantId, $parentDxId = null, $isAjax = 0)
     {
         // MANAGE DATA
@@ -155,6 +163,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $diagnosisMasterId
+     */
     public function detail($participantId, $diagnosisMasterId)
     {
         // MANAGE DATA
@@ -288,6 +300,11 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         $this->Structures->set('empty', 'emptyStructure');
     }
 
+    /**
+     * @param $participantId
+     * @param $dxControlId
+     * @param $parentId
+     */
     public function add($participantId, $dxControlId, $parentId)
     {
         // MANAGE DATA
@@ -398,6 +415,11 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $diagnosisMasterId
+     * @param null $redefinedPrimaryControlId
+     */
     public function edit($participantId, $diagnosisMasterId, $redefinedPrimaryControlId = null)
     {
         
@@ -497,6 +519,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $diagnosisMasterId
+     */
     public function delete($participantId, $diagnosisMasterId)
     {
         // MANAGE DATA
@@ -533,6 +559,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $dxMasterData
+     * @param array $additionalMenuVariables
+     */
     public function setDiagnosisMenu($dxMasterData, $additionalMenuVariables = array())
     {
         if (! isset($dxMasterData['DiagnosisMaster']['id'])) {

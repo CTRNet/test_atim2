@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructuresController
+ */
 class StructuresController extends AdministrateAppController
 {
 
@@ -20,6 +23,9 @@ class StructuresController extends AdministrateAppController
         $this->request->data = $this->paginate($this->Structure);
     }
 
+    /**
+     * @param $structureId
+     */
     public function detail($structureId)
     {
         $this->set('atimMenuVariables', array(
@@ -35,6 +41,9 @@ class StructuresController extends AdministrateAppController
         ));
     }
 
+    /**
+     * @param $structureId
+     */
     public function edit($structureId)
     {
         $this->set('atimMenuVariables', array(

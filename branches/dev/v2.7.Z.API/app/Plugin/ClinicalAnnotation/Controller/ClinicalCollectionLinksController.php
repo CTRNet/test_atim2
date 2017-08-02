@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ClinicalCollectionLinksController
+ */
 class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
 {
 
@@ -43,6 +46,10 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
     }
 
     // var $paginate = array('Collection' => array('order'=>'Collection.acquisition_label ASC'));
+
+    /**
+     * @param $participantId
+     */
     public function listall($participantId)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -184,6 +191,10 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $collectionId
+     */
     public function detail($participantId, $collectionId)
     {
         $collectionData = $this->Collection->getOrRedirect($collectionId);
@@ -230,6 +241,9 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function add($participantId)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -373,6 +387,10 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $collectionId
+     */
     public function edit($participantId, $collectionId)
     {
         $collectionData = $this->Collection->getOrRedirect($collectionId);
@@ -501,6 +519,10 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $collectionId
+     */
     public function delete($participantId, $collectionId)
     {
         $collectionData = $this->Collection->getOrRedirect($collectionId);

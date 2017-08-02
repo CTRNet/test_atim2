@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class EventMaster
+ */
 class EventMaster extends ClinicalAnnotationAppModel
 {
 
@@ -27,6 +30,10 @@ class EventMaster extends ClinicalAnnotationAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -84,6 +91,10 @@ class EventMaster extends ClinicalAnnotationAppModel
         }
     }
 
+    /**
+     * @param int $eventMasterId
+     * @return array
+     */
     public function allowDeletion($eventMasterId)
     {
         $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection');
@@ -104,6 +115,9 @@ class EventMaster extends ClinicalAnnotationAppModel
         );
     }
 
+    /**
+     * @param array $data
+     */
     public function calculatedDetailFields(array &$data)
     {
         if (($data['EventControl']['detail_tablename'] == 'ed_all_lifestyle_smokings') && array_key_exists('started_on', $data['EventDetail']) && array_key_exists('stopped_on', $data['EventDetail'])) {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudySummary
+ */
 class StudySummary extends StudyAppModel
 {
 
@@ -11,6 +14,10 @@ class StudySummary extends StudyAppModel
 
     public $studyDataAndCodeForDisplayAlreadySet = array();
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -63,6 +70,10 @@ class StudySummary extends StudyAppModel
         return $result;
     }
 
+    /**
+     * @param $studyData
+     * @return mixed|string
+     */
     public function getStudyDataAndCodeForDisplay($studyData)
     {
         
@@ -94,6 +105,10 @@ class StudySummary extends StudyAppModel
         return $formattedData;
     }
 
+    /**
+     * @param $studyDataAndCode
+     * @return mixed
+     */
     public function getStudyIdFromStudyDataAndCode($studyDataAndCode)
     {
         
@@ -149,6 +164,9 @@ class StudySummary extends StudyAppModel
         return $this->studyTitlesAlreadyChecked[$studyDataAndCode];
     }
 
+    /**
+     * @return array
+     */
     public function getStudyPermissibleValuesForView()
     {
         $result = $this->getStudyPermissibleValues();
@@ -156,6 +174,10 @@ class StudySummary extends StudyAppModel
         return $result;
     }
 
+    /**
+     * @param int $studySummaryId
+     * @return array
+     */
     public function allowDeletion($studySummaryId)
     {
         $ctrlModel = AppModel::getInstance("Study", "StudyFunding", true);

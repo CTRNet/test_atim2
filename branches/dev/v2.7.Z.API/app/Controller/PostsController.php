@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class PostsController
+ */
 class PostsController extends AppController
 {
 
@@ -25,6 +28,9 @@ class PostsController extends AppController
         $this->set('posts', $this->paginate());
     }
 
+    /**
+     * @param null $id
+     */
     public function view($id = null)
     {
         if (! $id) {
@@ -51,6 +57,9 @@ class PostsController extends AppController
         }
     }
 
+    /**
+     * @param null $id
+     */
     public function edit($id = null)
     {
         if (! $id && empty($this->request->data)) {
@@ -74,6 +83,9 @@ class PostsController extends AppController
         }
     }
 
+    /**
+     * @param null $id
+     */
     public function delete($id = null)
     {
         if (! $id) {

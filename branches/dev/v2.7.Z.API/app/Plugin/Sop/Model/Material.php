@@ -1,8 +1,15 @@
 <?php
 
+/**
+ * Class Material
+ */
 class Material extends AppModel
 {
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;

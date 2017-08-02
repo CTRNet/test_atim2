@@ -2,7 +2,6 @@
 $chronology['Accuracy']['custom']['date'] = 'date_accuracy';
 
 $finalAtimStructure = $chronology;
-
 $links = array(
     'index' => array(
         'view data' => array(
@@ -33,4 +32,3 @@ if ($hookLink) {
 }
 
 $this->Structures->build($finalAtimStructure, $finalOptions);
-?>

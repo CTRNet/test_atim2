@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Collection
+ */
 class Collection extends InventoryManagementAppModel
 {
 
@@ -94,6 +97,10 @@ class Collection extends InventoryManagementAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -182,6 +189,10 @@ class Collection extends InventoryManagementAppModel
         );
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         // make sure all linked model are owned by the right participant

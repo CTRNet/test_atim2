@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructureField
+ */
 class StructureField extends AppModel
 {
 
@@ -35,6 +38,13 @@ class StructureField extends AppModel
     );
 
     // when building SUMMARIES, function used to look up, translate, and return translated VALUE
+
+    /**
+     * @param null $plugin
+     * @param null $model
+     * @param array $fieldAndValue
+     * @return array|mixed|null
+     */
     public function findPermissibleValue($plugin = null, $model = null, $fieldAndValue = array())
     {
         $return = null;

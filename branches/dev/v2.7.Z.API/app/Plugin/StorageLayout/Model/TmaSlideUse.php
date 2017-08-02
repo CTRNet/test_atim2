@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TmaSlideUse
+ */
 class TmaSlideUse extends StorageLayoutAppModel
 {
 
@@ -16,6 +19,10 @@ class TmaSlideUse extends StorageLayoutAppModel
 
     public static $studyModel = null;
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->validateAndUpdateTmaSlideUseStudyData();

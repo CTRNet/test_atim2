@@ -1,5 +1,4 @@
 <?php
-API::addToQueue('default.ctf BEGIN');
 /**
  *
  *
@@ -142,8 +141,3 @@ echo $this->Html->script('form/jquery.form.js') . "\n";
 if ($useBuffer) {
     ob_end_flush();
 }
-if (API::isAPIMode()){
-    //API::sendDataAndClear();
-    //API::sendTo('Default.ctp');
-}
-API::addToQueue('default.ctf END');

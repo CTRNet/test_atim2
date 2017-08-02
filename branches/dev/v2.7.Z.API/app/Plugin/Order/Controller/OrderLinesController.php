@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class OrderLinesController
+ */
 class OrderLinesController extends OrderAppController
 {
 
@@ -18,6 +21,9 @@ class OrderLinesController extends OrderAppController
         )
     );
 
+    /**
+     * @param $orderId
+     */
     public function listall($orderId)
     {
         // MANAGE DATA
@@ -43,6 +49,9 @@ class OrderLinesController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     */
     public function add($orderId)
     {
         if (! $orderId) {
@@ -155,6 +164,10 @@ class OrderLinesController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param $orderLineId
+     */
     public function edit($orderId, $orderLineId)
     {
         if ((! $orderId) || (! $orderLineId)) {
@@ -215,6 +228,10 @@ class OrderLinesController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param $orderLineId
+     */
     public function detail($orderId, $orderLineId)
     {
         if ((! $orderId) || (! $orderLineId)) {
@@ -255,6 +272,10 @@ class OrderLinesController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param $orderLineId
+     */
     public function delete($orderId, $orderLineId)
     {
         // MANAGE DATA

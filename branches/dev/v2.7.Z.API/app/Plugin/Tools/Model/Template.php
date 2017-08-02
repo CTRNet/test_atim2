@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Template
+ */
 class Template extends AppModel
 {
 
@@ -13,6 +16,9 @@ class Template extends AppModel
         'all' => 2
     );
 
+    /**
+     * @return mixed
+     */
     public function init()
     {
         $templateNodeModel = AppModel::getInstance("Tools", "TemplateNode", true);
@@ -42,6 +48,11 @@ class Template extends AppModel
      * Get tamplate(s) list based on use definition.
      * When $templateId is set, system defined if template properties can be edited or not by the user
      * (Only user who created the template or administrators can change template properties or delete)
+     */
+    /**
+     * @param $useDefintion
+     * @param null $templateId
+     * @return array|null
      */
     public function getTemplates($useDefintion, $templateId = null)
     {
@@ -110,6 +121,10 @@ class Template extends AppModel
     /*
      * Get code for 'Add From Template' button to build collection content from template
      */
+    /**
+     * @param $collectionId
+     * @return mixed
+     */
     public function getAddFromTemplateMenu($collectionId)
     {
         $visibleNodes = $this->getTemplates('template use');
@@ -127,6 +142,10 @@ class Template extends AppModel
         return $options;
     }
 
+    /**
+     * @param $tempateData
+     * @param null $createdBy
+     */
     public function setOwnerAndVisibility(&$tempateData, $createdBy = null)
     {
         if (Template::$sharing[$tempateData['Template']['visibility']] < Template::$sharing[$tempateData['Template']['owner']]) {

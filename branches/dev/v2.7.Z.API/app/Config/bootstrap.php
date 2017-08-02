@@ -29,6 +29,7 @@ Cache::config('default', array(
 
 //Load the shared functions and variable between all of the projects Controllers, Model & View
 require 'api.php';
+require 'basic.php';
 
 /**
  * The settings below can be used to set additional paths to models, views and controllers.

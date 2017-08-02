@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AnnouncementsController
+ */
 class AnnouncementsController extends CustomizeAppController
 {
 
@@ -13,6 +16,9 @@ class AnnouncementsController extends CustomizeAppController
         )
     );
 
+    /**
+     * @param string $listType
+     */
     public function index($listType = '')
     {
         $this->set('listType', $listType);
@@ -76,6 +82,9 @@ class AnnouncementsController extends CustomizeAppController
         }
     }
 
+    /**
+     * @param null $announcementId
+     */
     public function detail($announcementId = null)
     {
         $this->request->data = $this->Announcement->getOrRedirect($announcementId);

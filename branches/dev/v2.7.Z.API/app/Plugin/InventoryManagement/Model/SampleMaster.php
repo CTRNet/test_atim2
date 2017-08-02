@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SampleMaster
+ */
 class SampleMaster extends InventoryManagementAppModel
 {
 
@@ -75,6 +78,10 @@ class SampleMaster extends InventoryManagementAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function specimenSummary($variables = array())
     {
         $return = false;
@@ -131,6 +138,10 @@ class SampleMaster extends InventoryManagementAppModel
         return $return;
     }
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function derivativeSummary($variables = array())
     {
         $return = false;
@@ -169,11 +180,17 @@ class SampleMaster extends InventoryManagementAppModel
         return $return;
     }
 
+    /**
+     * @return array
+     */
     public function getParentSampleDropdown()
     {
         return array();
     }
 
+    /**
+     * @return array
+     */
     public function getDerivativesDropdown()
     {
         return self::$derivativesDropdown;
@@ -394,6 +411,11 @@ class SampleMaster extends InventoryManagementAppModel
         return $formattedData;
     }
 
+    /**
+     * @param $modelId
+     * @param bool $cascade
+     * @return bool
+     */
     public function atimDelete($modelId, $cascade = true)
     {
         if (parent::atimDelete($modelId, $cascade)) {
@@ -421,6 +443,10 @@ class SampleMaster extends InventoryManagementAppModel
         return false;
     }
 
+    /**
+     * @param $onField
+     * @return array
+     */
     public static function joinOnSampleDup($onField)
     {
         return array(

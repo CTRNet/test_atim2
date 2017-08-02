@@ -1,10 +1,16 @@
 <?php
 
+/**
+ * Class LabBookControl
+ */
 class LabBookControl extends LabBookAppModel
 {
 
     public $masterFormAlias = 'labbookmasters';
 
+    /**
+     * @return array
+     */
     public function getLabBookTypePermissibleValuesFromId()
     {
         $result = array();
@@ -23,6 +29,11 @@ class LabBookControl extends LabBookAppModel
         return $result;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

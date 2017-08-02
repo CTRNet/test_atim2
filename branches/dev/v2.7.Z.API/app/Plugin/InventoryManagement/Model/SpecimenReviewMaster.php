@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SpecimenReviewMaster
+ */
 class SpecimenReviewMaster extends InventoryManagementAppModel
 {
 
@@ -17,6 +20,10 @@ class SpecimenReviewMaster extends InventoryManagementAppModel
         )
     );
 
+    /**
+     * @param $specimenReviewId
+     * @return array
+     */
     public function allowSpecimeReviewDeletion($specimenReviewId)
     {
         return array(

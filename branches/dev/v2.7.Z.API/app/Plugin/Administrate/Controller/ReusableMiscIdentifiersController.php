@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ReusableMiscIdentifiersController
+ */
 class ReusableMiscIdentifiersController extends AdministrateAppController
 {
 
@@ -58,6 +61,9 @@ class ReusableMiscIdentifiersController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $miCtrlId
+     */
     public function manage($miCtrlId)
     {
         $this->MiscIdentifierControl->getOrRedirect($miCtrlId);

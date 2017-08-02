@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TreatmentControl
+ */
 class TreatmentControl extends ClinicalAnnotationAppModel
 {
 
@@ -53,6 +56,11 @@ class TreatmentControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @param $participantId
+     * @param string $diagnosisMasterId
+     * @return mixed
+     */
     public function getAddLinks($participantId, $diagnosisMasterId = '')
     {
         $treatmentControls = $this->find('all', array(
@@ -68,6 +76,11 @@ class TreatmentControl extends ClinicalAnnotationAppModel
         return $addLinks;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

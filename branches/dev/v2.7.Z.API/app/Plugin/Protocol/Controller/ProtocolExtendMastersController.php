@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ProtocolExtendMastersController
+ */
 class ProtocolExtendMastersController extends ProtocolAppController
 {
 
@@ -15,6 +18,9 @@ class ProtocolExtendMastersController extends ProtocolAppController
 
     public $paginate = array();
 
+    /**
+     * @param $protocolMasterId
+     */
     public function listall($protocolMasterId)
     {
         $protocolMasterData = $this->ProtocolMaster->getOrRedirect($protocolMasterId);
@@ -40,6 +46,10 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
+    /**
+     * @param $protocolMasterId
+     * @param $protocolExtendMasterId
+     */
     public function detail($protocolMasterId, $protocolExtendMasterId)
     {
         // Get treatment master row for extended data
@@ -77,6 +87,9 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
+    /**
+     * @param $protocolMasterId
+     */
     public function add($protocolMasterId)
     {
         if (! $protocolMasterId) {
@@ -129,6 +142,10 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
+    /**
+     * @param $protocolMasterId
+     * @param $protocolExtendMasterId
+     */
     public function edit($protocolMasterId, $protocolExtendMasterId)
     {
         if ((! $protocolMasterId) || (! $protocolExtendMasterId)) {
@@ -200,6 +217,10 @@ class ProtocolExtendMastersController extends ProtocolAppController
         }
     }
 
+    /**
+     * @param $protocolMasterId
+     * @param $protocolExtendMasterId
+     */
     public function delete($protocolMasterId, $protocolExtendMasterId)
     {
         if ((! $protocolMasterId) || (! $protocolExtendMasterId)) {

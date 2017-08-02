@@ -24,12 +24,21 @@ class SessionAclComponent extends AclComponent
         'Session'
     );
 
+    /**
+     * @param Controller $controller
+     */
     public function initialize(Controller $controller)
     {
         $this->master = $controller;
         $controller->Acl = $this;
     }
 
+    /**
+     * @param array|Model|string $aro
+     * @param array|Model|string $aco
+     * @param string $action
+     * @return bool
+     */
     public function check($aro, $aco, $action = "*")
     {
         if ($aco == "controllers/App/Users/logout") {
@@ -48,6 +57,10 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Allow
+     * @param array|Model|string $aro
+     * @param array|Model|string $aco
+     * @param string $action
+     * @return bool|void
      */
     public function allow($aro, $aco, $action = "*")
     {
@@ -57,6 +70,10 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Deny method.
+     * @param array|Model|string $aro
+     * @param array|Model|string $aco
+     * @param string $action
+     * @return bool|void
      */
     public function deny($aro, $aco, $action = "*")
     {
@@ -78,6 +95,7 @@ class SessionAclComponent extends AclComponent
      * @param string $action
      *            Action (defaults to *)
      * @access public
+     * @return bool|void
      */
     public function inherit($aro, $aco, $action = "*")
     {
@@ -93,8 +111,10 @@ class SessionAclComponent extends AclComponent
      *            ARO
      * @param string $aco
      *            ACO
+     * @param $action
      * @param boolean $acoPath
      *            Boolean to return only the path to the ACO or the full path to the permission.
+     * @return string
      * @access private
      */
     public function __cachePath($aro, $aco, $action, $acoPath = false)
@@ -123,6 +143,9 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Deletes the cache reference in Session, if found
+     * @param $aro
+     * @param $aco
+     * @param $action
      */
     public function __delete($aro, $aco, $action)
     {
@@ -142,6 +165,9 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Checks that ALL of given pairs of aco-action are satisfied
+     * @param $aro
+     * @param $pairs
+     * @return bool
      */
     public function all($aro, $pairs)
     {
@@ -155,6 +181,9 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Checks that AT LEAST ONE of given pairs of aco-action is satisfied
+     * @param $aro
+     * @param $pairs
+     * @return bool
      */
     public function one($aro, $pairs)
     {
@@ -168,6 +197,9 @@ class SessionAclComponent extends AclComponent
 
     /**
      * Returns an array of booleans for each $aco-$aro pair
+     * @param $aro
+     * @param $pairs
+     * @return array
      */
     public function can($aro, $pairs)
     {

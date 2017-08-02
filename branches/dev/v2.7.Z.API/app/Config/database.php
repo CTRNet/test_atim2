@@ -60,7 +60,6 @@
  */
 class DATABASE_CONFIG
 {
-
     public $default = array(
         'datasource' => 'Database/Mysql',
         'persistent' => true,
@@ -68,6 +67,18 @@ class DATABASE_CONFIG
         'login' => 'root',
         'password' => '',
         'database' => 'atim_1',
+        'prefix' => '',
+        'encoding' => 'utf8',
+        'port' => 3306
+    );
+    
+    public $test = array(
+        'datasource' => 'Database/Mysql',
+        'persistent' => true,
+        'host' => '127.0.0.1',
+        'login' => 'root',
+        'password' => '',
+        'database' => 'atim_1_test',
         'prefix' => '',
         'encoding' => 'utf8',
         'port' => 3306

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Material
+ */
 class Material extends AppModel
 {
 
@@ -7,6 +10,10 @@ class Material extends AppModel
 
     public $useTable = 'materials';
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;

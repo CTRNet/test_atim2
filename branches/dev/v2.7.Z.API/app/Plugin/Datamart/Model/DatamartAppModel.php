@@ -1,18 +1,20 @@
 <?php
 
+/**
+ * Class DatamartAppModel
+ */
 class DatamartAppModel extends AppModel
 {
 
     /**
      * Builds the action dropdown actions
      *
-     * @param string $plugin            
+     * @param $pluginName
      * @param string $modelName
      *            The model to use to fetch the data
      * @param string $modelPkey
      *            The key to use to fetch the data
-     * @param string $structureAlias
-     *            The structure to render the data
+     * @param $structureName
      * @param string $dataModel
      *            The model to look for in the data array (for csv linking)
      * @param string $dataPkey
@@ -21,6 +23,9 @@ class DatamartAppModel extends AppModel
      *            The id of the current batch set
      * @param boolean $addCsvAction
      *            Flag to add csv action (set to true by default)
+     * @return array
+     * @internal param string $plugin
+     * @internal param string $structureAlias The structure to render the data*            The structure to render the data
      */
     public function getDropdownOptions($pluginName, $modelName, $modelPkey, $structureName, $dataModel, $dataPkey, $batchSetId = null, $addCsvAction = true)
     {

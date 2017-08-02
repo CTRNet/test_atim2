@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SpecimenReviewsController
+ */
 class SpecimenReviewsController extends InventoryManagementAppController
 {
 
@@ -28,6 +31,10 @@ class SpecimenReviewsController extends InventoryManagementAppController
         )
     );
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     */
     public function listAll($collectionId, $sampleMasterId)
     {
         // MANAGE DATA
@@ -78,6 +85,11 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $specimenReviewControlId
+     */
     public function add($collectionId, $sampleMasterId, $specimenReviewControlId)
     {
         // MANAGE DATA
@@ -256,6 +268,12 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $specimenReviewId
+     * @param bool $aliquotMasterIdFromTreeView
+     */
     public function detail($collectionId, $sampleMasterId, $specimenReviewId, $aliquotMasterIdFromTreeView = false)
     {
         
@@ -334,6 +352,12 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $specimenReviewId
+     * @param bool $undo
+     */
     public function edit($collectionId, $sampleMasterId, $specimenReviewId, $undo = false)
     {
         // MANAGE DATA
@@ -573,6 +597,11 @@ class SpecimenReviewsController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $specimenReviewId
+     */
     public function delete($collectionId, $sampleMasterId, $specimenReviewId)
     {
         // MANAGE DATA

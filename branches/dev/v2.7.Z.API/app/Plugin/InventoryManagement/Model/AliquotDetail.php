@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AliquotDetail
+ */
 class AliquotDetail extends InventoryManagementAppModel
 {
 

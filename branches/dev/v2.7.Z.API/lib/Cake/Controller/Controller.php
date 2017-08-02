@@ -323,7 +323,7 @@ class Controller extends CakeObject implements CakeEventListener {
 			
 			//Pre ATIM line
 			$this->name = substr(get_class($this), 0, -10);
-			
+			//YASER: 
 			//New code I change the AppController __construct
 			//$class_name = get_class($this);
 			//$this->name = substr($class_name, 0, strlen(get_class($this)) - (strpos($class_name, 'ControllerCustom') === false ? 10 : 16));

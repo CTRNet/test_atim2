@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class GroupsController
+ */
 class GroupsController extends AdministrateAppController
 {
 
@@ -23,6 +26,9 @@ class GroupsController extends AdministrateAppController
         $this->request->data = $this->paginate($this->Group, array());
     }
 
+    /**
+     * @param $groupId
+     */
     public function detail($groupId)
     {
         $this->set('displayEditButton', (($groupId == 1) ? false : true));
@@ -73,6 +79,9 @@ class GroupsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $groupId
+     */
     public function edit($groupId)
     {
         if ($groupId == 1) {
@@ -152,6 +161,9 @@ class GroupsController extends AdministrateAppController
         $this->set('acoOptions', $acoOptions);
     }
 
+    /**
+     * @param $groupId
+     */
     public function delete($groupId)
     {
         if ($groupId == 1) {
