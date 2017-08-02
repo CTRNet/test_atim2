@@ -23,7 +23,7 @@ if (!function_exists('firecake')) {
  * @param null $label The label.
  * @return void
  */
-	public function firecake($message, $label = null) {
+	function firecake($message, $label = null) {
 		FireCake::fb($message, $label, 'log');
 	}
 
