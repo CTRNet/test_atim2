@@ -274,7 +274,7 @@ FmMenu.prototype.keyBack = function(){
 };
 
 //All existing key binding functions
-FmMenu.prototype.keyFunction = new array();
+FmMenu.prototype.keyFunction = new Array();
 FmMenu.prototype.keyFunction[13] = function(event){ return event.data.keySelect(); };//enter
 FmMenu.prototype.keyFunction[32] = function(event){ return event.data.keySelect(); };//space
 FmMenu.prototype.keyFunction[39] = function(event){ return event.data.keySelect(); };//right arrow
