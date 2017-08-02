@@ -66,12 +66,15 @@ UPDATE structure_validations SET rule='notBlank' WHERE rule='notEmpty';
 UPDATE `i18n`
 SET 
 	id='please complete the security questions',
-	en='please complete the security questions'
+	en='Please complete the security questions'
 WHERE 
 	id='please conplete the security questions'
 	
 	
-	
+UPDATE versions SET permissions_regenerated = 0;
+INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
+VALUES
+('2.7.0', NOW(),'xxxx','n/a');
 	
 
 
