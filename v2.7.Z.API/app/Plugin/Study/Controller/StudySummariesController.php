@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudySummariesController
+ */
 class StudySummariesController extends StudyAppController
 {
 
@@ -49,6 +52,9 @@ class StudySummariesController extends StudyAppController
         )
     );
 
+    /**
+     * @param string $searchId
+     */
     public function search($searchId = '')
     {
         // CUSTOM CODE: FORMAT DISPLAY DATA
@@ -71,6 +77,9 @@ class StudySummariesController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     */
     public function detail($studySummaryId)
     {
         // MANAGE DATA
@@ -124,6 +133,9 @@ class StudySummariesController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     */
     public function edit($studySummaryId)
     {
         // MANAGE DATA
@@ -165,6 +177,9 @@ class StudySummariesController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     */
     public function delete($studySummaryId)
     {
         // MANAGE DATA
@@ -194,6 +209,10 @@ class StudySummariesController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param null $specificListHeader
+     */
     public function listAllLinkedRecords($studySummaryId, $specificListHeader = null)
     {
         if (! $this->request->is('ajax')) {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BrowserController
+ */
 class BrowserController extends DatamartAppController
 {
 
@@ -44,6 +47,9 @@ class BrowserController extends DatamartAppController
         ));
     }
 
+    /**
+     * @param $indexId
+     */
     public function edit($indexId)
     {
         $this->set("indexId", $indexId);
@@ -70,6 +76,9 @@ class BrowserController extends DatamartAppController
         }
     }
 
+    /**
+     * @param $indexId
+     */
     public function delete($indexId)
     {
         $this->BrowsingResult; // lazy load
@@ -88,6 +97,10 @@ class BrowserController extends DatamartAppController
         }
     }
 
+    /**
+     * @param $controlId
+     * @return array
+     */
     private function getIdsAndParentChild($controlId)
     {
         $subStructureId = null;
@@ -115,7 +128,7 @@ class BrowserController extends DatamartAppController
      *
      * @param int $nodeId
      *            0 if it's a new browsing, the node id to display or the parent node id when in a search form
-     * @param string $controlId
+     * @param int|string $controlId
      *            The datamart structure control id. If there is a substructure,
      *            the string will separate the structure id from the substructure id with an underscore. It will be of the form id_sub-id
      * @param int $mergeTo
@@ -187,7 +200,7 @@ $checkList) // this is a checklist
                     'last' => $lastControlId == $controlId,
                     'parent_child' => $parentChild
                 );
-                if (! $createdNode = $this->Browser->createNode($params)) {
+                if (! $createdNode = $this->Browser->createNode($params, $this->referer())) {
                     // something went wrong. A flash screen has been called.
                     return;
                 }
@@ -398,8 +411,10 @@ $checkList) // this is a checklist
     /**
      * Used to generate the databrowser csv
      *
-     * @param int $parentId            
-     * @param int $mergeTo            
+     * @param $allFields
+     * @param $nodeId
+     * @param int $mergeTo
+     * @internal param int $parentId
      */
     public function csv($allFields, $nodeId, $mergeTo)
     {
@@ -547,7 +562,8 @@ $checkList) // this is a checklist
      * The ids must be in
      * $this->request->data[$model][id]
      *
-     * @param String $model            
+     * @param String $model
+     * @param string $source
      */
     public function batchToDatabrowser($model, $source = 'batchset')
     {
@@ -616,6 +632,9 @@ $checkList) // this is a checklist
         $this->redirect('/Datamart/Browser/browse/' . $nodeId);
     }
 
+    /**
+     * @param $indexId
+     */
     public function save($indexId)
     {
         $this->BrowsingResult; // lazy load
@@ -759,6 +778,10 @@ $checkList) // this is a checklist
         exit();
     }
 
+    /**
+     * @param $startingNodeId
+     * @param $browsingStepIndexId
+     */
     public function applyBrowsingSteps($startingNodeId, $browsingStepIndexId)
     {
         $this->BrowsingResult->checkWritableFields = false;
@@ -786,7 +809,7 @@ $checkList) // this is a checklist
                 'adv_search_conditions' => isset($searchParams['adv_search_conditions']) ? $searchParams['adv_search_conditions'] : array(),
                 'parent_child' => $step['parent_children']
             );
-            if (! $createdNode = $this->Browser->createNode($params)) {
+            if (! $createdNode = $this->Browser->createNode($params, $this->referer())) {
                 // something went wrong. A flash screen has been called.
                 return;
             }

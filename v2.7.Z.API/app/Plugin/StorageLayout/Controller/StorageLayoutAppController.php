@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StorageLayoutAppController
+ */
 class StorageLayoutAppController extends AppController
 {
 

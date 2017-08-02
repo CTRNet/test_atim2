@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AliquotMastersController
+ */
 class AliquotMastersController extends InventoryManagementAppController
 {
 
@@ -53,6 +56,9 @@ class AliquotMastersController extends InventoryManagementAppController
      */
     
     /* ----------------------------- ALIQUOT MASTER ----------------------------- */
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/InventoryManagement/Collections/search'));
@@ -143,6 +149,11 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param null $sampleMasterId
+     * @param null $aliquotControlId
+     * @param int $quantity
+     */
     public function add($sampleMasterId = null, $aliquotControlId = null, $quantity = 1)
     {
         if ($this->request->is('ajax')) {
@@ -492,10 +503,10 @@ class AliquotMastersController extends InventoryManagementAppController
 
     /**
      *
-     * @param unknown_type $collectionId            
-     * @param unknown_type $sampleMasterId            
-     * @param unknown_type $aliquotMasterId            
-     * @param unknown_type $isFromTreeViewOrLayout
+     * @param unknown_type $collectionId
+     * @param unknown_type $sampleMasterId
+     * @param unknown_type $aliquotMasterId
+     * @param int|unknown_type $isFromTreeViewOrLayout
      *            0-Normal, 1-Tree view, 2-Stoarge layout
      */
     public function detail($collectionId, $sampleMasterId, $aliquotMasterId, $isFromTreeViewOrLayout = 0)
@@ -539,12 +550,12 @@ class AliquotMastersController extends InventoryManagementAppController
         
         // Set aliquot data
         $this->set('aliquotMasterData', $aliquotData);
-        $this->request->data = array();
+        $this->request->data['aliquotMasterData'] = $aliquotData;
         
         // Set storage data
-        $this->set('aliquotStorageData', empty($aliquotData['StorageMaster']['id']) ? array() : array(
-            'StorageMaster' => $aliquotData['StorageMaster']
-        ));
+        $aliquotStorageData=empty($aliquotData['StorageMaster']['id']) ? [] : ['StorageMaster' => $aliquotData['StorageMaster']];
+        $this->set('aliquotStorageData', $aliquotStorageData);
+        $this->request->data['aliquotStorageData'] = $aliquotStorageData;
         
         // MANAGE FORM, MENU AND ACTION BUTTONS
         
@@ -564,6 +575,7 @@ class AliquotMastersController extends InventoryManagementAppController
         
         // Define if this detail form is displayed into the collection content tree view, storage tree view, storage layout
         $this->set('isFromTreeViewOrLayout', $isFromTreeViewOrLayout);
+        $this->request->data['isFromTreeViewOrLayout'] = $isFromTreeViewOrLayout;
         
         // Define if aliquot is included into an order
         $orderItem = $this->OrderItem->find('first', array(
@@ -573,7 +585,9 @@ class AliquotMastersController extends InventoryManagementAppController
         ));
         if (! empty($orderItem)) {
             $this->set('orderLineId', $orderItem['OrderItem']['order_line_id']);
+            $this->request->data['orderLineId'] = $orderItem['OrderItem']['order_line_id'];
             $this->set('orderId', $orderItem['OrderItem']['order_id']);
+            $this->request->data['orderId'] = $orderItem['OrderItem']['order_id'];
         }
         
         $sampleMaster = $this->SampleMaster->find('first', array(
@@ -597,6 +611,11 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $aliquotMasterId
+     */
     public function edit($collectionId, $sampleMasterId, $aliquotMasterId)
     {
         // MANAGE DATA
@@ -708,6 +727,11 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $aliquotMasterId
+     */
     public function removeAliquotFromStorage($collectionId, $sampleMasterId, $aliquotMasterId)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $aliquotMasterId)) {
@@ -750,6 +774,11 @@ class AliquotMastersController extends InventoryManagementAppController
         $this->atimFlash(__('your data has been updated'), '/InventoryManagement/AliquotMasters/detail/' . $collectionId . '/' . $sampleMasterId . '/' . $aliquotMasterId);
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $aliquotMasterId
+     */
     public function delete($collectionId, $sampleMasterId, $aliquotMasterId)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $aliquotMasterId)) {
@@ -794,6 +823,9 @@ class AliquotMastersController extends InventoryManagementAppController
     }
 
     /* ------------------------------ ALIQUOT INTERNAL USES ------------------------------ */
+    /**
+     * @param null $aliquotMasterId
+     */
     public function addAliquotInternalUse($aliquotMasterId = null)
     {
         // GET DATA
@@ -961,7 +993,7 @@ class AliquotMastersController extends InventoryManagementAppController
                     }
                 }
             //TODO:: Should fine a way to send the data to this function, the standard is [master-id=>data, master-id=>data]
-            //APISendTo($dataUnit);
+            //API::sendTo($dataUnit);
                 $aliquotDataToSave[] = array(
                     'id' => $keyAliquotMasterId,
                     'aliquot_control_id' => $aliquotData['AliquotControl']['id'],
@@ -1103,6 +1135,10 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $aliquotMasterId
+     * @param $aliquotUseId
+     */
     public function detailAliquotInternalUse($aliquotMasterId, $aliquotUseId)
     {
         if ((! $aliquotMasterId) || (! $aliquotUseId)) {
@@ -1166,6 +1202,10 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $aliquotMasterId
+     * @param $aliquotUseId
+     */
     public function editAliquotInternalUse($aliquotMasterId, $aliquotUseId)
     {
         if ((! $aliquotMasterId) || (! $aliquotUseId)) {
@@ -1277,6 +1317,10 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $aliquotMasterId
+     * @param $aliquotUseId
+     */
     public function deleteAliquotInternalUse($aliquotMasterId, $aliquotUseId)
     {
         if ((! $aliquotMasterId) || (! $aliquotUseId)) {
@@ -1528,6 +1572,10 @@ class AliquotMastersController extends InventoryManagementAppController
     }
 
     /* ----------------------------- SOURCE ALIQUOTS ---------------------------- */
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     */
     public function addSourceAliquots($collectionId, $sampleMasterId)
     {
         // MANAGE DATA
@@ -1794,6 +1842,10 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $sampleMasterId
+     * @param $aliquotMasterId
+     */
     public function editSourceAliquot($sampleMasterId, $aliquotMasterId)
     {
         // Get the realiquoting data
@@ -1860,6 +1912,10 @@ class AliquotMastersController extends InventoryManagementAppController
         ));
     }
 
+    /**
+     * @param $sampleMasterId
+     * @param $aliquotMasterId
+     */
     public function deleteSourceAliquot($sampleMasterId, $aliquotMasterId)
     {
         if ((! $sampleMasterId) || (! $aliquotMasterId)) {
@@ -1908,6 +1964,10 @@ class AliquotMastersController extends InventoryManagementAppController
     }
 
     /* ------------------------------ REALIQUOTING ------------------------------ */
+    /**
+     * @param $processType
+     * @param null $aliquotId
+     */
     public function realiquotInit($processType, $aliquotId = null)
     {
         
@@ -2029,6 +2089,10 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $processType
+     * @param null $aliquotId
+     */
     public function realiquotInit2($processType, $aliquotId = null)
     {
         if (! isset($this->request->data['sample_ctrl_id']) || ! isset($this->request->data['realiquot_from']) || ! isset($this->request->data[0]['realiquot_into']) || ! isset($this->request->data[0]['ids'])) {
@@ -2096,6 +2160,9 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param null $aliquotId
+     */
     public function realiquot($aliquotId = null)
     {
         $initialDisplay = false;
@@ -2573,6 +2640,9 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param null $aliquotMasterId
+     */
     public function defineRealiquotedChildren($aliquotMasterId = null)
     {
         $usedAliquotDataToApplyToAll = array();
@@ -3033,6 +3103,11 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $aliquotMasterId
+     */
     public function listAllRealiquotedParents($collectionId, $sampleMasterId, $aliquotMasterId)
     {
         // MANAGE DATA
@@ -3088,6 +3163,9 @@ class AliquotMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $realiquotingId
+     */
     public function editRealiquoting($realiquotingId)
     {
         $data = $this->Realiquoting->getOrRedirect($realiquotingId);
@@ -3136,6 +3214,11 @@ class AliquotMastersController extends InventoryManagementAppController
         $this->set('realiquotingId', $realiquotingId);
     }
 
+    /**
+     * @param $parentId
+     * @param $childId
+     * @param $source
+     */
     public function deleteRealiquotingData($parentId, $childId, $source)
     {
         if ((! $parentId) || (! $childId) || (! $source)) {
@@ -3227,6 +3310,11 @@ class AliquotMastersController extends InventoryManagementAppController
         $this->set('result', "[" . $result . "]");
     }
 
+    /**
+     * @param $collectionId
+     * @param $aliquotMasterId
+     * @param bool $isAjax
+     */
     public function contentTreeView($collectionId, $aliquotMasterId, $isAjax = false)
     {
         if (! $collectionId) {
@@ -3478,9 +3566,10 @@ class AliquotMastersController extends InventoryManagementAppController
     /**
      * List all aliquot uses
      *
-     * @param int $collectionId            
-     * @param int $sampleMasterId            
-     * @param int $aliquotMasterId            
+     * @param int $collectionId
+     * @param int $sampleMasterId
+     * @param int $aliquotMasterId
+     * @param bool $isFromTreeView
      */
     public function listallUses($collectionId, $sampleMasterId, $aliquotMasterId, $isFromTreeView = false)
     {
@@ -3502,6 +3591,11 @@ class AliquotMastersController extends InventoryManagementAppController
         $this->render('listall_uses');
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $aliquotMasterId
+     */
     public function storageHistory($collectionId, $sampleMasterId, $aliquotMasterId)
     {
         $aliquot = $this->AliquotMaster->getOrRedirect($aliquotMasterId);

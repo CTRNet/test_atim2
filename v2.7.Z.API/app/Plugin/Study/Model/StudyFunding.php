@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudyFunding
+ */
 class StudyFunding extends StudyAppModel
 {
 

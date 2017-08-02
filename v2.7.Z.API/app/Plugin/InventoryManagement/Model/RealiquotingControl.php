@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class RealiquotingControl
+ */
 class RealiquotingControl extends InventoryManagementAppModel
 {
 
@@ -30,6 +33,11 @@ class RealiquotingControl extends InventoryManagementAppModel
         return $realiquotData;
     }
 
+    /**
+     * @param $sampleControlId
+     * @param $parentAliquotControlId
+     * @return array
+     */
     public function getAllowedChildrenCtrlId($sampleControlId, $parentAliquotControlId)
     {
         $criteria = array(
@@ -52,6 +60,12 @@ class RealiquotingControl extends InventoryManagementAppModel
         return $allowedChildrenAliquotControlIds;
     }
 
+    /**
+     * @param $parentSampleCtrlId
+     * @param $parentAliquotCtrlId
+     * @param $childAliquotCtrlId
+     * @return mixed
+     */
     public function getLabBookCtrlId($parentSampleCtrlId, $parentAliquotCtrlId, $childAliquotCtrlId)
     {
         $criteria = array(

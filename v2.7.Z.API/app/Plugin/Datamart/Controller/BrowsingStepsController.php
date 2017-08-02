@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BrowsingStepsController
+ */
 class BrowsingStepsController extends DatamartAppController
 {
 
@@ -98,6 +101,9 @@ class BrowsingStepsController extends DatamartAppController
         $this->Structures->set('datamart_saved_browsing');
     }
 
+    /**
+     * @param $nodeId
+     */
     public function save($nodeId)
     {
         Configure::write('debug', 0);
@@ -148,6 +154,9 @@ class BrowsingStepsController extends DatamartAppController
         }
     }
 
+    /**
+     * @param $id
+     */
     public function edit($id)
     {
         $this->Structures->set('datamart_saved_browsing');
@@ -174,6 +183,9 @@ class BrowsingStepsController extends DatamartAppController
         ));
     }
 
+    /**
+     * @param $id
+     */
     public function delete($id)
     {
         $browsingIndex = $this->SavedBrowsingIndex->find('first', array(

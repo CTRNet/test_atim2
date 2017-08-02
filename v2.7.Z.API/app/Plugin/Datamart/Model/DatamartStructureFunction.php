@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class DatamartStructureFunction
+ */
 class DatamartStructureFunction extends DatamartAppModel
 {
 

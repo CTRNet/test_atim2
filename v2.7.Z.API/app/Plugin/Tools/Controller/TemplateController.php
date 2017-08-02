@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TemplateController
+ */
 class TemplateController extends AppController
 {
 
@@ -60,6 +63,9 @@ class TemplateController extends AppController
 
     /*
      * Build The Collection Template
+     */
+    /**
+     * @param $templateId
      */
     public function edit($templateId)
     {
@@ -219,6 +225,9 @@ class TemplateController extends AppController
         $this->render('tree');
     }
 
+    /**
+     * @param $templateId
+     */
     public function editProperties($templateId)
     {
         $templateData = $this->Template->getTemplates('template edition', $templateId);
@@ -264,6 +273,9 @@ class TemplateController extends AppController
         }
     }
 
+    /**
+     * @param $templateId
+     */
     public function delete($templateId)
     {
         $templateData = $this->Template->getTemplates('template edition', $templateId);

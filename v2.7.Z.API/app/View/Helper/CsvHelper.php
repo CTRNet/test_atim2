@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class CsvHelper
+ */
 class CsvHelper extends AppHelper
 {
 
@@ -19,6 +22,11 @@ class CsvHelper extends AppHelper
     public static $structures = null;
 
     // function CsvHelper() : This methode of calling constructor is deprecated in PHP 7.0
+
+    /**
+     * CsvHelper constructor.
+     * @param View $view
+     */
     public function __construct(View $view)
     {
         parent::__construct($view);
@@ -31,6 +39,9 @@ class CsvHelper extends AppHelper
         $this->buffer = fopen('php://temp/maxmemory:' . (5 * 1024 * 1024), 'r+');
     }
 
+    /**
+     * @param $value
+     */
     public function addField($value)
     {
         $this->line[] = $value;
@@ -42,6 +53,9 @@ class CsvHelper extends AppHelper
         $this->line = array();
     }
 
+    /**
+     * @param $row
+     */
     public function addRow($row)
     {
         fputcsv($this->buffer, $row, $this->csvSeparator, $this->enclosure);
@@ -56,6 +70,9 @@ class CsvHelper extends AppHelper
         header("Content-disposition:attachment;filename=" . $this->filename . '_' . date('YMd_Hi') . '.csv');
     }
 
+    /**
+     * @param $filename
+     */
     public function setFilename($filename)
     {
         $this->filename = $filename;
@@ -66,6 +83,12 @@ class CsvHelper extends AppHelper
          */
     }
 
+    /**
+     * @param bool $outputHeaders
+     * @param null $toEncoding
+     * @param string $fromEncoding
+     * @return string
+     */
     public function render($outputHeaders = true, $toEncoding = null, $fromEncoding = "auto")
     {
         if ($outputHeaders) {

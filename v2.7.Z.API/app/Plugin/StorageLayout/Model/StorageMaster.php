@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StorageMaster
+ */
 class StorageMaster extends StorageLayoutAppModel
 {
 
@@ -45,6 +48,10 @@ class StorageMaster extends StorageLayoutAppModel
 
     const CONFLICTS_ERR = 2;
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -81,6 +88,9 @@ class StorageMaster extends StorageLayoutAppModel
         return $return;
     }
 
+    /**
+     * @return bool
+     */
     private function insideItself()
     {
         $parentId = $this->data['StorageMaster']['parent_id'];
@@ -99,6 +109,10 @@ class StorageMaster extends StorageLayoutAppModel
         return false;
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         if (! (array_key_exists('FunctionManagement', $this->data) && array_key_exists('recorded_storage_selection_label', $this->data['FunctionManagement']))) {
@@ -171,6 +185,10 @@ class StorageMaster extends StorageLayoutAppModel
         return parent::validates($options);
     }
 
+    /**
+     * @param $storageData
+     * @return bool
+     */
     public function isDuplicatedStorageBarCode($storageData)
     {
         if (empty($storageData['StorageMaster']['barcode'])) {
@@ -195,11 +213,21 @@ class StorageMaster extends StorageLayoutAppModel
         }
     }
 
+    /**
+     * @return array
+     */
     public static function getStoragesDropdown()
     {
         return array();
     }
 
+    /**
+     * @param $recordedSelectionLabel
+     * @param $positionX
+     * @param $positionY
+     * @param bool $isSampleCore
+     * @return array
+     */
     public function validateAndGetStorageData($recordedSelectionLabel, $positionX, $positionY, $isSampleCore = false)
     {
         $storageData = array();
@@ -476,6 +504,10 @@ class StorageMaster extends StorageLayoutAppModel
         return $this->storageSelectionLabelsAlreadyChecked[$storageLabelAndCode];
     }
 
+    /**
+     * @param $storageData
+     * @return mixed|string
+     */
     public function getStorageLabelAndCodeForDisplay($storageData)
     {
         
@@ -580,15 +612,20 @@ class StorageMaster extends StorageLayoutAppModel
      *
      * Enter description here ...
      *
-     * @param array $childrenArray            
-     * @param unknown_type $typeKey            
-     * @param unknown_type $labelKey            
+     * @param array $childrenArray
+     * @param unknown_type $typeKey
+     * @param unknown_type $labelKey
+     * @return mixed
      */
     public function getLabel(array $childrenArray, $typeKey, $labelKey)
     {
         return $childrenArray[$typeKey][$labelKey];
     }
 
+    /**
+     * @param int $storageMasterId
+     * @return array
+     */
     public function allowDeletion($storageMasterId)
     {
         // Check storage contains no chlidren storage
@@ -655,6 +692,10 @@ class StorageMaster extends StorageLayoutAppModel
         );
     }
 
+    /**
+     * @param $storageData
+     * @param $storageControlData
+     */
     public function manageTemperature(&$storageData, $storageControlData)
     {
         if ($storageData['StorageMaster']['storage_control_id'] != $storageControlData['StorageControl']['id'])
@@ -718,13 +759,12 @@ class StorageMaster extends StorageLayoutAppModel
     /**
      * Create the selection label of a storage.
      *
-     * @param $storageData Storage
-     *            data including storage master, storage control, etc.
-     * @param $storageData Parent
+     * @param Storage $storageData Parent
      *            storage data including storage master, storage control, etc.
-     *            
+     *
+     * @param $parentStorageData
      * @return The created selection label.
-     *        
+     *
      * @author N. Luc
      * @since 2009-09-13
      */
@@ -900,22 +940,24 @@ class StorageMaster extends StorageLayoutAppModel
      * Saves the modifications into the database and
      * cleans it of the no longer related data.
      *
-     * @param
-     *            data_array The data read from the database
-     * @param
-     *            type The current type we are seeking
-     * @param
-     *            x_key The name of the key for the x coordinate
-     * @param
-     *            y_key The name of the key for the y coordinate
-     * @param
-     *            storage_parent_key The name of the key of the parent storage id
-     * @param
-     *            rcv_data The data received from the user
-     * @param
-     *            updater_model The model to use to update the data
-     * @param
-     *            storage_control
+     * @param $dataArray
+     * @param $type
+     * @param $xKey
+     * @param $yKey
+     * @param $storageParentKey
+     * @param $rcvData
+     * @param $updaterModel
+     * @param array $storageControls
+     * @param $updatedRecordCounter
+     * @return bool
+     * @internal param $ data_array The data read from the database*            data_array The data read from the database
+     * @internal param $ type The current type we are seeking*            type The current type we are seeking
+     * @internal param $ x_key The name of the key for the x coordinate*            x_key The name of the key for the x coordinate
+     * @internal param $ y_key The name of the key for the y coordinate*            y_key The name of the key for the y coordinate
+     * @internal param $ storage_parent_key The name of the key of the parent storage id*            storage_parent_key The name of the key of the parent storage id
+     * @internal param $ rcv_data The data received from the user*            rcv_data The data received from the user
+     * @internal param $ updater_model The model to use to update the data*            updater_model The model to use to update the data
+     * @internal param $ storage_control*            storage_control
      */
     public function updateAndSaveDataArray($dataArray, $type, $xKey, $yKey, $storageParentKey, $rcvData, $updaterModel, array $storageControls, &$updatedRecordCounter)
     {
@@ -1010,6 +1052,16 @@ class StorageMaster extends StorageLayoutAppModel
         return $errorFound;
     }
 
+    /**
+     * @param $childrenArray
+     * @param $typeKey
+     * @param $xKey
+     * @param $yKey
+     * @param $labelKey
+     * @param $coordinateList
+     * @param $link
+     * @param string $iconName
+     */
     public function buildChildrenArray(&$childrenArray, $typeKey, $xKey, $yKey, $labelKey, $coordinateList, $link, $iconName = "detail")
     {
         $childrenArray['DisplayData']['id'] = $childrenArray[$typeKey]['id'];
@@ -1121,6 +1173,11 @@ class StorageMaster extends StorageLayoutAppModel
 
     /**
      * Checks conflicts for batch layout
+     * @param $data
+     * @param $modelName
+     * @param $labelName
+     * @param $cumulStorageData
+     * @return bool
      */
     public function checkBatchLayoutConflicts(&$data, $modelName, $labelName, &$cumulStorageData)
     {
@@ -1161,6 +1218,12 @@ class StorageMaster extends StorageLayoutAppModel
         return $conflictsFound;
     }
 
+    /**
+     * @param $modelsAndFields
+     * @param $contentsToSort
+     * @param bool $descOrder
+     * @return array
+     */
     public function contentNatCaseSort($modelsAndFields, $contentsToSort, $descOrder = false)
     {
         $valueToKey = array();

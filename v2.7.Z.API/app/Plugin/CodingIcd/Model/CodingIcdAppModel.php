@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class CodingIcdAppModel
+ */
 class CodingIcdAppModel extends AppModel
 {
 
@@ -38,6 +41,10 @@ class CodingIcdAppModel extends AppModel
         return $description ? implode(' - ', $description) : '-';
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public function globalValidateId($id)
     {
         if (is_array($id)) {
@@ -51,6 +58,13 @@ class CodingIcdAppModel extends AppModel
         )) > 0 : true;
     }
 
+    /**
+     * @param array $terms
+     * @param $exactSearch
+     * @param $searchOnId
+     * @param $limit
+     * @return array|bool|null|The
+     */
     public function globalSearch(array $terms, $exactSearch, $searchOnId, $limit)
     {
         if (! $db = ConnectionManager::getDataSource($this->useDbConfig)) {
@@ -143,6 +157,11 @@ class CodingIcdAppModel extends AppModel
         return $result;
     }
 
+    /**
+     * @param array $terms
+     * @param $exactSearch
+     * @return array
+     */
     public function getCastedSearchParams(array $terms, $exactSearch)
     {
         $searchResult = $this->globalSearch($terms, $exactSearch, true, false);

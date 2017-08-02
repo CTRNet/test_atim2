@@ -1,8 +1,10 @@
 <?php
 
+/**
+ * Class Participant
+ */
 class Participant extends ClinicalAnnotationAppModel
 {
-
     public $virtualFields = array(
         'age' => 'IF(date_of_birth IS NULL, NULL, YEAR(NOW()) - YEAR(date_of_birth) - (DAYOFYEAR(NOW()) < DAYOFYEAR(date_of_birth)))'
     );
@@ -19,6 +21,10 @@ class Participant extends ClinicalAnnotationAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -50,7 +56,8 @@ class Participant extends ClinicalAnnotationAppModel
     /**
      * Replaces icd10 empty string to null values to respect foreign keys constraints
      *
-     * @param array $participantArray            
+     * @param array $participant
+     * @internal param array $participantArray
      */
     public function patchIcd10NullValues(array &$participant)
     {
@@ -202,6 +209,10 @@ class Participant extends ClinicalAnnotationAppModel
         return $arrAllowDeletion;
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function beforeSave($options = array())
     {
         if ($this->whitelist && ! in_array('last_modification', $this->whitelist))

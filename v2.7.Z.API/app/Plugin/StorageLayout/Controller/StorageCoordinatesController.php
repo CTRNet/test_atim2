@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StorageCoordinatesController
+ */
 class StorageCoordinatesController extends StorageLayoutAppController
 {
 
@@ -23,6 +26,9 @@ class StorageCoordinatesController extends StorageLayoutAppController
      * --------------------------------------------------------------------------
      * DISPLAY FUNCTIONS
      * --------------------------------------------------------------------------
+     */
+    /**
+     * @param $storageMasterId
      */
     public function listAll($storageMasterId)
     {
@@ -64,6 +70,9 @@ class StorageCoordinatesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $storageMasterId
+     */
     public function add($storageMasterId)
     {
         // MANAGE DATA
@@ -134,6 +143,10 @@ class StorageCoordinatesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $storageMasterId
+     * @param $storageCoordinateId
+     */
     public function delete($storageMasterId, $storageCoordinateId)
     {
         

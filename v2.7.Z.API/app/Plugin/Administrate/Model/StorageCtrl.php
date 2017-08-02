@@ -9,6 +9,10 @@
  *
  * To be sure MasterDetailBehavior Model is not called, created following model changing Control suffix to Ctrl.
  */
+
+/**
+ * Class StorageCtrl
+ */
 class StorageCtrl extends AdministrateAppModel
 {
 
@@ -17,6 +21,10 @@ class StorageCtrl extends AdministrateAppModel
 
     public $useTable = 'storage_controls';
 
+    /**
+     * @param $data
+     * @return string
+     */
     public function getStorageCategory($data)
     {
         $storageCategory = 'no_d';
@@ -30,6 +38,10 @@ class StorageCtrl extends AdministrateAppModel
         return $storageCategory;
     }
 
+    /**
+     * @param $storageCategory
+     * @return null|string
+     */
     public function getStructure($storageCategory)
     {
         $structures = null;
@@ -52,6 +64,10 @@ class StorageCtrl extends AdministrateAppModel
         return $structures;
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         if (isset($this->data['StorageCtrl']['coord_x_title']) && isset($this->data['StorageCtrl']['coord_y_title'])) {
@@ -78,6 +94,10 @@ class StorageCtrl extends AdministrateAppModel
         return parent::validates($options);
     }
 
+    /**
+     * @param $passedArgs
+     * @return array
+     */
     public function getListArgs($passedArgs)
     {
         $listArgs = array();

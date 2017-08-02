@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ProfilesController
+ */
 class ProfilesController extends CustomizeAppController
 {
 

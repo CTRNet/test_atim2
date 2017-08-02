@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MiscIdentifier
+ */
 class MiscIdentifier extends ClinicalAnnotationAppModel
 {
 
@@ -22,6 +25,10 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
 
     public static $studyModel = null;
 
+    /**
+     * @param array $variables
+     * @return bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -41,6 +48,10 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return $return;
     }
 
+    /**
+     * @param array $queryData
+     * @return array
+     */
     public function beforeFind($queryData)
     {
         if (! AppController::getInstance()->Session->read('flag_show_confidential') && is_array($queryData['conditions']) && AppModel::isFieldUsedAsCondition("MiscIdentifier.identifier_value", $queryData['conditions'])) {
@@ -57,6 +68,11 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return $queryData;
     }
 
+    /**
+     * @param string $type
+     * @param array $query
+     * @return array|null
+     */
     public function find($type = 'first', $query = array())
     {
         if (isset($query['conditions'])) {
@@ -91,6 +107,11 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return parent::find($type, $query);
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
@@ -125,6 +146,10 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return $results;
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $errors = parent::validates($options);

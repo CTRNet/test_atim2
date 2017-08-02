@@ -1,8 +1,15 @@
 <?php
 
+/**
+ * Class FamilyHistory
+ */
 class FamilyHistory extends ClinicalAnnotationAppModel
 {
 
+    /**
+     * @param array $variables
+     * @return bool
+     */
     public function summary($variables = array())
     {
         $return = false;

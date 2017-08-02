@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BatchSet
+ */
 class BatchSet extends DatamartAppModel
 {
 
@@ -24,6 +27,10 @@ class BatchSet extends DatamartAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array
+     */
     public function summary($variables = array())
     {
         $return = array(
@@ -66,6 +73,8 @@ class BatchSet extends DatamartAppModel
     /**
      *
      * @deprecated : Use a standard find and then call isUserAuthorizedToRw
+     * @param $batchSetId
+     * @return array|null
      */
     public function getBatchSet($batchSetId)
     {
@@ -162,6 +171,7 @@ class BatchSet extends DatamartAppModel
      *            The batchset data
      * @param boolean $mustBeUnlocked
      *            If true, the batchset must be unlocked to authorize access.
+     * @return bool
      */
     public function isUserAuthorizedToRw(array $batchset, $mustBeUnlocked)
     {
@@ -199,8 +209,8 @@ class BatchSet extends DatamartAppModel
     /**
      * Completes batch set data arrays by adding query_type, model and flag_use_query_results values.
      *
-     * @param
-     *            array &$dataArray
+     * @param array $dataArray
+     * @internal param $ array &$dataArray*            array &$dataArray
      */
     public function completeData(array &$dataArray)
     {
@@ -219,6 +229,10 @@ class BatchSet extends DatamartAppModel
         }
     }
 
+    /**
+     * @param array $batchSetData
+     * @param array $ids
+     */
     public function saveWithIds(array $batchSetData, array $ids)
     {
         $batchIdModel = AppModel::getInstance('Datamart', 'BatchId', true);
@@ -250,6 +264,10 @@ class BatchSet extends DatamartAppModel
         $batchIdModel->checkWritableFields = $prevCheckMode;
     }
 
+    /**
+     * @param $batchSetId
+     * @return bool
+     */
     public function allowToUnlock($batchSetId)
     {
         $conditions = array(

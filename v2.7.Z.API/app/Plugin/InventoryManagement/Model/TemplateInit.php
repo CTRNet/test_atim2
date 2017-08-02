@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * Class TemplateInit
+ */
 class TemplateInit extends InventoryManagementAppModel
 {
 
     public $useTable = false;
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->_schema = array();

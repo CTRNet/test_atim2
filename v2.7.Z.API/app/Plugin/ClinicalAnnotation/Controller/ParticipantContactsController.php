@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ParticipantContactsController
+ */
 class ParticipantContactsController extends ClinicalAnnotationAppController
 {
 
@@ -14,8 +17,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         )
     );
 
-    public function listall($participantId)
-    {
+    /**
+     * @param $participantId
+     */
+    public function listall($participantId){
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -35,6 +40,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $participantContactId
+     */
     public function detail($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
@@ -71,6 +80,9 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function add($participantId)
     {
         if (! $participantId) {
@@ -119,6 +131,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $participantContactId
+     */
     public function edit($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {
@@ -181,6 +197,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $participantContactId
+     */
     public function delete($participantId, $participantContactId)
     {
         if (! $participantId && ! $participantContactId) {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SopExtendsController
+ */
 class SopExtendsController extends SopAppController
 {
 
@@ -16,6 +19,9 @@ class SopExtendsController extends SopAppController
         )
     );
 
+    /**
+     * @param $sopMasterId
+     */
     public function listall($sopMasterId)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -51,6 +57,10 @@ class SopExtendsController extends SopAppController
         $this->set('materialList', $materialList);
     }
 
+    /**
+     * @param null $sopMasterId
+     * @param null $sopExtendId
+     */
     public function detail($sopMasterId = null, $sopExtendId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -91,6 +101,9 @@ class SopExtendsController extends SopAppController
         $this->set('materialList', $materialList);
     }
 
+    /**
+     * @param null $sopMasterId
+     */
     public function add($sopMasterId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -131,6 +144,10 @@ class SopExtendsController extends SopAppController
         }
     }
 
+    /**
+     * @param null $sopMasterId
+     * @param null $sopExtendId
+     */
     public function edit($sopMasterId = null, $sopExtendId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -180,6 +197,10 @@ class SopExtendsController extends SopAppController
         }
     }
 
+    /**
+     * @param null $sopMasterId
+     * @param null $sopExtendId
+     */
     public function delete($sopMasterId = null, $sopExtendId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

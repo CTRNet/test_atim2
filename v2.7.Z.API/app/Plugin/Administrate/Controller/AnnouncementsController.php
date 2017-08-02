@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AnnouncementsController
+ */
 class AnnouncementsController extends AdministrateAppController
 {
 
@@ -15,6 +18,11 @@ class AnnouncementsController extends AdministrateAppController
         )
     );
 
+    /**
+     * @param $linkedModel
+     * @param int $bankOrGroupId
+     * @param int $userId
+     */
     public function add($linkedModel, $bankOrGroupId = 0, $userId = 0)
     {
         if ($linkedModel == 'user') {
@@ -91,6 +99,11 @@ class AnnouncementsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $linkedModel
+     * @param int $bankOrGroupId
+     * @param int $userId
+     */
     public function index($linkedModel, $bankOrGroupId = 0, $userId = 0)
     {
         $conditions = array();
@@ -147,6 +160,9 @@ class AnnouncementsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param null $announcementId
+     */
     public function detail($announcementId = null)
     {
         $this->request->data = $this->Announcement->getOrRedirect($announcementId);
@@ -177,6 +193,9 @@ class AnnouncementsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param null $announcementId
+     */
     public function edit($announcementId = null)
     {
         $announcementData = $this->Announcement->getOrRedirect($announcementId);
@@ -222,6 +241,9 @@ class AnnouncementsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param null $announcementId
+     */
     public function delete($announcementId = null)
     {
         

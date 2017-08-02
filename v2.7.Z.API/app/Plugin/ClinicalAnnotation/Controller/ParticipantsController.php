@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ParticipantsController
+ */
 class ParticipantsController extends ClinicalAnnotationAppController
 {
 
@@ -30,6 +33,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param string $searchId
+     */
     public function search($searchId = '')
     {
         $this->searchHandler($searchId, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
@@ -49,12 +55,15 @@ class ParticipantsController extends ClinicalAnnotationAppController
                     'Participant.created DESC'
                 ),
                 'limit' => 5,
-//                'page' =>2
+                //'page' =>2
             ));
             $this->render('index');
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function profile($participantId)
     {
         // MANAGE DATA
@@ -104,6 +113,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
                 $unit['reusable'] = true;
             }
         }
+
         $this->set('identifierControlsList', $identifierControlsList);
         $this->Structures->set('empty', 'emptyStructure');
         
@@ -120,13 +130,11 @@ class ParticipantsController extends ClinicalAnnotationAppController
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
-        
         // CUSTOM CODE: FORMAT DISPLAY DATA
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);
         }
-        
         if (! empty($this->request->data)) {
             $this->Participant->patchIcd10NullValues($this->request->data);
             $submittedDataValidates = true;
@@ -154,6 +162,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function edit($participantId)
     {
         // MANAGE DATA
@@ -195,6 +206,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function delete($participantId)
     {
         // MANAGE DATA
@@ -222,6 +236,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function chronology($participantId)
     {
         $tmpArray = array();

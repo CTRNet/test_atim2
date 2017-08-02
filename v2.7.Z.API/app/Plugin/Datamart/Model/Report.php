@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * Class Report
+ */
 class Report extends DatamartAppModel
 {
 
     public $useTable = 'datamart_reports';
 
+    /**
+     * @param array $variables
+     * @return array
+     */
     public function summary($variables = array())
     {
         $return = array();

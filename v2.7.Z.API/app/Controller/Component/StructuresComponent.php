@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructuresComponent
+ */
 class StructuresComponent extends Component
 {
 
@@ -9,7 +12,7 @@ class StructuresComponent extends Component
 
     private $structureAlias;
 
-    public static $rangeTypes = array(
+    public static $rangeTypes = [
         "date",
         "datetime",
         "time",
@@ -17,8 +20,11 @@ class StructuresComponent extends Component
         "integer_positive",
         "float",
         "float_positive"
-    );
+    ];
 
+    /**
+     * @param Controller $controller
+     */
     public function initialize(Controller $controller)
     {
         $this->controller = $controller;
@@ -31,6 +37,11 @@ class StructuresComponent extends Component
      *
      * @param $alias Form alias of the new structure
      * @param $structureName Structure name (by default name will be 'atim_structure')
+     * @param array $parameters
+     */
+    /**
+     * @param null $alias
+     * @param string $structureName
      * @param array $parameters
      */
     public function set($alias = null, $structureName = 'atimStructure', array $parameters = array())
@@ -157,6 +168,11 @@ $parameters);
         }
     }
 
+    /**
+     * @param null $mode
+     * @param null $alias
+     * @return array|mixed
+     */
     public function get($mode = null, $alias = null)
     {
         $result = array(
@@ -193,6 +209,10 @@ $parameters);
         return $result;
     }
 
+    /**
+     * @param null $alias
+     * @return array|bool|mixed
+     */
     public function getSingleStructure($alias = null)
     {
         $return = array();
@@ -283,6 +303,11 @@ $parameters);
         }
     }
 
+    /**
+     * @param null $atimStructure
+     * @param bool $autoAccuracy
+     * @return array
+     */
     public function parseSearchConditions($atimStructure = null, $autoAccuracy = true)
     {
         // conditions to ultimately return
@@ -528,11 +553,20 @@ $parameters);
         return $conditions;
     }
 
+    /**
+     * @param $val
+     * @return bool
+     */
     public static function myFilter($val)
     {
         return strlen($val) > 0;
     }
 
+    /**
+     * @param null $sql
+     * @param null $conditions
+     * @return array
+     */
     public function parseSqlConditions($sql = null, $conditions = null)
     {
         $sqlWithSearchTerms = $sql;
@@ -672,6 +706,10 @@ $parameters);
         );
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function getFormById($id)
     {
         if (! isset($this->ComponentStructure)) {
@@ -693,7 +731,8 @@ $parameters);
      * Retrieves pulldown values from a specified source.
      * The source needs to have translated already
      *
-     * @param unknown_type $source            
+     * @param unknown_type $source
+     * @return array
      */
     public static function getPulldownFromSource($source)
     {

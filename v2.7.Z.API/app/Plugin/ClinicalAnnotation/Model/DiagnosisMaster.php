@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class DiagnosisMaster
+ */
 class DiagnosisMaster extends ClinicalAnnotationAppModel
 {
 
@@ -43,21 +46,37 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function primarySummary($variables = array())
     {
         return $this->summary($variables['DiagnosisMaster.primary_id']);
     }
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function progression1Summary($variables = array())
     {
         return $this->summary($variables['DiagnosisMaster.progression_1_id']);
     }
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function progression2Summary($variables = array())
     {
         return $this->summary($variables['DiagnosisMaster.progression_2_id']);
     }
 
+    /**
+     * @param null $diagnosisMasterId
+     * @return array|bool
+     */
     public function summary($diagnosisMasterId = null)
     {
         $return = false;
@@ -190,6 +209,12 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $arrAllowDeletion;
     }
 
+    /**
+     * @param $participantId
+     * @param string $currentDxId
+     * @param string $currentDxPrimaryNumber
+     * @return mixed
+     */
     public function getExistingDx($participantId, $currentDxId = '0', $currentDxPrimaryNumber = '')
     {
         $existingDx = $this->find('all', array(
@@ -220,6 +245,10 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $sortedDx;
     }
 
+    /**
+     * @param array $diagnosisMasterIds
+     * @return array
+     */
     public function hasChild(array $diagnosisMasterIds)
     {
         $txModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
@@ -250,6 +279,10 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
 
     /**
      * Arranges the threaded data
+     * @param array $threadedDxData
+     * @param $seekingDxId
+     * @param $seekingModelName
+     * @return bool
      */
     public function arrangeThreadedDataForView(array &$threadedDxData, $seekingDxId, $seekingModelName)
     {
@@ -272,6 +305,10 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $foundDx;
     }
 
+    /**
+     * @param $diagnosisMasterId
+     * @return array
+     */
     public function getRelatedDiagnosisEvents($diagnosisMasterId)
     {
         $relatedDiagnosisData = array();
@@ -311,6 +348,10 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         return $relatedDiagnosisData;
     }
 
+    /**
+     * @param $onField
+     * @return array
+     */
     public static function joinOnDiagnosisDup($onField)
     {
         return array(
@@ -323,6 +364,10 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
         );
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function beforeSave($options = array())
     {
         $retVal = parent::beforeSave($options);

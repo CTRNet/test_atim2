@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class OrderLine
+ */
 class OrderLine extends OrderAppModel
 {
 
@@ -29,6 +32,10 @@ class OrderLine extends OrderAppModel
 
     public static $studyModel = null;
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -72,6 +79,10 @@ class OrderLine extends OrderAppModel
         return $return;
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->validateAndUpdateOrderLineStudyData();
@@ -126,6 +137,10 @@ class OrderLine extends OrderAppModel
         }
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function beforeSave($options = array())
     {
         $retVal = parent::beforeSave($options);
@@ -148,6 +163,11 @@ class OrderLine extends OrderAppModel
         return $retVal;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results, $primary);
@@ -235,6 +255,9 @@ class OrderLine extends OrderAppModel
         );
     }
 
+    /**
+     * @return array
+     */
     public function getProductTypes()
     {
         $producteTypes = array();

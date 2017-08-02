@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class PasswordsController
+ */
 class PasswordsController extends CustomizeAppController
 {
 

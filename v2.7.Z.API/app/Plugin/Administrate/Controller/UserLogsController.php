@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class UserLogsController
+ */
 class UserLogsController extends AdministrateAppController
 {
 
@@ -13,6 +16,10 @@ class UserLogsController extends AdministrateAppController
         )
     );
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function index($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(

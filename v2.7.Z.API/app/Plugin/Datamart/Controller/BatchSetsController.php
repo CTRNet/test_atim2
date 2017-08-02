@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BatchSetsController
+ */
 class BatchSetsController extends DatamartAppController
 {
 
@@ -21,6 +24,9 @@ class BatchSetsController extends DatamartAppController
         )
     );
 
+    /**
+     * @param null $typeOfList
+     */
     public function index($typeOfList = null)
     {
         if ($typeOfList && in_array($typeOfList, array(
@@ -83,6 +89,9 @@ class BatchSetsController extends DatamartAppController
         $this->set('typeOfList', $typeOfList);
     }
 
+    /**
+     * @param $batchSetId
+     */
     public function listall($batchSetId)
     {
         $this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');
@@ -236,6 +245,9 @@ class BatchSetsController extends DatamartAppController
         $this->set('displayUnlockButton', $this->BatchSet->allowToUnlock($batchSetId));
     }
 
+    /**
+     * @param int $targetBatchSetId
+     */
     public function add($targetBatchSetId = 0)
     {
         // if not an already existing Batch SET...
@@ -429,6 +441,9 @@ class BatchSetsController extends DatamartAppController
         exit();
     }
 
+    /**
+     * @param int $batchSetId
+     */
     public function edit($batchSetId = 0)
     {
         $this->set('atimMenuVariables', array(
@@ -461,6 +476,9 @@ class BatchSetsController extends DatamartAppController
         }
     }
 
+    /**
+     * @param int $batchSetId
+     */
     public function delete($batchSetId = 0)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchSetId);
@@ -518,6 +536,9 @@ class BatchSetsController extends DatamartAppController
         }
     }
 
+    /**
+     * @param $batchSetId
+     */
     public function remove($batchSetId)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchSetId);
@@ -551,6 +572,9 @@ class BatchSetsController extends DatamartAppController
         exit();
     }
 
+    /**
+     * @param $batchId
+     */
     public function save($batchId)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchId);
@@ -566,6 +590,9 @@ class BatchSetsController extends DatamartAppController
         }
     }
 
+    /**
+     * @param $batchSetId
+     */
     public function unlock($batchSetId)
     {
         $batchSet = $this->BatchSet->getOrRedirect($batchSetId);

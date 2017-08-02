@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class QualityCtrlsController
+ */
 class QualityCtrlsController extends InventoryManagementAppController
 {
 
@@ -18,6 +21,10 @@ class QualityCtrlsController extends InventoryManagementAppController
         )
     );
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     */
     public function listAll($collectionId, $sampleMasterId)
     {
         // MANAGE DATA
@@ -55,6 +62,10 @@ class QualityCtrlsController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     */
     public function addInit($collectionId, $sampleMasterId)
     {
         $this->setBatchMenu(array(
@@ -82,6 +93,9 @@ class QualityCtrlsController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param null $sampleMasterId
+     */
     public function add($sampleMasterId = null)
     {
         $this->Structures->set('view_sample_joined_to_collection', "samples_structure");
@@ -471,6 +485,12 @@ class QualityCtrlsController extends InventoryManagementAppController
         $this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $qualityCtrlId
+     * @param bool $isFromTreeView
+     */
     public function detail($collectionId, $sampleMasterId, $qualityCtrlId, $isFromTreeView = false)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $qualityCtrlId)) {
@@ -533,6 +553,11 @@ class QualityCtrlsController extends InventoryManagementAppController
         $this->request->data=$qualityCtrlData;
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $qualityCtrlId
+     */
     public function edit($collectionId, $sampleMasterId, $qualityCtrlId)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $qualityCtrlId)) {
@@ -650,6 +675,11 @@ class QualityCtrlsController extends InventoryManagementAppController
         )));
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param $qualityCtrlId
+     */
     public function delete($collectionId, $sampleMasterId, $qualityCtrlId)
     {
         if ((! $collectionId) || (! $sampleMasterId) || (! $qualityCtrlId)) {

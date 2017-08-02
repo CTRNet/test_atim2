@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ParticipantMessagesController
+ */
 class ParticipantMessagesController extends ClinicalAnnotationAppController
 {
 
@@ -14,6 +17,9 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param $participantId
+     */
     public function listall($participantId)
     {
         // MANAGE DATA
@@ -35,6 +41,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $participantMessageId
+     */
     public function detail($participantId, $participantMessageId)
     {
         // MANAGE DATA
@@ -63,6 +73,9 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param null $participantId
+     */
     public function add($participantId = null)
     {
         // GET DATA
@@ -208,6 +221,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $participantMessageId
+     */
     public function edit($participantId, $participantMessageId)
     {
         if (! $participantId && ! $participantMessageId) {
@@ -263,6 +280,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $participantMessageId
+     */
     public function delete($participantId, $participantMessageId)
     {
         // MANAGE DATA
@@ -295,6 +316,9 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));

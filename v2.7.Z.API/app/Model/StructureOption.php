@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructureOption
+ */
 class StructureOption extends AppModel
 {
 

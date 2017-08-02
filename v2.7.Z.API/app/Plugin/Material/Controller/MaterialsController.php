@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MaterialsController
+ */
 class MaterialsController extends MaterialAppController
 {
 
@@ -22,6 +25,9 @@ class MaterialsController extends MaterialAppController
         }
     }
 
+    /**
+     * @param $searchId
+     */
     public function search($searchId)
     {
         // MANAGE FORM, MENU AND ACTION BUTTONS
@@ -64,6 +70,9 @@ class MaterialsController extends MaterialAppController
         }
     }
 
+    /**
+     * @param null $materialId
+     */
     public function edit($materialId = null)
     {
         $materialData = $this->Material->getOrRedirect($materialId);
@@ -101,6 +110,9 @@ class MaterialsController extends MaterialAppController
         }
     }
 
+    /**
+     * @param null $materialId
+     */
     public function detail($materialId = null)
     {
         if (! $materialId) {
@@ -124,6 +136,9 @@ class MaterialsController extends MaterialAppController
         }
     }
 
+    /**
+     * @param null $materialId
+     */
     public function delete($materialId = null)
     {
         if (! $materialId) {

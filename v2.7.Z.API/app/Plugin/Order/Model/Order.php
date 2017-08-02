@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Order
+ */
 class Order extends OrderAppModel
 {
 
@@ -29,6 +32,10 @@ class Order extends OrderAppModel
 
     public static $studyModel = null;
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -59,6 +66,10 @@ class Order extends OrderAppModel
         return $return;
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->validateAndUpdateOrderStudyData();
@@ -173,6 +184,9 @@ class Order extends OrderAppModel
         );
     }
 
+    /**
+     * @param $orderId
+     */
     public function warnUnconsentedAliquots($orderId)
     {
         $orderItemModel = AppModel::getInstance("Order", "OrderItem", true);

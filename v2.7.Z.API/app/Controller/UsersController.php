@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class UsersController
+ */
 class UsersController extends AppController
 {
 
@@ -40,13 +43,21 @@ class UsersController extends AppController
      */
     public function login()
     {
-        if ($this->request->is('ajax') && ! isset($this->passedArgs['login'])) {
+        if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
+            if (API::isAPIMode()){
+                    return;
+            }
+            return $this->redirect('/Menus');
+        }
+        
+        if ($this->request->is('ajax') &&  !isset($this->passedArgs['login'])) {
             echo json_encode(array(
                 'logged_in' => isset($_SESSION['Auth']['User']),
                 'server_time' => time()
             ));
             exit();
         }
+        
         
         // Load version data and check if initialization is required
         $versionData = $this->Version->find('first', array(
@@ -62,15 +73,18 @@ class UsersController extends AppController
         }
         
         $this->set('skipExpirationCookie', true);
-        
         if ($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
             // Too many login attempts - froze atim for couple of minutes
             $this->request->data = array();
             $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily'));
-        } elseif ($this->Auth->login() && (! isset($this->passedArgs['login']))) {
+            if (API::isAPIMode()){
+                API::addToBundle([status=>0, 'message'=>__('too many failed login attempts - connection to atim disabled temporarily'), 'data'=>[]], 'errors');
+            }
+        } elseif ((! isset($this->passedArgs['login'])) && $this->Auth->login()) {
             // Log in user
-            if ($this->request->data['User']['username'])
+            if (isset($this->request->data['User']['username']) && $this->request->data['User']['username']){
                 $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+            }
             $this->_initializeNotificationSessionVariables();
             
             $this->_setSessionSearchId();
@@ -79,15 +93,26 @@ class UsersController extends AppController
             // Authentication credentials expiration
             if ($this->User->isPasswordResetRequired()) {
                 $this->Session->write('Auth.User.force_password_reset', '1');
+                if (API::isAPIMode()){
+                    API::addToBundle([status=>0, 'message'=>__('force password reset').', '.__('You don\'t have permission to change the password by API.'), 'data'=>[]], 'errors');
+                    API::sendDataAndClear();
+                }
                 return $this->redirect('/Customize/Passwords/index');
             }
-            
+            if (API::isAPIMode()){
+                API::addToBundle([status=>1, 'message'=>__('Login successful.'), 'data'=>[]], 'informations');
+            }
             if (isset($this->passedArgs['login'])) {
+                API::sendDataAndClear();
                 return $this->render('ok');
             } else {
+                if (API::isAPIMode()){
+                    //API::addToBundle($_SESSION['Auth']['User'], '2222222');
+                    return;
+                }
                 return $this->redirect('/Menus');
             }
-        } elseif (isset($this->request->data['User']['username'])) {
+        } elseif (isset($this->request->data['User']['username'])&&! isset($this->passedArgs['login'])) {
             // Save failed login attempt
             $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
             if ($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
@@ -95,18 +120,38 @@ class UsersController extends AppController
             }
             $this->request->data = array();
             $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
+            if (API::isAPIMode()){
+                API::addToBundle([status=>0, 'message'=>__('login failed - invalid username or password or disabled user'), 'data'=>[]], 'errors');
+            }
+        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login'])){
+            if ($this->Auth->login()) {
+                // Log in user
+                if ($this->request->data['User']['username']) {
+                    $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+                }
+                $this->_initializeNotificationSessionVariables();
+
+                $this->_setSessionSearchId();
+                $this->resetPermissions();
+                return $this->render('ok');
+            }
         }
-        
         // User got returned to the login page, tell him why
         if (isset($_SESSION['Message']['auth']['message'])) {
             $this->User->validationErrors[] = __($_SESSION['Message']['auth']['message']) . ($_SESSION['Message']['auth']['message'] == "You are not authorized to access that location." ? __("if you were logged id, your session expired.") : '');
+            $message=__($_SESSION['Message']['auth']['message']) . ($_SESSION['Message']['auth']['message'] == "You are not authorized to access that location." ? __("if you were logged id, your session expired.") : '');
+            if (API::isAPIMode()){
+                API::addToBundle([status=>0, 'message'=>$message, 'data'=>[]], 'errors');
+            }            
             unset($_SESSION['Message']['auth']);
         }
         
         if (isset($this->passedArgs['login'])) {
+            if (API::isAPIMode()){
+                API::addToBundle([status=>0, 'message'=>__('your session has expired'), 'data'=>[]], 'errors');
+            }            
             AppController::addInfoMsg(__('your session has expired'));
         }
-        
         $this->User->showErrorIfInternetExplorerIsBelowVersion(8);
     }
 
@@ -131,6 +176,10 @@ class UsersController extends AppController
     public function logout()
     {
         $this->Acl->flushCache();
+        if (API::isAPIMode()){
+            API::addToBundle([status=>1, 'message'=>__('Logout successful.'), 'data'=>[]], 'informations');
+            API::sendDataAndClear();
+        }
         $this->redirect($this->Auth->logout());
     }
 

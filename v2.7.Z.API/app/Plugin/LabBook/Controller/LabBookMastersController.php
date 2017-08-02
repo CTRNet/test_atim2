@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class LabBookMastersController
+ */
 class LabBookMastersController extends LabBookAppController
 {
 
@@ -25,6 +28,9 @@ class LabBookMastersController extends LabBookAppController
      * DISPLAY FUNCTIONS
      * --------------------------------------------------------------------------
      */
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/labbook/LabBookMasters/search/'));
@@ -49,6 +55,10 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
+    /**
+     * @param $labBookMasterId
+     * @param bool $fullDetailScreen
+     */
     public function detail($labBookMasterId, $fullDetailScreen = true)
     {
         if (! $labBookMasterId) {
@@ -91,6 +101,10 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
+    /**
+     * @param $controlId
+     * @param bool $isAjax
+     */
     public function add($controlId, $isAjax = false)
     {
         if (! $controlId) {
@@ -172,6 +186,9 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
+    /**
+     * @param $labBookMasterId
+     */
     public function edit($labBookMasterId)
     {
         if (! $labBookMasterId) {
@@ -228,6 +245,9 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
+    /**
+     * @param $labBookMasterId
+     */
     public function editSynchOptions($labBookMasterId)
     {
         if (! $labBookMasterId) {
@@ -328,6 +348,9 @@ class LabBookMastersController extends LabBookAppController
         }
     }
 
+    /**
+     * @param $labBookMasterId
+     */
     public function delete($labBookMasterId)
     {
         if (! $labBookMasterId) {

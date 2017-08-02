@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class OrderItem
+ */
 class OrderItem extends OrderAppModel
 {
 
@@ -32,6 +35,11 @@ class OrderItem extends OrderAppModel
         )
     );
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
@@ -100,13 +108,12 @@ class OrderItem extends OrderAppModel
      *
      * @param $foreignKeyField (aliquot_master_id
      *            or tma_slide_id) OrderItem foreign key field to check
-     * @param $id (aliquot_master_id
-     *            or tma_slide_id value) Id of the object (AliquotMaster or TmaSlide) linked to the order item (that will be created or that will be updated)
-     * @param $orderItemId Id
+     * @param $objectId
+     * @param Id|string $orderItemId Id
      *            of the order item
-     *            
-     * @return Boolean
-     *
+     * @return bool
+     * @internal param $id (aliquot_master_id
+     *            or tma_slide_id value) Id of the object (AliquotMaster or TmaSlide) linked to the order item (that will be created or that will be updated)
      * @author N. Luc
      * @since 2016-05-16
      */

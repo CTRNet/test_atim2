@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TreatmentExtendMaster
+ */
 class TreatmentExtendMaster extends ClinicalAnnotationAppModel
 {
 
@@ -20,6 +23,10 @@ class TreatmentExtendMaster extends ClinicalAnnotationAppModel
 
     public static $drugModel = null;
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->validateAndUpdateTreatmentExtendDrugData();

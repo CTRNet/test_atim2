@@ -64,7 +64,8 @@ class AppController extends Controller
         'PermissionManager',
         'Paginator',
         'Flash',
-        'DebugKit.Toolbar'
+        'DebugKit.Toolbar',
+        'Cookie'
     );
 
     public $helpers = array(
@@ -122,6 +123,7 @@ class AppController extends Controller
 
     public function afterFilter()
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         // global $startTime;
         // echo("Exec time (sec): ".(AppController::microtimeFloat() - $startTime));
         if (sizeof(AppController::$missingTranslations) > 0) {
@@ -136,7 +138,6 @@ class AppController extends Controller
                 $mt->save(); // ignore errors, kind of insert ingnore
             }
         }        
-        API::addToQueue('afterFilter');
         API::sendDataToAPI($this->request->data);
     }    
     
@@ -147,10 +148,10 @@ class AppController extends Controller
      */
     public function beforeFilter()
     {
-        parent::beforeFilter();
+        parent::beforeFilter();  
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
         //Verify if the request come from RESTApi not ATiM
         API::checkData($this->request->data, $this->modelClass);
-        API::addToQueue('beforeFilter');
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -215,8 +216,8 @@ class AppController extends Controller
                     )
                 ));
             }
-            
-            $this->set('atimMenuForHeader', $this->Menus->get('/menus/tools'));
+            $x=$this->Menus->get('/menus/tools');
+            $this->set('atimMenuForHeader', $x);
             $this->set('atimSubMenuForHeader', $atimSubMenuForHeader);
             
             // menu, passed to Layout where it would be rendered through a Helper
@@ -229,23 +230,34 @@ class AppController extends Controller
         if (isset($this->request->query['file'])) {
             pr($this->request->query['file']);
         }
-        
         if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
             AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
         }
         if (isset($this->passedArgs['true_json'])) { 
-            $this->layout = 'true_json';             
+            $this->layout = 'true_json';
         } 
     }
-    
-    public function __construct($request = null, $response = null) {
+
+    /**
+     * AppController constructor.
+     * @param null $request
+     * @param null $response
+     */
+    public function __construct($request = null, $response = null) 
+    {
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
         $class_name = get_class($this);
         $this->name = substr($class_name, 0, strlen(get_class($this)) - (strpos($class_name, 'ControllerCustom') === false ? 10 : 16));
         parent::__construct($request, $response);
-    }    
-    
+    }
+
+    /**
+     * @param string $hookExtension
+     * @return bool|string
+     */
     public function hook($hookExtension = '')
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if ($hookExtension) {
             $hookExtension = '_' . $hookExtension;
         }
@@ -259,8 +271,12 @@ class AppController extends Controller
         return $hookFile;
     }
 
+    /**
+     * @return CakeResponse|null
+     */
     private function handleFileRequest()
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $file = $this->request->query['file'];
         
         $redirectInvalidFile = function ($caseType) use (&$file) {
@@ -304,6 +320,7 @@ class AppController extends Controller
      */
     public function beforeRender()
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if (isset($this->request->query['file'])) {
             return $this->handleFileRequest();
         }
@@ -326,6 +343,7 @@ class AppController extends Controller
                 '_data' => $data
             ));
         }
+
     }
     
     /**
@@ -333,12 +351,17 @@ class AppController extends Controller
      */
     public static function microtimeFloat()
     {
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
         list ($usec, $sec) = explode(" ", microtime());
         return ((float) $usec + (float) $sec);
     }
 
+    /**
+     * @param $word
+     */
     public static function missingTranslation(&$word)
     {
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
         if (! is_numeric($word) && strpos($word, "<span class='untranslated'>") === false) {
             AppController::$missingTranslations[] = $word;
             if (Configure::read('debug') == 2 && self::$highlightMissingTranslations) {
@@ -346,9 +369,15 @@ class AppController extends Controller
             }
         }
     }
-            
-    public function atimFlash($message, $url, $type = self::CONFIRM)
+
+    /**
+     * @param $message
+     * @param $url
+     * @param int $type
+     */
+    public function atimFlash($message, $url=null, $type = self::CONFIRM)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if ($type == self::CONFIRM) {
             $_SESSION['ctrapp_core']['confirm_msg'] = $message;
         } elseif ($type == self::INFORMATION) {
@@ -359,7 +388,7 @@ class AppController extends Controller
             $_SESSION['ctrapp_core']['error_msg'][] = $message;
         }
         
-        if (!API::isAPIMode()){
+        if (!API::isAPIMode() && !empty($url)){
             $this->redirect($url);
         }
         else{
@@ -371,34 +400,63 @@ class AppController extends Controller
             ];
             //debug(strtolower($this->modelClass));
             
-            if ($_SESSION[MODEL_NAME]!='missingtranslation' && $_SESSION[MODEL_NAME]!='userlog' ){
+            if (!in_array(API::getModelName(), ['missingtranslation', 'userlog'])){
                 API::addToBundle(['message'=>$message], $messageType[$type]);
             }
+            API::sendDataAndClear();
         }
     }
 
-    public function atimFlashError($message, $url, $compatibility)
+    /**
+     * @param $message
+     * @param $url
+     * @param $compatibility
+     */
+    public function atimFlashError($message, $url, $compatibility=0)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $this->atimFlash($message, $url, self::ERROR);
     }
 
-    public function atimFlashInfo($message, $url, $compatibility)
+    /**
+     * @param $message
+     * @param $url
+     * @param $compatibility
+     */
+    public function atimFlashInfo($message, $url, $compatibility=0)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $this->atimFlash($message, $url, self::INFORMATION);
     }
 
-    public function atimFlashConfirm($message, $url, $compatibility)
+    /**
+     * @param $message
+     * @param $url
+     * @param $compatibility
+     */
+    public function atimFlashConfirm($message, $url, $compatibility=0)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $this->atimFlash($message, $url, self::CONFIRM);
     }
 
-    public function atimFlashWarning($message, $url, $compatibility)
+    /**
+     * @param $message
+     * @param $url
+     * @param $compatibility
+     */
+    public function atimFlashWarning($message, $url, $compatibility=0)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $this->atimFlash($message, $url, self::WARNING);
     }
 
+    /**
+     * @return null
+     */
     public static function getInstance()
     {
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
         return AppController::$me;
     }
 
@@ -421,7 +479,7 @@ class AppController extends Controller
         
         // parse URI manually to get passed PARAMS
         global $startTime;
-        $startTime = AppController::microtimeFloat();
+        $startTime = self::microtimeFloat();
         
         $requestUriParams = array();
         
@@ -454,7 +512,6 @@ class AppController extends Controller
         $userId = CakeSession::read('Auth.User.id');
         $loggedInUser = CakeSession::read('Auth.User.id');
         $loggedInGroup = CakeSession::read('Auth.User.group_id');
-        
         $configResults = $configDataModel->getConfig(CakeSession::read('Auth.User.group_id'), CakeSession::read('Auth.User.id'));
         // parse result, set configs/defines
         if ($configResults) {
@@ -488,7 +545,7 @@ class AppController extends Controller
         
         if (Configure::read('debug') == 0) {
             set_error_handler("myErrorHandler");
-        }
+        }        
     }
 
     /**
@@ -499,6 +556,7 @@ class AppController extends Controller
      */
     public static function getCalInfo($short = true)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if ($short) {
             if (! AppController::$calInfoShortTranslated) {
                 AppController::$calInfoShortTranslated = true;
@@ -528,6 +586,7 @@ class AppController extends Controller
      */
     public static function getFormatedDateString($year, $month, $day, $nbspSpaces = true, $shortMonths = true)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $result = null;
         if (empty($year) && empty($month) && empty($day)) {
             $result = "";
@@ -548,8 +607,15 @@ class AppController extends Controller
         return $result;
     }
 
+    /**
+     * @param $hour
+     * @param $minutes
+     * @param bool $nbspSpaces
+     * @return string
+     */
     public static function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if (TIME_FORMAT == 12) {
             $meridiem = $hour >= 12 ? "PM" : "AM";
             $hour %= 12;
@@ -578,6 +644,7 @@ class AppController extends Controller
      */
     public static function getFormatedDatetimeString($datetimeString, $nbspSpaces = true, $shortMonths = true)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $month = null;
         $day = null;
         $hour = null;
@@ -616,7 +683,7 @@ class AppController extends Controller
      *            'year' => string,
      *            'hour' => string,
      *            'min' => string)
-     * @param $dateType Specify
+     * @param Specify|string $dateType Specify
      *            the type of date ('normal', 'start', 'end')
      *            - normal => Will force function to build a date witout specific rules.
      *            - start => Will force function to build date as a 'start date' of date range defintion
@@ -625,11 +692,11 @@ class AppController extends Controller
      *            - end => Will force function to build date as an 'end date' of date range defintion
      *            (ex1: when just year is specified, will return a value like year-12-31 23:59)
      *            (ex2: when array is empty, will return a value like 9999-99-99 23:59)
-     *            
      * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
      */
     public static function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $formattedDate = '';
         switch ($dateType) {
             case 'normal':
@@ -698,9 +765,11 @@ class AppController extends Controller
      *
      * @param array $arr
      *            The array to clone
+     * @return array
      */
     public static function cloneArray(array $arr)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $result = array();
         foreach ($arr as $k => $v) {
             if (is_array($v)) {
@@ -712,8 +781,13 @@ class AppController extends Controller
         return $result;
     }
 
+    /**
+     * @param $msg
+     * @param bool $withTrace
+     */
     public static function addWarningMsg($msg, $withTrace = false)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if ($withTrace) {
             $_SESSION['ctrapp_core']['warning_trace_msg'][] = array(
                 'msg' => $msg,
@@ -728,8 +802,12 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param $msg
+     */
     public static function addInfoMsg($msg)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
             $_SESSION['ctrapp_core']['info_msg'][$msg] ++;
         } else {
@@ -737,6 +815,9 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @return array
+     */
     public static function getStackTrace()
     {
         $bt = debug_backtrace();
@@ -750,11 +831,13 @@ class AppController extends Controller
     /**
      * Builds the value definition array for an updateAll call
      *
-     * @param
-     *            array They data array to build the values with
+     * @param array $data
+     * @return array
+     * @internal param $ array They data array to build the values with*            array They data array to build the values with
      */
     public static function getUpdateAllValues(array $data)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $result = array();
         foreach ($data as $model => $fields) {
             foreach ($fields as $name => $value) {
@@ -773,9 +856,11 @@ class AppController extends Controller
     /**
      * cookie manipulation to counter cake problems.
      * see eventum #1032
+     * @param $skipExpirationCookie
      */
     public static function atimSetCookie($skipExpirationCookie)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $sessionExpiration = time() + Configure::read("Session.timeout");
         
         setcookie('last_request', time(), $sessionExpiration, '/');
@@ -804,10 +889,12 @@ class AppController extends Controller
      *            The model to fetch the possibilities from
      * @param string $possibilitiesParentKey
      *            The possibilities parent key to base the search on
+     * @param $noPossibilitiesMsg
      * @return An array with the ids and the possibilities
      */
     public function batchInit($model, $dataModelName, $dataKey, $controlKeyName, $possibilitiesModel, $possibilitiesParentKey, $noPossibilitiesMsg)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if (empty($this->request->data)) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } elseif (! is_array($this->request->data[$dataModelName][$dataKey]) && strpos($this->request->data[$dataModelName][$dataKey], ',')) {
@@ -886,6 +973,7 @@ class AppController extends Controller
      */
     public static function defineArrayKey($inArray, $model, $field, $unique = false)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $outArray = array();
         if ($unique) {
             foreach ($inArray as $val) {
@@ -907,11 +995,12 @@ class AppController extends Controller
     /**
      * Recursively removes entries returning true on empty($value).
      *
-     * @param
-     *            array &$data
+     * @param array $data
+     * @internal param $ array &$data*            array &$data
      */
     public static function removeEmptyValues(array &$data)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         foreach ($data as $key => &$val) {
             if (is_array($val)) {
                 self::removeEmptyValues($val);
@@ -922,8 +1011,12 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @return mixed
+     */
     public static function getNewSearchId()
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         return AppController::getInstance()->Session->write('search_id', AppController::getInstance()->Session->read('search_id') + 1);
     }
 
@@ -935,6 +1028,7 @@ class AppController extends Controller
      */
     public static function checkLinkPermission($link)
     {
+
         if (strpos($link, 'javascript:') === 0 || strpos($link, '#') === 0) {
             return true;
         }
@@ -947,12 +1041,17 @@ class AppController extends Controller
         $acoAlias .= ($parts['controller'] ? Inflector::camelize($parts['controller']) . '/' : '');
         $acoAlias .= ($parts['action'] ? $parts['action'] : '');
         $instance = AppController::getInstance();
-        
         return strpos($acoAlias, 'Controller/Users') !== false || strpos($acoAlias, 'Controller/Pages') !== false || $acoAlias == "Controller/Menus/index" || $instance->SessionAcl->check('Group::' . $instance->Session->read('Auth.User.group_id'), $acoAlias);
     }
 
+    /**
+     * @param $inArray
+     * @param $model
+     * @param $field
+     */
     public static function applyTranslation(&$inArray, $model, $field)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         foreach ($inArray as &$part) {
             $part[$model][$field] = __($part[$model][$field]);
         }
@@ -972,6 +1071,7 @@ class AppController extends Controller
      */
     public function paginate($object = null, $scope = array(), $whitelist = array())
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $this->setControlerPaginatorSettings($object);
         $modelName = isset($object->baseModel) ? $object->baseModel : $object->name;
         if (isset($object->Behaviors->MasterDetail->__settings[$modelName])) {
@@ -1008,23 +1108,29 @@ class AppController extends Controller
      */
     public function searchHandler($searchId, $model, $structureAlias, $url, $ignoreDetail = false, $limit = false)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         // setting structure
         $structure = $this->Structures->get('form', $structureAlias);
         $this->set('atimStructure', $structure);
         if (empty($searchId)) {
             $this->Structures->set('empty', 'emptyStructure');
         } else {
-            if ($this->request->data) {
+            if ($this->request->data || API::isAPIMode()) {
                 // newly submitted search, parse conditions and store in session
                 $_SESSION['ctrapp_core']['search'][$searchId]['criteria'] = $this->Structures->parseSearchConditions($structure);
             } elseif (! isset($_SESSION['ctrapp_core']['search'][$searchId]['criteria'])) {
-                self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
-                $this->redirect('/menus');
-                exit();
+                if (!API::isAPIMode()){
+                    self::addWarningMsg(__('you cannot resume a search that was made in a previous session'));
+                    $this->redirect('/menus');
+                    exit();
+                }else{
+                    $_SESSION['ctrapp_core']['search'][$searchId]['criteria']=[];
+                }
+                
             }
             
             // check if the current model is a master/detail one or a similar view
-            if (! $ignoreDetail) {
+            if (! $ignoreDetail && !API::isAPIMode()) {
                 self::buildDetailBinding($model, $_SESSION['ctrapp_core']['search'][$searchId]['criteria'], $structureAlias);
                 $this->Structures->set($structureAlias);
             }
@@ -1051,6 +1157,7 @@ class AppController extends Controller
         
         if ($this->request->is('ajax')) {
 //            var_dump([$searchId, $structureAlias, $url, $ignoreDetail, $limit]);
+//            var_dump($this->request->data);
 //            die('die');
             Configure::write('debug', 0);
             $this->set('isAjax', true);
@@ -1065,6 +1172,7 @@ class AppController extends Controller
      */
     public function setControlerPaginatorSettings($model)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if (PAGINATION_AMOUNT)
             $this->Paginator->settings = array_merge($this->Paginator->settings, array(
                 'limit' => PAGINATION_AMOUNT
@@ -1086,6 +1194,7 @@ class AppController extends Controller
      */
     public static function buildDetailBinding(&$model, array $conditions, &$structureAlias)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $controller = AppController::getInstance();
         $masterClassName = isset($model->baseModel) ? $model->baseModel : $model->name;
         if (! isset($model->Behaviors->MasterDetail->__settings[$masterClassName])) {
@@ -1196,6 +1305,7 @@ class AppController extends Controller
      */
     public static function buildBottomMenuOptions(array &$menuOptions)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $tmp = array();
         foreach ($menuOptions as $menuOption) {
             $tmp[sprintf("%05d", $menuOption['order']) . '-' . $menuOption['label']] = $menuOption['link'];
@@ -1215,6 +1325,7 @@ class AppController extends Controller
      */
     public function setUrlToCancel()
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         if (isset($this->request->data['url_to_cancel'])) {
             $pattern = '/^javascript:history.go\((-?[0-9]*)\)$/';
             $matches = array();
@@ -1231,6 +1342,7 @@ class AppController extends Controller
 
     public function resetPermissions()
     {
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
         if ($this->Auth->user()) {
             $userModel = AppModel::getInstance('', 'User', true);
             $user = $userModel->findById($this->Session->read('Auth.User.id'));
@@ -1241,8 +1353,18 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param array $list
+     * @param $lModel
+     * @param $lKey
+     * @param array $data
+     * @param $dModel
+     * @param $dKey
+     * @return bool
+     */
     public function setForRadiolist(array &$list, $lModel, $lKey, array $data, $dModel, $dKey)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         foreach ($list as &$unit) {
             if ($data[$dModel][$dKey] == $unit[$lModel][$lKey]) {
                 // we found the one that interests us
@@ -1259,9 +1381,11 @@ class AppController extends Controller
      *
      * @param
      *            strint or null $data
+     * @return null|string
      */
     public static function getCancelLink($data)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $result = null;
         if (isset($data['node']['id'])) {
             $result = '/Datamart/Browser/browse/' . $data['node']['id'];
@@ -1285,6 +1409,7 @@ class AppController extends Controller
      */
     public function newVersionSetup()
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         // new version installed!
         
         // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1989,14 +2114,24 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param $config
+     */
     public function configureCsv($config)
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $this->csvConfig = $config;
         $this->Session->write('Config.language', $config['config_language']);
     }
 
+    /**
+     * @param $connection
+     * @param array $options
+     * @return string
+     */
     public function getQueryLogs($connection, $options = array())
     {
+ //        debug( __METHOD__); debug(self::getStackTrace()); die();
         $db = ConnectionManager::getDataSource($connection);
         $log = $db->getLog();
         if ($log['count'] == 0) {
@@ -2026,8 +2161,13 @@ class AppController extends Controller
 //        return $underscores . $camel;
 //    }
 
+    /**
+     * @param null $array
+     * @return array
+     */
     public static function convertArrayKeyFromSnakeToCamel($array = null)
     {
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
         $answer = [];
         if ($array) {
             foreach ($array as $key => $value) {
@@ -2036,15 +2176,37 @@ class AppController extends Controller
             }
         }
         return $answer;
-    }    
-    
-    public function set($one, $two = null, $three=null) {
+    }
+
+    /**
+     * @param array|string $one
+     * @param null $two
+     * @param null $three
+     */
+    public function set($one, $two = null, $three=null)
+    {
+//        debug( __METHOD__); debug(self::getStackTrace()); die();
+        //This line is really delicated.
+        //TODO:: Should be verify it carefully
+        if (API::isAPIMode() && !API::isStructMode()){
+            return false;
+        }
         parent::set($one, $two);
         if ($three){
             $message=[];
             $message['message']=$two;
             $message['info']='test';
 //            API::addToBundle($message, 'data');
+        }
+    }
+    /*
+     * @todo: Check if this is necessary ti change the redirect for API
+     */
+    public function redirect($url, $status = null, $exit = true) {
+        if (!API::isAPIMode()){
+            parent::redirect($url, $status, $exit);
+        }else{
+            parent::redirect($url, $status, $exit);
         }
     }
 }
@@ -2059,8 +2221,16 @@ AppController::init();
 function now()
 {
     return date("Y-m-d H:i:s");
-}    
+}
 
+/**
+ * @param $errno
+ * @param $errstr
+ * @param $errfile
+ * @param $errline
+ * @param null $context
+ * @return bool
+ */
 function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null)
 {
     if (class_exists("AppController")) {

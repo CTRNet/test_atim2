@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BatchId
+ */
 class BatchId extends DatamartAppModel
 {
 

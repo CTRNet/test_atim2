@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AliquotMaster
+ */
 class AliquotMaster extends InventoryManagementAppModel
 {
 
@@ -88,6 +91,10 @@ class AliquotMaster extends InventoryManagementAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -121,6 +128,10 @@ class AliquotMaster extends InventoryManagementAppModel
         return $return;
     }
 
+    /**
+     * @param $aliquotMasterId
+     * @return array
+     */
     public function getStorageHistory($aliquotMasterId)
     {
         $storageData = array();
@@ -177,7 +188,11 @@ class AliquotMaster extends InventoryManagementAppModel
      * **
      *
      * @deprecated
-     *
+     * @param $aliquotMasterId
+     * @param bool $updateCurrentVolume
+     * @param bool $updateUsesCounter
+     * @param bool $removeFromStockIfEmptyVolume
+     * @return FALSE
      */
     public function updateAliquotUseAndVolume($aliquotMasterId, $updateCurrentVolume = true, $updateUsesCounter = true, $removeFromStockIfEmptyVolume = false)
     {
@@ -193,12 +208,13 @@ class AliquotMaster extends InventoryManagementAppModel
      *
      * @param $aliquotMasterId Master
      *            Id of the aliquot.
-     *            @remove_from_stock_if_empty boolean Will set in stock to false and remove the aliquot from storage
-     *            
+     * @param bool $removeFromStockIfEmptyVolume
      * @return FALSE when error has been detected
-     *        
+     *
+     * @remove_from_stock_if_empty boolean Will set in stock to false and remove the aliquot from storage
+     *
      * @author N. Luc
-     *         @date 2007-08-15
+     * @date 2007-08-15
      */
     public function updateAliquotVolume($aliquotMasterId, $removeFromStockIfEmptyVolume = false)
     {
@@ -289,6 +305,9 @@ class AliquotMaster extends InventoryManagementAppModel
         return ! $result;
     }
 
+    /**
+     * @return array
+     */
     public function getRealiquotDropdown()
     {
         return self::$aliquotTypeDropdown;
@@ -298,6 +317,8 @@ class AliquotMaster extends InventoryManagementAppModel
      * Additional validation rule to validate stock status and storage.
      *
      * @see Model::validates()
+     * @param array $options
+     * @return bool
      */
     public function validates($options = array())
     {
@@ -456,20 +477,19 @@ class AliquotMaster extends InventoryManagementAppModel
      * - This function supports form data structure built by either 'add' form or 'datagrid' form.
      * - Has been created to allow customisation.
      *
-     * @param $aliquotsData Aliquots
-     *            data stored into an array having structure like either:
+     * @param $aliquotData
+     * @return Following results array:
+     *         array(
+     * 'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
+     * 'messages' => array($message1, $message2, ...)
+     * )
+     * @internal param Aliquots $aliquotsData data stored into an array having structure like either:*            data stored into an array having structure like either:
      *            - $aliquotsData = array('AliquotMaster' => array(...))
      *            or
      *            - $aliquotsData = array(array('AliquotMaster' => array(...)))
-     *            
-     * @return Following results array:
-     *         array(
-     *         'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
-     *         'messages' => array($message1, $message2, ...)
-     *         )
-     *        
+     *
      * @author N. Luc
-     *         @date 2007-08-15
+     * @date 2007-08-15
      */
     public function checkDuplicatedAliquotBarcode($aliquotData)
     {
@@ -511,6 +531,10 @@ class AliquotMaster extends InventoryManagementAppModel
         }
     }
 
+    /**
+     * @param array $aliquotMasterIds
+     * @return array
+     */
     public function hasChild(array $aliquotMasterIds)
     {
         $ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
@@ -735,12 +759,12 @@ class AliquotMaster extends InventoryManagementAppModel
      * @param array $aliquot
      *            with either a key 'id' referring to an array
      *            of ids, or a key 'data' referring to AliquotMaster.
-     * @param $modelName If
+     * @param If|string $modelName If
      *            the aliquot array contains data, the model name
      *            to use.
      * @return an array having unconsented aliquot as key and their consent
      *         status as value. This function refers to
-     *         ViewCollection->getUnconsentedCollections.
+     * ViewCollection->getUnconsentedCollections.
      */
     public function getUnconsentedAliquots(array $aliquot, $modelName = 'AliquotMaster')
     {
@@ -792,6 +816,10 @@ class AliquotMaster extends InventoryManagementAppModel
         return $results;
     }
 
+    /**
+     * @param array $queryData
+     * @return array
+     */
     public function beforeFind($queryData)
     {
         $queryData['joins'][] = array(
@@ -819,6 +847,11 @@ class AliquotMaster extends InventoryManagementAppModel
         return $queryData;
     }
 
+    /**
+     * @param $modelId
+     * @param bool $cascade
+     * @return bool
+     */
     public function atimDelete($modelId, $cascade = true)
     {
         if (parent::atimDelete($modelId, $cascade)) {
@@ -843,6 +876,10 @@ class AliquotMaster extends InventoryManagementAppModel
         return false;
     }
 
+    /**
+     * @param $onField
+     * @return array
+     */
     public static function joinOnAliquotDup($onField)
     {
         return array(
@@ -855,6 +892,12 @@ class AliquotMaster extends InventoryManagementAppModel
         );
     }
 
+    /**
+     * @param $functionManagementData
+     * @param $submittedAliquotMasterData
+     * @param $aliquotIds
+     * @return array
+     */
     public function validateAliquotMasterDataUpdateInBatch($functionManagementData, $submittedAliquotMasterData, $aliquotIds)
     {
         // Set in_stock value
@@ -978,6 +1021,10 @@ class AliquotMaster extends InventoryManagementAppModel
         );
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getAliquotDataStorageAndStockToApplyToAll($data)
     {
         $errors = array();

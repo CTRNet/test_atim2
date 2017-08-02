@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Bank
+ */
 class Bank extends AdministrateAppModel
 {
 
@@ -15,6 +18,10 @@ class Bank extends AdministrateAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -59,6 +66,10 @@ class Bank extends AdministrateAppModel
         return $result;
     }
 
+    /**
+     * @param int $bankId
+     * @return array
+     */
     public function allowDeletion($bankId)
     {
         $GroupModel = AppModel::getInstance("", "Group", true);

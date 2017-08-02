@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StorageMastersController
+ */
 class StorageMastersController extends StorageLayoutAppController
 {
 
@@ -27,6 +30,10 @@ class StorageMastersController extends StorageLayoutAppController
         )
     );
 
+    /**
+     * @param int $searchId
+     * @param bool $fromLayoutPage
+     */
     public function search($searchId = 0, $fromLayoutPage = false)
     {
         $modelToUse = $this->ViewStorageMaster;
@@ -87,6 +94,11 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $storageMasterId
+     * @param int $isFromTreeViewOrLayout
+     * @param null $storageCategory
+     */
     public function detail($storageMasterId, $isFromTreeViewOrLayout = 0, $storageCategory = null)
     {
         // $isFromTreeViewOrLayout : 0-Normal, 1-Tree view, 2-Stoarge layout
@@ -240,6 +252,10 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $storageControlId
+     * @param null $predefinedParentStorageId
+     */
     public function add($storageControlId, $predefinedParentStorageId = null)
     {
         // MANAGE DATA
@@ -362,6 +378,9 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $storageMasterId
+     */
     public function edit($storageMasterId)
     {
         // MANAGE DATA
@@ -487,6 +506,9 @@ class StorageMastersController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $storageMasterId
+     */
     public function delete($storageMasterId)
     {
         // Get the storage data
@@ -562,13 +584,13 @@ class StorageMastersController extends StorageLayoutAppController
      * Display into a tree view the studied storage and all its children storages (recursive call)
      * plus both aliquots and TMA slides stored into those storages starting from a specific parent storage.
      *
-     * @param $storageMasterId Storage
+     * @param int|Storage $storageMasterId Storage
      *            master id of the studied storage that will be used as tree root.
-     * @param int $isAjax            
+     * @param bool|int $isAjax
      *
      * @author N. Luc
      * @since 2007-05-22
-     *        @updated A. Suggitt
+     * @updated A. Suggitt
      */
     public function contentTreeView($storageMasterId = 0, $isAjax = false)
     {
@@ -784,11 +806,12 @@ class StorageMastersController extends StorageLayoutAppController
      *
      * @param $storageMasterId Id
      *            of the studied storage.
-     * @param $isAjax: Tells
+     * @param bool $isAjax : Tells
      *            wheter the request has to be treated as ajax
      *            query (required to counter issues in Chrome 15 back/forward button on the
      *            page and Opera 11.51 first ajax query that is not recognized as such)
-     *            
+     *
+     * @param bool $csvCreation
      * @author N. Luc
      * @since 2007-05-22
      */
@@ -1149,6 +1172,10 @@ class StorageMastersController extends StorageLayoutAppController
         $this->set('result', "[" . $result . "]");
     }
 
+    /**
+     * @param $storageMasterId
+     * @param null $model
+     */
     public function contentListView($storageMasterId, $model = null)
     {
         $storageMasterData = $this->StorageMaster->getOrRedirect($storageMasterId);
