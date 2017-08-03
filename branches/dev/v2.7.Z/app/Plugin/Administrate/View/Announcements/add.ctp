@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => "/Administrate/Announcements/add/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id']) . '/',
+    'top' => "/Administrate/Announcements/add/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id']) . '/',
     'bottom' => array(
-        'cancel' => "/Administrate/Announcements/index/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id']) . '/'
+        'cancel' => "/Administrate/Announcements/index/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id']) . '/'
     )
 );
 
