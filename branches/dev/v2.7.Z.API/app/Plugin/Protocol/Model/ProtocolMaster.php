@@ -141,8 +141,8 @@ class ProtocolMaster extends ProtocolAppModel
         }
         
         if (! empty($data['ProtocolControl']['protocol_extend_control_id'])) {
-            $ProtocolExtendMaster = AppModel::getInstance('Protocol', 'ProtocolExtendMaster', true);
-            $nbrExtends = $ProtocolExtendMaster->find('count', array(
+            $protocolExtendMaster = AppModel::getInstance('Protocol', 'ProtocolExtendMaster', true);
+            $nbrExtends = $protocolExtendMaster->find('count', array(
                 'conditions' => array(
                     'ProtocolExtendMaster.protocol_master_id' => $protocolMasterId,
                     'ProtocolExtendMaster.protocol_extend_control_id' => $data['ProtocolControl']['protocol_extend_control_id']

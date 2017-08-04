@@ -537,8 +537,8 @@ class AliquotMaster extends InventoryManagementAppModel
      */
     public function hasChild(array $aliquotMasterIds)
     {
-        $ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-        return array_unique(array_filter($ViewAliquotUse->find('list', array(
+        $viewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
+        return array_unique(array_filter($viewAliquotUse->find('list', array(
             'fields' => array(
                 'ViewAliquotUse.aliquot_master_id'
             ),

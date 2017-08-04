@@ -88,8 +88,8 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
         }
         
         if (! empty($data['TreatmentControl']['treatment_extend_control_id'])) {
-            $TreatmentExtendMaster = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
-            $nbrExtends = $TreatmentExtendMaster->find('count', array(
+            $treatmentExtendMaster = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtendMaster', true);
+            $nbrExtends = $treatmentExtendMaster->find('count', array(
                 'conditions' => array(
                     'TreatmentExtendMaster.treatment_master_id' => $txMasterId,
                     'TreatmentExtendMaster.treatment_extend_control_id' => $data['TreatmentControl']['treatment_extend_control_id']

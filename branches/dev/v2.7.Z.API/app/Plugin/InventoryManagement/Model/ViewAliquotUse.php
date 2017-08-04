@@ -284,8 +284,8 @@ class ViewAliquotUse extends InventoryManagementAppModel
         
         // Add custom uses
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-        $StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-        $useAndEventTypes = $StructurePermissibleValuesCustom->find('all', array(
+        $structurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+        $useAndEventTypes = $structurePermissibleValuesCustom->find('all', array(
             'conditions' => array(
                 'StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types'
             )

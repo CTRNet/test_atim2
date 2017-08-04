@@ -192,12 +192,12 @@ class StructuresHelper extends Helper
 
     /**
      * StructuresHelper constructor.
-     * @param View $View
+     * @param View $view
      * @param array $settings
      */
-    public function __construct(View $View, $settings = array())
+    public function __construct(View $view, $settings = array())
     {
-        parent::__construct($View, $settings);
+        parent::__construct($view, $settings);
         
         App::uses('StructureValueDomain', 'Model');
         $this->StructureValueDomain = new StructureValueDomain();

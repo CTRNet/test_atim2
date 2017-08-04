@@ -72,8 +72,8 @@ class Bank extends AdministrateAppModel
      */
     public function allowDeletion($bankId)
     {
-        $GroupModel = AppModel::getInstance("", "Group", true);
-        $data = $GroupModel->find('first', array(
+        $groupModel = AppModel::getInstance("", "Group", true);
+        $data = $groupModel->find('first', array(
             'conditions' => array(
                 'Group.bank_id' => $bankId
             )
@@ -85,8 +85,8 @@ class Bank extends AdministrateAppModel
             );
         }
         
-        $CollectionModel = AppModel::getInstance('InventoryManagement', 'Collection', true);
-        $data = $CollectionModel->find('first', array(
+        $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection', true);
+        $data = $collectionModel->find('first', array(
             'conditions' => array(
                 'Collection.bank_id' => $bankId
             )

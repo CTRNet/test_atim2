@@ -153,7 +153,7 @@ class SopMaster extends SopAppModel
             );
         }
         
-        $StorageDetail = AppModel::getInstance("StorageLayout", "StorageDetail", true);
+        $storageDetail = AppModel::getInstance("StorageLayout", "StorageDetail", true);
         $blockModel = new StorageDetail(false, 'std_tma_blocks');
         $ctrlValue = $blockModel->find('count', array(
             'conditions' => array(
