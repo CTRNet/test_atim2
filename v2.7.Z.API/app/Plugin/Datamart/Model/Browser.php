@@ -104,7 +104,7 @@ class Browser extends DatamartAppModel
         $prevSetting = AppController::$highlightMissingTranslations;
         AppController::$highlightMissingTranslations = false;
         $appController = AppController::getInstance();
-        $DatamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+        $datamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
         if ($startingCtrlId != 0) {
             if ($pluginName == null || $modelName == null || $dataModel == null || $modelPkey == null || $dataPkey == null) {
                 $appController->redirect('/Pages/err_internal?p[]=missing parameter for getBrowserDropdownOptions', null, true);
@@ -116,7 +116,7 @@ class Browser extends DatamartAppModel
                 $options[$dataUnit[0]['main_id']] = explode(",", $dataUnit[0]['to_id']);
             }
             $activeStructuresIds = $this->getActiveStructuresIds();
-            $browsingStructures = $DatamartStructure->find('all', array(
+            $browsingStructures = $datamartStructure->find('all', array(
                 'conditions' => array(
                     'DatamartStructure.id IN (0, ' . implode(", ", $activeStructuresIds) . ')'
                 )
@@ -201,7 +201,7 @@ class Browser extends DatamartAppModel
         } else {
             
             $activeStructuresIds = $this->getActiveStructuresIds();
-            $data = $DatamartStructure->find('all', array(
+            $data = $datamartStructure->find('all', array(
                 'conditions' => array(
                     'DatamartStructure.id IN (0, ' . implode(", ", $activeStructuresIds) . ')'
                 )
@@ -465,8 +465,8 @@ class Browser extends DatamartAppModel
      */
     public static function getTree($nodeId, $activeNode, $mergedIds, array &$linkedTypesDown = array(), array &$linkedTypesUp = array())
     {
-        $BrowsingResult = new BrowsingResult();
-        $result = $BrowsingResult->find('all', array(
+        $browsingResult = new BrowsingResult();
+        $result = $browsingResult->find('all', array(
             'conditions' => 'BrowsingResult.id=' . $nodeId . ' OR BrowsingResult.parent_id=' . $nodeId,
             'order' => array(
                 'BrowsingResult.id'
@@ -709,14 +709,14 @@ class Browser extends DatamartAppModel
     public static function getPrintableTree($currentNode, array $mergedIds, $webrootUrl)
     {
         $result = "";
-        $BrowsingResult = new BrowsingResult();
+        $browsingResult = new BrowsingResult();
         $browsingStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure');
         $tmpNode = $currentNode;
         $prevNode = null;
         $currentNodeDatamartStructureId = null;
         do {
             $prevNode = $tmpNode;
-            $br = $BrowsingResult->find('first', array(
+            $br = $browsingResult->find('first', array(
                 'conditions' => array(
                     'BrowsingResult.id' => $tmpNode
                 )
@@ -868,7 +868,7 @@ class Browser extends DatamartAppModel
         
         $keys = array_keys($searchConditions);
         App::Uses('StructureFormat', 'Model');
-        $StructureFormat = new StructureFormat();
+        $structureFormat = new StructureFormat();
         $conditions = array();
         $conditions[] = "false";
         foreach ($keys as $key) {
@@ -1181,12 +1181,12 @@ class Browser extends DatamartAppModel
     public static function getTranslatedDatabrowserLabel($label)
     {
         $parts = explode("|", $label);
-        $StructurePermissibleValuesCustom = null;
+        $structurePermissibleValuesCustom = null;
         foreach ($parts as &$part) {
             if (preg_match('/^custom\#(.+)\#(.+)$/', $part, $matches)) {
-                if (! $StructurePermissibleValuesCustom)
-                    $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-                $translatedValue = $StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue($matches[1], $matches[2]);
+                if (! $structurePermissibleValuesCustom)
+                    $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+                $translatedValue = $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue($matches[1], $matches[2]);
                 $part = ($translatedValue !== false) ? $translatedValue : $matches[2];
             } else {
                 $part = __($part);
@@ -1200,8 +1200,8 @@ class Browser extends DatamartAppModel
      */
     private function getActiveStructuresIds()
     {
-        $BrowsingControl = AppModel::getInstance("Datamart", "BrowsingControl", true);
-        $data = $BrowsingControl->find('all');
+        $browsingControl = AppModel::getInstance("Datamart", "BrowsingControl", true);
+        $data = $browsingControl->find('all');
         $result = array();
         foreach ($data as $unit) {
             if ($unit['BrowsingControl']['flag_active_1_to_2']) {

@@ -149,7 +149,7 @@ class StructurePermissibleValuesCustom extends AppModel
                     'StructurePermissibleValuesCustom.use_as_input' => '1'
                 )
             ));
-            $StructurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
+            $structurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
             $this->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $valuesCounter, values_used_as_input_counter = $valuesUsedAsInputCounter WHERE id = $controlId;");
         }
         parent::afterSave($created, $options);

@@ -82,8 +82,8 @@ class Drug extends DrugAppModel
      */
     public function allowDeletion($drugId)
     {
-        $TreatmentExtendMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentExtendMaster", true);
-        $returnedNbr = $TreatmentExtendMaster->find('count', array(
+        $treatmentExtendMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentExtendMaster", true);
+        $returnedNbr = $treatmentExtendMaster->find('count', array(
             'conditions' => array(
                 'TreatmentExtendMaster.drug_id' => $drugId
             ),
@@ -96,8 +96,8 @@ class Drug extends DrugAppModel
             );
         }
         
-        $ProtocolExtendMaster = AppModel::getInstance("Protocol", "ProtocolExtendMaster", true);
-        $returnedNbr = $ProtocolExtendMaster->find('count', array(
+        $protocolExtendMaster = AppModel::getInstance("Protocol", "ProtocolExtendMaster", true);
+        $returnedNbr = $protocolExtendMaster->find('count', array(
             'conditions' => array(
                 'ProtocolExtendMaster.drug_id' => $drugId
             ),
