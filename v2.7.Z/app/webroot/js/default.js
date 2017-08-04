@@ -441,11 +441,10 @@ function initAutocomplete(scope) {
 //            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
 //                    alternate source for debugging
             source: function (request, response) {
-                console.log(request);
                 $.post(root_url +  $(element).attr("url"), request, function (data) {
                     data=data.substring(2,data.length-2);
+                    request.term=request.term.replace(/([\\])/g, "\\$1");
                     data=data.split('", "');
-
                     var rep=data.filter(function(item){
                         return item.toLowerCase().search(request.term.toLowerCase())>=0;
                     });
