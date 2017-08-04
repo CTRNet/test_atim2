@@ -153,7 +153,7 @@ class OrderLine extends OrderAppModel
         $results = parent::afterFind($results, $primary);
         
         if (isset($results['0']['OrderLine'])) {
-            $OrderItem = null;
+            $orderItem = null;
             foreach ($results as &$newOrderLine) {
                 // Set order_line_completion
                 $shippedCounter = 0;
@@ -169,16 +169,16 @@ class OrderLine extends OrderAppModel
                         }
                     }
                 } elseif (isset($newOrderLine['OrderLine']['id'])) {
-                    if (! $OrderItem)
-                        $OrderItem = AppModel::getInstance('Order', 'OrderItem', true);
-                    $itemsCounter = $OrderItem->find('count', array(
+                    if (! $orderItem)
+                        $orderItem = AppModel::getInstance('Order', 'OrderItem', true);
+                    $itemsCounter = $orderItem->find('count', array(
                         'conditions' => array(
                             'OrderItem.order_line_id' => $newOrderLine['OrderLine']['id']
                         ),
                         'recursive' => '-1'
                     ));
                     if ($itemsCounter)
-                        $shippedCounter = $OrderItem->find('count', array(
+                        $shippedCounter = $orderItem->find('count', array(
                             'conditions' => array(
                                 'OrderItem.order_line_id' => $newOrderLine['OrderLine']['id'],
                                 'OrderItem.status' => array(

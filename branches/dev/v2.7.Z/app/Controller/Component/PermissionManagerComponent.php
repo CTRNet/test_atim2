@@ -144,30 +144,30 @@ class PermissionManagerComponent extends Component
     {
         $aco = & $this->controller->Acl->Aco;
         
-        $Controllers = App::objects('controller');
+        $controllers = App::objects('controller');
         
-        $appIndex = array_search('App', $Controllers);
+        $appIndex = array_search('App', $controllers);
         if ($appIndex !== false) {
-            unset($Controllers[$appIndex]);
+            unset($controllers[$appIndex]);
         }
-        foreach ($Controllers as $i => $name) {
+        foreach ($controllers as $i => $name) {
             if ($name !== 'App')
-                $Controllers[$i] = 'App.' . $name;
+                $controllers[$i] = 'App.' . $name;
         }
         // call FUNCTION to get APP.PLUGIN.CONTROLLER list, and append to APP.CONTROLLER list
-        $Plugins = $this->getPluginControllerNames();
-        $Controllers = array_merge($Controllers, $Plugins);
-        asort($Controllers);
+        $plugins = $this->getPluginControllerNames();
+        $controllers = array_merge($controllers, $plugins);
+        asort($controllers);
         
-        $Plugins = array();
-        foreach ($Controllers as $ctrlName) {
+        $plugins = array();
+        foreach ($controllers as $ctrlName) {
             $plugin = preg_match('/^.+\..*$/', $ctrlName) ? preg_replace('/^(.+)\..*$/', '\1', $ctrlName) : 'App';
             $ctrlName = preg_replace('/^.+\./', '', $ctrlName);
             
-            if (! isset($Plugins[$plugin])) {
-                $Plugins[$plugin] = array();
+            if (! isset($plugins[$plugin])) {
+                $plugins[$plugin] = array();
             }
-            $Plugins[$plugin][] = $ctrlName;
+            $plugins[$plugin][] = $ctrlName;
         }
         
         $this->log = array();
@@ -190,7 +190,7 @@ class PermissionManagerComponent extends Component
         
         // look at each controller in app/controllers
         $pluginNodeIds = array();
-        foreach ($Plugins as $plugin => $Controllers) {
+        foreach ($plugins as $plugin => $controllers) {
             // find / make controller node
             $pluginNode = $aco->node('Controller/' . $plugin);
             if (! $pluginNode) {
@@ -209,7 +209,7 @@ class PermissionManagerComponent extends Component
             
             $controllerNodeIds = array();
             
-            foreach ($Controllers as $ctrlName) {
+            foreach ($controllers as $ctrlName) {
                 $methods = $this->getControllerMethods($plugin, $ctrlName);
                 if ($methods === false) {
                     $this->log[] = $plugin . '.' . $ctrlName . ' could not be located.' . print_r($methods, 1);
@@ -328,7 +328,7 @@ class PermissionManagerComponent extends Component
         // with controller.php
         $files = $folder->findRecursive('.*Controller\.php');
         // Get the list of plugins
-        $Plugins = App::objects('Plugin');
+        $plugins = App::objects('Plugin');
         
         // Loop through the controllers we found int the plugins directory
         foreach ($files as $f => $fileName) {

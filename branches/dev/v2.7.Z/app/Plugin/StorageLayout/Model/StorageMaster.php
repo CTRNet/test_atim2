@@ -59,8 +59,8 @@ class StorageMaster extends StorageLayoutAppModel
             if ($result['StorageControl']['is_tma_block']) {
                 $title = __('TMA-blc');
             } else {
-                $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-                $translatedStorageType = $StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $result['StorageControl']['storage_type']);
+                $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+                $translatedStorageType = $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $result['StorageControl']['storage_type']);
                 $title = ($translatedStorageType !== false) ? $translatedStorageType : $result['StorageControl']['storage_type'];
             }
             

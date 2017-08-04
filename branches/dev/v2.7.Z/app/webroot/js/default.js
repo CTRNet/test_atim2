@@ -435,16 +435,23 @@ function removeParentRow(element) {
 
 function initAutocomplete(scope) {
     $(scope).find(".jqueryAutocomplete").each(function () {
-//			var element = $(this);
+        var element = $(this);
         $(this).autocomplete({
             //if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
-                    //alternate source for debugging
-//				source: function(request, response) {
-//					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//						console.log(data);
-//					});
-//				}
+//            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
+//                    alternate source for debugging
+            source: function (request, response) {
+                console.log(request);
+                $.post(root_url +  $(element).attr("url"), request, function (data) {
+                    data=data.substring(2,data.length-2);
+                    data=data.split('", "');
+
+                    var rep=data.filter(function(item){
+                        return item.toLowerCase().search(request.term.toLowerCase())>=0;
+                    });
+                    response(rep);
+                });
+            }
         });
     });
 }

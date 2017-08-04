@@ -14,8 +14,8 @@ class StorageControl extends StorageLayoutAppModel
      */
     public function getStorageTypePermissibleValues()
     {
-        $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-        $translatedStorageTypes = $StructurePermissibleValuesCustom->getCustomDropdown(array(
+        $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+        $translatedStorageTypes = $structurePermissibleValuesCustom->getCustomDropdown(array(
             'storage types'
         ));
         $translatedStorageTypes = array_merge($translatedStorageTypes['defined'], $translatedStorageTypes['previously_defined']);
@@ -144,8 +144,8 @@ class StorageControl extends StorageLayoutAppModel
         $coordXTitle = $storageControlData['StorageControl']['coord_x_title'];
         $coordYTitle = $storageControlData['StorageControl']['coord_y_title'];
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-        $StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-        $allCoordinatesTitles = $StructurePermissibleValuesCustom->find('all', array(
+        $structurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+        $allCoordinatesTitles = $structurePermissibleValuesCustom->find('all', array(
             'conditions' => array(
                 'StructurePermissibleValuesCustomControl.name' => 'storage coordinate titles',
                 'StructurePermissibleValuesCustom.value' => array(
