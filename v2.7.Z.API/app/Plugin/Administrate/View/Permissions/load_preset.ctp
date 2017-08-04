@@ -135,8 +135,8 @@ function savePresetPopup(){
 
 function savePreset(){
 	$(".tree_root").find("a.submit").hide();
-	var allow = new array();
-	var deny = new array();
+	var allow = new Array();
+	var deny = new Array();
 	$(".tree_root").find("select").each(function(){
 		if($(this).val() == 1){
 			allow.push($(this).attr("name").match("[0-9]+")[0]);

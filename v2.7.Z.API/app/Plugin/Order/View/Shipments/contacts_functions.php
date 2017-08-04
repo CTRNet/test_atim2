@@ -40,7 +40,7 @@ public function saveContact(){
 	$.post(root_url + "Order/Shipments/saveContact/", $("form").serialize(), function(data){
 		var isVisible = $("#saveContactPopup:visible").length == 1;
 		$("#saveContactPopup").popup('close');
-		buildDialog("saveContactPopup", data, null, new array{ "label" : STR_OK, "icon" : "detail", "action" : function(){$('#saveContactPopup').popup('close');} }));
+		buildDialog("saveContactPopup", data, null, new Array{ "label" : STR_OK, "icon" : "detail", "action" : function(){$('#saveContactPopup').popup('close');} }));
 		if(isVisible){
 			$("#saveContactPopup").popup();
 		}
