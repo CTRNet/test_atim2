@@ -300,7 +300,7 @@ class ReportsController extends DatamartAppController
             // ** RESULTS/ACTIONS MANAGEMENT **
             
             $linkedDatamartStructure = null;
-            $LinkedModel = null;
+            $linkedModel = null;
             if ($report['Report']['form_type_for_results'] == 'index' && $report['Report']['associated_datamart_structure_id']) {
                 // Load linked structure and model if required
                 $linkedDatamartStructure = $this->DatamartStructure->find('first', array(
@@ -310,7 +310,7 @@ class ReportsController extends DatamartAppController
                 ));
                 if (empty($linkedDatamartStructure))
                     $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-                $LinkedModel = AppModel::getInstance($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], true);
+                $linkedModel = AppModel::getInstance($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], true);
                 $this->set('linkedDatamartStructureId', $report['Report']['associated_datamart_structure_id']);
             }
             
@@ -327,11 +327,11 @@ class ReportsController extends DatamartAppController
                 // Get criteria from session data for csv
                 $criteriaToBuildReport = $_SESSION['report'][$reportId]['search_criteria'];
                 $criteriaToSortReport = isset($_SESSION['report'][$reportId]['sort_criteria']) ? $_SESSION['report'][$reportId]['sort_criteria'] : array();
-                if ($LinkedModel && isset($this->request->data[$linkedDatamartStructure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
+                if ($linkedModel && isset($this->request->data[$linkedDatamartStructure['DatamartStructure']['model']][$linkedModel->primaryKey])) {
                     // Take care about selected items (the number of records did not reach the limit of items that could be displayed)
-                    $ids = array_filter($this->request->data[$linkedDatamartStructure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
+                    $ids = array_filter($this->request->data[$linkedDatamartStructure['DatamartStructure']['model']][$linkedModel->primaryKey]);
                     if (! empty($ids)) {
-                        $criteriaToBuildReport['SelectedItemsForCsv'][$linkedDatamartStructure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
+                        $criteriaToBuildReport['SelectedItemsForCsv'][$linkedDatamartStructure['DatamartStructure']['model']][$linkedModel->primaryKey] = $ids;
                     }
                 }
             } elseif (array_key_exists('sort', $this->passedArgs)) {
@@ -452,10 +452,10 @@ class ReportsController extends DatamartAppController
                 } elseif ($linkedDatamartStructure) {
                     // Code to be able to launch actions from report linked to structure and model
                     $this->set('linkedDatamartStructureModelName', $linkedDatamartStructure['DatamartStructure']['model']);
-                    $this->set('linkedDatamartStructureKeyName', $LinkedModel->primaryKey);
+                    $this->set('linkedDatamartStructureKeyName', $linkedModel->primaryKey);
                     if ($linkedDatamartStructure['DatamartStructure']['index_link'])
                         $this->set('linkedDatamartStructureLinks', $linkedDatamartStructure['DatamartStructure']['index_link']);
-                    $linkedDatamartStructureActions = $this->DatamartStructure->getDropdownOptions($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], $LinkedModel->primaryKey, null, null, null, null, false);
+                    $linkedDatamartStructureActions = $this->DatamartStructure->getDropdownOptions($linkedDatamartStructure['DatamartStructure']['plugin'], $linkedDatamartStructure['DatamartStructure']['model'], $linkedModel->primaryKey, null, null, null, null, false);
                     $csvAction = "javascript:setCsvPopup('Datamart/Reports/manageReport/$reportId/1/');";
                     $linkedDatamartStructureActions[] = array(
                         'value' => '0',
@@ -574,8 +574,8 @@ class ReportsController extends DatamartAppController
                 if (! empty($bankId))
                     $bankIds[] = $bankId;
             if (! empty($bankIds)) {
-                $Bank = AppModel::getInstance("Administrate", "Bank", true);
-                $bankList = $Bank->find('all', array(
+                $bank = AppModel::getInstance("Administrate", "Bank", true);
+                $bankList = $bank->find('all', array(
                     'conditions' => array(
                         'id' => $bankIds
                     )
@@ -851,8 +851,8 @@ class ReportsController extends DatamartAppController
                 if (! empty($bankId))
                     $bankIds[] = $bankId;
             if (! empty($bankIds)) {
-                $Bank = AppModel::getInstance("Administrate", "Bank", true);
-                $bankList = $Bank->find('all', array(
+                $bank = AppModel::getInstance("Administrate", "Bank", true);
+                $bankList = $bank->find('all', array(
                     'conditions' => array(
                         'id' => $bankIds
                     )

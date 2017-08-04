@@ -94,8 +94,8 @@ class StorageCtrl extends AdministrateAppModel
 
     public function validatesAllStorageControls()
     {
-        $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-        $translatedStorageTypes = $StructurePermissibleValuesCustom->getCustomDropdown(array(
+        $structurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+        $translatedStorageTypes = $structurePermissibleValuesCustom->getCustomDropdown(array(
             'storage types'
         ));
         $translatedStorageTypes = array_merge($translatedStorageTypes['defined'], $translatedStorageTypes['previously_defined']);

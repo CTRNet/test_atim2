@@ -1425,12 +1425,12 @@ class AppController extends Controller
         
         // *** 6 *** Current Volume clean up
         
-        $ViewAliquotModel = AppModel::getInstance("InventoryManagement", "ViewAliquot", false); // To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
-        $tmpAliquotModelCacheSources = $ViewAliquotModel->cacheSources;
-        $ViewAliquotModel->cacheSources = false;
-        $ViewAliquotModel->schema();
-        $AliquotMasterModel = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-        $AliquotMasterModel->checkWritableFields = false;
+        $viewAliquotModel = AppModel::getInstance("InventoryManagement", "ViewAliquot", false); // To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
+        $tmpAliquotModelCacheSources = $viewAliquotModel->cacheSources;
+        $viewAliquotModel->cacheSources = false;
+        $viewAliquotModel->schema();
+        $aliquotMasterModel = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+        $aliquotMasterModel->checkWritableFields = false;
         AppModel::acquireBatchViewsUpdateLock();
         // Current Volume
         $currentVolumesUpdated = array();
@@ -1438,11 +1438,11 @@ class AppController extends Controller
         $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
 			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
 			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NOT NULL AND am.current_volume IS NULL;";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         foreach ($aliquotsToCleanUp as $newAliquot) {
-            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
-            if (! $AliquotMasterModel->save(array(
+            $aliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $aliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $aliquotMasterModel->save(array(
                 'AliquotMaster' => array(
                     'id' => $newAliquot['am']['aliquot_master_id'],
                     'current_volume' => $newAliquot['am']['initial_volume']
@@ -1455,11 +1455,11 @@ class AppController extends Controller
         $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume
 			FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
 			WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume IS NULL AND am.current_volume IS NOT NULL;";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         foreach ($aliquotsToCleanUp as $newAliquot) {
-            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
-            if (! $AliquotMasterModel->save(array(
+            $aliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $aliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $aliquotMasterModel->save(array(
                 'AliquotMaster' => array(
                     'id' => $newAliquot['am']['aliquot_master_id'],
                     'current_volume' => ''
@@ -1470,11 +1470,11 @@ class AppController extends Controller
         }
         // Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
         $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         foreach ($aliquotsToCleanUp as $newAliquot) {
-            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
-            if (! $AliquotMasterModel->save(array(
+            $aliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $aliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $aliquotMasterModel->save(array(
                 'AliquotMaster' => array(
                     'id' => $newAliquot['am']['aliquot_master_id'],
                     'current_volume' => '0'
@@ -1485,11 +1485,11 @@ class AppController extends Controller
         }
         // Search all aliquots having current_volume != initial volume - used_volume (from view_aliquot_uses) > initial_volume
         $tmpSql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume >= us.sum_used_volumes AND am.current_volume != (am.initial_volume - us.sum_used_volumes);";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         foreach ($aliquotsToCleanUp as $newAliquot) {
-            $AliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-            $AliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
-            if (! $AliquotMasterModel->save(array(
+            $aliquotMasterModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+            $aliquotMasterModel->id = $newAliquot['am']['aliquot_master_id'];
+            if (! $aliquotMasterModel->save(array(
                 'AliquotMaster' => array(
                     'id' => $newAliquot['am']['aliquot_master_id'],
                     'current_volume' => ($newAliquot['am']['initial_volume'] - $newAliquot['us']['sum_used_volumes'])
@@ -1512,14 +1512,14 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE AliquotInternalUse.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND AliquotInternalUse.used_volume IS NOT NULL;";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         if ($aliquotsToCleanUp) {
-            $AliquotInternalUseModel = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
-            $AliquotInternalUseModel->checkWritableFields = false;
+            $aliquotInternalUseModel = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
+            $aliquotInternalUseModel->checkWritableFields = false;
             foreach ($aliquotsToCleanUp as $newAliquot) {
-                $AliquotInternalUseModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $AliquotInternalUseModel->id = $newAliquot['AliquotInternalUse']['aliquot_internal_use_id'];
-                if (! $AliquotInternalUseModel->save(array(
+                $aliquotInternalUseModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $aliquotInternalUseModel->id = $newAliquot['AliquotInternalUse']['aliquot_internal_use_id'];
+                if (! $aliquotInternalUseModel->save(array(
                     'AliquotInternalUse' => array(
                         'id' => $newAliquot['AliquotInternalUse']['aliquot_internal_use_id'],
                         'used_volume' => ''
@@ -1539,14 +1539,14 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE SourceAliquot.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND SourceAliquot.used_volume IS NOT NULL;";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         if ($aliquotsToCleanUp) {
-            $SourceAliquotModel = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-            $SourceAliquotModel->checkWritableFields = false;
+            $sourceAliquotModel = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
+            $sourceAliquotModel->checkWritableFields = false;
             foreach ($aliquotsToCleanUp as $newAliquot) {
-                $SourceAliquotModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $SourceAliquotModel->id = $newAliquot['SourceAliquot']['source_aliquot_id'];
-                if (! $SourceAliquotModel->save(array(
+                $sourceAliquotModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $sourceAliquotModel->id = $newAliquot['SourceAliquot']['source_aliquot_id'];
+                if (! $sourceAliquotModel->save(array(
                     'SourceAliquot' => array(
                         'id' => $newAliquot['SourceAliquot']['source_aliquot_id'],
                         'used_volume' => ''
@@ -1566,14 +1566,14 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE Realiquoting.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND Realiquoting.parent_used_volume IS NOT NULL;";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         if ($aliquotsToCleanUp) {
-            $RealiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
-            $RealiquotingModel->checkWritableFields = false;
+            $realiquotingModel = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+            $realiquotingModel->checkWritableFields = false;
             foreach ($aliquotsToCleanUp as $newAliquot) {
-                $RealiquotingModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $RealiquotingModel->id = $newAliquot['Realiquoting']['realiquoting_id'];
-                if (! $RealiquotingModel->save(array(
+                $realiquotingModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $realiquotingModel->id = $newAliquot['Realiquoting']['realiquoting_id'];
+                if (! $realiquotingModel->save(array(
                     'Realiquoting' => array(
                         'id' => $newAliquot['Realiquoting']['realiquoting_id'],
                         'parent_used_volume' => ''
@@ -1593,14 +1593,14 @@ class AppController extends Controller
 			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
 			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			WHERE QualityCtrl.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND QualityCtrl.used_volume IS NOT NULL;";
-        $aliquotsToCleanUp = $AliquotMasterModel->query($tmpSql);
+        $aliquotsToCleanUp = $aliquotMasterModel->query($tmpSql);
         if ($aliquotsToCleanUp) {
-            $QualityCtrlModel = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
-            $QualityCtrlModel->checkWritableFields = false;
+            $qualityCtrlModel = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
+            $qualityCtrlModel->checkWritableFields = false;
             foreach ($aliquotsToCleanUp as $newAliquot) {
-                $QualityCtrlModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-                $QualityCtrlModel->id = $newAliquot['QualityCtrl']['quality_control_id'];
-                if (! $QualityCtrlModel->save(array(
+                $qualityCtrlModel->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+                $qualityCtrlModel->id = $newAliquot['QualityCtrl']['quality_control_id'];
+                if (! $qualityCtrlModel->save(array(
                     'QualityCtrl' => array(
                         'id' => $newAliquot['QualityCtrl']['quality_control_id'],
                         'used_volume' => ''
@@ -1611,14 +1611,14 @@ class AppController extends Controller
             }
         }
         if ($usedVolumeUpdated) {
-            $ViewAliquotUseModel = AppModel::getInstance('InventoryManagement', 'ViewAliquotUse');
-            foreach (explode("UNION ALL", $ViewAliquotUseModel::$tableQuery) as $query) {
-                $ViewAliquotUseModel->query('REPLACE INTO ' . $ViewAliquotUseModel->table . '(' . str_replace('%%WHERE%%', 'AND AliquotMaster.id IN (' . implode(',', array_keys($usedVolumeUpdated)) . ')', $query) . ')');
+            $viewAliquotUseModel = AppModel::getInstance('InventoryManagement', 'ViewAliquotUse');
+            foreach (explode("UNION ALL", $viewAliquotUseModel::$tableQuery) as $query) {
+                $viewAliquotUseModel->query('REPLACE INTO ' . $viewAliquotUseModel->table . '(' . str_replace('%%WHERE%%', 'AND AliquotMaster.id IN (' . implode(',', array_keys($usedVolumeUpdated)) . ')', $query) . ')');
             }
             AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ') . (implode(', ', $usedVolumeUpdated)));
         }
-        $ViewAliquotModel->cacheSources = $tmpAliquotModelCacheSources;
-        $ViewAliquotModel->schema();
+        $viewAliquotModel->cacheSources = $tmpAliquotModelCacheSources;
+        $viewAliquotModel->schema();
         
         // *** 7 *** clear cache
         
@@ -1661,7 +1661,7 @@ class AppController extends Controller
         
         // *** 9 *** Clean up structure_permissible_values_custom_controls counters values
         
-        $StructurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
+        $structurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
         $hasManyDetails = array(
             'hasMany' => array(
                 'StructurePermissibleValuesCustom' => array(
@@ -1670,8 +1670,8 @@ class AppController extends Controller
                 )
             )
         );
-        $StructurePermissibleValuesCustomControl->bindModel($hasManyDetails);
-        $allCusomListsControls = $StructurePermissibleValuesCustomControl->find('all');
+        $structurePermissibleValuesCustomControl->bindModel($hasManyDetails);
+        $allCusomListsControls = $structurePermissibleValuesCustomControl->find('all');
         foreach ($allCusomListsControls as $newCustomList) {
             $valuesUsedAsInputCounter = 0;
             $valuesCounter = 0;
@@ -1682,7 +1682,7 @@ class AppController extends Controller
                         $valuesUsedAsInputCounter ++;
                 }
             }
-            $StructurePermissibleValuesCustomControl->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $valuesCounter, values_used_as_input_counter = $valuesUsedAsInputCounter WHERE id = " . $newCustomList['StructurePermissibleValuesCustomControl']['id']);
+            $structurePermissibleValuesCustomControl->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $valuesCounter, values_used_as_input_counter = $valuesUsedAsInputCounter WHERE id = " . $newCustomList['StructurePermissibleValuesCustomControl']['id']);
         }
         
         // *** 10 *** rebuilts lft rght in storage_masters
@@ -1716,7 +1716,7 @@ class AppController extends Controller
 			FROM structure_formats
 			WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters')
 			AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label')";
-        $flagDetailResult = $AliquotMasterModel->query($tmpSql);
+        $flagDetailResult = $aliquotMasterModel->query($tmpSql);
         $aliquotLabelFlagDetail = '1';
         if ($flagDetailResult)
             $aliquotLabelFlagDetail = empty($flagDetailResult[0]['structure_formats']['flag_detail']) ? '0' : '1';
@@ -1945,7 +1945,7 @@ class AppController extends Controller
             default:
         }
         foreach ($structureFormatsQueries as $tmpSql)
-            $AliquotMasterModel->query($tmpSql);
+            $aliquotMasterModel->query($tmpSql);
         AppController::addWarningMsg(__("structures 'shippeditems', 'orderitems', 'orderitems_returned' and 'orderlines' have been updated based on the core variable 'order_item_type_config'."));
         
         // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1989,22 +1989,11 @@ class AppController extends Controller
         return $out;
     }
 
-//    public static function snakeToCamel($val)
-//    {
-//        preg_match('#^_*#', $val, $underscores);
-//        $underscores = current($underscores);
-//        $camel = str_replace('||||', '', ucwords(str_replace('_', '||||', $val), '||||'));
-//        $camel = strtolower(substr($camel, 0, 1)) . substr($camel, 1);
-//        
-//        return $underscores . $camel;
-//    }
-
     public static function convertArrayKeyFromSnakeToCamel($array = null)
     {
         $answer = [];
         if ($array) {
             foreach ($array as $key => $value) {
-//                $answer[self::snakeToCamel($key)] = $value;
                 $answer[Inflector::variable($key)] = $value;
             }
         }

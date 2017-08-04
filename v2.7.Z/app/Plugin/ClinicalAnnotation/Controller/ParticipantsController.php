@@ -233,7 +233,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
         
         // *** Load model being used to populate chronology_details (for values of fields linked to drop down list)
         
-        $this->StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true); // Use of $StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue()
+        $this->StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true); // Use of $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue()
         App::uses('StructureValueDomain', 'Model');
         $this->StructureValueDomain = new StructureValueDomain();
         
