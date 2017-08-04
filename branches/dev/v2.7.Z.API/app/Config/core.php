@@ -415,7 +415,7 @@ Cache::config('default', array(
 ));
 
 Configure::write('use_compression', false);
-Configure::write('Session.timeout', $debug ? 600 : 600);
+Configure::write('Session.timeout', $debug ? 3600 : 3600);
 
 Configure::write('uploadDirectory', './atimUploadDirectory');
 

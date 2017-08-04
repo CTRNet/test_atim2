@@ -1742,6 +1742,8 @@ a.form {
 
 .icon16.csv_upload {
 	background-position: -80px -64px;
+        display: inline-block;
+        margin-right: 10px;
 }
 
 .icon16.create_shipment {

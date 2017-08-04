@@ -66,7 +66,7 @@ class DATABASE_CONFIG
         'host' => '127.0.0.1',
         'login' => 'root',
         'password' => '',
-        'database' => 'atim_1',
+        'database' => 'atimapi',
         'prefix' => '',
         'encoding' => 'utf8',
         'port' => 3306
@@ -78,7 +78,7 @@ class DATABASE_CONFIG
         'host' => '127.0.0.1',
         'login' => 'root',
         'password' => '',
-        'database' => 'atim_1_test',
+        'database' => 'atimapi_test',
         'prefix' => '',
         'encoding' => 'utf8',
         'port' => 3306
