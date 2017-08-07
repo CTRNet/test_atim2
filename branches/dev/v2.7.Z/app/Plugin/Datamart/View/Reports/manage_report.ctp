@@ -164,7 +164,7 @@ if (isset($searchFormStructure)) {
 }
 
 if (isset($linkedDatamartStructureActions)) {
-    $linkedDatamartStructureActions = json_encode(Sanitize::clean($linkedDatamartStructureActions));
+    $linkedDatamartStructureActions = json_encode(stringCorrection(Sanitize::clean($linkedDatamartStructureActions)));
 } else {
     $linkedDatamartStructureActions = "";
 }

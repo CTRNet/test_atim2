@@ -2442,10 +2442,6 @@ div.loading {
 	min-height: 40px;
 }
 
-table.columns.index tbody tr td {
-	white-space: nowrap;
-}
-
 /** CakePHP auto complete **/
 div.auto_complete {
 	position: absolute;
@@ -2741,6 +2737,11 @@ ul.actionDropdown li a {
 	display: none;
 }
 
+table.columns.index tbody tr td:first-child {
+	white-space: nowrap;
+        /*word-wrap: break-word!important;*/
+}
+
 table.index tr td:first-child {
 	/* gives minimal width to rows first cell in index tables */
 	width: 1px;
@@ -2962,8 +2963,13 @@ table.columns.index tbody tr:nth-child(even), div.indexLangHeader {
 }
 
 table.structure.lineHighlight table.columns.index tbody tr:hover, table.structure.lineHighlight table.columns.index tbody tr:hover div.floatingCell
-	{
+{
 	background-color: #ffc;
+}
+
+table.structure.lineHighlight table.columns.index tbody tr, table.structure.lineHighlight table.columns.index tbody tr
+{
+    transition: background 0.3s linear;    
 }
 
 .row {
@@ -3256,4 +3262,16 @@ input[type=number].month, input[type=number].day {
 	border-width: 1px !important;
 	border-color: black !important;
 	text-align: center !important;
+}
+
+p.wraped-text{
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    max-width: 20rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
