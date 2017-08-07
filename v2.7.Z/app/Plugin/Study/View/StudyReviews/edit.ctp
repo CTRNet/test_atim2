@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => '/Study/StudyReviews/edit/' . $atimMenuVariables['StudySummary.id'] . '/%%StudyReview.id%%/',
+    'top' => '/Study/StudyReviews/edit/' . $atimMenuVariables['StudySummary.id'] . '/' . $atimMenuVariables['StudyReview.id'] . '/',
     'bottom' => array(
-        'cancel' => '/Study/StudyReviews/detail/' . $atimMenuVariables['StudySummary.id'] . '/%%StudyReview.id%%/'
+        'cancel' => '/Study/StudyReviews/detail/' . $atimMenuVariables['StudySummary.id'] . '/' . $atimMenuVariables['StudyReview.id'] . '/'
     )
 );
 

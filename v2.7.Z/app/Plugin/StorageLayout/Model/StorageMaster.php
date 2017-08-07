@@ -441,11 +441,12 @@ class StorageMaster extends StorageLayoutAppModel
         if (! isset($this->storageSelectionLabelsAlreadyChecked[$storageLabelAndCode])) {
             $results = array();
             $selectedStorages = array();
-            if (preg_match_all("/([^\b]+)\[([^\[]+)\]/", $storageLabelAndCode, $matches, PREG_SET_ORDER) > 0) {
+            $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $storageLabelAndCode);
+            if (preg_match_all("/([^\b]+)\ \[([^\[]+)\]/", $term, $matches, PREG_SET_ORDER) > 0) {
                 // Auto complete tool has been used
                 $selectedStorages = $this->find('all', array(
                     'conditions' => array(
-                        'StorageMaster.selection_label' => $matches[0][1],
+                        "StorageMaster.selection_label LIKE "  => $matches[0][1],
                         'StorageMaster.code' => $matches[0][2]
                     )
                 ));
@@ -453,7 +454,7 @@ class StorageMaster extends StorageLayoutAppModel
                 // consider $storageLabelAndCode contains just seleciton label
                 $selectedStorages = $this->find('all', array(
                     'conditions' => array(
-                        'StorageMaster.selection_label' => $storageLabelAndCode
+                        'StorageMaster.selection_label LIKE' => $term
                     )
                 ));
             }
@@ -503,7 +504,7 @@ class StorageMaster extends StorageLayoutAppModel
             }
             $formattedData = $this->storageLabelAndCodeForDisplayAlreadySet[$storageData['StorageMaster']['id']];
         }
-        
+ pr("[$formattedData]");       
         return $formattedData;
     }
 

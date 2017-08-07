@@ -1095,7 +1095,7 @@ class StorageMastersController extends StorageLayoutAppController
         // debug = 0 to avoid printing debug queries that would break the javascript array
         Configure::write('debug', 0);
         // query the database
-        $term = trim(str_replace('_', '\_', str_replace('%', '\%', $_GET['term'])));
+        $term = trim(str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']));
         $conditions = array(
             'StorageMaster.Selection_label LIKE' => $term . '%'
         );
@@ -1137,7 +1137,7 @@ class StorageMastersController extends StorageLayoutAppController
         $count = 0;
         foreach ($storageMasters as $storageMaster) {
             $storageControlId = $storageMaster['StorageControl']['id'];
-            $result .= '"' . $storageMaster['StorageMaster']['selection_label'] . ' [' . $storageMaster['StorageMaster']['code'] . '] / ' . (isset($storageTypesFromId[$storageControlId]) ? $storageTypesFromId[$storageControlId] : $storageMaster['StorageControl']['storage_type']) . '", ';
+            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $storageMaster['StorageMaster']['selection_label'] . ' [' . $storageMaster['StorageMaster']['code'] . '] / ' . (isset($storageTypesFromId[$storageControlId]) ? $storageTypesFromId[$storageControlId] : $storageMaster['StorageControl']['storage_type'])) . '", ';
             ++ $count;
             if ($count > 9) {
                 break;

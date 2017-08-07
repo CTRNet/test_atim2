@@ -698,11 +698,11 @@ class TmaSlidesController extends StorageLayoutAppController
         $results = array();
         
         // query the database
-        $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
         $terms = array();
         $termsUses = array();
         foreach (explode(' ', $term) as $keyWord) {
-            $terms[] = "TmaSlide.barcode LIKE '%" . str_replace("'", "''", $keyWord) . "%'";
+            $terms[] = array("TmaSlide.barcode LIKE" => '%' . $keyWord . '%');
         }
         
         $conditions = array(
@@ -729,7 +729,7 @@ class TmaSlidesController extends StorageLayoutAppController
         // build javascript textual array
         $result = "";
         foreach ($results as $dataUnit) {
-            $result .= '"' . $dataUnit['TmaSlide']['barcode'] . '", ';
+            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $dataUnit['TmaSlide']['barcode']) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);
@@ -754,12 +754,12 @@ class TmaSlidesController extends StorageLayoutAppController
         $results = array();
         
         // query the database
-        $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
         $terms = array();
         $termsUses = array();
         foreach (explode(' ', $term) as $keyWord) {
-            $terms[] = "TmaSlide.immunochemistry LIKE '%" . str_replace("'", "''", $keyWord) . "%'";
-            $termsUses[] = "TmaSlideUse.immunochemistry LIKE '%" . str_replace("'", "''", $keyWord) . "%'";
+            $terms[] = array("TmaSlide.immunochemistry LIKE" => '%'.$keyWord.'%');
+            $termsUses[] = array("TmaSlideUse.immunochemistry LIKE" => '%'.$keyWord.'%');
         }
         
         $conditions = array(
@@ -810,7 +810,7 @@ class TmaSlidesController extends StorageLayoutAppController
         // build javascript textual array
         $result = "";
         foreach ($results as $dataUnit) {
-            $result .= '"' . $dataUnit . '", ';
+            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $dataUnit) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

@@ -3197,10 +3197,10 @@ class AliquotMastersController extends InventoryManagementAppController
         Configure::write('debug', 0);
         
         // query the database
-        $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
         $data = $this->AliquotMaster->find('all', array(
             'conditions' => array(
-                'AliquotMaster.barcode LIKE' => $term . '%'
+                'AliquotMaster.barcode LIKE' => '%' . $term . '%'
             ),
             'fields' => array(
                 'AliquotMaster.barcode'
@@ -3212,7 +3212,7 @@ class AliquotMastersController extends InventoryManagementAppController
         // build javascript textual array
         $result = "";
         foreach ($data as $dataUnit) {
-            $result .= '"' . $dataUnit['AliquotMaster']['barcode'] . '", ';
+            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $dataUnit['AliquotMaster']['barcode']) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);
