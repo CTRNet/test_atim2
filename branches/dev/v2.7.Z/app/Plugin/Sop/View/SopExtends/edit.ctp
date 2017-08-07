@@ -1,9 +1,9 @@
 <?php
 $structureLinks = array(
-    'top' => '/Sop/SopExtends/edit/' . $atimMenuVariables['SopMaster.id'] . '/%%SopExtend.id%%/',
+    'top' => '/Sop/SopExtends/edit/' . $atimMenuVariables['SopMaster.id'] . '/' . $atimMenuVariables['SopExtend.id'] . '/',
     'bottom' => array(
-        'delete' => '/Sop/SopExtends/delete/' . $atimMenuVariables['SopMaster.id'] . '/%%SopExtend.id%%/',
-        'cancel' => '/Sop/SopExtends/detail/' . $atimMenuVariables['SopMaster.id'] . '/%%SopExtend.id%%/'
+        'delete' => '/Sop/SopExtends/delete/' . $atimMenuVariables['SopMaster.id'] . '/' . $atimMenuVariables['SopExtend.id'] . '/',
+        'cancel' => '/Sop/SopExtends/detail/' . $atimMenuVariables['SopMaster.id'] . '/' . $atimMenuVariables['SopExtend.id'] . '/'
     )
 );
 

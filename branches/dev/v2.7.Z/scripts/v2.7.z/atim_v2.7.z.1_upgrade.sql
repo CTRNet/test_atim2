@@ -103,6 +103,14 @@ INSERT INTO announcements_revs (id,user_id,group_id,bank_id,date,date_accuracy,t
 UPDATE menus SET use_link = REPLACE(use_link, '/Administrate/Announcements/index/user/%%Group.id%%', '/Administrate/Announcements/index/user/');
 UPDATE menus SET language_title = 'announcements' WHERE  use_link LIKE '/Administrate/Announcements/index/user%';
 
+-- --------------------------------------------------------------------------------------------------------------------
+-- Issue #3382: Participant Identifiers Report: No participant found with partial part of the participant identifier
+--    Added warning message.
+-- --------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('all searches are considered as exact searches', 'All searches are considered as exact searches', 'Toutes les recherches sont considérées comme des recherches exactes');
 
 
 

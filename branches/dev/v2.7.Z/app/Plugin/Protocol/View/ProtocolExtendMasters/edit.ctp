@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => '/Protocol/ProtocolExtendMasters/edit/' . $atimMenuVariables['ProtocolMaster.id'] . '/%%ProtocolExtendMaster.id%%/',
+    'top' => '/Protocol/ProtocolExtendMasters/edit/' . $atimMenuVariables['ProtocolMaster.id'] . '/' . $atimMenuVariables['ProtocolExtendMaster.id'] . '/',
     'bottom' => array(
-        'cancel' => '/Protocol/ProtocolExtendMasters/detail/' . $atimMenuVariables['ProtocolMaster.id'] . '/%%ProtocolExtendMaster.id%%/'
+        'cancel' => '/Protocol/ProtocolExtendMasters/detail/' . $atimMenuVariables['ProtocolMaster.id'] . '/' . $atimMenuVariables['ProtocolExtendMaster.id'] . '/'
     )
 );
 

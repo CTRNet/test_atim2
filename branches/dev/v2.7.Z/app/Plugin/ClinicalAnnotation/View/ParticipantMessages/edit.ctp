@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => '/ClinicalAnnotation/ParticipantMessages/edit/' . $atimMenuVariables['Participant.id'] . '/%%ParticipantMessage.id%%/',
+    'top' => '/ClinicalAnnotation/ParticipantMessages/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['ParticipantMessage.id'] . '/',
     'bottom' => array(
-        'cancel' => '/ClinicalAnnotation/ParticipantMessages/detail/' . $atimMenuVariables['Participant.id'] . '/%%ParticipantMessage.id%%/'
+        'cancel' => '/ClinicalAnnotation/ParticipantMessages/detail/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['ParticipantMessage.id'] . '/'
     )
 );
 

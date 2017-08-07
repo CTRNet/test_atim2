@@ -157,20 +157,21 @@ class Drug extends DrugAppModel
         if (! isset($this->drugTitlesAlreadyChecked[$drugDataAndCode])) {
             $matches = array();
             $selectedDrugs = array();
-            if (preg_match("/(.+)\[([0-9]+)\]$/", $drugDataAndCode, $matches) > 0) {
+            $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $drugDataAndCode);
+            if (preg_match("/(.+)\ \[([0-9]+)\]$/", $term, $matches) > 0) {
                 // Auto complete tool has been used
                 $selectedDrugs = $this->find('all', array(
                     'conditions' => array(
-                        "Drug.generic_name LIKE '%" . trim($matches[1]) . "%'",
+                        "Drug.generic_name LIKE " => $matches[1],
                         'Drug.id' => $matches[2]
                     )
                 ));
             } else {
                 // consider $drugDataAndCode contains just drug title
-                $term = str_replace('_', '\_', str_replace('%', '\%', $drugDataAndCode));
                 $terms = array();
-                foreach (explode(' ', $term) as $keyWord)
-                    $terms[] = "Drug.generic_name LIKE '%" . $keyWord . "%'";
+                foreach (explode(' ', $term) as $keyWord) {
+                    $terms[] = array("Drug.generic_name LIKE" => '%' . $keyWord . '%');
+                }
                 $conditions = array(
                     'AND' => $terms
                 );

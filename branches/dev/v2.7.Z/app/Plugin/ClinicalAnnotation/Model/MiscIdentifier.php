@@ -88,6 +88,14 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                 }
             }
         }
+        
+        if(isset($query['order']) && isset($query['order']['MiscIdentifier.identifier_value']) && sizeof($query['order']) == 1) {
+            // Display first numerical values then alphanumerical values
+            $orderBy = $query['order']['MiscIdentifier.identifier_value'];
+            $query['order'][] = "IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
+            unset($query['order']['MiscIdentifier.identifier_value']);
+        }
+        
         return parent::find($type, $query);
     }
 

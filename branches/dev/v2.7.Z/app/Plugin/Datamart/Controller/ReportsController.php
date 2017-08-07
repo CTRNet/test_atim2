@@ -1290,6 +1290,8 @@ class ReportsController extends DatamartAppController
             ), $newIdent['MiscIdentifierControl']['misc_identifier_name'])] = $newIdent['MiscIdentifier']['identifier_value'];
         }
         
+        AppController::addWarningMsg(__('all searches are considered as exact searches'));
+        
         return array(
             'header' => $header,
             'data' => $data,

@@ -111,20 +111,21 @@ class StudySummary extends StudyAppModel
         if (! isset($this->studyTitlesAlreadyChecked[$studyDataAndCode])) {
             $matches = array();
             $selectedStudies = array();
-            if (preg_match("/(.+)\[([0-9]+)\]/", $studyDataAndCode, $matches) > 0) {
+            $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $studyDataAndCode);
+            if (preg_match("/(.+)\ \[([0-9]+)\]/", $term, $matches) > 0) {
                 // Auto complete tool has been used
                 $selectedStudies = $this->find('all', array(
                     'conditions' => array(
-                        "StudySummary.title LIKE '%" . trim($matches[1]) . "%'",
+                        "StudySummary.title LIKE " => $matches[1],
                         'StudySummary.id' => $matches[2]
                     )
                 ));
             } else {
                 // consider $studyDataAndCode contains just study title
-                $term = str_replace('_', '\_', str_replace('%', '\%', $studyDataAndCode));
                 $terms = array();
-                foreach (explode(' ', $term) as $keyWord)
-                    $terms[] = "StudySummary.title LIKE '%" . $keyWord . "%'";
+                foreach (explode(' ', $term) as $keyWord) {
+                    $terms[] = array("StudySummary.title LIKE " => '%' . $keyWord . '%');
+                }
                 $conditions = array(
                     'AND' => $terms
                 );
