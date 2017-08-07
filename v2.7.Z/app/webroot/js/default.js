@@ -448,7 +448,29 @@ function initAutocomplete(scope) {
         });
     });
 }
-
+/*
+//function initAutocomplete(scope) {
+//    $(scope).find(".jqueryAutocomplete").each(function () {
+////        var element = $(this);
+//        $(this).autocomplete({
+//            //if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
+//            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
+////                    alternate source for debugging
+////            source: function (request, response) {
+////                $.post(root_url +  $(element).attr("url"), request, function (data) {
+////                    data=data.substring(2,data.length-2);
+////                    request.term=request.term.replace(/([\\])/g, "\\$1");
+////                    data=data.split('", "');
+////                    var rep=data.filter(function(item){
+////                        return item.toLowerCase().search(request.term.toLowerCase())>=0;
+////                    });
+////                    response(rep);
+////                });
+////            }
+//        });
+//    });
+//}
+*/
 function initAliquotVolumeCheck() {
     var checkFct = function () {
         var fctMod = function (param) {
@@ -1219,6 +1241,7 @@ function initJsControls() {
             ).delegate(".removeLineLink", "click", removeLine
             ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup);
 
+    $("p.wraped-text").hover(showHint);
     $(window).bind("pageshow", function (event) {
         //remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
         //don't bother using console.log, console is not ready yet
@@ -1253,13 +1276,32 @@ function initJsControls() {
     flyOverComponents();
 }
 
+function showHint(event){
+    if (event.type==="mouseenter"){
+        if (countLines(this)>=3){
+            this.title=$(this).text();
+        }else{
+            this.title=$(this).text();
+            this.title="";
+        }
+    }else if (event.type==="mouseleave"){
+        this.title="";
+    }
+}
+
+function countLines(item) {
+    var divHeight = $(item).outerHeight();
+    var lineHeight = parseInt($(item).css("lineHeight"));
+    var lines = Math.round(divHeight / lineHeight);
+    return lines;
+}
+
 function putIntoRelDiv(index, elem) {
     $(elem).html(
             "<div class='testScroll'>" +
             $(elem).html() +
             "</div>");
 }
-;
 
 function initFlyOverCells(scope) {
     $(scope).find("table.structure").each(function () {

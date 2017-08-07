@@ -609,7 +609,7 @@ class StructuresHelper extends Helper
         
         if ($options['type'] != 'csv') {
             $this->updateUnsanitizeList($options, $atimStructure);
-            $sanitizedData = Sanitize::clean($data);
+            $sanitizedData = stringCorrection(Sanitize::clean($data));
             if ($options['settings']['no_sanitization']) {
                 $this->unsanitize($sanitizedData, $data, $options['settings']['no_sanitization']);
             }
@@ -1341,19 +1341,21 @@ class StructuresHelper extends Helper
                             foreach ($tableColumn as $tableRow) {
                                 foreach ($tableRow as $tableRowPart) {
                                     $currentValue = self::getCurrentValue($dataUnit, $tableRowPart, "", $options);
+                                    $getPrintableField=$this->getPrintableField($tableRowPart, $options, $currentValue, $key, null);
+                                    $hint=strlen($getPrintableField)>100?$getPrintableField:" ";
                                     if (strlen($tableRowPart['label']) || $firstCell) {
                                         if ($firstCell) {
-                                            echo "<td>";
+                                            echo "<td><p class = 'wraped-text'>";
                                             $firstCell = false;
                                         } else {
-                                            echo "</td><td>";
+                                            echo "</p></td><td><p class = 'wraped-text' title='".$hint."'>";
                                         }
                                     }
-                                    echo $this->getPrintableField($tableRowPart, $options, $currentValue, $key, null);
+                                    echo $getPrintableField;
                                 }
                             }
                         }
-                        echo "</td>\n";
+                        echo "</p></td>\n";
                         
                         // remove line ctrl
                         if ($removeLineCtrl) {

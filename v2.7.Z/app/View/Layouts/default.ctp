@@ -142,4 +142,3 @@ echo $this->Html->script('form/jquery.form.js') . "\n";
 if ($useBuffer) {
     ob_end_flush();
 }
-?>
