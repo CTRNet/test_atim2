@@ -1,0 +1,20 @@
+mysql -u root -p{password} -e "drop database if exists atim_procure_cusm_dump_dor_central"
+mysql -u root -p{password} -e "drop database if exists atim_procure_chum_dump_dor_central"
+mysql -u root -p{password} -e "drop database if exists atim_procure_chuq_dump_dor_central"
+mysql -u root -p{password} -e "drop database if exists atim_procure_chus_dump_dor_central"
+
+mysql -u root -p{password} -e "create database atim_procure_cusm_dump_dor_central"
+mysql -u root -p{password} -e "create database atim_procure_chum_dump_dor_central"
+mysql -u root -p{password} -e "create database atim_procure_chuq_dump_dor_central"
+mysql -u root -p{password} -e "create database atim_procure_chus_dump_dor_central"
+
+mysql -u root -p{password} atim_procure_cusm_dump_dor_central --default-character-set=utf8 < atim_procure_cusm_dump_for_central.sql
+mysql -u root -p{password} atim_procure_chum_dump_dor_central --default-character-set=utf8 < atim_procure_chum_dump_for_central.sql
+mysql -u root -p{password} atim_procure_chuq_dump_dor_central --default-character-set=utf8 < atim_procure_chuq_dump_for_central.sql
+mysql -u root -p{password} atim_procure_chus_dump_dor_central --default-character-set=utf8 < atim_procure_chus_dump_for_central.sql
+
+php main.php > atim_merge_process_summary.html
+
+mysql -u root -pxxx atim_procure_central -e "DELETE FROM procure_banks_data_merge_messages WHERE type = 'merge_try_date'"
+mysql -u root -pxxx atim_procure_central -e "INSERT INTO procure_banks_data_merge_messages  (type,details) VALUES ('merge_try_date', DATE(NOW()))"
+
