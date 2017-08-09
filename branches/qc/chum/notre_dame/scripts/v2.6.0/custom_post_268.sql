@@ -3138,4 +3138,6 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
 
 -- -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE `versions` SET branch_build_number = '6725' WHERE version_number = '2.6.8';
+UPDATE `versions` SET branch_build_number = '6725' WHERE version_number = '2.6.8'; 
+UPDATE `versions` SET branch_build_number = '6751' WHERE version_number = '2.6.8';
+UPDATE `versions` SET branch_build_number = '6775' WHERE version_number = '2.6.8';

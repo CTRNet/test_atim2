@@ -3334,4 +3334,3 @@ INSERT INTO `versions` (version_number, date_installed, trunk_build_number, bran
 VALUES
 ('2.6.8', NOW(),'6645','n/a');
  
-UPDATE `versions` SET branch_build_number = '6751' WHERE version_number = '2.6.8';

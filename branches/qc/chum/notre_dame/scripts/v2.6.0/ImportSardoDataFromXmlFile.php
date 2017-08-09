@@ -10,7 +10,7 @@ $import_summary = array();
 $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "am3-y-4606";
+$db_pwd			= "";
 $db_schema		= "atimoncologyaxisprod268";
 $db_charset		= "utf8";
 
@@ -1002,8 +1002,8 @@ function importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_re
             				'objectifs' => $objectifs,
             				'gleason_sum' => $gleason_sum,
             				'gleason_grade' => $gleason_grade));
-            		if(strlen($NoPatho)) $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_all_patho_nbrs'][] = $NoPatho;
-            		if(strlen($sardo_treatments_data['Traitement'])) $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_detail_summary'][] = $sardo_treatments_data['Traitement'];
+            		if(strlen($NoPatho)) $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_all_patho_nbrs'][$NoPatho] = $NoPatho;
+            		if(strlen($sardo_treatments_data['Traitement'])) $tmp_treatment_summaries[$treatment_key]['qc_nd_sardo_tx_detail_summary'][$sardo_treatments_data['Traitement']] = $sardo_treatments_data['Traitement'];
 				}
 			}
 		}	
