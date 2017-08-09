@@ -400,7 +400,7 @@ class StructuresHelper extends Helper
         $tmp = [];
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
-                $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure['Sfs'];
+                $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure[$possible]['Sfs'];
                 $this->remove($tmp[$atimStructure[$possible]['Structure']['alias']], $unimportantFields);
             }
         }
@@ -2749,7 +2749,7 @@ $confirmationMsg); // confirmation message
                 $returnLinks[$linkName] = $linkResults[$linkName];
             } else {
                 $linksAppend = '
-							<a href="javascript:return false;"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
+							<a href="#"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu' . (count($linkResults) > 7 ? ' scroll' : '') . '">
 								

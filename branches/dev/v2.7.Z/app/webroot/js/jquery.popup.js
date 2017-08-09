@@ -76,9 +76,6 @@ jQuery.fn.popup = function(options){
 		var container = $(fmPopup.popupOuter).find(".popup_container");
 //                debugger;
 		$(fmPopup.popupOuter).show();
-                console.log({left : $(window).width() / 2 - container.width() / 2 + "px",top : $(window).height() / 2 - container.height() / 2 + "px"});
-                console.log({left : $(window).width() / 2 + "px",top : $(window).height() / 2  + "px"});
-                console.log({left : container.width() / 2 + "px",top : container.height() / 2 + "px"});
 		container.css({
 			left : $(window).width() / 2 - container.width() / 2 + "px",
 			top : $(window).height() / 2 - container.height() / 2 + "px"
