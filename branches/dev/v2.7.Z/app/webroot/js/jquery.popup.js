@@ -14,6 +14,7 @@ var FmPopup = function(popup){
 };
 
 jQuery.fn.popup = function(options){
+    debugger;
 	var fmPopup = $(this).data('FmPopup') == undefined ? new FmPopup(this) : $(this).data('FmPopup');
 	if(options != undefined && options.closable != undefined){
 		fmPopup.closable = options.closable; 
