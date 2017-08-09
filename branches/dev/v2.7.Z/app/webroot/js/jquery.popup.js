@@ -14,7 +14,6 @@ var FmPopup = function(popup){
 };
 
 jQuery.fn.popup = function(options){
-    debugger;
 	var fmPopup = $(this).data('FmPopup') == undefined ? new FmPopup(this) : $(this).data('FmPopup');
 	if(options != undefined && options.closable != undefined){
 		fmPopup.closable = options.closable; 
@@ -72,9 +71,14 @@ jQuery.fn.popup = function(options){
 			});
 		}
 	}else{
+            console.log($(this));
 		$(this).show();
 		var container = $(fmPopup.popupOuter).find(".popup_container");
+//                debugger;
 		$(fmPopup.popupOuter).show();
+                console.log({left : $(window).width() / 2 - container.width() / 2 + "px",top : $(window).height() / 2 - container.height() / 2 + "px"});
+                console.log({left : $(window).width() / 2 + "px",top : $(window).height() / 2  + "px"});
+                console.log({left : container.width() / 2 + "px",top : container.height() / 2 + "px"});
 		container.css({
 			left : $(window).width() / 2 - container.width() / 2 + "px",
 			top : $(window).height() / 2 - container.height() / 2 + "px"
