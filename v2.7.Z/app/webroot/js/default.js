@@ -228,7 +228,7 @@ function initDatepicker(scope) {
                     day = "0" + day;
                 }
                 var tmpDate = $(yearField).val() + "-" + month + "-" + day;
-                if (tmpDate.length == 10) {
+                if (tmpDate.length === 10) {
                     $(this).datepicker('setDate', tmpDate);
 
                 }
@@ -237,17 +237,16 @@ function initDatepicker(scope) {
                 //hide the date
                 $(this).val(" ");//space required for Safari and Chome or the button disappears
                 var dateSplit = dateText.split(/-/);
-                if (dateSplit.length == 3) {
+                if (dateSplit.length === 3) {
                     $(yearField).val(dateSplit[0]);
                     $(monthField).val(dateSplit[1]);
                     $(dayField).val(dateSplit[2]);
                 }
             }
         });
-
         //bug fix for Safari and Chrome
         $(this).click(function () {
-            $(this).datepicker('show');
+            showDatePicker(this);
         });
     });
 
@@ -266,6 +265,11 @@ function initDatepicker(scope) {
         $(this).find("div").addClass("ui-corner-all").css({"border": "1px solid", "padding": "3px"});
     });
 }
+
+function showDatePicker(e){
+    $(e).datepicker('show');
+}
+
 
 function setFieldSpan(clickedButton, spanClassToDisplay) {
     $(clickedButton).parent().find("a").show();
@@ -599,7 +603,6 @@ function initFlyOverCellsLines(newLines) {
         }
     })
 }
-;
 
 function initAddLine(scope) {
     $(scope).find(".addLineLink").each(function () {
@@ -1263,7 +1266,6 @@ function initJsControls() {
             });
         }
     });
-
     initFlyOverCells(document);
 
     if ($.cookie("session_expiration")) {
@@ -1297,10 +1299,23 @@ function countLines(item) {
 }
 
 function putIntoRelDiv(index, elem) {
-    $(elem).html(
-            "<div class='testScroll'>" +
-            $(elem).html() +
-            "</div>");
+    //debugger;
+//    var temp=document.createElement('div');
+    var temp=$('<div></div>').addClass('testScroll');
+//    $(temp).addClass('testScroll');
+    $(elem).before(temp);
+//    while (elem.childNodes.length > 0) {
+    while ($(elem).contents().length > 0) {
+        temp.append($(elem).contents()[0]);
+    }
+    $(elem).append(temp);
+
+    
+//    $(elem).delegate(".datepicker", "click", showDatePicker);
+//    $(elem).html(
+//            "<div class='testScroll'>" +
+//            $(elem).html() +
+//            "</div>");
 }
 
 function initFlyOverCells(scope) {
@@ -1313,8 +1328,8 @@ function initFlyOverCells(scope) {
 
         var putAndCount = function (index, elem) {
             var colspan = $(elem).attr("colspan");
-            if (colspan == undefined) {
-                ++totalColspan
+            if (colspan === undefined) {
+                ++totalColspan;
             } else {
                 totalColspan += colspan * 1;
             }

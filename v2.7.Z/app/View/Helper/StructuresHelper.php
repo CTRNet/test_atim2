@@ -638,7 +638,7 @@ class StructuresHelper extends Helper
             if ($type == 'addgrid' || $type == 'editgrid') {
                 $options['settings']['pagination'] = false;
             }
-            $this->buildTable($atimStructure, $options, $data);
+            $this->buildTable($atimStructure, $options, $data, $type);
         } elseif (in_array($type, array(
             'detail',
             'add',
@@ -1230,7 +1230,7 @@ class StructuresHelper extends Helper
      * @param array $options            
      * @param array $data            
      */
-    private function buildTable(array $atimStructure, array $options, array $data)
+    private function buildTable(array $atimStructure, array $options, array $data, $type)
     {
         // attach PER PAGE pagination param to PASSED params array...
         if (isset($this->request->params['named']) && isset($this->request->params['named']['per'])) {
@@ -1344,18 +1344,32 @@ class StructuresHelper extends Helper
                                     $getPrintableField=$this->getPrintableField($tableRowPart, $options, $currentValue, $key, null);
                                     $hint=strlen($getPrintableField)>100?$getPrintableField:" ";
                                     if (strlen($tableRowPart['label']) || $firstCell) {
-                                        if ($firstCell) {
-                                            echo "<td><p class = 'wraped-text'>";
-                                            $firstCell = false;
-                                        } else {
-                                            echo "</p></td><td><p class = 'wraped-text' title='".$hint."'>";
+                                        if ($type==='index'){
+                                            if ($firstCell) {
+                                                echo "<td><p class = 'wraped-text'>";
+                                                $firstCell = false;
+                                            } else {
+                                                echo "</p></td><td><p class = 'wraped-text' title='".$hint."'>";
+                                            }
+                                        }
+                                        else{
+                                            if ($firstCell) {
+                                                echo "<td>";
+                                                $firstCell = false;
+                                            } else {
+                                                echo "</td><td>";
+                                            }
                                         }
                                     }
                                     echo $getPrintableField;
                                 }
                             }
                         }
-                        echo "</p></td>\n";
+                        if ($type==='index'){
+                            echo "</p></td>\n";
+                        }else{
+                            echo "</td>\n";
+                        }
                         
                         // remove line ctrl
                         if ($removeLineCtrl) {

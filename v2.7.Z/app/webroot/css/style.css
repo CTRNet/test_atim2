@@ -2737,7 +2737,12 @@ ul.actionDropdown li a {
 	display: none;
 }
 
-table.columns.index tbody tr td:first-child {
+table:not(.index) table.columns.index tbody tr td{
+	white-space: nowrap;
+        /*word-wrap: break-word!important;*/
+}
+
+table.index table.columns.index tbody tr td:first-child {
 	white-space: nowrap;
         /*word-wrap: break-word!important;*/
 }
@@ -3101,132 +3106,8 @@ select {
 	max-width: 250px;
 }
 
-div
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.descriptive_heading
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-:not
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(
-:first-child
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-){
-margin-top
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-:
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-20
-px
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-;
+div.descriptive_heading:not(:first-child){
+margin-top:20px;
 }
 .testScroll, .floatingCells {
 	z-index: 1;
@@ -3274,4 +3155,9 @@ p.wraped-text{
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+}
+
+div#default_popup{
+    margin: auto;
+    position: relative;
 }
