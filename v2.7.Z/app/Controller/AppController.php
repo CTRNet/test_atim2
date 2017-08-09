@@ -349,7 +349,9 @@ class AppController extends Controller
         } elseif ($type == self::ERROR) {
             $_SESSION['ctrapp_core']['error_msg'][] = $message;
         }
-        $this->redirect($url);
+        if ($url!=='javascript:history.back()'){
+            $this->redirect($url);
+        }
     }
 
     public function atimFlashError($message, $url, $compatibility)

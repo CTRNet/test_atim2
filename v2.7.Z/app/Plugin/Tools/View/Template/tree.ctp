@@ -161,7 +161,7 @@ if (isset($isAjax)) {
 		});
 		$(scope).find(".add").unbind('click').click(function(){
 			if($("#addDialog").length == 0){
-				buildDialog("addDialog", "", "<select></select><input type='number' size='1' min='1' max='50'></input>", new Array 
+				buildDialog("addDialog", "", "<select></select><input type='number' size='1' min='1' max='50'></input>", new Array( 
 					{ "label" : STR_ADD, "icon" : "add", "action" : function(){
 							if(numberValidation($("#addDialog input"), null)){
 								data = new Object();
@@ -399,7 +399,7 @@ if (isset($isAjax)) {
 	
 	function confirmReset(){
 		if($("#confirmReset").length == 0){
-			buildConfirmDialog("confirmReset", "<?php echo __('are you sure you want to reset?'); ?>", new Array
+			buildConfirmDialog("confirmReset", "<?php echo __('are you sure you want to reset?'); ?>", new Array(
 				{icon : "detail", label : STR_YES, "action" : function(){ document.location = root_url + "/Tools/Template/edit/<?php echo $templateId; ?>";}},
 				{"icon" : "cancel", label : STR_CANCEL, "action" : function(){ $("#confirmReset").popup('close'); }})
 			);
