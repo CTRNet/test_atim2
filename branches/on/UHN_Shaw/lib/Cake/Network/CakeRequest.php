@@ -2,8 +2,6 @@
 /**
  * CakeRequest
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -32,7 +30,7 @@ App::uses('Hash', 'Utility');
 class CakeRequest implements ArrayAccess {
 
 /**
- * Array of parameters parsed from the url.
+ * Array of parameters parsed from the URL.
  *
  * @var array
  */
@@ -62,14 +60,14 @@ class CakeRequest implements ArrayAccess {
 	public $query = array();
 
 /**
- * The url string used for the request.
+ * The URL string used for the request.
  *
  * @var string
  */
 	public $url;
 
 /**
- * Base url path.
+ * Base URL path.
  *
  * @var string
  */
@@ -127,7 +125,7 @@ class CakeRequest implements ArrayAccess {
 /**
  * Constructor
  *
- * @param string $url Trimmed url string to use. Should not contain the application base path.
+ * @param string $url Trimmed URL string to use. Should not contain the application base path.
  * @param boolean $parseEnvironment Set to false to not auto parse the environment. ie. GET, POST and FILES.
  */
 	public function __construct($url = null, $parseEnvironment = true) {
@@ -209,7 +207,9 @@ class CakeRequest implements ArrayAccess {
 			$query = $_GET;
 		}
 
-		unset($query['/' . str_replace('.', '_', urldecode($this->url))]);
+		$unsetUrl = '/' . str_replace('.', '_', urldecode($this->url));
+		unset($query[$unsetUrl]);
+		unset($query[$this->base . $unsetUrl]);
 		if (strpos($this->url, '?') !== false) {
 			list(, $querystr) = explode('?', $this->url);
 			parse_str($querystr, $queryArgs);
@@ -391,7 +391,7 @@ class CakeRequest implements ArrayAccess {
  * Get the IP the client is using, or says they are using.
  *
  * @param boolean $safe Use safe = false when you think the user might manipulate their HTTP_CLIENT_IP
- *   header. Setting $safe = false will will also look at HTTP_X_FORWARDED_FOR
+ *   header. Setting $safe = false will also look at HTTP_X_FORWARDED_FOR
  * @return string The client IP.
  */
 	public function clientIp($safe = true) {
@@ -423,10 +423,6 @@ class CakeRequest implements ArrayAccess {
  */
 	public function referer($local = false) {
 		$ref = env('HTTP_REFERER');
-		$forwarded = env('HTTP_X_FORWARDED_HOST');
-		if ($forwarded) {
-			$ref = $forwarded;
-		}
 
 		$base = Configure::read('App.fullBaseUrl') . $this->webroot;
 		if (!empty($ref) && !empty($base)) {
@@ -673,9 +669,13 @@ class CakeRequest implements ArrayAccess {
 /**
  * Get the host that the request was handled on.
  *
+ * @param boolean $trustProxy Whether or not to trust the proxy host.
  * @return string
  */
-	public function host() {
+	public function host($trustProxy = false) {
+		if ($trustProxy) {
+			return env('HTTP_X_FORWARDED_HOST');
+		}
 		return env('HTTP_HOST');
 	}
 
@@ -760,7 +760,7 @@ class CakeRequest implements ArrayAccess {
  * {{{ CakeRequest::acceptLanguage('es-es'); }}}
  *
  * @param string $language The language to test.
- * @return If a $language is provided, a boolean. Otherwise the array of accepted languages.
+ * @return mixed If a $language is provided, a boolean. Otherwise the array of accepted languages.
  */
 	public static function acceptLanguage($language = null) {
 		$raw = self::_parseAcceptWithQualifier(self::header('Accept-Language'));
@@ -781,7 +781,10 @@ class CakeRequest implements ArrayAccess {
 	}
 
 /**
- * Parse Accept* headers with qualifier options
+ * Parse Accept* headers with qualifier options.
+ *
+ * Only qualifiers will be extracted, any other accept extensions will be
+ * discarded as they are not frequently used.
  *
  * @param string $header
  * @return array
@@ -790,14 +793,21 @@ class CakeRequest implements ArrayAccess {
 		$accept = array();
 		$header = explode(',', $header);
 		foreach (array_filter($header) as $value) {
-			$prefPos = strpos($value, ';');
-			if ($prefPos !== false) {
-				$prefValue = substr($value, strpos($value, '=') + 1);
-				$value = trim(substr($value, 0, $prefPos));
-			} else {
-				$prefValue = '1.0';
-				$value = trim($value);
+			$prefValue = '1.0';
+			$value = trim($value);
+
+			$semiPos = strpos($value, ';');
+			if ($semiPos !== false) {
+				$params = explode(';', $value);
+				$value = trim($params[0]);
+				foreach ($params as $param) {
+					$qPos = strpos($param, 'q=');
+					if ($qPos !== false) {
+						$prefValue = substr($param, $qPos + 2);
+					}
+				}
 			}
+
 			if (!isset($accept[$prefValue])) {
 				$accept[$prefValue] = array();
 			}
@@ -811,7 +821,7 @@ class CakeRequest implements ArrayAccess {
 
 /**
  * Provides a read accessor for `$this->query`. Allows you
- * to use a syntax similar to `CakeSession` for reading url query data.
+ * to use a syntax similar to `CakeSession` for reading URL query data.
  *
  * @param string $name Query string variable name
  * @return mixed The value being read
@@ -842,7 +852,7 @@ class CakeRequest implements ArrayAccess {
  */
 	public function data($name) {
 		$args = func_get_args();
-		if (count($args) == 2) {
+		if (count($args) === 2) {
 			$this->data = Hash::insert($this->data, $name, $args[1]);
 			return $this;
 		}

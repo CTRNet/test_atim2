@@ -8,13 +8,16 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 			'foreignKey' => 'participant_id'),
 		'MiscIdentifierControl' => array(
 			'className' => 'ClinicalAnnotation.MiscIdentifierControl',
-			'foreignKey' => 'misc_identifier_control_id'
-		)
-	);
+			'foreignKey' => 'misc_identifier_control_id'),        
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 
 	private $confid_warning_absent = true;
 	
-    function summary( $variables=array() ) {
+	public static $study_model = null;
+		
+	function summary( $variables=array() ) {
 		$return = false;
 		
 //		if ( isset($variables['MiscIdentifier.id']) ) {
@@ -117,6 +120,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	
 	function validates($options = array()){
 		$errors = parent::validates($options);
+		
 		if(!isset($this->data['MiscIdentifier']['deleted']) || $this->data['MiscIdentifier']['deleted'] == 0){
 			if(isset($this->validationErrors['identifier_value']) && !is_array($this->validationErrors['identifier_value'])){
 				$this->validationErrors['identifier_value'] = array($this->validationErrors['identifier_value']);
@@ -133,14 +137,60 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 			if($current && $current['MiscIdentifierControl']['reg_exp_validation']){
 				$rule = $current['MiscIdentifierControl']['reg_exp_validation'];
 			}
-			if($rule && !preg_match('/'.$rule.'/', $this->data['MiscIdentifier']['identifier_value'])){
+			if($rule && isset($this->data['MiscIdentifier']['identifier_value']) && !preg_match('/'.$rule.'/', $this->data['MiscIdentifier']['identifier_value'])){
 				$msg = __('the format of the identifier is incorrect');
 				if(!empty($current['MiscIdentifierControl']['user_readable_format'])) $msg .= ' '.__('expected misc identifier format is %s', $current['MiscIdentifierControl']['user_readable_format']);
 				$this->validationErrors['identifier_value'][] = $msg;
 				return false;
 			}
 		}
+		
+		if(!$this->validateAndUpdateMiscIdentifierStudyData()) return false;
+		
 		return $errors;
 	}
+	
+	/**
+	 * Check MiscIdentifier study definition and set error if required.
+	 */
+	
+	function validateAndUpdateMiscIdentifierStudyData() {
+		$misc_identifier_data =& $this->data;
+	
+		// check data structure
+		$tmp_arr_to_check = array_values($misc_identifier_data);
+		if((!is_array($misc_identifier_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['MiscIdentifier']))) {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	
+		// Launch validation
+		if(array_key_exists('FunctionManagement', $misc_identifier_data) && array_key_exists('autocomplete_misc_identifier_study_summary_id', $misc_identifier_data['FunctionManagement'])) {
+			$misc_identifier_data['MiscIdentifier']['study_summary_id'] = null;
+			$misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'] = trim($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
+			$this->addWritableField(array('study_summary_id'));
+			if(strlen($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id'])) {
+				// Load model
+				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
+					
+				// Check the aliquot internal use study definition
+				$arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($misc_identifier_data['FunctionManagement']['autocomplete_misc_identifier_study_summary_id']);
+	
+				// Set study summary id
+				if(isset($arr_study_selection_results['StudySummary'])){
+					$misc_identifier_data['MiscIdentifier']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+				}
+	
+				// Set error
+				if(isset($arr_study_selection_results['error'])){
+					$this->validationErrors['autocomplete_misc_identifier_study_summary_id'][] = $arr_study_selection_results['error'];
+					return false;
+				}
+			}
+	
+		}
+		
+		return true;
+	}
+	
 }
 

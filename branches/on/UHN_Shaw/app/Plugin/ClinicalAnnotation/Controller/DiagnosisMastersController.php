@@ -16,7 +16,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		'CodingIcd.CodingIcdo3Topo',//required by model
 		'CodingIcd.CodingIcdo3Morpho'//required by model
 	);
-	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date'));
+	var $paginate = array('DiagnosisMaster'=>array('order'=>'DiagnosisMaster.dx_date'));
 
 	function listall( $participant_id, $parent_dx_id = null, $is_ajax = 0 ) {
 		// MANAGE DATA
@@ -62,7 +62,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		$ids = array();//ids already having child
 		$can_have_child = $this->DiagnosisMaster->find('all', array(
 			'fields' => array('DiagnosisMaster.id'),
-			'conditions' => array('DiagnosisControl.category' => array('primary', 'secondary'), 'DiagnosisMaster.participant_id' => $participant_id),
+			'conditions' => array('DiagnosisControl.category' => array('primary', 'secondary - distant'), 'DiagnosisMaster.participant_id' => $participant_id),
 			'recursive' => 0
 		));
 		$can_have_child = AppController::defineArrayKey($can_have_child, 'DiagnosisMaster', 'id', true);
@@ -144,8 +144,8 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		$condition_not_category = array();
 		$dx_ctrls = array();
 		switch($dx_master_data['DiagnosisControl']['category']) {
-			case 'secondary':
-				$condition_not_category[] = 'secondary';
+			case 'secondary - distant':
+				$condition_not_category[] = 'secondary - distant';
 			case 'primary':
 				$condition_not_category[] = 'primary';
 				$dx_ctrls = $this->DiagnosisControl->find('all', array(
@@ -169,7 +169,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		$can_have_child = $this->DiagnosisMaster->find('all', array(
 				'fields' => array('DiagnosisMaster.id'),
-				'conditions' => array('DiagnosisControl.category' => array('primary', 'secondary'), 'DiagnosisMaster.participant_id' => $participant_id),
+				'conditions' => array('DiagnosisControl.category' => array('primary', 'secondary - distant'), 'DiagnosisMaster.participant_id' => $participant_id),
 				'recursive' => 0
 		));
 		$can_have_child = AppController::defineArrayKey($can_have_child, 'DiagnosisMaster', 'id', true);
@@ -214,7 +214,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			if(empty($parent_dx)){
 				$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );				
 			}
-			if(($dx_ctrl['DiagnosisControl']['category'] == 'primary') || ($dx_ctrl['DiagnosisControl']['category'] == 'secondary') &&  ($parent_dx['DiagnosisControl']['category'] == 'secondary')) {
+			if(($dx_ctrl['DiagnosisControl']['category'] == 'primary') || ($dx_ctrl['DiagnosisControl']['category'] == 'secondary - distant') &&  ($parent_dx['DiagnosisControl']['category'] == 'secondary - distant')) {
 				$this->flash(__('invalid control id'), 'javascript:history.back();');
 			}
 		}
@@ -228,7 +228,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			$this->set( 'atim_menu_variables', $atim_menu_variables);
 			$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/DiagnosisMasters/listall/') );
 		}
-		$this->set('origin', $parent_id == 0 ? 'primary' : 'secondary');
+		$this->set('origin', $parent_id == 0 ? 'primary' : 'secondary - distant');
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias'].",".($parent_id == 0 ? "dx_origin_primary" : "dx_origin_wo_primary"), 'atim_structure', array('model_table_assoc' => array('DiagnosisDetail' => $dx_control_data['DiagnosisControl']['detail_tablename'])));
 		$this->Structures->set('empty', 'empty_structure');
@@ -272,12 +272,14 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 						$this->DiagnosisMaster->tryCatchQuery(str_replace("diagnosis_masters", "diagnosis_masters_revs", $query_to_update));
 					}
 					
+					$url_to_flash = '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/';
+					
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
 					
-					$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/' );
+					$this->atimFlash(__('your data has been saved'), $url_to_flash);
 				}
 			}
 		}
@@ -290,6 +292,12 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 		if(empty($dx_master_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
+		
+		// CUSTOM CODE: MANAGE REDEFINE PRIMARY
+		$hook_link = $this->hook('before_redefine_primary');
+		if( $hook_link ) {
+			require($hook_link);
 		}
 		
 		if(!is_null($redefined_primary_control_id)) {
@@ -334,6 +342,11 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		if(empty($this->request->data)) {
 			$this->request->data = $dx_master_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 		} else {
 			$this->DiagnosisMaster->patchIcd10NullValues($this->request->data);
 			$submitted_data_validates = true;
@@ -375,6 +388,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atimDelete( $diagnosis_master_id ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );

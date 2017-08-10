@@ -19,8 +19,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 			'type'			=> 'INNER'),        
 		'StorageMaster' => array(           
 			'className'    => 'StorageLayout.StorageMaster',            
-			'foreignKey'    => 'storage_master_id')
-	);
+			'foreignKey'    => 'storage_master_id'),        
+		'StudySummary' => array(           
+			'className'    => 'Study.StudySummary',            
+			'foreignKey'    => 'study_summary_id'));
 	
 	var $hasOne = array(
 		'ViewAliquot' => array(
@@ -37,7 +39,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 	private static $warning_field = "barcode";//can be overriden into a custom model
 	
 	public static $aliquot_type_dropdown = array();
-	public static $storage = null;
+	public static $storage_model = null;
+	public static $study_model = null;
 	
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 
@@ -122,6 +125,13 @@ class AliquotMaster extends InventoryManagementAppModel {
 		return $storage_data;
 	}
 	
+	/****
+	 * @deprecated
+	 */
+	function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false){
+		return $this->updateAliquotVolume($aliquot_master_id, $remove_from_stock_if_empty_volume);
+	}
+	
 	/**
 	 * Update the current volume of an aliquot.
 	 * 
@@ -138,7 +148,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @date 2007-08-15
 	 */
 	 
-	function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false){
+	function updateAliquotVolume($aliquot_master_id, $remove_from_stock_if_empty_volume = false){
 		if(empty($aliquot_master_id)){
 			AppController::getInstance()->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
@@ -149,69 +159,53 @@ class AliquotMaster extends InventoryManagementAppModel {
 		// Set variables
 		$aliquot_data_to_save = array();
 		$aliquot_uses = null;
+			
+		// MANAGE CURRENT VOLUME
 		
-		if($update_current_volume) {
-			
-			// MANAGE CURRENT VOLUME
-			
-			$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
+		$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
+				
+		// Manage new current volume
+		if(empty($initial_volume)){	
+			// Initial_volume is null or equal to 0
+			// To be sure value and type of both variables are identical
+			$current_volume = $initial_volume;
 					
-			// Manage new current volume
-			if(empty($initial_volume)){	
-				// Initial_volume is null or equal to 0
-				// To be sure value and type of both variables are identical
-				$current_volume = $initial_volume;
-						
-			}else {
-				// A value has been set for the intial volume		
-				if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
-					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				}
-						
-				$total_used_volume = 0;
-				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
-				foreach($aliquot_uses as $aliquot_use){
-					$used_volume = $aliquot_use['0']['used_volume'];
-					if(!empty($used_volume)){
-						// Take used volume in consideration only when this one is not empty
-						if((!is_numeric($used_volume)) || ($used_volume < 0)){
-							AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
-						$total_used_volume += $used_volume;
+		}else {
+			// A value has been set for the intial volume		
+			if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			}
+					
+			$total_used_volume = 0;
+			$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
+			$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
+			foreach($aliquot_uses as $aliquot_use){
+				$used_volume = $aliquot_use['0']['used_volume'];
+				if(!empty($used_volume)){
+					// Take used volume in consideration only when this one is not empty
+					if((!is_numeric($used_volume)) || ($used_volume < 0)){
+						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
-				}
-				
-				$current_volume = round(($initial_volume - $total_used_volume), 5);
-				if($current_volume < 0){
-					$current_volume = 0;
-					$tmp_msg = __("the aliquot with barcode [%s] has reached a volume below 0");
-					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+					$total_used_volume += $used_volume;
 				}
 			}
 			
-			$aliquot_data_to_save["current_volume"] = $current_volume;
-			if($current_volume <= 0 && $remove_from_stock_if_empty_volume){
-				$aliquot_data_to_save['storage_master_id'] = NULL;
-				$aliquot_data_to_save['storage_coord_x'] = NULL;
-				$aliquot_data_to_save['storage_coord_y'] = NULL;
-				$aliquot_data_to_save['in_stock'] = 'no';
-				$aliquot_data_to_save['in_stock_detail'] = 'empty';
+			$current_volume = round(($initial_volume - $total_used_volume), 5);
+			if($current_volume < 0){
+				$current_volume = 0;
+				$tmp_msg = __("the aliquot with barcode [%s] has reached a volume below 0");
+				AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
 			}
 		}
 		
-		if($update_uses_counter) {
-			
-			// UPDATE ALIQUOT USE COUNTER
-				
-			if(is_null($aliquot_uses)) {
-				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
-			}
-			
-			$aliquot_data_to_save['use_counter'] = sizeof($aliquot_uses);
-		}
-		
+		$aliquot_data_to_save["current_volume"] = $current_volume;
+		if($current_volume <= 0 && $remove_from_stock_if_empty_volume){
+			$aliquot_data_to_save['storage_master_id'] = NULL;
+			$aliquot_data_to_save['storage_coord_x'] = NULL;
+			$aliquot_data_to_save['storage_coord_y'] = NULL;
+			$aliquot_data_to_save['in_stock'] = 'no';
+			$aliquot_data_to_save['in_stock_detail'] = 'empty';
+		}	
 		
 		// SAVE DATA
 		
@@ -227,7 +221,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 		$this->read();
 		$save_required = false;
 		foreach($aliquot_data_to_save as $key_to_save => $value_to_save){
-			if($this->data['AliquotMaster'][$key_to_save] != $value_to_save){
+			if($key_to_save == "current_volume") $this->data['AliquotMaster'][$key_to_save] = str_replace('0.00000', '0', $this->data['AliquotMaster'][$key_to_save]);
+			if(strcmp($this->data['AliquotMaster'][$key_to_save], $value_to_save)){		
 				$save_required = true;
 			}
 		}
@@ -255,12 +250,13 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		$this->validateAndUpdateAliquotStorageData();
 		
+		$this->validateAndUpdateAliquotStudyData();
+		
 		if(isset($this->data['AliquotMaster']['barcode'])){
 			$this->checkDuplicatedAliquotBarcode($this->data);
-		}		
-		parent::validates($options);
+		}	
 		
-		return empty($this->validationErrors);
+		return parent::validates($options);
 	}
 	
 	/**
@@ -277,8 +273,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 		
 		// Load model
-		if(self::$storage == null){
-			self::$storage = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+		if(self::$storage_model == null){
+			self::$storage_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 		}
 				
 		// Launch validation		
@@ -289,7 +285,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			$is_sample_core = ($aliquot_data['AliquotControl']['aliquot_type'] == 'core');
 			
 			// Check the aliquot storage definition
-			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
+			$arr_storage_selection_results = self::$storage_model->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
 			
 			$set_storage = false;
 			foreach(array('storage_data', 'storage_definition_error', 'position_x_error', 'position_y_error', 'change_position_x_to_uppercase', 'change_position_y_to_uppercase') as $key){
@@ -365,6 +361,44 @@ class AliquotMaster extends InventoryManagementAppModel {
 	}
 	
 	/**
+	 * Check aliquot study definition and set error if required.
+	 */
+	 
+	function validateAndUpdateAliquotStudyData() {
+		$aliquot_data =& $this->data;
+		
+		// check data structure
+		$tmp_arr_to_check = array_values($aliquot_data);
+		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		// Launch validation
+		if(array_key_exists('FunctionManagement', $aliquot_data) && array_key_exists('autocomplete_aliquot_master_study_summary_id', $aliquot_data['FunctionManagement'])) {
+			$aliquot_data['AliquotMaster']['study_summary_id'] = null;
+			$aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = trim($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
+			if(strlen($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'])) {
+				// Load model
+				if(self::$study_model == null) self::$study_model = AppModel::getInstance("Study", "StudySummary", true);
+					
+				// Check the aliquot study definition
+				$arr_study_selection_results = self::$study_model->getStudyIdFromStudyDataAndCode($aliquot_data['FunctionManagement']['autocomplete_aliquot_master_study_summary_id']);
+				
+				// Set study summary id
+				if(isset($arr_study_selection_results['StudySummary'])){
+					$aliquot_data['AliquotMaster']['study_summary_id'] = $arr_study_selection_results['StudySummary']['id'];
+				}
+				
+				// Set error
+				if(isset($arr_study_selection_results['error'])){
+					$this->validationErrors['autocomplete_aliquot_master_study_summary_id'][] = $arr_study_selection_results['error'];
+				}
+			}
+		
+		}
+	}
+	
+	/**
 	 * Check created barcodes are not duplicated and set error if they are.
 	 * 
 	 * Note: 
@@ -419,7 +453,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	function hasChild(array $aliquot_master_ids){
 		$ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", TRUE);
-		return array_filter($ViewAliquotUse->find('list', array('fields' => array('ViewAliquotUse.aliquot_master_id'), 'conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_ids), 'group' => array('ViewAliquotUse.aliquot_master_id'))));
+		return array_unique(array_filter($ViewAliquotUse->find('list', array('fields' => array('ViewAliquotUse.aliquot_master_id'), 'conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_ids)))));
 	}
 	
 	
@@ -433,32 +467,48 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @author N. Luc
 	 * @since 2009-09-11
 	 * @updated N. Luc
+	 * @deprecated
 	 */
 	function getDefaultStorageDate($sample_master_data) {
-		$collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+		list($date, $date_accuaracy) = $this->getDefaultStorageDateAndAccuracy($sample_master_data);
+		return strlen($date)? $date : null;
+	}
+	
+	/**
+	 * Get default storage date and accuracy for a new created aliquot.
+	 *
+	 * @param $sample_master_data Master data of the studied sample.
+	 *
+	 * @return array(default storage date, accuracy).
+	 *
+	 * @author N. Luc
+	 * @since 2016-09-29
+	 * @updated N. Luc
+	 */
+	function getDefaultStorageDateAndAccuracy($sample_master_data) {
+	
 		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
 		$derivative_detail_model = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
 		switch($sample_master_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				// Default creation date will be the specimen reception date
-				$collection_data = $collection_model->getOrRedirect($sample_master_data['SampleMaster']['collection_id']);
 				$sample_master = $sample_master_model->getOrRedirect($sample_master_data['SampleMaster']['id']);
-				return $sample_master['SpecimenDetail']['reception_datetime'];
-				
+				return array($sample_master['SpecimenDetail']['reception_datetime'], $sample_master['SpecimenDetail']['reception_datetime_accuracy']);
+	
 			case 'derivative':
 				// Default creation date will be the derivative creation date or Specimen reception date
 				$derivative_detail_data = $derivative_detail_model->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
-				if(empty($derivative_detail_data)) { 
-					$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+				if(empty($derivative_detail_data)) {
+					$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
-				
-				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
-				
+	
+				return array($derivative_detail_data['DerivativeDetail']['creation_datetime'], $derivative_detail_data['DerivativeDetail']['creation_datetime_accuracy']);
+	
 			default:
-				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);			
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		
-		return null;
+	
+		return array('', '');
 	}
 	
 	/**
@@ -622,7 +672,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}
 			$parents = array_unique($parents);
 			foreach($parents as $parent){
-				$this->updateAliquotUseAndVolume($parent, true, true, false);
+				$this->updateAliquotVolume($parent);
 			}
 			return true;
 		}
@@ -632,4 +682,126 @@ class AliquotMaster extends InventoryManagementAppModel {
 	static function joinOnAliquotDup($on_field){
 		return array('table' => 'aliquot_masters', 'alias' => 'aliquot_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = aliquot_masters_dup.id'));
 	}
+	
+	function validateAliquotMasterDataUpdateInBatch($function_management_data, $submitted_aliquot_master_data, $aliquot_ids) {
+		//Set in_stock value	
+		//Use of field 'FunctionManagement.in_stock' to support empty value that means 'in_stock' value has not to be changed 
+		//(Can not use field AliquotMaster.in_stock value because this one is linked to a 'not empty' validation)
+		$submitted_aliquot_master_data['in_stock'] = $function_management_data['in_stock'];	
+		
+		$validates = true;
+			
+		// Check submitted data conflicts
+			
+		if(strlen($function_management_data['recorded_storage_selection_label']) && (($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no'))) {
+			$validates = false;
+			$this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: you can not remove aliquot and set a storage');
+			if($submitted_aliquot_master_data['in_stock'] == 'no') $this->validationErrors['in_stock'][] = __('data conflict: you can not remove aliquot and set a storage');
+		}
+		if(isset($function_management_data['autocomplete_aliquot_master_study_summary_id']) && strlen($function_management_data['autocomplete_aliquot_master_study_summary_id']) && $function_management_data['remove_study_summary_id'] == '1') {
+			$validates = false;
+			$this->validationErrors['autocomplete_aliquot_master_study_summary_id'][] = __('data conflict: you can not delete data and set a new one');
+		}		
+		foreach($submitted_aliquot_master_data as $key => $value) {
+			if(strlen($submitted_aliquot_master_data[$key]) && array_key_exists('remove_'.$key, $function_management_data) && $function_management_data['remove_'.$key] == '1') {
+				$validates = false;
+				$this->validationErrors[$key][] = __('data conflict: you can not delete data and set a new one');
+			}
+		}
+			
+		// Set gerenated aliquot master data plus launch validation on this data set
+		
+		$aliquot_master_data_to_update = array('AliquotMaster' => array_filter($submitted_aliquot_master_data));
+		$position_deletion_warning_message = null;
+		
+		if($validates){
+			// Work on storage data
+			if($function_management_data['recorded_storage_selection_label']) {
+				$aliquot_master_data_to_update['FunctionManagement']['recorded_storage_selection_label'] = $function_management_data['recorded_storage_selection_label'];
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
+				$this->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					
+				$position_deletion_warning_message = 'aliquots positions have been deleted';
+					
+				if(empty($submitted_aliquot_master_data['in_stock'])) {
+					//New stock value has not been set then won't be updated: Control above detected no conflict - Check data in db
+					$condtions = array('AliquotMaster.id' => $aliquot_ids, 'AliquotMaster.in_stock' => 'no');
+					$aliquot_not_in_stock = $this->find('count', array('conditions' => $condtions, 'recursive' => '-1'));
+					if($aliquot_not_in_stock) {
+						$validates = false;
+						$position_deletion_warning_message = '';
+						$this->validationErrors['recorded_storage_selection_label'][] = __('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value');
+					}
+				}
+					
+			} else if(($function_management_data['remove_from_storage'] == '1') || ($submitted_aliquot_master_data['in_stock'] == 'no')) {
+				//Aliquots not in stcok anymore : Erase storage data
+				$aliquot_master_data_to_update['AliquotMaster']['storage_master_id'] = null;
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_x'] = null;
+				$aliquot_master_data_to_update['AliquotMaster']['storage_coord_y'] = null;
+				$this->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+			}
+			// Work on study
+			if(isset($function_management_data['autocomplete_aliquot_master_study_summary_id']) && $function_management_data['autocomplete_aliquot_master_study_summary_id']) {
+				$aliquot_master_data_to_update['FunctionManagement']['autocomplete_aliquot_master_study_summary_id'] = $function_management_data['autocomplete_aliquot_master_study_summary_id'];
+				$this->addWritableField(array('study_summary_id'));					
+			} else if(isset($function_management_data['remove_study_summary_id']) && ($function_management_data['remove_study_summary_id'] == '1')) {
+				$aliquot_master_data_to_update['AliquotMaster']['study_summary_id'] = null;
+				$this->addWritableField(array('study_summary_id'));
+			}
+			// Work on other data
+			foreach($submitted_aliquot_master_data as $key => $value) {
+				if(array_key_exists('remove_'.$key, $function_management_data) && $function_management_data['remove_'.$key] == '1') {
+					$aliquot_master_data_to_update['AliquotMaster'][$key] = null;
+				}
+			}
+		}
+		if($validates){
+			$aliquot_master_data_to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
+			$not_core_nbr = $this->find('count', array('conditions' => array('AliquotMaster.id' => $aliquot_ids, "AliquotControl.aliquot_type != 'core'")));
+			$aliquot_master_data_to_update['AliquotControl']['aliquot_type'] = $not_core_nbr? 'not core' : 'core'; //to allow tma storage check (check aliquot != than core is not stored into TMA block), remove afterward
+			$this->set($aliquot_master_data_to_update);
+			if(!$this->validates()){
+				$validates = false;
+			}
+			$aliquot_master_data_to_update= $this->data;
+			unset($aliquot_master_data_to_update['AliquotMaster']['aliquot_control_id']);
+			unset($aliquot_master_data_to_update['AliquotControl']['aliquot_type']);
+		}
+		
+		if(sizeof($aliquot_master_data_to_update['AliquotMaster']) == '1' && array_key_exists('__validated__', $aliquot_master_data_to_update['AliquotMaster'])) $aliquot_master_data_to_update['AliquotMaster'] = array();	//No data to save
+		
+		return array($aliquot_master_data_to_update, $validates, $position_deletion_warning_message);	
+	}
+	
+	function getAliquotDataStorageAndStockToApplyToAll($data) {
+		$errors = array();
+		$used_aliquot_data_to_apply_to_all = array();
+		if(isset($data['FunctionManagement']) && array_key_exists('in_stock', $data['FunctionManagement'])) {
+			if($data['FunctionManagement']['remove_in_stock_detail'] && strlen($data['AliquotMaster']['in_stock_detail'])) {
+				$errors['in_stock_detail'][__('data conflict: you can not delete data and set a new one')][] = __('data to apply to all');
+				$data['FunctionManagement']['remove_in_stock_detail'] = '';
+				$data['AliquotMaster']['in_stock_detail'] = '';
+			}
+			//In stock detail of parent to apply to all
+			foreach(array('FunctionManagement','AliquotMaster') as $tmp_model) {
+				if(isset($data[$tmp_model])) {
+					foreach($data[$tmp_model] as $tmp_field => $tmp_field_value) {
+						if(!empty($data[$tmp_model][$tmp_field])) {
+							if($tmp_model.'.'.$tmp_field == 'FunctionManagement.in_stock') {
+								$used_aliquot_data_to_apply_to_all['AliquotMaster'][$tmp_field] = $data[$tmp_model][$tmp_field];
+							} else if($tmp_model.'.'.$tmp_field == 'FunctionManagement.remove_in_stock_detail') {
+								$used_aliquot_data_to_apply_to_all['AliquotMaster']['in_stock_detail'] = '';
+							} else {
+								$used_aliquot_data_to_apply_to_all[$tmp_model][$tmp_field] = $data[$tmp_model][$tmp_field];
+							}
+						}
+					}
+				}
+			}
+		}
+		return array($used_aliquot_data_to_apply_to_all, $errors);
+	}
+		
 }

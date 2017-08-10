@@ -2,8 +2,6 @@
 /**
  * MySQL layer for DBO
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -390,7 +388,7 @@ class Mysql extends DboSource {
 
 		if (!empty($conditions)) {
 			$alias = $this->name($model->alias);
-			if ($model->name == $model->alias) {
+			if ($model->name === $model->alias) {
 				$joins = implode(' ', $this->_getJoins($model));
 			}
 		}
@@ -519,7 +517,7 @@ class Mysql extends DboSource {
 		$colList = array();
 		foreach ($compare as $curTable => $types) {
 			$indexes = $tableParameters = $colList = array();
-			if (!$table || $table == $curTable) {
+			if (!$table || $table === $curTable) {
 				$out .= 'ALTER TABLE ' . $this->fullTableName($curTable) . " \n";
 				foreach ($types as $type => $column) {
 					if (isset($column['indexes'])) {

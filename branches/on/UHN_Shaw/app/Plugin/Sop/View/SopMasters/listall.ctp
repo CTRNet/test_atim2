@@ -1,8 +1,9 @@
 <?php 
 	$add_links = array();
 	foreach ( $sop_controls as $sop_control ) {
-		$add_links[$sop_control['SopControl']['sop_group'].' - '.$sop_control['SopControl']['type']] = '/Sop/SopMasters/add/'.$sop_control['SopControl']['id'].'/';
+		$add_links[__($sop_control['SopControl']['sop_group']).' - '.__($sop_control['SopControl']['type'])] = '/Sop/SopMasters/add/'.$sop_control['SopControl']['id'].'/';
 	}
+	ksort($add_links);
 	
 	$structure_links = array(
 		'index'=>array(

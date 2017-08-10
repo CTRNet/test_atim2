@@ -2,8 +2,6 @@
 /**
  * DboSqliteTest file
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -90,6 +88,7 @@ class SqliteTest extends CakeTestCase {
 /**
  * Sets up a Dbo class instance for testing
  *
+ * @return void
  */
 	public function setUp() {
 		parent::setUp();
@@ -103,6 +102,7 @@ class SqliteTest extends CakeTestCase {
 /**
  * Sets up a Dbo class instance for testing
  *
+ * @return void
  */
 	public function tearDown() {
 		parent::tearDown();
@@ -112,6 +112,7 @@ class SqliteTest extends CakeTestCase {
 /**
  * Tests that SELECT queries from DboSqlite::listSources() are not cached
  *
+ * @return void
  */
 	public function testTableListCacheDisabling() {
 		$this->assertFalse(in_array('foo_test', $this->Dbo->listSources()));
@@ -158,6 +159,7 @@ class SqliteTest extends CakeTestCase {
 /**
  * Tests that cached table descriptions are saved under the sanitized key name
  *
+ * @return void
  */
 	public function testCacheKeyName() {
 		Configure::write('Cache.disable', false);
@@ -430,7 +432,7 @@ class SqliteTest extends CakeTestCase {
 	}
 
 /**
- * Test that records can be inserted with uuid primary keys, and
+ * Test that records can be inserted with UUID primary keys, and
  * that the primary key is not blank
  *
  * @return void
@@ -440,7 +442,7 @@ class SqliteTest extends CakeTestCase {
 		$Model = ClassRegistry::init('Uuid');
 
 		$data = array(
-			'title' => 'A uuid should work',
+			'title' => 'A UUID should work',
 			'count' => 10
 		);
 		$Model->create($data);
@@ -448,7 +450,7 @@ class SqliteTest extends CakeTestCase {
 		$result = $Model->read();
 
 		$this->assertEquals($data['title'], $result['Uuid']['title']);
-		$this->assertTrue(Validation::uuid($result['Uuid']['id']), 'Not a uuid');
+		$this->assertTrue(Validation::uuid($result['Uuid']['id']), 'Not a UUID');
 	}
 
 /**

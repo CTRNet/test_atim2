@@ -4,8 +4,6 @@
  *
  * Use it to configure database for ACL
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -35,6 +33,9 @@ class DbAclSchema extends CakeSchema {
 	public function after($event = array()) {
 	}
 
+/**
+ * ACO - Access Control Object - Something that is wanted
+ */
 	public $acos = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 10, 'key' => 'primary'),
 		'parent_id' => array('type' => 'integer', 'null' => true, 'default' => null, 'length' => 10),
@@ -46,6 +47,9 @@ class DbAclSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1))
 	);
 
+/**
+ * ARO - Access Request Object - Something that wants something
+ */
 	public $aros = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 10, 'key' => 'primary'),
 		'parent_id' => array('type' => 'integer', 'null' => true, 'default' => null, 'length' => 10),
@@ -57,6 +61,10 @@ class DbAclSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1))
 	);
 
+/**
+ * Used by the Cake::Model:Permission class.
+ * Checks if the given $aro has access to action $action in $aco.
+ */
 	public $aros_acos = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 10, 'key' => 'primary'),
 		'aro_id' => array('type' => 'integer', 'null' => false, 'length' => 10, 'key' => 'index'),
