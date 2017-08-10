@@ -2,6 +2,9 @@
 
 	$structure_links = array(
 		'top'=>'/ClinicalAnnotation/TreatmentMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentControl.id'],
+		'bottom'=>array(
+				'cancel'=>'/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/'
+		)
 	);
 	
 	// 1- TRT
@@ -17,6 +20,12 @@
 		'settings'	=> $structure_settings 
 	);
 	$final_atim_structure = $atim_structure; 
+	
+	if($use_addgrid) {
+		// *** Add new events in batch *** 
+		$final_options['settings'] = array_merge($final_options['settings'], array('pagination' => false, 'add_fields' => true, 'del_fields' => true));
+		$final_options['type'] = 'addgrid';
+	}
 	
 	$hook_link = $this->Structures->hook();
 	if( $hook_link ) { 
@@ -69,4 +78,5 @@
 ?>
 <script>
 var treeView = true;
+var copyControl = true;
 </script>

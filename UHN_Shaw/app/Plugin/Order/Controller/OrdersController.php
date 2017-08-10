@@ -7,11 +7,14 @@ class OrdersController extends OrderAppController {
 	var $uses = array(
 		'Order.Order', 
 		'Order.OrderLine', 
-		'Order.Shipment');
+		'Order.Shipment',
+		
+		'Study.StudySummary'
+	);
 	
 	var $paginate = array(
-		'Order'=>array('limit' => pagination_amount,'order'=>'Order.date_order_placed DESC'), 
-		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
+		'Order'=>array('order'=>'Order.date_order_placed DESC'), 
+		'OrderLine'=>array('order'=>'OrderLine.date_required DESC'));
 	
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
@@ -66,7 +69,7 @@ class OrdersController extends OrderAppController {
 		} 
 	}
   
-	function detail( $order_id ) {
+	function detail( $order_id , $is_from_tree_view = false) {
 		// MANAGE DATA
 		
 		$order_data = $this->Order->getOrRedirect($order_id);
@@ -74,9 +77,14 @@ class OrdersController extends OrderAppController {
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 				
-		// Setorder data
+		// Set order data
 		$this->set('order_data', $order_data);
 		$this->request->data = array();
+		
+		$shipments_list = $this->Shipment->find('all', array('conditions'=>array('Shipment.order_id'=>$order_id), 'recursive' => '-1'));
+		$this->set('shipments_list',$shipments_list);
+		
+		$this->set( 'is_from_tree_view', $is_from_tree_view);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -105,6 +113,7 @@ class OrdersController extends OrderAppController {
 		// SAVE PROCESS
 					
 		if ( empty($this->request->data) ) {
+			$order_data['FunctionManagement']['autocomplete_order_study_summary_id'] = $this->StudySummary->getStudyDataAndCodeForDisplay(array('StudySummary' => array('id' => $order_data['Order']['default_study_summary_id'])));
 			$this->request->data = $order_data;
 			
 		} else {			
@@ -147,6 +156,10 @@ class OrdersController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Order->atimDelete($order_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/search/');

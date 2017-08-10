@@ -4,8 +4,6 @@
  *
  * Manages user logins and permissions.
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -17,7 +15,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Controller.Component
  * @since         CakePHP(tm) v 0.10.0.1076
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Component', 'Controller');
@@ -41,6 +39,8 @@ class AuthComponent extends Component {
 
 /**
  * Constant for 'all'
+ *
+ * @var string
  */
 	const ALL = 'all';
 
@@ -174,7 +174,7 @@ class AuthComponent extends Component {
 	protected static $_user = array();
 
 /**
- * An URL (defined as a string or array) to the controller action that handles
+ * A URL (defined as a string or array) to the controller action that handles
  * logins. Defaults to `/users/login`.
  *
  * @var mixed
@@ -189,7 +189,7 @@ class AuthComponent extends Component {
  * Normally, if a user is redirected to the $loginAction page, the location they
  * were redirected from will be stored in the session so that they can be
  * redirected back after a successful login. If this session value is not
- * set, redirectUrl() method will return the url specified in $loginRedirect.
+ * set, redirectUrl() method will return the URL specified in $loginRedirect.
  *
  * @var mixed
  * @link http://book.cakephp.org/2.0/en/core-libraries/components/authentication.html#AuthComponent::$loginRedirect
@@ -211,7 +211,7 @@ class AuthComponent extends Component {
  * Error to display when user attempts to access an object or action to which they do not have
  * access.
  *
- * @var string|bool Error message or boolean false to suppress flash message
+ * @var string|boolean Error message or boolean false to suppress flash message
  * @link http://book.cakephp.org/2.0/en/core-libraries/components/authentication.html#AuthComponent::$authError
  */
 	public $authError = null;
@@ -220,7 +220,7 @@ class AuthComponent extends Component {
  * Controls handling of unauthorized access.
  * - For default value `true` unauthorized user is redirected to the referrer URL
  *   or AuthComponent::$loginRedirect or '/'.
- * - If set to a string or array the value is used as an URL to redirect to.
+ * - If set to a string or array the value is used as a URL to redirect to.
  * - If set to false a ForbiddenException exception is thrown instead of redirecting.
  *
  * @var mixed
@@ -304,7 +304,10 @@ class AuthComponent extends Component {
 			return $this->_unauthenticated($controller);
 		}
 
-		if (empty($this->authorize) || $this->isAuthorized($this->user())) {
+		if ($this->_isLoginAction($controller) ||
+			empty($this->authorize) ||
+			$this->isAuthorized($this->user())
+		) {
 			return true;
 		}
 
@@ -347,6 +350,11 @@ class AuthComponent extends Component {
 		}
 
 		if ($this->_isLoginAction($controller)) {
+			if (empty($controller->request->data)) {
+				if (!$this->Session->check('Auth.redirect') && env('HTTP_REFERER')) {
+					$this->Session->write('Auth.redirect', $controller->referer(null, true));
+				}
+			}
 			return true;
 		}
 
@@ -367,9 +375,7 @@ class AuthComponent extends Component {
 	}
 
 /**
- * Normalizes $loginAction and checks if current request url is same as login
- * action. If current url is same as login action, referrer url is saved in session
- * which is later accessible using redirectUrl().
+ * Normalizes $loginAction and checks if current request URL is same as login action.
  *
  * @param Controller $controller A reference to the controller object.
  * @return boolean True if current action is login action else false.
@@ -382,15 +388,7 @@ class AuthComponent extends Component {
 		$url = Router::normalize($url);
 		$loginAction = Router::normalize($this->loginAction);
 
-		if ($loginAction == $url) {
-			if (empty($controller->request->data)) {
-				if (!$this->Session->check('Auth.redirect') && env('HTTP_REFERER')) {
-					$this->Session->write('Auth.redirect', $controller->referer(null, true));
-				}
-			}
-			return true;
-		}
-		return false;
+		return $loginAction === $url;
 	}
 
 /**
@@ -405,7 +403,6 @@ class AuthComponent extends Component {
 		if ($this->unauthorizedRedirect === false) {
 			throw new ForbiddenException($this->authError);
 		}
-
 		$this->flash($this->authError);
 		if ($this->unauthorizedRedirect === true) {
 			$default = '/';
@@ -413,6 +410,18 @@ class AuthComponent extends Component {
 				$default = $this->loginRedirect;
 			}
 			$url = $controller->referer($default, true);
+
+			{
+                //ATiM start------
+                //ATIM patch - I'm not sure where the bug is "by design", but
+                //controller->referer returns the full prefix past hostname and
+                //later router::url reprepends it to the url. This causes
+                //erroneous redirection on unauthorized routes. This patch fixes
+                //that.
+                $baseUrl = Router::url('/');
+                $url = str_replace($baseUrl, '/', $url);
+				//ATiM end------
+			}
 		} else {
 			$url = $this->unauthorizedRedirect;
 		}
@@ -427,7 +436,7 @@ class AuthComponent extends Component {
  */
 	protected function _setDefaults() {
 		$defaults = array(
-			'logoutRedirect' => $this->loginAction,
+			'logoutRedirect' => array('controller' => 'Users', 'action' => 'login', 'plugin' => null),
 			'authError' => __d('cake', 'You are not authorized to access that location.')
 		);
 		foreach ($defaults as $key => $value) {
@@ -701,7 +710,7 @@ class AuthComponent extends Component {
 /**
  * Get the URL a user should be redirected to upon login.
  *
- * Pass an URL in to set the destination a user should be redirected to upon
+ * Pass a URL in to set the destination a user should be redirected to upon
  * logging in.
  *
  * If no parameter is passed, gets the authentication redirect URL. The URL
@@ -724,7 +733,7 @@ class AuthComponent extends Component {
 			$redir = $this->Session->read('Auth.redirect');
 			$this->Session->delete('Auth.redirect');
 
-			if (Router::normalize($redir) == Router::normalize($this->loginAction)) {
+			if (Router::normalize($redir) === Router::normalize($this->loginAction)) {
 				$redir = $this->loginRedirect;
 			}
 		} elseif ($this->loginRedirect) {
@@ -812,7 +821,7 @@ class AuthComponent extends Component {
  * @return boolean true if the user is logged in, false otherwise
  */
 	public function loggedIn() {
-		return (boolean)$this->user();
+		return (bool)$this->user();
 	}
 
 /**

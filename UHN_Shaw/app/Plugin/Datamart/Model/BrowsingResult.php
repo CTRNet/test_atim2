@@ -40,13 +40,12 @@ class BrowsingResult extends DatamartAppModel {
 			$control_id = $browsing_result['BrowsingResult']['browsing_structures_sub_id'];
 		}else if($browsing_result['DatamartStructure']['control_master_model']){
 			$control_foreign = $model->getControlForeign();
-			$data = $model->find('all', array(
+			$data = array_unique(array_filter($model->find('list', array(
 				'fields'		=> array($model->name.'.'.$control_foreign),
-				'conditions' 	=> array($model->name.'.'.$model->primaryKey.' IN('.$browsing_result['BrowsingResult']['id_csv'].')'),
-				'group'		=> array($model->name.'.'.$control_foreign)
-			));
+				'conditions' 	=> array($model->name.'.'.$model->primaryKey.' IN('.$browsing_result['BrowsingResult']['id_csv'].')')
+			))));
 			if(count($data) == 1){
-				$control_id = $data[0][$model->name][$control_foreign];
+				$control_id = array_shift($data);
 			}
 		}
 		
@@ -62,6 +61,7 @@ class BrowsingResult extends DatamartAppModel {
 			
 			//init base model
 			$structure_alias = $structure['Structure']['alias'];
+			
 			AppController::buildDetailBinding(
 					$model,
 					array($model->name.'.'.$model->getControlForeign() => $control_id),
@@ -71,7 +71,7 @@ class BrowsingResult extends DatamartAppModel {
 			$structure = $structures_component->get('form', $structure_alias);
 		}
 		
-		return array('specific' => $control_id != null, 'model' => $model, 'structure' => $structure, 'header_sub_type' => $header_sub_type);
+		return array('specific' => $control_id != null, 'model' => $model, 'structure' => $structure, 'header_sub_type' => $header_sub_type, 'control_id' => $control_id);
 	}
 	
 	

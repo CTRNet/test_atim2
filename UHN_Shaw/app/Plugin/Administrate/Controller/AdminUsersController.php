@@ -2,7 +2,7 @@
 
 class AdminUsersController extends AdministrateAppController {
 	var $uses = array('User', 'Group');
-	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC'));
+	var $paginate = array('User'=>array('order'=>'User.username ASC'));
 
 	function beforeFilter(){
 		parent::beforeFilter();
@@ -11,6 +11,7 @@ class AdminUsersController extends AdministrateAppController {
 	
 	function listall($group_id ) {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
+		$this->Structures->set('users,users_form_for_admin');
 		
 		$this->hook();
 		
@@ -19,6 +20,7 @@ class AdminUsersController extends AdministrateAppController {
 	
 	function detail($group_id, $user_id ) {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
+		$this->Structures->set('users,users_form_for_admin');
 		
 		$this->hook();
 		
@@ -27,7 +29,7 @@ class AdminUsersController extends AdministrateAppController {
 
 	function add($group_id){
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
-		$this->Structures->set('users');
+		$this->Structures->set('users,users_form_for_admin');
 		$this->set("atim_menu", $this->Menus->get('/Administrate/AdminUsers/listall/%%Group.id%%/'));
 			
 		if($this->Group->hasPermissions($group_id)){
@@ -42,13 +44,11 @@ class AdminUsersController extends AdministrateAppController {
 					$this->User->validationErrors[][] = __('this user name is already in use');
 				}
 				
-				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);
 				$password_data = array('User' => array('new_password' => $this->request->data['User']['password'], 'confirm_password' => $this->request->data['Generated']['field1']));
-				$this->User->validatePassword($password_data, $this->request->data['User']['username']);
+				$submitted_data_validates = $this->User->validatePassword($password_data, $this->request->data['User']['username']);
 				
 				$this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
-				$this->request->data['User']['password_modified'] = null; //To force user to change password at next login
-				$submitted_data_validates = empty($this->User->validationErrors);
+				$this->request->data['User']['password_modified'] =  date("Y-m-d H:i:s");
 				$this->request->data['User']['group_id'] = $group_id;
 				$this->request->data['User']['flag_active'] = true;
 				$this->User->addWritableField(array('group_id', 'flag_active','password_modified'));
@@ -82,7 +82,7 @@ class AdminUsersController extends AdministrateAppController {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id, 'User.id'=>$user_id) );
 		$user_data = $this->User->getOrRedirect($user_id);
 	
-		$this->Structures->set('users');
+		$this->Structures->set('users,users_form_for_admin');
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
@@ -162,9 +162,11 @@ class AdminUsersController extends AdministrateAppController {
 	}
 	
 	function search($search_id = 0){
-		$this->set( 'atim_menu', $this->Menus->get('/Administrate/Groups') );
+		$this->set( 'atim_menu', $this->Menus->get('/Administrate/Groups/index') );
 		$this->searchHandler($search_id, $this->User, 'users', '/Administrate/AdminUsers/search');
 		$this->Structures->set('empty', 'empty_structure');
+		
+		$this->set('search_id', $search_id);
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {

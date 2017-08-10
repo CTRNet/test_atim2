@@ -67,9 +67,9 @@ class StructureValueDomain extends AppModel {
 				foreach($tmp_dropdown_result['StructurePermissibleValue'] as $tmp_entry){
 					if($tmp_entry['flag_active']){
 						if($tmp_entry['use_as_input']){
-							$tmp_result['defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
+							$tmp_result['defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], null);
 						}else{
-							$tmp_result['previously_defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
+							$tmp_result['previously_defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], null);
 						}
 					}
 				}

@@ -11,7 +11,7 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		
 		'InventoryManagement.AliquotMaster');
 	
-	var $paginate = array('StorageCoordinate' => array('limit' => pagination_amount,'order' => 'StorageCoordinate.order ASC'));
+	var $paginate = array('StorageCoordinate' => array('order' => 'StorageCoordinate.order ASC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -25,8 +25,8 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 		
 		if(!$storage_data['StorageControl']['is_tma_block']) {
-			// Get all storage control types to build the add to selected button
-			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+			// Get data for the add to selected button
+			$this->set('add_links', $this->StorageControl->getAddStorageStructureLinks($storage_master_id));
 		}
 		
 		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
@@ -139,6 +139,10 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete coordinate
 			if($this->StorageCoordinate->atimDelete($storage_coordinate_id)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been deleted'), $flash_url);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), $flash_url);

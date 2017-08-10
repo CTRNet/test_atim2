@@ -2,13 +2,16 @@
 	$structure_links = array(
 		'top'=>'/Study/StudyInvestigators/edit/'.$atim_menu_variables['StudySummary.id'].'/%%StudyInvestigator.id%%/',
 		'bottom'=>array(
-			'cancel'=>'/Study/StudyInvestigators/detail/'.$atim_menu_variables['StudySummary.id'].'/%%StudyInvestigator.id%%/'
+			'cancel'=>'/Study/StudySummaries/detail/'.$atim_menu_variables['StudySummary.id'].'/'
 		)
 	);
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
+	$final_options = array(
+		'settings'	=> array(
+			'header' => __('study investigator')),
+		'links'=>$structure_links);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
