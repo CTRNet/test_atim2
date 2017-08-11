@@ -3157,6 +3157,26 @@ VALUES
 ('to get data for other research', 'To get data for other research', "Obtenir données pour autres recherches");
 UPDATE `versions` SET branch_build_number = '6780' WHERE version_number = '2.6.8';
 
+ALTER TABLE cd_icm_generics ADD COLUMN use_of_faeces_not_applicable tinyint(1) DEFAULT '0';
+ALTER TABLE cd_icm_generics_revs ADD COLUMN use_of_faeces_not_applicable tinyint(1) DEFAULT '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_icm_generics', 'use_of_faeces_not_applicable', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'not applicable');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_icm_frsq_gyneco'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='use_of_faeces_not_applicable' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='not applicable'), '2', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE `versions` SET branch_build_number = '6781' WHERE version_number = '2.6.8';
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
