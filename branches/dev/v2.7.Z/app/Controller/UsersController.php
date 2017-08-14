@@ -180,32 +180,36 @@ class UsersController extends AppController
         $ipTemporarilyDisabled = $this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts();
         
         if (empty($this->request->data) || $ipTemporarilyDisabled) {
-            
             // 1- Initial access to the function:
             // Display of the form to set the username.
             
             $this->Structures->set('username');
-            if ($ipTemporarilyDisabled)
+            if ($ipTemporarilyDisabled){
                 $this->User->validationErrors[][] = __('too many failed login attempts - connection to atim disabled temporarily');
+            }
             
             $this->set('resetForgottenPasswordStep', '1');
         } else {
-            
             // Check username exists in the database and is not disabled
-            
             if (! isset($this->request->data['User']['username'])) {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
             
             $resetFormFields = $this->User->getForgottenPasswordResetFormFields();
             $resetFormQuestionFields = array_keys($resetFormFields);
-            
             $dbUserData = $this->User->find('first', array(
                 'conditions' => array(
                     'User.username' => $this->request->data['User']['username'],
                     'User.flag_active' => '1'
                 )
             ));
+            
+            foreach ($resetFormFields as $questionFieldName => $answerFieldName) {
+                if (empty($dbUserData['User'][$questionFieldName])) {
+                    $this->atimFlashWarning(__('User has not been yet answered to the reset questions.'), ['action'=>'resetForgottenPassword']);
+                }
+            }
+
             if (! $dbUserData) {
                 
                 // 2- User name does not exist in the database or is disabled
@@ -242,9 +246,9 @@ class UsersController extends AppController
                 $submittedDataValidates = true;
                 
                 // Validate user questions answers
-                
                 foreach ($resetFormFields as $questionFieldName => $answerFieldName) {
                     // Check db/form questions matche
+
                     if ($dbUserData['User'][$questionFieldName] != $this->request->data['User'][$questionFieldName]) {
                         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                     }
