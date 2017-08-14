@@ -270,7 +270,6 @@ function showDatePicker(e){
     $(e).datepicker('show');
 }
 
-
 function setFieldSpan(clickedButton, spanClassToDisplay) {
     $(clickedButton).parent().find("a").show();
     $(clickedButton).hide();
@@ -1867,7 +1866,7 @@ function initIndexZones(useCache) {
                 indexZone.html(page);
                 fctLinksToAjax(indexZone);
 
-                history.state.indexZone[url] = "page";
+                history.state.indexZone[url] = page;
                 history.replaceState(history.state, "foo");
             };
             var errorFct = function (jqXHR, textStatus, errorThrown) {
