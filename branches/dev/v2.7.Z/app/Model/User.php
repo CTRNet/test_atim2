@@ -238,8 +238,9 @@ class User extends AppModel
     {
         // Test last login results from IP address
         $maxLoginAttemptsFromIP = Configure::read('max_login_attempts_from_IP');
-        if (! $maxLoginAttemptsFromIP)
+        if (! $maxLoginAttemptsFromIP){
             return false;
+        }
         $timeInMinutesBeforeIpIsReactivated = Configure::read('time_mn_IP_disabled');
         
         $modelUserLoginAttempt = ClassRegistry::init('UserLoginAttempt');
@@ -277,12 +278,10 @@ class User extends AppModel
             if ($interval->y || $interval->m || $interval->d) {
                 return false;
             }
-            
             if (($interval->h * 60 + $interval->i) < $timeInMinutesBeforeIpIsReactivated) {
                 return true;
             }
         }
-        
         return false;
     }
 
@@ -339,7 +338,7 @@ class User extends AppModel
         ));
         
         if ($failedUserLoginAttempts && $failedUserLoginAttempts >= $maxUserLoginAttempts) {
-            $this->disableUser($userData['User']['id']);
+            //$this->disableUser($userData['User']['id']);
             return true;
         }
         
