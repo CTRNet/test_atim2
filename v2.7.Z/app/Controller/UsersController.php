@@ -66,7 +66,7 @@ class UsersController extends AppController
         }
         
         $this->set('skipExpirationCookie', true);
-        
+
         if ($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
             // Too many login attempts - froze atim for couple of minutes
             $this->request->data = array();
@@ -95,7 +95,7 @@ class UsersController extends AppController
             // Save failed login attempt
             $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
             if ($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
-                AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
+//                AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
             }
             $this->request->data = array();
             $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
@@ -302,7 +302,7 @@ class UsersController extends AppController
                     // Save failed login attempt
                     $this->UserLoginAttempt->saveFailedLogin($this->request->data['User']['username']);
                     if ($this->User->disableUserAfterTooManyFailedAttempts($this->request->data['User']['username'])) {
-                        AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
+//                        AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
                     }
                 }
                 
