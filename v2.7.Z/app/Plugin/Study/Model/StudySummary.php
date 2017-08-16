@@ -201,6 +201,20 @@ class StudySummary extends StudyAppModel
             );
         }
         
+        $ctrlModel = AppModel::getInstance("StorageLayout", "TmaSlideUse", true);
+        $ctrlValue = $ctrlModel->find('count', array(
+            'conditions' => array(
+                'TmaSlideUse.study_summary_id' => $studySummaryId
+            ),
+            'recursive' => '-1'
+        ));
+        if ($ctrlValue > 0) {
+            return array(
+                'allow_deletion' => false,
+                'msg' => 'study/project is assigned to a tma slide use'
+            );
+        }
+        
         $ctrlModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
         $ctrlValue = $ctrlModel->find('count', array(
             'conditions' => array(
