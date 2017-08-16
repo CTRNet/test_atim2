@@ -1,5 +1,5 @@
 <?php
-
+App::uses('Helper', 'View');
 class StructuresHelper extends Helper
 {
 
@@ -185,6 +185,11 @@ class StructuresHelper extends Helper
         'underdevelopment' => null,
         'labbook' => null
     );
+
+    public function debug12($x){
+        debug($x);
+    }
+
 
     public function __construct(View $view, $settings = array())
     {

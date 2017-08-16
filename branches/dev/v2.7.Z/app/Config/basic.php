@@ -33,7 +33,9 @@ function newTranslate($singular, $args = null){
  */
 function isAssoc(array $arr)
 {
-    if (array() === $arr) return false;
+    if (array() === $arr){
+        return false;
+    }
     return array_keys($arr) !== range(0, count($arr) - 1);
 }
 
@@ -151,5 +153,72 @@ function stringCorrection($str)
         return $str;
     }else{
         return $str;
+    }
+}
+
+/**
+ * @param mixed $var The variable that will be printed.
+ * @param bool $screen If write on Screen.
+ * @param bool $log If write in log
+ * @param bool $die If die after write
+ * @return void
+ */
+function d($var, $screen=true, $log=true, $die=false) 
+{
+    if (!Configure::read('debug')) {
+        return;
+    }
+    App::uses('Debugger', 'Utility');
+
+    $trace = Debugger::trace(array('start' => 1, 'depth' => 2, 'format' => 'array'));
+    $file = str_replace(array(CAKE_CORE_INCLUDE_PATH, ROOT), '', $trace[0]['file']);
+    $line = $trace[0]['line'];
+    $html = <<<HTML
+<div class="cake-debug-output">
+<div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>
+%s
+<pre class="cake-debug">
+%s
+</pre>
+</div>
+HTML;
+    $text = <<<TEXT
+%s
+########## DEBUG ##########
+%s
+###########################
+
+TEXT;
+    $template = $html;
+    if (PHP_SAPI === 'cli') {
+        $template = $text;
+        $lineInfo = sprintf('%s (line %s)', $file, $line);
+    }
+    $var = print_r($var, true);
+    $var = h($var);
+    $lineInfo = sprintf('<span><strong>%s</strong> (line <strong>%s</strong>)</span>', $file, $line);
+    if ($screen){
+        printf($template, $lineInfo, $var);
+    }
+    if ($log){
+        $l=empty($_SESSION['debug']['dl'])?0:count($_SESSION['debug']['dl']);
+        $_SESSION['debug']['dl'][$l][0]=$template;
+        $_SESSION['debug']['dl'][$l][1]=$lineInfo;
+        $_SESSION['debug']['dl'][$l][2]=$var;
+    }
+    if ($die){
+        die();
+    }
+}
+
+function dc($number=0)
+{
+    if (!Configure::read('debug')) {
+        return;
+    }
+    if ($number==0){
+        unset($_SESSION['debug']);
+    }else{
+        array_splice($_SESSION['debug']['dl'], 0, $number);
     }
 }

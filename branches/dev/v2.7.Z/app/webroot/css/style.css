@@ -3161,3 +3161,44 @@ div#default_popup{
     margin: auto;
     position: relative;
 }
+
+.debug-button {
+  background: #7d8c96;
+  background-image: -webkit-linear-gradient(top, #7d8c96, #c6cdd1);
+  background-image: -moz-linear-gradient(top, #7d8c96, #c6cdd1);
+  background-image: -ms-linear-gradient(top, #7d8c96, #c6cdd1);
+  background-image: -o-linear-gradient(top, #7d8c96, #c6cdd1);
+  background-image: linear-gradient(to bottom, #7d8c96, #c6cdd1);
+  -webkit-border-radius: 6;
+  -moz-border-radius: 6;
+  border-radius: 6px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 14px;
+  padding-right: 6px;
+  padding-left: 6px;
+  text-decoration: none;
+}
+
+.debug-button:hover {
+  background: #ababab;
+  background-image: -webkit-linear-gradient(top, #ababab, #474747);
+  background-image: -moz-linear-gradient(top, #ababab, #474747);
+  background-image: -ms-linear-gradient(top, #ababab, #474747);
+  background-image: -o-linear-gradient(top, #ababab, #474747);
+  background-image: linear-gradient(to bottom, #ababab, #474747);
+  text-decoration: none;
+}
+
+.cake-debug{
+    border-style: none;
+}
+
+.cake-debug-output{
+    border: 1px solid #474747;
+    background-color: #fff;
+    padding: 0.37em;
+    margin: 0.37em;
+    font-size: 1.1em;
+    color: #333;
+}
