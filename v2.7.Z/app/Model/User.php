@@ -299,7 +299,6 @@ class User extends AppModel
     {
         // Test last user login results
         $maxUserLoginAttempts = Configure::read('max_user_login_attempts');
-        $disableUserAfterMaxLoginAttemptsFromIP = Configure::read('disable_user_after_max_login_attempts_from_IP');
         if (! $maxUserLoginAttempts)
             return false;
         
@@ -338,7 +337,7 @@ class User extends AppModel
             'limit' => $maxUserLoginAttempts
         ));
         
-        if ($failedUserLoginAttempts && $failedUserLoginAttempts >= $maxUserLoginAttempts && $disableUserAfterMaxLoginAttemptsFromIP) {
+        if ($failedUserLoginAttempts && $failedUserLoginAttempts >= $maxUserLoginAttempts) {
             $this->disableUser($userData['User']['id']);
             return true;
         }

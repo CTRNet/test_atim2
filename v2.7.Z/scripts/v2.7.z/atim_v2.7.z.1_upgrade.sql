@@ -113,9 +113,24 @@ VALUES
 ('all searches are considered as exact searches', 'All searches are considered as exact searches', 'Toutes les recherches sont considérées comme des recherches exactes');
 
 
+-- --------------------------------------------------------------------------------------------------------------------
+-- Issue #3403: No check on 'TMA Slide Analysis/Scoring' linked to study before study deletion
+-- --------------------------------------------------------------------------------------------------------------------
 
+UPDATE i18n SET id = 'study/project is assigned to a tma slide' WHERE id = 'study/project is assigned to a  tma slide';
+INSERT INTO i18n (id,en,fr) 
+VALUE
+('study/project is assigned to a tma slide use', "Your data cannot be deleted! This study/project is linked to a TMA slide use.", "Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à une utilisation de lame de TMA.");
+UPDATE i18n SET fr = 'Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à une lame de TMA.' WHERE fr = 'Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un lame de TMA.';
 
+-- --------------------------------------------------------------------------------------------------------------------
+-- Add time to message displayed to inform user that connection to ATiM has been disabled temporarily.
+-- --------------------------------------------------------------------------------------------------------------------
 
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('too many failed login attempts - connection to atim disabled temporarily for %s mn', 
+'Too many failed login attempts. Your connection to ATiM has been disabled temporarily for %s minutes.', 'Trop de tentatives de connexion. Votre connexion à ATiM a été désactivée temporairement pendant %s minutes.');
 
 
 

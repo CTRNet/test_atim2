@@ -442,12 +442,10 @@ Configure::write('password_security_level', 2);
  */
 Configure::write('max_login_attempts_from_IP', 5);
 
-Configure::write('disable_user_after_max_login_attempts_from_IP', true);
 /**
  * Time in minute (time_mn_IP_disabled) before an IP address is reactivated.
  */
 Configure::write('time_mn_IP_disabled', 2);
-
 
 /**
  * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.
