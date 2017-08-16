@@ -3196,7 +3196,7 @@ $confirmationMsg); // confirmation message
         $defaultSettingsWoClass = self::$defaultSettingsArr;
         unset($defaultSettingsWoClass['class']);
         foreach ($rawRadiolist as $radiobuttonName => $radiobuttonValue) {
-            list ($tmpModel, $tmpField) = explode("\.", $radiobuttonName);
+            list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
             $radiobuttonValue = $this->strReplaceLink($radiobuttonValue, $data);
             $tmpAttributes = array(
                 'legend' => false,

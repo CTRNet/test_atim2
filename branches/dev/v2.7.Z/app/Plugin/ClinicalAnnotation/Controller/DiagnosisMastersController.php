@@ -310,7 +310,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             if (empty($parentDx)) {
                 $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
-            if (($dxCtrl['DiagnosisControl']['category'] == 'primary') || ($dxCtrl['DiagnosisControl']['category'] == 'secondary - distant') && ($parentDx['DiagnosisControl']['category'] == 'secondary - distant')) {
+            if ($dxCtrl['DiagnosisControl']['category'] == 'primary' || !in_array($parentDx['DiagnosisControl']['category'], array('primary', 'secondary - distant')) || ($dxCtrl['DiagnosisControl']['category'] == 'secondary - distant' && $parentDx['DiagnosisControl']['category'] != 'primary')) {
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
             }
         }
