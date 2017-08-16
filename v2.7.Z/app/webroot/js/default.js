@@ -1241,7 +1241,8 @@ function initJsControls() {
             ).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction
             ).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
             ).delegate(".removeLineLink", "click", removeLine
-            ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup);
+            ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
+            ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
     $(window).bind("pageshow", function (event) {
@@ -1275,6 +1276,16 @@ function initJsControls() {
     }
 
     flyOverComponents();
+}
+
+function closeLog(event){
+    a=$(this).children("a").first();
+    $(this).siblings().toggle(200);
+    if ($(a).text()==="-"){
+        $(a).text("+");
+    }else if($(a).text()==="+"){
+        $(a).text("-");
+    }
 }
 
 function showHint(event){

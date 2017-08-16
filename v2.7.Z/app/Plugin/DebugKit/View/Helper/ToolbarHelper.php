@@ -223,4 +223,10 @@ class ToolbarHelper extends AppHelper {
 		return $out;
 	}
 
+    public function showUserHistory($data){
+        foreach (array_reverse($data) as $key => $value) {
+            printf($value[0], $value[1], $value[2]);            
+        }
+    }        
+        
 }

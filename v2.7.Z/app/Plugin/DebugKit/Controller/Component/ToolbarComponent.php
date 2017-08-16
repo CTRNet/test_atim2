@@ -64,6 +64,7 @@ class ToolbarComponent extends Component implements CakeEventListener {
  */
 	protected $_defaultPanels = array(
 		'DebugKit.Structure',
+		'DebugKit.UserHistory',
 		'DebugKit.History',
 		'DebugKit.Session',
 		'DebugKit.Request',
@@ -406,7 +407,6 @@ class ToolbarComponent extends Component implements CakeEventListener {
 	protected function _gatherVars(Controller $controller) {
 		$vars = array('javascript' => array(), 'css' => array());
 		$panels = array_keys($this->panels);
-
 		foreach ($panels as $panelName) {
 			$panel = $this->panels[$panelName];
 			$panelName = Inflector::underscore($panelName);
