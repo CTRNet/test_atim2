@@ -69,7 +69,7 @@ class UsersController extends AppController
         if ($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
             // Too many login attempts - froze atim for couple of minutes
             $this->request->data = array();
-            $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily'));
+            $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily for %s mn', Configure::read('time_mn_IP_disabled')));
         } elseif ((! isset($this->passedArgs['login'])) && $this->Auth->login()) {
 
             // Log in user
@@ -185,7 +185,7 @@ class UsersController extends AppController
             
             $this->Structures->set('username');
             if ($ipTemporarilyDisabled){
-                $this->User->validationErrors[][] = __('too many failed login attempts - connection to atim disabled temporarily');
+                $this->User->validationErrors[][] = __('too many failed login attempts - connection to atim disabled temporarily for %s mn', Configure::read('time_mn_IP_disabled'));
             }
             
             $this->set('resetForgottenPasswordStep', '1');
