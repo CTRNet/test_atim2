@@ -26,9 +26,8 @@
 * @see        OLE, Spreadsheet_Excel_Writer
 */
 
-
 //require_once 'PEAR.php';
-require_once 'Excel/oleread.inc';
+require_once __DIR__.'/oleread.inc';
 //require_once 'OLE.php';
 
 define('SPREADSHEET_EXCEL_READER_BIFF8',             0x600);
