@@ -314,6 +314,9 @@ class Browser extends DatamartAppModel
                     } elseif (! isset($browsingStructures[$toVal])) {
                         // permissions denied
                         continue;
+                    } elseif ($browsingStructures[$toVal]['model'] == 'StudySummary') {
+                        // study can not be a 'bridge' between two datamart structures (see issue #3374: Databrowser: From misc identifiers to orders, the system go through Study)
+                       continue;
                     }
                     $stack[$toVal] = null;
                     $tmpResult = array(
