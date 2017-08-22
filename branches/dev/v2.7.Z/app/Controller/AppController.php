@@ -209,6 +209,9 @@ class AppController extends Controller
         if (ini_get("max_input_vars") <= Configure::read('databrowser_and_report_results_display_limit')) {
             AppController::addWarningMsg(__('PHP "max_input_vars" is <= than atim databrowser_and_report_results_display_limit, ' . 'which will cause problems whenever you display more options than max_input_vars'));
         }
+        
+        // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
+        $this->Auth->authError = __('You are not authorized to access that location.');
     }
 
     public function __construct($request = null, $response = null) {

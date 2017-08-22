@@ -174,9 +174,9 @@ class BrowserController extends DatamartAppController
             foreach ($directIdArr as $controlId) {
                 $subStructCtrlId = null;
                 if (isset($subStructureId) && // there is a sub id
-$directIdArr[count($directIdArr) - 1] == $controlId && // this is the last element
-$checkList) // this is a checklist
-{
+                $directIdArr[count($directIdArr) - 1] == $controlId && // this is the last element
+                $checkList) // this is a checklist
+                {
                     $subStructCtrlId = $subStructureId;
                 }
                 

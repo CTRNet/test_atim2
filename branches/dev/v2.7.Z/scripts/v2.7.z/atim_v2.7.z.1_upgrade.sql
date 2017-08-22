@@ -132,6 +132,253 @@ VALUES
 ('too many failed login attempts - connection to atim disabled temporarily for %s mn', 
 'Too many failed login attempts. Your connection to ATiM has been disabled temporarily for %s minutes.', 'Trop de tentatives de connexion. Votre connexion à ATiM a été désactivée temporairement pendant %s minutes.');
 
+-- --------------------------------------------------------------------------------------------------------------------
+-- Add missing autocomplete_.*_study_summary_id 
+-- (see issue #3372: fields not necessary added to structures by atim_v2.6.8_upgrade.sql script)
+-- --------------------------------------------------------------------------------------------------------------------
+
+SET @input_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'title' AND model = 'StudySummary' AND tablename = 'study_summaries' aND type = 'input' AND setting='size=40');
+
+-- aliquotinternaluses
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_aliquot_internal_use_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'aliquotinternaluses');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- aliquot_masters
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_aliquot_master_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'aliquot_masters');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- aliquot_master_edit_in_batchs
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_aliquot_master_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'aliquot_master_edit_in_batchs');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- consent_masters_study
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_consent_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'consent_masters_study');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- miscidentifiers_study
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_misc_identifier_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'miscidentifiers_study');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- orderlines
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_order_line_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'orderlines');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- orders
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_order_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'orders');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- tma_slides
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_tma_slide_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'tma_slides');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+-- tma_slide_uses
+
+SET @auto_complete_structure_field_id = (SELECT id FROM structure_fields WHERE field = 'autocomplete_tma_slide_use_study_summary_id' AND model = 'FunctionManagement');
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'tma_slide_uses');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`)
+(SELECT
+sfo.`structure_id`, @auto_complete_structure_field_id, sfo.`display_column`, sfo.`display_order`, 
+sfo.`language_heading`, sfo.`flag_override_label`, sfo.`language_label`, sfo.`flag_override_tag`, sfo.`language_tag`, sfo.`flag_override_help`, sfo.`language_help`
+FROM structure_fields sfi
+INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+WHERE sfi.id = @input_structure_field_id
+AND sfo.`structure_id` = @structure_id
+AND sfo.`structure_id` NOT IN (
+	SELECT
+	sfo.`structure_id`
+	FROM structure_fields sfi
+	INNER JOIN structure_formats sfo ON sfo.structure_field_id = sfi.id
+	WHERE sfi.model LIKE 'FunctionManagement' 
+	AND sfi.field LIKE 'autocomplete_%_study_summary_id%' 
+	AND sfi.type='autocomplete' 
+	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
+));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
