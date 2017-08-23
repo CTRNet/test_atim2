@@ -164,7 +164,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'StudyFunding.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -178,7 +178,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'StudyInvestigator.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -192,7 +192,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'TmaSlide.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -206,7 +206,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'TmaSlideUse.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -220,7 +220,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'MiscIdentifier.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -234,7 +234,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'ConsentMaster.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -248,7 +248,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'Order.default_study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -262,7 +262,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'OrderLine.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -276,7 +276,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'AliquotMaster.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(
@@ -290,7 +290,7 @@ class StudySummary extends StudyAppModel
             'conditions' => array(
                 'AliquotInternalUse.study_summary_id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($ctrlValue > 0) {
             return array(

@@ -164,7 +164,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
                 'MiscIdentifier.id' => $miscIdentifierId,
                 'MiscIdentifier.participant_id' => $participantId
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if ($miscIdentifierData['MiscIdentifierControl']['flag_confidential'] && ! $this->Session->read('flag_show_confidential')) {
             AppController::getInstance()->redirect("/Pages/err_confidential");

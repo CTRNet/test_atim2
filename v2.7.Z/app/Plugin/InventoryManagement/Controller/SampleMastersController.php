@@ -308,7 +308,7 @@ class SampleMastersController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $parentSampleMasterId
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if (! empty($parentSampleMasterId) && empty($parentSampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -754,7 +754,7 @@ class SampleMastersController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $parentSampleMasterId
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if (! empty($parentSampleMasterId) && empty($parentSampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -780,7 +780,7 @@ class SampleMastersController extends InventoryManagementAppController
                     'conditions' => array(
                         'id' => $sampleData['DerivativeDetail']['lab_book_master_id']
                     ),
-                    'recursive' => '-1'
+                    'recursive' => -1
                 ));
                 if (empty($previousLabook)) {
                     $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -913,7 +913,7 @@ class SampleMastersController extends InventoryManagementAppController
                 'SampleMaster.collection_id' => $collectionId,
                 'SampleMaster.id' => $sampleMasterId
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if (empty($sampleData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

@@ -394,7 +394,7 @@ class StorageMaster extends StorageLayoutAppModel
                             'StorageCoordinate.dimension' => $coord
                         ),
                         'order' => 'StorageCoordinate.order ASC',
-                        'recursive' => '-1'
+                        'recursive' => -1
                     ));
                     if (! empty($coordinates)) {
                         foreach ($coordinates as $newCoordinate) {
@@ -504,7 +504,7 @@ class StorageMaster extends StorageLayoutAppModel
             }
             $formattedData = $this->storageLabelAndCodeForDisplayAlreadySet[$storageData['StorageMaster']['id']];
         }
- pr("[$formattedData]");       
+        
         return $formattedData;
     }
 
@@ -597,7 +597,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'StorageMaster.parent_id' => $storageMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($nbrChildrenStorages > 0) {
             return array(
@@ -612,7 +612,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'AliquotMaster.storage_master_id' => $storageMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($nbrStorageAliquots > 0) {
             return array(
@@ -627,7 +627,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlide.tma_block_storage_master_id' => $storageMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($nbrTmaSlides > 0) {
             return array(
@@ -641,7 +641,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlide.storage_master_id' => $storageMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($nbrChildrenStorages > 0) {
             return array(
@@ -668,7 +668,7 @@ class StorageMaster extends StorageLayoutAppModel
                     'conditions' => array(
                         'StorageMaster.id' => $storageData['StorageMaster']['parent_id']
                     ),
-                    'recursive' => '-1'
+                    'recursive' => -1
                 ));
                 if (empty($parentStorageData)) {
                     AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -707,7 +707,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'StorageMaster.id' => $storageData['StorageMaster']['parent_id']
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($parentStorageData)) {
             AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -768,7 +768,7 @@ class StorageMaster extends StorageLayoutAppModel
             
             $childrenStorageToUpdate = $this->find('all', array(
                 'conditions' => $conditions,
-                'recursive' => '-1'
+                'recursive' => -1
             ));
             $newArrStudiedParentsData = array();
             foreach ($childrenStorageToUpdate as $newChildrenToUpdate) {
@@ -872,7 +872,7 @@ class StorageMaster extends StorageLayoutAppModel
             
             $childrenStorageToUpdate = $this->find('all', array(
                 'conditions' => $conditions,
-                'recursive' => '0'
+                'recursive' => 0
             ));
             foreach ($childrenStorageToUpdate as $newChildrenToUpdate) {
                 // New children to update
