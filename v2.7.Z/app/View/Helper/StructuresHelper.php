@@ -1392,21 +1392,14 @@ class StructuresHelper extends Helper
                     if ($options['settings']['pagination']) {
                         echo '<pre>';
                         echo '</pre>';
-                        echo '
-								<tr class="pagination">
-									<th colspan="', $headerData['count'], '">
-										
-										<span class="results">
-											', $this->Paginator->counter(array(
-                            'format' => '%start%-%end%' . __(' of ') . '%count%'
-                        )), '
-										</span>
-										
-										<span class="links">
-											', $this->Paginator->prev(__('prev'), null, __('prev')), '
-											', $this->Paginator->numbers(), '
-											', $this->Paginator->next(__('next'), null, __('next')), '
-										</span>';
+                        echo '<tr class="pagination">
+                                <th colspan="', $headerData['count'], '">
+                                    <span class="results">', $this->Paginator->counter(array('format' => '%start%-%end%' . __(' of ') . '%count%')), '</span>
+                                    <span class="links">
+                                            ', $this->Paginator->prev(__('prev'), null, __('prev')), '
+                                            ', $this->Paginator->numbers(), '
+                                            ', $this->Paginator->next(__('next'), null, __('next')), '
+                                    </span>';
                         $limits = array(
                             5,
                             10,

@@ -2,7 +2,7 @@
 
 class DiagnosisMastersController extends ClinicalAnnotationAppController
 {
-
+    
     public $uses = array(
         'ClinicalAnnotation.DiagnosisMaster',
         'ClinicalAnnotation.DiagnosisDetail',
@@ -298,7 +298,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
         if ($parentId == 0) {
             if ($dxCtrl['DiagnosisControl']['category'] != 'primary') {
                 // is not a primary but has no parent
+//                $this->flash(__('invalid control id'), 'javascript:history.back();');
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
+//                return ;
             }
         } else {
             $parentDx = $this->DiagnosisMaster->find('first', array(
@@ -312,6 +314,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController
             }
             if ($dxCtrl['DiagnosisControl']['category'] == 'primary' || !in_array($parentDx['DiagnosisControl']['category'], array('primary', 'secondary - distant')) || ($dxCtrl['DiagnosisControl']['category'] == 'secondary - distant' && $parentDx['DiagnosisControl']['category'] != 'primary')) {
                 $this->atimFlashError(__('invalid control id'), 'javascript:history.back();');
+                return;
             }
         }
         

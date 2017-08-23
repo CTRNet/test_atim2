@@ -5,12 +5,85 @@ var orgAction = null;
 var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 var sessionTimeout = new Object();
+var checkedData=[];
+
+//window.alert = function(a){
+//    console.log(a);
+//}
+
+$(document).ready(function(){
+    if (typeof controller !=='undefined' && typeof action !=='undefined' ){
+        checkedData=[];
+        checkedData[controller]=[];
+        checkedData[controller][action]=[];
+    }
+    $("#wrapper").find("a[href*=':']").each(function(){
+        if (!$(this).hasClass("submit")){
+            $(this).attr("data-href",$(this).prop('href'));
+            $(this).prop('href', 'javascript:void(0)');
+        }
+    });
+    $("#wrapper").delegate("a[data-href]", 'click', function(){
+        var url=$(this).attr("data-href");
+        $.ajax({
+                type: "GET",
+                url: url+"/noActions:/",
+                cache: false,
+                success: successFunction,
+                error: errorFunction
+            });
+    });
+
+    function successFunction(data){
+        var domNodes = document.createElement('div');
+        $(domNodes).html(data);
+        $(domNodes).find("a[href*=':']").each(function(){
+            if (!$(this).hasClass("submit")){
+                $(this).attr("data-href",$(this).prop('href'));
+                $(this).prop('href', 'javascript:void(0)');
+            }
+        });
+        
+        var id;
+        var checkboxes = $(domNodes).find("input[name^='data["+dataIndex+"]'][type!='hidden']");
+        checkedData[controller][action].forEach(function(item){
+            $(domNodes).find("input[name^='data["+dataIndex+"]'][type!='hidden'][value='"+item.id+"']").prop("checked", item.checked);
+            $(domNodes).find("input[name^='data["+dataIndex+"]'][type!='hidden'][value='"+item.id+"']").closest("tr").addClass("chkLine")
+        });
+        
+        $(checkboxes).each(function(){
+            $this=$(this);
+            id=$this.val();
+            checked=$this.is(':checked');
+            index=checkedData[controller][action].findIndex(function(item){return item.id===id;});
+            if (index!==-1){
+                $this.prop("checked", true);
+            }
+        });
+        
+        
+        $("#wrapper").children("form").remove();
+        $("#wrapper").prepend($(domNodes).children("form").first());
+        initCheckAll("#wrapper");
+    }
+    
+    var errorFunction = function (jqXHR, textStatus, errorThrown) {
+        $(document).remove('#popupError');
+        var popupError="<div id=\"popupError\"><p>"+jqXHR+"</p><p>"+textStatus+"</p><p>"+errorThrown+"</p></div>";
+        popupError="<div id=\"popupError\"><p>"+jqXHR+"</p><p>"+textStatus+"</p><p>"+errorThrown+"</p></div>";
+        $(document).append(popupError);
+        $(popupError).popup();
+    };    
+    
+});
 
 jQuery.fn.fullWidth = function () {
     return parseInt($(this).width()) + parseInt($(this).css("margin-left")) + parseInt($(this).css("margin-right")) + parseInt($(this).css("padding-left")) + parseInt($(this).css("padding-right")) + parseInt($(this).css("border-left-width")) + parseInt($(this).css("border-right-width"));
 };
 
-var header_total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left;
+if ($("#header div:first").length!==0){
+    var header_total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left;
+}
 
 //Slide down animation (show) for action menu
 var actionMenuShow = function () {
@@ -523,13 +596,43 @@ function initCheckAll(scope) {
     $(scope).find(".checkAll").each(function () {
         var elemParent = $(this).parents("table:first");
         $(this).click(function () {
-            $(elemParent).find('input[type=checkbox]').prop("checked", true);
-            $(elemParent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
+            if (typeof dataLimit !== 'undefined') {
+                var data=$(elemParent).find('input[type=checkbox]');
+                data.each(function(){
+                    if (!$(this).is(":checked")){
+                        $(this).prop("checked", true);
+//                        $(this).trigger("click", checkboxIndexFunction);
+                        if (!checkData($(this), dataLimit, null, true)){
+                            $(this).prop("checked", false);
+                            return false;
+                        }
+                    }
+
+                $(this).parents("tr:first").addClass("chkLine");
+                });
+            }else{
+                $(elemParent).find('input[type=checkbox]').prop("checked", true);
+                $(elemParent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
+            }
             return false;
         });
         $(elemParent).find(".uncheckAll").click(function () {
+            if (typeof dataLimit !== 'undefined') {
+                $(elemParent).find('input[type=checkbox]').each(function(){
+                    var id, checked, index;
+                    id=$(this).val();
+                    checked=$(this).is(":checked");
+                    if (checked){
+                       index=checkedData[controller][action].findIndex(function(item){return item.id===id;});
+                       if (index!==-1){
+                           checkedData[controller][action].splice(index, 1);
+                       }
+                    }
+                });
+            }
             $(elemParent).find('input[type=checkbox]').prop("checked", false);
             $(elemParent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
+            
             return false;
         });
     });
@@ -1556,6 +1659,12 @@ function sectionCtrl(event) {
  * @param orgEvent
  */
 function checkboxIndexFunction(event, orgEvent) {
+    $this=$(this);
+    if (typeof dataLimit !== 'undefined') {
+        if (!checkData($this, dataLimit)){
+            return false;
+        }
+    }
     var shiftKey = orgEvent ? false : event.originalEvent.shiftKey;
     if (shiftKey) {
         marking = true;
@@ -1564,11 +1673,18 @@ function checkboxIndexFunction(event, orgEvent) {
             if (marking) {
                 $(this).find("td.checkbox input[type=checkbox]").attr("checked", checked);
                 if (checked) {
+                    if (typeof dataLimit !== 'undefined') {
+                        $this=$(this).find("td.checkbox input[type=checkbox]");
+                        if (!checkData($this, dataLimit, null, true)){
+                            $(this).find("td.checkbox input[type=checkbox]").attr("checked", false);
+                            return false;
+                        }
+                    }
                     $(this).addClass("chkLine");
                 } else {
                     $(this).removeClass("chkLine");
                 }
-                if ($(this).hasClass("checkboxIndexFunctionMark")) {
+                if ($(this).hasClass("checkboxIndexFunctionMark")){
                     marking = !marking;
                 }
             }
@@ -1586,7 +1702,31 @@ function checkboxIndexFunction(event, orgEvent) {
     } else {
         $(event.currentTarget).parents("tr:first").removeClass("chkLine");
     }
+    saveCheckedToArray("#wrapper", checkedData[controller][action]);
     event.stopPropagation();
+    return true;
+}
+
+/*Save the items that checked in to an array*/
+function saveCheckedToArray(scope, checkedData){
+    var checkboxes = $(scope).find("input[name^='data["+dataIndex+"]'][type!='hidden']");
+    var index, id, checked, $this;
+    checkboxes.each(function(){
+        $this=$(this);
+//        checkedData["ID: "+$(this).val()]=$(this).is(':checked');
+        index=checkedData.findIndex(function(item){
+            return item.id===$this.val();
+        });
+        id=$this.val();
+        checked=$this.is(':checked');
+        if (index===-1 && checked){
+            index=checkedData.length;
+            checkedData[index]={id:id, checked:checked};
+        }else if(index!==-1 && !checked){
+            checkedData.splice(index, 1);
+        }
+    });
+//    console.log(checkedData);
 }
 
 /**
@@ -1596,9 +1736,20 @@ function checkboxIndexFunction(event, orgEvent) {
 function checkboxIndexLineFunction(event) {
     if ($(event.currentTarget)[0].nodeName == "TR" && !event.originalEvent.shiftKey && event.target.nodeName != 'A') {
         //line clicked, toggle it's checkbox (don't support shift click, as it is for text selection
-        $(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [event]);
-        event.stopPropagation();
+        if (typeof dataLimit !== 'undefined') {
+            $this=$(this).find('input[type=checkbox]');
+            $(this).prop("checked", !$(this).is(":checked"));
+            if (!checkData($this, dataLimit)){
+                $(this).prop("checked", false);
+                return false;
+            }
+            $(this).closest("tr").toggleClass("chkLine");
+        } else {
+            $(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [event]);
+        }
+        return false;
     }
+    event.stopPropagation();
 }
 
 /**
@@ -1895,13 +2046,94 @@ function initIndexZones(useCache) {
     });
 }
 
+function arrayObjSizeCheck($this, arr, min=1, max=null, showAlert=true)
+{
+    if (arr instanceof jQuery){
+        arr=$.makeArray(arr);
+    }else if(!$.isArray(arr)){
+        return false;
+    }
+    if ($this===null){
+        var length=checkedData[controller][action].length;
+        if (min<=length && length<=max){
+            return true;
+        }
+        else{
+            if (showAlert){
+                alert("Selected items should be between "+min+" & "+max);
+            }
+            return false;
+        }
+    }
+    var index, id, checked;
+    checked=$this.is(":checked");
+    id=$this.val();
+    index=checkedData[controller][action].findIndex(function(item){
+        return item.id===id;
+    });
+    if (index!==-1 && !checked){
+        $this.prop("checked", false);
+        checkedData[controller][action].splice(index, 1);
+        return true;
+    }else if (index!==-1 && checked){
+        $this.prop("checked", true);
+        return true;
+    }else{
+        length=checkedData[controller][action].length;
+        if ((max===null && length<min) || (min<=length && length<max)){
+            checkedData[controller][action][length]={id: id, checked: true};
+            $this.prop("checked", true);
+            return true;
+        }else if(max===null){
+            max=min;
+            min = 1;
+            $this.prop("checked", false);
+        }
+        if (showAlert){
+            alert("Selected items should be between "+min+" & "+max);
+        }
+    }
+    return false;
+}
+
+function checkData($this, min=1, max=null, showAlert=true)
+{
+    data = $("input[name^='data["+dataIndex+"]'][type!='hidden']");
+    if (!arrayObjSizeCheck($this, data,min , max, showAlert)){
+        return false;
+    }
+    return true;
+}
+
 /**
  * Will popup a confirmation message if defined. If the message is opened
  * or if no message is defined, will submit and replace the disk icon with
  * a rotating beam. Submiting is blocked when the rotating icon is present.
  * @returns {Boolean}
  */
-function standardSubmit() {
+function standardSubmit() 
+{
+    if (typeof dataLimit !== 'undefined') {
+        if (!checkData(null, 1, dataLimit)){
+            return false;
+        }
+        data = $("input[name^='data["+dataIndex+"]'][type!='hidden']:checked");
+        var checkedDataInOtherPages=[];
+        checkedDataInOtherPages=checkedData[controller][action].filter(function(item){
+            isInOtherPages=true;
+            data.each(function(){
+                if ($(this).val()===item.id){
+                    isInOtherPages=false;
+                    return false;
+                }
+            });
+            return isInOtherPages;
+        });
+        checkedDataInOtherPages.forEach(function(item){
+            $("#wrapper").find("form").append('<input type="hidden" name="data[OrderItem][id][]" value="'+item.id+'">');
+        });
+    }
+    
     //submitting form
     var submitButton = $(this).find("a.submit");
     var form = $(this);

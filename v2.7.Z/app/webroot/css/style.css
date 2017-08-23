@@ -886,255 +886,10 @@ div.menu.level_1 li:hover {
 	color: #fff;
 }
 
-div
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.menu
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.level_1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-li
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-:hover
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-a
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-:not
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(
-.not_allowed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-)
+div.menu.level_1 li:hover a:not(.not_allowed)
 {
-text-decoration
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-:
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-underline
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-;
-color
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-:
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-#fff
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-;
+    text-decoration:underline;
+    color:#fff;
 }
 div.menu.level_1 li.not_allowed:hover {
 	background-color: #41515f;
@@ -1526,10 +1281,11 @@ ul.big_menu li {
 }
 
 ul.big_menu li:hover, ul.big_announcements li:hover {
-	background-color: #ffe;
 	background: -webkit-gradient(linear, left top, right top, from(#ffe),
 		color-stop(50%, #ffc), to(#ffe)); /* for webkit browsers */
 	background: -moz-linear-gradient(left, #ffe, #ffc, #ffe);
+	background: #ffe;
+        transition: background 0.2s linear;
 }
 
 ul.big_menu li a {
@@ -3103,11 +2859,11 @@ div.floatingCell {
 }
 
 select {
-	max-width: 250px;
+    max-width: 250px;
 }
 
 div.descriptive_heading:not(:first-child){
-margin-top:20px;
+    margin-top:20px;
 }
 .testScroll, .floatingCells {
 	z-index: 1;
