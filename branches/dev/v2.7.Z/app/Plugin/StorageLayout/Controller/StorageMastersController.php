@@ -50,7 +50,7 @@ class StorageMastersController extends StorageLayoutAppController
                         'conditions' => array(
                             'StorageCoordinate.storage_master_id' => $data['StorageMaster']['id']
                         ),
-                        'recursive' => '-1'
+                        'recursive' => -1
                     ))) {
                         unset($this->request->data[$key]);
                         $warn = true;
@@ -134,7 +134,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'StorageCoordinate.storage_master_id' => $storageMasterId
                 ),
-                'recursive' => '-1'
+                'recursive' => -1
             ))) {
                 if (! $isFromTreeViewOrLayout)
                     AppController::addWarningMsg(__('no layout exists - add coordinates first'));
@@ -617,7 +617,7 @@ class StorageMastersController extends StorageLayoutAppController
                     'StorageMaster.parent_id' => $storageMasterId,
                     'StorageControl.is_tma_block' => '0'
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $treeData = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['StorageMaster'], $treeData);
             if (sizeof($treeData) > $storagesNbrLimit)
@@ -633,7 +633,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'AliquotMaster.storage_master_id' => $storageMasterId
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $aliquots = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['AliquotMaster'], $aliquots);
             if (sizeof($aliquots) > $aliquotsNbrLimit)
@@ -650,7 +650,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaBlock.parent_id' => $storageMasterId
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $tmaBlocks = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['TmaBlock'], $tmaBlocks);
             if (sizeof($tmaBlocks) > $storagesNbrLimit)
@@ -667,7 +667,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaSlide.storage_master_id' => $storageMasterId
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $tmaSlides = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['TmaSlide'], $tmaSlides);
             if (sizeof($tmaSlides) > $tmaSlidesNbrLimit)
@@ -691,7 +691,7 @@ class StorageMastersController extends StorageLayoutAppController
                     'StorageControl.is_tma_block' => '0'
                 ),
                 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)',
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $treeData = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['InitialStorageMaster'], $treeData);
             if (sizeof($treeData) > $storagesNbrLimit) {
@@ -703,7 +703,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaBlock.parent_id IS NULL'
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $tmaBlocks = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['TmaBlock'], $tmaBlocks);
             if (sizeof($tmaBlocks) > $storagesNbrLimit)
@@ -805,7 +805,7 @@ class StorageMastersController extends StorageLayoutAppController
                 'conditions' => array(
                     'StorageCoordinate.storage_master_id' => $storageMasterId
                 ),
-                'recursive' => '-1',
+                'recursive' => -1,
                 'order' => 'StorageCoordinate.order ASC'
             ));
             foreach ($coordinateTmp as $key => $value) {
@@ -875,7 +875,7 @@ class StorageMastersController extends StorageLayoutAppController
                         'conditions' => array(
                             'StorageCoordinate.storage_master_id' => $secondStorageId
                         ),
-                        'recursive' => '-1',
+                        'recursive' => -1,
                         'order' => 'StorageCoordinate.order ASC'
                     ));
                     foreach ($coordinateTmp as $key => $value) {
@@ -985,14 +985,14 @@ class StorageMastersController extends StorageLayoutAppController
             'conditions' => array(
                 'AliquotMaster.storage_master_id' => $storageMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         $aliquotMasterC = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['AliquotMaster'], $aliquotMasterC, true);
         $tmaSlideC = $this->TmaSlide->find('all', array(
             'conditions' => array(
                 'TmaSlide.storage_master_id' => $storageMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         $tmaSlideC = $this->StorageMaster->contentNatCaseSort($fieldsToSortOn['TmaSlide'], $tmaSlideC, true);
         

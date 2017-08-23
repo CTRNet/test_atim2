@@ -112,7 +112,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'conditions' => array(
                 'StorageMaster.id' => $tmaBlockIds
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if ($initialDisplay)
             $this->StorageMaster->sortForDisplay($tmaBlocks, $tmaBlockIds);
@@ -569,7 +569,7 @@ class TmaSlidesController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaSlide.id' => $updatedTmaSlideIds
                 ),
-                'recursive' => '-1'
+                'recursive' => -1
             )) != sizeof($updatedTmaSlideIds)) {
                 // In case a TMA slide has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -723,7 +723,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $order,
             'joins' => $joins,
             'limit' => 10,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         
         // build javascript textual array
@@ -787,7 +787,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $order,
             'joins' => $joins,
             'limit' => 10,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         
         foreach ($data as $dataUnit)
@@ -799,7 +799,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $orderUses,
             'joins' => $joinsUses,
             'limit' => 10,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         
         foreach ($data as $dataUnit)

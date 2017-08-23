@@ -198,7 +198,7 @@ class ReportsController extends DatamartAppController
                 'conditions' => array(
                     'Structure.id' => $datamartStructure['structure_id']
                 ),
-                'recursive' => '-1'
+                'recursive' => -1
             ));
             $structureAlias = $atimStructureData['structure']['Structure']['alias'];
         }
@@ -1347,7 +1347,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
         if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
@@ -1367,7 +1367,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         $res = array();
         foreach ($studiedSamples as $newStudiedSample) {
@@ -1408,7 +1408,7 @@ class ReportsController extends DatamartAppController
                 'order' => array(
                     'ViewSample.sample_code ASC'
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $childrenSampleIds = array();
             foreach ($childrenSamples as $tmpSample)
@@ -1468,7 +1468,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
         if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
@@ -1488,7 +1488,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         $res = array();
         $tmpInitialSpecimens = array();
@@ -1503,7 +1503,7 @@ class ReportsController extends DatamartAppController
                 'order' => array(
                     'ViewSample.sample_code ASC'
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
             $tmpInitialSpecimens[$newStudiedSample['SampleMaster']['initial_specimen_sample_id']] = $initialSpecimen;
             if ($initialSpecimen) {
@@ -1558,7 +1558,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'StorageMaster.selection_label ASC'
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
         if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
@@ -1579,7 +1579,7 @@ class ReportsController extends DatamartAppController
             'order' => array(
                 'StorageMaster.selection_label ASC'
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         $res = array();
         foreach ($studiedStorages as $newStudiedStorage) {
@@ -1655,7 +1655,7 @@ class ReportsController extends DatamartAppController
             'fields' => array(
                 'DISTINCT primary_id'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         // *** NOTE: Has to control the number of record because the next report code lines can be really time and memory consuming ***
         if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
@@ -1671,7 +1671,7 @@ class ReportsController extends DatamartAppController
             'fields' => array(
                 'DISTINCT primary_id'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         $primaryIds = array();
         foreach ($tmpPrimaryIds as $newPrimaryId)
@@ -1693,7 +1693,7 @@ class ReportsController extends DatamartAppController
                 'DiagnosisMaster.primary_id ASC',
                 'DiagnosisMaster.dx_date ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         return array(
             'header' => $header,

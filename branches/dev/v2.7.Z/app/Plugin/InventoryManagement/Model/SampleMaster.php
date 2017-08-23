@@ -92,7 +92,7 @@ class SampleMaster extends InventoryManagementAppModel
             ));
             $specimenData = $this->find('first', array(
                 'conditions' => $criteria,
-                'recursive' => '0'
+                'recursive' => 0
             ));
             
             $samplePrecision = '';
@@ -148,7 +148,7 @@ class SampleMaster extends InventoryManagementAppModel
             ));
             $derivativeData = $this->find('first', array(
                 'conditions' => $criteria,
-                'recursive' => '0'
+                'recursive' => 0
             ));
             
             // Set summary
@@ -294,7 +294,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SampleMaster.parent_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -309,7 +309,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'AliquotMaster.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -326,7 +326,7 @@ class SampleMaster extends InventoryManagementAppModel
         // 'used aliquot' that allows to display all source aliquots used to create
         // the studied sample.
         // $sourceAliquotModel = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-        // $returnedNbr = $sourceAliquotModel->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sampleMasterId), 'recursive' => '-1'));
+        // $returnedNbr = $sourceAliquotModel->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sampleMasterId), 'recursive' => -1));
         // if($returnedNbr > 0) {
         // return array('allow_deletion' => false, 'msg' => 'an aliquot of the parent sample is defined as source aliquot');
         // }
@@ -337,7 +337,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'QualityCtrl.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -352,7 +352,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(

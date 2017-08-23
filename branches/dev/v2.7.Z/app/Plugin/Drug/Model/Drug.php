@@ -80,7 +80,7 @@ class Drug extends DrugAppModel
             'conditions' => array(
                 'TreatmentExtendMaster.drug_id' => $drugId
             ),
-            'recursive' => '1'
+            'recursive' => 1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -94,7 +94,7 @@ class Drug extends DrugAppModel
             'conditions' => array(
                 'ProtocolExtendMaster.drug_id' => $drugId
             ),
-            'recursive' => '1'
+            'recursive' => 1
         ));
         if ($returnedNbr > 0) {
             return array(

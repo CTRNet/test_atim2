@@ -135,7 +135,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
                 'DiagnosisMaster.primary_id' => $diagnosisMasterId,
                 "DiagnosisMaster.id != $diagnosisMasterId"
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($nbrPrimary > 0) {
             $arrAllowDeletion['allow_deletion'] = false;
@@ -147,7 +147,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel
             'conditions' => array(
                 'DiagnosisMaster.parent_id' => $diagnosisMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($nbrParent > 0) {
             $arrAllowDeletion['allow_deletion'] = false;

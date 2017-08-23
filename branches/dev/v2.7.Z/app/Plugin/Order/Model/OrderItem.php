@@ -121,7 +121,7 @@ class OrderItem extends OrderAppModel
                     'shipped'
                 )
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($res) {
             return false;

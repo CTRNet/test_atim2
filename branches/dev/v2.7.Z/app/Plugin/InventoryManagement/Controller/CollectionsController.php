@@ -170,7 +170,7 @@ class CollectionsController extends InventoryManagementAppController
                     'Collection.id' => $collectionId,
                     'Collection.deleted' => 1
                 ),
-                'recursive' => '1'
+                'recursive' => 1
             ));
         }
         // MANAGE FORM, MENU AND ACTION BUTTONS

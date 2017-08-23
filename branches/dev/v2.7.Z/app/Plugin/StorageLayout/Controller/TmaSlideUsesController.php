@@ -67,7 +67,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
             'conditions' => array(
                 'TmaSlide.id' => $tmaSlideIds
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if ($initialDisplay)
             $this->TmaSlide->sortForDisplay($tmaSlides, $tmaSlideIds);
@@ -380,7 +380,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
             $initialSlideUsesData = $this->TmaSlideUse->find('all', array(
                 'conditions' => $criteria,
                 'order' => 'TmaSlideUse.date ASC',
-                'recursive' => '2'
+                'recursive' => 2
             ));
             if (empty($initialSlideUsesData)) {
                 $this->atimFlashWarning(__('no slide use to update'), $urlToCancel);
@@ -471,7 +471,7 @@ class TmaSlideUsesController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaSlideUse.id' => $updatedTmaSlideUseIds
                 ),
-                'recursive' => '-1'
+                'recursive' => -1
             )) != sizeof($updatedTmaSlideUseIds)) {
                 // In case a TMA slide use has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

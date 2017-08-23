@@ -95,7 +95,7 @@ class ShipmentsController extends OrderAppController
                     'conditions' => array(
                         'Shipment.id' => $copiedShipmentId
                     ),
-                    'recursive' => '-1'
+                    'recursive' => -1
                 ));
             }
             
@@ -523,7 +523,7 @@ class ShipmentsController extends OrderAppController
                 'OrderItem.id' => $orderItemId,
                 'OrderItem.shipment_id' => $shipmentId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($orderItemData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

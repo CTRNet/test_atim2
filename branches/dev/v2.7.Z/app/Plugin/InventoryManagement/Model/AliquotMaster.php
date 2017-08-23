@@ -575,7 +575,7 @@ class AliquotMaster extends InventoryManagementAppModel
                     'conditions' => array(
                         'DerivativeDetail.sample_master_id' => $sampleMasterData['SampleMaster']['id']
                     ),
-                    'recursive' => '-1'
+                    'recursive' => -1
                 ));
                 if (empty($derivativeDetailData)) {
                     $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -617,7 +617,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'AliquotInternalUse.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -632,7 +632,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'Realiquoting.parent_aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -647,7 +647,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'AliquotReviewMaster.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -662,7 +662,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'OrderItem.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -677,7 +677,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'QualityCtrl.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -692,7 +692,7 @@ class AliquotMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SourceAliquot.aliquot_master_id' => $aliquotMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -912,7 +912,7 @@ class AliquotMaster extends InventoryManagementAppModel
                     );
                     $aliquotNotInStock = $this->find('count', array(
                         'conditions' => $condtions,
-                        'recursive' => '-1'
+                        'recursive' => -1
                     ));
                     if ($aliquotNotInStock) {
                         $validates = false;

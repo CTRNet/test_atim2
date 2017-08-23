@@ -257,7 +257,7 @@ class BatchSet extends DatamartAppModel
         );
         $batchSet = $this->find('first', array(
             'conditions' => $conditions,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($batchSet))
             $this->redirect('/Pages/err_plugin_system_error?Bmethod=' . $bt[1]['function'] . ',line=' . $bt[1]['line'], null, true);

@@ -1,10 +1,27 @@
 -- ------------------------------------------------------
 -- ATiM Database Upgrade Script
--- version: 2.7.1
+-- Version: 2.7.1
 --
 -- For more information:
 --    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
--- ------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------
+--
+-- MIGRATION DETAIL:
+-- 
+--   ### 1 # 'recursive' function is now type sensitive
+--   ---------------------------------------------------------------
+--
+--      Replaced any code matching ['recursive' => 'integer_value'] by ['recursive' => integer_value]
+--
+--      TODO:
+--
+--      Parse any custom code to apply the same change.
+--
+--		
+--   ### 2 # 
+--   ----------------------------------------------------------------------------------------
+-- 
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
 -- -------------------------------------------------------------------------------------
 -- Create the view_structure_formats_simplified view by combination of 
@@ -401,6 +418,7 @@ AND sfo.`structure_id` NOT IN (
 
 REPLACE INTO `i18n` (id,en,fr) 
 VALUES
+('the deleted collection is linked to participant', 'Your data cannot be deleted! Collection is linked to participant.', 'Vos données ne peuvent être supprimées! La collection est attachée à un participant.'),
 ('please complete the security questions', 'Please complete the security questions', 'Veuillez compléter les questions de sécurités');
 
 -- -------------------------------------------------------------------------------------
