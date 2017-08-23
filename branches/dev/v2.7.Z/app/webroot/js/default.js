@@ -1237,7 +1237,7 @@ function initJsControls() {
                     $("input.submit").siblings("a").find("span").removeClass('fetching');
                 }
             };
-            console.log($("form").attr("action"));
+//            console.log($("form").attr("action"));
             $("form").ajaxForm({
                 url: $("form").attr("action"),
                 success: successFct,
