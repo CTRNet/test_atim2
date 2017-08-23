@@ -105,8 +105,9 @@ class OrderItemsController extends OrderAppController
             'pending',
             'shipped',
             'shipped & returned'
-        )))
+        ))){
             $conditions['OrderItem.status'] = $status;
+        }
         $this->request->data = $this->paginate($this->OrderItem, $conditions);
         
         foreach ($this->request->data as &$newItem) {

@@ -1,5 +1,26 @@
 <?php
 
+class AtimDebug{
+    private static $counter=0;
+    
+    /**
+     * @param int $counter after $counter time that this function run, it send $message to API
+     * @param array $message the message that will be send to API after $counter time of execution of this function
+     */
+    public static function stop($counter=1, $message=['message']) 
+    {
+        if (!is_array($message)){
+            $message=[$message];
+        }
+        if (self::$counter==$counter){
+            d($message);
+            die("stop");
+        }else{
+            self::$counter++;
+        }
+    }
+}
+
 /**
  * @param $message1
  * @param string $message2

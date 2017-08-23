@@ -343,36 +343,49 @@ class AppController extends Controller
 
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
-        if ($type == self::CONFIRM) {
-            $_SESSION['ctrapp_core']['confirm_msg'] = $message;
-        } elseif ($type == self::INFORMATION) {
-            $_SESSION['ctrapp_core']['info_msg'][] = $message;
-        } elseif ($type == self::WARNING) {
-            $_SESSION['ctrapp_core']['warning_trace_msg'][] = $message;
-        } elseif ($type == self::ERROR) {
-            $_SESSION['ctrapp_core']['error_msg'][] = $message;
-        }
-        if ($url!=='javascript:history.back()'){
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+        if (strpos(strtolower($url), 'javascript')===false){
+            if ($type == self::CONFIRM) {
+                $_SESSION['ctrapp_core']['confirm_msg'] = $message;
+            } elseif ($type == self::INFORMATION) {
+                $_SESSION['ctrapp_core']['info_msg'][] = $message;
+            } elseif ($type == self::WARNING) {
+                $_SESSION['ctrapp_core']['warning_trace_msg'][] = $message;
+            } elseif ($type == self::ERROR) {
+                $_SESSION['ctrapp_core']['error_msg'][] = $message;
+            }
             $this->redirect($url);
+        }elseif(false){
+        //TODO:: Check if can use javascript function for blue screen message
+        echo '<script type="text/javascript">',
+                    'javascript:history.back();',
+                    'window.location.reload();',
+                '</script>';
+        }else{
+            $this->autoRender = false;
+            $this->set('url', Router::url($url));
+            $this->set('message', $message);
+            $this->set('pageTitle', $message);
+            $this->render(false, "Flash");
         }
     }
 
-    public function atimFlashError($message, $url, $compatibility)
+    public function atimFlashError($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::ERROR);
     }
 
-    public function atimFlashInfo($message, $url, $compatibility)
+    public function atimFlashInfo($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::INFORMATION);
     }
 
-    public function atimFlashConfirm($message, $url, $compatibility)
+    public function atimFlashConfirm($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::CONFIRM);
     }
 
-    public function atimFlashWarning($message, $url, $compatibility)
+    public function atimFlashWarning($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::WARNING);
     }
@@ -1043,10 +1056,11 @@ class AppController extends Controller
      */
     public function setControlerPaginatorSettings($model)
     {
-        if (PAGINATION_AMOUNT)
+        if (PAGINATION_AMOUNT){
             $this->Paginator->settings = array_merge($this->Paginator->settings, array(
                 'limit' => PAGINATION_AMOUNT
             ));
+        }
         if ($model && isset($this->paginate[$model->name])) {
             $this->Paginator->settings = array_merge($this->Paginator->settings, $this->paginate[$model->name]);
         }
