@@ -44,7 +44,11 @@ $title = $this->Shell->pageTitle;
 <meta http-equiv="Cache-Control"
 	content=" no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0" />
 <meta http-equiv="Expires" content="0" />
-
+<?php
+header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+header("Pragma: no-cache"); // HTTP 1.0.
+header("Expires: 0"); // Proxies.
+?>
 <link rel="shortcut icon"
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
 	<?php

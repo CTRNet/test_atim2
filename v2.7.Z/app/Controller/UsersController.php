@@ -40,6 +40,7 @@ class UsersController extends AppController
      */
     public function login()
     {
+        $username=$this->UserLoginAttempt->find('first', ['order' => 'attempt_time DESC'])["UserLoginAttempt"]["username"];
         if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
             return $this->redirect('/Menus');
         }
@@ -99,7 +100,7 @@ class UsersController extends AppController
             }
             $this->request->data = array();
             $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
-        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login'])){
+        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username===$this->request->data['User']['username']){
             if ($this->Auth->login()) {
                 // Log in user
                 if ($this->request->data['User']['username']) {
@@ -110,6 +111,19 @@ class UsersController extends AppController
                 $this->_setSessionSearchId();
                 $this->resetPermissions();
                 return $this->render('ok');
+            }
+        }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username!==$this->request->data['User']['username']){
+            if ($this->Auth->login()) {
+                // Log in user
+                if ($this->request->data['User']['username']) {
+                    $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
+                }
+                $this->_initializeNotificationSessionVariables();
+
+                $this->_setSessionSearchId();
+                $this->resetPermissions();
+                
+                return $this->render('nok');
             }
         }
         
