@@ -436,9 +436,11 @@ function initAdvancedControls(scope) {
                 $(cell).find("span:first").addClass("specific_span");
                 tabindex = $(cell).find("input").prop("tabindex");
             }
-            var name = $(cell).find("input:last").prop("name");
+//            var name = $(cell).find("input:last").prop("name");
+            var name = $(this).prop("name");
             name = name.substr(0, name.length - 3) + "_with_file_upload]";
-            $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
+//            $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
+            $(cell).append("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
         });
         //store hidden field names into their data
         $(scope).find("span.range_span input, span.file_span input").each(function () {
