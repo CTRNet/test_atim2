@@ -5,83 +5,96 @@ var orgAction = null;
 var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 var sessionTimeout = new Object();
-var checkedData=[];
+var checkedData = [];
+var DEBUG_MODE_JS = 2;
 
 //window.alert = function(a){
 //    console.log(a);
 //}
 
-$(document).ready(function(){
-    if (typeof controller !=='undefined' && typeof action !=='undefined' ){
-        checkedData=[];
-        checkedData[controller]=[];
-        checkedData[controller][action]=[];
+$(document).ready(function () {
+    if (typeof controller !== 'undefined' && typeof action !== 'undefined') {
+        checkedData = [];
+        checkedData[controller] = [];
+        checkedData[controller][action] = [];
     }
-    $("#wrapper").find("a[href*=':']").each(function(){
-        if (!$(this).hasClass("submit")){
-            $(this).attr("data-href",$(this).prop('href'));
+    $("#wrapper").find("a[href*=':']").each(function () {
+        if (!$(this).hasClass("submit")) {
+            $(this).attr("data-href", $(this).prop('href'));
             $(this).prop('href', 'javascript:void(0)');
         }
     });
-    $("#wrapper").delegate("a[data-href]", 'click', function(){
-        var url=$(this).attr("data-href");
+    $("#wrapper").delegate("a[data-href]", 'click', function () {
+        var url = $(this).attr("data-href");
         $.ajax({
-                type: "GET",
-                url: url+"/noActions:/",
-                cache: false,
-                success: successFunction,
-                error: errorFunction
-            });
+            type: "GET",
+            url: url + "/noActions:/",
+            cache: false,
+            success: successFunction,
+            error: errorFunction
+        });
     });
 
-    function successFunction(data){
+    function successFunction(data) {
+
+        if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+            var myName = arguments.callee.toString();
+            myName = myName.substr('function '.length);
+            myName = myName.substr(0, myName.indexOf('('));
+            console.log(myName);
+            if (DEBUG_MODE_JS === 2) {
+                debugger ;
+            }
+        }
         var domNodes = document.createElement('div');
         $(domNodes).html(data);
-        $(domNodes).find("a[href*=':']").each(function(){
-            if (!$(this).hasClass("submit")){
-                $(this).attr("data-href",$(this).prop('href'));
+        $(domNodes).find("a[href*=':']").each(function () {
+            if (!$(this).hasClass("submit")) {
+                $(this).attr("data-href", $(this).prop('href'));
                 $(this).prop('href', 'javascript:void(0)');
             }
         });
-        
+
         var id;
-        var checkboxes = $(domNodes).find("input[name^='data["+dataIndex+"]'][type!='hidden']");
-        checkedData[controller][action].forEach(function(item){
-            $(domNodes).find("input[name^='data["+dataIndex+"]'][type!='hidden'][value='"+item.id+"']").prop("checked", item.checked);
-            $(domNodes).find("input[name^='data["+dataIndex+"]'][type!='hidden'][value='"+item.id+"']").closest("tr").addClass("chkLine")
+        var checkboxes = $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden']");
+        checkedData[controller][action].forEach(function (item) {
+            $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").prop("checked", item.checked);
+            $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").closest("tr").addClass("chkLine")
         });
-        
-        $(checkboxes).each(function(){
-            $this=$(this);
-            id=$this.val();
-            checked=$this.is(':checked');
-            index=checkedData[controller][action].findIndex(function(item){return item.id===id;});
-            if (index!==-1){
+
+        $(checkboxes).each(function () {
+            $this = $(this);
+            id = $this.val();
+            checked = $this.is(':checked');
+            index = checkedData[controller][action].findIndex(function (item) {
+                return item.id === id;
+            });
+            if (index !== -1) {
                 $this.prop("checked", true);
             }
         });
-        
-        
+
+
         $("#wrapper").children("form").remove();
         $("#wrapper").prepend($(domNodes).children("form").first());
         initCheckAll("#wrapper");
     }
-    
+
     var errorFunction = function (jqXHR, textStatus, errorThrown) {
         $(document).remove('#popupError');
-        var popupError="<div id=\"popupError\"><p>"+jqXHR+"</p><p>"+textStatus+"</p><p>"+errorThrown+"</p></div>";
-        popupError="<div id=\"popupError\"><p>"+jqXHR+"</p><p>"+textStatus+"</p><p>"+errorThrown+"</p></div>";
+        var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+        popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
         $(document).append(popupError);
         $(popupError).popup();
-    };    
-    
+    };
+
 });
 
 jQuery.fn.fullWidth = function () {
     return parseInt($(this).width()) + parseInt($(this).css("margin-left")) + parseInt($(this).css("margin-right")) + parseInt($(this).css("padding-left")) + parseInt($(this).css("padding-right")) + parseInt($(this).css("border-left-width")) + parseInt($(this).css("border-right-width"));
 };
 
-if ($("#header div:first").length!==0){
+if ($("#header div:first").length !== 0) {
     var header_total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left;
 }
 
@@ -159,6 +172,16 @@ var actionClickDown = function () {
  * @returns false so that the page never scrolls
  */
 function actionMouseweelHandler(event, delta) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if ($(event.currentTarget).find("ul:animated").length == 0) {
         if (delta > 0) {
             $(event.currentTarget).find(".up").click();
@@ -173,6 +196,16 @@ function actionMouseweelHandler(event, delta) {
  * Inits actions bars (main one and ajax loaded ones). Unbind the actions before rebinding them to avoid duplicate bindings
  */
 function initActions() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $('div.actions div.bottom_button').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
     $('div.actions a.down').unbind('click', actionClickDown).click(actionClickDown);
     $('div.actions a.up').unbind('click', actionClickUp).click(actionClickUp);
@@ -180,10 +213,30 @@ function initActions() {
 
     if (window.menuItems) {
         function actionDisplay(data) {
+
+            if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+                var myName = arguments.callee.toString();
+                myName = myName.substr('function '.length);
+                myName = myName.substr(0, myName.indexOf('('));
+                console.log(myName);
+                if (DEBUG_MODE_JS === 2) {
+                    debugger ;
+                }
+            }
             return '<span class="row" id="' + data.value + '"><span class="cell"><span class="icon16 ' + (data.style ? data.style : 'blank') + '"></span></span><span class="cell" style="padding-left: 5px;">' + data.label + '</span></span>';
         }
 
         function validateSubmit() {
+
+            if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+                var myName = arguments.callee.toString();
+                myName = myName.substr('function '.length);
+                myName = myName.substr(0, myName.indexOf('('));
+                console.log(myName);
+                if (DEBUG_MODE_JS === 2) {
+                    debugger ;
+                }
+            }
             var errors = new Array();
             if ($("#actionsTarget input[type=hidden]").val() == "") {
                 errors.push(errorYouMustSelectAnAction);
@@ -253,6 +306,16 @@ function initActions() {
 }
 
 function initDatepicker(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find(".datepicker").each(function () {
         var dateFields = $(this).parent().parent().find('input, select');
         var yearField = null;
@@ -339,11 +402,31 @@ function initDatepicker(scope) {
     });
 }
 
-function showDatePicker(e){
+function showDatePicker(e) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(e).datepicker('show');
 }
 
 function setFieldSpan(clickedButton, spanClassToDisplay) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(clickedButton).parent().find("a").show();
     $(clickedButton).hide();
     $(clickedButton).parent().children("span").hide().each(function () {
@@ -364,6 +447,16 @@ function setFieldSpan(clickedButton, spanClassToDisplay) {
  * Advanced controls are search OR options and RANGE buttons
  */
 function initAdvancedControls(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     //for each add or button
     $(scope).find(".btn_add_or").each(function () {
         var $field = $(this).prev();
@@ -461,9 +554,9 @@ function initAdvancedControls(scope) {
             return false;
         });
         $(scope).find(".file").each(function () {
-            item=$(this).parent().parent();
-            if (item.find(".tag").length>0){
-                tags=item.find(".tag");
+            item = $(this).parent().parent();
+            if (item.find(".tag").length > 0) {
+                tags = item.find(".tag");
                 tags.parent().parent().addClass("specific_span");
                 tags.insertBefore(tags.parent().parent());
                 if (tags.siblings().find('.tag').length === 0) {
@@ -504,6 +597,16 @@ function initAdvancedControls(scope) {
  * @param element The element contained within the row to remove
  */
 function removeParentRow(element) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     element = $(element).parents("tr:first");
 
     if ($(element)[0].nodeName == "TR") {
@@ -512,6 +615,16 @@ function removeParentRow(element) {
 }
 
 function initAutocomplete(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find(".jqueryAutocomplete").each(function () {
 //			var element = $(this);
         $(this).autocomplete({
@@ -527,29 +640,49 @@ function initAutocomplete(scope) {
     });
 }
 /*
-//function initAutocomplete(scope) {
-//    $(scope).find(".jqueryAutocomplete").each(function () {
-////        var element = $(this);
-//        $(this).autocomplete({
-//            //if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-//            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
-////                    alternate source for debugging
-////            source: function (request, response) {
-////                $.post(root_url +  $(element).attr("url"), request, function (data) {
-////                    data=data.substring(2,data.length-2);
-////                    request.term=request.term.replace(/([\\])/g, "\\$1");
-////                    data=data.split('", "');
-////                    var rep=data.filter(function(item){
-////                        return item.toLowerCase().search(request.term.toLowerCase())>=0;
-////                    });
-////                    response(rep);
-////                });
-////            }
-//        });
-//    });
-//}
-*/
+ //function initAutocomplete(scope) {
+ 
+ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+ var myName = arguments.callee.toString();
+ myName = myName.substr('function '.length);
+ myName = myName.substr(0, myName.indexOf('('));
+ console.log(myName);
+ if (DEBUG_MODE_JS>0){
+ 
+ }
+ }
+ //    $(scope).find(".jqueryAutocomplete").each(function () {
+ ////        var element = $(this);
+ //        $(this).autocomplete({
+ //            //if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
+ //            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
+ ////                    alternate source for debugging
+ ////            source: function (request, response) {
+ ////                $.post(root_url +  $(element).attr("url"), request, function (data) {
+ ////                    data=data.substring(2,data.length-2);
+ ////                    request.term=request.term.replace(/([\\])/g, "\\$1");
+ ////                    data=data.split('", "');
+ ////                    var rep=data.filter(function(item){
+ ////                        return item.toLowerCase().search(request.term.toLowerCase())>=0;
+ ////                    });
+ ////                    response(rep);
+ ////                });
+ ////            }
+ //        });
+ //    });
+ //}
+ */
 function initAliquotVolumeCheck() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var checkFct = function () {
         var fctMod = function (param) {
             return parseFloat(param.replace(/,/g, "."));
@@ -579,10 +712,30 @@ function initAliquotVolumeCheck() {
 }
 
 function refreshTopBaseOnAction() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $("form").prop("action", root_url + actionControl + $("#0Action").val());
 }
 
 function initActionControl(actionControl) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $($(".adv_ctrl.btn_add_or")[1]).parent().parent().find("select").change(function () {
         refreshTopBaseOnAction(actionControl);
     });
@@ -595,24 +748,33 @@ function initActionControl(actionControl) {
  * @param scope The scope where to look for those controls. In a popup, the scope will be the popup box
  */
 function initCheckAll(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find(".checkAll").each(function () {
         var elemParent = $(this).parents("table:first");
         $(this).click(function () {
             if (typeof dataLimit !== 'undefined') {
-                var data=$(elemParent).find('input[type=checkbox]');
-                data.each(function(){
-                    if (!$(this).is(":checked")){
+                var data = $(elemParent).find('input[type=checkbox]');
+                data.each(function () {
+                    if (!$(this).is(":checked")) {
                         $(this).prop("checked", true);
-//                        $(this).trigger("click", checkboxIndexFunction);
-                        if (!checkData($(this), dataLimit, null, true)){
+                        if (!checkData($(this), dataLimit, null, true)) {
                             $(this).prop("checked", false);
                             return false;
                         }
                     }
 
-                $(this).parents("tr:first").addClass("chkLine");
+                    $(this).parents("tr:first").addClass("chkLine");
                 });
-            }else{
+            } else {
                 $(elemParent).find('input[type=checkbox]').prop("checked", true);
                 $(elemParent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
             }
@@ -620,21 +782,23 @@ function initCheckAll(scope) {
         });
         $(elemParent).find(".uncheckAll").click(function () {
             if (typeof dataLimit !== 'undefined') {
-                $(elemParent).find('input[type=checkbox]').each(function(){
+                $(elemParent).find('input[type=checkbox]').each(function () {
                     var id, checked, index;
-                    id=$(this).val();
-                    checked=$(this).is(":checked");
-                    if (checked){
-                       index=checkedData[controller][action].findIndex(function(item){return item.id===id;});
-                       if (index!==-1){
-                           checkedData[controller][action].splice(index, 1);
-                       }
+                    id = $(this).val();
+                    checked = $(this).is(":checked");
+                    if (checked) {
+                        index = checkedData[controller][action].findIndex(function (item) {
+                            return item.id === id;
+                        });
+                        if (index !== -1) {
+                            checkedData[controller][action].splice(index, 1);
+                        }
                     }
                 });
             }
             $(elemParent).find('input[type=checkbox]').prop("checked", false);
             $(elemParent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
-            
+
             return false;
         });
     });
@@ -647,6 +811,16 @@ function initCheckAll(scope) {
  * @param buttons Array containing json containing keys icon, label and action
  */
 function buildDialog(id, title, content, buttons) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var buttonsHtml = "";
     if (buttons != null && buttons.length > 0) {
         for (i in buttons) {
@@ -670,11 +844,31 @@ function buildDialog(id, title, content, buttons) {
 }
 
 function buildConfirmDialog(id, question, buttons) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     buildDialog(id, question, null, buttons);
 }
 
 //tool_popup
 function initToolPopup(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find(".tool_popup").click(function () {
         var parent_elem = $(this).parent().children();
         toolTarget = null;
@@ -700,6 +894,16 @@ function initToolPopup(scope) {
 }
 
 function initFlyOverCellsLines(newLines) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     totalColspan = $(".floatingBckGrnd").data("totalColspan");
     $(newLines).each(function (index, element) {
         for (var i = 0; i <= totalColspan; ++i) {
@@ -709,6 +913,16 @@ function initFlyOverCellsLines(newLines) {
 }
 
 function initAddLine(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find(".addLineLink").each(function () {
         //get the table row
         var table = $(this).parents("table:first");
@@ -806,6 +1020,16 @@ function initAddLine(scope) {
 }
 
 function resizeFloatingBckGrnd(floatingBckGrnd) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     table = $(floatingBckGrnd).parents("table:first");
     computeSum = function (obj, cssArr) {
         total = 0;
@@ -848,6 +1072,16 @@ function resizeFloatingBckGrnd(floatingBckGrnd) {
 }
 
 function removeLine(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var floatingBckGrnd = $(event.target).parents("table:first").find(".floatingBckGrnd");
     $(event.target).parents("tr:first").remove();
     resizeFloatingBckGrnd(floatingBckGrnd);
@@ -855,6 +1089,16 @@ function removeLine(event) {
 }
 
 function initAjaxClass(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     //ajax controls
     //evals the json within the class of the element and calls the method defined in callback
     //the callback method needs to take this and json as parameters
@@ -871,6 +1115,16 @@ function initAjaxClass(scope) {
 }
 
 function initLabBook(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var fields = new Array();
     var checkbox = null;
     var codeInputField = null;
@@ -917,6 +1171,16 @@ function initLabBook(scope) {
 }
 
 function labBookFieldsToggle(scope, fields, codeInputField, checkbox) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var toggle = false;
     if ($(scope).find(".labBook:visible").length == 0) {
         //current input are visible, see if we need to hide
@@ -936,6 +1200,16 @@ function labBookFieldsToggle(scope, fields, codeInputField, checkbox) {
 }
 
 function initLabBookPopup() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $("div.bottom_button a:not(.not_allowed).add").first().click(function () {
         $.get($(this).prop("href"), labBookPopupAddForm);
         return false;
@@ -943,6 +1217,16 @@ function initLabBookPopup() {
 }
 
 function labBookPopupAddForm(data) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
     initDatepicker("#default_popup");
     initAccuracy("#default_popup");
@@ -972,6 +1256,16 @@ function labBookPopupAddForm(data) {
 }
 
 function initCheckboxes(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find("input[type=checkbox]").each(function () {
         if (!$(this).data("exclusive")) {
             var checkboxes = $(this).parent().find("input[type=checkbox]");
@@ -988,6 +1282,16 @@ function initCheckboxes(scope) {
 }
 
 function initAccuracy(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find(".accuracy_target_blue").click(function () {
         if ($(this).find("input").length == 0) {
             //accuracy going to year
@@ -1027,6 +1331,16 @@ function initAccuracy(scope) {
  * will not overlap with the title.
  */
 function flyOverComponents() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var scrollLeft = $(document).scrollLeft();
     //submit
     $(".flyOverSubmit").each(function () {
@@ -1055,6 +1369,16 @@ function flyOverComponents() {
 }
 
 function initAutoHideVolume() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $("input[type=radio]").click(function () {
         if ($.inArray($(this).val(), volumeIds) > -1) {
             $("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", false);
@@ -1066,6 +1390,16 @@ function initAutoHideVolume() {
 }
 
 function handleSearchResultLinks() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(".ajax_search_results thead a, .ajax_search_results tfoot a").click(function () {
         $(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
         $.get($(this).attr("href"), function (data) {
@@ -1084,11 +1418,31 @@ function handleSearchResultLinks() {
 }
 
 function databrowserToggleSearchBox(cell) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(cell).parent().find("span, a").toggle();
     return false;
 }
 
 function warningMoreInfoClick(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     //only called on the first click of each element, then toggle function handles it
     if ($(event.target).data('opened')) {
         $(this).html("[+]").siblings("pre.warningMoreInfo").hide();
@@ -1100,6 +1454,16 @@ function warningMoreInfoClick(event) {
 }
 
 function sessionExpired() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if ($("#loginPopup").length == 0) {
         $("body").append("<div id='loginPopup' class='std_popup'><div class='loading'>--- " + STR_LOADING + " ---</div></div>");
     }
@@ -1129,6 +1493,16 @@ function sessionExpired() {
 }
 
 function cookieWatch() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if ($.cookie("session_expiration")) {
         if (!sessionTimeout.lastRequest || sessionTimeout.lastRequest != $.cookie("last_request")) {
             //5 to 1 second earlier expiration (due to 4 secs error margin)
@@ -1148,6 +1522,16 @@ function cookieWatch() {
 }
 
 function initFileOptions(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find("input.fileOption[value=replace]").each(function () {
         // $(this).next("input") is not working, so using next().next()
         $(this).data("browse-html", $(this).next().next()[0].outerHTML);
@@ -1168,6 +1552,16 @@ function initFileOptions(scope) {
 }
 
 function initJsControls() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if (history.replaceState) {
         if (!history.state) {
             history.replaceState(new Object(), "foo");
@@ -1383,30 +1777,60 @@ function initJsControls() {
     flyOverComponents();
 }
 
-function closeLog(event){
-    a=$(this).children("a").first();
+function closeLog(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
+    a = $(this).children("a").first();
     $(this).siblings().toggle(200);
-    if ($(a).text()==="-"){
+    if ($(a).text() === "-") {
         $(a).text("+");
-    }else if($(a).text()==="+"){
+    } else if ($(a).text() === "+") {
         $(a).text("-");
     }
 }
 
-function showHint(event){
-    if (event.type==="mouseenter"){
-        if (countLines(this)>=3){
-            this.title=$(this).text();
-        }else{
-            this.title=$(this).text();
-            this.title="";
+function showHint(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
         }
-    }else if (event.type==="mouseleave"){
-        this.title="";
+    }
+    if (event.type === "mouseenter") {
+        if (countLines(this) >= 3) {
+            this.title = $(this).text();
+        } else {
+            this.title = $(this).text();
+            this.title = "";
+        }
+    } else if (event.type === "mouseleave") {
+        this.title = "";
     }
 }
 
 function countLines(item) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var divHeight = $(item).outerHeight();
     var lineHeight = parseInt($(item).css("lineHeight"));
     var lines = Math.round(divHeight / lineHeight);
@@ -1414,7 +1838,17 @@ function countLines(item) {
 }
 
 function putIntoRelDiv(index, elem) {
-    var temp=$('<div></div>').addClass('testScroll');
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
+    var temp = $('<div></div>').addClass('testScroll');
     $(elem).before(temp);
     while ($(elem).contents().length > 0) {
         temp.append($(elem).contents()[0]);
@@ -1422,8 +1856,8 @@ function putIntoRelDiv(index, elem) {
     $(elem).append(temp);
 
 //$(elem).append($("<div class='testScroll'>" +$(elem).html() +"</div>"));
-    
-    
+
+
 //    $(elem).delegate(".datepicker", "click", showDatePicker);
 //    $(elem).html(
 //            "<div class='testScroll'>" +
@@ -1432,6 +1866,16 @@ function putIntoRelDiv(index, elem) {
 }
 
 function initFlyOverCells(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find("table.structure").each(function () {
         //make cells float
         if ($(this).find("th.floatingCell:first").length == 0) {
@@ -1480,6 +1924,16 @@ function initFlyOverCells(scope) {
 
 
 function globalInit(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if (window.copyControl) {
         initCopyControl();
     }
@@ -1499,6 +1953,16 @@ function globalInit(scope) {
 }
 
 function treeViewNodeClick(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var element = event.currentTarget;
     $(element).removeClass("notFetched").unbind('click');
     var json = $(element).data("json");
@@ -1552,6 +2016,16 @@ function set_at_state_in_tree_root(new_at_li, json) {
  * @param scope
  */
 function initTreeView(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $("a.reveal.activate").each(function () {
         var matchingUl = $(this).parents("li:first").children().filter("ul").first();
         $(this).click(function () {
@@ -1568,6 +2042,16 @@ function initTreeView(scope) {
 }
 
 function openDeleteConfirmPopup(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if ($("#deleteConfirmPopup").length == 0) {
         var yes_action = function () {
             document.location = $("#deleteConfirmPopup").data('link');
@@ -1587,6 +2071,16 @@ function openDeleteConfirmPopup(event) {
 }
 
 function openSaveBrowsingStepsPopup(link) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $.get(root_url + link, null, function (data) {
         data = $.parseJSON(data);
         $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
@@ -1596,6 +2090,16 @@ function openSaveBrowsingStepsPopup(link) {
 }
 
 function popupSubmit(url) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $.post(url, $("#default_popup form").serialize(), function (data) {
         data = $.parseJSON(data);
         if (data.type == 'form') {
@@ -1618,6 +2122,16 @@ function popupSubmit(url) {
  * Will see if the last_request time has changed in order to stop the rotating beam. Used by CSV download.
  */
 function fetchingBeamCheck() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if (submitData.lastRequest != $.cookie('last_request')) {
         $(document).find('a.submit span.fetching').removeClass('fetching');
     } else {
@@ -1630,6 +2144,16 @@ function fetchingBeamCheck() {
  */
 
 function sectionCtrl(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     element = event.target;
     if ($(element).hasClass('delete')) {
         //hide the content in the button data
@@ -1661,9 +2185,19 @@ function sectionCtrl(event) {
  * @param orgEvent
  */
 function checkboxIndexFunction(event, orgEvent) {
-    $this=$(this);
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
+    $this = $(this);
     if (typeof dataLimit !== 'undefined') {
-        if (!checkData($this, dataLimit)){
+        if (!checkData($this, dataLimit)) {
             return false;
         }
     }
@@ -1676,8 +2210,8 @@ function checkboxIndexFunction(event, orgEvent) {
                 $(this).find("td.checkbox input[type=checkbox]").attr("checked", checked);
                 if (checked) {
                     if (typeof dataLimit !== 'undefined') {
-                        $this=$(this).find("td.checkbox input[type=checkbox]");
-                        if (!checkData($this, dataLimit, null, true)){
+                        $this = $(this).find("td.checkbox input[type=checkbox]");
+                        if (!checkData($this, dataLimit, null, true)) {
                             $(this).find("td.checkbox input[type=checkbox]").attr("checked", false);
                             return false;
                         }
@@ -1686,7 +2220,7 @@ function checkboxIndexFunction(event, orgEvent) {
                 } else {
                     $(this).removeClass("chkLine");
                 }
-                if ($(this).hasClass("checkboxIndexFunctionMark")){
+                if ($(this).hasClass("checkboxIndexFunctionMark")) {
                     marking = !marking;
                 }
             }
@@ -1710,21 +2244,31 @@ function checkboxIndexFunction(event, orgEvent) {
 }
 
 /*Save the items that checked in to an array*/
-function saveCheckedToArray(scope, checkedData){
-    var checkboxes = $(scope).find("input[name^='data["+dataIndex+"]'][type!='hidden']");
+function saveCheckedToArray(scope, checkedData) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
+    var checkboxes = $(scope).find("input[name^='data[" + dataIndex + "]'][type!='hidden']");
     var index, id, checked, $this;
-    checkboxes.each(function(){
-        $this=$(this);
+    checkboxes.each(function () {
+        $this = $(this);
 //        checkedData["ID: "+$(this).val()]=$(this).is(':checked');
-        index=checkedData.findIndex(function(item){
-            return item.id===$this.val();
+        index = checkedData.findIndex(function (item) {
+            return item.id === $this.val();
         });
-        id=$this.val();
-        checked=$this.is(':checked');
-        if (index===-1 && checked){
-            index=checkedData.length;
-            checkedData[index]={id:id, checked:checked};
-        }else if(index!==-1 && !checked){
+        id = $this.val();
+        checked = $this.is(':checked');
+        if (index === -1 && checked) {
+            index = checkedData.length;
+            checkedData[index] = {id: id, checked: checked};
+        } else if (index !== -1 && !checked) {
             checkedData.splice(index, 1);
         }
     });
@@ -1736,32 +2280,62 @@ function saveCheckedToArray(scope, checkedData){
  * @param event
  */
 function checkboxIndexLineFunction(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if ($(event.currentTarget)[0].nodeName == "TR" && !event.originalEvent.shiftKey && event.target.nodeName != 'A') {
         //line clicked, toggle it's checkbox (don't support shift click, as it is for text selection
         if (typeof dataLimit !== 'undefined') {
-            $this=$(this).find('input[type=checkbox]');
+            $this = $(this).find('input[type=checkbox]');
             $(this).prop("checked", !$(this).is(":checked"));
-            if (!checkData($this, dataLimit)){
+            if (!checkData($this, dataLimit)) {
                 $(this).prop("checked", false);
                 return false;
             }
             $(this).closest("tr").toggleClass("chkLine");
+            return false;
         } else {
             $(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [event]);
+            event.stopPropagation();
         }
-        return false;
     }
-    event.stopPropagation();
 }
 
 /**
  * Hides the confirm msgs div, but keeps it in the display to avoid having page content moving. 
  */
 function dataSavedFadeout() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $("ul.confirm").animate({opacity: 0}, 700);
 }
 
 function setCsvPopup(target) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if ($("#csvPopup").length == 0) {
         buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
         $.get(root_url + 'Datamart/Csv/csv/popup:/', function (data) {
@@ -1890,6 +2464,16 @@ function setCsvPopup(target) {
 }
 
 function selectedItemZonePopup(event) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var button = $(event.currentTarget);
     var popup = null;
     if (!(popup = button.data('popup'))) {
@@ -1974,11 +2558,31 @@ function selectedItemZonePopup(event) {
 }
 
 function submitChecks(scope) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     $(scope).find('a.submit span').last().addClass('fetching');
     submitData.lastRequest = $.cookie('last_request');
 }
 
 function initIndexZones(useCache) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var fctLinksToAjax = function (scope) {
         $(scope).find("a:not(.icon16)").click(function () {
             if ($(this).attr("href").indexOf("javascript:") == 0) {
@@ -2048,60 +2652,79 @@ function initIndexZones(useCache) {
     });
 }
 
-function arrayObjSizeCheck($this, arr, min=1, max=null, showAlert=true)
+function arrayObjSizeCheck($this, arr, min = 1, max = null, showAlert = true)
 {
-    if (arr instanceof jQuery){
-        arr=$.makeArray(arr);
-    }else if(!$.isArray(arr)){
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
+    if (arr instanceof jQuery) {
+        arr = $.makeArray(arr);
+    } else if (!$.isArray(arr)) {
         return false;
     }
-    if ($this===null){
-        var length=checkedData[controller][action].length;
-        if (min<=length && length<=max){
+    if ($this === null) {
+        var length = checkedData[controller][action].length;
+        if (min <= length && length <= max) {
             return true;
-        }
-        else{
-            if (showAlert){
-                alert("Selected items should be between "+min+" & "+max);
+        } else {
+            if (showAlert) {
+                alert("Selected items should be between " + min + " & " + max);
             }
             return false;
         }
     }
     var index, id, checked;
-    checked=$this.is(":checked");
-    id=$this.val();
-    index=checkedData[controller][action].findIndex(function(item){
-        return item.id===id;
+    checked = $this.is(":checked");
+    id = $this.val();
+    index = checkedData[controller][action].findIndex(function (item) {
+        return item.id === id;
     });
-    if (index!==-1 && !checked){
+    if (index !== -1 && !checked) {
         $this.prop("checked", false);
         checkedData[controller][action].splice(index, 1);
         return true;
-    }else if (index!==-1 && checked){
+    } else if (index !== -1 && checked) {
         $this.prop("checked", true);
         return true;
-    }else{
-        length=checkedData[controller][action].length;
-        if ((max===null && length<min) || (min<=length && length<max)){
-            checkedData[controller][action][length]={id: id, checked: true};
+    } else {
+        length = checkedData[controller][action].length;
+        if ((max === null && length < min) || (min <= length && length < max)) {
+            checkedData[controller][action][length] = {id: id, checked: true};
             $this.prop("checked", true);
             return true;
-        }else if(max===null){
-            max=min;
+        } else if (max === null) {
+            max = min;
             min = 1;
             $this.prop("checked", false);
         }
-        if (showAlert){
-            alert("Selected items should be between "+min+" & "+max);
+        if (showAlert) {
+            alert("Selected items should be between " + min + " & " + max);
         }
     }
     return false;
 }
 
-function checkData($this, min=1, max=null, showAlert=true)
+function checkData($this, min = 1, max = null, showAlert = true)
 {
-    data = $("input[name^='data["+dataIndex+"]'][type!='hidden']");
-    if (!arrayObjSizeCheck($this, data,min , max, showAlert)){
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
+    data = $("input[name^='data[" + dataIndex + "]'][type!='hidden']");
+    if (!arrayObjSizeCheck($this, data, min, max, showAlert)) {
         return false;
     }
     return true;
@@ -2113,29 +2736,39 @@ function checkData($this, min=1, max=null, showAlert=true)
  * a rotating beam. Submiting is blocked when the rotating icon is present.
  * @returns {Boolean}
  */
-function standardSubmit() 
+function standardSubmit()
 {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if (typeof dataLimit !== 'undefined') {
-        if (!checkData(null, 1, dataLimit)){
+        if (!checkData(null, 1, dataLimit)) {
             return false;
         }
-        data = $("input[name^='data["+dataIndex+"]'][type!='hidden']:checked");
-        var checkedDataInOtherPages=[];
-        checkedDataInOtherPages=checkedData[controller][action].filter(function(item){
-            isInOtherPages=true;
-            data.each(function(){
-                if ($(this).val()===item.id){
-                    isInOtherPages=false;
+        data = $("input[name^='data[" + dataIndex + "]'][type!='hidden']:checked");
+        var checkedDataInOtherPages = [];
+        checkedDataInOtherPages = checkedData[controller][action].filter(function (item) {
+            isInOtherPages = true;
+            data.each(function () {
+                if ($(this).val() === item.id) {
+                    isInOtherPages = false;
                     return false;
                 }
             });
             return isInOtherPages;
         });
-        checkedDataInOtherPages.forEach(function(item){
-            $("#wrapper").find("form").append('<input type="hidden" name="data[OrderItem][id][]" value="'+item.id+'">');
+        checkedDataInOtherPages.forEach(function (item) {
+            $("#wrapper").find("form").append('<input type="hidden" name="data[OrderItem][id][]" value="' + item.id + '">');
         });
     }
-    
+
     //submitting form
     var submitButton = $(this).find("a.submit");
     var form = $(this);
@@ -2145,6 +2778,16 @@ function standardSubmit()
                 $(form).data('confirmation-popup').popup();
             } else {
                 //function buildConfirmDialog(id, question, buttons){
+
+                if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+                    var myName = arguments.callee.toString();
+                    myName = myName.substr('function '.length);
+                    myName = myName.substr(0, myName.indexOf('('));
+                    console.log(myName);
+                    if (DEBUG_MODE_JS === 2) {
+                        debugger ;
+                    }
+                }
                 var yes_action = function () {
                     form.submit();
                     form.data('confirmation-popup').popup('close');
@@ -2169,6 +2812,16 @@ function standardSubmit()
 }
 
 function clickSubmitButton() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     if ($(this).attr("href").indexOf("javascript:") == 0) {
         return true;
     }
@@ -2178,6 +2831,16 @@ function clickSubmitButton() {
 }
 
 function miscIdPopup(participant_id, ctrl_id) {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     buildConfirmDialog('miscIdPopup', STR_MISC_IDENTIFIER_REUSE, new Array(
             {label: STR_NEW, action: function () {
                     document.location = root_url + "ClinicalAnnotation/MiscIdentifiers/add/" + participant_id + "/" + ctrl_id + "/";
@@ -2192,9 +2855,36 @@ function miscIdPopup(participant_id, ctrl_id) {
 }
 
 function dataBrowserHelp() {
+
+    if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+        var myName = arguments.callee.toString();
+        myName = myName.substr('function '.length);
+        myName = myName.substr(0, myName.indexOf('('));
+        console.log(myName);
+        if (DEBUG_MODE_JS === 2) {
+            debugger ;
+        }
+    }
     var diagram_url = root_url + 'app/webroot/img/dataBrowser/datamart_structures_relationships_' + STR_LANGUAGE + '.png';
     $("#default_popup").html('<form enctype="multipart/form-data"><div class="descriptive_heading"><h4>' + STR_DATAMART_STRUCTURE_RELATIONSHIPS + '</h4><p></p></div><div style="padding: 10px; background-color: #fff;"><img src="' + diagram_url + '"/></div></form>');
-    $("#default_popup").find("img").on("load", function(){
+    $("#default_popup").find("img").on("load", function () {
         $("#default_popup").popup();
     });
 }
+
+
+//var functionsNameArray=[actionMouseweelHandler, initDatepicker, showDatePicker, setFieldSpan, initAdvancedControls, removeParentRow, initAutocomplete, initAutocomplete, initAliquotVolumeCheck, refreshTopBaseOnAction, initActionControl, initCheckAll, buildDialog, buildConfirmDialog, initToolPopup, initFlyOverCellsLines, initAddLine, resizeFloatingBckGrnd, removeLine, initAjaxClass, initLabBook, labBookFieldsToggle, initLabBookPopup, labBookPopupAddForm, initCheckboxes, initAccuracy, flyOverComponents, initAutoHideVolume, handleSearchResultLinks, databrowserToggleSearchBox, warningMoreInfoClick, sessionExpired, cookieWatch, initFileOptions, initJsControls, closeLog, showHint, countLines, putIntoRelDiv, initFlyOverCells, globalInit, treeViewNodeClick, initTreeView, openDeleteConfirmPopup, openSaveBrowsingStepsPopup, popupSubmit, fetchingBeamCheck, sectionCtrl, checkboxIndexFunction, saveCheckedToArray, checkboxIndexLineFunction, dataSavedFadeout, setCsvPopup, selectedItemZonePopup, submitChecks, initIndexZones, arrayObjSizeCheck, checkData, standardSubmit, buildConfirmDialog, clickSubmitButton, miscIdPopup, dataBrowserHelp];
+//
+//for (var func=0; func<functionsNameArray.length; func++){
+//    functionsNameArray[func] = (function() {
+//    var cached_function = functionsNameArray[func];
+//
+//    return function() {
+//        console.log(cached_function.name);
+//
+//        var result = cached_function.apply(this, arguments); // use .apply() to call it
+//        return result;
+//    };
+//})();    
+//}
+
