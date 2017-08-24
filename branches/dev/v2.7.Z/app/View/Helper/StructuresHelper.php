@@ -368,7 +368,8 @@ class StructuresHelper extends Helper
             'StructureValidation'
         ];
         if (Configure::read('debug')) {
-            // $tmp = array($atimStructure);
+            //$tmp = array($atimStructure);
+			$tmp=[];
             if (isset($atimStructure['Structure'][0])) {
                 foreach ($atimStructure['Structure'] as $struct) {
                     if (isset($struct['alias'])) {

@@ -149,7 +149,9 @@ class AppController extends Controller
         $lowerUrlHere = strtolower($this->request->here);
         if ($this->Session->read('Auth.User.force_password_reset') && strpos($lowerUrlHere, '/users/logout') === false) {
             if (strpos($lowerUrlHere, '/customize/passwords/index') === false) {
-                $this->redirect('/Customize/Passwords/index/');
+                if (!$this->request->is('ajax')){
+                    $this->redirect('/Customize/Passwords/index/');
+                }
             }
         }
         
@@ -356,7 +358,7 @@ class AppController extends Controller
             }
             $this->redirect($url);
         }elseif(false){
-        //TODO:: Check if can use javascript function for blue screen message
+        //TODO:: Check if can use javascript functions for blue screen message
         echo '<script type="text/javascript">',
                     'javascript:history.back();',
                     'window.location.reload();',
