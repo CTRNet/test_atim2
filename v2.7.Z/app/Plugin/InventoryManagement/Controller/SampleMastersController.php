@@ -986,8 +986,9 @@ class SampleMastersController extends InventoryManagementAppController
             $model = 'SampleMaster';
             $key = 'id';
             $aliquotMaster = $this->AliquotMaster->findById($aliquotMasterId);
-            if (empty($aliquotMaster))
+            if (empty($aliquotMaster)){
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+            }
             
             $this->request->data['SampleMaster']['id'] = array(
                 $aliquotMaster['SampleMaster']['id']
