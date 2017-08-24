@@ -87,6 +87,7 @@ if (__('clin_english') == "Anglais") {
 			var STR_LOADING = "<?php echo __('loading'); ?>";
 			var STR_BACK = "<?php echo __('back'); ?>";
 			var STR_NODE_SELECTION = "<?php echo __('nodes selection'); ?>";
+			var DEBUG_MODE = "<?php echo Configure::read('debug'); ?>";
 						
 		</script>
 <!--[if IE 7]>
