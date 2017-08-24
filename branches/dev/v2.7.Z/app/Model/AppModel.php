@@ -1634,7 +1634,7 @@ class AppModel extends Model
     {
         foreach ($this->_schema as $fieldName => $fieldProperties) {
             $tmpType = $fieldProperties['type'];
-            if ($tmpType == "float" || $tmpType == "number" || $tmpType == "float_positive") {
+            if ($tmpType == "float" || $tmpType == "number" || $tmpType == "float_positive" || $tmpType == "decimal") {
                 // Manage float record
                 if (isset($this->data[$this->alias][$fieldName])) {
                     $this->data[$this->alias][$fieldName] = str_replace(",", ".", $this->data[$this->alias][$fieldName]);
