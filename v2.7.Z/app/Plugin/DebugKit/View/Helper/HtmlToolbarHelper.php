@@ -234,6 +234,6 @@ class HtmlToolbarHelper extends ToolbarHelper {
 		));
 		$form .= $this->Form->end();
 		return $form;
+		return null;
 	}
-
 }
