@@ -392,26 +392,6 @@ AND sfo.`structure_id` NOT IN (
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- -------------------------------------------------------------------------------------
 -- Correct one word's spell
 -- -------------------------------------------------------------------------------------
@@ -420,6 +400,9 @@ REPLACE INTO `i18n` (id,en,fr)
 VALUES
 ('the deleted collection is linked to participant', 'Your data cannot be deleted! Collection is linked to participant.', 'Vos données ne peuvent être supprimées! La collection est attachée à un participant.'),
 ('please complete the security questions', 'Please complete the security questions', 'Veuillez compléter les questions de sécurités');
+
+UPDATE i18n SET en = REPLACE(en, 'Your data cannot be deleted! <br>', 'Your data cannot be deleted! ');
+UPDATE i18n SET fr = REPLACE(fr, 'Vos données ne peuvent être supprimées! <br>', 'Vos données ne peuvent être supprimées! ');
 
 -- -------------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
