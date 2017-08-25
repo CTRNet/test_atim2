@@ -112,7 +112,3 @@ if ($hookLink) {
 
 // BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);
-	
-//	pr($this->data);
-//	pr($finalAtimStructure['TmaBlock']);
-	
