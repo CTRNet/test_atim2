@@ -1,7 +1,6 @@
 <?php
 
-App::uses('Helper', 'View');
-class ShellHelper extends Helper
+App::uses('Helper', 'View');class ShellHelper extends Helper
 {
 
     public $helpers = array(
@@ -125,6 +124,9 @@ class ShellHelper extends Helper
 		';
         if ($loggedIn) {
             // display DEFAULT menu
+            if (empty($menuForWrapper)){
+                $menuForWrapper="";
+            }
             $return .= '
 				<!-- start #menu -->
 				<div id="menu">
@@ -308,154 +310,155 @@ class ShellHelper extends Helper
                 $count = 0;
                 $totalCount = 0;
                 $isRoot = false; // used to remove unneeded ROOT menu items from displaying in bar
-                
-                foreach ($atimMenu as $menu) {
-                    $activeItem = '';
-                    $summaryItem = '';
-                    $appendMenu = '';
-                    
-                    // save BASE array (main menu) for display in header
-                    if ($count == (count($atimMenu) - 1)) {
-                        $rootMenuArray = $menu;
-                    } elseif ($count == (count($atimMenu) - 2)) {
-                        $mainMenuArray = $menu;
-                    }
-                    
-                    if (! $isRoot) {
-                        
-                        $subCount = 0;
-                        foreach ($menu as &$menuItem) {
-                            
-                            if ($menuItem['Menu']['use_link'] && count($options['variables'])) {
-                                foreach ($options['variables'] as $k => $v) {
-                                    $menuItem['Menu']['use_link'] = str_replace('%%' . $k . '%%', $v, $menuItem['Menu']['use_link']);
-                                }
-                            }
-                            
-                            if ($menuItem['Menu']['at'] && $menuItem['Menu']['use_summary']) {
-                                $fetchedSummary = $this->fetchSummary($menuItem['Menu']['use_summary'], $options);
-                                $summaries[] = $fetchedSummary['long'];
-                                $menuItem['Menu']['use_summary'] = isset($fetchedSummary['page_title']) ? $fetchedSummary['page_title'] : "";
-                            }
-                            
-                            if ($menuItem['Menu']['at']) {
-                                $isRoot = $menuItem['Menu']['is_root'];
-                                
-                                $summaryItem = $menuItem['Menu']['use_summary'] ? null : array(
-                                    'class' => 'without_summary'
-                                );
-                                
-                                if ($menuItem['Menu']['use_summary']) {
-                                    $word = __(trim($menuItem['Menu']['language_title']));
-                                    $untranslated = strpos($word, "<span class='untranslated'>") === 0;
-                                    if ($untranslated) {
-                                        $word = substr(trim($word), 27, - 7);
-                                    }
-                                    $maxLength = 30;
-                                    if (strlen($word) > $maxLength) {
-                                        $word = '<span class="incompleteMenuTitle" title="' . htmlentities($word, ENT_QUOTES) . '">' . substr($word, 0, - 1 * (strlen($word) - $maxLength)) . "..." . '</span>';
-                                    }
-                                    $word = $untranslated ? '<span class="untranslated">' . $word . '</span>' : $word;
-                                    
-                                    if ($isRoot) {
-                                        $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
-                                        $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '" style="vertical-align: bottom;"></span><span style="display: inline-block">' . $menuItem['Menu']['use_summary'] . '<br/><span class="menuSubTitle">&nbsp;&lfloor; ' . $word . '</span></span>', ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
-                                            'escape' => false,
-                                            'title' => $title,
-                                            'class' => 'mainTitle'
-                                        ));
-                                    } else {
-                                        $activeItem = '
-											<span class="mainTitle">' . $menuItem['Menu']['use_summary'] . '</span>
-											<br/>&nbsp;&lfloor; <span class="menuSubTitle">' . $word . '</span>
-										';
-                                    }
-                                    
-                                    $pageTitle[] = $menuItem['Menu']['use_summary'];
-                                } else {
-                                    
-                                    if ($isRoot) {
-                                        $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
-                                        
-                                        // $activeItem = $menuItem['Menu']['allowed'] ? $this->Html->link( __($menuItem['Menu']['language_title']), $menuItem['Menu']['use_link'], $htmlAttributes ) : __($menuItem['Menu']['language_title']);
-                                        
-                                        if (! $menuItem['Menu']['allowed']) {
-                                            $activeItem = '<a class="icon32 mr5px not_allowed" title="' . __($menuItem['Menu']['language_title']) . '">' . __($menuItem['Menu']['language_title']) . '</a>';
-                                        } else {
-                                            // $htmlAttributes
-                                            $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
-                                            $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '"></span>' . __($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
-                                                'escape' => false,
-                                                'title' => $title,
-                                                'class' => 'mainTitle'
-                                            ));
+                if (is_array($atimMenu)){
+                    foreach ($atimMenu as $menu) {
+                                        $activeItem = '';
+                                        $summaryItem = '';
+                                        $appendMenu = '';
+
+                                        // save BASE array (main menu) for display in header
+                                        if ($count == (count($atimMenu) - 1)) {
+                                            $rootMenuArray = $menu;
+                                        } elseif ($count == (count($atimMenu) - 2)) {
+                                            $mainMenuArray = $menu;
                                         }
-                                    } else {
-                                        $activeItem = '<span class="mainTitle">' . __($menuItem['Menu']['language_title']) . '</span>';
+
+                                        if (! $isRoot) {
+
+                                            $subCount = 0;
+                                            foreach ($menu as &$menuItem) {
+
+                                                if ($menuItem['Menu']['use_link'] && count($options['variables'])) {
+                                                    foreach ($options['variables'] as $k => $v) {
+                                                        $menuItem['Menu']['use_link'] = str_replace('%%' . $k . '%%', $v, $menuItem['Menu']['use_link']);
+                                                    }
+                                                }
+
+                                                if ($menuItem['Menu']['at'] && $menuItem['Menu']['use_summary']) {
+                                                    $fetchedSummary = $this->fetchSummary($menuItem['Menu']['use_summary'], $options);
+                                                    $summaries[] = $fetchedSummary['long'];
+                                                    $menuItem['Menu']['use_summary'] = isset($fetchedSummary['page_title']) ? $fetchedSummary['page_title'] : "";
+                                                }
+
+                                                if ($menuItem['Menu']['at']) {
+                                                    $isRoot = $menuItem['Menu']['is_root'];
+
+                                                    $summaryItem = $menuItem['Menu']['use_summary'] ? null : array(
+                                                        'class' => 'without_summary'
+                                                    );
+
+                                                    if ($menuItem['Menu']['use_summary']) {
+                                                        $word = __(trim($menuItem['Menu']['language_title']));
+                                                        $untranslated = strpos($word, "<span class='untranslated'>") === 0;
+                                                        if ($untranslated) {
+                                                            $word = substr(trim($word), 27, - 7);
+                                                        }
+                                                        $maxLength = 30;
+                                                        if (strlen($word) > $maxLength) {
+                                                            $word = '<span class="incompleteMenuTitle" title="' . htmlentities($word, ENT_QUOTES) . '">' . substr($word, 0, - 1 * (strlen($word) - $maxLength)) . "..." . '</span>';
+                                                        }
+                                                        $word = $untranslated ? '<span class="untranslated">' . $word . '</span>' : $word;
+
+                                                        if ($isRoot) {
+                                                            $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
+                                                            $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '" style="vertical-align: bottom;"></span><span style="display: inline-block">' . $menuItem['Menu']['use_summary'] . '<br/><span class="menuSubTitle">&nbsp;&lfloor; ' . $word . '</span></span>', ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
+                                                                'escape' => false,
+                                                                'title' => $title,
+                                                                'class' => 'mainTitle'
+                                                            ));
+                                                        } else {
+                                                            $activeItem = '
+                                                                                                            <span class="mainTitle">' . $menuItem['Menu']['use_summary'] . '</span>
+                                                                                                            <br/>&nbsp;&lfloor; <span class="menuSubTitle">' . $word . '</span>
+                                                                                                    ';
+                                                        }
+
+                                                        $pageTitle[] = $menuItem['Menu']['use_summary'];
+                                                    } else {
+
+                                                        if ($isRoot) {
+                                                            $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
+
+                                                            // $activeItem = $menuItem['Menu']['allowed'] ? $this->Html->link( __($menuItem['Menu']['language_title']), $menuItem['Menu']['use_link'], $htmlAttributes ) : __($menuItem['Menu']['language_title']);
+
+                                                            if (! $menuItem['Menu']['allowed']) {
+                                                                $activeItem = '<a class="icon32 mr5px not_allowed" title="' . __($menuItem['Menu']['language_title']) . '">' . __($menuItem['Menu']['language_title']) . '</a>';
+                                                            } else {
+                                                                // $htmlAttributes
+                                                                $class = ' menu ' . $this->Structures->generateLinkClass('plugin ' . $menuItem['Menu']['use_link']);
+                                                                $activeItem = $this->Html->link(html_entity_decode('<span class="icon32 mr5px ' . $class . '"></span>' . __($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8"), $menuItem['Menu']['use_link'], array(
+                                                                    'escape' => false,
+                                                                    'title' => $title,
+                                                                    'class' => 'mainTitle'
+                                                                ));
+                                                            }
+                                                        } else {
+                                                            $activeItem = '<span class="mainTitle">' . __($menuItem['Menu']['language_title']) . '</span>';
+                                                        }
+
+                                                        $pageTitle[] = __($menuItem['Menu']['language_title']);
+                                                    }
+                                                }
+
+                                                $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
+                                                if (! $menuItem['Menu']['is_root'] && $menuItem['Menu']['flag_submenu']) {
+                                                    if ($menuItem['Menu']['allowed']) {
+                                                        $appendMenu .= '
+                                                                                                            <!-- ' . $menuItem['Menu']['id'] . ' -->
+                                                                                                            <li class="' . ($menuItem['Menu']['at'] ? 'at ' : '') . 'count_' . $subCount . '">
+                                                                                                                    ' . $this->Html->link('<span class="icon16 list"></span><span class="menuLabel">' . $title . '</span>', $menuItem['Menu']['use_link'], array(
+                                                            'escape' => false,
+                                                            'title' => $title
+                                                        )) . '
+                                                                                                            </li>
+                                                                                            ';
+                                                    } else {
+                                                        $appendMenu .= '
+                                                                                                            <!-- ' . $menuItem['Menu']['id'] . ' -->
+                                                                                                            <li class="not_allowed count_' . $subCount . '">
+                                                                                                                    <a title="' . $title . '"><span class="icon16 not_allowed"></span><span class="menuLabel">' . $title . '</span></a>
+                                                                                                            </li>
+                                                                                                                                            ';
+                                                    }
+                                                    $subCount ++;
+                                                }
+                                            }
+
+                                            if (Configure::read('debug')) {
+                                                foreach ($menu as $menuItem) {
+                                                    if (preg_match('/%%[\w.]+%%/', $menuItem['Menu']['use_link'])) {
+                                                        AppController::addWarningMsg('DEBUG: bad link detected [' . $menuItem['Menu']['use_link'] . ']');
+                                                    }
+                                                }
+                                            }
+
+                                            // append FLYOUT menus to all menu bar TABS except ROOT tab
+                                            if (! $isRoot) {
+                                                $appendMenu = '
+                                                                                            <div class="menu level_1">
+                                                                                                    <ul>
+                                                                                                            ' . $appendMenu . '
+                                                                                                    </ul>
+                                                                                            </div>
+                                                                            ';
+                                            } else {
+                                                $appendMenu = '';
+                                            }
+
+                                            $returnHtml[] = '
+                                                                            <li class="at count_' . $count . ($isRoot ? ' root' : '') . '">
+                                                                                    ' . $activeItem . '
+                                                                                    ' . $appendMenu . '
+                                                                            </li>
+                                                                    ';
+
+                                            // increment number of VISIBLE menu bar tabs
+                                            $totalCount ++;
+                                        }
+
+                                        // increment number to TOTAL menu array items
+                                        $count ++;
                                     }
-                                    
-                                    $pageTitle[] = __($menuItem['Menu']['language_title']);
-                                }
-                            }
-                            
-                            $title = html_entity_decode(__($menuItem['Menu']['language_title']), ENT_QUOTES, "UTF-8");
-                            if (! $menuItem['Menu']['is_root'] && $menuItem['Menu']['flag_submenu']) {
-                                if ($menuItem['Menu']['allowed']) {
-                                    $appendMenu .= '
-											<!-- ' . $menuItem['Menu']['id'] . ' -->
-											<li class="' . ($menuItem['Menu']['at'] ? 'at ' : '') . 'count_' . $subCount . '">
-												' . $this->Html->link('<span class="icon16 list"></span><span class="menuLabel">' . $title . '</span>', $menuItem['Menu']['use_link'], array(
-                                        'escape' => false,
-                                        'title' => $title
-                                    )) . '
-											</li>
-									';
-                                } else {
-                                    $appendMenu .= '
-											<!-- ' . $menuItem['Menu']['id'] . ' -->
-											<li class="not_allowed count_' . $subCount . '">
-												<a title="' . $title . '"><span class="icon16 not_allowed"></span><span class="menuLabel">' . $title . '</span></a>
-											</li>
-															';
-                                }
-                                $subCount ++;
-                            }
-                        }
-                        
-                        if (Configure::read('debug')) {
-                            foreach ($menu as $menuItem) {
-                                if (preg_match('/%%[\w.]+%%/', $menuItem['Menu']['use_link'])) {
-                                    AppController::addWarningMsg('DEBUG: bad link detected [' . $menuItem['Menu']['use_link'] . ']');
-                                }
-                            }
-                        }
-                        
-                        // append FLYOUT menus to all menu bar TABS except ROOT tab
-                        if (! $isRoot) {
-                            $appendMenu = '
-									<div class="menu level_1">
-										<ul>
-											' . $appendMenu . '
-										</ul>
-									</div>
-							';
-                        } else {
-                            $appendMenu = '';
-                        }
-                        
-                        $returnHtml[] = '
-							<li class="at count_' . $count . ($isRoot ? ' root' : '') . '">
-								' . $activeItem . '
-								' . $appendMenu . '
-							</li>
-						';
-                        
-                        // increment number of VISIBLE menu bar tabs
-                        $totalCount ++;
-                    }
-                    
-                    // increment number to TOTAL menu array items
-                    $count ++;
                 }
             }
             

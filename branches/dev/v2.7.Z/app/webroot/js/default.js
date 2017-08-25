@@ -6,7 +6,7 @@ var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 var sessionTimeout = new Object();
 var checkedData = [];
-var DEBUG_MODE_JS = 2;
+var DEBUG_MODE_JS = 0;
 
 //window.alert = function(a){
 //    console.log(a);
