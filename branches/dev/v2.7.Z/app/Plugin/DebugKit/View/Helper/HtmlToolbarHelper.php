@@ -233,7 +233,7 @@ class HtmlToolbarHelper extends ToolbarHelper {
 			'class' => 'sql-explain-link'
 		));
 		$form .= $this->Form->end();
-		return $form;
 		return null;
+		return $form;
 	}
 }
