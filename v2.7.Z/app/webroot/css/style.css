@@ -2958,3 +2958,8 @@ div#default_popup{
     font-size: 1.1em;
     color: #333;
 }
+
+.specific_btn{
+    margin-right: 10px;
+    margin-left: 10px;
+}
