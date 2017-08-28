@@ -291,7 +291,10 @@ class AppController extends Controller
         
         if (isset($this->passedArgs['batchsetVar'])) {
             // batchset handling
-            $data = $this->viewVars[$this->passedArgs['batchsetVar']];
+            $data=null;
+            if (isset($this->viewVars[$this->passedArgs['batchsetVar']])){
+                $data = $this->viewVars[$this->passedArgs['batchsetVar']];
+            }
             if (empty($data)) {
                 unset($this->passedArgs['batchsetVar']);
                 $this->atimFlashWarning(__('there is no data to add to a temporary batchset'), 'javascript:history.back()');
