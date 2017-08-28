@@ -1544,6 +1544,26 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     $("#loginPopup").popup({closable: false, background: "black"});
 }
 
+function getTime(){
+    $(function () {
+      $.ajax({
+        type: 'GET',
+        cache: false,
+        url: location.href,
+        complete: function (req, textStatus) {
+          var dateString = req.getResponseHeader('Date');
+          if (dateString.indexOf('GMT') === -1) {
+            dateString += ' GMT';
+          }
+          var date = new Date(dateString);
+        console.log(["server time:", localDate]);
+        }
+      });
+      var localDate = new Date();
+      console.log(["local time:", localDate]);
+    });    
+}
+
 function cookieWatch() {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1557,19 +1577,18 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
-
     if ($.cookie("session_expiration")) {
-        if (!sessionTimeout.lastRequest || sessionTimeout.lastRequest != $.cookie("last_request")) {
+        if (!sessionTimeout.lastRequest || sessionTimeout.lastRequest !== $.cookie("last_request")) {
             //5 to 1 second earlier expiration (due to 4 secs error margin)
             sessionTimeout.lastRequest = $.cookie("last_request");
-            sessionTimeout.expirationTime = new Date().getTime() - sessionTimeout.serverOffset + (($.cookie("session_expiration") - $.cookie("last_request") - 5) * 1000);
+            sessionTimeout.expirationTime = new Date().getTime() - sessionTimeout.serverOffset + (($.cookie("session_expiration") - $.cookie("last_request") + 5) * 1000);
         }
-        if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length == 1) {
+        if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length === 1) {
             $("#loginPopup").popup('close');
         }
     }
 
-    if (sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length == 0) {
+    if (sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length === 0) {
         sessionExpired();
     }
 
