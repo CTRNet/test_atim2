@@ -43,7 +43,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -185,7 +185,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -212,7 +212,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -232,7 +232,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -248,7 +248,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -329,7 +329,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -429,7 +429,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -446,7 +446,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -479,7 +479,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -531,11 +531,23 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
     });
 
-    if ($(scope).find(".btn_add_or:first").length == 1) {
+    if ($(scope).find(".btn_add_or:first").length === 1) {
         var tabindex = null;
+        
+        var td, cell, tag;
+        $(scope).find("td.content").each(function(){
+            td=this;
+            $(td).find(">span").each(function(){
+                tag=$(this).find("span.tag");
+                tag.insertBefore($(this));
+                $(this).wrap("<span class='span-content'></span>");
+            });
+        });
+        
         $(scope).find(".range").each(function () {
             //uses .btn_add_or to know if this is a search form and if advanced controls are on
-            var cell = $(this).parent().parent().parent();
+//            cell = $(this).parent().parent().parent();
+            cell = $(this).closest("span.span-content");
             $(cell).append(" <a href='#' class='icon16 range range_btn' title='" + STR_RANGE + "'></a> " +
                     "<a href='#' class='icon16 specific specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
             $(cell).find("span:first").addClass("specific_span");
@@ -547,12 +559,13 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     + STR_TO
                     + " <input type='text' tabindex='" + tabindex + "' name='" + baseName + "_end]'/></span>");
         });
-
+        
         $(scope).find(".file").each(function () {
-            var cell = $(this).parent().parent().parent();
+//            cell = $(this).parent().parent().parent();
+            cell = $(this).closest("span.span-content");
             $(cell).append(" <a href='#' class='icon16 csv_upload file_btn'></a>").data('mode', 'specific');
 
-            if ($(cell).find(".specific_btn").length == 0) {
+            if ($(cell).find(".specific_btn").length === 0) {
                 $(cell).append(" <a href='#' class='icon16 specific specific_btn'></a>").find(".specific_btn").hide();
                 $(cell).find("span:first").addClass("specific_span");
                 tabindex = $(cell).find("input").prop("tabindex");
@@ -560,8 +573,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 //            var name = $(cell).find("input:last").prop("name");
             var name = $(this).prop("name");
             name = name.substr(0, name.length - 3) + "_with_file_upload]";
-//            $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
-            $(cell).append("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
+            $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
+
         });
         //store hidden field names into their data
         $(scope).find("span.range_span input, span.file_span input").each(function () {
@@ -581,42 +594,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             setFieldSpan(this, "file_span");
             return false;
         });
-        $(scope).find(".file").each(function () {
-            item = $(this).parent().parent();
-            if (item.find(".tag").length > 0) {
-                tags = item.find(".tag");
-                tags.parent().parent().addClass("specific_span");
-                tags.insertBefore(tags.parent().parent());
-                if (tags.siblings().find('.tag').length === 0) {
-                    rootTD = tags.parents('td').first();
-
-                    for (var i = 0; i < rootTD.children('.specific_span').length - rootTD.children('.specific_btn').length; i++) {
-                        rootTD.append(" <a href='#' class='icon16 specific specific_btn'></a>").find(".specific_btn").hide();
-                    }
-                    $(scope).find(".specific_btn").click(function () {
-                        setFieldSpan(this, "specific_span");
-                        return false;
-                    });
-
-                    var spans = [];
-                    do {
-                        var i = spans.length;
-                        rootTD.append("<span class='span'></span>");
-                        spans[i] = rootTD.children().last();
-                        spans[i].append(rootTD.children(".file_span").first());
-                        spans[i].append(rootTD.children(".specific_span").first());
-                        spans[i].append(rootTD.children(".range_span").first());
-                        spans[i].append(rootTD.children(".file_btn").first());
-                        spans[i].append(rootTD.children(".specific_btn").first());
-                        spans[i].append(rootTD.children(".range_btn").first());
-                        if (rootTD.children(".tag").first().not('.span').length > 0) {
-                            rootTD.children(".tag").first().addClass('span');
-                            spans[i].parent().append(rootTD.children(".tag").first());
-                        }
-                    } while (rootTD.children(':not(.span)').length !== 0);
-                }
-            }
-        });
+        
     }
 }
 
@@ -632,7 +610,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -653,7 +631,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -682,7 +660,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -724,7 +702,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -741,7 +719,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -766,7 +744,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -832,7 +810,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -868,7 +846,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -886,7 +864,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -924,7 +902,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -946,7 +924,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1056,7 +1034,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1111,7 +1089,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1131,7 +1109,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1160,7 +1138,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1219,7 +1197,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1251,7 +1229,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1271,7 +1249,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1313,7 +1291,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1342,7 +1320,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1394,7 +1372,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1435,7 +1413,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1459,7 +1437,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1490,7 +1468,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1508,7 +1486,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1532,7 +1510,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1574,7 +1552,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1606,7 +1584,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1639,7 +1617,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1824,7 +1802,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
             ).delegate(".removeLineLink", "click", removeLine
             ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
-            ).delegate(".minus-button", 'click', closeLog);
+            ).delegate(".minus-button", 'click', closeLog
+            ).delegate(".cake-debug-output", 'click', closeLogDiv);
 
     $("p.wraped-text").hover(showHint);
     $(window).bind("pageshow", function (event) {
@@ -1856,8 +1835,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             cookieWatch();
         }
     }
-
     flyOverComponents();
+}
+
+function closeLogDiv(event){
+    $(event.currentTarget).find(".minus-button").trigger("click", [event]);
+    event.stopPropagation();
 }
 
 function closeLog(event) {
@@ -1868,10 +1851,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
+    event.stopPropagation();
 }
 
     a = $(this).children("a").first();
@@ -1891,7 +1875,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1917,7 +1901,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1937,7 +1921,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -1968,7 +1952,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2029,7 +2013,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2061,7 +2045,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2127,7 +2111,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2156,7 +2140,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2188,7 +2172,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2210,7 +2194,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2245,7 +2229,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2270,7 +2254,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2314,7 +2298,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2377,7 +2361,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2415,7 +2399,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2450,7 +2434,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2467,7 +2451,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2608,7 +2592,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2705,7 +2689,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2723,7 +2707,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2807,7 +2791,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2869,7 +2853,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2897,7 +2881,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2964,7 +2948,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -2986,7 +2970,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}
@@ -3013,7 +2997,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		myName = myName.substr(0, myName.indexOf('('));
 		console.log(myName);
 		if (DEBUG_MODE_JS>0){
-		   debugger;
+		   debugger ;
 		}
 	}catch(ex){
 	}

@@ -437,7 +437,7 @@ Configure::write('password_security_level', 2);
  * Maximum number of successive failed login attempts (max_login_attempts_from_IP)
  * before an IP address is temporary disabled what ever the username used.
  *
- * See 'time_mn_IP_disabled' core varaible to set the time before an IP address is reactivated.
+ * See 'time_mn_IP_disabled' core variable to set the time before an IP address is reactivated.
  * Set value to null if you don't want the system disables an IP address based on login attempts.
  */
 Configure::write('max_login_attempts_from_IP', 5);
@@ -450,7 +450,7 @@ Configure::write('time_mn_IP_disabled', 2);
 /**
  * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.
  *
- * The status of a disabled username can only be changed by a user with administartor rights.
+ * The status of a disabled username can only be changed by a user with administrator rights.
  * Set value to null if you don't want the system disables a username based on login attempts.
  */
 Configure::write('max_user_login_attempts', 5);
@@ -458,7 +458,7 @@ Configure::write('max_user_login_attempts', 5);
 /**
  * Period of password validity in month.
  * Keep empty if no control has to be done.
- * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
+ * When password is invalid, a warning message will be displayed and the user will be redirect to the change password form.
  */
 Configure::write('password_validity_period_month', null);
 
@@ -474,8 +474,8 @@ Configure::write('reset_forgotten_password_feature', 2);
 /**
  * Define the number of different passwords a user should use before to use an old one.
  * - level 0: Not supported (new password should be different than the previous one)
- * - level 1: New pasword must be different than the 2 old one passwords
- * - level 2: New pasword must be different than the 3 old one passwords
+ * - level 1: New password must be different than the 2 old one passwords
+ * - level 2: New password must be different than the 3 old one passwords
  */
 Configure::write('different_passwords_number_before_re_use', 2);
 
