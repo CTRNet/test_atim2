@@ -20,5 +20,3 @@ $finalOptions = array(
 );
 
 $this->Structures->build($administrateDropdownValues, $finalOptions);
-
-?>

@@ -9,4 +9,3 @@ $this->Structures->build($atimStructure, array(
         'tabindex' => 100
     )
 ));
-?>

@@ -11,4 +11,4 @@ $finalOptions = array(
 
 $finalAtimStructure = $atimStructure;
 
-$this->Structures->build($finalAtimStructure, $finalOptions); 
+$this->Structures->build($finalAtimStructure, $finalOptions);

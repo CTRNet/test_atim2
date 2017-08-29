@@ -183,4 +183,3 @@ echo json_encode(array(
     'positions' => $childrenDisplay,
     'check_conflicts' => $data['parent']['StorageControl']['check_conflicts']
 ));
-

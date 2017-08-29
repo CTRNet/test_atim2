@@ -15,4 +15,3 @@ if ($hookLink) {
 $this->Structures->build($atimStructure, array(
     'links' => $structureLinks
 ));
-?>
