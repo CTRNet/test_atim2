@@ -1821,8 +1821,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             ).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
             ).delegate(".removeLineLink", "click", removeLine
             ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
-            ).delegate(".minus-button", 'click', closeLog
-            ).delegate(".cake-debug-output", 'click', closeLogDiv);
+            ).delegate(".minus-button", 'click', closeLog);
 
     $("p.wraped-text").hover(showHint);
     $(window).bind("pageshow", function (event) {
@@ -1855,11 +1854,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
     }
     flyOverComponents();
-}
-
-function closeLogDiv(event){
-    $(event.currentTarget).find(".minus-button").trigger("click", [event]);
-    event.stopPropagation();
 }
 
 function closeLog(event) {

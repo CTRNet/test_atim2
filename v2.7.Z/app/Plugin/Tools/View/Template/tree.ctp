@@ -78,7 +78,7 @@ if (isset($isAjax)) {
 <script>
 	var STR_ADD = "<?php echo __('add'); ?>";
 	var modelsData = '<?php echo addslashes(json_encode($jsData)); ?>';
-	var wizardTreeData = '<?php echo json_encode($treeData); ?>';
+	var wizardTreeData = '<?php  echo Inflector::variable(json_encode($treeData)); ?>';
 	var nodeId = 0;
 	var collectionId = <?php echo isset($collectionId) ? $collectionId : null; ?>;
 
@@ -165,12 +165,12 @@ if (isset($isAjax)) {
 					{ "label" : STR_ADD, "icon" : "add", "action" : function(){
 							if(numberValidation($("#addDialog input"), null)){
 								data = new Object();
-								data.datamart_structure_id = $("#addDialog select").val() > 0 ? 5 : 1;
+								data.datamartStructureId = $("#addDialog select").val() > 0 ? 5 : 1;
 								data.children = new Array();
-								data.control_id = $("#addDialog select").val();
-								data.label =  $("#addDialog select option[value='" + data.control_id + "']").text();
+								data.controlId = $("#addDialog select").val();
+								data.label =  $("#addDialog select option[value='" + data.controlId + "']").text();
 								data.id = 0;
-								data.parent_id = $("#addDialog").data("parent_id");
+								data.parentId = $("#addDialog").data("parentId");
 								data.quantity = isNaN(parseInt($("#addDialog input").val())) ? 1 : $("#addDialog input").val();
 								addNode(data , $("#addDialog").data("node"));
 							}
@@ -181,9 +181,9 @@ if (isset($isAjax)) {
 			}
 			li = $(this).parents("li:first");
 			var options = null;
-			if($(li).data("datamart_structure_id") == 2){
+			if($(li).data("datamartStructureId") == 2){
 				options = getDropdownOptions("");
-			}else if($(li).data("datamart_structure_id") == 5){
+			}else if($(li).data("datamartStructureId") == 5){
 				options = getDropdownOptions($(li).data("controlId"));
 			}
 
@@ -198,7 +198,7 @@ if (isset($isAjax)) {
 			$("#addDialog select").html(options).change(updateNumInput);
 			var liParent = $(this).parents("li:first");
 			$("#addDialog").data("node", liParent);
-			$("#addDialog").data("parent_id", $(liParent).data("nodeId"));
+			$("#addDialog").data("parentId", $(liParent).data("nodeId"));
 			updateNumInput();
 			$("#addDialog").popup();
 			return false;
@@ -206,18 +206,18 @@ if (isset($isAjax)) {
 	}
 	
 	function addNode(treeData, node){
-		addButton = treeData.datamart_structure_id != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
+		addButton = treeData.datamartStructureId != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
 		type = null;
 		label = null;
-		if(treeData.datamart_structure_id == 2){
+		if(treeData.datamartStructureId == 2){
 			label = '<?php echo __('collection'); ?>';
 			type = 'collection';
-		}else if(treeData.datamart_structure_id == 1){
+		}else if(treeData.datamartStructureId == 1){
 			type = 'aliquot';
-			label = modelsData.aliquot_controls[Math.abs(treeData.control_id)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>";
+			label = modelsData.aliquot_controls[Math.abs(treeData.controlId)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>";
 		}else{
 			type = 'sample';
-			label = modelsData.sample_controls[treeData.control_id]["SampleControl"]["sample_type"];
+			label = modelsData.sample_controls[treeData.controlId]["SampleControl"]["sample_type"];
 		}
 
 		if($(node)[0].nodeName != "UL"){
@@ -245,41 +245,41 @@ if (isset($isAjax)) {
 			}
 		});
 		$(li).data({
-			"datamart_structure_id" : treeData.datamart_structure_id, 
-			"controlId" : Math.abs(treeData.control_id), 
-			"nodeId" : treeData.id == 0 ? nodeId -- : treeData.id,
-			"parent_id" : treeData.parent_id,
+			"datamartStructureId" : treeData.datamartStructureId, 
+			"controlId" : Math.abs(treeData.controlId), 
+			"nodeId" : treeData.id === 0 ? nodeId -- : treeData.id,
+			"parentId" : treeData.parentId,
 			"quantity" : treeData.quantity
 		}); 
 		bindButtons(li); 
 		return li;
 	}
 
-	function getDropdownOptions(parent_id){
+	function getDropdownOptions(parentId){
 		var options = "";
-		if(parent_id != ""){
+		if(parentId != ""){
 			options += "<optgroup label='<?php echo __('derivative'); ?>'>";
 		}
-		for(i in modelsData.samples_relations[parent_id]){
-			sample = modelsData.sample_controls[modelsData.samples_relations[parent_id][i]["ParentToDerivativeSampleControl"]["derivative_sample_control_id"]];
+		for(i in modelsData.samples_relations[parentId]){
+			sample = modelsData.sample_controls[modelsData.samples_relations[parentId][i]["ParentToDerivativeSampleControl"]["derivative_sample_control_id"]];
 			options += "<option value='" + sample["SampleControl"]["id"] + "'>" + sample["SampleControl"]["sample_type"] + "</option>";
 		}
-		if(parent_id != ""){
+		if(parentId != ""){
 			options += "</optgroup><optgroup label='<?php echo __('aliquot'); ?>'>";
 		}
-		for(i in modelsData.aliquot_relations[parent_id]){
-			aliquot = modelsData.aliquot_relations[parent_id][i];
+		for(i in modelsData.aliquot_relations[parentId]){
+			aliquot = modelsData.aliquot_relations[parentId][i];
 			options += "<option value='" + (-1 * aliquot["AliquotControl"]["id"]) + "'>" + aliquot["AliquotControl"]["aliquot_type"] + "</option>";
 		}
-		if(parent_id != ""){
+		if(parentId != ""){
 			options += "</optgroup>";
 		}
 			
 		return options;
 	}
-
-
 	
+
+
 	var currentNode = null;
 	var templateInitId = null;
 	function initWizardMode(wizard_id){
@@ -357,7 +357,7 @@ if (isset($isAjax)) {
 			$(currentNode).find("div:first").css("font-weight", "bold").find("input").attr("disabled", true);
 			data = $(currentNode).data();
 			url = null;
-			if(data.datamart_structure_id == 1){
+			if(data.datamartStructureId == 1){
 				//aliquot
 				parentLi = $(currentNode).parents("li:first");
 				url = 'InventoryManagement/AliquotMasters/add/' + $(parentLi).data("id") + '/' + data.controlId + '/' + data.quantity + '/';
@@ -366,7 +366,7 @@ if (isset($isAjax)) {
 				parentLi = $(currentNode).parents("li:first");
 				parentLiData = $(parentLi).data();
 				parentId = null;
-				if(parentLiData.datamart_structure_id == 5){
+				if(parentLiData.datamartStructureId == 5){
 					//parent is a sample
 					parentId = parentLiData.id;
 				}else{
