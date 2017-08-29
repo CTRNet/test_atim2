@@ -515,8 +515,8 @@ Configure::write('edit_processed_items_limit', 50); // OrderItems.editInBatch()
 Configure::write('TmaSlideCreation_processed_items_limit', 50); // TmaSlides.add(), TmaSlides.editInBatch(), TmaSlideUses.add(), TmaSlideUses.editInBatch(),
                                                                 
 // --------------------------------------------------------------------------------------------------------------------------------------------
-                                                                // ORDER
-                                                                // --------------------------------------------------------------------------------------------------------------------------------------------
+// ORDER
+// --------------------------------------------------------------------------------------------------------------------------------------------
 
 /**
  * Set the allowed links that exists between an OrderItem and different Order plugin objects:
