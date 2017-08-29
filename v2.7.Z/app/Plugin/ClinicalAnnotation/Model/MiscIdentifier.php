@@ -222,4 +222,3 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return true;
     }
 }
-

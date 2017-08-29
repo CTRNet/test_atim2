@@ -67,4 +67,4 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
     {
         return $this->applyMasterFormAlias($results, $primary);
     }
-}
+}

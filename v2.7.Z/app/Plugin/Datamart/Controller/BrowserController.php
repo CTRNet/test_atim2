@@ -796,5 +796,3 @@ class BrowserController extends DatamartAppController
         $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
     }
 }
-
-

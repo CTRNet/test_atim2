@@ -51,5 +51,4 @@ if (! isset($controlsForSubformDisplay)) {
             $this->Structures->build($finalAtimStructure, $finalOptions);
         }
     }
-}	
-	
+}

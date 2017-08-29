@@ -260,4 +260,3 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 }
-

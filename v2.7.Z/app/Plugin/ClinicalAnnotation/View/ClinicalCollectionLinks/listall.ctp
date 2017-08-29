@@ -108,4 +108,3 @@ if (! $isAjax) {
     // BUILD FORM
     $this->Structures->build($finalAtimStructure, $finalOptions);
 }
-?>

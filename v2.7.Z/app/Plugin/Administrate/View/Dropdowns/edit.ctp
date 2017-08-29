@@ -16,5 +16,4 @@ $finalOptions = array(
     'settings' => $structureSettings
 );
 
-$this->Structures->build($administrateDropdownValues, $finalOptions)?>
-
+$this->Structures->build($administrateDropdownValues, $finalOptions)

@@ -1606,4 +1606,3 @@ class SampleMastersController extends InventoryManagementAppController
         $this->Structures->set('batch_process_aliq_storage_and_in_stock_details', 'batch_process_aliq_storage_and_in_stock_details');
     }
 }
-	

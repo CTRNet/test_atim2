@@ -10,4 +10,3 @@ $this->Structures->build($atimStructure, array(
         'stretch' => false
     )
 ));
-?>

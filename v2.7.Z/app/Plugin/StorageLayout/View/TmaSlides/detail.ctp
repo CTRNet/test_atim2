@@ -102,5 +102,3 @@ if (! $isFromTreeViewOrLayout) {
         $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }
-
-?>

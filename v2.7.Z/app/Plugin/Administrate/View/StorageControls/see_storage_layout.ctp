@@ -182,4 +182,3 @@ if ($hookLink) {
 }
 
 $this->Structures->build($emptyStructure, $finalOptions);
-?>

@@ -11,4 +11,3 @@ if (! $displayEditButton)
 $this->Structures->build($atimStructure, array(
     'links' => $structureLinks
 ));
-?>

@@ -25,5 +25,3 @@ if ($hookLink) {
     require ($hookLink);
 }
 $this->Structures->build($finalAtimStructure, $finalOptions);
-
-?>

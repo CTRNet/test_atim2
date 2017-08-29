@@ -52,5 +52,3 @@ if (! isset($controlsForSubformDisplay)) {
         }
     }
 }
-
-?>	

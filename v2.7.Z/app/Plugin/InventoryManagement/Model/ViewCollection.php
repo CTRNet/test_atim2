@@ -173,4 +173,3 @@ class ViewCollection extends InventoryManagementAppModel
         return $results;
     }
 }
-
