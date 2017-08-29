@@ -13,87 +13,88 @@ var DEBUG_MODE_JS = 0;
 //}
 
 $(document).ready(function () {
-    if (typeof controller !== 'undefined' && typeof action !== 'undefined') {
-        checkedData = [];
-        checkedData[controller] = [];
-        checkedData[controller][action] = [];
-    }
-    $("#wrapper").find("a[href*='limit:'], a[href*='page:'], a[href*='sort:']").each(function () {
-        if (!$(this).hasClass("submit")) {
-            $(this).attr("data-href", $(this).prop('href'));
-            $(this).prop('href', 'javascript:void(0)');
+    if (typeof dataLimit !== 'undefined') {
+        if (typeof controller !== 'undefined' && typeof action !== 'undefined') {
+            checkedData = [];
+            checkedData[controller] = [];
+            checkedData[controller][action] = [];
         }
-    });
-    $("#wrapper").delegate("a[data-href]", 'click', function () {
-        var url = $(this).attr("data-href");
-        $.ajax({
-            type: "GET",
-            url: url + "/noActions:/",
-            cache: false,
-            success: successFunction,
-            error: errorFunction
-        });
-    });
-
-    function successFunction(data) {
-if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
-	try{
-		var myName = arguments.callee.toString();
-		myName = myName.substr('function '.length);
-		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
-		if (DEBUG_MODE_JS>0){
-		   debugger ;
-		}
-	}catch(ex){
-	}
-}
-
-        var domNodes = document.createElement('div');
-        $(domNodes).html(data);
-        $(domNodes).find("a[href*=':']").each(function () {
+        $("#wrapper").find("a[href*='limit:'], a[href*='page:'], a[href*='sort:']").each(function () {
             if (!$(this).hasClass("submit")) {
                 $(this).attr("data-href", $(this).prop('href'));
                 $(this).prop('href', 'javascript:void(0)');
             }
         });
-
-        var id;
-        var checkboxes = $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden']");
-        checkedData[controller][action].forEach(function (item) {
-            $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").prop("checked", item.checked);
-            $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").closest("tr").addClass("chkLine")
-        });
-
-        $(checkboxes).each(function () {
-            $this = $(this);
-            id = $this.val();
-            checked = $this.is(':checked');
-            index = checkedData[controller][action].findIndex(function (item) {
-                return item.id === id;
+        $("#wrapper").delegate("a[data-href]", 'click', function () {
+            var url = $(this).attr("data-href");
+            $.ajax({
+                type: "GET",
+                url: url + "/noActions:/",
+                cache: false,
+                success: successFunction,
+                error: errorFunction
             });
-            if (index !== -1) {
-                $this.prop("checked", true);
-            }
         });
 
+        function successFunction(data) {
+            if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+                try {
+                    var myName = arguments.callee.toString();
+                    myName = myName.substr('function '.length);
+                    myName = myName.substr(0, myName.indexOf('('));
+                    console.log(myName);
+                    if (DEBUG_MODE_JS > 0) {
+                        debugger;
+                    }
+                } catch (ex) {
+                }
+            }
 
-        $("#wrapper").children("form").remove();
-        $("#wrapper").prepend($(domNodes).children("form").first());
-        initCheckAll("#wrapper");
-    }
+            var domNodes = document.createElement('div');
+            $(domNodes).html(data);
+            $(domNodes).find("a[href*=':']").each(function () {
+                if (!$(this).hasClass("submit")) {
+                    $(this).attr("data-href", $(this).prop('href'));
+                    $(this).prop('href', 'javascript:void(0)');
+                }
+            });
 
-    var errorFunction = function (jqXHR, textStatus, errorThrown) {
-        $(document).remove('#popupError');
-        var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-        popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
-        $(document).append(popupError);
-//        $(popupError).popup();
-        if(DEBUG_MODE_JS>0){
-            console.log(jqXHR);
+            var id;
+            var checkboxes = $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden']");
+            checkedData[controller][action].forEach(function (item) {
+                $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").prop("checked", item.checked);
+                $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").closest("tr").addClass("chkLine")
+            });
+
+            $(checkboxes).each(function () {
+                $this = $(this);
+                id = $this.val();
+                checked = $this.is(':checked');
+                index = checkedData[controller][action].findIndex(function (item) {
+                    return item.id === id;
+                });
+                if (index !== -1) {
+                    $this.prop("checked", true);
+                }
+            });
+
+
+            $("#wrapper").children("form").remove();
+            $("#wrapper").prepend($(domNodes).children("form").first());
+            initCheckAll("#wrapper");
         }
-    };
 
+        var errorFunction = function (jqXHR, textStatus, errorThrown) {
+            $(document).remove('#popupError');
+            var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            $(document).append(popupError);
+//        $(popupError).popup();
+            if (DEBUG_MODE_JS > 0) {
+                console.log(jqXHR);
+            }
+        };
+    }
 });
 
 jQuery.fn.fullWidth = function () {
@@ -2360,7 +2361,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     } else {
         $(event.currentTarget).parents("tr:first").removeClass("chkLine");
     }
-    saveCheckedToArray("#wrapper", checkedData[controller][action]);
+    if (typeof dataLimit !== 'undefined') {
+        saveCheckedToArray("#wrapper", checkedData[controller][action]);
+    }
     event.stopPropagation();
     return true;
 }
@@ -2397,7 +2400,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             checkedData.splice(index, 1);
         }
     });
-//    console.log(checkedData);
 }
 
 /**
