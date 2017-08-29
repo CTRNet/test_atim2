@@ -485,7 +485,7 @@ class OrderItemsController extends OrderAppController
                 "$objectModelName.id" => $objectIdsToAdd
             )
         ));
-        $displayLimit = Configure::read('AliquotInternalUseCreation_processed_items_limit');
+        $displayLimit = Configure::read('AddToOrder_processed_items_limit');
         if (empty($newItemsData)) {
             $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
             return;

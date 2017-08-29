@@ -381,6 +381,21 @@ AND sfo.`structure_id` NOT IN (
 	AND sfi.setting LIKE '%url=/Study/StudySummaries/autocompleteStudy%'
 ));
 
+-- --------------------------------------------------------------------------------------------------------------------
+-- Change message of the report compareToBatchSetOrNode()
+-- --------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr)
+VALUE 
+('data of previously displayed %s_1 (1)', 'Previous %s_1 (1)', '%s_1 précédent (1)'),
+('data of previously displayed %s_1 only (1)', 'Previous %s_1 only (1)', '%s_1 précédent seulement (1)'),
+('data of selected %s_2 (2)', 'Selected/Chosen %s_2 (2)', '%s_2 sélectionné/choisi (2)'),
+('data of selected %s_2 only (2)', 'Selected/Chosen %s_2 only (2)', '%s_2 sélectionné/choisi seulement (2)');
+
+REPLACE INTO i18n (id,en,fr)
+VALUE
+('data both in previously displayed %s_1 and selected %s_2 (1 & 2)', 'Both in previously %s_1 and selected/chosen %s_2 (1 & 2)', 'Dans le %s_1 précédent et le %s_2 sélectionné/choisi (1 & 2)');
+
 
 
 
