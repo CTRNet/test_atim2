@@ -234,8 +234,16 @@ class ParticipantsController extends ClinicalAnnotationAppController
         // *** Load model being used to populate chronology_details (for values of fields linked to drop down list)
         
         $this->StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true); // Use of $structurePermissibleValuesCustom->getTranslatedCustomDropdownValue()
+        
         App::uses('StructureValueDomain', 'Model');
         $this->StructureValueDomain = new StructureValueDomain();
+        
+        $this->TreatmentExtendMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentExtendMaster", true);
+        
+        $Drug = AppModel::getInstance("Drug", "Drug", true);
+        $allDrugs = $Drug->getDrugPermissibleValues();
+        
+        $addDrugToDetail = true;
         
         $hookLink = $this->hook('start');
         if ($hookLink) {
@@ -405,11 +413,25 @@ class ParticipantsController extends ClinicalAnnotationAppController
                         $finishSuffixMsg = '';
                     }
                 }
+                $txChronologyDetails = '';
+                if ($addDrugToDetail) {
+                    $drugs = array();
+                    $treatmentExtendConditions = array(
+                        'TreatmentExtendMaster.treatment_master_id' => $tx['TreatmentMaster']['id']
+                    );
+                    foreach ($this->TreatmentExtendMaster->find('all', array('conditions' => $treatmentExtendConditions, 'recursive' => '-1')) as $newDrug) {
+                        if (isset($newDrug['TreatmentExtendMaster']['drug_id']) && isset($allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']])) {
+                            $drugs[$allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']]] = $allDrugs[$newDrug['TreatmentExtendMaster']['drug_id']];
+                        }
+                    }
+                    ksort($drugs);
+                    $txChronologyDetails = implode(', ', $drugs);
+                }
                 $chronolgyDataTreatmentStart = array(
                     'date' => $tx['TreatmentMaster']['start_date'],
                     'date_accuracy' => $tx['TreatmentMaster']['start_date_accuracy'],
                     'event' => __('treatment') . ", " . __($tx['TreatmentControl']['tx_method']) . $startSuffixMsg,
-                    'chronology_details' => '',
+                    'chronology_details' => $txChronologyDetails,
                     'link' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $participantId . '/' . $tx['TreatmentMaster']['id']
                 );
                 $chronolgyDataTreatmentFinish = false;
@@ -418,7 +440,7 @@ class ParticipantsController extends ClinicalAnnotationAppController
                         'date' => $tx['TreatmentMaster']['finish_date'],
                         'date_accuracy' => $tx['TreatmentMaster']['finish_date_accuracy'],
                         'event' => __('treatment') . ", " . __($tx['TreatmentControl']['tx_method']) . $finishSuffixMsg,
-                        'chronology_details' => '',
+                        'chronology_details' => $txChronologyDetails,
                         'link' => '/ClinicalAnnotation/TreatmentMasters/detail/' . $participantId . '/' . $tx['TreatmentMaster']['id']
                     );
                 }
