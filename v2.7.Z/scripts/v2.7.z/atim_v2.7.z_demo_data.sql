@@ -28,7 +28,7 @@ ALTER TABLE structure_permissible_values_customs
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 update groups set flag_show_confidential = 1 where id = 1;
-update users set flag_active = 1 where id = 1;
+update users set flag_active = 1, force_password_reset = 0, password_modified = NOW() where id = 1;
 INSERT INTO i18n (id,en,fr) VALUES ('core_installname', 'CTRNet - Demo', 'CTRNet - Demo');
 
 -- Banks 
@@ -102,6 +102,13 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 -- Activate StudySummary to ConsentMaster databrowser link
 
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster') AND id2 = (SELECT id FROM datamart_structures WHERE model = 'StudySummary');
+
+-- Change/Add new consent
+
+UPDATE consent_controls SET controls_type = 'prostate bank', databrowser_label = 'prostate bank' WHERE controls_type = 'Consent National'; 
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'lymphoma bank', 1, 'cd_nationals', 'cd_nationals', 0, 'lymphoma bank');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('lymphoma bank', 'Lymphoma Bank', 'Banque Lymphome'), ('prostate bank', 'Prostate Bank', 'Banque Prostate');
 
 -- Diagnosis 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -308,6 +315,33 @@ UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fi
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='target_site_icdo' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='icd_0_3_topography_categories') AND `flag_confidential`='0');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('site', 'Site', 'Site');
 
+-- Create other treatment
+
+INSERT INTO structures(`alias`) VALUES ('demo_txd_prostate_radiations');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='demo_txd_prostate_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_intent' AND `language_label`='intent' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_prostate_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_prostate_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='facility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='facility')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_facility' AND `language_label`='treatment facility' AND `language_tag`=''), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_prostate_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_prostate_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='information_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_information_source' AND `language_label`='information source' AND `language_tag`=''), '1', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_prostate_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_protocol_name' AND `language_label`='protocol' AND `language_tag`=''), '1', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_prostate_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_radiations' AND `field`='rad_completed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_rad_completed' AND `language_label`='completed' AND `language_tag`=''), '2', '9', 'radiation specific', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, 'radiation', 'prostate', 1, 'txd_radiations', 'demo_txd_prostate_radiations', 0, NULL, NULL, 'prostate|radiation', 0, NULL, 0, 0);
+INSERT IGNORE INTO i18n (id,en,fr) VALUE ('prostate', 'Prostate', 'Prostate');
+
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, 'surgery', 'prostate', 1, 'txd_surgeries', 'demo_txd_surgeries', 0, 2, NULL, 'prostate|surgery', 1, (SELECT id FROM treatment_extend_controls WHERE detail_form_alias = 'txe_surgeries'), 0, 0),
+(null, 'surgery', 'breast', 1, 'txd_surgeries', 'demo_txd_surgeries', 0, 2, NULL, 'breast|surgery', 1, (SELECT id FROM treatment_extend_controls WHERE detail_form_alias = 'txe_surgeries'), 0, 0);
+INSERT INTO structures(`alias`) VALUES ('demo_txd_surgeries');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='demo_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_intent' AND `language_label`='intent' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='facility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='facility')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_facility' AND `language_label`='treatment facility' AND `language_tag`=''), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='information_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_information_source' AND `language_label`='information source' AND `language_tag`=''), '1', '8', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_protocol_name' AND `language_label`='protocol' AND `language_tag`=''), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='demo_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='path_num' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='help_path_num' AND `language_label`='pathology number' AND `language_tag`=''), '2', '10', 'surgery specific', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
 -- Event 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -341,6 +375,22 @@ CREATE TABLE IF NOT EXISTS `demo_ed_all_ct_scans_revs` (
 ALTER TABLE `demo_ed_all_ct_scans`
   ADD CONSTRAINT `demo_ed_all_ct_scans_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
 INSERT IGNORE INTO i18n (id,en,fr) VALUEs ('ct-scan','CT-Scan','CT-Scan');
+
+-- Create other event
+
+INSERT INTO event_controls (disease_site,event_group,event_type,flag_active,detail_form_alias,detail_tablename,databrowser_label,flag_use_for_ccl,use_addgrid,use_detail_form_for_index)
+VALUES
+('prostate', 'clinical', 'ct-scan', '1', 'demo_ed_all_ct_scan_2', 'demo_ed_all_ct_scans', 'clinical|prostate|ct-scan', '0', '1', '1'),
+('breast', 'clinical', 'ct-scan', '1', 'demo_ed_all_ct_scan_2', 'demo_ed_all_ct_scans', 'clinical|prostate|ct-scan', '0', '1', '1');
+INSERT INTO structures(`alias`) VALUES ('demo_ed_all_ct_scan_2');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='demo_ed_all_ct_scan_2'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='demo_ed_all_ct_scans' AND `field`='result' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='result')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='result' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='demo_ed_all_ct_scan_2'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+-- Participant Chronology 
+-- --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chronology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Study Tool 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -524,13 +574,24 @@ INSERT INTO `structure_permissible_values_customs` (`id`, `control_id`, `value`,
 (null, @control_id, 'patho dpt', 'Pathology Dept.', '', 0, 1),
 (null, @control_id, 'Surgery Room', 'Chambre Opératoir', '', 0, 1);
 
+
+
+
+
+
+
+
+
+
+
+
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE structure_permissible_values_customs
   MODIFY created_by int(10) unsigned NOT NULL,
   MODIFY modified_by int(10) unsigned NOT NULL;
-  
+
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Data
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2338,7 +2399,7 @@ INSERT INTO `sd_spe_bloods_revs` (`sample_master_id`, `blood_type`, `collected_t
 INSERT INTO `sd_spe_tissues` (`sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `pathology_reception_datetime_accuracy`, `tissue_size`, `tissue_size_unit`, `tissue_weight`, `tissue_weight_unit`) VALUES
 (1, '', NULL, 'right', '2012-06-03 10:40:00', 'c', '1x2x1', 'cm', '', ''),
 (2, '', NULL, '', NULL, '', '1x1.5x2', 'cm', '', ''),
-(7, '', NULL, '', NULL, '', '', '', '', ''),
+(7, 'C61', NULL, '', NULL, '', '', '', '', ''),
 (9, '', NULL, 'not applicable', NULL, '', '', '', '', ''),
 (16, 'C50', NULL, 'left', '2009-08-01 10:06:00', 'c', '', '', '', ''),
 (17, 'C50', NULL, 'right', '2009-04-01 00:00:00', 'h', '', '', '', '');
@@ -2346,7 +2407,7 @@ INSERT INTO `sd_spe_tissues` (`sample_master_id`, `tissue_source`, `tissue_natur
 INSERT INTO `sd_spe_tissues_revs` (`sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `pathology_reception_datetime_accuracy`, `tissue_size`, `tissue_size_unit`, `tissue_weight`, `tissue_weight_unit`, `version_id`, `version_created`) VALUES
 (1, '', NULL, 'right', '2012-06-03 10:40:00', 'c', '1x2x1', 'cm', '', '', 1, '2012-07-31 19:31:17'),
 (2, '', NULL, '', NULL, '', '1x1.5x2', 'cm', '', '', 2, '2012-07-31 19:41:27'),
-(7, '', NULL, '', NULL, '', '', '', '', '', 3, '2012-07-31 20:46:10'),
+(7, 'C61', NULL, 'not applicable', NULL, '', '', '', '', '', 3, '2012-07-31 20:46:10'),
 (9, '', NULL, 'not applicable', NULL, '', '', '', '', '', 4, '2012-07-31 20:53:22'),
 (16, 'C50', NULL, 'left', '2009-08-01 10:06:00', 'c', '', '', '', '', 5, '2016-08-26 19:18:43'),
 (17, 'C50', NULL, 'right', '2009-04-01 00:00:00', 'h', '', '', '', '', 6, '2016-08-26 19:19:37');
@@ -2747,7 +2808,7 @@ INSERT INTO `treatment_extend_masters_revs` (`id`, `treatment_extend_control_id`
 
 INSERT INTO `treatment_masters` (`id`, `treatment_control_id`, `tx_intent`, `target_site_icdo`, `start_date`, `start_date_accuracy`, `finish_date`, `finish_date_accuracy`, `information_source`, `facility`, `notes`, `protocol_master_id`, `participant_id`, `diagnosis_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`) VALUES
 (1, 1, 'curative', NULL, '1978-11-01', 'd', '1979-03-01', 'd', 'path report', '', '', NULL, 1, 1, '2012-07-31 15:22:13', 1, '2012-07-31 15:22:13', 1, 0),
-(2, 3, 'curative', NULL, '2001-06-23', 'c', NULL, '', 'path report', '', '', NULL, 1, 3, '2012-07-31 15:34:07', 1, '2012-07-31 15:34:07', 1, 0),
+(2, 3, 'curative', 'C61', '2001-06-23', 'c', NULL, '', 'path report', '', '', NULL, 1, 3, '2012-07-31 15:34:07', 1, '2012-07-31 15:34:07', 1, 0),
 (3, 1, 'curative', NULL, '2001-12-01', 'd', NULL, '', '', '', '', NULL, 1, 3, '2012-07-31 15:35:52', 1, '2012-07-31 15:35:52', 1, 0),
 (4, 1, 'curative', NULL, '2002-01-01', 'd', NULL, '', '', '', '', 1, 1, 3, '2012-07-31 15:36:24', 1, '2012-07-31 15:36:24', 1, 0),
 (5, 3, 'curative', NULL, '2004-06-05', 'c', NULL, '', '', '', '', NULL, 1, 5, '2012-07-31 15:43:21', 1, '2012-07-31 15:43:21', 1, 0),
@@ -2761,7 +2822,7 @@ INSERT INTO `treatment_masters` (`id`, `treatment_control_id`, `tx_intent`, `tar
 
 INSERT INTO `treatment_masters_revs` (`id`, `treatment_control_id`, `tx_intent`, `target_site_icdo`, `start_date`, `start_date_accuracy`, `finish_date`, `finish_date_accuracy`, `information_source`, `facility`, `notes`, `modified_by`, `protocol_master_id`, `participant_id`, `diagnosis_master_id`, `version_id`, `version_created`) VALUES
 (1, 1, 'curative', NULL, '1978-11-01', 'd', '1979-03-01', 'd', 'path report', '', '', 1, NULL, 1, 1, 1, '2012-07-31 15:22:13'),
-(2, 3, 'curative', NULL, '2001-06-23', 'c', NULL, '', 'path report', '', '', 1, NULL, 1, 3, 2, '2012-07-31 15:34:07'),
+(2, 3, 'curative', 'C61', '2001-06-23', 'c', NULL, '', 'path report', '', '', 1, NULL, 1, 3, 2, '2012-07-31 15:34:07'),
 (3, 1, 'curative', NULL, '2001-12-01', 'd', NULL, '', '', '', '', 1, NULL, 1, 3, 3, '2012-07-31 15:35:52'),
 (4, 1, 'curative', NULL, '2002-01-01', 'd', NULL, '', '', '', '', 1, 1, 1, 3, 4, '2012-07-31 15:36:24'),
 (5, 4, 'curative', NULL, '2004-06-05', 'c', NULL, '', '', '', '', 1, NULL, 1, 5, 5, '2012-07-31 15:43:21'),
