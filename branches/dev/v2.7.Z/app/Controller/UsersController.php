@@ -40,7 +40,8 @@ class UsersController extends AppController
      */
     public function login()
     {
-        $username=$this->UserLoginAttempt->find('first', ['order' => 'attempt_time DESC'])["UserLoginAttempt"]["username"];
+        $username=$this->UserLoginAttempt->find('first', ['order' => 'attempt_time DESC']);
+        $username=(isset($username["UserLoginAttempt"]["username"])?$username["UserLoginAttempt"]["username"]:null);
         if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
             return $this->redirect('/Menus');
         }
