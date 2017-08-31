@@ -145,10 +145,10 @@ class TemplateController extends AppController
                     if ($node->nodeId <= 0) {
                         // create the node in Db
                         $parentId = null;
-                        if (isset ($node->parentId)){
+                        if (isset ($node->parentId) && !is_string($node->parentId)){
                             if ($node->parentId <= 0) {
                                 $parentId = $nodesMapping[$node->parentId];
-                            } elseif ($node->parentId > 0) {
+                            }elseif ($node->parentId > 0) {
                                 $parentId = $node->parentId;
                             }
                         }
