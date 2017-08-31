@@ -144,7 +144,7 @@ if (isset($isAjax)) {
 		return !wrong;
 	}
 
-	function bindButtons(scope){
+	function bindButtons(scope){     
 		$(scope).find(".delete").unbind('click').click(function(){
 			var parentLi = $(this).parents("li:first"); 
 			if($(currentNode).data() == $(parentLi).data()){
@@ -170,7 +170,7 @@ if (isset($isAjax)) {
 								data.controlId = $("#addDialog select").val();
 								data.label =  $("#addDialog select option[value='" + data.controlId + "']").text();
 								data.id = 0;
-								data.parentId = $("#addDialog").data("parentId");
+								data.parentId = typeof $("#addDialog").data("parentId")==='undefined'?"undefined":$("#addDialog").data("parentId");
 								data.quantity = isNaN(parseInt($("#addDialog input").val())) ? 1 : $("#addDialog input").val();
 								addNode(data , $("#addDialog").data("node"));
 							}
@@ -198,7 +198,7 @@ if (isset($isAjax)) {
 			$("#addDialog select").html(options).change(updateNumInput);
 			var liParent = $(this).parents("li:first");
 			$("#addDialog").data("node", liParent);
-			$("#addDialog").data("parentId", $(liParent).data("nodeId"));
+			$("#addDialog").data("parentId", typeof $(liParent).data("nodeId")==='undefined'?"undefined":$(liParent).data("nodeId"));
 			updateNumInput();
 			$("#addDialog").popup();
 			return false;
