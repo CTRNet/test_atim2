@@ -774,11 +774,9 @@ class AppController extends Controller
      */
     public static function atimSetCookie($skipExpirationCookie)
     {
-        $sessionExpiration = time() + Configure::read("Session.timeout");
-        
-        setcookie('last_request', time(), $sessionExpiration, '/');
-        
         if (! $skipExpirationCookie) {
+            $sessionExpiration = time() + Configure::read("Session.timeout");
+            setcookie('last_request', time(), $sessionExpiration, '/');
             setcookie('session_expiration', $sessionExpiration, $sessionExpiration, '/');
             if (isset($_COOKIE[Configure::read("Session.cookie")])) {
                 setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $sessionExpiration, "/");

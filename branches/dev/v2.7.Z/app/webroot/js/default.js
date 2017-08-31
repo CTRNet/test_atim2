@@ -44,7 +44,7 @@ $(document).ready(function () {
                     myName = myName.substr(0, myName.indexOf('('));
                     console.log(myName);
                     if (DEBUG_MODE_JS > 0) {
-                        debugger;
+                        debugger ;
                     }
                 } catch (ex) {
                 }
@@ -1503,6 +1503,26 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
 }
 
+function getTime(){
+    $(function () {
+      $.ajax({
+        type: 'GET',
+        cache: false,
+        url: location.href,
+        complete: function (req, textStatus) {
+          var dateString = req.getResponseHeader('Date');
+          if (dateString.indexOf('GMT') === -1) {
+            dateString += ' GMT';
+          }
+          var date = new Date(dateString);
+        console.log(["server time:", localDate]);
+        }
+      });
+      var localDate = new Date();
+      console.log(["local time:", localDate]);
+    });    
+}
+
 function sessionExpired() {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1527,7 +1547,9 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     //dumb call to refresh cookies
                     $("#loginPopup").popup('close');
                 });
-            } else {
+            } else if (data.indexOf('nok') == 0){
+                window.location = root_url + "Menus";
+            }else {
                 $("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
                 $("#loginPopup").popup();
                 $("#loginPopup a.submit").click(submitFunction);
@@ -1545,26 +1567,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     $("#loginPopup").popup({closable: false, background: "black"});
 }
 
-function getTime(){
-    $(function () {
-      $.ajax({
-        type: 'GET',
-        cache: false,
-        url: location.href,
-        complete: function (req, textStatus) {
-          var dateString = req.getResponseHeader('Date');
-          if (dateString.indexOf('GMT') === -1) {
-            dateString += ' GMT';
-          }
-          var date = new Date(dateString);
-        console.log(["server time:", localDate]);
-        }
-      });
-      var localDate = new Date();
-      console.log(["local time:", localDate]);
-    });    
-}
-
 function cookieWatch() {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -1579,10 +1581,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}
 }
     if ($.cookie("session_expiration")) {
-        if (!sessionTimeout.lastRequest || sessionTimeout.lastRequest !== $.cookie("last_request")) {
+        if (!sessionTimeout.lastRequest || sessionTimeout.lastRequest !== $.cookie("last_request")+ sessionTimeout.serverOffset) {
             //5 to 1 second earlier expiration (due to 4 secs error margin)
-            sessionTimeout.lastRequest = $.cookie("last_request");
-            sessionTimeout.expirationTime = new Date().getTime() - sessionTimeout.serverOffset + (($.cookie("session_expiration") - $.cookie("last_request") + 5) * 1000);
+
+            sessionTimeout.lastRequest = $.cookie("last_request")+ sessionTimeout.serverOffset;
+            sessionTimeout.expirationTime =  ($.cookie("session_expiration") * 1000)+ sessionTimeout.serverOffset;
         }
         if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length === 1) {
             $("#loginPopup").popup('close');
@@ -1593,7 +1596,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         sessionExpired();
     }
 
-    setTimeout(cookieWatch, 4000);//4 seconds error margin
+    setTimeout(cookieWatch, 1000);//1 seconds error margin
 }
 
 function initFileOptions(scope) {
@@ -1714,7 +1717,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                     $("input.submit").siblings("a").find("span").removeClass('fetching');
                 }
             };
-//            console.log($("form").attr("action"));
+
             $("form").ajaxForm({
                 url: $("form").attr("action"),
                 success: successFct,
