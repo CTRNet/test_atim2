@@ -1657,7 +1657,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     }
 
     if (window.storageLayout) {
-        initStorageLayout();
+        initStorageLayout(window.storageLayout);
     }
     if (window.copyControl) {
         initCopyControl();
