@@ -42,7 +42,7 @@ $(document).ready(function () {
                     var myName = arguments.callee.toString();
                     myName = myName.substr('function '.length);
                     myName = myName.substr(0, myName.indexOf('('));
-                    console.log(myName);
+                    console.log (myName);
                     if (DEBUG_MODE_JS > 0) {
                         debugger ;
                     }
@@ -91,9 +91,13 @@ $(document).ready(function () {
             $(document).append(popupError);
 //        $(popupError).popup();
             if (DEBUG_MODE_JS > 0) {
-                console.log(jqXHR);
+                console.log (jqXHR);
             }
         };
+    }
+    if (typeof duplicatedSamples !=='undefined'){
+        treeTable=$("div#wrapper.wrapper.plugin_InventoryManagement.controller_Collections.action_detail .this_column_1.total_columns_2 table.columns.tree td ul.tree_root");
+        findDuplicatedSamples(treeTable);
     }
 });
 
@@ -184,7 +188,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -211,7 +215,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -231,7 +235,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -247,7 +251,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -328,7 +332,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -428,7 +432,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -445,7 +449,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -478,7 +482,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -609,7 +613,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -630,7 +634,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -659,7 +663,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -701,7 +705,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -718,7 +722,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -743,7 +747,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -809,7 +813,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -845,7 +849,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -863,7 +867,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -901,7 +905,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -923,7 +927,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1033,7 +1037,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1088,7 +1092,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1108,7 +1112,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1137,7 +1141,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1196,7 +1200,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1228,7 +1232,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1248,7 +1252,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1290,7 +1294,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1319,7 +1323,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1371,7 +1375,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1412,7 +1416,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1436,7 +1440,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1467,7 +1471,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1485,7 +1489,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1529,7 +1533,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1573,7 +1577,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1605,7 +1609,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1638,7 +1642,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1866,7 +1870,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1890,7 +1894,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1916,7 +1920,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1936,7 +1940,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1967,7 +1971,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2028,7 +2032,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2060,7 +2064,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2092,10 +2096,66 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 if (window.initTree) {
                     initTree($(currentLi));
                 }
+                currentUl=currentLi.children("ul").first();
+                findDuplicatedSamples(currentUl);
             });
         }
     }
 }
+
+function findDuplicatedSamples(currentUl){
+    var oldItemsNum=duplicatedSamples.length, url;
+    currentUl.children('li').each(function(index, li){
+        url=($(li).find("div div.rightPart span a.ajax").first().attr('href')!=='undefined'?$(li).find("div div.rightPart span a.ajax").first().attr('href'):"").toLowerCase();
+        $(li).addClass("notHighLightDuplicatedItem");
+        duplicatedSamples.push({item: $(li), url: url, duplicated: []});
+    });
+    for (var i=0; i<oldItemsNum; i++){
+        c=duplicatedSamples[i];
+        for (var j=oldItemsNum; j<duplicatedSamples.length; j++){
+            d=duplicatedSamples[j];
+            if (c.url===d.url){
+                d.duplicated.push(c.item);
+                d.duplicated=d.duplicated.concat(c.duplicated).sort();
+                d.duplicated=d.duplicated.filter((value,pos) => {return d.duplicated.indexOf(value) === pos;});
+                d.item.data("duplicated", d.duplicated);
+                c.duplicated.push(d.item);
+                c.item.data("duplicated", c.duplicated);
+                d.item.mouseover(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 1);
+                });
+
+                c.item.mouseover(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 1);
+                });
+                
+                d.item.mouseleave(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 0);
+                });
+
+                c.item.mouseleave(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 0);
+                });
+                
+            }
+        }
+    }
+}
+
+function highLightDuplicatedItem($this, duplicated, mode){
+    if (mode===1){
+        $this.addClass('highLightDuplicatedItem');
+        duplicated.forEach(function(item){
+            item.addClass('highLightDuplicatedItem');
+        });
+    }else if (mode===0){
+        $this.removeClass('highLightDuplicatedItem');
+        duplicated.forEach(function(item){
+            item.removeClass('highLightDuplicatedItem');
+        });
+    }
+}
+
 
 /**
  * Called when a detail view is displayed in within the same page as the tree view
@@ -2126,7 +2186,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2142,7 +2202,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
 
     var element = $(scope).find(".tree_root input[type=radio]:checked");
-    if (element.length == 1) {
+    if (element.length === 1) {
         var lis = $(element).parents("li");
         lis[0] = null;
         $(lis).find("a.reveal.activate:first").click();
@@ -2155,7 +2215,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2187,7 +2247,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2209,7 +2269,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2244,7 +2304,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2269,7 +2329,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2313,7 +2373,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2378,7 +2438,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2415,7 +2475,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2450,7 +2510,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2467,7 +2527,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2608,7 +2668,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2705,7 +2765,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2723,7 +2783,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2807,7 +2867,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2869,7 +2929,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2897,7 +2957,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2964,7 +3024,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2986,7 +3046,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -3013,7 +3073,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log(myName);
+		console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
