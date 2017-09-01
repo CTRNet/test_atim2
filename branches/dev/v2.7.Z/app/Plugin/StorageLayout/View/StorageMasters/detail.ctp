@@ -134,5 +134,5 @@ var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";
 var detailString = "<?php echo(__("detail")); ?>";
 var loadingStr = "<?php echo __("loading"); ?>";
-var storageLayout = true;
+var storageLayout = "detail";
 </script>
