@@ -3231,13 +3231,7 @@ class AliquotMastersController extends InventoryManagementAppController
         }
         
         $atimStructure['AliquotMaster'] = $this->Structures->get('form', 'aliquot_masters_for_collection_tree_view,realiquoting_data_for_collection_tree_view');
-        $viewaliquotusesStructures = $this->Structures->get('form', 'viewaliquotuses_for_collection_tree_view');
-        $atimStructure['Shipment'] = $viewaliquotusesStructures;
-        $atimStructure['SampleMaster'] = $viewaliquotusesStructures;
-        $atimStructure['SpecimenReviewMaster'] = $viewaliquotusesStructures;
-        $atimStructure['QualityCtrl'] = $viewaliquotusesStructures;
-        $atimStructure['Order'] = $viewaliquotusesStructures;
-        $atimStructure['AliquotInternalUse'] = $viewaliquotusesStructures;
+        $atimStructure['ViewAliquotUse'] = $this->Structures->get('form', 'viewaliquotuses_for_collection_tree_view');;
         $this->set('atimStructure', $atimStructure);
         
         $this->set("collectionId", $collectionId);
@@ -3283,15 +3277,33 @@ class AliquotMastersController extends InventoryManagementAppController
                 'AliquotMaster.collection_id' => $collectionId
             )
         ));
-        foreach ($this->request->data as &$newChildrenAliquotData)
+        foreach ($this->request->data as &$newChildrenAliquotData) {
             $newChildrenAliquotData = array_merge($newChildrenAliquotData, $realiquotingDataFromChildIds[$newChildrenAliquotData['AliquotMaster']['id']]);
+        }
         
         // Get list of realiquoted children having been realiquoted too: To disable or not the expand icon
         $aliquotIdsHavingChild = array_flip($this->AliquotMaster->hasChild(array_keys($realiquotingDataFromChildIds)));
-        
+        $tmaBlockStorageControlIds = array();
+        $storageControlModel = AppModel::getInstance("StorageLayout", "StorageControl", true);
         foreach ($this->request->data as &$aliquot) {
             $aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquotIdsHavingChild);
             $aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
+            // Check aliquot is a TMA core, - To change 'aliquot' icon to 'Tma Block' icon
+            if ($aliquot['ViewAliquot']['aliquot_type'] == 'core' && $aliquot['StorageMaster']['id']) {
+                if (! array_key_exists($aliquot['StorageMaster']['storage_control_id'], $tmaBlockStorageControlIds)) {
+                    $tmaBlockStorageControlIds[$aliquot['StorageMaster']['storage_control_id']] = $storageControlModel->find('count', array(
+                        'conditions' => array(
+                            'StorageControl.id' => $aliquot['StorageMaster']['storage_control_id'],
+                            'StorageControl.is_tma_block' => 1
+                        )
+                    ));
+                }
+                if ($tmaBlockStorageControlIds[$aliquot['StorageMaster']['storage_control_id']]) {
+                    $aliquot = array_merge(array(
+                        'TmaBlock' => $aliquot['StorageMaster']
+                    ), $aliquot);
+                }
+            }
         }
         
         // Get list of aliquot uses

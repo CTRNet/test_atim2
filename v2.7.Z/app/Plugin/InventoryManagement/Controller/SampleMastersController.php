@@ -24,6 +24,7 @@ class SampleMastersController extends InventoryManagementAppController
         'InventoryManagement.SourceAliquot',
         'InventoryManagement.QualityCtrl',
         'InventoryManagement.SpecimenReviewMaster',
+        'InventoryManagement.AliquotReviewMaster',
         
         'InventoryManagement.Realiquoting',
         
@@ -74,6 +75,27 @@ class SampleMastersController extends InventoryManagementAppController
     {
         $this->Collection->getOrRedirect($collectionId);
         
+        // To sort data based on date        
+        $tmpArray = array();        
+        $aS = array(
+            '±' => 0,
+            'y' => 1,
+            'm' => 2,
+            'd' => 3,
+            'h' => 4,
+            'i' => 5,
+            'c' => 6,
+            '' => 7
+        );        
+        $addToTmpArray = function (array $in, $model, $dateField, $accuracyField) use ($aS, &$tmpArray) {
+            if ($in[$model][$dateField]) {
+                $tmpArray[$in[$model][$dateField] . $aS[$in[$model][$accuracyField]]][] = $in;
+            } else {
+                $tmpArray[' '][] = $in;
+            }
+        };
+        
+        // Main Code        
         if ($isAjax) {
             $this->layout = 'ajax';
             Configure::write('debug', 0);
@@ -85,6 +107,8 @@ class SampleMastersController extends InventoryManagementAppController
         }
         $atimStructure['SampleMaster'] = $this->Structures->get('form', 'sample_masters_for_collection_tree_view');
         $atimStructure['AliquotMaster'] = $this->Structures->get('form', 'aliquot_masters_for_collection_tree_view');
+        $atimStructure['SampleUseForCollectionTreeView'] = $this->Structures->get('form', 'sample_uses_for_collection_tree_view');      
+        
         $this->set('atimStructure', $atimStructure);
         $this->set("collectionId", $collectionId);
         $this->set("isAjax", $isAjax);
@@ -119,15 +143,7 @@ class SampleMastersController extends InventoryManagementAppController
                 'recursive' => 0
             ));
             foreach ($this->request->data as &$newSample)
-                $newSample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array(
-                    '',
-                    'c',
-                    'i'
-                ), array(
-                    'h',
-                    'h',
-                    'h'
-                ), $newSample['DerivativeDetail']['creation_datetime_accuracy']);
+                $newSample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h', 'h', 'h'), $newSample['DerivativeDetail']['creation_datetime_accuracy']);
         }
         
         $ids = array();
@@ -138,7 +154,15 @@ class SampleMastersController extends InventoryManagementAppController
         foreach ($this->request->data as &$unit) {
             $unit['children'] = array_key_exists($unit['SampleMaster']['id'], $ids);
         }
+        
         if ($sampleMasterId != 0) {
+            
+            // Display aliquots first then all other linked records (sample, quality controls , etc) ordered on dates
+            foreach ($this->request->data as $unit_2) {
+                $addToTmpArray($unit_2, 'DerivativeDetail', 'creation_datetime', 'creation_datetime_accuracy');
+            }
+            $this->request->data = array();
+            
             // aliquots that are not realiquots
             $this->AliquotMaster->unbindModel(array(
                 'belongsTo' => array(
@@ -176,12 +200,90 @@ class SampleMastersController extends InventoryManagementAppController
                 ),
                 'recursive' => 0
             ));
-            
+            $tmaBlockStorageControlIds = array();
+            $storageControlModel = AppModel::getInstance("StorageLayout", "StorageControl", true);
             foreach ($aliquots as &$aliquot) {
                 $aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquotIdsHasChild);
                 $aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
+                // Check aliquot is a TMA core, - To change 'aliquot' icon to 'Tma Block' icon
+                if ($aliquot['ViewAliquot']['aliquot_type'] == 'core' && $aliquot['StorageMaster']['id']) {
+                    if (! array_key_exists($aliquot['StorageMaster']['storage_control_id'], $tmaBlockStorageControlIds)) {
+                        $tmaBlockStorageControlIds[$aliquot['StorageMaster']['storage_control_id']] = $storageControlModel->find('count', array(
+                            'conditions' => array(
+                                'StorageControl.id' => $aliquot['StorageMaster']['storage_control_id'],
+                                'StorageControl.is_tma_block' => 1
+                            )
+                        ));
+                    }
+                    if ($tmaBlockStorageControlIds[$aliquot['StorageMaster']['storage_control_id']]) {
+                        $aliquot = array_merge(array(
+                            'TmaBlock' => $aliquot['StorageMaster']
+                        ), $aliquot);
+                    }
+                }
             }
-            $this->request->data = array_merge($aliquots, $this->request->data);
+            $this->request->data = $aliquots;
+                
+            // Add sample Specimen Review that is not linked to an aliquot
+            foreach ($this->SpecimenReviewMaster->find('all', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sampleMasterId))) as $newSpecimenReview) {
+                $aliquotReviewMasterConditions = array(
+                    'AliquotReviewMaster.specimen_review_master_id' => $newSpecimenReview['SpecimenReviewMaster']['id']
+                );
+                if (! $this->AliquotReviewMaster->find('count', array('conditions' => $aliquotReviewMasterConditions))) {
+                    $formatedSpecimenReviewData = array_merge($newSpecimenReview, array(
+                        'Generated' => array(
+                            'sample_use_definition' => __('specimen review'),
+                            'sample_use_code' => $newSpecimenReview['SpecimenReviewMaster']['review_code'],
+                            'sample_use_date' => $newSpecimenReview['SpecimenReviewMaster']['review_date'],
+                            'sample_use_date_accuracy' => $newSpecimenReview['SpecimenReviewMaster']['review_date_accuracy']
+                        )
+                    ));
+                    $addToTmpArray($formatedSpecimenReviewData, 'Generated', 'sample_use_date', 'sample_use_date_accuracy');
+                }
+            }
+            
+            // Add sample Specimen Review that is not linked to an aliquot
+            foreach ($this->QualityCtrl->find('all', array('conditions' => array('QualityCtrl.sample_master_id' => $sampleMasterId, 'QualityCtrl.aliquot_master_id IS NULL'))) as $newQualityCtrl) {
+                $formatedQualityCtrlData = array_merge($newQualityCtrl, array(
+                    'Generated' => array(
+                        'sample_use_definition' => __('quality control'),
+                        'sample_use_code' => $newQualityCtrl['QualityCtrl']['qc_code'],
+                        'sample_use_date' => $newQualityCtrl['QualityCtrl']['date'],
+                        'sample_use_date_accuracy' => $newQualityCtrl['QualityCtrl']['date_accuracy']
+                    )
+                ));
+                $addToTmpArray($formatedQualityCtrlData, 'Generated', 'sample_use_date', 'sample_use_date_accuracy');
+            }
+            
+            // *** Sort data ***
+            
+            // sort the tmpArray by key (key = date)
+            ksort($tmpArray);
+            $tmpArray2 = array();
+            foreach ($tmpArray as $dateWAccu => $elements) {
+                $date = substr($dateWAccu, 0, - 1);
+                if ($date == 0) {
+                    $date = '';
+                }
+                if (isset($tmpArray2[$date])) {
+                    $tmpArray2[$date] = array_merge($tmpArray2[$date], $elements);
+                } else {
+                    $tmpArray2[$date] = $elements;
+                }
+            }
+            $tmpArray = $tmpArray2;
+            
+            // transfer the tmpArray into $this->request->data
+            foreach ($tmpArray as $key => $values) {
+                foreach ($values as $value) {
+                    $date = $key;
+                    $time = null;
+                    if (strpos($date, " ") > 0) {
+                        list ($date, $time) = explode(" ", $date);
+                    }
+                    $this->request->data[] = $value;
+                }
+            }
         }
         
         // Set menu variables
