@@ -217,8 +217,8 @@ class AppController extends Controller
     }
 
     public function __construct($request = null, $response = null) {
-        $class_name = get_class($this);
-        $this->name = substr($class_name, 0, strlen(get_class($this)) - (strpos($class_name, 'ControllerCustom') === false ? 10 : 16));
+        $className = get_class($this);
+        $this->name = substr($className, 0, strlen(get_class($this)) - (strpos($className, 'ControllerCustom') === false ? 10 : 16));
         parent::__construct($request, $response);
     }    
     

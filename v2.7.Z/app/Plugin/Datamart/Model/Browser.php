@@ -301,7 +301,7 @@ class Browser extends DatamartAppModel
             unset($to);
             $stack = array();
             $stack[$currentId] = null;
-            $study_datamart_structure_id = null;
+            $studySatamartStructureId = null;
             while ($toArr) {
                 $nextToArr = array();
                 foreach ($toArr as $to) {
@@ -309,7 +309,7 @@ class Browser extends DatamartAppModel
                     $toPath = $to['path'];
                     $toPath[] = $toVal;
                     if ($browsingStructures[$toVal]['model'] == 'StudySummary') {
-                        $study_datamart_structure_id = $browsingStructures[$toVal]['id'];
+                        $studySatamartStructureId = $browsingStructures[$toVal]['id'];
                     }
                     if (array_key_exists($toVal, $stack) && count($stack) > 1) {
                         // already treated that, the count is there to allow reentrant
@@ -318,7 +318,7 @@ class Browser extends DatamartAppModel
                     } elseif (! isset($browsingStructures[$toVal])) {
                         // permissions denied
                         continue;
-                    } elseif ($study_datamart_structure_id && $study_datamart_structure_id != $browsingStructures[$toVal]['id'] && in_array($study_datamart_structure_id, $toPath)) {
+                    } elseif ($studySatamartStructureId && $studySatamartStructureId != $browsingStructures[$toVal]['id'] && in_array($studySatamartStructureId, $toPath)) {
                         // study can not be a 'bridge' between two datamart structures (see issue #3374: Databrowser: From misc identifiers to orders, the system go through Study)
 						continue;
                     }
