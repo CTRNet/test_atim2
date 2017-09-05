@@ -1918,7 +1918,7 @@ class StructuresHelper extends Helper
                 $dataJson = array(
                     'url' => isset($options['links']['tree_expand'][$expandKey]) ? $this->strReplaceLink($options['links']['tree_expand'][$expandKey], $dataVal) : ""
                 );
-                if ($dataJson['url'][0] == '/') {
+                if (isset($dataJson['url'][0]) && $dataJson['url'][0] == '/') {
                     $dataJson['url'] = substr($dataJson['url'], 1);
                 }
                 $dataJson = htmlentities(json_encode($dataJson));
