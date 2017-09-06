@@ -709,13 +709,16 @@ ul.root_menu_for_header li a, ul.main_menu_for_header li a {
     display: block;
     visibility: hidden;
     opacity: 0;
+    -webkit-transition: visibility 0.5s, opacity 0.5s, z-index 0.5s;
     transition: visibility 0.5s, opacity 0.5s, z-index 0.5s;
+    
 }
 
 ul.main_menu_for_header>li:hover .sub_menu_for_header {
     z-index: 2;
     visibility: visible;
     opacity: 1;
+    -webkit-transition: visibility 0.5s, opacity 0.5s linear, z-index 0.5s;
     transition: visibility 0.5s, opacity 0.5s linear, z-index 0.5s;
     display: block;
 }
@@ -1294,6 +1297,7 @@ ul.big_menu li:hover, ul.big_announcements li:hover {
 		color-stop(50%, #ffc), to(#ffe)); /* for webkit browsers */
 	background: -moz-linear-gradient(left, #ffe, #ffc, #ffe);
 	background: #ffe;
+        -webkit-transition: background 0.2s linear;
         transition: background 0.2s linear;
 }
 
@@ -2739,6 +2743,7 @@ table.structure.lineHighlight table.columns.index tbody tr:hover, table.structur
 
 table.structure.lineHighlight table.columns.index tbody tr, table.structure.lineHighlight table.columns.index tbody tr
 {
+    -webkit-transition: background 0.3s linear;    
     transition: background 0.3s linear;    
 }
 
@@ -2975,9 +2980,11 @@ div#default_popup{
 
 .highLightDuplicatedItem{
     background-color:rgb(147, 242, 159)!important; 
+    -webkit-transition: background-color 1s ease-out;
     transition: background-color 1s ease-out;
 }
 
 .notHighLightDuplicatedItem{
+    -webkit-transition: background-color 3s linear 0s!important;
     transition: background-color 3s linear 0s!important;
 }

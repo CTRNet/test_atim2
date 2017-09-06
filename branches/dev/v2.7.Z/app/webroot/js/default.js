@@ -2878,13 +2878,13 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}
 }
 
-    if (undefined(min)){
+    if (undef(min)){
         min=1;
     }
-    if (undefined(max)){
+    if (undef(max)){
         max=null;
     }
-    if (undefined(showAlert)){
+    if (undef(showAlert)){
         showAlert=true;
     }
 
@@ -2950,13 +2950,13 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}
 }
 
-    if (undefined(min)){
+    if (undef(min)){
         min=1;
     }
-    if (undefined(max)){
+    if (undef(max)){
         max=null;
     }
-    if (undefined(showAlert)){
+    if (undef(showAlert)){
         showAlert=true;
     }
     
@@ -3111,6 +3111,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
 }
 
-function undefined(x){
+function undef(x){
     return (typeof x === 'undefined');
 }
