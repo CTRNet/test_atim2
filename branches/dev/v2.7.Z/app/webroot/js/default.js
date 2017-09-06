@@ -2145,12 +2145,16 @@ function findDuplicatedSamples(currentUl){
 function highLightDuplicatedItem($this, duplicated, mode){
     if (mode===1){
         $this.addClass('highLightDuplicatedItem');
+        $this.removeClass('notHighLightDuplicatedItem');
         duplicated.forEach(function(item){
             item.addClass('highLightDuplicatedItem');
+            item.removeClass('notHighLightDuplicatedItem');
         });
     }else if (mode===0){
+        $this.addClass('notHighLightDuplicatedItem');
         $this.removeClass('highLightDuplicatedItem');
         duplicated.forEach(function(item){
+            item.addClass('notHighLightDuplicatedItem');
             item.removeClass('highLightDuplicatedItem');
         });
     }

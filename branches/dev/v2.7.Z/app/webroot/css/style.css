@@ -2974,10 +2974,10 @@ div#default_popup{
 }
 
 .highLightDuplicatedItem{
-    background-color:rgba(255,255,0,0.7)!important; 
-    transition: background-color 0.5s ease-out;
+    background-color:rgb(147, 242, 159)!important; 
+    transition: background-color 1s ease-out;
 }
 
 .notHighLightDuplicatedItem{
-    transition: background-color 1s ease-out;
+    transition: background-color 3s linear 0s!important;
 }
