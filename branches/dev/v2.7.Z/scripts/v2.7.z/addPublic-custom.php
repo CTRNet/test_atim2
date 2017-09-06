@@ -21,12 +21,14 @@ function convert($str, $file=null) {
 	global $k;
 	global $i;
 	global $output;
+
+    echo($i.'- '.$file."\n");
+	$output.=$i."- ".$file."\r\n";
+
     $name = '/'.
 		'\n\s+function\s&?[a-zA-Z_]+[a-zA-Z0-9_]*\('. '|'.
 		'\n\s+static\s+function\s&?[a-zA-Z_]+[a-zA-Z0-9_]*\('.
 		'/';
-    echo($i.'- '.$file."\n");
-	$output.=$i."- ".$file."\r\n";
 	$i++;
 	$k=1;
 
@@ -34,6 +36,19 @@ function convert($str, $file=null) {
 		return addPublic($matches[0]);	
 	},$str);
 
+    $pattern = 
+		'/'.
+		'<script>'.
+		'/';
+	
+	$m="";
+	preg_match($pattern, $str, $m, PREG_OFFSET_CAPTURE);
+	if (!empty($m) && $k!=1){
+		echo " ******** Pay attention to this file that contain Javascript code. ********** \n";
+		$output.=" ******** Pay attention to this file that contain Javascript code. ********** "."\r\n";
+	}
+	
+	
 	echo "\n";
 	$output.="\r\n";
 
