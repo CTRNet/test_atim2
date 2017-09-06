@@ -1,11 +1,11 @@
 <?php
 
-class StructureFormat extends AppModel {
+class StructureFormat extends AppModel
+{
 
-	var $name = 'StructureFormat';
+    public $name = 'StructureFormat';
 
-	var $belongsTo = array('StructureField');
-	
+    public $belongsTo = array(
+        'StructureField'
+    );
 }
-
-?>

@@ -1,42 +1,50 @@
 <?php
 
-class CodingIcdo3sController extends CodingIcdAppController{
+class CodingIcdo3sController extends CodingIcdAppController
+{
 
-	var $uses = array("CodingIcd.CodingIcdo3Topo", "CodingIcd.CodingIcdo3Morpho"); 
-	
-	var $icd_description_table_fields = array('description');
-	
-	/* 
-		Forms Helper appends a "tool" link to the "add" and "edit" form types
-		Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
-	*/
-	function tool($use_icd_type){
-		parent::tool($use_icd_type);
-		$this->set("use_icd_type", $use_icd_type);
-	}
-	
-	function search($use_icd_type = "topo", $is_tool = true){
-		$model_to_use = $this->getIcdo3Type($use_icd_type);
-		parent::globalSearch($is_tool, $model_to_use);
-		$this->set("use_icd_type", $use_icd_type);
-	}
-	
-	function autocomplete($use_icd_type = "topo"){
-		parent::globalAutocomplete($this->getIcdo3Type($use_icd_type));
-	}
-	
-	function getIcdo3Type($icd_type_name){
-		$model_to_use = null;
-		if($icd_type_name == "topo"){
-			$model_to_use = $this->CodingIcdo3Topo;
-		}else if($icd_type_name == "morpho"){
-			$model_to_use = $this->CodingIcdo3Morpho;
-		}else{
-			$this->CodingIcdo3Topos->validationErrors[][] = __("invalid model for icdo3 search [".$icd_type_name."]");
-			$model_to_use = $this->CodingIcdo3Topo;
-		}
-		return $model_to_use;
-	}
+    public $uses = array(
+        "CodingIcd.CodingIcdo3Topo",
+        "CodingIcd.CodingIcdo3Morpho"
+    );
+
+    public $icdDescriptionTableFields = array(
+        'description'
+    );
+
+    /*
+     * Forms Helper appends a "tool" link to the "add" and "edit" form types
+     * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
+     */
+    public function tool($useIcdType)
+    {
+        parent::tool($useIcdType);
+        $this->set("useIcdType", $useIcdType);
+    }
+
+    public function search($useIcdType = "topo", $isTool = true)
+    {
+        $modelToUse = $this->getIcdo3Type($useIcdType);
+        parent::globalSearch($isTool, $modelToUse);
+        $this->set("useIcdType", $useIcdType);
+    }
+
+    public function autocomplete($useIcdType = "topo")
+    {
+        parent::globalAutocomplete($this->getIcdo3Type($useIcdType));
+    }
+
+    public function getIcdo3Type($icdTypeName)
+    {
+        $modelToUse = null;
+        if ($icdTypeName == "topo") {
+            $modelToUse = $this->CodingIcdo3Topo;
+        } elseif ($icdTypeName == "morpho") {
+            $modelToUse = $this->CodingIcdo3Morpho;
+        } else {
+            $this->CodingIcdo3Topos->validationErrors[][] = __("invalid model for icdo3 search [" . $icdTypeName . "]");
+            $modelToUse = $this->CodingIcdo3Topo;
+        }
+        return $modelToUse;
+    }
 }
-
-?>

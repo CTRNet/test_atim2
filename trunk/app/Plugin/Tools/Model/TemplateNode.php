@@ -1,6 +1,7 @@
-<?php 
-class TemplateNode extends AppModel {
-	
-	var $useTable = 'template_nodes';
-	
+<?php
+
+class TemplateNode extends AppModel
+{
+
+    public $useTable = 'template_nodes';
 }

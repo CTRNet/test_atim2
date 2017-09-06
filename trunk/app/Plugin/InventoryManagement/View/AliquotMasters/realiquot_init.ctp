@@ -1,24 +1,27 @@
 <?php
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array(
-		'type' => 'add', 
-		'settings' => array('header' => __('realiquoting process') . ' - ' . __('aliquot type selection'), 'stretch' => false), 
-		'links' => array(
-			'top' => ($skip_lab_book_selection_step? '/InventoryManagement/AliquotMasters/'.$realiquoting_function.'/'.$aliquot_id : '/InventoryManagement/AliquotMasters/realiquotInit2/'.$process_type.'/'.$aliquot_id),
-			'bottom' => array('cancel' => $url_to_cancel)),
-		'extras' => '<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
-			<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
-			<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>'
-	);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'type' => 'add',
+    'settings' => array(
+        'header' => __('realiquoting process') . ' - ' . __('aliquot type selection'),
+        'stretch' => false
+    ),
+    'links' => array(
+        'top' => ($skipLabBookSelectionStep ? '/InventoryManagement/AliquotMasters/' . $realiquotingFunction . '/' . $aliquotId : '/InventoryManagement/AliquotMasters/realiquotInit2/' . $processType . '/' . $aliquotId),
+        'bottom' => array(
+            'cancel' => $urlToCancel
+        )
+    ),
+    'extras' => '<input type="hidden" name="data[sample_ctrl_id]" value="' . $sampleCtrlId . '"/>
+			<input type="hidden" name="data[realiquot_from]" value="' . $realiquotFrom . '"/>
+			<input type="hidden" name="data[url_to_cancel]" value="' . $urlToCancel . '"/>'
+);
 
-	// BUILD FORM
-	$this->Structures->build($final_atim_structure, $final_options);			
-		
-?>
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

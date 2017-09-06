@@ -1,7 +1,7 @@
 <?php
-class Page extends AppModel {
 
-	var $name = 'Page';
+class Page extends AppModel
+{
 
+    public $name = 'Page';
 }
-?>

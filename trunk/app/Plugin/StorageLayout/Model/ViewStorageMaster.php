@@ -1,23 +1,29 @@
 <?php
 
-class ViewStorageMaster extends StorageLayoutAppModel {
-    var $primaryKey = 'id';
-	var $base_model = "StorageMaster";
-	var $base_plugin = 'StorageLayout';
-	
-	var $belongsTo = array(
-		'StorageControl' => array(
-			'className'    => 'StorageLayout.StorageControl',
-			'foreignKey'    => 'storage_control_id'
-		),'StorageMaster'	=> array(
-			'className'    => 'StorageLayout.StorageMaster',
-			'foreignKey'    => 'id',
-			'type'			=> 'INNER')
-	);
-	
-	var $alias = 'ViewStorageMaster';
-	
-	static $table_query = '
+class ViewStorageMaster extends StorageLayoutAppModel
+{
+
+    public $primaryKey = 'id';
+
+    public $baseModel = "StorageMaster";
+
+    public $basePlugin = 'StorageLayout';
+
+    public $belongsTo = array(
+        'StorageControl' => array(
+            'className' => 'StorageLayout.StorageControl',
+            'foreignKey' => 'storage_control_id'
+        ),
+        'StorageMaster' => array(
+            'className' => 'StorageLayout.StorageMaster',
+            'foreignKey' => 'id',
+            'type' => 'INNER'
+        )
+    );
+
+    public $alias = 'ViewStorageMaster';
+
+    public static $tableQuery = '
 		SELECT StorageMaster.*, 
 		StorageControl.is_tma_block,
 		IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(ChildStorageMaster.id)) AS empty_spaces 
@@ -51,5 +57,3 @@ class ViewStorageMaster extends StorageLayoutAppModel {
 		StorageControl.coord_x_size,
 		StorageControl.coord_y_size';
 }
-
-?>
