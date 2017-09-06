@@ -1,6 +1,9 @@
 <?php
+
 class ShipmentContact extends OrderAppModel
 {
-	var $name = 'ShipmentContact';
-	var $useTable = 'shipment_contacts';
+
+    public $name = 'ShipmentContact';
+
+    public $useTable = 'shipment_contacts';
 }

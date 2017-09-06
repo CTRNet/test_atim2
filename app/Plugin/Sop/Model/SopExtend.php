@@ -2,9 +2,8 @@
 
 class SopExtend extends SopAppModel
 {
-	var $name = 'SopExtend';
-    var $useTable = false;
-	
-}
 
-?>
+    public $name = 'SopExtend';
+
+    public $useTable = false;
+}

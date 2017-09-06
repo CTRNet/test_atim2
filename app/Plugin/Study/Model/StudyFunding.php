@@ -2,9 +2,10 @@
 
 class StudyFunding extends StudyAppModel
 {
-    var $name = 'StudyFunding';
-	var $useTable = 'study_fundings';
-	
-	var $validate = array();
+
+    public $name = 'StudyFunding';
+
+    public $useTable = 'study_fundings';
+
+    public $validate = array();
 }
-?>

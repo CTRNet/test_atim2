@@ -1,7 +1,5 @@
 <?php
 
-class RtbformAppModel extends AppModel {
-
+class RtbformAppModel extends AppModel
+{
 }
-
-?>

@@ -13,7 +13,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Test.Case.Model.Datasource.Database
  * @since         CakePHP(tm) v 1.2.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Model', 'Model');
@@ -97,7 +97,7 @@ class SqlserverTestDb extends Sqlserver {
 /**
  * describe method
  *
- * @param object $model
+ * @param Model $model
  * @return void
  */
 	public function describe($model) {
@@ -114,16 +114,9 @@ class SqlserverTestDb extends Sqlserver {
 class SqlserverTestModel extends CakeTestModel {
 
 /**
- * name property
- *
- * @var string 'SqlserverTestModel'
- */
-	public $name = 'SqlserverTestModel';
-
-/**
  * useTable property
  *
- * @var boolean
+ * @var bool
  */
 	public $useTable = false;
 
@@ -187,16 +180,9 @@ class SqlserverTestModel extends CakeTestModel {
 class SqlserverClientTestModel extends CakeTestModel {
 
 /**
- * name property
- *
- * @var string 'SqlserverAssociatedTestModel'
- */
-	public $name = 'SqlserverClientTestModel';
-
-/**
  * useTable property
  *
- * @var boolean
+ * @var bool
  */
 	public $useTable = false;
 
@@ -262,7 +248,7 @@ class SqlserverTest extends CakeTestCase {
 /**
  * autoFixtures property
  *
- * @var boolean
+ * @var bool
  */
 	public $autoFixtures = false;
 
@@ -463,6 +449,15 @@ class SqlserverTest extends CakeTestCase {
 				'Null' => 'YES',
 				'Size' => '0',
 			),
+			(object)array(
+				'Default' => null,
+				'Field' => 'description',
+				'Key' => '0',
+				'Type' => 'text',
+				'Length' => 16,
+				'Null' => 'YES',
+				'Size' => '0',
+			),
 		));
 		$this->db->executeResultsStack = array($SqlserverTableDescription);
 		$dummyModel = $this->model;
@@ -499,6 +494,12 @@ class SqlserverTest extends CakeTestCase {
 				'default' => null,
 				'length' => 8,
 			),
+			'description' => array(
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null,
+			)
 		);
 		$this->assertEquals($expected, $result);
 		$this->assertSame($expected['parent_id'], $result['parent_id']);

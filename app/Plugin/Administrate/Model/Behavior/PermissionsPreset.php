@@ -1,4 +1,5 @@
 <?php
-class PermissionsPreset extends AdministrateAppModel {
-	
+
+class PermissionsPreset extends AdministrateAppModel
+{
 }

@@ -1,9 +1,7 @@
 <?php
 
-class AliquotReviewControl extends InventoryManagementAppModel {
-	
-	var $master_form_alias = 'aliquot_review_masters';
-	
-}
+class AliquotReviewControl extends InventoryManagementAppModel
+{
 
-?>
+    public $masterFormAlias = 'aliquot_review_masters';
+}

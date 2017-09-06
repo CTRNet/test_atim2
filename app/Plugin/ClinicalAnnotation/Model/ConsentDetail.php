@@ -1,7 +1,7 @@
 <?php
 
-class ConsentDetail extends ClinicalAnnotationAppModel {
-	var $useTable = false;
-}
+class ConsentDetail extends ClinicalAnnotationAppModel
+{
 
-?>
+    public $useTable = false;
+}

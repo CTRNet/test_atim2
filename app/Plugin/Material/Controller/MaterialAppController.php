@@ -1,7 +1,5 @@
 <?php
 
-class MaterialAppController extends AppController {	
-	
+class MaterialAppController extends AppController
+{
 }
-
-?>

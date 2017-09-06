@@ -1,156 +1,185 @@
 <?php
 
-class StudyFundingsController extends StudyAppController {
-		
-	var $uses = array('Study.StudyFunding','Study.StudySummary');
-	var $paginate = array('StudyFunding'=>array('limit' => 5, 'order'=>'StudyFunding.study_sponsor'));
-	
-	function add( $study_summary_id ) {
-		$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
-	
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/Study/StudySummaries/detail/') );
-		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
-	
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) {
-			require($hook_link);
-		}
-	
-		if (empty($this->request->data) ) {
-			$this->request->data = array(array());
-				
-			$hook_link = $this->hook('initial_display');
-			if($hook_link){
-				require($hook_link);
-			}
-		} else {
-			
-			$this->request->data['StudyFunding']['study_summary_id'] = $study_summary_id;
-			$this->StudyFunding->addWritableField(array('study_summary_id'));
-				
-			$submitted_data_validates = true;
-				
-			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) {
-				require($hook_link);
-			}
-				
-			if($submitted_data_validates) {
-				if( $this->StudyFunding->save($this->request->data) ) {
-					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) {
-						require($hook_link);
-					}
-					$this->atimFlash(__('your data has been saved'), '/Study/StudySummaries/detail/'.$study_summary_id.'/');
-				}
-			}
-		}
-	
-	}
-	
-	function listall( $study_summary_id ) {
-		// MANAGE DATA
-		$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
+class StudyFundingsController extends StudyAppController
+{
 
-		$this->request->data = $this->paginate($this->StudyFunding, array('StudyFunding.study_summary_id'=>$study_summary_id));
-	
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/Study/StudySummaries/detail/') );
-		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-   		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
-		}
-	}
+    public $uses = array(
+        'Study.StudyFunding',
+        'Study.StudySummary'
+    );
 
+    public $paginate = array(
+        'StudyFunding' => array(
+            'limit' => 5,
+            'order' => 'StudyFunding.study_sponsor'
+        )
+    );
 
-	function detail( $study_summary_id, $study_funding_id ) {
-		// MANAGE DATA
-    	$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
-		$this->request->data = $this->StudyFunding->getOrRedirect($study_funding_id);
-		
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/Study/StudySummaries/detail/') );
-		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-   		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
-		}
-	}
-	
-	function edit( $study_summary_id, $study_funding_id ) {
-		// MANAGE DATA
-		$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
-		$study_funding_data= $this->StudyFunding->getOrRedirect($study_funding_id);
+    public function add($studySummaryId)
+    {
+        $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
+        
+        // MANAGE FORM, MENU AND ACTION BUTTONS
+        $this->set('atimMenu', $this->Menus->get('/Study/StudySummaries/detail/'));
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId
+        ));
+        
+        // CUSTOM CODE: FORMAT DISPLAY DATA
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
+        if (empty($this->request->data)) {
+            $this->request->data = array(
+                array()
+            );
+            
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+        } else {
+            
+            $this->request->data['StudyFunding']['study_summary_id'] = $studySummaryId;
+            $this->StudyFunding->addWritableField(array(
+                'study_summary_id'
+            ));
+            
+            $submittedDataValidates = true;
+            
+            // CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+            
+            if ($submittedDataValidates) {
+                if ($this->StudyFunding->save($this->request->data)) {
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
+                    }
+                    $this->atimFlash(__('your data has been saved'), '/Study/StudySummaries/detail/' . $studySummaryId . '/');
+                }
+            }
+        }
+    }
 
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/Study/StudySummaries/detail/') );
-		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-		
-		if (empty($this->request->data) ) {
-			$this->request->data = $study_funding_data;
-				
-			$hook_link = $this->hook('initial_display');
-			if($hook_link){
-				require($hook_link);
-			}
-			
-		} else {
+    public function listall($studySummaryId)
+    {
+        // MANAGE DATA
+        $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
+        
+        $this->request->data = $this->paginate($this->StudyFunding, array(
+            'StudyFunding.study_summary_id' => $studySummaryId
+        ));
+        
+        // MANAGE FORM, MENU AND ACTION BUTTONS
+        $this->set('atimMenu', $this->Menus->get('/Study/StudySummaries/detail/'));
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId
+        ));
+        
+        // CUSTOM CODE: FORMAT DISPLAY DATA
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+    }
 
-			$submitted_data_validates = true;
+    public function detail($studySummaryId, $studyFundingId)
+    {
+        // MANAGE DATA
+        $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
+        $this->request->data = $this->StudyFunding->getOrRedirect($studyFundingId);
+        
+        // MANAGE FORM, MENU AND ACTION BUTTONS
+        $this->set('atimMenu', $this->Menus->get('/Study/StudySummaries/detail/'));
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId
+        ));
+        
+        // CUSTOM CODE: FORMAT DISPLAY DATA
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+    }
 
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { 
-				require($hook_link); 
-			}
+    public function edit($studySummaryId, $studyFundingId)
+    {
+        // MANAGE DATA
+        $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
+        $studyFundingData = $this->StudyFunding->getOrRedirect($studyFundingId);
+        
+        // MANAGE FORM, MENU AND ACTION BUTTONS
+        $this->set('atimMenu', $this->Menus->get('/Study/StudySummaries/detail/'));
+        $this->set('atimMenuVariables', array(
+            'StudySummary.id' => $studySummaryId,
+            'StudyFunding.id' => $studyFundingId
+        ));
+        
+        // CUSTOM CODE: FORMAT DISPLAY DATA
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
+        if (empty($this->request->data)) {
+            $this->request->data = $studyFundingData;
+            
+            $hookLink = $this->hook('initial_display');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+        } else {
+            
+            $submittedDataValidates = true;
+            
+            $hookLink = $this->hook('presave_process');
+            if ($hookLink) {
+                require ($hookLink);
+            }
+            
+            if ($submittedDataValidates) {
+                
+                $this->StudyFunding->id = $studyFundingId;
+                if ($this->StudyFunding->save($this->request->data)) {
+                    $hookLink = $this->hook('postsave_process');
+                    if ($hookLink) {
+                        require ($hookLink);
+                    }
+                    $this->atimFlash(__('your data has been updated'), '/Study/StudySummaries/detail/' . $studySummaryId . '/');
+                }
+            }
+        }
+    }
 
-			if($submitted_data_validates) {
-
-				$this->StudyFunding->id = $study_funding_id;
-				if ( $this->StudyFunding->save($this->request->data) ) {
-					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) {
-						require($hook_link);
-					}
-					$this->atimFlash(__('your data has been updated'), '/Study/StudySummaries/detail/'.$study_summary_id.'/');
-				}
-			}
-		}
-	}
-	
-	function delete( $study_summary_id, $study_funding_id ) {
-		// MANAGE DATA
-		$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
-		$study_funding_data= $this->StudyFunding->getOrRedirect($study_funding_id);
-
-		$arr_allow_deletion = $this->StudyFunding->allowDeletion($study_funding_id);
-
-		// CUSTOM CODE
-		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }
-
-		if($arr_allow_deletion['allow_deletion']) {
-			$this->StudyFunding->data = null;
-			if( $this->StudyFunding->atimDelete( $study_funding_id ) ) {
-				$this->atimFlash(__('your data has been deleted'), '/Study/StudySummaries/detail/'.$study_summary_id.'/' );
-			} else {
-				$this->flash(__('error deleting data - contact administrator.'), '/Study/StudySummaries/detail/'.$study_summary_id.'/' );
-			}
-		} else {
-			$this->flash(__($arr_allow_deletion['msg']), '/Study/StudyFundings/detail/'.$study_summary_id.'/'.$study_funding_id);
-		}
-	}
+    public function delete($studySummaryId, $studyFundingId)
+    {
+        // MANAGE DATA
+        $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
+        $studyFundingData = $this->StudyFunding->getOrRedirect($studyFundingId);
+        
+        $arrAllowDeletion = $this->StudyFunding->allowDeletion($studyFundingId);
+        
+        // CUSTOM CODE
+        $hookLink = $this->hook('delete');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+        
+        if ($arrAllowDeletion['allow_deletion']) {
+            $this->StudyFunding->data = null;
+            if ($this->StudyFunding->atimDelete($studyFundingId)) {
+                $this->atimFlash(__('your data has been deleted'), '/Study/StudySummaries/detail/' . $studySummaryId . '/');
+            } else {
+                $this->atimFlashError(__('error deleting data - contact administrator.'), '/Study/StudySummaries/detail/' . $studySummaryId . '/');
+            }
+        } else {
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), '/Study/StudyFundings/detail/' . $studySummaryId . '/' . $studyFundingId);
+        }
+    }
 }
-
-?>
