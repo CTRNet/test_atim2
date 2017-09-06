@@ -2117,7 +2117,7 @@ function findDuplicatedSamples(currentUl){
             if (c.url===d.url){
                 d.duplicated.push(c.item);
                 d.duplicated=d.duplicated.concat(c.duplicated).sort();
-                d.duplicated=d.duplicated.filter((value,pos) => {return d.duplicated.indexOf(value) === pos;});
+                d.duplicated=d.duplicated.filter(function(value,pos) {return d.duplicated.indexOf(value) === pos;});
                 d.item.data("duplicated", d.duplicated);
                 c.duplicated.push(d.item);
                 c.item.data("duplicated", c.duplicated);
@@ -2155,7 +2155,6 @@ function highLightDuplicatedItem($this, duplicated, mode){
         });
     }
 }
-
 
 /**
  * Called when a detail view is displayed in within the same page as the tree view
@@ -2860,7 +2859,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
 }
 
-function arrayObjSizeCheck($this, arr, min = 1, max = null, showAlert = true)
+function arrayObjSizeCheck($this, arr, min, max, showAlert)
 {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -2874,6 +2873,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
+
+    if (undefined(min)){
+        min=1;
+    }
+    if (undefined(max)){
+        max=null;
+    }
+    if (undefined(showAlert)){
+        showAlert=true;
+    }
 
     if (arr instanceof jQuery) {
         arr = $.makeArray(arr);
@@ -2922,7 +2931,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     return false;
 }
 
-function checkData($this, min = 1, max = null, showAlert = true)
+function checkData($this, min, max, showAlert)
 {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -2937,6 +2946,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}
 }
 
+    if (undefined(min)){
+        min=1;
+    }
+    if (undefined(max)){
+        max=null;
+    }
+    if (undefined(showAlert)){
+        showAlert=true;
+    }
+    
     data = $("input[name^='data[" + dataIndex + "]'][type!='hidden']");
     if (!arrayObjSizeCheck($this, data, min, max, showAlert)) {
         return false;
@@ -3088,18 +3107,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
 }
 
-
-//var functionsNameArray=[actionMouseweelHandler, initDatepicker, showDatePicker, setFieldSpan, initAdvancedControls, removeParentRow, initAutocomplete, initAutocomplete, initAliquotVolumeCheck, refreshTopBaseOnAction, initActionControl, initCheckAll, buildDialog, buildConfirmDialog, initToolPopup, initFlyOverCellsLines, initAddLine, resizeFloatingBckGrnd, removeLine, initAjaxClass, initLabBook, labBookFieldsToggle, initLabBookPopup, labBookPopupAddForm, initCheckboxes, initAccuracy, flyOverComponents, initAutoHideVolume, handleSearchResultLinks, databrowserToggleSearchBox, warningMoreInfoClick, sessionExpired, cookieWatch, initFileOptions, initJsControls, closeLog, showHint, countLines, putIntoRelDiv, initFlyOverCells, globalInit, treeViewNodeClick, initTreeView, openDeleteConfirmPopup, openSaveBrowsingStepsPopup, popupSubmit, fetchingBeamCheck, sectionCtrl, checkboxIndexFunction, saveCheckedToArray, checkboxIndexLineFunction, dataSavedFadeout, setCsvPopup, selectedItemZonePopup, submitChecks, initIndexZones, arrayObjSizeCheck, checkData, standardSubmit, buildConfirmDialog, clickSubmitButton, miscIdPopup, dataBrowserHelp];
-//
-//for (var func=0; func<functionsNameArray.length; func++){
-//    functionsNameArray[func] = (function() {
-//    var cached_function = functionsNameArray[func];
-//
-//    return function() {
-//        console.log(cached_function.name);
-//
-//        var result = cached_function.apply(this, arguments); // use .apply() to call it
-//        return result;
-//    };
-//})();    
-//}
+function undefined(x){
+    return (typeof x === 'undefined');
+}
