@@ -3,13 +3,8 @@
 //First Line of any main.php file
 require_once 'system.php';
 
-$excel_file_name = 'Blocks-A-Migrer.xls';
-$worksheet_name = 'HD BLOCK';
-
-realiquotings
-realiquoted_by
-realiquoting_datetime
-realiquoting_datetime_accuracy
+$excel_file_name = 'HD Block Nicola 25-08-2017_nl_revised.xls';
+$worksheet_name = 'HD BLOCKS 25-08-2017';
 
 displayMigrationTitle('ATiM - LD LYMPHOMA - Blocks and slides migration', array($excel_file_name));
 
@@ -67,14 +62,16 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 		//Check blocks don't exist in ATiM
 		$blocks_to_migrate = array();
 		for ($i = 1; $i <= 4; $i++) {
-			$barcode = trim($excel_line_data['Block#'.$i]);
-			if(strlen($barcode)) {
-				if(!getSelectQueryResult("SELECT id FROM aliquot_masters WHERE barcode = '$barcode' AND deleted <> 1")) {
-					$blocks_to_migrate[] = $barcode;
-				} else {
-					recordErrorAndMessage('Aliquot', '@@ERROR@@', "Tissue block barcode already exists into ATiM. No block and slide will be created. Please review ATiM data and validate migration.", "Barcode = [$barcode]. $msg");
-				}
-			}
+		    if(array_key_exists('Block#'.$i, $excel_line_data)) {
+    			$barcode = trim($excel_line_data['Block#'.$i]);
+    			if(strlen($barcode)) {
+    				if(!getSelectQueryResult("SELECT id FROM aliquot_masters WHERE barcode = '$barcode' AND deleted <> 1")) {
+    					$blocks_to_migrate[] = $barcode;
+    				} else {
+    					recordErrorAndMessage('Aliquot', '@@ERROR@@', "Tissue block barcode already exists into ATiM. No block and slide will be created. Please review ATiM data and validate migration.", "Barcode = [$barcode]. $msg");
+    				}
+    			}
+		    }
 		}
 		if(empty($blocks_to_migrate)) {
 			recordErrorAndMessage('Aliquot', '@@WARNING@@', "No tissue block to migrate for the participant. Please review ATiM data and validate migration.", "$msg");
@@ -178,7 +175,9 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 		} else {
 			$default_number += 1;
 		}
-		if(strlen($default_number) == 4) $default_number = '0'.$default_number;
+		if(strlen($default_number) < 5) {
+		    $default_number = sprintf( "%05d", $default_number );
+		}
 		// -- $default_number
 		$validated_excel_tissue_source = validateAndGetStructureDomainValue($excel_site, 'custom_tissue_source_list', 'Collection & Sample', "The source of the tissue (excel value) won't be used to create the tissue. Please review and update data after migration.", 'Source', $msg);
 		// -- create tissue
@@ -212,8 +211,7 @@ while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_na
 					'notes' => "Created by blocks migration process on '$import_date'."),
 				$atim_controls['aliquot_controls']['tissue-block']['detail_tablename'] => array(
 					'block_type' => 'paraffin'));
-			$block_aliquot_master_id = customInsertRecord($aliquot_data);
-				
+			$block_aliquot_master_id = customInsertRecord($aliquot_data);			
 			//Create slide
 			for($id = 1; $id <= 20; $id++) {
 				$slide_id++;
