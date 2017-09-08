@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class RtbformsController
+ */
 class RtbformsController extends RtbformAppController
 {
 
@@ -18,6 +21,9 @@ class RtbformsController extends RtbformAppController
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
     }
 
+    /**
+     * @param $searchId
+     */
     public function search($searchId)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -30,6 +36,9 @@ class RtbformsController extends RtbformAppController
         }
     }
 
+    /**
+     * @param null $rtbformId
+     */
     public function profile($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -61,6 +70,9 @@ class RtbformsController extends RtbformAppController
         }
     }
 
+    /**
+     * @param null $rtbformId
+     */
     public function edit($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -88,6 +100,9 @@ class RtbformsController extends RtbformAppController
         }
     }
 
+    /**
+     * @param null $rtbformId
+     */
     public function delete($rtbformId = null)
     {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AliquotControl
+ */
 class AliquotControl extends InventoryManagementAppModel
 {
 
@@ -29,6 +32,11 @@ class AliquotControl extends InventoryManagementAppModel
         return $this->getAliquotsTypePermissibleValues(false, null);
     }
 
+    /**
+     * @param $useId
+     * @param $parentSampleControlId
+     * @return array
+     */
     public function getAliquotsTypePermissibleValues($useId, $parentSampleControlId)
     {
         $result = array();
@@ -73,6 +81,10 @@ class AliquotControl extends InventoryManagementAppModel
         return $result;
     }
 
+    /**
+     * @param $parentSampleControlId
+     * @return array
+     */
     public function getPermissibleAliquotsArray($parentSampleControlId)
     {
         $conditions = array(
@@ -161,6 +173,11 @@ class AliquotControl extends InventoryManagementAppModel
         return $workingArray;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

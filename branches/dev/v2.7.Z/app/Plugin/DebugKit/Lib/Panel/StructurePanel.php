@@ -45,6 +45,9 @@ class StructurePanel extends DebugPanel
     public function beforeRender(Controller $controller)
     {}
 
+    /**
+     * @param Controller $controller
+     */
     public function startup(Controller $controller)
     {}
 }

@@ -1,44 +1,73 @@
 <?php
 
+/**
+ * Class ClinicalAnnotationAppModel
+ */
 class ClinicalAnnotationAppModel extends AppModel
 {
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function validateIcd10WhoCode($id)
     {
         $icd10Model = AppModel::getInstance('CodingIcd', 'CodingIcd10Who', true);
         return $icd10Model::validateId($id);
     }
 
+    /**
+     * @return mixed
+     */
     public function getSecondaryIcd10WhoCodesList()
     {
         $icd10Model = AppModel::getInstance('CodingIcd', 'CodingIcd10Who', true);
         return $icd10Model::getSecondaryDiagnosisList();
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function validateIcd10CaCode($id)
     {
         $icd10Model = AppModel::getInstance('CodingIcd', 'CodingIcd10Ca', true);
         return $icd10Model::validateId($id);
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function validateIcdo3TopoCode($id)
     {
         $icdO3TopoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
         return $icdO3TopoModel::validateId($id);
     }
 
+    /**
+     * @return mixed
+     */
     public function getIcdO3TopoCategoriesCodes()
     {
         $icdO3TopoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
         return $icdO3TopoModel::getTopoCategoriesCodes();
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function validateIcdo3MorphoCode($id)
     {
         $icdO3MorphoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Morpho', true);
         return $icdO3MorphoModel::validateId($id);
     }
 
+    /**
+     * @param bool $created
+     * @param array $options
+     */
     public function afterSave($created, $options = array())
     {
         if ($this->name != 'Participant') {

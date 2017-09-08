@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SpecimenReviewControl
+ */
 class SpecimenReviewControl extends InventoryManagementAppModel
 {
 

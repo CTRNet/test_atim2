@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MenusController
+ */
 class MenusController extends AdministrateAppController
 {
 
@@ -26,6 +29,9 @@ class MenusController extends AdministrateAppController
         ));
     }
 
+    /**
+     * @param $menuId
+     */
     public function detail($menuId)
     {
         $this->set('atimMenuVariables', array(
@@ -39,6 +45,9 @@ class MenusController extends AdministrateAppController
         ));
     }
 
+    /**
+     * @param $bankId
+     */
     public function edit($bankId)
     {
         $this->set('atimMenuVariables', array(

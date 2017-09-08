@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AtimAro
+ */
 class AtimAro extends Aro
 {
 

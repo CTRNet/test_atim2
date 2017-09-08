@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Realiquoting
+ */
 class Realiquoting extends InventoryManagementAppModel
 {
 

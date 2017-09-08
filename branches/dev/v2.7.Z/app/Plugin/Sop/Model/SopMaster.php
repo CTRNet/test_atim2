@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SopMaster
+ */
 class SopMaster extends SopAppModel
 {
 
@@ -14,6 +17,10 @@ class SopMaster extends SopAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -108,6 +115,9 @@ class SopMaster extends SopAppModel
         return $this->getAllSopPermissibleValues();
     }
 
+    /**
+     * @return array
+     */
     public function getAllSopPermissibleValues()
     {
         $result = array();
@@ -123,6 +133,10 @@ class SopMaster extends SopAppModel
         return $result;
     }
 
+    /**
+     * @param int $sopMasterId
+     * @return array
+     */
     public function allowDeletion($sopMasterId)
     {
         $ctrlModel = AppModel::getInstance("StorageLayout", "TmaSlide", true);

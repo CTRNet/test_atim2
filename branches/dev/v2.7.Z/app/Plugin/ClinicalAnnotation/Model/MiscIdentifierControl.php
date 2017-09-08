@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MiscIdentifierControl
+ */
 class MiscIdentifierControl extends ClinicalAnnotationAppModel
 {
 
@@ -53,6 +56,9 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @return array|null
+     */
     public function getConfidentialIds()
     {
         if ($this->confidentialIds == null) {

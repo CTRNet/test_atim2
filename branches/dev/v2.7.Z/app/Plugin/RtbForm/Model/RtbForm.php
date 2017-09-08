@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Rtbform
+ */
 class Rtbform extends RtbFormAppModel
 {
 
@@ -7,6 +10,10 @@ class Rtbform extends RtbFormAppModel
 
     public $useTable = 'rtbforms';
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;

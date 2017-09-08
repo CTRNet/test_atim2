@@ -143,8 +143,9 @@ class RevisionBehavior extends ModelBehavior
     /**
      * Configure the behavior through the Model::actsAs property
      *
-     * @param object $Model            
-     * @param array $config            
+     * @param Model $model
+     * @param array $config
+     * @internal param object $Model
      */
     public function setup(Model $model, $config = array())
     {
@@ -850,8 +851,9 @@ class RevisionBehavior extends ModelBehavior
      * Calls create revision for all rows matching primary key list of $idlist
      *
      * @example $this->Model->updateRevisions(array(1,2,3));
-     * @param object $Model            
-     * @param array $idlist            
+     * @param object $Model
+     * @param array $idlist
+     * @return null
      */
     public function updateRevisions(&$Model, $idlist = array())
     {
@@ -871,7 +873,9 @@ class RevisionBehavior extends ModelBehavior
      * BeforeDelete identifies the related models that will need
      * to do the revision update in afterDelete. Uses
      *
-     * @param unknown_type $Model            
+     * @param Model $model
+     * @return bool|void
+     * @internal param unknown_type $Model
      */
     public function afterDelete(Model $model)
     {
@@ -894,9 +898,11 @@ class RevisionBehavior extends ModelBehavior
      *
      * Also deletes oldest revision if limit is (active and) reached.
      *
-     * @param object $Model            
-     * @param boolean $created            
-     * @return boolean
+     * @param Model $model
+     * @param boolean $created
+     * @param array $options
+     * @return bool
+     * @internal param object $Model
      */
     public function afterSave(Model $model, $created, $options = array())
     {
@@ -1014,8 +1020,10 @@ class RevisionBehavior extends ModelBehavior
      * BeforeDelete identifies the related models that will need
      * to do the revision update in afterDelete.
      *
-     * @param object $Model            
-     * @return boolean
+     * @param Model $model
+     * @param bool $cascade
+     * @return bool
+     * @internal param object $Model
      */
     public function beforeDelete(Model $model, $cascade = true)
     {
@@ -1042,8 +1050,10 @@ class RevisionBehavior extends ModelBehavior
     /**
      * Revision uses the beforeSave callback to remember the old data for comparison in afterSave
      *
-     * @param object $Model            
-     * @return boolean
+     * @param Model $model
+     * @param array $options
+     * @return bool
+     * @internal param object $Model
      */
     public function beforeSave(Model $model, $options = array())
     {
@@ -1124,6 +1134,10 @@ class RevisionBehavior extends ModelBehavior
         return true;
     }
 
+    /**
+     * @param $Model
+     * @return bool
+     */
     public function fmlh(&$Model)
     {
         echo "Rev\n";

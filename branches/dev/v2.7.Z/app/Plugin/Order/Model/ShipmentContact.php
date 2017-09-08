@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ShipmentContact
+ */
 class ShipmentContact extends OrderAppModel
 {
 

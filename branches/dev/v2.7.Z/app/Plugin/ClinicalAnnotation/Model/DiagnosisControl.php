@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class DiagnosisControl
+ */
 class DiagnosisControl extends ClinicalAnnotationAppModel
 {
 
@@ -29,6 +32,9 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @return array
+     */
     public function getTypePermissibleValues()
     {
         $result = array();
@@ -46,6 +52,9 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @return array
+     */
     public function getCategoryPermissibleValues()
     {
         $result = array();
@@ -63,6 +72,11 @@ class DiagnosisControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

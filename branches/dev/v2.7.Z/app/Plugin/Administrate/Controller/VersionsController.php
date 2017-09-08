@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class VersionsController
+ */
 class VersionsController extends AdministrateAppController
 {
 

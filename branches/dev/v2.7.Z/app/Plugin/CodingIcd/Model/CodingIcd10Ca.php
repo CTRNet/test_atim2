@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class CodingIcd10Ca
+ */
 class CodingIcd10Ca extends CodingIcdAppModel
 {
 
@@ -27,17 +30,27 @@ class CodingIcd10Ca extends CodingIcdAppModel
 
     public $validate = array();
 
+    /**
+     * CodingIcd10Ca constructor.
+     */
     public function __construct()
     {
         parent::__construct();
         self::$singleton = $this;
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public static function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
+    /**
+     * @return CodingIcd10Ca|null
+     */
     public static function getSingleton()
     {
         return self::$singleton;

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructureValueDomain
+ */
 class StructureValueDomain extends AppModel
 {
 
@@ -12,6 +15,11 @@ class StructureValueDomain extends AppModel
         )
     );
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         if (isset($results[0])) {
@@ -47,6 +55,10 @@ class StructureValueDomain extends AppModel
         return $results;
     }
 
+    /**
+     * @param array $structureValueDomain
+     * @param $dropdownResult
+     */
     public function updateDropdownResult(array $structureValueDomain, &$dropdownResult)
     {
         if (strlen($structureValueDomain['source']) > 0) {

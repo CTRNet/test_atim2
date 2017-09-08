@@ -1,8 +1,16 @@
 <?php
 
+/**
+ * Class DatamartAppController
+ */
 class DatamartAppController extends AppController
 {
 
+    /**
+     * @param $options
+     * @param $label
+     * @param $webroot
+     */
     public static function printList($options, $label, $webroot)
     {
         foreach ($options as $option) {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class DropdownsController
+ */
 class DropdownsController extends AdministrateAppController
 {
 
@@ -25,6 +28,9 @@ class DropdownsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param string $filter
+     */
     public function subIndex($filter = 'all')
     {
         if (! in_array($filter, array(
@@ -75,6 +81,9 @@ class DropdownsController extends AdministrateAppController
         $this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
     }
 
+    /**
+     * @param $controlId
+     */
     public function view($controlId)
     {
         $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
@@ -92,6 +101,9 @@ class DropdownsController extends AdministrateAppController
         $this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
     }
 
+    /**
+     * @param $controlId
+     */
     public function add($controlId)
     {
         $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
@@ -230,6 +242,10 @@ class DropdownsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $controlId
+     * @param $valueId
+     */
     public function edit($controlId, $valueId)
     {
         $controlData = $this->StructurePermissibleValuesCustomControl->getOrRedirect($controlId);
@@ -307,6 +323,9 @@ class DropdownsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $controlId
+     */
     public function configure($controlId)
     {
         $this->Structures->set('administrate_dropdown_values');

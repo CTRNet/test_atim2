@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class CodingIcdo3sController
+ */
 class CodingIcdo3sController extends CodingIcdAppController
 {
 
@@ -16,12 +19,19 @@ class CodingIcdo3sController extends CodingIcdAppController
      * Forms Helper appends a "tool" link to the "add" and "edit" form types
      * Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
      */
+    /**
+     * @param $useIcdType
+     */
     public function tool($useIcdType)
     {
         parent::tool($useIcdType);
         $this->set("useIcdType", $useIcdType);
     }
 
+    /**
+     * @param string $useIcdType
+     * @param bool $isTool
+     */
     public function search($useIcdType = "topo", $isTool = true)
     {
         $modelToUse = $this->getIcdo3Type($useIcdType);
@@ -29,11 +39,18 @@ class CodingIcdo3sController extends CodingIcdAppController
         $this->set("useIcdType", $useIcdType);
     }
 
+    /**
+     * @param string $useIcdType
+     */
     public function autocomplete($useIcdType = "topo")
     {
         parent::globalAutocomplete($this->getIcdo3Type($useIcdType));
     }
 
+    /**
+     * @param $icdTypeName
+     * @return mixed|null
+     */
     public function getIcdo3Type($icdTypeName)
     {
         $modelToUse = null;

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructureValidation
+ */
 class StructureValidation extends AppModel
 {
 

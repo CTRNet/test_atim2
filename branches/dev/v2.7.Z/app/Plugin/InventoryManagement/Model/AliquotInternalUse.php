@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AliquotInternalUse
+ */
 class AliquotInternalUse extends InventoryManagementAppModel
 {
 
@@ -22,6 +25,10 @@ class AliquotInternalUse extends InventoryManagementAppModel
 
     public static $studyModel = null;
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->validateAndUpdateAliquotInternalUseStudyData();

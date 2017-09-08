@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TmaSlideUsesController
+ */
 class TmaSlideUsesController extends StorageLayoutAppController
 {
 
@@ -22,6 +25,9 @@ class TmaSlideUsesController extends StorageLayoutAppController
     );
 
     /* ----------------------------- TMA SLIDES ANALYSIS ------------------------ */
+    /**
+     * @param null $tmaSlideId
+     */
     public function add($tmaSlideId = null)
     {
         // GET DATA
@@ -229,6 +235,10 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $tmaBlockStorageMasterId
+     * @param $tmaSlideId
+     */
     public function listAll($tmaBlockStorageMasterId, $tmaSlideId)
     {
         // MANAGE DATA
@@ -255,6 +265,9 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $tmaSlideUseId
+     */
     public function edit($tmaSlideUseId)
     {
         // MANAGE DATA
@@ -537,6 +550,9 @@ class TmaSlideUsesController extends StorageLayoutAppController
         }
     }
 
+    /**
+     * @param $tmaSlideUseId
+     */
     public function delete($tmaSlideUseId)
     {
         // MANAGE DATA

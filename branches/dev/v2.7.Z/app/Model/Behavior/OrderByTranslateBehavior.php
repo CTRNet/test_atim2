@@ -3,11 +3,18 @@ App::uses('ModelBehavior', 'Model');
 App::uses('I18n', 'I18n');
 App::uses('I18nModel', 'Model');
 
+/**
+ * Class OrderByTranslateBehavior
+ */
 class OrderByTranslateBehavior extends ModelBehavior
 {
 
     private $modelsFieldsAssoc = array();
 
+    /**
+     * @param Model $model
+     * @param array $config
+     */
     public function setup(Model $model, $config = array())
     {
         $current = array();
@@ -25,6 +32,11 @@ class OrderByTranslateBehavior extends ModelBehavior
         $this->modelsFieldsAssoc[$model->name] = $current;
     }
 
+    /**
+     * @param Model $model
+     * @param array $query
+     * @return array
+     */
     public function beforeFind(Model $model, $query)
     {
         $index = 0;

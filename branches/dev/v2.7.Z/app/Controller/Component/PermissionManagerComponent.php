@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class PermissionManagerComponent
+ */
 class PermissionManagerComponent extends Component
 {
 
@@ -31,6 +34,9 @@ class PermissionManagerComponent extends Component
         )
     );
 
+    /**
+     * @param Controller $controller
+     */
     public function initialize(Controller $controller)
     {
         $this->log = array();
@@ -98,6 +104,11 @@ class PermissionManagerComponent extends Component
         }
     }
 
+    /**
+     * @param $plugin
+     * @param $ctrlName
+     * @return array|bool|mixed
+     */
     public function getControllerMethods($plugin, $ctrlName)
     {
         if (! $plugin || $plugin == 'App') {
@@ -269,6 +280,11 @@ class PermissionManagerComponent extends Component
         $this->removeMissingNodes('controllers', $pluginNodeIds);
     }
 
+    /**
+     * @param $path
+     * @param array $knownIds
+     * @return bool
+     */
     public function removeMissingNodes($path, $knownIds = array())
     {
         $aco = & $this->controller->Acl->Aco;

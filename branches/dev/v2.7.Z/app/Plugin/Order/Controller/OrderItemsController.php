@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class OrderItemsController
+ */
 class OrderItemsController extends OrderAppController
 {
 
@@ -33,6 +36,9 @@ class OrderItemsController extends OrderAppController
         )
     );
 
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
@@ -49,6 +55,13 @@ class OrderItemsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param string $status
+     * @param null $orderLineId
+     * @param null $shipmentId
+     * @param null $mainFormModel
+     */
     public function listall($orderId, $status = 'all', $orderLineId = null, $shipmentId = null, $mainFormModel = null)
     {
         // MANAGE DATA
@@ -192,6 +205,11 @@ class OrderItemsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param int $orderLineId
+     * @param string $objectModelName
+     */
     public function add($orderId, $orderLineId = 0, $objectModelName = 'AliquotMaster')
     {
         if ((! $orderId)) {
@@ -419,12 +437,17 @@ class OrderItemsController extends OrderAppController
     /**
      *
      * @deprecated Replaced by addOrderItemsInBatch()
+     * @param null $aliquotMasterId
      */
     public function addAliquotsInBatch($aliquotMasterId = null)
     {
         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
     }
 
+    /**
+     * @param $objectModelName
+     * @param null $objectId
+     */
     public function addOrderItemsInBatch($objectModelName, $objectId = null)
     {
         // MANAGE DATA
@@ -742,6 +765,11 @@ class OrderItemsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param $orderItemId
+     * @param null $mainFormModel
+     */
     public function edit($orderId, $orderItemId, $mainFormModel = null)
     {
         if ((! $orderId) || (! $orderItemId)) {
@@ -1024,6 +1052,11 @@ class OrderItemsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param $orderItemId
+     * @param null $mainFormModel
+     */
     public function delete($orderId, $orderItemId, $mainFormModel = null)
     {
         
@@ -1150,6 +1183,12 @@ class OrderItemsController extends OrderAppController
         }
     }
 
+    /**
+     * @param int $orderId
+     * @param int $orderLineId
+     * @param int $shipmentId
+     * @param int $orderItemId
+     */
     public function defineOrderItemsReturned($orderId = 0, $orderLineId = 0, $shipmentId = 0, $orderItemId = 0)
     {
         // MANAGE DATA
@@ -1462,6 +1501,11 @@ class OrderItemsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param $orderItemId
+     * @param null $mainFormModel
+     */
     public function removeFlagReturned($orderId, $orderItemId, $mainFormModel = null)
     {
         

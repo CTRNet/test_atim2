@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudyInvestigatorsController
+ */
 class StudyInvestigatorsController extends StudyAppController
 {
 
@@ -15,6 +18,9 @@ class StudyInvestigatorsController extends StudyAppController
         )
     );
 
+    /**
+     * @param $studySummaryId
+     */
     public function add($studySummaryId)
     {
         $studySummaryData = $this->StudySummary->getOrRedirect($studySummaryId);
@@ -67,6 +73,9 @@ class StudyInvestigatorsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     */
     public function listall($studySummaryId)
     {
         // MANAGE DATA
@@ -89,6 +98,10 @@ class StudyInvestigatorsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyInvestigatorId
+     */
     public function detail($studySummaryId, $studyInvestigatorId)
     {
         // MANAGE DATA
@@ -108,6 +121,10 @@ class StudyInvestigatorsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyInvestigatorId
+     */
     public function edit($studySummaryId, $studyInvestigatorId)
     {
         // MANAGE DATA
@@ -157,6 +174,10 @@ class StudyInvestigatorsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyInvestigatorId
+     */
     public function delete($studySummaryId, $studyInvestigatorId)
     {
         // MANAGE DATA

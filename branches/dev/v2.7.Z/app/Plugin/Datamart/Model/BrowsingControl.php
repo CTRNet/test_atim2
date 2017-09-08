@@ -1,10 +1,18 @@
 <?php
 
+/**
+ * Class BrowsingControl
+ */
 class BrowsingControl extends DatamartAppModel
 {
 
     public $useTable = 'datamart_browsing_controls';
 
+    /**
+     * @param $elem1Id
+     * @param null $elemNId
+     * @return array|null
+     */
     public function find1ToN($elem1Id, $elemNId = null)
     {
         $conditions = array(
@@ -18,6 +26,11 @@ class BrowsingControl extends DatamartAppModel
         ));
     }
 
+    /**
+     * @param $elemNId
+     * @param null $elem1Id
+     * @return array|null
+     */
     public function findNTo1($elemNId, $elem1Id = null)
     {
         $conditions = array(
@@ -31,6 +44,9 @@ class BrowsingControl extends DatamartAppModel
         ));
     }
 
+    /**
+     * @param array $data
+     */
     public function completeData(array &$data)
     {
         $datamartStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);

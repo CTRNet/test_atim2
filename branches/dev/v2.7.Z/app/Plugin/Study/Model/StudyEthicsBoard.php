@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudyEthicsBoard
+ */
 class StudyEthicsBoard extends StudyAppModel
 {
 

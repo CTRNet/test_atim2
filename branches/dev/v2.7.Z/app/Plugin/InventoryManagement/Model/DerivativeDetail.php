@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class DerivativeDetail
+ */
 class DerivativeDetail extends InventoryManagementAppModel
 {
 
