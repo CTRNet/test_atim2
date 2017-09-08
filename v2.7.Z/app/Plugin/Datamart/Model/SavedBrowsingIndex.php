@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SavedBrowsingIndex
+ */
 class SavedBrowsingIndex extends DatamartAppModel
 {
 

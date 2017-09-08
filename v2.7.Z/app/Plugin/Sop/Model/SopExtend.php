@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SopExtend
+ */
 class SopExtend extends SopAppModel
 {
 

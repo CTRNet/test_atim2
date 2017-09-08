@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MenusController
+ */
 class MenusController extends AppController
 {
 
@@ -26,6 +29,9 @@ class MenusController extends AppController
         }
     }
 
+    /**
+     * @param null $setOfMenus
+     */
     public function index($setOfMenus = null)
     {
         if (! $setOfMenus) {

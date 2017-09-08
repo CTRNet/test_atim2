@@ -1,8 +1,16 @@
 <?php
 
+/**
+ * Class Config
+ */
 class Config extends AppModel
 {
 
+    /**
+     * @param $groupId
+     * @param $userId
+     * @return array|null
+     */
     public function getConfig($groupId, $userId)
     {
         $configResults = $this->find('first', array(
@@ -81,6 +89,12 @@ class Config extends AppModel
         ));
     }
 
+    /**
+     * @param $configResults
+     * @param $requestData
+     * @param $groupId
+     * @param $userId
+     */
     public function preSave($configResults, &$requestData, $groupId, $userId)
     {
         if ($configResults['Config']['user_id'] != 0) {

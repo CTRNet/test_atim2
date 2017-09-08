@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class FamilyHistoriesController
+ */
 class FamilyHistoriesController extends ClinicalAnnotationAppController
 {
 
@@ -38,6 +41,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
      */
     
     /* ==> Note: Reuse flash() messages as they are into this controller! */
+    /**
+     * @param $participantId
+     */
     public function listall($participantId)
     {
         
@@ -66,6 +72,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $familyHistoryId
+     */
     public function detail($participantId, $familyHistoryId)
     {
         // MANAGE DATA
@@ -98,6 +108,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param null $participantId
+     */
     public function add($participantId = null)
     {
         // MANAGE DATA
@@ -187,6 +200,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $familyHistoryId
+     */
     public function edit($participantId, $familyHistoryId)
     {
         
@@ -254,6 +271,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $familyHistoryId
+     */
     public function delete($participantId, $familyHistoryId)
     {
         

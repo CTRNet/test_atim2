@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AtimDebug
+ */
 class AtimDebug{
     private static $counter=0;
     
@@ -49,8 +52,8 @@ function newTranslate($singular, $args = null){
 
 
 /**
- * @param int $arr
- * @return boolean
+ * @param array|int $arr
+ * @return bool
  */
 function isAssoc(array $arr)
 {
@@ -161,6 +164,10 @@ function json_encode_js($data, $level=3, $formattage=0)
     return $s;
 }
 
+/**
+ * @param $str
+ * @return mixed
+ */
 function stringCorrection($str)
 {
     if (empty($str)){
@@ -232,6 +239,9 @@ TEXT;
     }
 }
 
+/**
+ * @param int $number
+ */
 function dc($number=0)
 {
     if (!Configure::read('debug')) {

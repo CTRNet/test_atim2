@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class User
+ */
 class User extends AppModel
 {
 
@@ -433,6 +436,7 @@ class User extends AppModel
     /**
      * Return the encrypted answer to the questions used by the 'Forgotten Password Rest' process to be recorded into database.
      *
+     * @param $answer
      * @return string encrypted answer
      */
     public function hashSecuritAsnwer($answer)

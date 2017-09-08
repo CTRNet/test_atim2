@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MiscIdentifiersController
+ */
 class MiscIdentifiersController extends ClinicalAnnotationAppController
 {
 
@@ -19,6 +22,9 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param string $searchId
+     */
     public function search($searchId = '')
     {
         $this->set('atimMenu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
@@ -36,6 +42,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $miscIdentifierControlId
+     */
     public function add($participantId, $miscIdentifierControlId)
     {
         $this->Participant->getOrRedirect($participantId);
@@ -152,6 +162,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $miscIdentifierId
+     */
     public function edit($participantId, $miscIdentifierId)
     {
         $this->Participant->getOrRedirect($participantId);
@@ -245,6 +259,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $miscIdentifierId
+     */
     public function delete($participantId, $miscIdentifierId)
     {
         $miscIdentifierData = $this->MiscIdentifier->getOrRedirect($miscIdentifierId);
@@ -312,6 +330,11 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $miscIdentifierCtrlId
+     * @param bool $submited
+     */
     public function reuse($participantId, $miscIdentifierCtrlId, $submited = false)
     {
         $this->Participant->getOrRedirect($participantId);
@@ -421,6 +444,9 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function listall($participantId)
     {
         // only for permissions

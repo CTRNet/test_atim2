@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class EventMastersController
+ */
 class EventMastersController extends ClinicalAnnotationAppController
 {
 
@@ -22,6 +25,11 @@ class EventMastersController extends ClinicalAnnotationAppController
         $this->set('atimMenu', $this->Menus->get('/' . $this->params['plugin'] . '/' . $this->params['controller'] . '/' . $this->params['action'] . '/' . $this->params['pass'][0]));
     }
 
+    /**
+     * @param $eventGroup
+     * @param $participantId
+     * @param null $eventControlId
+     */
     public function listall($eventGroup, $participantId, $eventControlId = null)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -96,6 +104,11 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $eventMasterId
+     * @param int $isAjax
+     */
     public function detail($participantId, $eventMasterId, $isAjax = 0)
     {
         // MANAGE DATA
@@ -140,6 +153,11 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $eventControlId
+     * @param null $diagnosisMasterId
+     */
     public function add($participantId, $eventControlId, $diagnosisMasterId = null)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
@@ -305,6 +323,10 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $eventMasterId
+     */
     public function edit($participantId, $eventMasterId)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
@@ -380,6 +402,10 @@ class EventMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $eventMasterId
+     */
     public function delete($participantId, $eventMasterId)
     {
         $eventMasterData = $this->EventMaster->find('first', array(

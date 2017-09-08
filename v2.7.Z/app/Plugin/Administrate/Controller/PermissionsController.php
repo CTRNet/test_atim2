@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class PermissionsController
+ */
 class PermissionsController extends AdministrateAppController
 {
 
@@ -34,6 +37,11 @@ class PermissionsController extends AdministrateAppController
         Cache::clear(false, "menus");
     }
 
+    /**
+     * @param $aroId
+     * @param $acoId
+     * @param $state
+     */
     public function update($aroId, $acoId, $state)
     {
         $this->autoRender = false;
@@ -65,6 +73,11 @@ class PermissionsController extends AdministrateAppController
         exit();
     }
 
+    /**
+     * @param $aroId
+     * @param $acoId
+     * @param $state
+     */
     private function updatePermission($aroId, $acoId, $state)
     {
         if (intval($state) == 0) {
@@ -105,6 +118,10 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param int $groupId
+     * @param int $userId
+     */
     public function tree($groupId = 0, $userId = 0)
     {
         $this->set('atimMenuVariables', array(
@@ -280,6 +297,10 @@ class PermissionsController extends AdministrateAppController
         )));
     }
 
+    /**
+     * @param array $threadedData
+     * @return array
+     */
     public function addPermissionStateToThreadedData($threadedData = array())
     {
         foreach ($threadedData as $k => $v) {
@@ -361,6 +382,9 @@ class PermissionsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $presetId
+     */
     public function deletePreset($presetId)
     {
         $this->layout = false;

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ProtocolMaster
+ */
 class ProtocolMaster extends ProtocolAppModel
 {
 
@@ -18,6 +21,10 @@ class ProtocolMaster extends ProtocolAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -52,7 +59,9 @@ class ProtocolMaster extends ProtocolAppModel
      *
      * @author N. Luc
      * @since 2010-05-26
-     *        @updated N. Luc
+     * @updated N. Luc
+     * @param null $protocolControlId
+     * @return array
      */
     public function getProtocolPermissibleValuesFromId($protocolControlId = null)
     {
@@ -110,6 +119,10 @@ class ProtocolMaster extends ProtocolAppModel
         );
     }
 
+    /**
+     * @param int $protocolMasterId
+     * @return array
+     */
     public function allowDeletion($protocolMasterId)
     {
         if ($protocolMasterId != $this->id) {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class OrderAppController
+ */
 class OrderAppController extends AppController
 {
 

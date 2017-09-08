@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ConsentMaster
+ */
 class ConsentMaster extends ClinicalAnnotationAppModel
 {
 
@@ -32,6 +35,10 @@ class ConsentMaster extends ClinicalAnnotationAppModel
 
     public static $studyModel = null;
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->validateAndUpdateConsentStudyData();
@@ -113,6 +120,10 @@ class ConsentMaster extends ClinicalAnnotationAppModel
         return $arrAllowDeletion;
     }
 
+    /**
+     * @param $onField
+     * @return array
+     */
     public static function joinOnConsentDup($onField)
     {
         return array(

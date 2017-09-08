@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * Class DatamartStructure
+ */
 class DatamartStructure extends DatamartAppModel
 {
 
     public $useTable = 'datamart_structures';
 
+    /**
+     * @param $modelName
+     * @return null
+     */
     public function getIdByModelName($modelName)
     {
         $data = $this->find('first', array(
@@ -26,6 +33,9 @@ class DatamartStructure extends DatamartAppModel
         return null;
     }
 
+    /**
+     * @return array
+     */
     public function getDisplayNameFromId()
     {
         $result = array();
@@ -55,6 +65,9 @@ class DatamartStructure extends DatamartAppModel
         return AppModel::getInstance($d['DatamartStructure']['plugin'], $modelName ?: $d['DatamartStructure']['model']);
     }
 
+    /**
+     * @return array
+     */
     public function getDisplayNameFromModel()
     {
         $data = $this->find('all', array(

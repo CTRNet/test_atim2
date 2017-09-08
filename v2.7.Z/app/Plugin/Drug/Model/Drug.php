@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Drug
+ */
 class Drug extends DrugAppModel
 {
 
@@ -11,6 +14,10 @@ class Drug extends DrugAppModel
 
     public $drugDataAndCodeForDisplayAlreadySet = array();
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -109,6 +116,10 @@ class Drug extends DrugAppModel
         );
     }
 
+    /**
+     * @param $drugData
+     * @return mixed|string
+     */
     public function getDrugDataAndCodeForDisplay($drugData)
     {
         
@@ -140,6 +151,10 @@ class Drug extends DrugAppModel
         return $formattedData;
     }
 
+    /**
+     * @param $drugDataAndCode
+     * @return mixed
+     */
     public function getDrugIdFromDrugDataAndCode($drugDataAndCode)
     {
         

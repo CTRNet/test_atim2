@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ReportsController
+ */
 class ReportsController extends DatamartAppController
 {
 
@@ -20,6 +23,12 @@ class ReportsController extends DatamartAppController
     // -------------------------------------------------------------------------------------------------------------------
     // SELECT APP . 'View' . DS . 'Elements' . DS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
     // -------------------------------------------------------------------------------------------------------------------
+    /**
+     * @param $typeOfObjectToCompare
+     * @param $batchSetOrNodeIdToCompare
+     * @param bool $csvCreation
+     * @param null $previousCurrentNodeId
+     */
     public function compareToBatchSetOrNode($typeOfObjectToCompare, $batchSetOrNodeIdToCompare, $csvCreation = false, $previousCurrentNodeId = null)
     {
         
@@ -267,6 +276,10 @@ class ReportsController extends DatamartAppController
         $this->Structures->set("reports");
     }
 
+    /**
+     * @param $reportId
+     * @param bool $csvCreation
+     */
     public function manageReport($reportId, $csvCreation = false)
     {
         // Get report data
@@ -475,6 +488,10 @@ class ReportsController extends DatamartAppController
     // -------------------------------------------------------------------------------------------------------------------
     // FUNCTIONS ADDED TO THE CONTROLLER AS CUSTOM REPORT EXAMPLES
     // -------------------------------------------------------------------------------------------------------------------
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function bankActiviySummary($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
@@ -553,6 +570,10 @@ class ReportsController extends DatamartAppController
         return $arrayToReturn;
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function sampleAndDerivativeCreationSummary($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
@@ -704,6 +725,10 @@ class ReportsController extends DatamartAppController
         return $arrayToReturn;
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function bankActiviySummaryPerPeriod($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
@@ -833,6 +858,10 @@ class ReportsController extends DatamartAppController
         return $arrayToReturn;
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function ctrnetCatalogueSubmissionFile($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/Collections/detail')) {
@@ -1213,6 +1242,10 @@ class ReportsController extends DatamartAppController
         return $arrayToReturn;
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function participantIdentifiersSummary($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
@@ -1300,6 +1333,10 @@ class ReportsController extends DatamartAppController
         );
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function getAllDerivatives($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
@@ -1390,6 +1427,11 @@ class ReportsController extends DatamartAppController
         );
     }
 
+    /**
+     * @param $viewSampleModel
+     * @param array $parentSampleIds
+     * @return array
+     */
     public function getChildrenSamples($viewSampleModel, $parentSampleIds = array())
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
@@ -1419,6 +1461,10 @@ class ReportsController extends DatamartAppController
         return array();
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function getAllSpecimens($parameters)
     {
         if (! AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')) {
@@ -1519,6 +1565,10 @@ class ReportsController extends DatamartAppController
         );
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function getAllChildrenStorage($parameters)
     {
         if (! AppController::checkLinkPermission('/StorageLayout/StorageMasters/detail')) {
@@ -1607,6 +1657,10 @@ class ReportsController extends DatamartAppController
         );
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function getAllRelatedDiagnosis($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')) {
@@ -1703,6 +1757,10 @@ class ReportsController extends DatamartAppController
         );
     }
 
+    /**
+     * @param $parameters
+     * @return array
+     */
     public function countNumberOfElementsPerParticipants($parameters)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {

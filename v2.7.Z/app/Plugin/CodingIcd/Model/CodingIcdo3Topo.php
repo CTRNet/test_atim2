@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class CodingIcdo3Topo
+ */
 class CodingIcdo3Topo extends CodingIcdAppModel
 {
 
@@ -25,22 +28,35 @@ class CodingIcdo3Topo extends CodingIcdAppModel
 
     public $validate = array();
 
+    /**
+     * CodingIcdo3Topo constructor.
+     */
     public function __construct()
     {
         parent::__construct();
         self::$singleton = $this;
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public static function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
+    /**
+     * @return CodingIcdo3Topo|null
+     */
     public static function getSingleton()
     {
         return self::$singleton;
     }
 
+    /**
+     * @return array
+     */
     public static function getTopoCategoriesCodes()
     {
         $data = array();

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MergeController
+ */
 class MergeController extends AdministrateAppController
 {
 

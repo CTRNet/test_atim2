@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class PreferencesAdminController
+ */
 class PreferencesAdminController extends AdministrateAppController
 {
 
@@ -10,6 +13,10 @@ class PreferencesAdminController extends AdministrateAppController
         'Config'
     );
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function index($groupId, $userId)
     {
         $this->Structures->set('preferences');
@@ -30,6 +37,10 @@ class PreferencesAdminController extends AdministrateAppController
         $this->request->data['Config'] = $configResults['Config'];
     }
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function edit($groupId, $userId)
     {
         $this->Structures->set('preferences');

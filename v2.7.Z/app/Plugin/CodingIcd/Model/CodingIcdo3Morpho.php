@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class CodingIcdo3Morpho
+ */
 class CodingIcdo3Morpho extends CodingIcdAppModel
 {
 
@@ -24,12 +27,19 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
 
     public $validate = array();
 
+    /**
+     * CodingIcdo3Morpho constructor.
+     */
     public function __construct()
     {
         parent::__construct();
         self::$singleton = $this;
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public static function validateId($id)
     {
         $tmpId = null;
@@ -43,6 +53,9 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
         return (is_numeric($tmpId) || strlen($tmpId) == 0) ? self::$singleton->globalValidateId($id) : false;
     }
 
+    /**
+     * @return CodingIcdo3Morpho|null
+     */
     public static function getSingleton()
     {
         return self::$singleton;

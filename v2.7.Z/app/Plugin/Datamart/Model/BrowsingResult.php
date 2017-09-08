@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BrowsingResult
+ */
 class BrowsingResult extends DatamartAppModel
 {
 
@@ -16,6 +19,11 @@ class BrowsingResult extends DatamartAppModel
         'Tree'
     );
 
+    /**
+     * @param $startId
+     * @param $browsingCache
+     * @return array|null
+     */
     public function cacheAndGet($startId, &$browsingCache)
     {
         $browsing = $this->find('first', array(
@@ -34,8 +42,9 @@ class BrowsingResult extends DatamartAppModel
     /**
      * Return a model associated to a node (takes the detail model if the result set allows it)
      *
-     * @param mixed $node
-     *            Either a browsing result id or the data array related to it
+     * @param $browsingResult
+     * @return array
+     * @internal param mixed $node Either a browsing result id or the data array related to it*            Either a browsing result id or the data array related to it
      */
     public function getModelAndStructureForNode($browsingResult)
     {
@@ -101,6 +110,10 @@ class BrowsingResult extends DatamartAppModel
         );
     }
 
+    /**
+     * @param $startingNodeId
+     * @return array
+     */
     public function getSingleLineMergeableNodes($startingNodeId)
     {
         $startingNode = $this->getOrRedirect($startingNodeId);
@@ -210,6 +223,11 @@ class BrowsingResult extends DatamartAppModel
         );
     }
 
+    /**
+     * @param $baseNodeId
+     * @param $targetNodeId
+     * @return array
+     */
     public function getJoins($baseNodeId, $targetNodeId)
     {
         $mergeOn = array();
@@ -248,6 +266,11 @@ class BrowsingResult extends DatamartAppModel
         return $joins;
     }
 
+    /**
+     * @param $baseNodeId
+     * @param $targetNodeId
+     * @return mixed
+     */
     public function countMaxDuplicates($baseNodeId, $targetNodeId)
     {
         $joins = $this->getJoins($baseNodeId, $targetNodeId);

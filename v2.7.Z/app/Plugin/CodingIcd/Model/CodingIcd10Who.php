@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class CodingIcd10Who
+ */
 class CodingIcd10Who extends CodingIcdAppModel
 {
 
@@ -26,22 +29,35 @@ class CodingIcd10Who extends CodingIcdAppModel
 
     public $validate = array();
 
+    /**
+     * CodingIcd10Who constructor.
+     */
     public function __construct()
     {
         parent::__construct();
         self::$singleton = $this;
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public static function validateId($id)
     {
         return self::$singleton->globalValidateId($id);
     }
 
+    /**
+     * @return CodingIcd10Who|null
+     */
     public static function getSingleton()
     {
         return self::$singleton;
     }
 
+    /**
+     * @return array
+     */
     public static function getSecondaryDiagnosisList()
     {
         $data = array();

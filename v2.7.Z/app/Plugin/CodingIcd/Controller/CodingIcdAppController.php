@@ -1,8 +1,14 @@
 <?php
 
+/**
+ * Class CodingIcdAppController
+ */
 class CodingIcdAppController extends AppController
 {
 
+    /**
+     * @param $useIcdType
+     */
     public function tool($useIcdType)
     {
         $this->layout = 'ajax';
@@ -17,8 +23,8 @@ class CodingIcdAppController extends AppController
      *            Is the search made from a popup tool
      * @param AppModel $modelToUse
      *            The model to base the search on
-     * @param $searchFieldsPrefix array
-     *            The fields prefix to base the search on
+     * @return bool
+     * @internal param array $searchFieldsPrefix The fields prefix to base the search on*            The fields prefix to base the search on
      */
     public function globalSearch($isTool, $modelToUse)
     {
@@ -45,6 +51,9 @@ class CodingIcdAppController extends AppController
         }
     }
 
+    /**
+     * @param $modelToUse
+     */
     public function globalAutocomplete($modelToUse)
     {
         // layout = ajax to avoid printing layout

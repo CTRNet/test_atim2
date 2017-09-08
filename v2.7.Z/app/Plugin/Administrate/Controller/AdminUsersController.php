@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AdminUsersController
+ */
 class AdminUsersController extends AdministrateAppController
 {
 
@@ -20,6 +23,9 @@ class AdminUsersController extends AdministrateAppController
         $this->Structures->set('users');
     }
 
+    /**
+     * @param $groupId
+     */
     public function listall($groupId)
     {
         $this->set('atimMenuVariables', array(
@@ -34,6 +40,10 @@ class AdminUsersController extends AdministrateAppController
         ));
     }
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function detail($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(
@@ -47,6 +57,9 @@ class AdminUsersController extends AdministrateAppController
         $this->request->data = $this->User->getOrRedirect($userId);
     }
 
+    /**
+     * @param $groupId
+     */
     public function add($groupId)
     {
         $this->set('atimMenuVariables', array(
@@ -114,6 +127,10 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function edit($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(
@@ -171,6 +188,10 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function delete($groupId, $userId)
     {
         // to be used in a hook
@@ -215,6 +236,9 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Administrate/Groups/index'));
@@ -229,6 +253,10 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function changeGroup($groupId, $userId)
     {
         $user = $this->User->getOrRedirect($userId);

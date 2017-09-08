@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SampleMastersController
+ */
 class SampleMastersController extends InventoryManagementAppController
 {
 
@@ -43,6 +46,9 @@ class SampleMastersController extends InventoryManagementAppController
         )
     );
 
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/InventoryManagement/Collections/search'));
@@ -71,6 +77,11 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param int $sampleMasterId
+     * @param bool $isAjax
+     */
     public function contentTreeView($collectionId, $sampleMasterId = 0, $isAjax = false)
     {
         $this->Collection->getOrRedirect($collectionId);
@@ -302,8 +313,8 @@ class SampleMastersController extends InventoryManagementAppController
      *
      * @param $collectionId ID
      *            of the collection
-     * @param $specimenSampleId sample_master_id
-     *            of the specimen
+     * @param $specimenSampleMasterId
+     * @internal param sample_master_id $specimenSampleId of the specimen*            of the specimen
      */
     public function listAllDerivatives($collectionId, $specimenSampleMasterId)
     {
@@ -364,6 +375,11 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     * @param int $isFromTreeView
+     */
     public function detail($collectionId, $sampleMasterId, $isFromTreeView = 0)
     {
         // $isFromTreeView : 0-Normal, 1-Tree view
@@ -526,6 +542,11 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleControlId
+     * @param int $parentSampleMasterId
+     */
     public function add($collectionId, $sampleControlId, $parentSampleMasterId = 0)
     {
         if ($this->request->is('ajax')) {
@@ -806,6 +827,10 @@ class SampleMastersController extends InventoryManagementAppController
         $this->set('isAjax', $this->request->is('ajax'));
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     */
     public function edit($collectionId, $sampleMasterId)
     {
         if ((! $collectionId) || (! $sampleMasterId)) {
@@ -1007,6 +1032,10 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param $collectionId
+     * @param $sampleMasterId
+     */
     public function delete($collectionId, $sampleMasterId)
     {
         // Get the sample data
@@ -1062,6 +1091,9 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param null $aliquotMasterId
+     */
     public function batchDerivativeInit($aliquotMasterId = null)
     {
         // Get Data
@@ -1196,6 +1228,9 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param null $aliquotMasterId
+     */
     public function batchDerivativeInit2($aliquotMasterId = null)
     {
         if (! isset($this->request->data['SampleMaster']['ids']) || ! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
@@ -1252,6 +1287,9 @@ class SampleMastersController extends InventoryManagementAppController
         }
     }
 
+    /**
+     * @param null $aliquotMasterId
+     */
     public function batchDerivative($aliquotMasterId = null)
     {
         $urlToCancel = isset($this->request->data['url_to_cancel']) ? $this->request->data['url_to_cancel'] : 'javascript:history.go(-1)';

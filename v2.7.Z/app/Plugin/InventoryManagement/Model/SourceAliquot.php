@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SourceAliquot
+ */
 class SourceAliquot extends InventoryManagementAppModel
 {
 

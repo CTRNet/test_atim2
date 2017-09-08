@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Shipment
+ */
 class Shipment extends OrderAppModel
 {
 
@@ -13,6 +16,10 @@ class Shipment extends OrderAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -47,10 +54,11 @@ class Shipment extends OrderAppModel
      *
      * @param $orderId Id
      *            of the order linked to the shipments to return (null for all).
-     *            
+     *
      * @author N. Luc
      * @since 2009-09-11
-     *        @updated N. Luc
+     * @updated N. Luc
+     * @return array
      */
     public function getShipmentPermissibleValues($orderId = null)
     {

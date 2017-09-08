@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StorageCoordinate
+ */
 class StorageCoordinate extends StorageLayoutAppModel
 {
 
@@ -15,16 +18,14 @@ class StorageCoordinate extends StorageLayoutAppModel
      *
      * @param $storageMasterId Id
      *            of the studied storage.
-     * @param $storageCoordinateData Storage
+     * @param array|Storage $storageCoordinateData Storage
      *            coordinate data.
-     *            
      * @return Return results as array:
      *         ['allow_deletion'] = true/false
-     *         ['msg'] = message to display when previous field equals false
-     *        
+     * ['msg'] = message to display when previous field equals false
      * @author N. Luc
      * @since 2008-02-04
-     *        @updated A. Suggitt
+     * @updated A. Suggitt
      */
     public function allowDeletion($storageMasterId, $storageCoordinateData = array())
     {

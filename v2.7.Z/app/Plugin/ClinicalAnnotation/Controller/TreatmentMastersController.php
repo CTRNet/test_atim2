@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TreatmentMastersController
+ */
 class TreatmentMastersController extends ClinicalAnnotationAppController
 {
 
@@ -19,6 +22,10 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param $participantId
+     * @param null $treatmentControlId
+     */
     public function listall($participantId, $treatmentControlId = null)
     {
         // MANAGE DATA
@@ -84,6 +91,10 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $txMasterId
+     */
     public function detail($participantId, $txMasterId)
     {
         // MANAGE DATA
@@ -133,6 +144,10 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $txMasterId
+     */
     public function edit($participantId, $txMasterId)
     {
         // MANAGE DATA
@@ -218,6 +233,11 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $txControlId
+     * @param null $diagnosisMasterId
+     */
     public function add($participantId, $txControlId, $diagnosisMasterId = null)
     {
         if (! AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')) {
@@ -413,6 +433,10 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $txMasterId
+     */
     public function delete($participantId, $txMasterId)
     {
         

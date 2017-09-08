@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class UsersController
+ */
 class UsersController extends AppController
 {
 
