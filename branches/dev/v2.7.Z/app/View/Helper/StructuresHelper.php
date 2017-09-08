@@ -355,7 +355,7 @@ class StructuresHelper extends Helper
     private function putInTable($tmp)
     {
         $htmlResult = "";
-        $temp = [];
+        $temp = array();
         foreach ($tmp as $key => &$values) {
             if ($values) {
                 foreach ($values as $alias => $structures) {
@@ -366,7 +366,7 @@ class StructuresHelper extends Helper
         $tmp = $temp;
         unset($temp);
         
-        $uniqueStructureAlias = [];
+        $uniqueStructureAlias = array();
         foreach ($tmp as $alias => $structures) {
             $uniqueStructureAlias[] = $alias;
             $htmlResult .= "<h3 class='expandable'>" . $alias . "</h3>\n";
@@ -408,7 +408,7 @@ class StructuresHelper extends Helper
         ];
         if (Configure::read('debug')) {
             //$tmp = array($atimStructure);
-			$tmp=[];
+			$tmp=array();
             if (isset($atimStructure['Structure'][0])) {
                 foreach ($atimStructure['Structure'] as $struct) {
                     if (isset($struct['alias'])) {
@@ -446,9 +446,9 @@ class StructuresHelper extends Helper
      * @param array $unimportantFields
      * @return array
      */
-    private function getStructure($atimStructure, $possibles, $unimportantFields = [])
+    private function getStructure($atimStructure, $possibles, $unimportantFields = array())
     {
-        $tmp = [];
+        $tmp = array();
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
                 $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure[$possible]['Sfs'];
@@ -465,7 +465,7 @@ class StructuresHelper extends Helper
      */
     private function getIndexStructure($atimStructure, $possibles)
     {
-        $tmp = [];
+        $tmp = array();
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
                 $tmp[] = $atimStructure[$possible]['Structure']['alias'];

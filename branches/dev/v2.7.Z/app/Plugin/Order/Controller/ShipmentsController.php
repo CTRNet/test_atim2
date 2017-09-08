@@ -296,7 +296,7 @@ class ShipmentsController extends OrderAppController
     {
         //Server-side verification (If by JS user send larg amount of batch data)
         $orderItemsLimit = Configure::read('AddToShipment_processed_items_limit');
-        $data=[];
+        $data=array();
         if (!empty($this->request->data) && isset($this->request->data['OrderItem']['id'])){
             $data= array_filter($this->request->data['OrderItem']['id']);
         }
