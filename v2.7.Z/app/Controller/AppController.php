@@ -2105,7 +2105,7 @@ class AppController extends Controller
      */
     public static function convertArrayKeyFromSnakeToCamel($array = null)
     {
-        $answer = [];
+        $answer = array();
         if ($array) {
             foreach ($array as $key => $value) {
                 $answer[Inflector::variable($key)] = $value;
