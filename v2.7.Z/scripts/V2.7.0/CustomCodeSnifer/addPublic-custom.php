@@ -62,7 +62,7 @@ $j=1;
 $k=1;
 $output="";
 foreach($Iterator as $file){
-    if((substr($file,-4) !== '.php') || (!preg_match('/.*Plugin.+Custom.*/', $file) && !preg_match('/.*Plugin.+Hook.*/', $file)))
+    if(substr($file,-4) !== '.php' || !preg_match('/.*Plugin.+Hook.*/', $file))
         continue;
     $out = convert(file_get_contents($file), $file);
     if (isset($argv[2]) && strtolower($argv[2])=='--commit'){
