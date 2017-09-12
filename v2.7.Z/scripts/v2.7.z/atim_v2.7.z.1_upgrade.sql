@@ -410,12 +410,21 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='sample_uses_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='sample_use_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=':'), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='sample_uses_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='sample_use_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '0', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+-- --------------------------------------------------------------------------------------------------------------------
+-- Issue #3440: StructureField.sortable field set to 0 by script should be reviewed...
+-- --------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'batchset_and_node_elements_distribution_description' AND model = 'Generated';
 
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'sample_type' AND model = '0';
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'cases_nbr' AND model = '0';
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'aliquots_nbr' AND model = '0';
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'notes' AND model = '0';
 
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'nbr_of_elements' AND model = 'Generated';
 
-
-
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'created_samples_nbr' AND model = '0';
+UPDATE structure_fields SET `sortable` = 1 WHERE field = 'matching_participant_number' AND model = '0';
 
 -- -------------------------------------------------------------------------------------
 -- Correct one word's spell
