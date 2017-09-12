@@ -638,3 +638,230 @@ VALUES
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6598' WHERE version_number = '2.6.4';
+
+-- --------------------------------------------------------------------------------------------------------------------------------------------
+-- Upgrade 20170907
+-- --------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Treatment
+
+UPDATE treatment_controls SET tx_method = 'hormonotherapy (endocrine)', databrowser_label = 'hormonotherapy (endocrine)' WHERE tx_method = 'hormonotherapy' AND flag_active = '1';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('hormonotherapy (endocrine)', 'Hormonotherapy (endocrine)', 'Hormonotherapie (endocrine)');
+
+CREATE TABLE `qc_lady_txd_others` (
+  `treatment_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `qc_lady_txd_others_revs` (
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `qc_lady_txe_others` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `qc_lady_txe_others_revs` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `qc_lady_txd_others`
+  ADD KEY `qc_lady_txd_others_ibfk_1` (`treatment_master_id`);
+ALTER TABLE `qc_lady_txd_others_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `qc_lady_txe_others`
+  ADD KEY `FK_qc_lady_txe_others_drugs` (`drug_id`),
+  ADD KEY `FK_qc_lady_txe_others_treatment_extend_masters` (`treatment_extend_master_id`);
+ALTER TABLE `qc_lady_txe_others_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `qc_lady_txd_others_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=251;
+ALTER TABLE `qc_lady_txe_others_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=215;
+ALTER TABLE `qc_lady_txd_others`
+  ADD CONSTRAINT `qc_lady_txd_others_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+ALTER TABLE `qc_lady_txe_others`
+  ADD CONSTRAINT `FK_qc_lady_txe_others_drugs` FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`),
+  ADD CONSTRAINT `FK_qc_lady_txe_others_treatment_extend_masters` FOREIGN KEY (`treatment_extend_master_id`) REFERENCES `treatment_extend_masters` (`id`);
+
+INSERT INTO `treatment_extend_controls` (`id`, `detail_tablename`, `detail_form_alias`, `flag_active`, `type`, `databrowser_label`) VALUES
+(null, 'qc_lady_txe_others', 'qc_lady_txe_others', 1, 'antibody-based drug', 'antibody-based drug'),
+(null, 'qc_lady_txe_others', 'qc_lady_txe_others', 1, 'small molecule-based inhibitor drug', 'small molecule-based inhibitor drug');
+
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, 'antibody-based', '', 1, 'qc_lady_txd_others', 'qc_lady_txd_others', 0, NULL, NULL, 'antibody-based', 0, (SELECT id FROM treatment_extend_controls WHERE type = 'antibody-based drug'), 0, 0),
+(null, 'small molecule-based inhibitor', '', 1, 'qc_lady_txd_others', 'qc_lady_txd_others', 0, NULL, NULL, 'antibody-based', 0, (SELECT id FROM treatment_extend_controls WHERE type = 'small molecule-based inhibitor drug'), 0, 0);
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('antibody-based drug', 'Antibody-based Drug', 'Molécule à base d''anticorps'),
+('small molecule-based inhibitor drug', 'Small Molecule-Based Inhibitor Drug', 'Molécule d''inhibiteur à petite molécule'),
+('antibody-based', 'Antibody-based (-ab)', 'À base d''Anticorps (-ab)'),
+('small molecule-based inhibitor', 'Small Molecule-Based Inhibitor (-ib)', 'Inhibiteur à petite molécule (-ib)');
+
+INSERT INTO structures(`alias`) VALUES ('qc_lady_txd_others');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_intent' AND `language_label`='intent' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('qc_lady_txe_others');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txe_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_lady_txe_immunos' AND `field`='dose' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='help_dose' AND `language_label`='dose' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txe_others'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_lady_txe_immunos' AND `field`='drug_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_drug_id' AND `language_label`='drug' AND `language_tag`=''), '1', '1', 'drugs', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '1', '0', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('antibody-based', 'Antibody-based', 'À base d''anticorps'),
+('small molecule-based inhibitor', 'Small Molecule-Based Inhibitor', 'Inhibiteur à petite molécule');
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("antibody-based", "antibody-based"),("small molecule-based inhibitor", "small molecule-based inhibitor");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="type"), 
+(SELECT id FROM structure_permissible_values WHERE value="antibody-based" AND language_alias="antibody-based"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="type"), 
+(SELECT id FROM structure_permissible_values WHERE value="small molecule-based inhibitor" AND language_alias="small molecule-based inhibitor"), "1", "1");
+
+CREATE TABLE `qc_lady_txd_clinical_trials` (
+  `treatment_master_id` int(11) NOT NULL,
+  protocol varchar(250) DEFAULT null,
+  placebo char(1) DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `qc_lady_txd_clinical_trials_revs` (
+  `treatment_master_id` int(11) NOT NULL,
+  protocol varchar(250) DEFAULT null,
+  placebo char(1) DEFAULT '',
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `qc_lady_txd_clinical_trials`
+  ADD KEY `qc_lady_txd_clinical_trials_ibfk_1` (`treatment_master_id`);
+ALTER TABLE `qc_lady_txd_clinical_trials_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `qc_lady_txd_clinical_trials_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=251;
+ALTER TABLE `qc_lady_txd_clinical_trials`
+  ADD CONSTRAINT `qc_lady_txd_clinical_trials_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, 
+`flag_use_for_ccl`, `treatment_extend_control_id`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, 'clinical trial', '', 1, 'qc_lady_txd_clinical_trials', 'qc_lady_txd_clinical_trials', 0, NULL, NULL, 'clinical trial', 
+0, null, 1, 1);
+INSERT INTO structures(`alias`) VALUES ('qc_lady_txd_clinical_trials');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_lady_clinical_trial_protocols', "StructurePermissibleValuesCustom::getCustomDropdown('Clinical Trials Protocols')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Clinical Trials Protocols', 1, 250, 'clinical - treatment');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_clinical_trials', 'protocol', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_clinical_trial_protocols') , '0', '', '', '', 'protocol', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_clinical_trials', 'placebo', 'yes_no',  NULL , '0', '', '', '', 'placebo', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_clinical_trials'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_clinical_trials'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_clinical_trials'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_clinical_trials' AND `field`='protocol' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_clinical_trial_protocols')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='protocol' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_clinical_trials'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_clinical_trials' AND `field`='placebo' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='placebo' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('clinical trial', 'Clinical Trial', 'Étude clinique'), ('placebo', 'Placebo', 'Placebo');;
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_clinical_trials') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_clinical_trials' AND `field`='protocol' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_clinical_trial_protocols') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_clinical_trials') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_clinical_trials' AND `field`='placebo' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_clinical_trials') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats 
+SET flag_index = '1' 
+WHERE flag_detail = '1' 
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('txd_chemos', 'txd_radiations', 'txd_surgeries', 'txd_surgeries', 'qc_lady_txd_hormonos', 'qc_lady_txd_biopsy_surgeries', 'qc_lady_txd_patho_evaluations', 'qc_lady_txd_biopsy_surgeries', 
+'qc_lady_txd_immunos', 'qc_lady_txd_others', 'qc_lady_txd_others', 'qc_lady_txd_clinical_trials'));
+UPDATE structure_formats 
+SET flag_search = '1' 
+WHERE flag_detail = '1' 
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('txd_chemos', 'txd_radiations', 'txd_surgeries', 'txd_surgeries', 'qc_lady_txd_hormonos', 'qc_lady_txd_biopsy_surgeries', 'qc_lady_txd_patho_evaluations', 'qc_lady_txd_biopsy_surgeries', 
+'qc_lady_txd_immunos', 'qc_lady_txd_others', 'qc_lady_txd_others', 'qc_lady_txd_clinical_trials'))
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field = 'notes');
+UPDATE structure_formats 
+SET flag_search = '0' 
+WHERE flag_detail = '1' 
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('txd_chemos', 'txd_radiations', 'txd_surgeries', 'txd_surgeries', 'qc_lady_txd_hormonos', 'qc_lady_txd_biopsy_surgeries', 'qc_lady_txd_patho_evaluations', 'qc_lady_txd_biopsy_surgeries', 
+'qc_lady_txd_immunos', 'qc_lady_txd_others', 'qc_lady_txd_others', 'qc_lady_txd_clinical_trials'))
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'notes');
+
+-- Add Treatment Precisions in treatment_masters
+
+INSERT INTO structures(`alias`) VALUES ('qc_lady_treatmentmasters_precisions');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Generated', '', 'qc_lady_treatment_precisions', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'precisons', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_treatmentmasters_precisions'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_lady_treatment_precisions' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='precisons' AND `language_tag`=''), '1', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('precisons', 'Precisons', 'Précisons');
+
+-- triple negative
+
+ALTER TABLE qc_lady_txd_biopsy_surgeries ADD COLUMN triple_negative_ccl char(1) DEFAULT '';
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs ADD COLUMN triple_negative_ccl char(1) DEFAULT '';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Generated', 'qc_lady_txd_biopsy_surgeries', 'triple_negative_ccl', 'yes_no',  NULL , '0', '', '', '', 'triple negative', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='triple_negative_ccl' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='triple negative' AND `language_tag`=''), '2', '142', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET model = 'TreatmentDetail' WHERE `model`='Generated' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='triple_negative_ccl';
+
+UPDATE qc_lady_txd_biopsy_surgeries SET er_receptor_ccl = '' WHERE er_receptor_ccl IS NULL;
+UPDATE qc_lady_txd_biopsy_surgeries SET pr_receptor_ccl = '' WHERE pr_receptor_ccl IS NULL;
+UPDATE qc_lady_txd_biopsy_surgeries SET her2_receptor_ccl = '' WHERE her2_receptor_ccl IS NULL;
+UPDATE qc_lady_txd_biopsy_surgeries SET fish_ccl = '' WHERE fish_ccl IS NULL;
+
+SET @modified_by = (SELECT id from users where username = 'NicoEn' AND id = 1);
+SET @modified = (SELECT NOW() from users where username = 'NicoEn' AND id = 1);
+
+UPDATE treatment_masters TreatmentMaster, qc_lady_txd_biopsy_surgeries TreatmentDetail
+SET triple_negative_ccl = 'y'
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentMaster.deleted <> 1
+AND TreatmentDetail.er_receptor_ccl = 'negative'
+AND TreatmentDetail.pr_receptor_ccl = 'negative'
+AND (TreatmentDetail.her2_receptor_ccl = 'negative' OR TreatmentDetail.fish_ccl = 'negative');
+
+UPDATE treatment_masters TreatmentMaster, qc_lady_txd_biopsy_surgeries TreatmentDetail
+SET triple_negative_ccl = 'n'
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentMaster.deleted <> 1
+AND (TreatmentDetail.er_receptor_ccl IN ('positive', 'equivocal')
+OR TreatmentDetail.pr_receptor_ccl IN ('positive', 'equivocal'));
+
+UPDATE treatment_masters TreatmentMaster, qc_lady_txd_biopsy_surgeries TreatmentDetail
+SET triple_negative_ccl = 'n'
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentMaster.deleted <> 1
+AND triple_negative_ccl != 'y'
+AND ((TreatmentDetail.her2_receptor_ccl != 'negative' AND TreatmentDetail.fish_ccl IN ('positive', 'equivocal'))
+OR (TreatmentDetail.fish_ccl != 'negative' AND TreatmentDetail.her2_receptor_ccl IN ('positive', 'equivocal')));
+
+UPDATE treatment_masters TreatmentMaster, qc_lady_txd_biopsy_surgeries TreatmentDetail
+SET modified_by =  @modified_by, modified =  @modified
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id
+AND TreatmentMaster.deleted <> 1 AND  triple_negative_ccl IN ('y','n');
+
+INSERT INTO treatment_masters_revs(id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id,  
+participant_id, diagnosis_master_id, qc_lady_laterality, modified_by, version_created)
+(SELECT id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id,  
+participant_id, diagnosis_master_id, qc_lady_laterality, modified_by, modified FROM treatment_masters WHERE modified = @modified AND modified_by = @modified_by);
+
+INSERT INTO qc_lady_txd_biopsy_surgeries_revs (morphology, topography, histological_grade, tumor_size_mm_x, tumor_size_mm_y, dimension_of_residual_tumor_bed_area_mm_x, dimension_of_residual_tumor_bed_area_mm_y, overal_cancer_cellularity_pct, 
+in_situ_disease_pct, nbr_of_lymph_nodes_positive, largest_lymph_node_metastasis_diatmeter_mm, rcb_list, rcb_score, ki67_pct, er_receptor_pct, er_receptor_ccl, pr_receptor_pct, pr_receptor_ccl, her2_receptor_ccl, her2_receptor_score, 
+fish_ratio, treatment_master_id, path_tstage, path_nstage, path_mstage, path_stage_summary, ki67_performed, fish_ccl, lymph_node_collection, lymph_node_ccl, patho_nbr, morphology_precision, 
+her2_receptor_antibody, residual_disease, oncotype_dx, pcr, other_staining, other_staining_notes, consistent_with_primary, triple_negative_ccl, version_created)
+(SELECT morphology, topography, histological_grade, tumor_size_mm_x, tumor_size_mm_y, dimension_of_residual_tumor_bed_area_mm_x, dimension_of_residual_tumor_bed_area_mm_y, overal_cancer_cellularity_pct, 
+in_situ_disease_pct, nbr_of_lymph_nodes_positive, largest_lymph_node_metastasis_diatmeter_mm, rcb_list, rcb_score, ki67_pct, er_receptor_pct, er_receptor_ccl, pr_receptor_pct, pr_receptor_ccl, her2_receptor_ccl, her2_receptor_score, 
+fish_ratio, treatment_master_id, path_tstage, path_nstage, path_mstage, path_stage_summary, ki67_performed, fish_ccl, lymph_node_collection, lymph_node_ccl, patho_nbr, morphology_precision, 
+her2_receptor_antibody, residual_disease, oncotype_dx, pcr, other_staining, other_staining_notes, consistent_with_primary, triple_negative_ccl, modified
+FROM treatment_masters INNER JOIN qc_lady_txd_biopsy_surgeries ON id = treatment_master_id WHERE modified = @modified AND modified_by = @modified_by);
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6836' WHERE version_number = '2.6.4';

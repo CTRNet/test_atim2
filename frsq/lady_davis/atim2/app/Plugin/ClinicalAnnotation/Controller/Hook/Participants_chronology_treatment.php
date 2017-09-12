@@ -1,6 +1,6 @@
 <?php
 
-	if($tx['TreatmentControl']['tx_method'] == 'chemotherapy') {
+	if(in_array($tx['TreatmentControl']['tx_method'], array('chemotherapy', 'hormonotherapy', 'immunotherapy'))) {
 		$chemo_detail = array();
 		if($tx['TreatmentMaster']['protocol_master_id']) $chemo_detail[0] = $protocol_from_id[$tx['TreatmentMaster']['protocol_master_id']];
 		foreach($treatment_extend_model->find('all', array('conditions' => array('TreatmentExtendMaster.treatment_master_id' => $tx['TreatmentMaster']['id']))) as $drug) $chemo_detail[1][$drug['TreatmentExtendDetail']['drug_id']] = $drug_from_id[$drug['TreatmentExtendDetail']['drug_id']];
