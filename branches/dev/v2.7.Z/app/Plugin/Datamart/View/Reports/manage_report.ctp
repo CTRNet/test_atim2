@@ -36,6 +36,14 @@ if (isset($searchFormStructure)) {
     // ------------------------------------------
     // DISPLAY RESULT FORM / EXPORT REPORT (CSV)
     // ------------------------------------------
+        
+    if ($resultFormStructureAccuracy) {
+        foreach ($resultFormStructureAccuracy as $structureModel => $structureFieldsData) {
+            foreach ($structureFieldsData as $structureField => $structureFieldAccuracy) {
+                $resultFormStructure['Accuracy'][$structureModel][$structureField] = $structureFieldAccuracy;
+            }
+        }
+    }
     
     if ($csvCreation) {
         

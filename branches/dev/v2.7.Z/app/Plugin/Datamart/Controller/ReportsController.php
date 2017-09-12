@@ -453,6 +453,7 @@ class ReportsController extends DatamartAppController
                 // Set data for display/csv
                 $this->request->data = AppModel::sortWithUrl($dataReturnedByFct['data'], $criteriaToSortReport);
                 $this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
+                $this->set('resultFormStructureAccuracy', array_key_exists('structure_accuracy', $dataReturnedByFct)? $dataReturnedByFct['structure_accuracy'] : array());
                 $this->set('resultFormType', $report['Report']['form_type_for_results']);
                 $this->set('resultHeader', $dataReturnedByFct['header']);
                 $this->set('resultColumnsNames', $dataReturnedByFct['columns_names']);
@@ -1963,4 +1964,232 @@ class ReportsController extends DatamartAppController
             'error_msg' => null
         );
     }
+
+    function atimDemoReportParticipantClinicalData($parameters)
+    {
+        if (! AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
+            $this->atimFlashError(__('you need privileges to access this page') . 'xxx', 'javascript:history.back()');
+        }
+        
+        $displayExactSearchWarning = false;
+        $conditions = array();
+        if (isset($parameters['Participant']['id']) && ! empty($parameters['Participant']['id'])) {
+            // From databrowser
+            $participantIds = array_filter($parameters['Participant']['id']);
+            if ($participantIds)
+                $conditions[] = "Participant.id IN ('" . implode("','", $participantIds) . "')";
+        } elseif (isset($parameters['Participant']['participant_identifier_start'])) {
+            $participantIdentifierStart = (! empty($parameters['Participant']['participant_identifier_start'])) ? $parameters['Participant']['participant_identifier_start'] : null;
+            $participantIdentifierEnd = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
+            if ($participantIdentifierStart) {
+                $conditions[] = "Participant.participant_identifier >= '$participantIdentifierStart'";
+            } else 
+                if ($participantIdentifierEnd) {
+                    $conditions[] = "Participant.participant_identifier <= '$participantIdentifierEnd'";
+                }
+        } elseif (isset($parameters['Participant']['participant_identifier'])) {
+            $displayExactSearchWarning = true;
+            $participant_identifiers = array_filter($parameters['Participant']['participant_identifier']);
+            if ($participant_identifiers)
+                $conditions[] = "Participant.participant_identifier IN ('" . implode("','", $participant_identifiers) . "')";
+        } else {
+            $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        
+        $participantModel = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+        
+        // Get Controls Data
+        
+        $query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
+        $eventControls = array();
+        foreach ($participantModel->query($query) as $res) {
+            $eventControls[$res['event_controls']['event_type']] = array(
+                'id' => $res['event_controls']['id'],
+                'detail_tablename' => $res['event_controls']['detail_tablename']
+            );
+        }
+        $query = "SELECT id,tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
+        $txControls = array();
+        foreach ($participantModel->query($query) as $res) {
+            $txControls[$res['treatment_controls']['tx_method']] = array(
+                'id' => $res['treatment_controls']['id'],
+                'detail_tablename' => $res['treatment_controls']['detail_tablename']
+            );
+        }
+        $query = "SELECT id, category, controls_type, detail_tablename FROM diagnosis_controls WHERE flag_active = 1;";
+        $dxControls = array();
+        foreach ($participantModel->query($query) as $res) {
+            $dxControls[$res['diagnosis_controls']['category'] . '-' . $res['diagnosis_controls']['controls_type']] = array(
+                'id' => $res['diagnosis_controls']['id'],
+                'detail_tablename' => $res['diagnosis_controls']['detail_tablename']
+            );
+        }
+        
+        // Get Participant
+        
+        $participantsData = $participantModel->find('all', array(
+            'conditions' => $conditions
+        ));
+        if (! $participantsData) {
+            return array(
+                'header' => '',
+                'data' => array(),
+                'columns_names' => null,
+                'error_msg' => null
+            );
+        }
+        $participantidToData = array();
+        foreach ($participantsData as $new_participant) {
+            $participantidToData[$new_participant['Participant']['id']] = array_merge($new_participant, array(
+                'DiagnosisControl' => array(
+                    'controls_type' => null,
+                    'category' => null
+                ),
+                'DiagnosisMaster' => array(
+                    'id' => null,
+                    'dx_date' => null,
+                    'dx_date_accuracy' => null,
+                    'icd10_code' => null,
+                    'icd_0_3_topography_category' => null,
+                    'clinical_tstage' => null,
+                    'clinical_nstage' => null,
+                    'clinical_mstage' => null,
+                    'clinical_stage_summary' => null,
+                    'path_tstage' => null,
+                    'path_nstage' => null,
+                    'path_mstage' => null,
+                    'path_stage_summary' => null
+                ),
+                'TreatmentMaster' => array(
+                    'target_site_icdo' => null,
+                    'start_date' => null,
+                    'start_date_accuracy' => null
+                ),
+                'TreatmentControl' => array(
+                    'tx_method' => null,
+                    'disease_site' => null
+                ),
+                'TreatmentDetail' => array(
+                    'path_num' => null
+                ),
+                'Generated' => array(
+                    'chemo_pre_surgery_start_date' => null,
+                    'chemo_post_surgery_start_date' => null
+                )
+            ));
+        }
+        $participantIds = $participantModel->find('list', array(
+            'fields' => array(
+                'Participant.id'
+            ),
+            'conditions' => $conditions
+        ));
+        
+        // Get first primary diagnosis + first surgery + pre-post chemo
+        
+        $diagnosisModel = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+        
+        $treatmentModel = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+        $txJoin = array(
+            'table' => 'txd_surgeries',
+            'alias' => 'TreatmentDetail',
+            'type' => 'INNER',
+            'conditions' => array(
+                'TreatmentDetail.treatment_master_id = TreatmentMaster.id'
+            )
+        );
+        
+        $participantIdToFirstDiagnosis = array();
+        $conditions = array(
+            'DiagnosisMaster.participant_id' => $participantIds,
+            'DiagnosisMaster.diagnosis_control_id' => array(
+                $dxControls['primary-breast']['id'],
+                $dxControls['primary-blood']['id'],
+                $dxControls['primary-other tissue']['id']
+            )
+        );
+        $diagnosisData = $diagnosisModel->find('all', array(
+            'conditions' => $conditions,
+            'order' => array(
+                'DiagnosisMaster.participant_id, DiagnosisMaster.dx_date ASC'
+            )
+        ));
+        foreach ($diagnosisData as $newDiagnosis) {
+            if (! $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']]['DiagnosisMaster']['id']) {
+                $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']]['DiagnosisMaster'] = $newDiagnosis['DiagnosisMaster'];
+                $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']]['DiagnosisControl'] = $newDiagnosis['DiagnosisControl'];
+                
+                // Get first treatment (demo does not take care about accuracy)
+                if ($newDiagnosis['DiagnosisMaster']['dx_date']) {
+                    $conditions = array(
+                        'TreatmentMaster.participant_id' => $newDiagnosis['DiagnosisMaster']['participant_id'],
+                        'TreatmentMaster.start_date IS NOT NULL',
+                        'TreatmentMaster.start_date >= ' => $newDiagnosis['DiagnosisMaster']['dx_date']
+                    );
+                    $participantSurgery = $treatmentModel->find('first', array(
+                        'conditions' => $conditions,
+                        'joins' => array(
+                            $txJoin
+                        ),
+                        'order' => array(
+                            'TreatmentMaster.start_date ASC'
+                        )
+                    ));
+                    if ($participantSurgery) {
+                        $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']] = array_merge($participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']], $participantSurgery);
+                        // Chemo Pre-Post surgery (demo does not take care about accuracy)
+                        $conditions = array(
+                            'TreatmentMaster.participant_id' => $newDiagnosis['DiagnosisMaster']['participant_id'],
+                            'TreatmentMaster.start_date IS NOT NULL',
+                            'TreatmentMaster.start_date <= ' => $participantSurgery['TreatmentMaster']['start_date'],
+                            'TreatmentMaster.treatment_control_id' => $txControls['chemotherapy']['id']
+                        );
+                        $participantChemo = $treatmentModel->find('first', array(
+                            'conditions' => $conditions,
+                            'order' => array(
+                                'TreatmentMaster.start_date DESC'
+                            )
+                        ));
+                        if ($participantChemo) {
+                            $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']]['Generated']['chemo_pre_surgery_start_date'] = $participantChemo['TreatmentMaster']['start_date'];
+                            $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']]['Generated']['chemo_pre_surgery_start_date_accuracy'] = $participantChemo['TreatmentMaster']['start_date_accuracy'];
+                        }
+                        $conditions = array(
+                            'TreatmentMaster.participant_id' => $newDiagnosis['DiagnosisMaster']['participant_id'],
+                            'TreatmentMaster.start_date IS NOT NULL',
+                            'TreatmentMaster.start_date >= ' => $participantSurgery['TreatmentMaster']['start_date'],
+                            'TreatmentMaster.treatment_control_id' => $txControls['chemotherapy']['id']
+                        );
+                        $participantChemo = $treatmentModel->find('first', array(
+                            'conditions' => $conditions,
+                            'order' => array(
+                                'TreatmentMaster.start_date ASC'
+                            )
+                        ));
+                        if ($participantChemo) {
+                            $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']]['Generated']['chemo_post_surgery_start_date'] = $participantChemo['TreatmentMaster']['start_date'];
+                            $participantidToData[$newDiagnosis['DiagnosisMaster']['participant_id']]['Generated']['chemo_post_surgery_start_date_accuracy'] = $participantChemo['TreatmentMaster']['start_date_accuracy'];
+                        }
+                    }
+                }
+            }
+        }
+        
+        if ($displayExactSearchWarning)
+            AppController::addWarningMsg(__('all searches are considered as exact searches'));
+        
+        return array(
+            'header' => '',
+            'data' => $participantidToData,
+            'columns_names' => null,
+            'error_msg' => null,
+            'structure_accuracy' => array(
+                'Generated' => array(
+                    'chemo_pre_surgery_start_date' => 'chemo_pre_surgery_start_date_accuracy',
+                    'chemo_post_surgery_start_date' => 'chemo_post_surgery_start_date_accuracy'
+                )
+            )
+        );
+    }
+    
 }

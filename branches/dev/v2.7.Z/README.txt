@@ -1,13 +1,16 @@
-
-                          ATiM
-        The Advanced Tissue Management Application
-
+------------------------------------------------------------------------------------
+--                                                                                --
+--                                      ATiM                                      --
+--                   The Advanced Tissue Management Application                   --
+--                                                                                --
+------------------------------------------------------------------------------------
 
 ATiM is a Biobank Information Management System (BIMS) designed and developed by
-CTRNet in conjunction with Canadian biobanks for the operation of biobanks. 
+CTRNet (http://www.ctrnet.ca/) in conjunction with Canadian biobanks for the 
+operation of biobanks. 
 
 -- Introduction
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 The Canadian Tissue Repository Network (CTRNet) is a non-profit association of 
 Canadian tissue biorepositories that aims to support health research using human 
@@ -18,13 +21,13 @@ Management System (BIMS). ATiM was designed and developed by CTRNet, in conjunct
 with Canadian biobanking experts, to support biobank operations.
 
 -- Licensing
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 ATiM is released for free non-commercial use under GPL v3. See the file 
 called LICENSE.txt in the root directory.
 
 -- Documentation
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 ATiM
   
@@ -49,14 +52,16 @@ OBER
   http://biobanking.org
 
 -- Installation
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 Please visit our ATiM wiki site.
  
 http://www.ctrnet.ca/mediawiki/index.php?title=ATiM_Installation_Guide
   
--- Contacts
---------------------------------------------------------------------------------
+-- Contact
+------------------------------------------------------------------------------------
 
-For any question please contact CTRNet http://ctrnet.ca/contact or send an 
-email to the ATiM developpers team at atim.ctrnet@gmail.com.
+Contact information:
+
+  website: http://ctrnet.ca/contact
+  e-mail: atim.ctrnet@gmail.com
