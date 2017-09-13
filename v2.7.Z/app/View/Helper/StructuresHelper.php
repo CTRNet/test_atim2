@@ -397,7 +397,7 @@ class StructuresHelper extends Helper
      */
     private function simplifyStructureTable($atimStructure)
     {
-        $unimportantFields = [
+        $unimportantFields = array(
             'id',
             'structure_format_id',
             'structure_field_id',
@@ -405,7 +405,7 @@ class StructuresHelper extends Helper
             'sortable',
             'StructureValueDomain',
             'StructureValidation'
-        ];
+        );
         if (Configure::read('debug')) {
             //$tmp = array($atimStructure);
 			$tmp=array();
@@ -420,7 +420,7 @@ class StructuresHelper extends Helper
                 $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
                 $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
             } else {
-                $possible = [
+                $possible = array(
                     "Collection",
                     "DiagnosisMaster",
                     "TreatmentMaster",
@@ -431,7 +431,7 @@ class StructuresHelper extends Helper
                     "StorageMaster",
                     "AliquotMaster",
                     "SampleMaster"
-                ];
+                );
                 $tmp = $this->getStructure($atimStructure, $possible, $unimportantFields);
                 // $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
                 // $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
@@ -497,7 +497,7 @@ class StructuresHelper extends Helper
                 } elseif (isset($atimStructure['Structure']) && isset($atimStructure['Structure']['alias'])) {
                     $tmp[] = $atimStructure['Structure']['alias'];
                 } else if ($atimStructure) {
-                    $possible = [
+                    $possible = array(
                         "Collection",
                         "DiagnosisMaster",
                         "TreatmentMaster",
@@ -508,7 +508,7 @@ class StructuresHelper extends Helper
                         "StorageMaster",
                         "AliquotMaster",
                         "SampleMaster"
-                    ];
+                    );
                     $tmp = $this->getIndexStructure($atimStructure, $possible);
                 }
                 // echo "<code>Structure alias: ", implode(", ", $tmp), "</code><br>";
