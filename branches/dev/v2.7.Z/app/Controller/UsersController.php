@@ -43,7 +43,7 @@ class UsersController extends AppController
      */
     public function login()
     {
-        $username=$this->UserLoginAttempt->find('first', ['order' => 'attempt_time DESC']);
+        $username=$this->UserLoginAttempt->find('first', array('order' => 'attempt_time DESC'));
         $username=(isset($username["UserLoginAttempt"]["username"])?$username["UserLoginAttempt"]["username"]:null);
         if(!empty($_SESSION['Auth']['User'])&& !isset($this->passedArgs['login'])){
             return $this->redirect('/Menus');
@@ -224,7 +224,7 @@ class UsersController extends AppController
             
             foreach ($resetFormFields as $questionFieldName => $answerFieldName) {
                 if (empty($dbUserData['User'][$questionFieldName])) {
-                    $this->atimFlashWarning(__('User has not been yet answered to the reset questions.'), ['action'=>'resetForgottenPassword']);
+                    $this->atimFlashWarning(__('User has not been yet answered to the reset questions.'), array('action'=>'resetForgottenPassword'));
                 }
             }
 
