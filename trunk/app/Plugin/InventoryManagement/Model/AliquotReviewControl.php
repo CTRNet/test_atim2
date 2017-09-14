@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AliquotReviewControl
+ */
 class AliquotReviewControl extends InventoryManagementAppModel
 {
 

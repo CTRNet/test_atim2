@@ -1,5 +1,9 @@
 <?php
 App::uses('Helper', 'View');
+
+/**
+ * Class StructuresHelper
+ */
 class StructuresHelper extends Helper
 {
 
@@ -186,11 +190,19 @@ class StructuresHelper extends Helper
         'labbook' => null
     );
 
+    /**
+     * @param $x
+     */
     public function debug12($x){
         debug($x);
     }
 
 
+    /**
+     * StructuresHelper constructor.
+     * @param View $view
+     * @param array $settings
+     */
     public function __construct(View $view, $settings = array())
     {
         parent::__construct($view, $settings);
@@ -199,6 +211,10 @@ class StructuresHelper extends Helper
         $this->StructureValueDomain = new StructureValueDomain();
     }
 
+    /**
+     * @param string $hookExtension
+     * @return bool|string
+     */
     public function hook($hookExtension = '')
     {
         if ($hookExtension) {
@@ -213,6 +229,10 @@ class StructuresHelper extends Helper
         return $hookFile;
     }
 
+    /**
+     * @param array $data
+     * @param array $structure
+     */
     private function updateDataWithAccuracy(array &$data, array &$structure)
     {
         if (! empty($structure['Accuracy']) && ! empty($data)) {
@@ -279,6 +299,10 @@ class StructuresHelper extends Helper
         }
     }
 
+    /**
+     * @param $options
+     * @param $atimStructure
+     */
     private function updateUnsanitizeList(&$options, $atimStructure)
     {
         if (isset($atimStructure['Sfs'])) {
@@ -301,6 +325,9 @@ class StructuresHelper extends Helper
         }
     }
 
+    /**
+     * @return string
+     */
     public function getStructureAlias()
     {
         if (isset($this->structureAliasFinal) && is_array($this->structureAliasFinal) && count($this->structureAliasFinal) > 0) {
@@ -308,6 +335,10 @@ class StructuresHelper extends Helper
         }
     }
 
+    /**
+     * @param $sfs
+     * @param $unimportantFields
+     */
     private function remove(&$sfs, $unimportantFields)
     {
         foreach ($sfs as &$sf) {
@@ -317,10 +348,14 @@ class StructuresHelper extends Helper
         }
     }
 
+    /**
+     * @param $tmp
+     * @return string
+     */
     private function putInTable($tmp)
     {
         $htmlResult = "";
-        $temp = [];
+        $temp = array();
         foreach ($tmp as $key => &$values) {
             if ($values) {
                 foreach ($values as $alias => $structures) {
@@ -331,7 +366,7 @@ class StructuresHelper extends Helper
         $tmp = $temp;
         unset($temp);
         
-        $uniqueStructureAlias = [];
+        $uniqueStructureAlias = array();
         foreach ($tmp as $alias => $structures) {
             $uniqueStructureAlias[] = $alias;
             $htmlResult .= "<h3 class='expandable'>" . $alias . "</h3>\n";
@@ -356,9 +391,13 @@ class StructuresHelper extends Helper
         return $htmlResult;
     }
 
+    /**
+     * @param $atimStructure
+     * @return array
+     */
     private function simplifyStructureTable($atimStructure)
     {
-        $unimportantFields = [
+        $unimportantFields = array(
             'id',
             'structure_format_id',
             'structure_field_id',
@@ -366,10 +405,10 @@ class StructuresHelper extends Helper
             'sortable',
             'StructureValueDomain',
             'StructureValidation'
-        ];
+        );
         if (Configure::read('debug')) {
             //$tmp = array($atimStructure);
-			$tmp=[];
+			$tmp=array();
             if (isset($atimStructure['Structure'][0])) {
                 foreach ($atimStructure['Structure'] as $struct) {
                     if (isset($struct['alias'])) {
@@ -381,7 +420,7 @@ class StructuresHelper extends Helper
                 $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
                 $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
             } else {
-                $possible = [
+                $possible = array(
                     "Collection",
                     "DiagnosisMaster",
                     "TreatmentMaster",
@@ -392,7 +431,7 @@ class StructuresHelper extends Helper
                     "StorageMaster",
                     "AliquotMaster",
                     "SampleMaster"
-                ];
+                );
                 $tmp = $this->getStructure($atimStructure, $possible, $unimportantFields);
                 // $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
                 // $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
@@ -401,9 +440,15 @@ class StructuresHelper extends Helper
         return $tmp;
     }
 
-    private function getStructure($atimStructure, $possibles, $unimportantFields = [])
+    /**
+     * @param $atimStructure
+     * @param $possibles
+     * @param array $unimportantFields
+     * @return array
+     */
+    private function getStructure($atimStructure, $possibles, $unimportantFields = array())
     {
-        $tmp = [];
+        $tmp = array();
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
                 $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure[$possible]['Sfs'];
@@ -413,9 +458,14 @@ class StructuresHelper extends Helper
         return $tmp;
     }
 
+    /**
+     * @param $atimStructure
+     * @param $possibles
+     * @return array
+     */
     private function getIndexStructure($atimStructure, $possibles)
     {
-        $tmp = [];
+        $tmp = array();
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
                 $tmp[] = $atimStructure[$possible]['Structure']['alias'];
@@ -447,7 +497,7 @@ class StructuresHelper extends Helper
                 } elseif (isset($atimStructure['Structure']) && isset($atimStructure['Structure']['alias'])) {
                     $tmp[] = $atimStructure['Structure']['alias'];
                 } else if ($atimStructure) {
-                    $possible = [
+                    $possible = array(
                         "Collection",
                         "DiagnosisMaster",
                         "TreatmentMaster",
@@ -458,7 +508,7 @@ class StructuresHelper extends Helper
                         "StorageMaster",
                         "AliquotMaster",
                         "SampleMaster"
-                    ];
+                    );
                     $tmp = $this->getIndexStructure($atimStructure, $possible);
                 }
                 // echo "<code>Structure alias: ", implode(", ", $tmp), "</code><br>";
@@ -958,6 +1008,10 @@ class StructuresHelper extends Helper
         echo ("</dl>");
     }
 
+    /**
+     * @param $currentValue
+     * @return string
+     */
     private function getOpenFileLink($currentValue)
     {
         return '<a href="?file=' . $currentValue . '">' . __("open file") . '</a>';
@@ -1232,9 +1286,10 @@ class StructuresHelper extends Helper
     /**
      * Echoes a structure in a table format
      *
-     * @param array $atimStructure            
-     * @param array $options            
-     * @param array $data            
+     * @param array $atimStructure
+     * @param array $options
+     * @param array $data
+     * @param $type
      */
     private function buildTable(array $atimStructure, array $options, array $data, $type)
     {
@@ -1453,8 +1508,9 @@ class StructuresHelper extends Helper
     /**
      * Builds a structure in a csv format
      *
-     * @param unknown_type $atimStructure            
-     * @param unknown_type $options            
+     * @param unknown_type $atimStructure
+     * @param unknown_type $options
+     * @param $data
      */
     private function buildCsv($atimStructure, $options, $data)
     {
@@ -1712,10 +1768,11 @@ class StructuresHelper extends Helper
     /**
      * Rebuild date that has been formated by function updateDataWithAccuracy() to be formated for CSV export
      *
-     * @param array $modelData            
-     * @param array $field            
+     * @param array $modelData
+     * @param array $field
      * @param array $fieldType
      *            date or datetime
+     * @return array
      */
     public function getDateValuesFormattedForExcel($modelData, $field, $fieldType)
     {
@@ -2005,10 +2062,11 @@ class StructuresHelper extends Helper
     /**
      * Builds the display header
      *
-     * @param array $tableIndex
-     *            The structural information
+     * @param array $tableStructure
      * @param array $options
      *            The options
+     * @return array
+     * @internal param array $tableIndex The structural information*            The structural information
      */
     private function buildDisplayHeader(array $tableStructure, array $options)
     {
@@ -2213,6 +2271,11 @@ class StructuresHelper extends Helper
         );
     }
 
+    /**
+     * @param array $returnArray
+     * @param $options
+     * @return array
+     */
     private function displayExtras($returnArray = array(), $options)
     {
         if (count($options['extras'])) {
@@ -2230,6 +2293,11 @@ class StructuresHelper extends Helper
         return $returnArray;
     }
 
+    /**
+     * @param $thisColumn
+     * @param $totalColumns
+     * @param $content
+     */
     private function printExtras($thisColumn, $totalColumns, $content)
     {
         echo ('
@@ -2588,6 +2656,11 @@ class StructuresHelper extends Helper
         return $stack;
     }
 
+    /**
+     * @param array $atimContent
+     * @param array $options
+     * @return string
+     */
     public function generateContentWrapper($atimContent = array(), $options = array())
     {
         $returnString = '';
@@ -2630,6 +2703,12 @@ class StructuresHelper extends Helper
         return $returnString . $this->generateLinksList(null, isset($options['links']) ? $options['links'] : array(), 'bottom');
     }
 
+    /**
+     * @param $data
+     * @param array $optionLinks
+     * @param string $state
+     * @return mixed|string
+     */
     private function generateLinksList($data, array $optionLinks, $state = 'index')
     {
         $returnString = '';
@@ -2830,6 +2909,11 @@ $confirmationMsg); // confirmation message
         return $returnString;
     }
 
+    /**
+     * @param null $linkName
+     * @param null $linkLocation
+     * @return mixed|null|string
+     */
     public function generateLinkClass($linkName = null, $linkLocation = null)
     {
         $displayClassName = '';
@@ -2900,6 +2984,9 @@ $confirmationMsg); // confirmation message
 
     /**
      * FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value
+     * @param string $link
+     * @param array $data
+     * @return mixed|string
      */
     public function strReplaceLink($link = '', $data = array())
     {
@@ -2923,6 +3010,11 @@ $confirmationMsg); // confirmation message
         return $link;
     }
 
+    /**
+     * @param $array1
+     * @param null $array2
+     * @return mixed
+     */
     public function &arrayMergeRecursiveDistinct(&$array1, &$array2 = null)
     {
         $merged = $array1;
@@ -2944,10 +3036,11 @@ $confirmationMsg); // confirmation message
     /**
      * Returns the date inputs
      *
-     * @param string $name            
+     * @param string $name
      * @param string $date
      *            YYYY-MM-DD
-     * @param array $attributes            
+     * @param array $attributes
+     * @return string
      */
     private function getDateInputs($name, $date, array $attributes)
     {
@@ -3047,10 +3140,11 @@ $confirmationMsg); // confirmation message
     /**
      * Returns the time inputs
      *
-     * @param string $name            
+     * @param string $name
      * @param string $time
      *            HH:mm (24h format)
-     * @param array $attributes            
+     * @param array $attributes
+     * @return string
      */
     private function getTimeInputs($name, $time, array $attributes)
     {
@@ -3115,6 +3209,13 @@ $confirmationMsg); // confirmation message
         return $result;
     }
 
+    /**
+     * @param $dataUnit
+     * @param array $tableRowPart
+     * @param $suffix
+     * @param $options
+     * @return bool|string
+     */
     private static function getCurrentValue($dataUnit, array $tableRowPart, $suffix, $options)
     {
         $warning = false;
@@ -3182,6 +3283,11 @@ $confirmationMsg); // confirmation message
         return $currentValue;
     }
 
+    /**
+     * @param array $rawRadiolist
+     * @param array $data
+     * @return string
+     */
     private function getRadiolist(array $rawRadiolist, array $data)
     {
         // debug(AppController::getStackTrace());
@@ -3208,6 +3314,11 @@ $confirmationMsg); // confirmation message
         return $result;
     }
 
+    /**
+     * @param array $rawChecklist
+     * @param array $data
+     * @return string
+     */
     public function getChecklist(array $rawChecklist, array $data)
     {
         $result = '';
@@ -3223,6 +3334,11 @@ $confirmationMsg); // confirmation message
         return $result;
     }
 
+    /**
+     * @param array $sanitizedData
+     * @param array $orgData
+     * @param array $unsanitize
+     */
     private function unsanitize(array &$sanitizedData, array $orgData, array $unsanitize)
     {
         foreach ($orgData as $index => $row) {
@@ -3247,6 +3363,11 @@ $confirmationMsg); // confirmation message
         }
     }
 
+    /**
+     * @param $searchUrl
+     * @param $name
+     * @return string
+     */
     public function generateSelectItem($searchUrl, $name)
     {
         return '
@@ -3257,6 +3378,10 @@ $confirmationMsg); // confirmation message
 		';
     }
 
+    /**
+     * @param $indexUrl
+     * @return string
+     */
     public function ajaxIndex($indexUrl)
     {
         return AppController::checkLinkPermission($indexUrl) ? '

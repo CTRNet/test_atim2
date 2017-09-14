@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ProtocolDetail
+ */
 class ProtocolDetail extends ProtocolAppModel
 {
 

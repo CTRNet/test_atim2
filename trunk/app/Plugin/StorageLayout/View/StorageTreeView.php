@@ -8,6 +8,10 @@
  * This model helps for the tree view build that was complex using just StorageMaster model that will return details
  * data all the time.
  */
+
+/**
+ * Class StorageTreeView
+ */
 class StorageTreeView extends StorageLayoutAppModel
 {
 

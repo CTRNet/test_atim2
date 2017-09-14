@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructureFormat
+ */
 class StructureFormat extends AppModel
 {
 

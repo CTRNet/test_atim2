@@ -11,6 +11,10 @@ class NonTmaBlockStorage extends StorageLayoutAppModel
 
     public $useTable = 'view_storage_masters';
 
+    /**
+     * @param array $queryData
+     * @return array
+     */
     public function beforeFind($queryData)
     {
         if (! is_array($queryData['conditions']))

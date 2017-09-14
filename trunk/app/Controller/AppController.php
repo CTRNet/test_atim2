@@ -216,12 +216,21 @@ class AppController extends Controller
         $this->Auth->authError = __('You are not authorized to access that location.');
     }
 
+    /**
+     * AppController constructor.
+     * @param null $request
+     * @param null $response
+     */
     public function __construct($request = null, $response = null) {
         $className = get_class($this);
         $this->name = substr($className, 0, strlen(get_class($this)) - (strpos($className, 'ControllerCustom') === false ? 10 : 16));
         parent::__construct($request, $response);
-    }    
-    
+    }
+
+    /**
+     * @param string $hookExtension
+     * @return bool|string
+     */
     public function hook($hookExtension = '')
     {
         if ($hookExtension) {
@@ -237,6 +246,9 @@ class AppController extends Controller
         return $hookFile;
     }
 
+    /**
+     * @return CakeResponse|null
+     */
     private function handleFileRequest()
     {
         $file = $this->request->query['file'];
@@ -336,6 +348,9 @@ class AppController extends Controller
         return ((float) $usec + (float) $sec);
     }
 
+    /**
+     * @param $word
+     */
     public static function missingTranslation(&$word)
     {
         if (! is_numeric($word) && strpos($word, "<span class='untranslated'>") === false) {
@@ -346,6 +361,11 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param $message
+     * @param $url
+     * @param int $type
+     */
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
         $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
@@ -375,26 +395,49 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param $message
+     * @param $url
+     * @param null $compatibility
+     */
     public function atimFlashError($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::ERROR);
     }
 
+    /**
+     * @param $message
+     * @param $url
+     * @param null $compatibility
+     */
     public function atimFlashInfo($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::INFORMATION);
     }
 
+    /**
+     * @param $message
+     * @param $url
+     * @param null $compatibility
+     */
     public function atimFlashConfirm($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::CONFIRM);
     }
 
+    /**
+     * @param $message
+     * @param $url
+     * @param null $compatibility
+     */
     public function atimFlashWarning($message, $url, $compatibility=null)
     {
         $this->atimFlash($message, $url, self::WARNING);
     }
 
+    /**
+     * @return null
+     */
     public static function getInstance()
     {
         return AppController::$me;
@@ -546,6 +589,12 @@ class AppController extends Controller
         return $result;
     }
 
+    /**
+     * @param $hour
+     * @param $minutes
+     * @param bool $nbspSpaces
+     * @return string
+     */
     public static function getFormatedTimeString($hour, $minutes, $nbspSpaces = true)
     {
         if (TIME_FORMAT == 12) {
@@ -614,7 +663,7 @@ class AppController extends Controller
      *            'year' => string,
      *            'hour' => string,
      *            'min' => string)
-     * @param $dateType Specify
+     * @param Specify|string $dateType Specify
      *            the type of date ('normal', 'start', 'end')
      *            - normal => Will force function to build a date witout specific rules.
      *            - start => Will force function to build date as a 'start date' of date range defintion
@@ -623,7 +672,6 @@ class AppController extends Controller
      *            - end => Will force function to build date as an 'end date' of date range defintion
      *            (ex1: when just year is specified, will return a value like year-12-31 23:59)
      *            (ex2: when array is empty, will return a value like 9999-99-99 23:59)
-     *            
      * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
      */
     public static function getFormatedDatetimeSQL($datetimeArray, $dateType = 'normal')
@@ -696,6 +744,7 @@ class AppController extends Controller
      *
      * @param array $arr
      *            The array to clone
+     * @return array
      */
     public static function cloneArray(array $arr)
     {
@@ -710,6 +759,10 @@ class AppController extends Controller
         return $result;
     }
 
+    /**
+     * @param $msg
+     * @param bool $withTrace
+     */
     public static function addWarningMsg($msg, $withTrace = false)
     {
         if ($withTrace) {
@@ -726,6 +779,9 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param $msg
+     */
     public static function addInfoMsg($msg)
     {
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
@@ -735,6 +791,9 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @return array
+     */
     public static function getStackTrace()
     {
         $bt = debug_backtrace();
@@ -748,8 +807,9 @@ class AppController extends Controller
     /**
      * Builds the value definition array for an updateAll call
      *
-     * @param
-     *            array They data array to build the values with
+     * @param array $data
+     * @return array
+     * @internal param $ array They data array to build the values with*            array They data array to build the values with
      */
     public static function getUpdateAllValues(array $data)
     {
@@ -771,6 +831,7 @@ class AppController extends Controller
     /**
      * cookie manipulation to counter cake problems.
      * see eventum #1032
+     * @param $skipExpirationCookie
      */
     public static function atimSetCookie($skipExpirationCookie)
     {
@@ -800,6 +861,7 @@ class AppController extends Controller
      *            The model to fetch the possibilities from
      * @param string $possibilitiesParentKey
      *            The possibilities parent key to base the search on
+     * @param $noPossibilitiesMsg
      * @return An array with the ids and the possibilities
      */
     public function batchInit($model, $dataModelName, $dataKey, $controlKeyName, $possibilitiesModel, $possibilitiesParentKey, $noPossibilitiesMsg)
@@ -903,8 +965,8 @@ class AppController extends Controller
     /**
      * Recursively removes entries returning true on empty($value).
      *
-     * @param
-     *            array &$data
+     * @param array $data
+     * @internal param $ array &$data*            array &$data
      */
     public static function removeEmptyValues(array &$data)
     {
@@ -918,6 +980,9 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @return mixed
+     */
     public static function getNewSearchId()
     {
         return AppController::getInstance()->Session->write('search_id', AppController::getInstance()->Session->read('search_id') + 1);
@@ -947,6 +1012,11 @@ class AppController extends Controller
         return strpos($acoAlias, 'Controller/Users') !== false || strpos($acoAlias, 'Controller/Pages') !== false || $acoAlias == "Controller/Menus/index" || $instance->SessionAcl->check('Group::' . $instance->Session->read('Auth.User.group_id'), $acoAlias);
     }
 
+    /**
+     * @param $inArray
+     * @param $model
+     * @param $field
+     */
     public static function applyTranslation(&$inArray, $model, $field)
     {
         foreach ($inArray as &$part) {
@@ -1236,6 +1306,15 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param array $list
+     * @param $lModel
+     * @param $lKey
+     * @param array $data
+     * @param $dModel
+     * @param $dKey
+     * @return bool
+     */
     public function setForRadiolist(array &$list, $lModel, $lKey, array $data, $dModel, $dKey)
     {
         foreach ($list as &$unit) {
@@ -1254,6 +1333,7 @@ class AppController extends Controller
      *
      * @param
      *            strint or null $data
+     * @return null|string
      */
     public static function getCancelLink($data)
     {
@@ -1984,12 +2064,20 @@ class AppController extends Controller
         }
     }
 
+    /**
+     * @param $config
+     */
     public function configureCsv($config)
     {
         $this->csvConfig = $config;
         $this->Session->write('Config.language', $config['config_language']);
     }
 
+    /**
+     * @param $connection
+     * @param array $options
+     * @return string
+     */
     public function getQueryLogs($connection, $options = array())
     {
         $db = ConnectionManager::getDataSource($connection);
@@ -2011,9 +2099,13 @@ class AppController extends Controller
         return $out;
     }
 
+    /**
+     * @param null $array
+     * @return array
+     */
     public static function convertArrayKeyFromSnakeToCamel($array = null)
     {
-        $answer = [];
+        $answer = array();
         if ($array) {
             foreach ($array as $key => $value) {
                 $answer[Inflector::variable($key)] = $value;
@@ -2033,8 +2125,16 @@ AppController::init();
 function now()
 {
     return date("Y-m-d H:i:s");
-}    
+}
 
+/**
+ * @param $errno
+ * @param $errstr
+ * @param $errfile
+ * @param $errline
+ * @param null $context
+ * @return bool
+ */
 function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null)
 {
     if (class_exists("AppController")) {

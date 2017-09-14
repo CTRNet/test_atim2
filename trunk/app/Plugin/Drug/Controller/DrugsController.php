@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class DrugsController
+ */
 class DrugsController extends DrugAppController
 {
 
@@ -13,6 +16,9 @@ class DrugsController extends DrugAppController
         )
     );
 
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->searchHandler($searchId, $this->Drug, 'drugs', '/Drug/Drugs/search');
@@ -107,6 +113,9 @@ class DrugsController extends DrugAppController
         }
     }
 
+    /**
+     * @param $drugId
+     */
     public function edit($drugId)
     {
         $drugData = $this->Drug->getOrRedirect($drugId);
@@ -143,6 +152,9 @@ class DrugsController extends DrugAppController
         }
     }
 
+    /**
+     * @param $drugId
+     */
     public function detail($drugId)
     {
         $this->request->data = $this->Drug->getOrRedirect($drugId);
@@ -157,6 +169,9 @@ class DrugsController extends DrugAppController
         }
     }
 
+    /**
+     * @param $drugId
+     */
     public function delete($drugId)
     {
         $drugData = $this->Drug->getOrRedirect($drugId);

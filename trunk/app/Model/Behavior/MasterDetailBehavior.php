@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * Class MasterDetailBehavior
+ */
 class MasterDetailBehavior extends ModelBehavior
 {
 
     public $__settings = array();
 
+    /**
+     * @param Model $model
+     * @param array $config
+     */
     public function setup(Model $model, $config = array())
     {
         if (strpos($model->alias, 'Master') || strpos($model->alias, 'Control') || (isset($model->baseModel) && strpos($model->baseModel, 'Master'))) {
@@ -72,6 +79,12 @@ class MasterDetailBehavior extends ModelBehavior
         $this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
     }
 
+    /**
+     * @param Model $model
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind(Model $model, $results, $primary = false)
     {
         // make all SETTINGS into individual VARIABLES, with the KEYS as names
@@ -153,6 +166,12 @@ class MasterDetailBehavior extends ModelBehavior
         return false;
     }
 
+    /**
+     * @param Model $model
+     * @param $controlId
+     * @param null $alternateModelName
+     * @return array
+     */
     public function getDetailJoin(Model $model, $controlId, $alternateModelName = null)
     {
         extract(AppController::convertArrayKeyFromSnakeToCamel($this->__settings[$model->alias]));
@@ -194,6 +213,11 @@ class MasterDetailBehavior extends ModelBehavior
         );
     }
 
+    /**
+     * @param Model $model
+     * @param array $query
+     * @return array|void
+     */
     public function beforeFind(Model $model, $query)
     {
         // make all SETTINGS into individual VARIABLES, with the KEYS as names
@@ -217,6 +241,12 @@ class MasterDetailBehavior extends ModelBehavior
         return $query;
     }
 
+    /**
+     * @param Model $model
+     * @param bool $created
+     * @param array $options
+     * @return bool|mixed
+     */
     public function afterSave(Model $model, $created, $options = array())
     {
         // make all SETTINGS into individual VARIABLES, with the KEYS as names
@@ -271,6 +301,11 @@ class MasterDetailBehavior extends ModelBehavior
         } else {}
     }
 
+    /**
+     * @param Model $model
+     * @param bool $cascade
+     * @return bool
+     */
     public function beforeDelete(Model $model, $cascade = true)
     {
         // make all SETTINGS into individual VARIABLES, with the KEYS as names
@@ -302,6 +337,10 @@ class MasterDetailBehavior extends ModelBehavior
         return true;
     }
 
+    /**
+     * @param Model $model
+     * @return null
+     */
     public function getControlName(Model $model)
     {
         if (isset($model->baseModel)) {
@@ -310,6 +349,10 @@ class MasterDetailBehavior extends ModelBehavior
         return isset($this->__settings[$model->alias]['control_class']) ? $this->__settings[$model->alias]['control_class'] : null;
     }
 
+    /**
+     * @param Model $model
+     * @return null
+     */
     public function getControlForeign(Model $model)
     {
         if (isset($model->baseModel)) {
@@ -323,9 +366,10 @@ class MasterDetailBehavior extends ModelBehavior
      * and to manually add the form_alias since virutalFields do not work for associated
      * models.
      *
-     * @param Model $model            
-     * @param unknown_type $results            
-     * @param unknown_type $primary            
+     * @param Model $model
+     * @param unknown_type $results
+     * @param unknown_type $primary
+     * @return unknown_type
      */
     public function applyMasterFormAlias(Model $model, $results, $primary)
     {
@@ -337,6 +381,12 @@ class MasterDetailBehavior extends ModelBehavior
         return $results;
     }
 
+    /**
+     * @param $model
+     * @param $controlId
+     * @return AppModel
+     * @throws Exception
+     */
     public function getDetailModel($model, $controlId)
     {
         extract(AppController::convertArrayKeyFromSnakeToCamel($this->__settings[$model->alias]));

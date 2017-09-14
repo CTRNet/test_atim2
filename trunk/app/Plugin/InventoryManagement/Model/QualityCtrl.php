@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class QualityCtrl
+ */
 class QualityCtrl extends InventoryManagementAppModel
 {
 
@@ -20,6 +23,10 @@ class QualityCtrl extends InventoryManagementAppModel
         )
     );
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -81,17 +88,16 @@ class QualityCtrl extends InventoryManagementAppModel
      *
      * @param $qcId ID
      *            of the studied quality control.
+     * @param $storageData
      * @param $qcData Data
      *            of the quality control.
      * @param $sampleData Data
      *            of the sample linked to this quality control.
-     *            
      * @return The new code.
-     *        
+     *
      * @author N. Luc
      * @since 2008-01-31
      * @deprecated
-     *
      */
     public function createCode($qcId, $storageData, $qcData = null, $sampleData = null)
     {

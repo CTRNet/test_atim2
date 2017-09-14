@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BanksController
+ */
 class BanksController extends AdministrateAppController
 {
 
@@ -36,6 +39,9 @@ class BanksController extends AdministrateAppController
         $this->request->data = $this->paginate($this->Bank);
     }
 
+    /**
+     * @param $bankId
+     */
     public function detail($bankId)
     {
         $this->request->data = $this->Bank->getOrRedirect($bankId);
@@ -51,6 +57,9 @@ class BanksController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $bankId
+     */
     public function edit($bankId)
     {
         
@@ -80,6 +89,9 @@ class BanksController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $bankId
+     */
     public function delete($bankId)
     {
         $bankData = $this->Bank->getOrRedirect($bankId);

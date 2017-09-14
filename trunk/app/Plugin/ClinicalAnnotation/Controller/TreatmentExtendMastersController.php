@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TreatmentExtendMastersController
+ */
 class TreatmentExtendMastersController extends ClinicalAnnotationAppController
 {
 
@@ -18,6 +21,10 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
 
     public $paginate = array();
 
+    /**
+     * @param $participantId
+     * @param $txMasterId
+     */
     public function add($participantId, $txMasterId)
     {
         // Get treatment data
@@ -126,6 +133,11 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $txMasterId
+     * @param $txExtendId
+     */
     public function edit($participantId, $txMasterId, $txExtendId)
     {
         // Get treatment extend data
@@ -186,6 +198,11 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $txMasterId
+     * @param $txExtendId
+     */
     public function delete($participantId, $txMasterId, $txExtendId)
     {
         // Get treatment extend data
@@ -217,6 +234,10 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $txMasterId
+     */
     public function importDrugFromChemoProtocol($participantId, $txMasterId)
     {
         $txMasterData = $this->TreatmentMaster->getOrRedirect($txMasterId);

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AtimDebug
+ */
 class AtimDebug{
     private static $counter=0;
     
@@ -7,10 +10,10 @@ class AtimDebug{
      * @param int $counter after $counter time that this function run, it send $message to API
      * @param array $message the message that will be send to API after $counter time of execution of this function
      */
-    public static function stop($counter=1, $message=['message']) 
+    public static function stop($counter=1, $message=array('message')) 
     {
         if (!is_array($message)){
-            $message=[$message];
+            $message=array($message);
         }
         if (self::$counter==$counter){
             d($message);
@@ -49,8 +52,8 @@ function newTranslate($singular, $args = null){
 
 
 /**
- * @param int $arr
- * @return boolean
+ * @param array|int $arr
+ * @return bool
  */
 function isAssoc(array $arr)
 {
@@ -161,6 +164,10 @@ function json_encode_js($data, $level=3, $formattage=0)
     return $s;
 }
 
+/**
+ * @param $str
+ * @return mixed
+ */
 function stringCorrection($str)
 {
     if (empty($str)){
@@ -232,6 +239,9 @@ TEXT;
     }
 }
 
+/**
+ * @param int $number
+ */
 function dc($number=0)
 {
     if (!Configure::read('debug')) {

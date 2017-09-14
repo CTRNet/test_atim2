@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class PreferencesController
+ */
 class PreferencesController extends CustomizeAppController
 {
 

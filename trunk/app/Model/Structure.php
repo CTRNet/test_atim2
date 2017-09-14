@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Structure
+ */
 class Structure extends AppModel
 {
 
@@ -26,6 +29,9 @@ class Structure extends AppModel
 
     private $simple = true;
 
+    /**
+     * Structure constructor.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -58,6 +64,13 @@ class Structure extends AppModel
         $this->simple = true;
     }
 
+    /**
+     * @param null $conditions
+     * @param array $fields
+     * @param null $order
+     * @param null $recursive
+     * @return array
+     */
     public function find($conditions = null, $fields = array(), $order = null, $recursive = null)
     {
         $structure = parent::find('first', $fields, $order, $recursive);

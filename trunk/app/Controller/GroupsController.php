@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class GroupsController
+ */
 class GroupsController extends AppController
 {
 
@@ -21,6 +24,9 @@ class GroupsController extends AppController
         $this->set('groups', $this->paginate());
     }
 
+    /**
+     * @param null $id
+     */
     public function view($id = null)
     {
         if (! $id) {
@@ -57,6 +63,9 @@ class GroupsController extends AppController
         }
     }
 
+    /**
+     * @param null $id
+     */
     public function edit($id = null)
     {
         if (! $id && empty($this->request->data)) {
@@ -123,6 +132,9 @@ class GroupsController extends AppController
         $this->set('acoOptions', $acoOptions);
     }
 
+    /**
+     * @param null $id
+     */
     public function delete($id = null)
     {
         if (! $id) {

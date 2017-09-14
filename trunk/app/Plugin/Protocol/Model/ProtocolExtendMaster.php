@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ProtocolExtendMaster
+ */
 class ProtocolExtendMaster extends ProtocolAppModel
 {
 
@@ -16,6 +19,10 @@ class ProtocolExtendMaster extends ProtocolAppModel
 
     public static $drugModel = null;
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         $this->validateAndUpdateProtocolExtendDrugData();

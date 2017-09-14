@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class LabBookAppModel
+ */
 class LabBookAppModel extends AppModel
 {
 

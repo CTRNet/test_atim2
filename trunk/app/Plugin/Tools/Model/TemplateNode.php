@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TemplateNode
+ */
 class TemplateNode extends AppModel
 {
 

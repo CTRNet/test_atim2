@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ConsentControl
+ */
 class ConsentControl extends ClinicalAnnotationAppModel
 {
 
@@ -29,6 +32,11 @@ class ConsentControl extends ClinicalAnnotationAppModel
         return $result;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

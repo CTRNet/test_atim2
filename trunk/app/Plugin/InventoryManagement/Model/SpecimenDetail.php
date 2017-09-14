@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SpecimenDetail
+ */
 class SpecimenDetail extends InventoryManagementAppModel
 {
 

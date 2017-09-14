@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SystemVar
+ */
 class SystemVar extends Model
 {
 
@@ -7,6 +10,10 @@ class SystemVar extends Model
 
     private static $cache = array();
 
+    /**
+     * @param $key
+     * @return array|mixed|null
+     */
     public function getVar($key)
     {
         if (isset(self::$cache[$key])) {
@@ -25,6 +32,10 @@ class SystemVar extends Model
         return $val;
     }
 
+    /**
+     * @param $key
+     * @param $val
+     */
     public function setVar($key, $val)
     {
         $this->save(array(

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudyResultsController
+ */
 class StudyResultsController extends StudyAppController
 {
 
@@ -14,6 +17,9 @@ class StudyResultsController extends StudyAppController
         )
     );
 
+    /**
+     * @param $studySummaryId
+     */
     public function listall($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -50,6 +56,10 @@ class StudyResultsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyResultsId
+     */
     public function detail($studySummaryId, $studyResultsId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -87,6 +97,9 @@ class StudyResultsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     */
     public function add($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -154,6 +167,10 @@ class StudyResultsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyResultsId
+     */
     public function edit($studySummaryId, $studyResultsId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -224,6 +241,10 @@ class StudyResultsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyResultsId
+     */
     public function delete($studySummaryId, $studyResultsId)
     {
         pr('Has to be reviewed before to be used in prod.');

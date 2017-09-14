@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ViewCollection
+ */
 class ViewCollection extends InventoryManagementAppModel
 {
 
@@ -51,6 +54,10 @@ class ViewCollection extends InventoryManagementAppModel
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;

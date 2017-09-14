@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class FindCustomsShell
+ */
 class FindCustomsShell extends AppShell
 {
 

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Group
+ */
 class Group extends AppModel
 {
 
@@ -13,11 +16,18 @@ class Group extends AppModel
         'User'
     );
 
+    /**
+     * @return null
+     */
     public function parentNode()
     {
         return null;
     }
 
+    /**
+     * @param array $variables
+     * @return array|bool
+     */
     public function summary($variables = array())
     {
         $return = false;
@@ -78,6 +88,7 @@ class Group extends AppModel
      *
      * @param
      *            $groupId
+     * @return bool
      */
     public function hasPermissions($groupId)
     {
@@ -114,6 +125,9 @@ class Group extends AppModel
         return ! empty($data);
     }
 
+    /**
+     * @return array|null
+     */
     public function getList()
     {
         return $this->find('list', array(

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class MenusComponent
+ */
 class MenusComponent extends Component
 {
 
@@ -14,11 +17,19 @@ class MenusComponent extends Component
         'Aco'
     );
 
+    /**
+     * @param Controller $controller
+     */
     public function initialize(Controller $controller)
     {
         $this->controller = $controller;
     }
 
+    /**
+     * @param null $alias
+     * @param array $replace
+     * @return array|bool|mixed
+     */
     public function get($alias = null, $replace = array())
     {
         $aroAlias = 'Group::' . $this->Session->read('Auth.User.group_id');

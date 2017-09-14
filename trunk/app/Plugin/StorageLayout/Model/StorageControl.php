@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StorageControl
+ */
 class StorageControl extends StorageLayoutAppModel
 {
 
@@ -34,6 +37,9 @@ class StorageControl extends StorageLayoutAppModel
         return $result;
     }
 
+    /**
+     * @return array
+     */
     public function getNonTmaBlockStorageTypePermissibleValues()
     {
         $storageTypesFromId = $this->getStorageTypePermissibleValues();
@@ -52,6 +58,9 @@ class StorageControl extends StorageLayoutAppModel
         return $storageTypesFromId;
     }
 
+    /**
+     * @return array
+     */
     public function getTmaBlockStorageTypePermissibleValues()
     {
         $storageTypesFromId = $this->getStorageTypePermissibleValues();
@@ -73,6 +82,10 @@ class StorageControl extends StorageLayoutAppModel
         return $storageTypesFromId;
     }
 
+    /**
+     * @param null $storageMasterId
+     * @return array|string
+     */
     public function getAddStorageStructureLinks($storageMasterId = null)
     {
         $storageTypesFromId = $this->getStorageTypePermissibleValues();
@@ -137,6 +150,10 @@ class StorageControl extends StorageLayoutAppModel
         return true;
     }
 
+    /**
+     * @param $storageControlData
+     * @return string
+     */
     public function getStorageLayoutDescription($storageControlData)
     {
         $description = '';
@@ -177,6 +194,11 @@ class StorageControl extends StorageLayoutAppModel
         return (empty($description) ? 'n/a' : $description);
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

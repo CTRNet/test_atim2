@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AliquotReviewMaster
+ */
 class AliquotReviewMaster extends InventoryManagementAppModel
 {
 
@@ -29,7 +32,10 @@ class AliquotReviewMaster extends InventoryManagementAppModel
      *
      * @author N. Luc
      * @since 2010-05-26
-     *        @updated N. Luc
+     * @updated N. Luc
+     * @param null $sampleMasterId
+     * @param null $specificAliquotType
+     * @return array
      */
     public function getAliquotListForReview($sampleMasterId = null, $specificAliquotType = null)
     {
@@ -61,6 +67,11 @@ class AliquotReviewMaster extends InventoryManagementAppModel
         return $result;
     }
 
+    /**
+     * @param $aliquotMasterId
+     * @param null $aliquotData
+     * @return mixed
+     */
     public function generateLabelOfReviewedAliquot($aliquotMasterId, $aliquotData = null)
     {
         if (! ($aliquotData && isset($aliquotData['AliquotMaster']))) {
@@ -72,6 +83,11 @@ class AliquotReviewMaster extends InventoryManagementAppModel
         return $aliquotData['AliquotMaster']['barcode'];
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);

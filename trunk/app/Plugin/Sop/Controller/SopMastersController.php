@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SopMastersController
+ */
 class SopMastersController extends SopAppController
 {
 
@@ -31,6 +34,9 @@ class SopMastersController extends SopAppController
         }
     }
 
+    /**
+     * @param $sopControlId
+     */
     public function add($sopControlId)
     {
         $this->set('atimMenuVariables', array(
@@ -84,6 +90,9 @@ class SopMastersController extends SopAppController
         }
     }
 
+    /**
+     * @param $sopMasterId
+     */
     public function detail($sopMasterId)
     {
         if (! $sopMasterId) {
@@ -105,6 +114,9 @@ class SopMastersController extends SopAppController
         }
     }
 
+    /**
+     * @param $sopMasterId
+     */
     public function edit($sopMasterId)
     {
         $this->set('atimMenuVariables', array(
@@ -150,6 +162,9 @@ class SopMastersController extends SopAppController
         }
     }
 
+    /**
+     * @param $sopMasterId
+     */
     public function delete($sopMasterId)
     {
         if (! $sopMasterId) {

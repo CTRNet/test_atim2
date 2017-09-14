@@ -1,8 +1,15 @@
 <?php
 
+/**
+ * Class ParticipantMessage
+ */
 class ParticipantMessage extends ClinicalAnnotationAppModel
 {
 
+    /**
+     * @param array $variables
+     * @return bool
+     */
     public function summary($variables = array())
     {
         $return = false;

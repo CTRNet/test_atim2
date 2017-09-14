@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudyEthicsBoardsController
+ */
 class StudyEthicsBoardsController extends StudyAppController
 {
 
@@ -14,6 +17,9 @@ class StudyEthicsBoardsController extends StudyAppController
         )
     );
 
+    /**
+     * @param $studySummaryId
+     */
     public function listall($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -51,6 +57,10 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyEthicsBoardId
+     */
     public function detail($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -88,6 +98,9 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     */
     public function add($studySummaryId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -155,6 +168,10 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyEthicsBoardId
+     */
     public function edit($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');
@@ -225,6 +242,10 @@ class StudyEthicsBoardsController extends StudyAppController
         }
     }
 
+    /**
+     * @param $studySummaryId
+     * @param $studyEthicsBoardId
+     */
     public function delete($studySummaryId, $studyEthicsBoardId)
     {
         pr('Has to be reviewed before to be used in prod.');

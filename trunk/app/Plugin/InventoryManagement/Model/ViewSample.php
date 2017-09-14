@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ViewSample
+ */
 class ViewSample extends InventoryManagementAppModel
 {
 
@@ -99,6 +102,15 @@ class ViewSample extends InventoryManagementAppModel
         'coll_to_rec_spent_time_msg'
     );
 
+    /**
+     * ViewSample constructor.
+     * @param bool $id
+     * @param null $table
+     * @param null $ds
+     * @param null $baseModelName
+     * @param null $detailTable
+     * @param null $previousModel
+     */
     public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
         if ($this->fieldsReplace == null) {

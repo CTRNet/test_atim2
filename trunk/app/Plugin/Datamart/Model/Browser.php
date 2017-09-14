@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Browser
+ */
 class Browser extends DatamartAppModel
 {
 
@@ -236,6 +239,14 @@ class Browser extends DatamartAppModel
         return $result;
     }
 
+    /**
+     * @param array $fromTo
+     * @param $currentId
+     * @param array $browsingStructures
+     * @param array|null $subModelsIdFilter
+     * @param array $stack
+     * @return array|null
+     */
     public function buildBrowsableOptionsRecur(array $fromTo, $currentId, array $browsingStructures, array $subModelsIdFilter = null, array $stack)
     {
         $result = null;
@@ -359,6 +370,12 @@ class Browser extends DatamartAppModel
         return $result;
     }
 
+    /**
+     * @param array $result
+     * @param array $browsingStructures
+     * @param $currentId
+     * @param array $subModelsIdFilter
+     */
     public function buildItemOptions(array &$result, array &$browsingStructures, &$currentId, array &$subModelsIdFilter)
     {
         $result['children'] = array(
@@ -388,9 +405,9 @@ class Browser extends DatamartAppModel
      *            A DatamartStructure model data array of the node to fetch the submodels of
      * @param string $prependValue
      *            A string to prepend to the value
-     * @param
-     *            array ids_filter An array to filter the controls ids of the current sub model
+     * @param array|null $idsFilter
      * @return array The data about the submodels of the given model
+     * @internal param $ array ids_filter An array to filter the controls ids of the current sub model*            array ids_filter An array to filter the controls ids of the current sub model
      */
     public static function getSubModels(array $mainModelInfo, $prependValue, array $idsFilter = null)
     {
@@ -531,12 +548,12 @@ class Browser extends DatamartAppModel
      *
      * @param array $treeNode
      *            A node and its informations
-     * @param
-     *            array &$tree An array with the current tree representation
+     * @param array $tree
      * @param Int $x
      *            The current x location
      * @param Int $y
      *            The current y location
+     * @internal param $ array &$tree An array with the current tree representation*            array &$tree An array with the current tree representation
      */
     public static function buildTree(array $treeNode, &$tree = array(), $x = 0, &$y = 0)
     {
@@ -667,6 +684,10 @@ class Browser extends DatamartAppModel
         }
     }
 
+    /**
+     * @param $cell
+     * @return mixed|string
+     */
     private static function getBaseTitle($cell)
     {
         $title = __($cell['DatamartStructure']['display_name']);
@@ -1037,11 +1058,12 @@ class Browser extends DatamartAppModel
     /**
      * Updates an index link
      *
-     * @param string $link            
-     * @param string $prevModel            
-     * @param string $newModel            
-     * @param string $prevPkey            
-     * @param string $newPkey            
+     * @param string $link
+     * @param string $prevModel
+     * @param string $newModel
+     * @param string $prevPkey
+     * @param string $newPkey
+     * @return mixed
      */
     public static function updateIndexLink($link, $prevModel, $newModel, $prevPkey, $newPkey)
     {
@@ -1180,6 +1202,9 @@ class Browser extends DatamartAppModel
         return implode(" - ", $parts);
     }
 
+    /**
+     * @return array
+     */
     private function getActiveStructuresIds()
     {
         $browsingControl = AppModel::getInstance("Datamart", "BrowsingControl", true);
@@ -1263,6 +1288,10 @@ class Browser extends DatamartAppModel
         return $nodesToFetch;
     }
 
+    /**
+     * @param $node
+     * @return string
+     */
     private function getModelAlias($node)
     {
         return $node[self::NODE_ID] . "_" . $node[self::MODEL]->name;
@@ -1271,6 +1300,8 @@ class Browser extends DatamartAppModel
     /**
      * Builds the search parameters array
      * @note: Hardcoded for collections
+     * @param $primaryNodeIds
+     * @param $order
      */
     private function buildBufferedSearchParameters($primaryNodeIds, $order)
     {
@@ -1328,6 +1359,7 @@ class Browser extends DatamartAppModel
      *            Node id of the target node to merge with
      * @param array $primaryNodeIds
      *            The ids of the primary node to use
+     * @param null $order
      */
     public function initDataLoad(array $browsing, $mergeTo, array $primaryNodeIds, $order = null)
     {
@@ -1475,6 +1507,9 @@ class Browser extends DatamartAppModel
         $this->resultStructure = $resultStructure;
     }
 
+    /**
+     * @param $chunkSize
+     */
     private function fillBuffer($chunkSize)
     {
         $this->searchParameters['limit'] = $chunkSize;
@@ -1653,6 +1688,10 @@ class Browser extends DatamartAppModel
         return null;
     }
 
+    /**
+     * @param $params
+     * @return array
+     */
     public function createNode($params)
     {
         $dmStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
@@ -2057,6 +2096,10 @@ $browsingFilter['attribute']);
         );
     }
 
+    /**
+     * @param $data
+     * @param $nodeId
+     */
     public function buildDrillDownIfNeeded($data, &$nodeId)
     {
         if ($nodeId == 0) {
