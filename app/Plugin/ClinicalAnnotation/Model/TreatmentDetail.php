@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TreatmentDetail
+ */
 class TreatmentDetail extends ClinicalAnnotationAppModel
 {
 

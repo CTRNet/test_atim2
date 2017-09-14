@@ -1,8 +1,14 @@
 <?php
 
+/**
+ * Class InventoryManagementAppController
+ */
 class InventoryManagementAppController extends AppController
 {
 
+    /**
+     * @param array $data
+     */
     public function setBatchMenu(array $data)
     {
         if (array_key_exists('SampleMaster', $data) && ! empty($data['SampleMaster'])) {
@@ -61,6 +67,10 @@ class InventoryManagementAppController extends AppController
         }
     }
 
+    /**
+     * @param $data
+     * @param bool $isRealiquotedList
+     */
     public function setAliquotMenu($data, $isRealiquotedList = false)
     {
         if (! isset($data['SampleControl']) || ! isset($data['SampleMaster']) || ! isset($data['AliquotMaster'])) {

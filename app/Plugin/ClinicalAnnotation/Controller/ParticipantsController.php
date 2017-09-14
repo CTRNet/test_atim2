@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ParticipantsController
+ */
 class ParticipantsController extends ClinicalAnnotationAppController
 {
 
@@ -30,6 +33,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param string $searchId
+     */
     public function search($searchId = '')
     {
         $this->searchHandler($searchId, $this->Participant, 'participants', '/ClinicalAnnotation/Participants/search');
@@ -54,6 +60,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function profile($participantId)
     {
         // MANAGE DATA
@@ -153,6 +162,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function edit($participantId)
     {
         // MANAGE DATA
@@ -194,6 +206,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function delete($participantId)
     {
         
@@ -223,6 +238,9 @@ class ParticipantsController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     */
     public function chronology($participantId)
     {
         $tmpArray = array();

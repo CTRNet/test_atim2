@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ParentToDerivativeSampleControl
+ */
 class ParentToDerivativeSampleControl extends InventoryManagementAppModel
 {
 
@@ -14,6 +17,9 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
         )
     );
 
+    /**
+     * @return array
+     */
     public function getActiveSamples()
     {
         $data = $this->find('all', array(
@@ -37,6 +43,11 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
         return self::getActiveIdsFromRelations($relations, "");
     }
 
+    /**
+     * @param $relations
+     * @param $currentCheck
+     * @return array
+     */
     private static function getActiveIdsFromRelations($relations, $currentCheck)
     {
         $activeIds = array(
@@ -59,9 +70,10 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel
     /**
      * Gets the lab book control id that can be use by a derivative
      *
-     * @param int $parentSampleCtrlId            
+     * @param int $parentSampleCtrlId
      * @param int $childrenSampleCtrlId
      *            return int lab book control id on success, false if it's not found
+     * @return bool
      */
     public function getLabBookControlId($parentSampleCtrlId, $childrenSampleCtrlId)
     {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StorageControlsController
+ */
 class StorageControlsController extends AdministrateAppController
 {
 
@@ -32,6 +35,10 @@ class StorageControlsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $storageCategory
+     * @param null $duplicatedParentStorageControlId
+     */
     public function add($storageCategory, $duplicatedParentStorageControlId = null)
     {
         if ($duplicatedParentStorageControlId && empty($this->request->data)) {
@@ -120,6 +127,9 @@ class StorageControlsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $storageControlId
+     */
     public function edit($storageControlId)
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
@@ -184,6 +194,10 @@ class StorageControlsController extends AdministrateAppController
         }
     }
 
+    /**
+     * @param $storageControlId
+     * @param string $redirectTo
+     */
     public function changeActiveStatus($storageControlId, $redirectTo = 'listAll')
     {
         $storageControlData = $this->StorageCtrl->getOrRedirect($storageControlId);
@@ -218,13 +232,13 @@ class StorageControlsController extends AdministrateAppController
     /**
      * Display the content of a storage into a layout.
      *
-     * @param $storageMasterId Id
-     *            of the studied storage.
-     * @param $isAjax: Tells
+     * @param $storageControlId
+     * @internal param Id $storageMasterId of the studied storage.*            of the studied storage.
+     * @internal param $isAjax : Tells
      *            wheter the request has to be treated as ajax
      *            query (required to counter issues in Chrome 15 back/forward button on the
      *            page and Opera 11.51 first ajax query that is not recognized as such)
-     *            
+     *
      * @author N. Luc
      * @since 2007-05-22
      */

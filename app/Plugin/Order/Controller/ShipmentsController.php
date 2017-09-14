@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ShipmentsController
+ */
 class ShipmentsController extends OrderAppController
 {
 
@@ -21,6 +24,9 @@ class ShipmentsController extends OrderAppController
         )
     );
 
+    /**
+     * @param int $searchId
+     */
     public function search($searchId = 0)
     {
         $this->set('atimMenu', $this->Menus->get('/Order/Orders/search'));
@@ -37,6 +43,9 @@ class ShipmentsController extends OrderAppController
         }
     }
 
+    /**
+     * @param null $orderId
+     */
     public function listall($orderId = null)
     {
         if (! $orderId) {
@@ -67,6 +76,10 @@ class ShipmentsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderId
+     * @param null $copiedShipmentId
+     */
     public function add($orderId, $copiedShipmentId = null)
     {
         
@@ -126,6 +139,10 @@ class ShipmentsController extends OrderAppController
         }
     }
 
+    /**
+     * @param null $orderId
+     * @param null $shipmentId
+     */
     public function edit($orderId = null, $shipmentId = null)
     {
         if ((! $orderId) || (! $shipmentId)) {
@@ -178,6 +195,11 @@ class ShipmentsController extends OrderAppController
         }
     }
 
+    /**
+     * @param null $orderId
+     * @param null $shipmentId
+     * @param bool $isFromTreeView
+     */
     public function detail($orderId = null, $shipmentId = null, $isFromTreeView = false)
     {
         
@@ -224,6 +246,10 @@ class ShipmentsController extends OrderAppController
         }
     }
 
+    /**
+     * @param null $orderId
+     * @param null $shipmentId
+     */
     public function delete($orderId = null, $shipmentId = null)
     {
         if ((! $orderId) || (! $shipmentId)) {
@@ -259,11 +285,18 @@ class ShipmentsController extends OrderAppController
     }
 
     /* ----------------------------- SHIPPED ITEMS ---------------------------- */
+    /**
+     * @param $orderId
+     * @param $shipmentId
+     * @param null $orderLineId
+     * @param null $offset
+     * @param null $limit
+     */
     public function addToShipment($orderId, $shipmentId, $orderLineId = null, $offset = null, $limit = null)
     {
         //Server-side verification (If by JS user send larg amount of batch data)
         $orderItemsLimit = Configure::read('AddToShipment_processed_items_limit');
-        $data=[];
+        $data=array();
         if (!empty($this->request->data) && isset($this->request->data['OrderItem']['id'])){
             $data= array_filter($this->request->data['OrderItem']['id']);
         }
@@ -470,6 +503,10 @@ class ShipmentsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $orderItems
+     * @return array
+     */
     public function formatDataForShippedItemsSelection($orderItems)
     {
         $sampleControlModel = AppModel::getInstance('InventoryManagement', 'SampleControl');
@@ -513,6 +550,12 @@ class ShipmentsController extends OrderAppController
         return $data;
     }
 
+    /**
+     * @param $orderId
+     * @param $orderItemId
+     * @param $shipmentId
+     * @param null $mainFormModel
+     */
     public function deleteFromShipment($orderId, $orderItemId, $shipmentId, $mainFormModel = null)
     {
         // MANAGE DATA
@@ -702,6 +745,9 @@ class ShipmentsController extends OrderAppController
         }
     }
 
+    /**
+     * @param $contactId
+     */
     public function deleteContact($contactId)
     {
         $contactsModel = AppModel::getInstance("Order", "ShipmentContact", true);

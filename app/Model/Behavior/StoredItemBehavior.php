@@ -9,6 +9,11 @@ class StoredItemBehavior extends ModelBehavior
 
     private $previousStorageMasterId = null;
 
+    /**
+     * @param Model $model
+     * @param array $options
+     * @return bool
+     */
     public function beforeSave(Model $model, $options = array())
     {
         if ($model->id) {
@@ -22,6 +27,11 @@ class StoredItemBehavior extends ModelBehavior
         return true;
     }
 
+    /**
+     * @param Model $model
+     * @param bool $created
+     * @param array $options
+     */
     public function afterSave(Model $model, $created, $options = array())
     {
         $viewStorageMasterModel = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class PasswordsAdminController
+ */
 class PasswordsAdminController extends AdministrateAppController
 {
 
@@ -9,6 +12,10 @@ class PasswordsAdminController extends AdministrateAppController
         'User'
     );
 
+    /**
+     * @param $groupId
+     * @param $userId
+     */
     public function index($groupId, $userId)
     {
         $this->set('atimMenuVariables', array(

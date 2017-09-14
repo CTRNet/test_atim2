@@ -27,7 +27,6 @@ class UserHistoryPanel extends DebugPanel {
      * Constructor
      *
      * @param array $settings Array of settings.
-     * @return \HistoryPanel
      */
     public function __construct($settings) {
     }

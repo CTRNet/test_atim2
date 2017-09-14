@@ -11,6 +11,11 @@
 class MinMaxBehavior extends ModelBehavior
 {
 
+    /**
+     * @param Model $model
+     * @param array $query
+     * @return array
+     */
     public function beforeFind(Model $model, $query)
     {
         if (isset($query['conditions'])) {

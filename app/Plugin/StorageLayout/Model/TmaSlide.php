@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class TmaSlide
+ */
 class TmaSlide extends StorageLayoutAppModel
 {
 
@@ -29,6 +32,11 @@ class TmaSlide extends StorageLayoutAppModel
     private $barcodes = array();
 
     // barcode validation, key = barcode, value = id
+
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         if (isset($this->data['TmaSlide']['in_stock']) && $this->data['TmaSlide']['in_stock'] == 'no' && (! empty($this->data['TmaSlide']['storage_master_id']) || ! empty($this->data['FunctionManagement']['recorded_storage_selection_label']))) {
@@ -107,6 +115,9 @@ class TmaSlide extends StorageLayoutAppModel
         }
     }
 
+    /**
+     * @param $tmaSlideData
+     */
     public function isDuplicatedTmaSlideBarcode($tmaSlideData)
     {
         // check data structure
@@ -184,6 +195,10 @@ class TmaSlide extends StorageLayoutAppModel
         }
     }
 
+    /**
+     * @param int $tmaSlideId
+     * @return array
+     */
     public function allowDeletion($tmaSlideId)
     {
         // Check no use exists

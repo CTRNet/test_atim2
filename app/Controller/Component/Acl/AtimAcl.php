@@ -1,6 +1,9 @@
 <?php
 require_once ('Cake/Controller/Component/Acl/DbAcl.php');
 
+/**
+ * Class AtimAcl
+ */
 class AtimAcl extends DbAcl
 {
 

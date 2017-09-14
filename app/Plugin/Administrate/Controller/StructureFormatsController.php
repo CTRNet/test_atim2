@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructureFormatsController
+ */
 class StructureFormatsController extends AdministrateAppController
 {
 
@@ -13,6 +16,9 @@ class StructureFormatsController extends AdministrateAppController
         )
     );
 
+    /**
+     * @param $structureId
+     */
     public function listall($structureId)
     {
         $this->set('atimStructure', $this->Structures->get(null, 'fields'));
@@ -27,6 +33,10 @@ class StructureFormatsController extends AdministrateAppController
         ));
     }
 
+    /**
+     * @param $structureId
+     * @param $structureFormatId
+     */
     public function detail($structureId, $structureFormatId)
     {
         $this->set('atimStructure', $this->Structures->get(null, 'fields'));
@@ -44,6 +54,10 @@ class StructureFormatsController extends AdministrateAppController
         ));
     }
 
+    /**
+     * @param $structureId
+     * @param $structureFormatId
+     */
     public function edit($structureId, $structureFormatId)
     {
         $this->set('atimStructure', $this->Structures->get(null, 'fields'));

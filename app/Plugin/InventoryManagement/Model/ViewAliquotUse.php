@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ViewAliquotUse
+ */
 class ViewAliquotUse extends InventoryManagementAppModel
 {
 
@@ -264,6 +267,9 @@ class ViewAliquotUse extends InventoryManagementAppModel
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 
+    /**
+     * @return array
+     */
     public function getUseDefinitions()
     {
         $result = array(
@@ -310,6 +316,10 @@ class ViewAliquotUse extends InventoryManagementAppModel
         'OrderItem'
     );
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getPkeyAndModelToCheck($data)
     {
         $pkey = null;

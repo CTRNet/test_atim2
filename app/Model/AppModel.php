@@ -93,7 +93,7 @@ class AppModel extends Model
      * If $baseModelName and $detailTable are not null, a new hasOne relationship is created before calling the parent constructor.
      * This is convenient for search based on master/detail detail table.
      *
-     * @param unknown_type $id
+     * @param bool|unknown_type $id
      *            (see parent::__construct)
      * @param unknown_type $table
      *            (see parent::__construct)
@@ -127,6 +127,8 @@ class AppModel extends Model
      * Update the $data array
      * with the name the stored file will have and returns the $modeFiles
      * directive array to
+     * @param $data
+     * @return array
      */
     private function filterMoveFiles(&$data)
     {
@@ -188,6 +190,7 @@ class AppModel extends Model
     /**
      * Takes the move_files array returned by filter_move_files and moves the
      * uploaded files to the configured directory with the set file name.
+     * @param $moveFiles
      */
     private function moveFiles($moveFiles)
     {
@@ -208,6 +211,10 @@ class AppModel extends Model
      * Override to prevent saving id directly with the array to avoid hacks
      *
      * @see Model::save()
+     * @param null $data
+     * @param bool $validate
+     * @param array $fieldList
+     * @return bool|mixed
      */
     public function save($data = null, $validate = true, $fieldList = array())
     {
@@ -238,6 +245,8 @@ class AppModel extends Model
     /**
      * Checks Writable fields, sets trackability, manages floats ("," and ".")
      * and date strings.
+     * @param array $options
+     * @return bool
      */
     public function beforeSave($options = array())
     {
@@ -446,6 +455,11 @@ class AppModel extends Model
      * ATiM 2.0 function
      * used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
      */
+    /**
+     * @param $modelId
+     * @param bool $cascade
+     * @return bool
+     */
     public function atimDelete($modelId, $cascade = true)
     {
         $this->id = $modelId;
@@ -466,6 +480,10 @@ class AppModel extends Model
     /*
      * ATiM 2.0 function
      * acts like find('all') but returns array with ID values as arrays key values
+     */
+    /**
+     * @param array $options
+     * @return array|bool
      */
     public function atimList($options = array())
     {
@@ -497,6 +515,16 @@ class AppModel extends Model
         return $return;
     }
 
+    /**
+     * @param $conditions
+     * @param $fields
+     * @param $order
+     * @param $limit
+     * @param $page
+     * @param $recursive
+     * @param $extra
+     * @return array|null
+     */
     public function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra)
     {
         $params = array(
@@ -693,6 +721,9 @@ class AppModel extends Model
         return str_replace("%%key_increment%%", str_pad($result[0]['key_increments']['key_value'], $padToLength, '0', STR_PAD_LEFT), $str);
     }
 
+    /**
+     * @return array
+     */
     public static function getMagicCodingIcdTriggerArray()
     {
         return self::$magicCodingIcdTriggerArray;
@@ -812,6 +843,10 @@ class AppModel extends Model
         }
     }
 
+    /**
+     * @param array $options
+     * @return bool
+     */
     public function validates($options = array())
     {
         if (! $this->_schema) {
@@ -918,6 +953,12 @@ class AppModel extends Model
         return false;
     }
 
+    /**
+     * @param $pluginName
+     * @param $className
+     * @param bool $errorViewOnNull
+     * @return bool|mixed|null|object
+     */
     public static function getInstance($pluginName, $className, $errorViewOnNull = true)
     {
         $instance = ClassRegistry::getObject($className);
@@ -1242,6 +1283,11 @@ class AppModel extends Model
         return mktime($hour, $minute, $second, $month, $day, $year);
     }
 
+    /**
+     * @param $spentTimeData
+     * @param bool $withTime
+     * @return mixed|string
+     */
     public static function manageSpentTimeDataDisplay($spentTimeData, $withTime = true)
     {
         $spentTimeMsg = '';
@@ -1264,6 +1310,11 @@ class AppModel extends Model
         return $spentTimeMsg;
     }
 
+    /**
+     * @param $spentTimeData
+     * @param $timeUnit
+     * @return string
+     */
     public static function translateDateValueAndUnit($spentTimeData, $timeUnit)
     {
         if (array_key_exists($timeUnit, $spentTimeData)) {
@@ -1366,6 +1417,11 @@ class AppModel extends Model
         return null;
     }
 
+    /**
+     * @param $field
+     * @param null $tablename
+     * @param $add
+     */
     private function updateWritableField($field, $tablename = null, $add)
     {
         $addInto = null;
@@ -1406,6 +1462,10 @@ class AppModel extends Model
         $this->updateWritableField($field, $tablename, true);
     }
 
+    /**
+     * @param $field
+     * @param null $tablename
+     */
     public function removeWritableField($field, $tablename = null)
     {
         $this->updateWritableField($field, $tablename, false);
@@ -1498,6 +1558,9 @@ class AppModel extends Model
         return $result;
     }
 
+    /**
+     * @return array
+     */
     public function getOwnershipConditions()
     {
         return array(
@@ -1517,6 +1580,11 @@ class AppModel extends Model
         );
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         if (isset($this->fieldsReplace) && isset($results[0][$this->name])) {
@@ -1585,12 +1653,19 @@ class AppModel extends Model
         }
     }
 
+    /**
+     * @param bool $created
+     * @param array $options
+     */
     public function afterSave($created, $options = array())
     {
         $this->updateRegisteredViews();
         $this->updateRegisteredModels();
     }
 
+    /**
+     * @param array $in
+     */
     public function makeTree(array &$in)
     {
         if (! empty($in)) {
@@ -1613,6 +1688,9 @@ class AppModel extends Model
         }
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getPluginName()
     {
         $class = new ReflectionClass($this);
@@ -1651,6 +1729,11 @@ class AppModel extends Model
         }
     }
 
+    /**
+     * @param $sql
+     * @param bool $cache
+     * @return mixed
+     */
     public function tryCatchQuery($sql, $cache = false)
     {
         try {
@@ -1697,6 +1780,12 @@ class AppModel extends Model
         self::$lockedViewsUpdate = true;
     }
 
+    /**
+     * @param $modelTable
+     * @param $foreignKey
+     * @param $ids
+     * @param $queryPart
+     */
     public static function manageViewUpdate($modelTable, $foreignKey, $ids, $queryPart)
     {
         if (self::$lockedViewsUpdate) {
@@ -1754,6 +1843,9 @@ class AppModel extends Model
         self::$lockedViewsUpdate = false;
     }
 
+    /**
+     * @return mixed
+     */
     public static function getRemoteIPAddress()
     {
         return (! empty($_SERVER['HTTP_CLIENT_IP'])) ? $_SERVER['HTTP_CLIENT_IP'] : ((! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ViewShell
+ */
 class ViewShell extends AppShell
 {
 
@@ -112,6 +115,9 @@ class ViewShell extends AppShell
         $this->out(sprintf('-%-12s Prints this message.', 'help'));
     }
 
+    /**
+     * @return array
+     */
     public function getViews()
     {
         $results = $this->User->query("SHOW TABLES LIKE 'view_%'");

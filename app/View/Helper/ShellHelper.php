@@ -1,6 +1,11 @@
 <?php
 
-App::uses('Helper', 'View');class ShellHelper extends Helper
+App::uses('Helper', 'View');
+
+/**
+ * Class ShellHelper
+ */
+class ShellHelper extends Helper
 {
 
     public $helpers = array(
@@ -10,6 +15,10 @@ App::uses('Helper', 'View');class ShellHelper extends Helper
         'Form'
     );
 
+    /**
+     * @param array $options
+     * @return string
+     */
     public function header($options = array())
     {
         $return = '';
@@ -166,6 +175,12 @@ App::uses('Helper', 'View');class ShellHelper extends Helper
         return $return;
     }
 
+    /**
+     * @param $class
+     * @param $msg
+     * @param null $collapsable
+     * @return string
+     */
     public function getValidationLine($class, $msg, $collapsable = null)
     {
         $result = '<li><span class="icon16 ' . $class . ' mr5px"></span>' . $msg;
@@ -175,6 +190,9 @@ App::uses('Helper', 'View');class ShellHelper extends Helper
         return $result . '</li>';
     }
 
+    /**
+     * @return string
+     */
     public function validationHtml()
     {
         $displayErrorsHtml = $this->validationErrors();
@@ -240,6 +258,9 @@ App::uses('Helper', 'View');class ShellHelper extends Helper
         return $return;
     }
 
+    /**
+     * @return string
+     */
     public function validationErrors()
     {
         $result = "";
@@ -264,6 +285,10 @@ App::uses('Helper', 'View');class ShellHelper extends Helper
         return $result;
     }
 
+    /**
+     * @param array $options
+     * @return string
+     */
     public function footer($options = array())
     {
         $return = '';
@@ -287,6 +312,11 @@ App::uses('Helper', 'View');class ShellHelper extends Helper
         return $return;
     }
 
+    /**
+     * @param array $atimMenu
+     * @param array $options
+     * @return array
+     */
     public function menu($atimMenu = array(), $options = array())
     {
         $pageTitle = array();

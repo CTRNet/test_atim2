@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ConsentMastersController
+ */
 class ConsentMastersController extends ClinicalAnnotationAppController
 {
 
@@ -18,6 +21,9 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param $participantId
+     */
     public function listall($participantId)
     {
         $participantData = $this->Participant->getOrRedirect($participantId);
@@ -43,6 +49,10 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $consentMasterId
+     */
     public function detail($participantId, $consentMasterId)
     {
         
@@ -80,6 +90,10 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $consentControlId
+     */
     public function add($participantId, $consentControlId)
     {
         
@@ -137,6 +151,10 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $consentMasterId
+     */
     public function edit($participantId, $consentMasterId)
     {
         
@@ -201,6 +219,10 @@ class ConsentMastersController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $consentMasterId
+     */
     public function delete($participantId, $consentMasterId)
     {
         // MANAGE DATA

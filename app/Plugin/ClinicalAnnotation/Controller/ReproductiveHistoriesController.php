@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ReproductiveHistoriesController
+ */
 class ReproductiveHistoriesController extends ClinicalAnnotationAppController
 {
 
@@ -14,6 +17,9 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         )
     );
 
+    /**
+     * @param $participantId
+     */
     public function listall($participantId)
     {
         // MANAGE DATA
@@ -35,6 +41,10 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $reproductiveHistoryId
+     */
     public function detail($participantId, $reproductiveHistoryId)
     {
         if (! $participantId && ! $reproductiveHistoryId) {
@@ -72,6 +82,9 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param null $participantId
+     */
     public function add($participantId = null)
     {
         if (! $participantId) {
@@ -118,6 +131,10 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $reproductiveHistoryId
+     */
     public function edit($participantId, $reproductiveHistoryId)
     {
         if ((! $participantId) && (! $reproductiveHistoryId)) {
@@ -172,6 +189,10 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController
         }
     }
 
+    /**
+     * @param $participantId
+     * @param $reproductiveHistoryId
+     */
     public function delete($participantId, $reproductiveHistoryId)
     {
         if ((! $participantId) && (! $reproductiveHistoryId)) {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SampleControl
+ */
 class SampleControl extends InventoryManagementAppModel
 {
 
@@ -24,6 +27,9 @@ class SampleControl extends InventoryManagementAppModel
         return $this->getSamplesPermissibleValues(true, false);
     }
 
+    /**
+     * @return array
+     */
     public function getParentSampleTypePermissibleValuesFromId()
     {
         return $this->getSamplesPermissibleValues(true, false, false);
@@ -41,6 +47,9 @@ class SampleControl extends InventoryManagementAppModel
         return $this->getSamplesPermissibleValues(false, false);
     }
 
+    /**
+     * @return array
+     */
     public function getParentSampleTypePermissibleValues()
     {
         return $this->getSamplesPermissibleValues(false, false, false);
@@ -70,6 +79,12 @@ class SampleControl extends InventoryManagementAppModel
         return $this->getSamplesPermissibleValues(true, true);
     }
 
+    /**
+     * @param $byId
+     * @param $onlySpecimen
+     * @param bool $dontLimitToSamplesThatCanBeParents
+     * @return array
+     */
     public function getSamplesPermissibleValues($byId, $onlySpecimen, $dontLimitToSamplesThatCanBeParents = true)
     {
         $result = array();
@@ -123,12 +138,11 @@ class SampleControl extends InventoryManagementAppModel
     /**
      * Gets a list of sample types that could be created from a sample type.
      *
-     * @param $sampleControlId ID
-     *            of the sample control linked to the studied sample.
-     *            
+     * @param $parentId
      * @return List of allowed aliquot types stored into the following array:
      *         array('aliquot_control_id' => 'aliquot_type')
-     *        
+     * @internal param ID $sampleControlId of the sample control linked to the studied sample.*            of the sample control linked to the studied sample.
+     *
      * @author N. Luc
      * @since 2009-11-01
      * @author FMLH 2010-08-04 (new flag_active policy)
@@ -158,6 +172,11 @@ class SampleControl extends InventoryManagementAppModel
         return $specimenSampleControlsList;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

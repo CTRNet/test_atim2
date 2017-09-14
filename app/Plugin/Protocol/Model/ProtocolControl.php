@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class ProtocolControl
+ */
 class ProtocolControl extends ProtocolAppModel
 {
 
@@ -53,6 +56,11 @@ class ProtocolControl extends ProtocolAppModel
         return $result;
     }
 
+    /**
+     * @param mixed $results
+     * @param bool $primary
+     * @return mixed
+     */
     public function afterFind($results, $primary = false)
     {
         return $this->applyMasterFormAlias($results, $primary);

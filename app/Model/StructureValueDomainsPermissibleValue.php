@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StructureValueDomainsPermissibleValue
+ */
 class StructureValueDomainsPermissibleValue extends AppModel
 {
 
