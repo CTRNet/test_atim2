@@ -1,32 +1,35 @@
 <?php
 
-class ViewCollectionCustom extends ViewCollection {
-	
-	var $name = 'ViewCollection';
-	
-	var $belongsTo = array(
-		'Collection' => array(
-				'className'   => 'InventoryManagement.Collection',
-				'foreignKey'  => 'collection_id',
-				'type'			=> 'INNER'
-		),
-		'Participant' => array(
-				'className' => 'ClinicalAnnotation.Participant',
-				'foreignKey' => 'participant_id'
-		), 'DiagnosisMaster' => array(
-				'className' => 'ClinicalAnnotation.DiagnosisMaster',
-				'foreignKey' => 'diagnosis_master_id'
-		), 'ConsentMaster' => array(
-				'className' => 'ClinicalAnnotation.ConsentMaster',
-				'foreignKey' => 'consent_master_id'
-		),
-		'MiscIdentifier' => array(
-				'className' => 'ClinicalAnnotation.MiscIdentifier',
-				'foreignKey' => 'misc_identifier_id'
-		)
-	);
+class ViewCollectionCustom extends ViewCollection
+{
 
-	static $table_query = '
+    var $name = 'ViewCollection';
+
+    var $belongsTo = array(
+        'Collection' => array(
+            'className' => 'InventoryManagement.Collection',
+            'foreignKey' => 'collection_id',
+            'type' => 'INNER'
+        ),
+        'Participant' => array(
+            'className' => 'ClinicalAnnotation.Participant',
+            'foreignKey' => 'participant_id'
+        ),
+        'DiagnosisMaster' => array(
+            'className' => 'ClinicalAnnotation.DiagnosisMaster',
+            'foreignKey' => 'diagnosis_master_id'
+        ),
+        'ConsentMaster' => array(
+            'className' => 'ClinicalAnnotation.ConsentMaster',
+            'foreignKey' => 'consent_master_id'
+        ),
+        'MiscIdentifier' => array(
+            'className' => 'ClinicalAnnotation.MiscIdentifier',
+            'foreignKey' => 'misc_identifier_id'
+        )
+    );
+
+    static $table_query = '
 		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
@@ -57,44 +60,54 @@ MiscIdentifier.identifier_value AS misc_identifier_value
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1 
-		WHERE Collection.deleted <> 1 %%WHERE%%';	
-	
-	
-	function summary($variables=array()) {
-		$return = false;
-		
-		if(isset($variables['Collection.id'])) {
-			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-			$label = (empty($collection_data['ViewCollection']['participant_identifier'])? '-' : $collection_data['ViewCollection']['participant_identifier']). 
-				' '.
-				substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
-			
-			$return = array(
-				'menu' => array(null, $label),
-				'title' => array(null, __('collection') . ' : ' . $label),
-				'structure alias' 	=> 'view_collection',
-				'data'				=> $collection_data
-			);
-			
-			$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
-			if(!empty($consent_status)){
-				if(!$collection_data['ViewCollection']['participant_id']){
-					AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
-				}else if($consent_status[$variables['Collection.id']] == null){
-					$link = '';
-					if(AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')){
-						$link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collection_data['ViewCollection']['participant_id'], $collection_data['ViewCollection']['collection_id'], __('click here to access it'));
-					}
-					AppController::addWarningMsg(__('no consent is linked to the current participant collection').'.'.$link);
-				}else{
-					AppController::addWarningMsg(__('the linked consent status is [%s]', __($consent_status[$variables['Collection.id']])));
-				}
-			}
-		}
-		
-		return $return;
-	}
-	
+		WHERE Collection.deleted <> 1 %%WHERE%%';
+
+    function summary($variables = array())
+    {
+        $return = false;
+        
+        if (isset($variables['Collection.id'])) {
+            $collection_data = $this->find('first', array(
+                'conditions' => array(
+                    'ViewCollection.collection_id' => $variables['Collection.id']
+                )
+            ));
+            $label = (empty($collection_data['ViewCollection']['participant_identifier']) ? '-' : $collection_data['ViewCollection']['participant_identifier']) . ' ' . substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
+            
+            $return = array(
+                'menu' => array(
+                    null,
+                    $label
+                ),
+                'title' => array(
+                    null,
+                    __('collection') . ' : ' . $label
+                ),
+                'structure alias' => 'view_collection',
+                'data' => $collection_data
+            );
+            
+            $consent_status = $this->getUnconsentedParticipantCollections(array(
+                'data' => $collection_data
+            ));
+            if (! empty($consent_status)) {
+                if (! $collection_data['ViewCollection']['participant_id']) {
+                    AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
+                } else 
+                    if ($consent_status[$variables['Collection.id']] == null) {
+                        $link = '';
+                        if (AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')) {
+                            $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collection_data['ViewCollection']['participant_id'], $collection_data['ViewCollection']['collection_id'], __('click here to access it'));
+                        }
+                        AppController::addWarningMsg(__('no consent is linked to the current participant collection') . '.' . $link);
+                    } else {
+                        AppController::addWarningMsg(__('the linked consent status is [%s]', __($consent_status[$variables['Collection.id']])));
+                    }
+            }
+        }
+        
+        return $return;
+    }
 }
 
 ?>

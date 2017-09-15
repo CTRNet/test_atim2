@@ -1,4 +1,2 @@
 <?php
-	
-	$this->Participant->updateParticipantLastEventRecorded($participant_id);	
-		
+$this->Participant->updateParticipantLastEventRecorded($participant_id);

@@ -1,10 +1,11 @@
 <?php
 
-class ViewAliquotCustom extends ViewAliquot {
-	var $name = 'ViewAliquot';
-	
-	static $table_query =
-		'SELECT
+class ViewAliquotCustom extends ViewAliquot
+{
+
+    var $name = 'ViewAliquot';
+
+    static $table_query = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,
@@ -79,7 +80,4 @@ MiscIdentifier.identifier_value AS misc_identifier_value
 LEFT JOIN misc_identifiers MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id and MiscIdentifier.deleted <> 1
 			
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
-	
-	
-	
 }

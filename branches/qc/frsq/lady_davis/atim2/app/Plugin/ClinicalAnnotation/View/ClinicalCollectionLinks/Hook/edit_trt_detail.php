@@ -1,4 +1,4 @@
-<?php 
-pr('icic');	
+<?php
+pr('icic');
 
-$display_next_sub_form=false;
+$display_next_sub_form = false;
