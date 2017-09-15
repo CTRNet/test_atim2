@@ -1,3 +1,2 @@
 <?php
-		
-	$fields[] = 'misc_identifier_id';
+$fields[] = 'misc_identifier_id';

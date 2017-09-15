@@ -1,9 +1,11 @@
 <?php
 
-class ViewSampleCustom extends ViewSample {
-	var $name = 'ViewSample';
-	
-	static $table_query = '
+class ViewSampleCustom extends ViewSample
+{
+
+    var $name = 'ViewSample';
+
+    static $table_query = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
@@ -54,5 +56,4 @@ MiscIdentifier.identifier_value AS misc_identifier_value
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 LEFT JOIN misc_identifiers MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id and MiscIdentifier.deleted <> 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
-	
 }
