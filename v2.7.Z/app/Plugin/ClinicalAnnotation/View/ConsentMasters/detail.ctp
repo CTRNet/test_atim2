@@ -1,6 +1,6 @@
 <?php
 $structureLinks = array(
-    'top' => NULL,
+    'top' => null,
     'bottom' => array(
         'edit' => '/ClinicalAnnotation/ConsentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%/',
         'delete' => '/ClinicalAnnotation/ConsentMasters/delete/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%/'
