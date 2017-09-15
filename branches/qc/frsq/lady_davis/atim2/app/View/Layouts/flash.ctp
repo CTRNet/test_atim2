@@ -19,30 +19,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-	
-	<title><?php echo $page_title.' &laquo; '.__('core_appname', true); ?></title>
-	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>img/favicon.ico"/>
 
-	<?php 
-		echo $this->Html->css('style');
-		echo $this->Html->charset('UTF-8');
-	 ?>
+<title><?php echo $pageTitle.' &laquo; '.__('core_appname'); ?></title>
+<link rel="shortcut icon"
+	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
+
+	<?php
+echo $this->Html->css('style');
+echo $this->Html->charset('UTF-8');
+?>
 
 	
 </head>
 
 <body class="flash">
 
-    <div class="wrapper">
+	<div class="wrapper">
 		<a href="<?php echo $url; ?>"> 
         	<?php echo $message; ?>
-        	<br/>
-	        <small><?php __('click to continue'); ?></small>
+        	<br /> <small><?php echo __('click to continue'); ?></small>
 		</a>
-    </div>
-    <?php
-    	echo $this->element('sql_dump');
-    ?>
-    
+	</div>
 </body>
 </html>

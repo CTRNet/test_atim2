@@ -1,9 +1,10 @@
 <?php
 
-class SpecimenReviewDetail extends InventoryManagementAppModel {
-	
-	var $useTable = false;
-	
-}
+/**
+ * Class SpecimenReviewDetail
+ */
+class SpecimenReviewDetail extends InventoryManagementAppModel
+{
 
-?>
+    public $useTable = false;
+}
