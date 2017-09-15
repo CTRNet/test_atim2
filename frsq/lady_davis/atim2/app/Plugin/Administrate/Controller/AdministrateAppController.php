@@ -1,7 +1,8 @@
 <?php
 
-class AdministrateAppController extends AppController {	
-
+/**
+ * Class AdministrateAppController
+ */
+class AdministrateAppController extends AppController
+{
 }
-
-?>

@@ -1,19 +1,22 @@
-<?php 
-	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/ParticipantContacts/add/'.$atim_menu_variables['Participant.id'].'/',
-		'bottom'=>array(
-			'cancel'=>'/ClinicalAnnotation/ParticipantContacts/listall/'.$atim_menu_variables['Participant.id'].'/'
-		)
-	);
-	
-	// Set form structure and option
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );
-?>
+<?php
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/ParticipantContacts/add/' . $atimMenuVariables['Participant.id'] . '/',
+    'bottom' => array(
+        'cancel' => '/ClinicalAnnotation/ParticipantContacts/listall/' . $atimMenuVariables['Participant.id'] . '/'
+    )
+);
+
+// Set form structure and option
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

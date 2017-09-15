@@ -1,26 +1,34 @@
 <?php
-	$add_links = array();
-	foreach ($consent_controls_list as $consent_control) {
-		$add_links[__($consent_control['ConsentControl']['controls_type'])] = '/ClinicalAnnotation/ConsentMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$consent_control['ConsentControl']['id'].'/';
-	}
-	natcasesort($add_links);
-	
-	$structure_links = array(
-		'top'=>NULL,
-		'index'=>'/ClinicalAnnotation/ConsentMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%',
-		'bottom'=>array(
-			'add'=> $add_links
-		)
-	);
-	
-	// Set form structure and option 
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );	
-?>
+$addLinks = array();
+foreach ($consentControlsList as $consentControl) {
+    $addLinks[__($consentControl['ConsentControl']['controls_type'])] = '/ClinicalAnnotation/ConsentMasters/add/' . $atimMenuVariables['Participant.id'] . '/' . $consentControl['ConsentControl']['id'] . '/';
+}
+natcasesort($addLinks);
+
+$structureLinks = array(
+    'top' => NULL,
+    'index' => array(
+        'detail' => '/ClinicalAnnotation/ConsentMasters/detail/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%',
+        'edit' => '/ClinicalAnnotation/ConsentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%',
+        'delete' => '/ClinicalAnnotation/ConsentMasters/delete/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%'
+    ),
+    'bottom' => array(
+        'add' => $addLinks
+    )
+);
+
+// Set form structure and option
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'type' => 'index',
+    'links' => $structureLinks
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

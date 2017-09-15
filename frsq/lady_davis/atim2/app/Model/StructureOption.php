@@ -1,9 +1,10 @@
 <?php
 
-class StructureOption extends AppModel {
+/**
+ * Class StructureOption
+ */
+class StructureOption extends AppModel
+{
 
-	var $name = 'StructureOption';
-	
+    public $name = 'StructureOption';
 }
-
-?>
