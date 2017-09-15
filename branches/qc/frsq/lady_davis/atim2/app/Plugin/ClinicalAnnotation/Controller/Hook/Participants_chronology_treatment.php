@@ -4,20 +4,20 @@ if (in_array($tx['TreatmentControl']['tx_method'], array(
     'hormonotherapy',
     'immunotherapy'
 ))) {
-    $chemo_detail = array();
+    $chemoDetail = array();
     if ($tx['TreatmentMaster']['protocol_master_id'])
-        $chemo_detail[0] = $protocol_from_id[$tx['TreatmentMaster']['protocol_master_id']];
-    foreach ($treatment_extend_model->find('all', array(
+        $chemoDetail[0] = $protocolFromId[$tx['TreatmentMaster']['protocol_master_id']];
+    foreach ($treatmentExtendModel->find('all', array(
         'conditions' => array(
             'TreatmentExtendMaster.treatment_master_id' => $tx['TreatmentMaster']['id']
         )
     )) as $drug)
-        $chemo_detail[1][$drug['TreatmentExtendDetail']['drug_id']] = $drug_from_id[$drug['TreatmentExtendDetail']['drug_id']];
-    if (isset($chemo_detail[1]))
-        $chemo_detail[1] = implode(' + ', $chemo_detail[1]);
-    $chemo_detail = implode(' : ', $chemo_detail);
-    $chronolgy_data_treatment_start['chronology_details'] = $chemo_detail;
+        $chemoDetail[1][$drug['TreatmentExtendDetail']['drug_id']] = $drugFromId[$drug['TreatmentExtendDetail']['drug_id']];
+    if (isset($chemoDetail[1]))
+        $chemoDetail[1] = implode(' + ', $chemoDetail[1]);
+    $chemoDetail = implode(' : ', $chemoDetail);
+    $chronolgyDataTreatmentStart['chronology_details'] = $chemoDetail;
     if (! empty($tx['TreatmentMaster']['finish_date'])) {
-        $chronolgy_data_treatment_finish['chronology_details'] = $chronolgy_data_treatment_start['chronology_details'];
+        $chronolgyDataTreatmentFinish['chronology_details'] = $chronolgyDataTreatmentStart['chronology_details'];
     }
 }

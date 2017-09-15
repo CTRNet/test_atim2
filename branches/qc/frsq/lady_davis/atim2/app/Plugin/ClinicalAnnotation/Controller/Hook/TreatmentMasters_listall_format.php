@@ -1,6 +1,6 @@
 <?php
-if ($treatment_control_id && $treatment_control_id > 0) {
-    $this->Structures->set($control_data['TreatmentControl']['form_alias'] . ',qc_lady_treatmentmasters_precisions');
+if ($treatmentControlId && $treatmentControlId > 0) {
+    $this->Structures->set($controlData['TreatmentControl']['form_alias'] . ',qc_lady_treatmentmasters_precisions');
 } else {
     $this->Structures->set('treatmentmasters,qc_lady_treatmentmasters_precisions');
 }

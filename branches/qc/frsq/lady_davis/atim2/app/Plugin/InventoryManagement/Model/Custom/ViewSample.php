@@ -5,7 +5,7 @@ class ViewSampleCustom extends ViewSample
 
     var $name = 'ViewSample';
 
-    static $table_query = '
+    static $tableQuery = '
 		SELECT SampleMaster.id AS sample_master_id,
 		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,

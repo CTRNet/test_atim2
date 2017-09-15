@@ -10,33 +10,33 @@ $this->MiscIdentifier->bindModel(array(
 ));
 $conditions = array(
     'MiscIdentifier.deleted' => '0',
-    'MiscIdentifier.participant_id' => $participant_id,
+    'MiscIdentifier.participant_id' => $participantId,
     "MiscIdentifierControl.misc_identifier_name IN ('Breast bank #', 'Q-CROC-03')"
 );
-$miscidentifier_data = $this->MiscIdentifier->find('all', array(
+$miscidentifierData = $this->MiscIdentifier->find('all', array(
     'conditions' => $conditions,
     'order' => array(
         'MiscIdentifier.created DESC'
     )
 ));
-$found_misc_identifier = false;
+$foundMiscIdentifier = false;
 
-foreach ($miscidentifier_data as &$identifier) {
+foreach ($miscidentifierData as &$identifier) {
     foreach ($identifier['Collection'] as $unit) {
-        if ($unit['id'] == $collection_id) {
+        if ($unit['id'] == $collectionId) {
             // we found the one that interests us
             $identifier['Collection'] = $unit;
-            $found_misc_identifier = true;
+            $foundMiscIdentifier = true;
             break;
         }
     }
     
-    if ($found_misc_identifier) {
+    if ($foundMiscIdentifier) {
         break;
     }
 }
 
-$this->set('miscidentifier_data', $miscidentifier_data);
-$this->set('found_misc_identifier', $found_misc_identifier);
+$this->set('miscidentifierData', $miscidentifierData);
+$this->set('foundMiscIdentifier', $foundMiscIdentifier);
 
 $this->Structures->set('miscidentifiers', 'atim_structure_miscidentifier_detail');
