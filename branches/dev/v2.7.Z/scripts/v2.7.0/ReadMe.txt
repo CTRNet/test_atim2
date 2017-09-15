@@ -13,18 +13,18 @@
 -- Full installation
 -- -----------------
 
-  mysql -u {username} -p{passwor} {atim_database} --default-character-set=utf8 < atim_v2.7.0_full_installation.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_full_installation.sql
   
 -- ATiM v2.6.8 upgrade
 -- -------------------
 
-  mysql -u {username} -p{passwor} {atim_database} --default-character-set=utf8 < atim_v2.7.0_upgrade.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_upgrade.sql
 
 -- Demo installation
 -- -----------------
 
-  mysql -u {username} -p{passwor} {atim_database} --default-character-set=utf8 < atim_v2.7.0_full_installation.sql
-  mysql -u {username} -p{passwor} {atim_database} --default-character-set=utf8 < ./DemoData/atim_v2.7.0_demo_data.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_full_installation.sql
+  mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < ./DemoData/atim_v2.7.0_demo_data.sql
 
 
 
@@ -57,10 +57,10 @@
                   a. Window>preferences>PHP>Formatter.
                   b. Choose PSR2>OK
                   c. Click on the app folder of project in PHP Explorer
-                  c. Press Ctrl+Shift+F for each custom files
+                  d. Press Ctrl+Shift+F.
 
          II - Replace flash with atimFlashWarning, atimFlashInfo, atimFlashConfirm 
-           and atimFlashError
+           or atimFlashError
 
          III - Remove php function deprecated in php 7.0
 
@@ -71,21 +71,31 @@
               Use replacement function in editor (Eclipse or netbeans) to replace 
               regular expression 'else\s\s*if' with 'elseif'
 
-         V - Delete '?>' at the end of pure PHP files
+         V - Delete '?>' at the end of pure PHP files (if you don't add --commit option the changes will be logged in a file without effecting the codes)
 
-              php ./CustomCodeSnifer/RemovePhpTagAndSpaceAtTheEndOfFile-custum.phpcommit
+              Linux or mac:
+					php ./CustomCodeSnifer/RemovePhpTagAndSpaceAtTheEndOfFile-custum.php /.../atim/app --commit
+			  windows: 
+					php CustomCodeSnifer\RemovePhpTagAndSpaceAtTheEndOfFile-custum.php ..\..\app --commit
 
          VI - Change case (from uppercase to lowercase) for NULL, FALSE and TRUE
 
               Use replacement function in editor
 
-         VII - Change the 'function' to 'public function' in the class
+         VII - Change the 'function' to 'public function' in the class (if you don't add --commit option the changes will be logged in a file without effecting the codes)
 
-              php ./CustomCodeSnifer/addPublic-custom.php /.../atim --commit
+              Linux or mac:
+					php ./CustomCodeSnifer/addPublic-custom.php /.../atim/app --commit
+              Windows: 
+					php CustomCodeSnifer\addPublic-custom.php ..\..\app --commit
+				
 
-         VIIII - Change the underscore case to camel case
+         VIII - Change the underscore_case to camelCase (if you don't add --commit option the changes will be logged in a file without effecting the codes)
 
-              php ./CustomCodeSnifer/snakeToCamel-custom.php /.../atim --commit
+              Linux or mac:
+					php ./CustomCodeSnifer/snakeToCamel-custom.php /.../atim --commit
+              Windows: 
+					php CustomCodeSnifer\snakeToCamel-custom.php ..\..\app --commit
 
 
    ### 2 # 'recursive' function is now type sensitive
@@ -108,3 +118,28 @@
       TODO:
 
       Parse any custom code to apply the same change.
+
+
+   ### 3 # 'recursive' function is now type sensitive
+   -----------------------------------------------------
+
+   
+   
+   
+   3440	Medium	ENHANCEMENT		Nicolas Luc	Nicolas Luc	evaluation and testing	v2.7.0	StructureField.sortable field set to 0 by script should be reviewed...
+   3427	Low	ENHANCEMENT		Nicolas Luc	Nicolas Luc	released	v2.7.0	Add quality control and tissue review to collection tree view when data not linked to an aliquot
+   3435	Medium	ENHANCEMENT		Nicolas Luc	Nicolas Luc	released	v2.7.0	Add TMA block to collection tree view
+   3377	High	BUG		Nicolas Luc	Nicolas Luc	released	v2.7.0	Drug.getDrugIdFromDrugDataAndCode() generates a bug for any drugs with apostrophe or quotation marks
+   3398	Low	BUG		Nicolas Luc	Yaser Naderi	released	v2.7.0	autoComplete and special characters: \ % ' "
+   
+Bug is reproducible for all other autoComplete function linked to these following fields:
+- Drug.generic_name (autocomplete and save)
+- AliquotMaster.barcode (autocomplete only)
+- StorageMaster.Selection_label (autocomplete and save)
+- TmaSlide.barcode (autocomplete only)
+- TmaSlide.immunochemistry (autocomplete only)
+- StudySummary.title (autocomplete and save)
+
+ajouter reference au databrowser
+   
+   
