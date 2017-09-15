@@ -1,37 +1,37 @@
 <?php
-$default_aliquot_data = array();
-$tmp_coll_data_from_id = array();
-foreach ($this->request->data as $new_data_set) {
-    $tmp_default_aliquot_data = array();
-    if (in_array($new_data_set['parent']['ViewSample']['sample_type'], array(
+$defaultAliquotData = array();
+$tmpCollDataFromId = array();
+foreach ($this->request->data as $newDataSet) {
+    $tmpDefaultAliquotData = array();
+    if (in_array($newDataSet['parent']['ViewSample']['sample_type'], array(
         'pbmc',
         'serum',
         'plasma'
-    )) && $aliquot_control['AliquotControl']['aliquot_type'] == 'tube') {
-        switch ($new_data_set['parent']['ViewSample']['sample_type']) {
+    )) && $aliquotControl['AliquotControl']['aliquot_type'] == 'tube') {
+        switch ($newDataSet['parent']['ViewSample']['sample_type']) {
             case 'pbmc':
-                $tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'Buffy Coat';
+                $tmpDefaultAliquotData['AliquotMaster.aliquot_label'] = 'Buffy Coat';
                 break;
             case 'serum':
-                $tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'Serum';
+                $tmpDefaultAliquotData['AliquotMaster.aliquot_label'] = 'Serum';
                 break;
             case 'plasma':
-                $blood_data = $this->SampleMaster->find('first', array(
+                $bloodData = $this->SampleMaster->find('first', array(
                     'conditions' => array(
-                        'SampleMaster.id' => $new_data_set['parent']['ViewSample']['initial_specimen_sample_id']
+                        'SampleMaster.id' => $newDataSet['parent']['ViewSample']['initial_specimen_sample_id']
                     ),
                     'recursive' => '0'
                 ));
-                if ($blood_data['SampleDetail']['blood_type'] == 'EDTA') {
-                    $tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'EDTA';
+                if ($bloodData['SampleDetail']['blood_type'] == 'EDTA') {
+                    $tmpDefaultAliquotData['AliquotMaster.aliquot_label'] = 'EDTA';
                 } else 
-                    if ($blood_data['SampleDetail']['blood_type'] == 'CTAD') {
-                        $tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'CTAD';
+                    if ($bloodData['SampleDetail']['blood_type'] == 'CTAD') {
+                        $tmpDefaultAliquotData['AliquotMaster.aliquot_label'] = 'CTAD';
                     }
         }
-        $existing_blood_derivative_aliquot = $this->AliquotMaster->find('first', array(
+        $existingBloodDerivativeAliquot = $this->AliquotMaster->find('first', array(
             'conditions' => array(
-                'AliquotMaster.collection_id' => $new_data_set['parent']['ViewSample']['collection_id'],
+                'AliquotMaster.collection_id' => $newDataSet['parent']['ViewSample']['collection_id'],
                 'ViewAliquot.sample_type' => array(
                     'pbmc',
                     'serum',
@@ -40,26 +40,26 @@ foreach ($this->request->data as $new_data_set) {
             ),
             'recursive' => '0'
         ));
-        if ($existing_blood_derivative_aliquot) {
-            $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $existing_blood_derivative_aliquot['AliquotMaster']['storage_datetime'];
-            switch ($existing_blood_derivative_aliquot['AliquotMaster']['storage_datetime_accuracy']) {
+        if ($existingBloodDerivativeAliquot) {
+            $tmpDefaultAliquotData['AliquotMaster.storage_datetime'] = $existingBloodDerivativeAliquot['AliquotMaster']['storage_datetime'];
+            switch ($existingBloodDerivativeAliquot['AliquotMaster']['storage_datetime_accuracy']) {
                 case 'y':
                 // +/- not possible to support
                 case 'm':
-                    $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, strpos($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], '-'));
+                    $tmpDefaultAliquotData['AliquotMaster.storage_datetime'] = substr($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], 0, strpos($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], '-'));
                     break;
                 case 'd':
-                    $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, strrpos($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], '-'));
+                    $tmpDefaultAliquotData['AliquotMaster.storage_datetime'] = substr($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], 0, strrpos($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], '-'));
                     break;
                 case 'h':
-                    $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, strpos($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], ' '));
+                    $tmpDefaultAliquotData['AliquotMaster.storage_datetime'] = substr($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], 0, strpos($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], ' '));
                     break;
                 case 'i':
-                    $tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = substr($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], 0, strpos($tmp_default_aliquot_data['AliquotMaster.storage_datetime'], ':'));
+                    $tmpDefaultAliquotData['AliquotMaster.storage_datetime'] = substr($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], 0, strpos($tmpDefaultAliquotData['AliquotMaster.storage_datetime'], ':'));
                     break;
             }
         }
     }
-    $default_aliquot_data[$new_data_set['parent']['ViewSample']['sample_master_id']] = $tmp_default_aliquot_data;
+    $defaultAliquotData[$newDataSet['parent']['ViewSample']['sample_master_id']] = $tmpDefaultAliquotData;
 }
-$this->set('default_aliquot_data', $default_aliquot_data);
+$this->set('defaultAliquotData', $defaultAliquotData);

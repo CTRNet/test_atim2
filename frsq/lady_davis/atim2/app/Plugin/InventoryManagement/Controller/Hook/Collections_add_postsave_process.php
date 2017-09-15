@@ -1,3 +1,3 @@
 <?php
-$model_Participant = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
-$model_Participant->updateParticipantLastEventRecorded(isset($this->request->data['Collection']['participant_id']) ? $this->request->data['Collection']['participant_id'] : $collection_data['Collection']['participant_id']);
+$modelParticipant = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
+$modelParticipant->updateParticipantLastEventRecorded(isset($this->request->data['Collection']['participant_id']) ? $this->request->data['Collection']['participant_id'] : $collectionData['Collection']['participant_id']);

@@ -29,7 +29,7 @@ class ViewCollectionCustom extends ViewCollection
         )
     );
 
-    static $table_query = '
+    static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
@@ -62,17 +62,17 @@ MiscIdentifier.identifier_value AS misc_identifier_value
 LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1 
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
         if (isset($variables['Collection.id'])) {
-            $collection_data = $this->find('first', array(
+            $collectionData = $this->find('first', array(
                 'conditions' => array(
                     'ViewCollection.collection_id' => $variables['Collection.id']
                 )
             ));
-            $label = (empty($collection_data['ViewCollection']['participant_identifier']) ? '-' : $collection_data['ViewCollection']['participant_identifier']) . ' ' . substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
+            $label = (empty($collectionData['ViewCollection']['participant_identifier']) ? '-' : $collectionData['ViewCollection']['participant_identifier']) . ' ' . substr($collectionData['ViewCollection']['collection_datetime'], 0, strpos($collectionData['ViewCollection']['collection_datetime'], ' '));
             
             $return = array(
                 'menu' => array(
@@ -84,24 +84,24 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
                     __('collection') . ' : ' . $label
                 ),
                 'structure alias' => 'view_collection',
-                'data' => $collection_data
+                'data' => $collectionData
             );
             
-            $consent_status = $this->getUnconsentedParticipantCollections(array(
-                'data' => $collection_data
+            $consentStatus = $this->getUnconsentedParticipantCollections(array(
+                'data' => $collectionData
             ));
-            if (! empty($consent_status)) {
-                if (! $collection_data['ViewCollection']['participant_id']) {
+            if (! empty($consentStatus)) {
+                if (! $collectionData['ViewCollection']['participant_id']) {
                     AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
                 } else 
-                    if ($consent_status[$variables['Collection.id']] == null) {
+                    if ($consentStatus[$variables['Collection.id']] == null) {
                         $link = '';
                         if (AppController::checkLinkPermission('/ClinicalAnnotation/ClinicalCollectionLinks/detail/')) {
-                            $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collection_data['ViewCollection']['participant_id'], $collection_data['ViewCollection']['collection_id'], __('click here to access it'));
+                            $link = sprintf(' <a href="%sClinicalAnnotation/ClinicalCollectionLinks/detail/%d/%d">%s</a>', AppController::getInstance()->request->webroot, $collectionData['ViewCollection']['participant_id'], $collectionData['ViewCollection']['collection_id'], __('click here to access it'));
                         }
                         AppController::addWarningMsg(__('no consent is linked to the current participant collection') . '.' . $link);
                     } else {
-                        AppController::addWarningMsg(__('the linked consent status is [%s]', __($consent_status[$variables['Collection.id']])));
+                        AppController::addWarningMsg(__('the linked consent status is [%s]', __($consentStatus[$variables['Collection.id']])));
                     }
             }
         }
@@ -109,5 +109,3 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
         return $return;
     }
 }
-
-?>

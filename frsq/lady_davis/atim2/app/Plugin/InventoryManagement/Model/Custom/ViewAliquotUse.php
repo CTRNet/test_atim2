@@ -3,13 +3,13 @@
 class ViewAliquotUseCustom extends ViewAliquotUse
 {
 
-    var $base_model = "AliquotInternalUse";
+    var $baseModel = "AliquotInternalUse";
 
     var $useTable = 'view_aliquot_uses';
 
     var $name = 'ViewAliquotUse';
 
-    static $table_query = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+    static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,

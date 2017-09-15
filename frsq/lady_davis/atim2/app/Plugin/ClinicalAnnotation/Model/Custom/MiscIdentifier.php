@@ -7,7 +7,7 @@ class MiscIdentifierCustom extends MiscIdentifier
 
     var $useTable = "misc_identifiers";
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $errors = parent::validates($options);
         if (! isset($this->data['MiscIdentifier']['deleted']) || $this->data['MiscIdentifier']['deleted'] == 0) {
@@ -25,25 +25,25 @@ class MiscIdentifierCustom extends MiscIdentifier
         return $errors;
     }
 
-    function allowDeletion($id)
+    public function allowDeletion($id)
     {
-        $arr_allow_deletion = array(
+        $arrAllowDeletion = array(
             'allow_deletion' => true,
             'msg' => ''
         );
         
-        $col_model = AppModel::getInstance("InventoryManagement", "Collection", true);
-        $nbr_linked_collection = $col_model->find('count', array(
+        $colModel = AppModel::getInstance("InventoryManagement", "Collection", true);
+        $nbrLinkedCollection = $colModel->find('count', array(
             'conditions' => array(
                 'Collection.misc_identifier_id' => $id,
                 'Collection.deleted' => 0
             ),
             'recursive' => '-1'
         ));
-        if ($nbr_linked_collection > 0) {
-            $arr_allow_deletion['allow_deletion'] = false;
-            $arr_allow_deletion['msg'] = 'error_fk_frsq_number_linked_collection';
-            return $arr_allow_deletion;
+        if ($nbrLinkedCollection > 0) {
+            $arrAllowDeletion['allow_deletion'] = false;
+            $arrAllowDeletion['msg'] = 'error_fk_frsq_number_linked_collection';
+            return $arrAllowDeletion;
         }
         return parent::allowDeletion($id);
     }

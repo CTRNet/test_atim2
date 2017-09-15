@@ -7,68 +7,66 @@ class CollectionCustom extends Collection
 
     var $useTable = 'collections';
 
-    function getSpecimenTypePrecision($data_entry = false, $predefined_specimen_type = null)
+    public function getSpecimenTypePrecision($dataEntry = false, $predefinedSpecimenType = null)
     {
         $lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
         $StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
         
-        $types_to_add = array(
+        $typesToAdd = array(
             'tissue' => 'Tissue',
             'blood' => 'Blood'
         );
-        if (! is_null($predefined_specimen_type)) {
-            if (! array_key_exists($predefined_specimen_type, $types_to_add))
+        if (! is_null($predefinedSpecimenType)) {
+            if (! array_key_exists($predefinedSpecimenType, $typesToAdd))
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            $types_to_add = array(
-                $predefined_specimen_type => $types_to_add[$predefined_specimen_type]
+            $typesToAdd = array(
+                $predefinedSpecimenType => $typesToAdd[$predefinedSpecimenType]
             );
         }
         
         $result = array(
             '' => ''
         );
-        foreach ($types_to_add as $new_type_lower_case => $new_type) {
+        foreach ($typesToAdd as $newTypeLowerCase => $newType) {
             $conditions = array(
-                'StructurePermissibleValuesCustomControl.name' => 'Collection : ' . $new_type . ' type precision'
+                'StructurePermissibleValuesCustomControl.name' => 'Collection : ' . $newType . ' type precision'
             );
-            if ($data_entry)
+            if ($dataEntry)
                 $conditions['StructurePermissibleValuesCustom.use_as_input'] = '1';
-            $all_values = $StructurePermissibleValuesCustom->find('all', array(
+            $allValues = $StructurePermissibleValuesCustom->find('all', array(
                 'conditions' => $conditions
             ));
-            foreach ($all_values as $new_value) {
-                $result[$new_type_lower_case . '||' . $new_value['StructurePermissibleValuesCustom']['value']] = __($new_type_lower_case) . ' : ' . (strlen($new_value['StructurePermissibleValuesCustom'][$lang]) ? $new_value['StructurePermissibleValuesCustom'][$lang] : $new_value['StructurePermissibleValuesCustom']['value']);
+            foreach ($allValues as $newValue) {
+                $result[$newTypeLowerCase . '||' . $newValue['StructurePermissibleValuesCustom']['value']] = __($newTypeLowerCase) . ' : ' . (strlen($newValue['StructurePermissibleValuesCustom'][$lang]) ? $newValue['StructurePermissibleValuesCustom'][$lang] : $newValue['StructurePermissibleValuesCustom']['value']);
             }
         }
         asort($result);
         return $result;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         parent::validates($options);
         
         if ((! array_key_exists('deleted', $this->data['Collection']) || ! $this->data['Collection']['deleted']) && (array_key_exists('qc_lady_follow_up', $this->data['Collection']) || array_key_exists('qc_lady_pre_op', $this->data['Collection']) || array_key_exists('qc_lady_banking_nbr', $this->data['Collection']) || array_key_exists('qc_lady_visit', $this->data['Collection']))) {
-            $cust_error_detected = false;
-            $qc_lady_specimen_type = substr($this->data['Collection']['qc_lady_specimen_type_precision'], 0, strpos($this->data['Collection']['qc_lady_specimen_type_precision'], '||'));
-            switch ($qc_lady_specimen_type) {
+            $custErrorDetected = false;
+            $qcLadySpecimenType = substr($this->data['Collection']['qc_lady_specimen_type_precision'], 0, strpos($this->data['Collection']['qc_lady_specimen_type_precision'], '||'));
+            switch ($qcLadySpecimenType) {
                 case 'tissue':
                     if (strlen($this->data['Collection']['qc_lady_follow_up'] . $this->data['Collection']['qc_lady_pre_op'] . $this->data['Collection']['qc_lady_banking_nbr']))
-                        $cust_error_detected = true;
+                        $custErrorDetected = true;
                     break;
                 case 'blood':
                     if (strlen($this->data['Collection']['qc_lady_visit']))
-                        $cust_error_detected = true;
+                        $custErrorDetected = true;
                     break;
                 default:
                     $this->validationErrors['qc_lady_specimen_type_precision'][] = __('value is required');
             }
-            if ($cust_error_detected)
-                $this->validationErrors['qc_lady_specimen_type_precision'][] = str_replace('%s', __($qc_lady_specimen_type), __('the fields you are completing cannot be used for a collection having %s type'));
+            if ($custErrorDetected)
+                $this->validationErrors['qc_lady_specimen_type_precision'][] = str_replace('%s', __($qcLadySpecimenType), __('the fields you are completing cannot be used for a collection having %s type'));
         }
         
         return empty($this->validationErrors);
     }
 }
-
-?>
