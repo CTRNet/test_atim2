@@ -474,7 +474,7 @@ class StorageMaster extends StorageLayoutAppModel
                 // Auto complete tool has been used
                 $selectedStorages = $this->find('all', array(
                     'conditions' => array(
-                        "StorageMaster.selection_label LIKE "  => $matches[0][1],
+                        "StorageMaster.selection_label LIKE "  => '%' . $matches[0][1] . '%',
                         'StorageMaster.code' => $matches[0][2]
                     )
                 ));
