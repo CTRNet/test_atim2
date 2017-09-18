@@ -53,5 +53,9 @@
 -- Contact information
 ------------------------------------------------------------------------------------
 
-  website: http://ctrnet.ca/contact or send an 
-  e-mail: atim.ctrnet@gmail.com.
+Contact information:
+
+  website: http://crchum.chumontreal.qc.ca
+           http://ctrnet.ca/contact
+
+  e-mail: atim.ctrnet@gmail.com

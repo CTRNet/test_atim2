@@ -29,7 +29,7 @@
 
 
 -- -------------------------------------------------------------------------------------------------------------------
--- ATiM Migration Details & Actions Items
+-- ATiM Migration Details & Action Items
 -- -------------------------------------------------------------------------------------------------------------------
 
 -- v2.7.0
@@ -38,14 +38,14 @@
 -- ----------------------------------------------------------------------------
 
    ### 1 # CakePhp version upgrade and Reformating source code
-   ----------------------------------------------
+   -----------------------------------------------------------
  
       ATiM version 2.7.0 is built on the version 2.9.8 of CakePhp. In addition 
       to this upgrade, the source code of ATiM has been reformated to be more compliant 
       with the CakePhp coding standards. 
          (See https://book.cakephp.org/2.0/en/contributing/cakephp-coding-conventions.html)
 
-      TODO:
+      TODO :
 
       In any custom files (see app/Plugin/*/Hook and app/Plugin/*/Custom directory),  
       reformat custom code following the instructions below. Note that all php scripts 
@@ -53,7 +53,7 @@
 
          I - Reformat custom code to PSR-2 coding style
 
-              Instruction for eclipse:
+              Instructions for eclipse:
                   a. Window>preferences>PHP>Formatter.
                   b. Choose PSR2>OK
                   c. Click on the app folder of project in PHP Explorer
@@ -62,7 +62,7 @@
          II - Replace flash with atimFlashWarning, atimFlashInfo, atimFlashConfirm 
            or atimFlashError
 
-         III - Remove php function deprecated in php 7.0
+         III - Remove php deprecated function in php 7.0
 
               Use explode instead of split
 
@@ -99,7 +99,7 @@
 
 
    ### 2 # 'recursive' function is now type sensitive
-   -----------------------------------------------------
+   -----------------------------------------------------------
 
       Replaced any code matching ['recursive' => 'integer_value'] by ['recursive' => integer_value].
 
@@ -115,31 +115,73 @@
               'recursive' => 1
           ));
 
-      TODO:
+      TODO :
 
       Parse any custom code to apply the same change.
 
 
-   ### 3 # 'recursive' function is now type sensitive
-   -----------------------------------------------------
+   ### 3 # Custom AutoCompleteField Function
+   -----------------------------------------------------------
 
+      The autocomplete field did not work in v2.6.8 version for any values having special characters like {\%'"}.
+      See "issue#3398: autoComplete and special characters". 
    
+      The following functions of controllers and models used to generate the autocomplete lists, to format the displayed values 
+      and to validate the selected values have been modified :
+      
+         - DrugsController.autocompleteDrug() and Drug.getDrugIdFromDrugDataAndCode()
+         	  Field : Drug.generic_name
+         	  Correction : Autocomplete and validation
+         - AliquotMastersController.autocompleteBarcode()
+         	  Field : AliquotMaster.barcode
+         	  Correction : Autocomplete only
+         - StorageMastersController.autocompleteLabel() and StorageMaster.getStorageDataFromStorageLabelAndCode()
+         	  Field : StorageMaster.Selection_label
+         	  Correction : Autocomplete and validation
+         - TmaSlides.autocompleteBarcode()
+         	  Field : TmaSlide.barcode
+         	  Correction : Autocomplete only
+         - TmaSlides.autocompleteTmaSlideImmunochemistry()
+         	  Field : TmaSlide.immunochemistry
+              Correction : Autocomplete only
+         - StudySummaries.autocompleteStudy() and StudySummary.getStudyIdFromStudyDataAndCode()
+         	  Field : StudySummary.title
+              Correction : Autocomplete and validation
+      
+      In Controller function (like autocompleteDrug()) :
+         - Special characters of the $term have been formatted using str_replace()
+   			  $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+         - Search conditions have been changed  
+   			  from Model.Field LIKE '%" . trim($keyWord) . "%'",
+   			  to Model.Field LIKE " => '%' . trim($keyWord) . '%', 
+         - Returned value has been formatted using str_replace()  
+   			  $result = "";
+   			  foreach ($data as $dataUnit) {
+   			     $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), dataUnit . '", ';
+   			  }
+      
+      In Model funtions (like getDrugIdFromDrugDataAndCode($drugDataAndCode)) :   
+         - Special characters of the submitted value (like $drugDataAndCode) have been formatted using str_replace()
+   			  $submitedValue = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $submittedValue);
+         - Search conditions have been changed
+   			  from Model.Field LIKE '%" . trim($submittedValue) . "%'",
+   			  to Model.Field LIKE " => '%' . trim($submittedValue) . '%',
    
+      TODO :  
    
-   3440	Medium	ENHANCEMENT		Nicolas Luc	Nicolas Luc	evaluation and testing	v2.7.0	StructureField.sortable field set to 0 by script should be reviewed...
-   3427	Low	ENHANCEMENT		Nicolas Luc	Nicolas Luc	released	v2.7.0	Add quality control and tissue review to collection tree view when data not linked to an aliquot
-   3435	Medium	ENHANCEMENT		Nicolas Luc	Nicolas Luc	released	v2.7.0	Add TMA block to collection tree view
-   3377	High	BUG		Nicolas Luc	Nicolas Luc	released	v2.7.0	Drug.getDrugIdFromDrugDataAndCode() generates a bug for any drugs with apostrophe or quotation marks
-   3398	Low	BUG		Nicolas Luc	Yaser Naderi	released	v2.7.0	autoComplete and special characters: \ % ' "
-   
-Bug is reproducible for all other autoComplete function linked to these following fields:
-- Drug.generic_name (autocomplete and save)
-- AliquotMaster.barcode (autocomplete only)
-- StorageMaster.Selection_label (autocomplete and save)
-- TmaSlide.barcode (autocomplete only)
-- TmaSlide.immunochemistry (autocomplete only)
-- StudySummary.title (autocomplete and save)
+      Update custom code for any function listed above and being overridden by a custom function.
 
-ajouter reference au databrowser
+
+   ### 4 # New content in collection tree view upgrade
+   -----------------------------------------------------------
    
+      Quality control and path review are now displayed into the collection tree view when they are not linked 
+      to a tested aliquot. See "issue#3427: Add quality control and tissue review to collection tree view when data 
+      not linked to an aliquot". 
+   
+      TODO :  
+   
+      Review structure 'sample_uses_for_collection_tree_view' and function SampleMastersController.contentTreeView() for
+      any customisation.
+
    
