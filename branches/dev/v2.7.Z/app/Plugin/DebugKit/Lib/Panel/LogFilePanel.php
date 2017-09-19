@@ -16,7 +16,7 @@ App::uses('DebugPanel', 'DebugKit.Lib');
 /**
  * Provides debug information on previous requests.
  */
-class UserHistoryPanel extends DebugPanel {
+class LogFilePanel extends DebugPanel {
 
     /**
      * Number of history elements to keep
