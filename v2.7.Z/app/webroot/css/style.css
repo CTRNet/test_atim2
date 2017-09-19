@@ -2988,3 +2988,8 @@ div#default_popup{
     -webkit-transition: background-color 3s linear 0s!important;
     transition: background-color 3s linear 0s!important;
 }
+
+.debug-kit-log-file-span{
+    display: block;
+    font-size: 10pt;
+}

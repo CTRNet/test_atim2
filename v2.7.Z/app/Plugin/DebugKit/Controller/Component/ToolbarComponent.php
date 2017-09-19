@@ -64,7 +64,8 @@ class ToolbarComponent extends Component implements CakeEventListener {
  */
 	protected $_defaultPanels = array(
 		'DebugKit.Structure',
-		'DebugKit.UserHistory',
+		'DebugKit.DHistory',
+		'DebugKit.LogFile',
 		'DebugKit.History',
 		'DebugKit.Session',
 		'DebugKit.Request',
@@ -169,6 +170,7 @@ class ToolbarComponent extends Component implements CakeEventListener {
 		}
 
 		$this->_loadPanels($panels, $settings);
+		$this->panels["d_history"]->title="D (output)";
 		return false;
 	}
 

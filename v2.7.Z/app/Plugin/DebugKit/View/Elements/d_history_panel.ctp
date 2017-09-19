@@ -17,5 +17,6 @@
  */
 
 if (!empty($_SESSION['debug']['dl'])){
+
     $this->Toolbar->showUserHistory($_SESSION['debug']['dl']);
 }
