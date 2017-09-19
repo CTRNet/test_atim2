@@ -1,6 +1,6 @@
 <?php
 $structureLinks = array(
-    'top' => NULL,
+    'top' => null,
     'index' => array(
         'detail' => '/ClinicalAnnotation/ParticipantContacts/detail/' . $atimMenuVariables['Participant.id'] . '/%%ParticipantContact.id%%',
         'edit' => '/ClinicalAnnotation/ParticipantContacts/edit/' . $atimMenuVariables['Participant.id'] . '/%%ParticipantContact.id%%',

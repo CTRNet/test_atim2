@@ -33,7 +33,7 @@ $this->Structures->build($atimStructure, array(
     )
 ));
 
-$canDelete = ! empty($this->request->data) && AppController::checkLinkPermission($this->request->data[0]['PermissionPreset']['delete']);
+$canDelete = ! empty($this->request->data) && isset($this->request->data[0]['PermissionsPreset']['delete']) && AppController::checkLinkPermission($this->request->data[0]['PermissionsPreset']['delete']);
 $this->Structures->build($atimStructure, array(
     'type' => 'index',
     'data' => $this->request->data,
@@ -100,8 +100,12 @@ function applyPreset(data){
 		$(".tree_root").find("select").first().val(1);
 	}else{
 		//acos ids operations
-		data.allow = data.allow.split(",");
-		data.deny = data.deny.split(",");
+                if ($.type(data.allow)==="string"){
+                    data.allow = data.allow.split(",");
+                }
+                if ($.type(data.deny)==="string"){
+                    data.deny = data.deny.split(",");
+                }
 
 		$(".tree_root").find("select").val("");
 		for(var i in data.allow){

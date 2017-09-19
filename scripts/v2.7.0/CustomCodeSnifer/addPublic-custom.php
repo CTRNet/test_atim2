@@ -56,17 +56,18 @@ function convert($str, $file=null) {
 }
 
 $path = $argv[1];
+if(!is_dir($path)) die("\nWrong path [$path]\n");
 $Iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
 $i=1;
 $j=1;
 $k=1;
 $output="";
 foreach($Iterator as $file){
-    if(substr($file,-4) !== '.php' || !preg_match('/.*Plugin.+Hook.*/', $file))
-        continue;
-    $out = convert(file_get_contents($file), $file);
-    if (isset($argv[2]) && strtolower($argv[2])=='--commit'){
-		file_put_contents($file, $out);
+    if(substr($file,-4) == '.php' && (preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Hook.*/', $file) || preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Custom.*/', $file))) {
+        $out = convert(file_get_contents($file), $file);
+        if (isset($argv[2]) && strtolower($argv[2])=='--commit'){
+    		file_put_contents($file, $out);
+        }
 	}
 }
 $i--;

@@ -114,7 +114,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                 $orderBy = $query['order']['MiscIdentifier.identifier_value'];
                 $query['order'][] = "IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
                 unset($query['order']['MiscIdentifier.identifier_value']);
-            } else if (is_string($query['order']) && preg_match('/^MiscIdentifier.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
+            } elseif (is_string($query['order']) && preg_match('/^MiscIdentifier.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
                 $orderBy = $matches[1];
                 $query['order'] = "IF(concat('', REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
             }

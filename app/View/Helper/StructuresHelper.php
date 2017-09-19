@@ -496,7 +496,7 @@ class StructuresHelper extends Helper
                     }
                 } elseif (isset($atimStructure['Structure']) && isset($atimStructure['Structure']['alias'])) {
                     $tmp[] = $atimStructure['Structure']['alias'];
-                } else if ($atimStructure) {
+                } elseif ($atimStructure) {
                     $possible = array(
                         "Collection",
                         "DiagnosisMaster",

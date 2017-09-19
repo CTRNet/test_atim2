@@ -177,7 +177,7 @@ class Drug extends DrugAppModel
                 // Auto complete tool has been used
                 $selectedDrugs = $this->find('all', array(
                     'conditions' => array(
-                        "Drug.generic_name LIKE " => $matches[1],
+                        "Drug.generic_name LIKE " => '%' . $matches[1] . '%',
                         'Drug.id' => $matches[2]
                     )
                 ));
