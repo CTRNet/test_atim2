@@ -197,7 +197,7 @@ function d($var, $screen=true, $log=true, $die=false)
         return;
     }
     App::uses('Debugger', 'Utility');
-
+    
     $trace = Debugger::trace(array('start' => 1, 'depth' => 2, 'format' => 'array'));
     $file = str_replace(array(CAKE_CORE_INCLUDE_PATH, ROOT), '', $trace[0]['file']);
     $line = $trace[0]['line'];
@@ -220,11 +220,11 @@ TEXT;
     $template = $html;
     if (PHP_SAPI === 'cli') {
         $template = $text;
-        $lineInfo = sprintf('%s (line %s)', $file, $line);
+        $lineInfo = sprintf('%s%s (line %s)',$file, $line, date('j-m-Y H:i:s'));
     }
     $var = print_r($var, true);
     $var = h($var);
-    $lineInfo = sprintf('<span><strong>%s</strong> (line <strong>%s</strong>)</span>', $file, $line);
+    $lineInfo = sprintf('<span><strong>%s</strong> (line <strong>%s</strong>)</span><span style="color: green"> %s</span>', $file, $line, date('j-m-Y H:i:s'));
     if ($screen){
         printf($template, $lineInfo, $var);
     }
