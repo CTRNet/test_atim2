@@ -26,18 +26,19 @@ function convert($str, $file) {
 }
 
 $path = $argv[1];
+if(!is_dir($path)) die("\nWrong path [$path]\n");
 $Iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
 $i=0; 
 $j=0;
 $output="";
 foreach($Iterator as $file){
-    if(substr($file,-4) !== '.php' && substr($file,-4) !== '.ctp' || !preg_match('/.*Plugin.+Hook.*/', $file))
-        continue;
-	$i++;
-    $out = convert(file_get_contents($file), $file);
-    if (isset($argv[2]) && strtolower($argv[2])=='--commit'){
-		file_put_contents($file, $out);
-	}
+    if(substr($file,-4) == '.php' && (preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Hook.*/', $file) || preg_match('/.*Plugin.+((Controller)|(Model)|(View)).+Custom.*/', $file))) {
+        $i++;
+        $out = convert(file_get_contents($file), $file);
+        if (isset($argv[2]) && strtolower($argv[2])=='--commit'){
+        	file_put_contents($file, $out);
+        }
+    }
 }
 echo "Total files: ".$i."\n";
 $output.= "Total files: ".$i."\r\n";

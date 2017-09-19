@@ -1234,7 +1234,10 @@ class ReportsControllerCustom extends ReportsController
                         'JGH' => '',
                         'Sardo' => '',
                         'Breast_bank' => '',
-                        'Q_CROC_03' => ''
+                        'Q_CROC_03' => '',
+                        'PMT' => '',
+                        'pdx' => '',
+                        'sequenom' => ''
                     )
                 );
             }
@@ -1247,7 +1250,9 @@ class ReportsControllerCustom extends ReportsController
                 '_',
                 '_'
             ), $newIdent['MiscIdentifierControl']['misc_identifier_name']);
-            $data[$participantId]['0'][$identKey] .= (empty($data[$participantId]['0'][$identKey]) ? '' : ' & ') . $newIdent['MiscIdentifier']['identifier_value'];
+            if (array_key_exists($identKey, $data[$participantId]['0'])) {
+                $data[$participantId]['0'][$identKey] .= (empty($data[$participantId]['0'][$identKey]) ? '' : ' & ') . $newIdent['MiscIdentifier']['identifier_value'];
+            }
         }
         return array(
             'header' => $header,

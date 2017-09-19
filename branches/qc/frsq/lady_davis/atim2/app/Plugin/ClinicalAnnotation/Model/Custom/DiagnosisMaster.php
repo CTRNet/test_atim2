@@ -118,7 +118,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
             'survival_time_months'
         ));
         foreach ($dxToUpdate as $dxData) {
-            $thid->data = array();
+            $this->data = array();
             $this->id = $dxData['DiagnosisMaster']['id'];
             if (! $this->save($dxData, false))
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -174,5 +174,22 @@ class DiagnosisMasterCustom extends DiagnosisMaster
             if ($warning)
                 AppController::addWarningMsg(__('diagnosis, treatments and/or events lateralities mismatch'));
         }
+    }
+
+    /**
+     *
+     * @param mixed $results            
+     * @param bool $primary            
+     * @return mixed
+     */
+    public function afterFind($results, $primary = false)
+    {
+        $results = parent::afterFind($results, $primary);
+        foreach ($results as &$newRdx) {
+            if (isset($newRdx['DiagnosisControl']['controls_type']) && $newRdx['DiagnosisControl']['controls_type'] == 'breast' && isset($newRdx['DiagnosisDetail'])) {
+                $newRdx['DiagnosisDetail']['qc_lady_tumor_site'] = 'breast-breast';
+            }
+        }
+        return $results;
     }
 }

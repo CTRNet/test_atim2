@@ -17,11 +17,6 @@ if ($imageResponse) {
     }
 }
 
-$drugFromId = array();
-$drugModel = AppModel::getInstance('Drug', 'Drug', true);
-foreach ($drugModel->find('all') as $newDrug)
-    $drugFromId[$newDrug['Drug']['id']] = $newDrug['Drug']['generic_name'];
-
 $protocolFromId = array();
 $protcolModel = AppModel::getInstance('Protocol', 'ProtocolMaster', true);
 foreach ($protcolModel->find('all') as $newProtocol)

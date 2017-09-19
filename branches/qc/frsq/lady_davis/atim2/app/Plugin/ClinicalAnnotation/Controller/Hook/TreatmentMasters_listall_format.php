@@ -30,9 +30,9 @@ foreach ($this->request->data as &$newTreatment) {
                     $tmpPrecision = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Surgical Procedure', $newTreatmentExtend['TreatmentExtendDetail']['surgical_procedure']);
                     break;
                 default:
-                    if (array_key_exists('drug_id', $newTreatmentExtend['TreatmentExtendDetail'])) {
+                    if (array_key_exists('drug_id', $newTreatmentExtend['TreatmentExtendMaster'])) {
                         $isDrug = true;
-                        $tmpPrecision = $newTreatmentExtend['TreatmentExtendDetail']['drug_id'];
+                        $tmpPrecision = $newTreatmentExtend['TreatmentExtendMaster']['drug_id'];
                     }
             }
             if ($tmpPrecision) {
