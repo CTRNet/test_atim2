@@ -131,7 +131,7 @@ class StudySummary extends StudyAppModel
                 // Auto complete tool has been used
                 $selectedStudies = $this->find('all', array(
                     'conditions' => array(
-                        "StudySummary.title LIKE " => $matches[1],
+                        "StudySummary.title LIKE " => '%' . $matches[1] . '%',
                         'StudySummary.id' => $matches[2]
                     )
                 ));

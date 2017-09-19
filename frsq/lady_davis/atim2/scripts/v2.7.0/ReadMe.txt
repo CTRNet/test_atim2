@@ -93,7 +93,7 @@
          VIII - Change the underscore_case to camelCase (if you don't add --commit option the changes will be logged in a file without effecting the codes)
 
               Linux or mac:
-					php ./CustomCodeSnifer/snakeToCamel-custom.php /.../atim --commit
+					php ./CustomCodeSnifer/snakeToCamel-custom.php /.../atim/app --commit
               Windows: 
 					php CustomCodeSnifer\snakeToCamel-custom.php ..\..\app --commit
 

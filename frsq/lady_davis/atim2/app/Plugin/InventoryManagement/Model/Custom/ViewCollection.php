@@ -29,7 +29,7 @@ class ViewCollectionCustom extends ViewCollection
         )
     );
 
-    static $tableQuery = '
+    public static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
