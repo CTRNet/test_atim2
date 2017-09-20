@@ -1,24 +1,30 @@
-<?php 
-	
-	$structure_links = array(
-		'top' => '/InventoryManagement/AliquotMasters/editAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/'.$aliquot_use_id.'/',
-		'bottom' => array('cancel' => '/InventoryManagement/AliquotMasters/detailAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/'.$aliquot_use_id.'/'
-		)
-	);
-	
-	$structure_settings = array('header' => __('aliquot use/event', null));
-			
-	$structure_override = array();
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'edit', 'settings'=>$structure_settings);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );	
+<?php
+$structureLinks = array(
+    'top' => '/InventoryManagement/AliquotMasters/editAliquotInternalUse/' . $atimMenuVariables['AliquotMaster.id'] . '/' . $aliquotUseId . '/',
+    'bottom' => array(
+        'cancel' => '/InventoryManagement/AliquotMasters/detailAliquotInternalUse/' . $atimMenuVariables['AliquotMaster.id'] . '/' . $aliquotUseId . '/'
+    )
+);
 
-	
-?>
+$structureSettings = array(
+    'header' => __('aliquot use/event', null)
+);
+
+$structureOverride = array();
+
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'override' => $structureOverride,
+    'type' => 'edit',
+    'settings' => $structureSettings
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

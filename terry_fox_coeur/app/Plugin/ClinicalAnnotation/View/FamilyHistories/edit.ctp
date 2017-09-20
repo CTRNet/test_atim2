@@ -1,22 +1,23 @@
-<?php 
-	
-	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/FamilyHistories/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['FamilyHistory.id'],
-		'bottom'=>array(
-			'cancel'=>'/ClinicalAnnotation/FamilyHistories/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['FamilyHistory.id']
-		)
-	);
-	
-	// Set form structure and option 
+<?php
+$structureLinks = array(
+    'top' => '/ClinicalAnnotation/FamilyHistories/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['FamilyHistory.id'],
+    'bottom' => array(
+        'cancel' => '/ClinicalAnnotation/FamilyHistories/detail/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['FamilyHistory.id']
+    )
+);
+
+// Set form structure and option
 /* ==> Note: Set both form structure and option into 2 variables to allow hooks to modify them */
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );
-	
-?>
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);

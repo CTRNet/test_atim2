@@ -4,9 +4,9 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 	var $base_model = "AliquotInternalUse";
 	var $useTable = 'view_aliquot_uses';
 	var $name = 'ViewAliquotUse';
-
+	
 	static $table_query =
-	"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+		"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -114,12 +114,12 @@ CONCAT(AliquotMasterChild.aliquot_label,' [',AliquotMasterChild.barcode,']') AS 
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
-	
+		
 		SELECT CONCAT(OrderItem.id, 4) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		IF(OrderItem.shipment_id, 'aliquot shipment', 'order preparation') AS use_definition,
 --		IF(OrderItem.shipment_id, Shipment.shipment_code, Order.order_number) AS use_code,
-IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipient), Order.order_number) AS use_code,		
+IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipient), Order.order_number) AS use_code,	
 		'' AS use_details,
 		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
@@ -148,9 +148,9 @@ IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipie
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
-	
+		
 		UNION ALL
-	
+		
 		SELECT CONCAT(OrderItem.id, 7) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'shipped aliquot return' AS use_definition,
@@ -178,7 +178,7 @@ IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipie
 		JOIN `orders` AS `Order` ON  Order.id = OrderItem.order_id
 		LEFT JOIN study_summaries AS OrderStudySummary ON OrderStudySummary.id = Order.default_study_summary_id AND OrderStudySummary.deleted != 1
 		WHERE OrderItem.deleted <> 1 AND OrderItem.status = 'shipped & returned' %%WHERE%%
-	
+		
 		UNION ALL
 	
 		SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
@@ -204,7 +204,7 @@ IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipie
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
-	
+	    
 }
 
 ?>

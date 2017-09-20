@@ -1,31 +1,39 @@
-<?php 
-	AppController::addInfoMsg(__('add_order_items_info')); 
-	$structure_links = array(
-		'top'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/'.$object_model_name,
-		'bottom'=>array('cancel'=> empty($atim_menu_variables['OrderLine.id'])? '/Order/Orders/detail/'.$atim_menu_variables['Order.id'].'/' : '/Order/OrderLines/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/')
-	);
-	
-	$structure_override = array();
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array(
-		'settings' => array(
-			'header' => __((empty($atim_menu_variables['OrderLine.id'])? 'add items to order' : 'add items to line'), null).' : '.__(($object_model_name == 'AliquotMaster'? 'aliquot' : 'tma slide')),
-			'paste_disabled_fields' => array($object_model_name.'.barcode'),
-			'pagination' => false, 
-			'add_fields' => true, 
-			'del_fields' => true),
-		'links'=>$structure_links,
-		'override'=>$structure_override,
-		'type'=>'addgrid');
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
-	
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );
-	
+<?php
+AppController::addInfoMsg(__('add_order_items_info'));
+$structureLinks = array(
+    'top' => '/Order/OrderItems/add/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/' . $objectModelName,
+    'bottom' => array(
+        'cancel' => empty($atimMenuVariables['OrderLine.id']) ? '/Order/Orders/detail/' . $atimMenuVariables['Order.id'] . '/' : '/Order/OrderLines/detail/' . $atimMenuVariables['Order.id'] . '/' . $atimMenuVariables['OrderLine.id'] . '/'
+    )
+);
+
+$structureOverride = array();
+
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'settings' => array(
+        'header' => __((empty($atimMenuVariables['OrderLine.id']) ? 'add items to order' : 'add items to line'), null) . ' : ' . __(($objectModelName == 'AliquotMaster' ? 'aliquot' : 'tma slide')),
+        'paste_disabled_fields' => array(
+            $objectModelName . '.barcode'
+        ),
+        'pagination' => false,
+        'add_fields' => true,
+        'del_fields' => true
+    ),
+    'links' => $structureLinks,
+    'override' => $structureOverride,
+    'type' => 'addgrid'
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);
+
 ?>
 <script type="text/javascript">
 var copyStr = "<?php echo(__("copy", null)); ?>";

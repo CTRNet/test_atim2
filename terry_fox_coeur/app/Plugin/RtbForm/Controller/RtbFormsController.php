@@ -1,74 +1,121 @@
 <?php
 
-class RtbformsController extends RtbformAppController {
-	
-	var $uses = array('Rtbform.Rtbform');
-	var $paginate = array('Rtbform'=>array('order'=>'Rtbform.frmTitle'));
-  
-	function index() {
-		$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-	}
-  
-	function search($search_id) {
-		$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-		$this->set( 'atim_menu', $this->Menus->get('/rtbform/rtbforms/index') );
-		$this->searchHandler($search_id, $this->Rtbform, 'rtbforms', '/rtbform/rtbforms/search');
-		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link); 
-		}
-	}
-	
-	function profile( $rtbform_id=null ) {$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-		if ( !$rtbform_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-  
-		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
-		
-		$this->hook();
-		
-		$this->request->data = $this->Rtbform->find('first',array('conditions'=>array('Rtbform.id'=>$rtbform_id)));
-	}
-  
+/**
+ * Class RtbformsController
+ */
+class RtbformsController extends RtbformAppController
+{
 
-	function add() {$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-		$this->hook();
-	
-		if ( !empty($this->request->data) ) {
-			if ( $this->Rtbform->save($this->request->data) ) $this->atimFlash(__('your data has been updated'),'/rtbform/rtbforms/profile/'.$this->Rtbform->id );
-		}
-	}
-  
+    public $uses = array(
+        'Rtbform.Rtbform'
+    );
 
-	function edit( $rtbform_id=null ) {$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-		if ( !$rtbform_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
-		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
-		
-		$this->hook();
-		
-		if ( !empty($this->request->data) ) {
-			$this->Rtbform->id = $rtbform_id;
-			if ( $this->Rtbform->save($this->request->data) ) {
-				$this->atimFlash(__('your data has been updated'),'/rtbform/rtbforms/profile/'.$rtbform_id );
-			}
-		} else {
-			$this->request->data = $this->Rtbform->find('first',array('conditions'=>array('Rtbform.id'=>$rtbform_id)));
-		}
-	}
-  
-	function delete( $rtbform_id=null ) {$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
-		if ( !$rtbform_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
-		$this->hook();
-		
-		if( $this->Rtbform->atimDelete( $rtbform_id ) ) {
-			$this->atimFlash(__('your data has been deleted'), '/rtbform/rtbforms/search/');
-		} else {
-			$this->flash(__('error deleting data - contact administrator'), '/rtbform/rtbforms/search/');
-		}
-	}
-  
+    public $paginate = array(
+        'Rtbform' => array(
+            'order' => 'Rtbform.frmTitle'
+        )
+    );
+
+    public function index()
+    {
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+    }
+
+    /**
+     * @param $searchId
+     */
+    public function search($searchId)
+    {
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        $this->set('atimMenu', $this->Menus->get('/rtbform/rtbforms/index'));
+        $this->searchHandler($searchId, $this->Rtbform, 'rtbforms', '/rtbform/rtbforms/search');
+        
+        $hookLink = $this->hook('format');
+        if ($hookLink) {
+            require ($hookLink);
+        }
+    }
+
+    /**
+     * @param null $rtbformId
+     */
+    public function profile($rtbformId = null)
+    {
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        if (! $rtbformId) {
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        
+        $this->set('atimMenuVariables', array(
+            'Rtbform.id' => $rtbformId
+        ));
+        
+        $this->hook();
+        
+        $this->request->data = $this->Rtbform->find('first', array(
+            'conditions' => array(
+                'Rtbform.id' => $rtbformId
+            )
+        ));
+    }
+
+    public function add()
+    {
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        $this->hook();
+        
+        if (! empty($this->request->data)) {
+            if ($this->Rtbform->save($this->request->data))
+                $this->atimFlash(__('your data has been updated'), '/rtbform/rtbforms/profile/' . $this->Rtbform->id);
+        }
+    }
+
+    /**
+     * @param null $rtbformId
+     */
+    public function edit($rtbformId = null)
+    {
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        if (! $rtbformId) {
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        
+        $this->set('atimMenuVariables', array(
+            'Rtbform.id' => $rtbformId
+        ));
+        
+        $this->hook();
+        
+        if (! empty($this->request->data)) {
+            $this->Rtbform->id = $rtbformId;
+            if ($this->Rtbform->save($this->request->data)) {
+                $this->atimFlash(__('your data has been updated'), '/rtbform/rtbforms/profile/' . $rtbformId);
+            }
+        } else {
+            $this->request->data = $this->Rtbform->find('first', array(
+                'conditions' => array(
+                    'Rtbform.id' => $rtbformId
+                )
+            ));
+        }
+    }
+
+    /**
+     * @param null $rtbformId
+     */
+    public function delete($rtbformId = null)
+    {
+        $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        if (! $rtbformId) {
+            $this->redirect('/Pages/err_plugin_funct_param_missing?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+        }
+        
+        $this->hook();
+        
+        if ($this->Rtbform->atimDelete($rtbformId)) {
+            $this->atimFlash(__('your data has been deleted'), '/rtbform/rtbforms/search/');
+        } else {
+            $this->atimFlashError(__('error deleting data - contact administrator'), '/rtbform/rtbforms/search/');
+        }
+    }
 }
-
-?>
