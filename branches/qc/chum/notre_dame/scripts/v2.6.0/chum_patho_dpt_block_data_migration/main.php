@@ -46,6 +46,18 @@ $atim_collection_linked_to_tma_creation_deleted = 0;
 $atim_tissue_linked_to_tma_creation_deleted = 0;
 $created_storages = 0;
 
+// Counters
+
+$previous_file_matching_collections = 0;
+$previous_file_created_collections = 0;
+$previous_file_created_tissues = 0;
+$previous_file_created_blocks = 0;
+$previous_file_atim_blocks_linked_to_tma_creation_deleted = 0;
+$previous_file_atim_cores_linked_to_tma_creation_reassigned= 0;
+$previous_file_atim_collection_linked_to_tma_creation_deleted = 0;
+$previous_file_atim_tissue_linked_to_tma_creation_deleted = 0;
+$previous_file_created_storages = 0;
+
 // Array to limit duplication of analysis
 
 $duplicated_excel_line_check = array();
@@ -67,8 +79,15 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
 	foreach($file_info['worksheets'] as $worksheet_name) {
 	    $date_check_done = false;
 		$header_check_done = false;
+		$line_number_check = 0;
 		while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1)) {		    
 			$excel_file_name_for_summary = utf8_encode($excel_file_name)." [$worksheet_name]";
+			
+			$line_number_check++;
+			if($line_number_check == 500) {
+			    echo "Line $line_number_check done<br>";
+			    $line_number_check = 0;
+			}
 			
 			// *** NEW STEP **************************************************************************************************************************************************************
 			//	Check File Headers
@@ -232,23 +251,25 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
     						// Check block has to be created
     						//---------------------------------------------------------------------------
     						
-    						$block_code_pattern = array(
-                                'Congel',
-                                '[IV]{1,3}\-[A-Za-z]{1,3}',
-                                '[A-Za-z]{1,3}',
-                                '[IV]{1,3}\-[GD][0-9]',
-                                'I 4 NIV\.',
-                                'CONG B[0-9]',
-                                '([A-Za-z]+)[\-]{0,1}([0-9]+)',
-                                '([0-9]+)([A-Za-z]+)',
-                                '([A-Za-z]+)([0-9]+)(([A-Za-z]+)|(\-[0-9]+))',
-                                '[0-9]+',
-    						    'O\-[0-9]+([\ A-Za-z]*)' 
-    						);
-    						$block_code_pattern= '/^(('.implode(')|(', $block_code_pattern).'))$/';
-    						if(strlen($excel_line_data['Enumeration des blocs']) && strtolower($excel_line_data['Enumeration des blocs']) != 'nul' && !preg_match($block_code_pattern, $excel_line_data['Enumeration des blocs'], $matches)) {
-    							recordErrorAndMessage('Block Definition'." [FILE : $excel_file_name]", '@@ERROR@@', "#".__LINE__." - Wrong Block code format (ex:A1). Block (plus collection and tissue) won't be created into ATiM.", "See value [".$excel_line_data['Enumeration des blocs']."] of the $summary_label_participant_excel_nominal_data.");
-    						} else if(!strlen($excel_collection_datetime)) {
+//     						$block_code_pattern = array(
+//                                 'Congel',
+//                                 '[IV]{1,3}\-[A-Za-z]{1,3}',
+//                                 '[A-Za-z]{1,3}',
+//                                 '[IV]{1,3}\-[GD][0-9]',
+//                                 'I 4 NIV\.',
+//                                 'CONG B[0-9]',
+//                                 '([A-Za-z]+)[\-]{0,1}([0-9]+)',
+//                                 '([0-9]+)([A-Za-z]+)',
+//                                 '[AB].{1,2}((CONGEL)|(congel))',
+//                                 '([A-Za-z]+)([0-9]+)(([A-Za-z]+)|(\-[0-9]+))',
+//                                 '[0-9]+',
+//     						    'O\-[0-9]+([\ A-Za-z]*)' 
+//     						);
+//     						$block_code_pattern= '/^(('.implode(')|(', $block_code_pattern).'))$/';
+//     						if(strlen($excel_line_data['Enumeration des blocs']) && strtolower($excel_line_data['Enumeration des blocs']) != 'nul' && !preg_match($block_code_pattern, $excel_line_data['Enumeration des blocs'], $matches)) {
+//     							recordErrorAndMessage('Block Definition'." [FILE : $excel_file_name]", '@@ERROR@@', "#".__LINE__." - Wrong Block code format (ex:A1). Block (plus collection and tissue) won't be created into ATiM.", "See value [".$excel_line_data['Enumeration des blocs']."] of the $summary_label_participant_excel_nominal_data.");
+//     						} else 
+						    if(!strlen($excel_collection_datetime)) {
     						    recordErrorAndMessage('Block Definition'." [FILE : $excel_file_name]", '@@ERROR@@', "#".__LINE__." - Block collection date is missing. Block (plus collection and tissue) won't be created into ATiM.", "See $summary_label_participant_excel_nominal_data.");
     						} else {
     							$sample_notes = array();
@@ -1037,19 +1058,43 @@ foreach($excel_file_names as $excel_file_name => $file_info) {
 		}
 	}
 	
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$matching_collections ATiM collections used");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_collections collections created");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_tissues tissues samples created");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_blocks aliquots created");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_storages storages created");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_blocks_linked_to_tma_creation_deleted blocks created by TMA construction script have been deleted");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_cores_linked_to_tma_creation_reassigned cores created by TMA construction script have been reassigned to created blocks");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_tissue_linked_to_tma_creation_deleted tissue created by TMA construction script ave been deleted");
-	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_collection_linked_to_tma_creation_deleted collections created by TMA construction script have been deleted");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($matching_collections - $previous_file_matching_collections)." ATiM collections used");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($created_collections - $previous_file_created_collections)." collections created");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($created_tissues - $previous_file_created_tissues)." tissues samples created");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($created_blocks - $previous_file_created_blocks)." aliquots created");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($created_storages - $previous_file_created_storages)." storages created");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($atim_blocks_linked_to_tma_creation_deleted - $previous_file_atim_blocks_linked_to_tma_creation_deleted)." blocks created by TMA construction script have been deleted");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($atim_cores_linked_to_tma_creation_reassigned - $previous_file_atim_cores_linked_to_tma_creation_reassigned)." cores created by TMA construction script have been reassigned to created blocks");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($atim_tissue_linked_to_tma_creation_deleted - $previous_file_atim_tissue_linked_to_tma_creation_deleted)." tissue created by TMA construction script ave been deleted");
+	recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", ($atim_collection_linked_to_tma_creation_deleted - $previous_file_atim_collection_linked_to_tma_creation_deleted)." collections created by TMA construction script have been deleted");
+	
+	$previous_file_matching_collections = $matching_collections;
+	$previous_file_created_collections = $created_collections;
+	$previous_file_created_tissues = $created_tissues;
+	$previous_file_created_blocks = $created_blocks;
+	$previous_file_atim_blocks_linked_to_tma_creation_deleted = $atim_blocks_linked_to_tma_creation_deleted;
+	$previous_file_atim_cores_linked_to_tma_creation_reassigned= $atim_cores_linked_to_tma_creation_reassigned;
+	$previous_file_atim_collection_linked_to_tma_creation_deleted = $atim_collection_linked_to_tma_creation_deleted;
+	$previous_file_atim_tissue_linked_to_tma_creation_deleted = $atim_tissue_linked_to_tma_creation_deleted;
+	$previous_file_created_storages = $created_storages;
 	
 	dislayErrorAndMessage();
 	$import_summary = array();
 }
+
+echo "<br><br><br><FONT COLOR=\"green\" ><b>************************************************************************************************************************************************************<br>";
+echo "Conclusions <br>";
+echo "************************************************************************************************************************************************************</b></FONT>";
+
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$matching_collections ATiM collections used");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_collections collections created");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_tissues tissues samples created");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_blocks aliquots created");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$created_storages storages created");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_blocks_linked_to_tma_creation_deleted blocks created by TMA construction script have been deleted");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_cores_linked_to_tma_creation_reassigned cores created by TMA construction script have been reassigned to created blocks");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_tissue_linked_to_tma_creation_deleted tissue created by TMA construction script ave been deleted");
+recordErrorAndMessage('Block Creation'." [FILE : $excel_file_name]", '@@WARNING@@', "Number of created/used elements.", "$atim_collection_linked_to_tma_creation_deleted collections created by TMA construction script have been deleted");
 
 $final_queries = array(
 	"UPDATE sample_masters SET sample_code = id WHERE sample_code LIKE 'tmp_tissue_%';",
