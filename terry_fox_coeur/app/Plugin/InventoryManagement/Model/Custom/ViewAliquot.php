@@ -1,10 +1,11 @@
 <?php
 
-class ViewAliquotCustom extends ViewAliquot {
-	var $name = 'ViewAliquot';
+class ViewAliquotCustom extends ViewAliquot
+{
 
-	static $table_query =
-	   'SELECT
+    var $name = 'ViewAliquot';
+
+    static $tableQuery = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,
@@ -77,5 +78,4 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
-	
 }
