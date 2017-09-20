@@ -1,10 +1,15 @@
 <?php
-	$final_options['settings']['actions'] = true;
-	$final_options['settings']['form_bottom'] = true;
-	$final_options['links']['bottom'] = array(
-			'edit'		=> '/ClinicalAnnotation/ClinicalCollectionLinks/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['Collection.id'],
-			'delete'	=> '/ClinicalAnnotation/ClinicalCollectionLinks/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['Collection.id'],
-			'list'		=> '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/',
-			'details' => array('collection'=> '/InventoryManagement/Collections/detail/'.$atim_menu_variables['Collection.id']),
-			'copy for new collection'	=> array('link' => '/InventoryManagement/Collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy')
-	);
+$finalOptions['settings']['actions'] = true;
+$finalOptions['settings']['form_bottom'] = true;
+$finalOptions['links']['bottom'] = array(
+    'edit' => '/ClinicalAnnotation/ClinicalCollectionLinks/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['Collection.id'],
+    'delete' => '/ClinicalAnnotation/ClinicalCollectionLinks/delete/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['Collection.id'],
+    'list' => '/ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $atimMenuVariables['Participant.id'] . '/',
+    'details' => array(
+        'collection' => '/InventoryManagement/Collections/detail/' . $atimMenuVariables['Collection.id']
+    ),
+    'copy for new collection' => array(
+        'link' => '/InventoryManagement/Collections/add/0/' . $atimMenuVariables['Collection.id'],
+        'icon' => 'copy'
+    )
+);
