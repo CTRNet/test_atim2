@@ -1,8 +1,8 @@
 <?php
 
-class CustomizeAppController extends AppController {	
-
-
+/**
+ * Class CustomizeAppController
+ */
+class CustomizeAppController extends AppController
+{
 }
-
-?>

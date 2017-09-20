@@ -13,8 +13,9 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Network.Email
  * @since         CakePHP(tm) v 2.0.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+App::uses('AbstractTransport', 'Network/Email');
 
 /**
  * Debug Transport class, useful for emulate the email sending process and inspect the resulted
