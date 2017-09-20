@@ -1,38 +1,44 @@
-<?php 
-	$structure_links = array(
-		'top'=>NULL,
-		'bottom'=>array(
-			'edit'=>'/ClinicalAnnotation/ConsentMasters/edit/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%/',
-			'delete'=>'/ClinicalAnnotation/ConsentMasters/delete/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%/'
-		)
-	);
-	
-	$structure_settings = array('actions' => $is_ajax);
-	if(!$is_ajax) $structure_settings['header'] = __($consent_type, null);
-			
-	// Set form structure and option 
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links, 'settings'=>$structure_settings);
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options );
-	
-	if(!$is_ajax){
-		$final_atim_structure = array();
-		$final_options['settings']['header'] = __('links to collections');
-		$final_options['settings']['actions'] = true;
-		$final_options['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:ConsentMaster/filterId:'.$atim_menu_variables['ConsentMaster.id']);
-		
-		$hook_link = $this->Structures->hook('ccl');
-		if( $hook_link ) {
-			require($hook_link);
-		}
-		
-		$this->Structures->build(array(), $final_options);
-	}
+<?php
+$structureLinks = array(
+    'top' => null,
+    'bottom' => array(
+        'edit' => '/ClinicalAnnotation/ConsentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%/',
+        'delete' => '/ClinicalAnnotation/ConsentMasters/delete/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%/'
+    )
+);
+
+$structureSettings = array(
+    'actions' => $isAjax
+);
+if (! $isAjax)
+    $structureSettings['header'] = __($consentType, null);
+    
+    // Set form structure and option
+$finalAtimStructure = $atimStructure;
+$finalOptions = array(
+    'links' => $structureLinks,
+    'settings' => $structureSettings
+);
+
+// CUSTOM CODE
+$hookLink = $this->Structures->hook();
+if ($hookLink) {
+    require ($hookLink);
+}
+
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);
+
+if (! $isAjax) {
+    $finalAtimStructure = array();
+    $finalOptions['settings']['header'] = __('links to collections');
+    $finalOptions['settings']['actions'] = true;
+    $finalOptions['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $atimMenuVariables['Participant.id'] . '/noActions:/filterModel:ConsentMaster/filterId:' . $atimMenuVariables['ConsentMaster.id']);
+    
+    $hookLink = $this->Structures->hook('ccl');
+    if ($hookLink) {
+        require ($hookLink);
+    }
+    
+    $this->Structures->build(array(), $finalOptions);
+}

@@ -13,7 +13,7 @@
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Model.Behavior
  * @since         CakePHP(tm) v 1.2.0.5669
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Model', 'Model');
@@ -3761,7 +3761,7 @@ class ContainableBehaviorTest extends CakeTestCase {
 			'hasAndBelongsToMany' => array()
 		), $expected);
 		foreach ($expected as $binding => $expect) {
-			$this->assertEquals(array_keys($Model->$binding), $expect);
+			$this->assertEquals($expect, array_keys($Model->$binding));
 		}
 	}
 }

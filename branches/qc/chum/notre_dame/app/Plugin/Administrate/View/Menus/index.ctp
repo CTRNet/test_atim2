@@ -1,9 +1,11 @@
-<?php 
-	$structure_links = array(
-		'index'	=> array(
-			'detail'	=> '/Administrate/Menus/detail/%%Menu.id%%'
-		)
-	);
-	
-	$this->Structures->build( $atim_structure, array('type'=>'tree', 'links'=>$structure_links) );
-?>
+<?php
+$structureLinks = array(
+    'index' => array(
+        'detail' => '/Administrate/Menus/detail/%%Menu.id%%'
+    )
+);
+
+$this->Structures->build($atimStructure, array(
+    'type' => 'tree',
+    'links' => $structureLinks
+));

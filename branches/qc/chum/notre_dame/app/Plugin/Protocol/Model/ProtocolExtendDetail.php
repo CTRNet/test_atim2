@@ -1,8 +1,10 @@
 <?php
 
-class ProtocolExtendDetail extends ProtocolAppModel {
+/**
+ * Class ProtocolExtendDetail
+ */
+class ProtocolExtendDetail extends ProtocolAppModel
+{
 
-	var $useTable = false;
+    public $useTable = false;
 }
-
-?>

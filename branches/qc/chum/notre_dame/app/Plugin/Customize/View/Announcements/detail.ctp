@@ -1,7 +1,8 @@
-<?php 
-	$structure_links = array(
-		'bottom'=>array()
-	);
-	
-	$this->Structures->build( $atim_structure, array('links'=>$structure_links) );
-?>
+<?php
+$structureLinks = array(
+    'bottom' => array()
+);
+
+$this->Structures->build($atimStructure, array(
+    'links' => $structureLinks
+));
