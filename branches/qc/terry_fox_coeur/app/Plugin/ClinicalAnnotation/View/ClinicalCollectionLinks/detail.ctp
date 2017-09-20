@@ -1,116 +1,141 @@
 <?php
-	$consent_control_data = isset($collection_data['ConsentControl'])? $collection_data['ConsentControl'] : null;
-	$diagnosis_control_data = isset($collection_data['DiagnosisControl'])? $collection_data['DiagnosisControl'] : null;
-	$treatment_control_data = isset($collection_data['TreatmentControl'])? $collection_data['TreatmentControl'] : null;
-	$event_control_data = isset($collection_data['EventControl'])? $collection_data['EventControl'] : null;
-	
-	$collection_data = $collection_data['Collection'];
-	
-	$no_data_available = '<div>'.__('core_no_data_available').'</div>';
-	
-	// ************** 1- COLLECTION **************
-	$structure_settings = array(
-		'actions'	=> false,
-		'header' 	=> array('title' => __('collection'), 'description' => null)
-	);
-	
-	$final_atim_structure = $empty_structure;
-	$final_options = array(
-		'type'		=> 'detail', 
-		'data'		=> array(), 
-		'settings'	=> $structure_settings,
-		'extras'	=> $this->Structures->ajaxIndex('InventoryManagement/Collections/detail/'.$collection_data['id'].'/1')
-	);
+$consentControlData = isset($collectionData['ConsentControl']) ? $collectionData['ConsentControl'] : null;
+$diagnosisControlData = isset($collectionData['DiagnosisControl']) ? $collectionData['DiagnosisControl'] : null;
+$treatmentControlData = isset($collectionData['TreatmentControl']) ? $collectionData['TreatmentControl'] : null;
+$eventControlData = isset($collectionData['EventControl']) ? $collectionData['EventControl'] : null;
 
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook('collection_detail');
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-		
-	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options ); 
-	
+$collectionData = $collectionData['Collection'];
 
-	// ************** 2- CONSENT **************
-	$final_options['settings']['header'] = array('title' => __('consent'), 'description' => null);
-	if(!is_null($consent_control_data)) $final_options['settings']['header']['description'] = __($consent_control_data['controls_type']);	
-	$final_options['extras'] = $collection_data['consent_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/ConsentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['consent_master_id']) : $no_data_available;
+$noDataAvailable = '<div>' . __('core_no_data_available') . '</div>';
 
-	$display_next_sub_form = true;
-	
-	// CUSTOM CODE
-	$hook_link = $this->Structures->hook('consent_detail');
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-		
-	// BUILD FORM
-	if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options ); 
+// ************** 1- COLLECTION **************
+$structureSettings = array(
+    'actions' => false,
+    'header' => array(
+        'title' => __('collection'),
+        'description' => null
+    )
+);
 
+$finalAtimStructure = $emptyStructure;
+$finalOptions = array(
+    'type' => 'detail',
+    'data' => array(),
+    'settings' => $structureSettings,
+    'extras' => $this->Structures->ajaxIndex('InventoryManagement/Collections/detail/' . $collectionData['id'] . '/1')
+);
 
-	// ************** 3- DIAGNOSIS **************
-	$final_options['settings']['header'] = array('title' => __('diagnosis'), 'description' => null);
-	if(!is_null($diagnosis_control_data)) $final_options['settings']['header']['description'] = __($diagnosis_control_data['category']). ' - '.__($diagnosis_control_data['controls_type']);	
-	$final_options['extras'] = $collection_data['diagnosis_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/DiagnosisMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['diagnosis_master_id']) : $no_data_available;
-	
-	$display_next_sub_form = true;
-	
-	$hook_link = $this->Structures->hook('diagnosis_detail');
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-	 
-	if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
+// CUSTOM CODE
+$hookLink = $this->Structures->hook('collection_detail');
+if ($hookLink) {
+    require ($hookLink);
+}
 
+// BUILD FORM
+$this->Structures->build($finalAtimStructure, $finalOptions);
 
-	// ************** 4 - Tx **************
-	$final_options['settings']['header'] = array('title' => __('treatment'), 'description' => null);
-	if(!is_null($treatment_control_data)) $final_options['settings']['header']['description'] = __($treatment_control_data['tx_method']). (empty($treatment_control_data['disease_site'])? '' : ' - '.__($treatment_control_data['disease_site']));	
-	$final_options['extras'] = $collection_data['treatment_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['treatment_master_id']) : $no_data_available;
-	
-	$display_next_sub_form = true;
-	
-	$hook_link = $this->Structures->hook('treatment_detail');
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-	if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
+// ************** 2- CONSENT **************
+$finalOptions['settings']['header'] = array(
+    'title' => __('consent'),
+    'description' => null
+);
+if (! is_null($consentControlData))
+    $finalOptions['settings']['header']['description'] = __($consentControlData['controls_type']);
+$finalOptions['extras'] = $collectionData['consent_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/ConsentMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['consent_master_id']) : $noDataAvailable;
 
+$displayNextSubForm = true;
 
-	// ************** 5 - Event **************
-	$final_options['settings']['header'] = array('title' => __('annotation'), 'description' => null);
-	if(!is_null($event_control_data)) $final_options['settings']['header']['description'] = __($event_control_data['event_group']). ' - '.__($event_control_data['event_type']). (empty($event_control_data['disease_site'])? '' : ' - '.__($event_control_data['disease_site']));	
-	$final_options['settings']['actions'] = true;
-	$final_options['extras'] = $collection_data['event_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/1/') : $no_data_available;
-	
-	$structure_bottom_links = array(
-		'edit'		=> '/ClinicalAnnotation/ClinicalCollectionLinks/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['Collection.id'],
-		'delete collection link'	=> '/ClinicalAnnotation/ClinicalCollectionLinks/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['Collection.id'],
-		'details' => array('collection'=> '/InventoryManagement/Collections/detail/'.$atim_menu_variables['Collection.id']),
-		'copy for new collection'	=> array('link' => '/InventoryManagement/Collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy')
-	);
-	
-	if($collection_data['consent_master_id']){
-		$structure_bottom_links['details']['consent'] = '/ClinicalAnnotation/ConsentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['consent_master_id'].'/';
-	}
-	if($collection_data['diagnosis_master_id']){
-		$structure_bottom_links['details']['diagnosis'] = '/ClinicalAnnotation/DiagnosisMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['diagnosis_master_id'].'/';
-	}
-	if($collection_data['treatment_master_id']){
-		$structure_bottom_links['details']['treatment'] = '/ClinicalAnnotation/TreatmentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['treatment_master_id'].'/';
-	}
-	if($collection_data['event_master_id']){
-		$structure_bottom_links['details']['event'] = '/ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/';
-	}
-	$final_options['links'] = array('bottom' => $structure_bottom_links);
-	
-	$display_next_sub_form = true;
-	
-	$hook_link = $this->Structures->hook('event_detail');
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
-	 
-	if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
+// CUSTOM CODE
+$hookLink = $this->Structures->hook('consent_detail');
+if ($hookLink) {
+    require ($hookLink);
+}
 
+// BUILD FORM
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+    
+    // ************** 3- DIAGNOSIS **************
+$finalOptions['settings']['header'] = array(
+    'title' => __('diagnosis'),
+    'description' => null
+);
+if (! is_null($diagnosisControlData))
+    $finalOptions['settings']['header']['description'] = __($diagnosisControlData['category']) . ' - ' . __($diagnosisControlData['controls_type']);
+$finalOptions['extras'] = $collectionData['diagnosis_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/DiagnosisMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['diagnosis_master_id']) : $noDataAvailable;
+
+$displayNextSubForm = true;
+
+$hookLink = $this->Structures->hook('diagnosis_detail');
+if ($hookLink) {
+    require ($hookLink);
+}
+
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+    
+    // ************** 4 - Tx **************
+$finalOptions['settings']['header'] = array(
+    'title' => __('treatment'),
+    'description' => null
+);
+if (! is_null($treatmentControlData))
+    $finalOptions['settings']['header']['description'] = __($treatmentControlData['tx_method']) . (empty($treatmentControlData['disease_site']) ? '' : ' - ' . __($treatmentControlData['disease_site']));
+$finalOptions['extras'] = $collectionData['treatment_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['treatment_master_id']) : $noDataAvailable;
+
+$displayNextSubForm = true;
+
+$hookLink = $this->Structures->hook('treatment_detail');
+if ($hookLink) {
+    require ($hookLink);
+}
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+    
+    // ************** 5 - Event **************
+$finalOptions['settings']['header'] = array(
+    'title' => __('annotation'),
+    'description' => null
+);
+if (! is_null($eventControlData))
+    $finalOptions['settings']['header']['description'] = __($eventControlData['event_group']) . ' - ' . __($eventControlData['event_type']) . (empty($eventControlData['disease_site']) ? '' : ' - ' . __($eventControlData['disease_site']));
+$finalOptions['settings']['actions'] = true;
+$finalOptions['extras'] = $collectionData['event_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['event_master_id'] . '/1/') : $noDataAvailable;
+
+$structureBottomLinks = array(
+    'edit' => '/ClinicalAnnotation/ClinicalCollectionLinks/edit/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['Collection.id'],
+    'delete collection link' => '/ClinicalAnnotation/ClinicalCollectionLinks/delete/' . $atimMenuVariables['Participant.id'] . '/' . $atimMenuVariables['Collection.id'],
+    'details' => array(
+        'collection' => '/InventoryManagement/Collections/detail/' . $atimMenuVariables['Collection.id']
+    ),
+    'copy for new collection' => array(
+        'link' => '/InventoryManagement/Collections/add/0/' . $atimMenuVariables['Collection.id'],
+        'icon' => 'copy'
+    )
+);
+
+if ($collectionData['consent_master_id']) {
+    $structureBottomLinks['details']['consent'] = '/ClinicalAnnotation/ConsentMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['consent_master_id'] . '/';
+}
+if ($collectionData['diagnosis_master_id']) {
+    $structureBottomLinks['details']['diagnosis'] = '/ClinicalAnnotation/DiagnosisMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['diagnosis_master_id'] . '/';
+}
+if ($collectionData['treatment_master_id']) {
+    $structureBottomLinks['details']['treatment'] = '/ClinicalAnnotation/TreatmentMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['treatment_master_id'] . '/';
+}
+if ($collectionData['event_master_id']) {
+    $structureBottomLinks['details']['event'] = '/ClinicalAnnotation/EventMasters/detail/' . $collectionData['participant_id'] . '/' . $collectionData['event_master_id'] . '/';
+}
+$finalOptions['links'] = array(
+    'bottom' => $structureBottomLinks
+);
+
+$displayNextSubForm = true;
+
+$hookLink = $this->Structures->hook('event_detail');
+if ($hookLink) {
+    require ($hookLink);
+}
+
+if ($displayNextSubForm)
+    $this->Structures->build($finalAtimStructure, $finalOptions);

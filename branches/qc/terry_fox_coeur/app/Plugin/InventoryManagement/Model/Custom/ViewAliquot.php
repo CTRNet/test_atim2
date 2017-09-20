@@ -3,28 +3,28 @@
 class ViewAliquotCustom extends ViewAliquot {
 	var $name = 'ViewAliquot';
 
-	static $table_query = 
-			'SELECT 
+	static $table_query =
+	   'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
-			AliquotMaster.collection_id AS collection_id, 
-			Collection.bank_id, 
+			AliquotMaster.collection_id AS collection_id,
+			Collection.bank_id,
 			AliquotMaster.storage_master_id AS storage_master_id,
-			Collection.participant_id, 
-			
-			Participant.participant_identifier, 
+			Collection.participant_id,
+		
+			Participant.participant_identifier,
 Participant.qc_tf_bank_identifier AS qc_tf_bank_identifier,	
 Participant.qc_tf_bank_id AS qc_tf_bank_id,	
-			
-			Collection.acquisition_label, 
-			
+		
+			Collection.acquisition_label,
+		
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 			ParentSampleControl.sample_type AS parent_sample_type,
 			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
 			SampleControl.sample_type,
 			SampleMaster.sample_control_id,
-			
+		
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
 			AliquotControl.aliquot_type,
@@ -33,17 +33,17 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 			AliquotMaster.in_stock_detail,
 			StudySummary.title AS study_summary_title,
 			StudySummary.id AS study_summary_id,
-			
+		
 			StorageMaster.code,
 			StorageMaster.selection_label,
 			AliquotMaster.storage_coord_x,
 			AliquotMaster.storage_coord_y,
-			
+		
 			StorageMaster.temperature,
 			StorageMaster.temp_unit,
-			
+		
 			AliquotMaster.created,
-			
+		
 			IF(AliquotMaster.storage_datetime IS NULL, NULL,
 			 IF(Collection.collection_datetime IS NULL, -1,
 			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
@@ -59,9 +59,9 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-			 
+	
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
-			
+		
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
@@ -78,40 +78,4 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 			LEFT JOIN study_summaries AS StudySummary ON StudySummary.id = AliquotMaster.study_summary_id AND StudySummary.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
-
-	function beforeFind($queryData){
-		if(($_SESSION['Auth']['User']['group_id'] != '1')
-				&& is_array($queryData['conditions'])
-				&& AppModel::isFieldUsedAsCondition("ViewAliquot.qc_tf_bank_identifier", $queryData['conditions'])) {
-			AppController::addWarningMsg(__('your search will be limited to your bank'));
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			$queryData['conditions'][] = array("ViewAliquot.qc_tf_bank_id" => $user_bank_id);
-		}
-		return $queryData;
-	}
-	
-	function afterFind($results, $primary = false){
-		$results = parent::afterFind($results);
-		if($_SESSION['Auth']['User']['group_id'] != '1') {
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]['ViewAliquot']['qc_tf_bank_id']) || isset($results[0]['ViewAliquot']['qc_tf_bank_identifier'])){
-				foreach($results as &$result){
-					if((!isset($result['ViewAliquot']['qc_tf_bank_id'])) || $result['ViewAliquot']['qc_tf_bank_id'] != $user_bank_id) {
-						$result['ViewAliquot']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewAliquot']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
-					}
-				}
-			} else if(isset($results['ViewAliquot'])){
-				pr('TODO afterFind ViewAliquot');
-				pr($results);
-				exit;
-			}
-		}
-	
-		return $results;
-	}
 }

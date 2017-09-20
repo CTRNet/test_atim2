@@ -1,13 +1,15 @@
-<?php 
+<?php
+$structureLinks = array(
+    'index' => array(
+        'profile' => '/rtbform/rtbforms/profile/%%Rtbform.id%%'
+    ),
+    'bottom' => array(
+        'add' => '/rtbform/rtbforms/add/',
+        'search' => '/rtbform/rtbforms/index/'
+    )
+);
 
-	$structure_links = array(
-		'index'=>array('profile'=>'/rtbform/rtbforms/profile/%%Rtbform.id%%'),
-		'bottom'=>array(
-			'add'=>'/rtbform/rtbforms/add/',
-			'search'=>'/rtbform/rtbforms/index/'
-		)
-	);
-	
-	$this->Structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
-
-?>
+$this->Structures->build($atimStructure, array(
+    'type' => 'index',
+    'links' => $structureLinks
+));

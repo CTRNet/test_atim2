@@ -1,6 +1,8 @@
 <?php
 
-class DrugAppController extends AppController {	
+/**
+ * Class DrugAppController
+ */
+class DrugAppController extends AppController
+{
 }
-
-?>

@@ -11,7 +11,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Config
  * @since         CakePHP(tm) v 2.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 /**
@@ -48,8 +48,8 @@ if ($plugins = CakePlugin::loaded()) {
 		$plugins[$key] = Inflector::underscore($value);
 	}
 	$pluginPattern = implode('|', $plugins);
-	$match = array('plugin' => $pluginPattern);
-	$shortParams = array('routeClass' => 'PluginShortRoute', 'plugin' => $pluginPattern);
+	$match = array('plugin' => $pluginPattern, 'defaultRoute' => true);
+	$shortParams = array('routeClass' => 'PluginShortRoute', 'plugin' => $pluginPattern, 'defaultRoute' => true);
 
 	foreach ($prefixes as $prefix) {
 		$params = array('prefix' => $prefix, $prefix => true);
@@ -66,11 +66,11 @@ if ($plugins = CakePlugin::loaded()) {
 foreach ($prefixes as $prefix) {
 	$params = array('prefix' => $prefix, $prefix => true);
 	$indexParams = $params + array('action' => 'index');
-	Router::connect("/{$prefix}/:controller", $indexParams);
-	Router::connect("/{$prefix}/:controller/:action/*", $params);
+	Router::connect("/{$prefix}/:controller", $indexParams, array('defaultRoute' => true));
+	Router::connect("/{$prefix}/:controller/:action/*", $params, array('defaultRoute' => true));
 }
-Router::connect('/:controller', array('action' => 'index'));
-Router::connect('/:controller/:action/*');
+Router::connect('/:controller', array('action' => 'index'), array('defaultRoute' => true));
+Router::connect('/:controller/:action/*', array(), array('defaultRoute' => true));
 
 $namedConfig = Router::namedConfig();
 if ($namedConfig['rules'] === false) {
@@ -79,3 +79,4 @@ if ($namedConfig['rules'] === false) {
 
 unset($namedConfig, $params, $indexParams, $prefix, $prefixes, $shortParams, $match,
 	$pluginPattern, $plugins, $key, $value);
+

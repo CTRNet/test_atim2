@@ -5,7 +5,7 @@ class ViewCollectionCustom extends ViewCollection {
 	var $name = 'ViewCollection';
 	
 	static $table_query = '
-		SELECT 
+		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -23,9 +23,9 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.created AS created 
-		FROM collections AS Collection 
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
+		Collection.created AS created
+		FROM collections AS Collection
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
@@ -52,42 +52,6 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		}
 		
 		return $return;
-	}
-	
-	function beforeFind($queryData){
-		if(($_SESSION['Auth']['User']['group_id'] != '1')
-				&& is_array($queryData['conditions'])
-				&& AppModel::isFieldUsedAsCondition("ViewCollection.qc_tf_bank_identifier", $queryData['conditions'])) {
-			AppController::addWarningMsg(__('your search will be limited to your bank'));
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			$queryData['conditions'][] = array("ViewCollection.qc_tf_bank_id" => $user_bank_id);
-		}
-		return $queryData;
-	}
-	
-	function afterFind($results, $primary = false){
-		$results = parent::afterFind($results);
-		if($_SESSION['Auth']['User']['group_id'] != '1') {
-			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]['ViewCollection']['qc_tf_bank_id']) || isset($results[0]['ViewCollection']['qc_tf_bank_identifier'])){	
-				foreach($results as &$result){
-					if((!isset($result['ViewCollection']['qc_tf_bank_id'])) || $result['ViewCollection']['qc_tf_bank_id'] != $user_bank_id) {
-						$result['ViewCollection']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
-						$result['ViewCollection']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
-					}
-				}
-			} else if(isset($results['ViewCollection'])){
-				pr('TODO afterFind ViewCollection');
-				pr($results);
-				exit;
-			}
-		}
-	
-		return $results;
 	}
 	
 }
