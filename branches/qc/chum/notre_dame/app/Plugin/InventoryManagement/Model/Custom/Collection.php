@@ -7,7 +7,7 @@ class CollectionCustom extends Collection
 
     var $useTable = "collections";
 
-    function updateCollectionSampleLabels($collection_id, $bank_participant_identifier = null)
+    public function updateCollectionSampleLabels($collection_id, $bank_participant_identifier = null)
     {
         if (! isset($this->SampleMaster)) {
             $this->SampleMaster = AppModel::getInstance('InventoryManagement', 'SampleMaster');

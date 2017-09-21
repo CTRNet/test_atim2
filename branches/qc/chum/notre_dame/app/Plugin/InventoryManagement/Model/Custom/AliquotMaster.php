@@ -7,7 +7,7 @@ class AliquotMasterCustom extends AliquotMaster
 
     var $name = 'AliquotMaster';
 
-    function summary($variables = array())
+    public function summary($variables = array())
     {
         $return = false;
         
@@ -40,7 +40,7 @@ class AliquotMasterCustom extends AliquotMaster
         return $return;
     }
 
-    function generateDefaultAliquotLabel($view_sample, $aliquot_control_data)
+    public function generateDefaultAliquotLabel($view_sample, $aliquot_control_data)
     {
         // Parameters check: Verify parameters have been set
         if (empty($view_sample) || empty($aliquot_control_data))
@@ -152,7 +152,7 @@ class AliquotMasterCustom extends AliquotMaster
         return $default_aliquot_label;
     }
 
-    function regenerateAliquotBarcode()
+    public function regenerateAliquotBarcode()
     {
         $query_to_update = "UPDATE aliquot_masters SET barcode = id WHERE barcode IS NULL OR barcode LIKE '';";
         $this->tryCatchQuery($query_to_update);

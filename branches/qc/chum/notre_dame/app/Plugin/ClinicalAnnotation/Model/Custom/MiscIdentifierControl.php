@@ -7,7 +7,7 @@ class MiscIdentifierControlCustom extends MiscIdentifierControl
 
     var $name = "MiscIdentifierControl";
 
-    function getIcmBankIdentifierNamesFromId()
+    public function getIcmBankIdentifierNamesFromId()
     {
         $result = array();
         

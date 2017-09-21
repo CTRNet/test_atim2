@@ -7,7 +7,7 @@ class SampleMasterCustom extends SampleMaster
 
     var $name = 'SampleMaster';
 
-    function specimenSummary($variables = array())
+    public function specimenSummary($variables = array())
     {
         $return = false;
         
@@ -39,7 +39,7 @@ class SampleMasterCustom extends SampleMaster
         return $return;
     }
 
-    function derivativeSummary($variables = array())
+    public function derivativeSummary($variables = array())
     {
         $return = false;
         
@@ -71,7 +71,7 @@ class SampleMasterCustom extends SampleMaster
         return $return;
     }
 
-    function createSampleLabel($collection_id, $sample_data, $bank_participant_identifier = null, $initial_specimen_label = null)
+    public function createSampleLabel($collection_id, $sample_data, $bank_participant_identifier = null, $initial_specimen_label = null)
     {
         // Check parameters
         if (empty($collection_id) || empty($sample_data) || (! isset($sample_data['SampleMaster'])) || (! isset($sample_data['SampleControl']))) {
@@ -328,7 +328,7 @@ class SampleMasterCustom extends SampleMaster
         return $process_validates;
     }
 
-    function formatParentSampleDataForDisplay($parent_sample_data)
+    public function formatParentSampleDataForDisplay($parent_sample_data)
     {
         $formatted_data = array();
         if (! empty($parent_sample_data)) {
@@ -343,7 +343,7 @@ class SampleMasterCustom extends SampleMaster
         return $formatted_data;
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $result = parent::validates($options);
         

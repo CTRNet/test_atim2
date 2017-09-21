@@ -23,7 +23,7 @@ class EventControlCustom extends EventControl
         'vph'
     );
 
-    function buildAddLinks($event_ctrl_data, $participant_id, $event_group)
+    public function buildAddLinks($event_ctrl_data, $participant_id, $event_group)
     {
         $links = array();
         foreach ($event_ctrl_data as $event_ctrl) {

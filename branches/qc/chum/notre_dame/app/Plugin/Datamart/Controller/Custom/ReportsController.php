@@ -3,7 +3,7 @@
 class ReportsControllerCustom extends ReportsController
 {
 
-    function participantIdentifiersSummary($parameters)
+    public function participantIdentifiersSummary($parameters)
     {
         $header = null;
         $conditions = array();
@@ -124,7 +124,7 @@ class ReportsControllerCustom extends ReportsController
         );
     }
 
-    function ctrnetCatalogueSubmissionFile($parameters)
+    public function ctrnetCatalogueSubmissionFile($parameters)
     {
         
         // 1- Build Header
@@ -647,7 +647,7 @@ class ReportsControllerCustom extends ReportsController
         return $array_to_return;
     }
 
-    function getAllSpecimens($parameters)
+    public function getAllSpecimens($parameters)
     {
         $header = null;
         $conditions = array(
@@ -748,7 +748,7 @@ class ReportsControllerCustom extends ReportsController
         );
     }
 
-    function getAllDerivatives($parameters)
+    public function getAllDerivatives($parameters)
     {
         $header = null;
         $conditions = array();
