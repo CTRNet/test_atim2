@@ -50,8 +50,7 @@ $structureLinks['bottom']['create derivative'] = $canCreateDerivative ? '/Invent
 if ($isFromTreeViewOrLayout == 1) {
     // Tree view
     $settings['header'] = __('aliquot', null) . ': ' . __('details');
-} else 
-    if ($isFromTreeViewOrLayout == 2) {
+} elseif ($isFromTreeViewOrLayout == 2) {
         // Storage Layout
         $structureLinks = array();
         $structureLinks['bottom']['access to aliquot'] = '/InventoryManagement/AliquotMasters/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'] . '/' . $atimMenuVariables['AliquotMaster.id'];

@@ -18,8 +18,7 @@ if (isset($search)) {
         'search' => '/StorageLayout/StorageMasters/search',
         'add' => $addLinks
     );
-} else 
-    if (! $isAjax && isset($addLinks)) {
+} elseif (! $isAjax && isset($addLinks)) {
         $bottom = array(
             'add to storage' => $addLinks
         );

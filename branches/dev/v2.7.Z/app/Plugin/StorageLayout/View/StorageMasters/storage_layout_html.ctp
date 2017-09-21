@@ -110,8 +110,7 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                 $useValue = $xVal . "_" . $yVal;
                 if ($useHeight == 1) {
                     $displayValue = $xVal;
-                } else 
-                    if ($useWidth == 1) {
+                } elseif ($useWidth == 1) {
                         $displayValue = $yVal;
                     } else {
                         $displayValue = $xVal . "-" . $yVal;
