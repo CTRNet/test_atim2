@@ -333,10 +333,10 @@ class SampleMasterCustom extends SampleMaster
         $formatted_data = array();
         if (! empty($parent_sample_data)) {
             if (isset($parent_sample_data['SampleMaster'])) {
-                $formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['qc_nd_sample_label'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+                $formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['qc_nd_sample_label'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], true) . ']';
             } elseif (isset($parent_sample_data[0]['ViewSample'])) {
                 foreach ($parent_sample_data as $new_parent) {
-                    $formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['qc_nd_sample_label'] . ' [' . __($new_parent['ViewSample']['sample_type'], TRUE) . ']';
+                    $formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['qc_nd_sample_label'] . ' [' . __($new_parent['ViewSample']['sample_type'], true) . ']';
                 }
             }
         }

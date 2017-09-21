@@ -52,11 +52,11 @@ class ParticipantCustom extends Participant
             
             $return = array(
                 'menu' => array(
-                    NULL,
+                    null,
                     $title
                 ),
                 'title' => array(
-                    NULL,
+                    null,
                     $title
                 ),
                 'structure alias' => 'participants,qc_nd_part_id_summary',
