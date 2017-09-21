@@ -106,7 +106,7 @@ class AliquotMasterCustom extends AliquotMaster
                     break;
             }
             $default_aliquot_label = $idenitfier_value . ' ' . $visit_label . ' ' . $label;
-        } else if ($view_sample['ViewSample']['bank_id'] == 8) {
+        } elseif ($view_sample['ViewSample']['bank_id'] == 8) {
             
             // *** Autopsy Bank ***
             

@@ -97,8 +97,7 @@ $headerDescription = __('link to databrowser wiki page %s  + datamart structures
 if (isset($header)) {
     if (! is_array($header)) {
         $headerTitle = $header;
-    } else 
-        if (array_key_exists('title', $header)) {
+    } elseif (array_key_exists('title', $header)) {
             $headerTitle = $header['title'];
             if (array_key_exists('description', $header)) {
                 $headerDescription = $header['description'] . '<br>' . $headerDescription;

@@ -57,7 +57,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
                         'DiagnosisDetail'
                     ), $val);
                     $query['conditions'][$key] = $val;
-                } else if (preg_match('/(qc_nd_sardo_morphology_key_words)|(qc_nd_sardo_topography_key_words)/', $key)) {
+                } elseif (preg_match('/(qc_nd_sardo_morphology_key_words)|(qc_nd_sardo_topography_key_words)/', $key)) {
                     // Exact Search
                     $new_key = preg_replace(array(
                         '/qc_nd_sardo_morphology_key_words/',

@@ -48,7 +48,7 @@ if ($message_type == 'all') {
         'extras' => $this->Structures->ajaxIndex('Administrate/SardoMigrations/listAll/profile_reproductive')
     );
     $this->Structures->build($final_atim_structure, $final_options);
-} else if ($message_type == 'csv') {
+} elseif ($message_type == 'csv') {
     
     $this->Structures->build($atim_structure_messages, array(
         'type' => 'csv',
