@@ -183,9 +183,12 @@ class ReportsControllerCustom extends ReportsController
 					TreatmentMaster.participant_id,
 					Drug.generic_name
 				FROM treatment_masters AS TreatmentMaster
-				LEFT JOIN txe_chemos AS TreatmentExtend ON TreatmentExtend.treatment_master_id = TreatmentMaster.id
-				LEFT JOIN drugs AS Drug ON Drug.id = TreatmentExtend.drug_id
-				WHERE TreatmentMaster.deleted <> 1 AND TreatmentMaster.diagnosis_master_id IN (" . implode(',', $eocPrimaryIds) . ") AND TreatmentMaster.treatment_control_id = 14
+				LEFT JOIN treatment_extend_masters AS TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id
+				LEFT JOIN drugs AS Drug ON Drug.id = TreatmentExtendMaster.drug_id
+				WHERE TreatmentMaster.deleted <> 1 
+                AND TreatmentMaster.diagnosis_master_id IN (" . implode(',', $eocPrimaryIds) . ")
+                AND TreatmentExtendMaster.deleted <> 1 
+                AND TreatmentMaster.treatment_control_id = 14
 				ORDER BY TreatmentMaster.participant_id ASC, TreatmentMaster.finish_date ASC, TreatmentMaster.id ASC;";
             $eocChemoResults = $this->Report->tryCatchQuery($sql);
             foreach ($eocChemoResults as $newRes) {
@@ -296,12 +299,6 @@ class ReportsControllerCustom extends ReportsController
                     $newParticipant['0']['qc_tf_coeur_other_dx_tumor_site_' . $id] = $newOtherDx['DiagnosisMaster']['qc_tf_tumor_site'];
                     $newParticipant['0']['qc_tf_coeur_other_dx_tumor_date_' . $id] = $this->tmpFormatdate($newOtherDx['DiagnosisMaster']['dx_date'], $newOtherDx['DiagnosisMaster']['dx_date_accuracy']);
                 }
-            }
-            if (($_SESSION['Auth']['User']['group_id'] != '1') && ($newParticipant['Participant']['qc_tf_bank_id'] != $userBankId)) {
-                $newParticipant['Participant']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
-                $newParticipant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
-                if ($searchOnPathoNumber)
-                    $newParticipant['AliquotDetail']['patho_dpt_block_code'] = CONFIDENTIAL_MARKER;
             }
         }
         

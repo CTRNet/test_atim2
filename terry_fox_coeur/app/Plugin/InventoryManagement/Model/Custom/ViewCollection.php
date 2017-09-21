@@ -5,7 +5,7 @@ class ViewCollectionCustom extends ViewCollection
 
     var $name = 'ViewCollection';
 
-    static $tableQuery = '
+    public static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
@@ -28,7 +28,7 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-
+    
     public function summary($variables = array())
     {
         $return = false;
@@ -43,8 +43,6 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
             $title = '';
             if (empty($collectionData['ViewCollection']['participant_identifier'])) {
                 $title = __('unlinked collection') . ' [id#' . $collectionData['ViewCollection']['collection_id'] . ']';
-            } elseif ($collectionData['ViewCollection']['qc_tf_bank_identifier'] == CONFIDENTIAL_MARKER) {
-                $title = __('participant identifier') . ' ' . $collectionData['ViewCollection']['participant_identifier'];
             } else {
                 $title = __('participant bank identifier') . ' ' . $collectionData['ViewCollection']['qc_tf_bank_identifier'];
             }

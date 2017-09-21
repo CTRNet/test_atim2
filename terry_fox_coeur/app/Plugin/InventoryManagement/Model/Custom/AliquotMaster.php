@@ -15,14 +15,6 @@ class AliquotMasterCustom extends AliquotMaster
             AppController::getInstance()->redirect('/pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         
         $sampleType = $viewSample['ViewSample']['sample_type'];
-        $qcTfBankId = empty($viewSample['ViewSample']['qc_tf_bank_id']) ? null : $viewSample['ViewSample']['qc_tf_bank_id'];
-        // $qcTfBankName = '?';
-        // if($qcTfBankId) {
-        // $bankModel = AppModel::getInstance('Administrate', 'Bank', true);
-        // $bankData = $bankModel->getOrRedirect($qcTfBankId);
-        // $qcTfBankName = $bankData['Bank']['name'];
-        // }
-        // $qcTfBankIdentifier = empty($viewSample['ViewSample']['qc_tf_bank_identifier'])? '?' : $viewSample['ViewSample']['qc_tf_bank_identifier'];
         $participantIdentifier = $viewSample['ViewSample']['participant_identifier'];
         
         switch ($viewSample['ViewSample']['sample_type']) {
@@ -63,7 +55,7 @@ class AliquotMasterCustom extends AliquotMaster
                 $sampleLabel = '?';
         }
         
-        $defaultSampleLabel = "$sampleLabel $participantIdentifier"; // [$qcTfBankIdentifier $qcTfBankName]";
+        $defaultSampleLabel = "$sampleLabel $participantIdentifier";
         
         return $defaultSampleLabel;
     }

@@ -43,10 +43,7 @@ class ParticipantCustom extends Participant
                 'fields' => 'Participant.*, Bank.*'
             ));
             
-            $title = $result['Participant']['participant_identifier'];
-            if (AppController::getInstance()->Session->read('flag_show_confidential')) {
-                $title = $result['Bank']['name'] . ' #' . $result['Participant']['qc_tf_bank_identifier'] . ' [' . $result['Participant']['participant_identifier'] . ']';
-            }
+            $title = $result['Bank']['name'] . ' #' . $result['Participant']['qc_tf_bank_identifier'] . ' [' . $result['Participant']['participant_identifier'] . ']';
             
             $return = array(
                 'menu' => array(

@@ -9,7 +9,7 @@ class ViewAliquotUseCustom extends ViewAliquotUse
 
     var $name = 'ViewAliquotUse';
 
-    static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+    public static $tableQuery = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
