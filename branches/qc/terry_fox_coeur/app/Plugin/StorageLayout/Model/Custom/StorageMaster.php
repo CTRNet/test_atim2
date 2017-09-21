@@ -17,11 +17,7 @@ class StorageMasterCustom extends StorageMaster
                 ),
                 'recursive' => 0
             ));
-            if ($sampleData['ViewSample']['qc_tf_bank_identifier'] != CONFIDENTIAL_MARKER) {
-                return $childrenArray['AliquotMaster']['aliquot_label'] . ' [' . $childrenArray['AliquotMaster']['barcode'] . ']' . ' <FONT color=\'red\'>' . $sampleData['ViewSample']['qc_tf_bank_identifier'] . '</FONT>';
-            } else {
-                return $childrenArray['AliquotMaster']['aliquot_label'] . ' [' . $childrenArray['AliquotMaster']['barcode'] . ']';
-            }
+            return $childrenArray['AliquotMaster']['aliquot_label'] . ' [' . $childrenArray['AliquotMaster']['barcode'] . ' / ' . $sampleData['ViewSample']['qc_tf_bank_identifier'] . ']';
         }
         
         return $childrenArray[$typeKey][$labelKey];
