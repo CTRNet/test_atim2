@@ -30,4 +30,3 @@ if ($storage_data['StorageControl']['detail_tablename'] == 'std_tma_blocks') {
         }
     }
 }
-	

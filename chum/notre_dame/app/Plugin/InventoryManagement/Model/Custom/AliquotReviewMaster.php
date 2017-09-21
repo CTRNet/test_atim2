@@ -18,5 +18,3 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster
         return $aliquot_data['AliquotMaster']['aliquot_label'] . ' [' . (isset($aliquot_data['AliquotControl']['aliquot_type']) ? __($aliquot_data['AliquotControl']['aliquot_type']) : '') . ' - ' . $aliquot_data['AliquotMaster']['barcode'] . ']';
     }
 }
-
-?>

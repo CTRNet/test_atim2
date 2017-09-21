@@ -358,5 +358,3 @@ class SampleMasterCustom extends SampleMaster
         return $result;
     }
 }
-
-?>

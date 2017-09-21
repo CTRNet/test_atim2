@@ -38,4 +38,3 @@ $sardo_progression_details = $this->Participant->getSardoValues(array(
     'SARDO : Progression Details'
 ));
 $sardo_progression_details[''] = '';
-	

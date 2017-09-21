@@ -13,5 +13,3 @@ if ($submitted_data_validates) {
     
     $this->SampleMaster->data = array();
 }
-
-?>

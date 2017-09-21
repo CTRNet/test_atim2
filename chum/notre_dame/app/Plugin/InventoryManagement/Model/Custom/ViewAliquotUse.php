@@ -209,5 +209,3 @@ IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipie
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 }
-
-?>

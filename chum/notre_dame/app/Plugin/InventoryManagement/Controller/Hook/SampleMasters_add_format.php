@@ -17,5 +17,3 @@ if (empty($this->data) && (strcmp($sample_control_data['SampleControl']['sample_
         $this->set('default_sequence_number', $res[1]);
     }
 }
-
-?>

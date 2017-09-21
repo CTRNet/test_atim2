@@ -193,4 +193,3 @@ class StudySummaryCustom extends StudySummary
         return $this->study_titles_already_checked[$study_data_and_code];
     }
 }
-?>

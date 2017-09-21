@@ -25,5 +25,3 @@ class MiscIdentifierControlCustom extends MiscIdentifierControl
         return $result;
     }
 }
-
-?>

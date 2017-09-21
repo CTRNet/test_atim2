@@ -17,5 +17,3 @@ if (! empty($errors)) {
     }
     $this->set('default_aliquot_labels', $default_aliquot_labels);
 }
-
-?>
