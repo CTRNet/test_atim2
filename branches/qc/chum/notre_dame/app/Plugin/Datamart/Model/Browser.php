@@ -1708,7 +1708,7 @@ class Browser extends DatamartAppModel
         $save = array();
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
             echo $browsing['DatamartStructure']['index_link'];
-            $controller->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+            $controller->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
             return false;
         }
         $modelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -1844,7 +1844,7 @@ class Browser extends DatamartAppModel
             if ($errorModelDisplayName != null) {
                 // example: If 3 tx are owned by the same participant, this error will be displayed.
                 // we do it to make sure the result set is made with 1:1 relationship, thus clear.
-                $controller->flash(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), 'javascript:history.back()');
+                $controller->atimFlashError(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), 'javascript:history.back()');
                 return false;
             }
             $orgSearchConditions['adv_search_conditions'] = $advParams['conditions_adv'];
@@ -2027,10 +2027,10 @@ $browsingFilter['attribute']);
             // we have an empty set, bail out! (don't save empty result)
             if ($params['last']) {
                 // go back 1 page
-                $controller->flash(__("no data matches your search parameters"), "javascript:history.back();", 5);
+                $controller->atimFlashError(__("no data matches your search parameters"), 'javascript:history.back();');
             } else {
                 // go to the last node
-                $controller->flash(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/" . $nodeId . "/", 5);
+                $controller->atimFlashError(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/" . $nodeId . "/");
             }
             return false;
         }
