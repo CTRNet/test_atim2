@@ -7,7 +7,7 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster
 
     var $name = 'AliquotReviewMaster';
 
-    function generateLabelOfReviewedAliquot($aliquot_master_id, $aliquot_data = null)
+    public function generateLabelOfReviewedAliquot($aliquot_master_id, $aliquot_data = null)
     {
         if (! ($aliquot_data && isset($aliquot_data['AliquotMaster']))) {
             if (! isset($this->AliquotMaster)) {

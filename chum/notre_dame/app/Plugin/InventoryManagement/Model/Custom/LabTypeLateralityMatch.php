@@ -5,7 +5,7 @@ class LabTypeLateralityMatchCustom extends InventoryManagementAppModel
 
     var $useTable = 'lab_type_laterality_match';
 
-    function getLaboTypeCodes()
+    public function getLaboTypeCodes()
     {
         $result = array();
         
@@ -24,7 +24,7 @@ class LabTypeLateralityMatchCustom extends InventoryManagementAppModel
         return $result;
     }
 
-    function getLaboLaterality()
+    public function getLaboLaterality()
     {
         $result = array();
         
@@ -42,7 +42,7 @@ class LabTypeLateralityMatchCustom extends InventoryManagementAppModel
         return $result;
     }
 
-    function getTissueSourcePermissibleValues()
+    public function getTissueSourcePermissibleValues()
     {
         $result = array();
         

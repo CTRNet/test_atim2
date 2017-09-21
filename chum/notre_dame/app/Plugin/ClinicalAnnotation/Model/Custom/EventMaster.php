@@ -7,7 +7,7 @@ class EventMasterCustom extends EventMaster
 
     var $name = "EventMaster";
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         if (isset($this->data['EventMaster']['diagnosis_master_id']) && $this->data['EventMaster']['diagnosis_master_id']) {
             unset($this->data['EventMaster']['diagnosis_master_id']);
@@ -42,7 +42,7 @@ class EventMasterCustom extends EventMaster
         return parent::beforeSave($options);
     }
 
-    function validates($options = array())
+    public function validates($options = array())
     {
         $result = parent::validates($options);
         

@@ -7,7 +7,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
 
     var $name = "DiagnosisMaster";
 
-    function find($type = 'first', $query = array())
+    public function find($type = 'first', $query = array())
     {
         $arr_sardo_top_morpho_char_matches = array(
             'á' => 'a',
@@ -76,7 +76,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster
         return parent::find($type, $query);
     }
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         // Generate an error in merge process
         // AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);

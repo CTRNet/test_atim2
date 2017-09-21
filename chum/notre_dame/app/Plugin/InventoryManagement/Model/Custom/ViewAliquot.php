@@ -86,7 +86,7 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 
-    function find($type = 'first', $query = array())
+    public function find($type = 'first', $query = array())
     {
         if ($type == 'all' && isset($query['conditions'])) {
             $identifier_values = array();

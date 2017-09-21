@@ -37,7 +37,7 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
 LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collection.treatment_master_id AND TreatmentMaster.deleted <> 1
 			WHERE Collection.deleted <> 1 %%WHERE%%';
 
-    function find($type = 'first', $query = array())
+    public function find($type = 'first', $query = array())
     {
         if ($type == 'all' && isset($query['conditions'])) {
             $identifier_values = array();

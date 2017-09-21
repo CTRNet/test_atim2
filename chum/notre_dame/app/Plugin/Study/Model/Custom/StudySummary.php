@@ -13,7 +13,7 @@ class StudySummaryCustom extends StudySummary
 
     var $study_institutions_from_id = array();
 
-    function beforeSave($options = array())
+    public function beforeSave($options = array())
     {
         if (array_key_exists('StudySummary', $this->data) && array_key_exists('path_to_file', $this->data['StudySummary'])) {
             $this->data['StudySummary']['path_to_file'] = preg_replace('/[\\\]+/', '/', $this->data['StudySummary']['path_to_file']);
@@ -22,7 +22,7 @@ class StudySummaryCustom extends StudySummary
         return $ret_val;
     }
 
-    function beforeFind($queryData)
+    public function beforeFind($queryData)
     {
         if (isset($queryData['conditions']) && isset($queryData['conditions']['StudySummary.qc_nd_generated_study_investigators'])) {
             // Can not use joins model when user add an investigator twixe to a study else will generate 2 records
@@ -47,7 +47,7 @@ class StudySummaryCustom extends StudySummary
         return $queryData;
     }
 
-    function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false)
     {
         $results = parent::afterFind($results);
         $tmp_results = array();
@@ -59,7 +59,7 @@ class StudySummaryCustom extends StudySummary
         return $results;
     }
 
-    function getStudyInvestigatorsFromId($study_summary_id)
+    public function getStudyInvestigatorsFromId($study_summary_id)
     {
         if (! $this->study_investigators_from_id) {
             $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
@@ -85,7 +85,7 @@ class StudySummaryCustom extends StudySummary
         return isset($this->study_investigators_from_id[$study_summary_id]) ? $this->study_investigators_from_id[$study_summary_id] : '';
     }
 
-    function getStudyInstitutionsFromId($study_summary_id)
+    public function getStudyInstitutionsFromId($study_summary_id)
     {
         if (! $this->study_institutions_from_id) {
             $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
@@ -103,7 +103,7 @@ class StudySummaryCustom extends StudySummary
         return isset($this->study_institutions_from_id[$study_summary_id]) ? $this->study_institutions_from_id[$study_summary_id] : '';
     }
 
-    function getStudyDataAndCodeForDisplay($study_data)
+    public function getStudyDataAndCodeForDisplay($study_data)
     {
         
         // -- NOTE ----------------------------------------------------------------
@@ -139,7 +139,7 @@ class StudySummaryCustom extends StudySummary
         return $formatted_data;
     }
 
-    function getStudyIdFromStudyDataAndCode($study_data_and_code)
+    public function getStudyIdFromStudyDataAndCode($study_data_and_code)
     {
         
         // -- NOTE ----------------------------------------------------------------
