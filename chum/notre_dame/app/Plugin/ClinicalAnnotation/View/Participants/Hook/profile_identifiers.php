@@ -1,12 +1,8 @@
 <?php
-
-foreach($identifier_controls_list as $new_option) {
-	if(preg_match('/bank no lab$/', $new_option['MiscIdentifierControl']['autoincrement_name'])){
-		$final_options['links']['bottom']['add identifier'][$new_option['MiscIdentifierControl']['misc_identifier_name']] =
-		isset($new_option['reusable']) && $link_availability ?
-		'javascript:noLaboReuseQcNdPopup('.$atim_menu_variables['Participant.id'].' ,'.$new_option['MiscIdentifierControl']['id'].', "'.$new_option['MiscIdentifierControl']['misc_identifier_name'].'");' :
-		'javascript:noLaboWarningQcNdPopup('.$atim_menu_variables['Participant.id'].' ,'.$new_option['MiscIdentifierControl']['id'].', "'.$new_option['MiscIdentifierControl']['misc_identifier_name'].'");';
-	}
+foreach ($identifier_controls_list as $new_option) {
+    if (preg_match('/bank no lab$/', $new_option['MiscIdentifierControl']['autoincrement_name'])) {
+        $final_options['links']['bottom']['add identifier'][$new_option['MiscIdentifierControl']['misc_identifier_name']] = isset($new_option['reusable']) && $link_availability ? 'javascript:noLaboReuseQcNdPopup(' . $atim_menu_variables['Participant.id'] . ' ,' . $new_option['MiscIdentifierControl']['id'] . ', "' . $new_option['MiscIdentifierControl']['misc_identifier_name'] . '");' : 'javascript:noLaboWarningQcNdPopup(' . $atim_menu_variables['Participant.id'] . ' ,' . $new_option['MiscIdentifierControl']['id'] . ', "' . $new_option['MiscIdentifierControl']['misc_identifier_name'] . '");';
+    }
 }
 
 ?>

@@ -1,12 +1,15 @@
 <?php
 
-class ViewAliquotUseCustom extends ViewAliquotUse {
-	var $base_model = "AliquotInternalUse";
-	var $useTable = 'view_aliquot_uses';
-	var $name = 'ViewAliquotUse'; 		
+class ViewAliquotUseCustom extends ViewAliquotUse
+{
 
-static $table_query =
-	"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+    var $base_model = "AliquotInternalUse";
+
+    var $useTable = 'view_aliquot_uses';
+
+    var $name = 'ViewAliquotUse';
+
+    static $table_query = "SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
 		AliquotInternalUse.use_code AS use_code,
@@ -205,7 +208,6 @@ IF(OrderItem.shipment_id, CONCAT(Shipment.shipment_code, ' - ', Shipment.recipie
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
-	
 }
 
 ?>

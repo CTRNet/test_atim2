@@ -1,10 +1,10 @@
 <?php
-		
-	$user_lang = ($_SESSION['Config']['language'] == 'eng')? 'en' : 'fr';
-	$custom_terms = array();
-	foreach(explode(' ', $term) as $key_word) $custom_terms[] = "generated_title LIKE '%".$key_word."%'";
-	$custom_conditions = $custom_terms? implode(' AND ', $custom_terms) : 'TRUE';
-	$query = "SELECT GROUP_CONCAT(id SEPARATOR ',') AS ids
+$user_lang = ($_SESSION['Config']['language'] == 'eng') ? 'en' : 'fr';
+$custom_terms = array();
+foreach (explode(' ', $term) as $key_word)
+    $custom_terms[] = "generated_title LIKE '%" . $key_word . "%'";
+$custom_conditions = $custom_terms ? implode(' AND ', $custom_terms) : 'TRUE';
+$query = "SELECT GROUP_CONCAT(id SEPARATOR ',') AS ids
     	FROM (
         	SELECT StudySummary.id, 
         	CONCAT(StudySummary.title, 
@@ -25,7 +25,9 @@
         	WHERE StudySummary.deleted <> 1
     	 )  GroupRes
     	 WHERE $custom_conditions";
-	$study_ids = $this->StudySummary->query($query);
-	if($study_ids && $study_ids[0][0]['ids']) {
-		$conditions = array('StudySummary.id' => explode(',', $study_ids[0][0]['ids']));
-	}
+$study_ids = $this->StudySummary->query($query);
+if ($study_ids && $study_ids[0][0]['ids']) {
+    $conditions = array(
+        'StudySummary.id' => explode(',', $study_ids[0][0]['ids'])
+    );
+}

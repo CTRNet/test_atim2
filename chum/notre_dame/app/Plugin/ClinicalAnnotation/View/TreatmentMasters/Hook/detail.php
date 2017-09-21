@@ -1,7 +1,6 @@
-<?php 
-
-	unset($structure_links['bottom']);
-	unset($final_options['links']['bottom']);
+<?php
+unset($structure_links['bottom']);
+unset($final_options['links']['bottom']);
 	
 	
 	
