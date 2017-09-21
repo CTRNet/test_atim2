@@ -1983,8 +1983,7 @@ class ReportsController extends DatamartAppController
             $participantIdentifierEnd = (! empty($parameters['Participant']['participant_identifier_end'])) ? $parameters['Participant']['participant_identifier_end'] : null;
             if ($participantIdentifierStart) {
                 $conditions[] = "Participant.participant_identifier >= '$participantIdentifierStart'";
-            } else 
-                if ($participantIdentifierEnd) {
+            } elseif ($participantIdentifierEnd) {
                     $conditions[] = "Participant.participant_identifier <= '$participantIdentifierEnd'";
                 }
         } elseif (isset($parameters['Participant']['participant_identifier'])) {
