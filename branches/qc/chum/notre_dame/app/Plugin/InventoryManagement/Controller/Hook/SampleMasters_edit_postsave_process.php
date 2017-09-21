@@ -50,5 +50,3 @@ if ($is_specimen && ($sample_data['SampleMaster']['qc_nd_sample_label'] != $this
         $this->SampleMaster->save($derivative_data_to_save, false);
     }
 }
-
-?>

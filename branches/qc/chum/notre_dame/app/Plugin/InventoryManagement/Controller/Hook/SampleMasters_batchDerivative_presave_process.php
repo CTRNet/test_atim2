@@ -14,5 +14,3 @@ if (empty($errors)) {
         }
     }
 }
-
-?>

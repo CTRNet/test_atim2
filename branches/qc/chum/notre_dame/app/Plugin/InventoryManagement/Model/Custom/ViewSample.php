@@ -132,4 +132,3 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
         return parent::find($type, $query);
     }
 }
-

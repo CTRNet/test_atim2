@@ -74,9 +74,9 @@
          V - Delete '?>' at the end of pure PHP files (if you don't add --commit option the changes will be logged in a file without effecting the codes)
 
               Linux or mac:
-					php ./CustomCodeSnifer/RemovePhpTagAndSpaceAtTheEndOfFile-custum.php /.../atim/app --commit
+					php ./CustomCodeSnifer/RemovePhpTagAndSpaceAtTheEndOfFile-custom.php /.../atim/app --commit
 			  windows: 
-					php CustomCodeSnifer\RemovePhpTagAndSpaceAtTheEndOfFile-custum.php ..\..\app --commit
+					php CustomCodeSnifer\RemovePhpTagAndSpaceAtTheEndOfFile-custom.php ..\..\app --commit
 
          VI - Change case (from uppercase to lowercase) for NULL, FALSE and TRUE
 

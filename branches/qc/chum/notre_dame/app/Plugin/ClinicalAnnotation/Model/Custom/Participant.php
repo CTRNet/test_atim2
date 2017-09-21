@@ -83,5 +83,3 @@ class ParticipantCustom extends Participant
         }
     }
 }
-
-?>

@@ -61,5 +61,3 @@ class LabTypeLateralityMatchCustom extends InventoryManagementAppModel
         return $result;
     }
 }
-
-?>

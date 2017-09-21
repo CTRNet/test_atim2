@@ -7,4 +7,4 @@ $already_created = $this->ReproductiveHistory->find('count', array(
 if ($already_created) {
     $this->atimFlashWarning(__('an infomration has already been recorded for this patient'), '/ClinicalAnnotation/ReproductiveHistories/listall/' . $participant_id);
     return;
-}	
+}

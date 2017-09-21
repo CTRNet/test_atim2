@@ -33,4 +33,3 @@ function noLaboWarningQcNdPopup(participant_id, ctrl_id, no_labo_name){
 }
 
 </script>
-

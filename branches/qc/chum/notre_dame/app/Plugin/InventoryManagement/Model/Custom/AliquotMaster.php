@@ -159,5 +159,3 @@ class AliquotMasterCustom extends AliquotMaster
         $this->tryCatchQuery(str_replace("aliquot_masters", "aliquot_masters_revs", $query_to_update));
     }
 }
-
-?>

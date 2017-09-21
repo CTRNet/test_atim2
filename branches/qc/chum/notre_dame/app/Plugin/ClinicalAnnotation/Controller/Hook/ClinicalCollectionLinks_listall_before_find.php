@@ -7,4 +7,3 @@ $joins[] = array(
         'TreatmentDetail.treatment_master_id = treatment_masters_dup.id'
     )
 );
-			
