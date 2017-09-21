@@ -26,7 +26,7 @@ class ReportsControllerCustom extends ReportsController
                     $conditions['MiscIdentifier.identifier_value >='] = $identifier_value_start;
                 if ($identifier_value_end)
                     $conditions['MiscIdentifier.identifier_value <='] = $identifier_value_end;
-            } else if (isset($parameters['MiscIdentifier']['identifier_value'])) {
+            } elseif (isset($parameters['MiscIdentifier']['identifier_value'])) {
                 $identifier_values = array_filter($parameters['MiscIdentifier']['identifier_value']);
                 if ($identifier_values)
                     $conditions['MiscIdentifier.identifier_value'] = $identifier_values;
@@ -111,7 +111,7 @@ class ReportsControllerCustom extends ReportsController
             ), $new_ident['MiscIdentifierControl']['misc_identifier_name']);
             if (array_key_exists($generated_key, $data[$participant_id]['0'])) {
                 $data[$participant_id]['0'][$generated_key] = $new_ident['MiscIdentifier']['identifier_value'];
-            } else if ($new_ident['MiscIdentifier']['study_summary_id']) {
+            } elseif ($new_ident['MiscIdentifier']['study_summary_id']) {
                 $data[$participant_id]['0']['qc_nd_study_misc_identifier_value'] .= $new_ident['StudySummary']['title'] . ' [' . $new_ident['MiscIdentifier']['identifier_value'] . "] ";
             }
         }
@@ -665,7 +665,7 @@ class ReportsControllerCustom extends ReportsController
                 $selection_labels_statements[] = "SampleMaster.qc_nd_sample_label LIKE '%" . $new_label . "%'";
             if ($selection_labels_statements)
                 $conditions[] = '(' . implode(' OR ', $selection_labels_statements) . ')';
-        } else if (isset($parameters['ViewSample']['sample_master_id'])) {
+        } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
             // From databrowser
             $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
             if ($sample_master_ids)
@@ -764,7 +764,7 @@ class ReportsControllerCustom extends ReportsController
                 $selection_labels_statements[] = "SampleMaster.qc_nd_sample_label LIKE '%" . $new_label . "%'";
             if ($selection_labels_statements)
                 $conditions[] = '(' . implode(' OR ', $selection_labels_statements) . ')';
-        } else if (isset($parameters['ViewSample']['sample_master_id'])) {
+        } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
             // From databrowser
             $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
             if ($sample_master_ids)

@@ -24,7 +24,7 @@ class EventMasterCustom extends EventMaster
                 // Generate an error in merge process
                 // AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
             }
-        } else if ($this->id) {
+        } elseif ($this->id) {
             $event_data = $this->find('first', array(
                 'conditions' => array(
                     'EventMaster.id' => $this->id

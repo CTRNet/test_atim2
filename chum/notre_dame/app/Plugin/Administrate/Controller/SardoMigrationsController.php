@@ -55,7 +55,7 @@ class SardoMigrationsController extends AdministrateAppController
                         break;
                 }
             }
-        } else if ($message_type == 'csv') {
+        } elseif ($message_type == 'csv') {
             
             // Export data in csv
             $config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data) ? $this->request->data[0] : array()));

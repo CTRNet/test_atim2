@@ -97,7 +97,7 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
                 if ($key === 'ViewAliquot.identifier_value') {
                     $identifier_values = $new_condition;
                     break;
-                } else if (is_string($new_condition)) {
+                } elseif (is_string($new_condition)) {
                     if (preg_match_all('/ViewAliquot\.identifier_value LIKE \'%([0-9]+)%\'/', $new_condition, $matches)) {
                         $identifier_values = $matches[1];
                         break;

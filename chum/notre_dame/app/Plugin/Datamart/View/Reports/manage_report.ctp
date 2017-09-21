@@ -65,8 +65,7 @@ if (isset($searchFormStructure)) {
             'settings' => $settings
         ));
         exit();
-    } else 
-        if (isset($linkedDatamartStructureModelName) && isset($linkedDatamartStructureKeyName)) {
+    } elseif (isset($linkedDatamartStructureModelName) && isset($linkedDatamartStructureKeyName)) {
             
             // ** DISPLAY REPORT LINKED TO DATAMART STRUCTURE AND ACTIONS **
             

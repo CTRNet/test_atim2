@@ -85,9 +85,9 @@ class SampleMasterCustom extends SampleMaster
         $sample_category = null;
         if (array_key_exists('sample_category', $sample_data['SampleControl'])) {
             $sample_category = $sample_data['SampleControl']['sample_category'];
-        } else if (array_key_exists('SpecimenDetail', $sample_data)) {
+        } elseif (array_key_exists('SpecimenDetail', $sample_data)) {
             $sample_category = 'specimen';
-        } else if (array_key_exists('DerivativeDetail', $sample_data)) {
+        } elseif (array_key_exists('DerivativeDetail', $sample_data)) {
             $sample_category = 'derivative';
         }
         
@@ -281,7 +281,7 @@ class SampleMasterCustom extends SampleMaster
                         $process_validates = false;
                         $this->validationErrors['labo_laterality'][] = 'the selected type code and labo laterality combination is not supported';
                         $this->validationErrors['type_code'][] = 'the selected type code and labo laterality combination is not supported';
-                    } else if (count($matching_records) > 1) {
+                    } elseif (count($matching_records) > 1) {
                         // Only one row should be defined in model 'LabTypeLateralityMatch'
                         // for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
                         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -316,7 +316,7 @@ class SampleMasterCustom extends SampleMaster
                         // The selected type code and labo laterality combination is not currently supported by the laboratory
                         $process_validates = false;
                         $this->validationErrors[] = 'the selected type code does not match sample type';
-                    } else if (count($matching_records) > 1) {
+                    } elseif (count($matching_records) > 1) {
                         // Only one row should be defined in model 'LabTypeLateralityMatch'
                         // for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
                         AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -334,7 +334,7 @@ class SampleMasterCustom extends SampleMaster
         if (! empty($parent_sample_data)) {
             if (isset($parent_sample_data['SampleMaster'])) {
                 $formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['qc_nd_sample_label'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
-            } else if (isset($parent_sample_data[0]['ViewSample'])) {
+            } elseif (isset($parent_sample_data[0]['ViewSample'])) {
                 foreach ($parent_sample_data as $new_parent) {
                     $formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['qc_nd_sample_label'] . ' [' . __($new_parent['ViewSample']['sample_type'], TRUE) . ']';
                 }
