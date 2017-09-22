@@ -57,15 +57,8 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0'
 WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='1');
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Versions
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-app\Plugin\Datamart\Controller\Custom\ReportsController.php
-         - function buildCoeurSummary(buildCoeurSummary)
-         - function tmpFormatdate(tmpFormatdate)
-
-
-
-
+UPDATE `versions` SET branch_build_number = '6875' WHERE version_number = '2.7.0';
