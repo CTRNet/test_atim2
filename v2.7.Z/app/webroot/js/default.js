@@ -301,7 +301,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if (validateSubmit()) {
                 var action = null;
                 var actionTargetValue = $("#actionsTarget input[type=hidden]").val();
-                if (actionTargetValue.indexOf('javascript:') == 0) {
+                if (actionTargetValue.indexOf('javascript:') >= 0) {
                     action = actionTargetValue;
                 } else if (isNaN(actionTargetValue[0])) {
                     action = root_url + actionTargetValue;
@@ -2814,7 +2814,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 
     var fctLinksToAjax = function (scope) {
         $(scope).find("a:not(.icon16)").click(function () {
-            if ($(this).attr("href").indexOf("javascript:") == 0) {
+            if ($(this).attr("href").indexOf("javascript:") >= 0) {
                 return true;
             }
             scope.html("<div class='loading'>---" + STR_LOADING + "---</div>");
