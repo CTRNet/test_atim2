@@ -17,4 +17,15 @@
  */
 AppController::atimSetCookie(isset($skipExpirationCookie) && $skipExpirationCookie);
 echo $this->Shell->validationHtml();
-echo $content_for_layout;
+$content=$this->fetch('content');
+if (isset($_SESSION['query']['previous'])){
+    $log="";
+    foreach ($_SESSION['query']['previous'] as $key=>$value){
+        $log.=$value;
+    }
+    $content.='<div id="ajaxSqlLog" style="display: none"><div id="ajaxSqlLogInformation" style="display: none">'.
+            __('Controller').': '.$this->params['controller'].', '.
+            __('Action').': '.$this->params['action'].
+            '</div>'.$log.'</div>';
+}
+echo $content;

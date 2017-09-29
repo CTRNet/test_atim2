@@ -100,6 +100,7 @@ if (isset($isAjax)) {
 			//posting the tree
 			$.post($("form").attr("action"), $("form").serialize(), function(data){
 				data = $.parseJSON(data);
+				saveSqlLogAjax(data);
 				$("body").append("<div class='hidden' id='tmp_add'></div>");
 				$("#tmp_add").html(data.page);
 				$("form:first").attr("action", $("#tmp_add form").attr("action")).find("table:first").replaceWith($("#tmp_add table:first"));
@@ -289,6 +290,7 @@ if (isset($isAjax)) {
 		setLoading();
 		$.get(root_url + 'InventoryManagement/Collections/templateInit/' + collectionId + '/' + wizard_id + "/noActions:/?t=" + new Date().getTime(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
+			saveSqlLogAjax(data);
 			$(".ajaxContent").html(jsonData.page);
 			globalInit(".ajaxContent");
 			templateInitId = $("input[type=hidden][name=data\\\[template_init_id\\\]]").val();
@@ -305,6 +307,7 @@ if (isset($isAjax)) {
 	function overrideSubmitButton(){
 		$.post($("form").prop("action") + "/noActions:/templateInitId:" + templateInitId + '/', $("form").serialize(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
+			saveSqlLogAjax(jsonData);
 			if(jsonData.goToNext){
 				//update current node display if needed
 				$(currentNode).data("id", jsonData.id);
@@ -377,6 +380,7 @@ if (isset($isAjax)) {
 
 			$.get(root_url + url + 'noActions:/templateInitId:' + templateInitId + '/', function(jsonData){
 				jsonData = $.parseJSON(jsonData);
+				saveSqlLogAjax(jsonData);
 				try{
 					$(".ajaxContent").html(jsonData.page);
 				}catch(e){

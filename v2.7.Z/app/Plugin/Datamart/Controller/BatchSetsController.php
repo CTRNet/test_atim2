@@ -326,7 +326,7 @@ class BatchSetsController extends DatamartAppController
                 $this->BatchId->saveAll($saveArray);
                 
                 // done
-                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+//        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Datamart/BatchSets/listall/' . $targetBatchSetId);
             } else {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -434,8 +434,7 @@ class BatchSetsController extends DatamartAppController
         }
         // clear SESSION after done...
         $_SESSION['ctrapp_core']['datamart']['process'] = array();
-        
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+//        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');        
         $this->redirect('/Datamart/BatchSets/listall/' . $this->request->data['BatchSet']['id']);
         
         exit();
@@ -567,7 +566,7 @@ class BatchSetsController extends DatamartAppController
         }
         
         // redirect back to list Batch SET
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+//        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');        
         $this->redirect('/Datamart/BatchSets/listall/' . $batchSetId);
         exit();
     }

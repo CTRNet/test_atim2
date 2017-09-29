@@ -223,6 +223,7 @@ class ReportsController extends DatamartAppController
             // CSV cretion
             Configure::write('debug', 0);
             $this->layout = false;
+            
         } else {
             // Results display
             // - Manage drop down action
@@ -252,6 +253,9 @@ class ReportsController extends DatamartAppController
                 'previously_displayed_object_title' => $previouslyDisplayedObjectTitle,
                 'selected_elements_ids' => implode(",", $selectedElementsIds)
             );
+        }
+        if ($this->layout == false){
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         }
     }
 
@@ -482,6 +486,11 @@ class ReportsController extends DatamartAppController
                     );
                     $this->set('linkedDatamartStructureActions', $linkedDatamartStructureActions);
                 }
+
+                if ($this->layout == false){
+                    $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+                }
+
             }
         }
     }

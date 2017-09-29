@@ -319,6 +319,11 @@ class AppController extends Controller
                 '_data' => $data
             ));
         }
+        
+        if ($this->layout=='ajax'){
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+        }
+        
     }
 
     public function afterFilter()
@@ -361,6 +366,11 @@ class AppController extends Controller
         }
     }
 
+    public function redirect($url, $status = null, $exit = true) {
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
+        parent::redirect($url, $status, $exit);
+    }
+    
     /**
      * @param $message
      * @param $url
@@ -368,7 +378,6 @@ class AppController extends Controller
      */
     public function atimFlash($message, $url, $type = self::CONFIRM)
     {
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         if (strpos(strtolower($url), 'javascript')===false){
             if ($type == self::CONFIRM) {
                 $_SESSION['ctrapp_core']['confirm_msg'] = $message;

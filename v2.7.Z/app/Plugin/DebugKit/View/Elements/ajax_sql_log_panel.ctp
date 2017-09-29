@@ -16,6 +16,4 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 ?>
-<h2> <?php echo __d('debug_kit', 'Log File'); ?></h2>
-<?php
-    echo $this->Toolbar->showLogFile();
+<h2> <?php echo __d('debug_kit', 'AJAX SQL Log'); ?></h2>

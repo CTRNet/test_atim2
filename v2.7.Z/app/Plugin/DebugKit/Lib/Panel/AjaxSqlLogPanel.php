@@ -16,14 +16,7 @@ App::uses('DebugPanel', 'DebugKit.Lib');
 /**
  * Provides debug information on previous requests.
  */
-class DHistoryPanel extends DebugPanel {
-
-    /**
-     * The title of the D History panel
-     *
-     * @var string
-     */
-    public $title = "D (output)";    
+class AjaxSqlLogPanel extends DebugPanel {
     
     /**
      * Number of history elements to keep

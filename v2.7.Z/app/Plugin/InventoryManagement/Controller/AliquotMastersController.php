@@ -3689,5 +3689,7 @@ class AliquotMastersController extends InventoryManagementAppController
         } else {
             $this->atimFlashWarning(__('there are no barcodes to print'), 'javascript:history.back();');
         }
+
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
     }
 }
