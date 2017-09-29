@@ -51,6 +51,12 @@ $(document).ready(function () {
             }
 
             var domNodes = document.createElement('div');
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
             $(domNodes).html(data);
             $(domNodes).find("a[href*=':']").each(function () {
                 if (!$(this).hasClass("submit")) {
@@ -1375,7 +1381,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
+		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1577,7 +1583,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
+		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -1708,7 +1714,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             successFct = function (data) {
                 try {
                     data = $.parseJSON(data);
-                    $(".ajax_search_results").html(data.page);
+                    saveSqlLogAjax(data);
+                    $(".ajax_search_results").html(data.page)
                     history.replaceState(data.page, "foo");//storing result in history
                     //update the form action
                     $("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
@@ -1728,6 +1735,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 beforeSubmit: beforeSubmitFct,
                 error: function () {
                     console.log("ERROR");
+                    //$("input.submit").siblings("a").find("span").removeClass('fetching');
                 }
             });
         }
@@ -1862,6 +1870,33 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         }
     }
     flyOverComponents();
+}
+
+function saveSqlLogAjax(data){
+    if (data.sqlLog && typeof DEBUGKIT !=="undefined"){
+        var debugKit=$("div#debug-kit-toolbar ul#panel-tabs");
+        var logs='';
+        data.sqlLog.forEach(function(log){
+            var infoIndex=log.lastIndexOf('<div id="ajaxSqlLogInformation"');
+            if (infoIndex>-1){
+                info=log.substring(infoIndex, log.indexOf('</div>', infoIndex))+'</div>';
+                var t=new Date().toLocaleTimeString()+' ,'+$(info).text();
+            }else if(typeof data.sqlLogInformations !=='undefined'){
+                var t=new Date().toLocaleTimeString()+' ,'+data.sqlLogInformations;
+            }
+            logs+='<div class="sql-log-panel-query-log cake-debug-output">'+
+                    '<div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a> '+t+'</div>'+
+                    '<div>'+log+'</div></div>';
+        });
+        if (debugKit.find("div#ajax_sql_log-tab").length>0){
+            var logNode=debugKit.find("div#ajax_sql_log-tab div.panel-content-data").first();
+            if ($(logNode).children("div.sql-log-panel-query-log").length===0){
+                $(logNode).append(logs);
+            }else{
+                $(logNode).children("div.sql-log-panel-query-log").first().before(logs);
+            }
+        }
+    }
 }
 
 function closeLog(event) {
@@ -2025,7 +2060,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     });
 }
 
-
 function globalInit(scope) {
 if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	try{
@@ -2081,6 +2115,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         var flat_url = json.url.replace(/\//g, "_");
         if (flat_url.length > 0) {
             $.get(root_url + json.url + "?t=" + new Date().getTime(), function (data) {
+                if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                    ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                    saveSqlLogAjax(ajaxSqlLog);
+                }
                 $("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
                 if ($("#" + flat_url).find("ul").length == 1) {
                     var currentLi = $(expandButton).parents("li:first");
@@ -2307,7 +2346,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 		var myName = arguments.callee.toString();
 		myName = myName.substr('function '.length);
 		myName = myName.substr(0, myName.indexOf('('));
-		console.log (myName);
+		//console.log (myName);
 		if (DEBUG_MODE_JS>0){
 		   debugger ;
 		}
@@ -2697,7 +2736,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     var fctLinksToAjax = function (scope) {
         $scope=$(scope);
         $(scope).find("a:not(.detail)").click(function(){
-            debugger;
             if ($(this).attr("href").indexOf("javascript:") >= 0 || $(this).attr("href")==="#") {
                 return true;
             }
@@ -2853,11 +2891,17 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             indexZone.html("<div class='loading'>---" + STR_LOADING + "---</div>");
             var successFct = function (data) {
                 var page = null;
-                if (data.indexOf("{") == 0) {
+                if (data.indexOf("{") === 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
                     page = data.page;
                     indexZone.html(data.page);
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }                    
                     page = data;
                 }
                 indexZone.html(page);

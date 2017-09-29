@@ -213,15 +213,12 @@ class BrowserController extends DatamartAppController
             
             // all nodes saved, now load the proper form
             if ($checkList) {
-                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
             }
             
             if ($subStructureId) {
-                $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                 $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/' . $lastControlId . $parentChild . Browser::$subModelSeparatorStr . $subStructureId);
             }
-            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
             $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/' . $lastControlId . $parentChild);
         } else {
             if ($nodeId == 0) {
@@ -552,6 +549,7 @@ class BrowserController extends DatamartAppController
         }
         
         $this->render(false);
+        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
     }
 
     /**
@@ -625,7 +623,6 @@ class BrowserController extends DatamartAppController
             // current set already exists, use it
             $nodeId = $tmp['BrowsingResult']['id'];
         }
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         $this->redirect('/Datamart/Browser/browse/' . $nodeId);
     }
 
@@ -765,11 +762,9 @@ class BrowserController extends DatamartAppController
         }
         
         if ($returnId) {
-            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
             $this->redirect('/Datamart/Browser/browse/' . $returnId);
         } else {
             AppController::addWarningMsg(__('there are no unused parent items'));
-            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
             $this->redirect('/Datamart/Browser/browse/' . $nodeId);
         }
         exit();
@@ -815,7 +810,6 @@ class BrowserController extends DatamartAppController
         }
         
         // done, render the proper node.
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         $this->redirect('/Datamart/Browser/browse/' . $nodeId . '/');
     }
 }

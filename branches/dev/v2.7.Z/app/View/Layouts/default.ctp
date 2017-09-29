@@ -109,7 +109,8 @@ echo $header;
 echo $this->Session->flash();
 echo $this->Session->flash('auth');
 
-echo $content_for_layout;
+//echo $content_for_layout;
+echo $this->fetch('content');
 
 echo $this->Shell->footer();
 
