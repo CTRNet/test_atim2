@@ -898,6 +898,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             }
         }
         $.get($(this).prop("href"), null, function (data) {
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
             $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
             $("#default_popup input[type=text]").first().focus();
         });
@@ -1023,6 +1029,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             } else {
                 $("#frame").html("<div class='loading'></div>");
                 $.get($(this).attr("href") + "?t=" + new Date().getTime(), function (data) {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+                    
                     $("#frame").html(data);
                     $(link).data('cached_result', data);
                     initActions();
@@ -1265,6 +1277,11 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 	}catch(ex){
 	}
 }
+    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+        saveSqlLogAjax(ajaxSqlLog);
+    }
 
     $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
     initDatepicker("#default_popup");
@@ -1459,6 +1476,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         $.get($(this).attr("href"), function (data) {
             try {
                 data = $.parseJSON(data);
+                saveSqlLogAjax(data);
+                
                 $(".ajax_search_results").html(data.page);
                 history.replaceState(data.page, "foo");//storing result in history
                 handleSearchResultLinks();
@@ -1570,6 +1589,10 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     };
 
     $.get(root_url + "Users/Login/login:/", function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+        }
+        
         $("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
         $("#loginPopup").popup();
         $("#loginPopup form").submit(submitFunction);
@@ -1850,6 +1873,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             //adding date to the request URL to fool IE caching
             $.get(root_url + 'Users/login/1?t=' + (new Date().getTime()), function (data) {
                 data = $.parseJSON(data);
+                saveSqlLogAjax(data);
+                
                 if (data.logged_in == 1) {
                     document.location = root_url;
                 } else {
@@ -2212,6 +2237,12 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $($li).find("div.treeArrow:first").show();
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+        
         $("#frame").html(data);
         initActions();
     });
@@ -2299,6 +2330,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 
     $.get(root_url + link, null, function (data) {
         data = $.parseJSON(data);
+        saveSqlLogAjax(data);
+        
         $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
         $("#default_popup input[type=text]").first().focus();
         $("#default_popup form").attr("action", 'javascript:popupSubmit("' + $("#default_popup form").attr("action") + '");');
@@ -2580,6 +2613,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     if ($("#csvPopup").length == 0) {
         buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
         $.get(root_url + 'Datamart/Csv/csv/popup:/', function (data) {
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+           
             var visible = $("#csvPopup:visible").length == 1;
             $("#csvPopup:visible").popup('close');
             $("#csvPopup h4 + div").html(data);
@@ -2681,6 +2720,7 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(node).find("span.icon16").css("opacity", 1);
 
                 $("select[name=data\\[0\\]\\[redundancy\\]]").change(function () {
+                    debugger;
                     if ($(this).val() == "same") {
                         lastLine.show();
                     } else {
@@ -2781,8 +2821,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             $.get(targetHref + '/type:index/noActions:/noHeader:/', function (data) {
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     targetDiv.html(data.page);
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+                    
                     targetDiv.html(data);
                 }
                 targetDiv.append('<input type="hidden" name="' + button.data('name') + '" value="' + targetHref + '"/>');
@@ -2793,6 +2841,12 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
     };
 
     $.get(root_url + button.data('url') + '/noActions:', function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+        
         popup.frame.html(data);
         initAdvancedControls(popup);
         initDatepicker(popup);
@@ -2802,6 +2856,8 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             $.post(popup.find("form").attr("action") + '/forSelection:/', popup.find("form").serialize(), function (data) {
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     popup.frame.html(data.page);
                 } else {
                     popup.frame.html(data);
@@ -2860,8 +2916,16 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 var page = null;
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     page = data.page;
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+
                     page = data;
                 }
                 scope.html(page);
