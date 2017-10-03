@@ -268,7 +268,7 @@ class ToolbarHelper extends AppHelper {
                     $log[$filename]="";
                     while(!feof($content)) {
                         $line = fgets($content);
-                        if (substr($line, 0, 11)===date('Y-m-j ') && $state===0){
+                        if (substr($line, 0, 11)===date('Y-m-d ') && $state===0){
                             $t=strtotime(substr($line, 0, 19));
                             if ((time()-$t<3600)){
                                 $state=1;
@@ -276,12 +276,12 @@ class ToolbarHelper extends AppHelper {
                                                 '   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
                                                 '<span class="debug-kit-log-file-span">'.$line.'</span>';
                             }
-                        }elseif(substr($line, 0, 11)===date('Y-m-j ') && $state===1){
+                        }elseif(substr($line, 0, 11)===date('Y-m-d ') && $state===1){
                             $log[$filename].='</div>'.
                                             '<div class="cake-debug-output">'.
                                             '   <div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a></div>'.
                                             '<span class="debug-kit-log-file-span">'.$line.'</span>';
-                        }elseif(substr($line, 0, 11)!==date('Y-m-j ') && $state===1){
+                        }elseif(substr($line, 0, 11)!==date('Y-m-d ') && $state===1){
                             $log[$filename].='<span class="debug-kit-log-file-span">'.$line.'</span>';
                         }
                     }
