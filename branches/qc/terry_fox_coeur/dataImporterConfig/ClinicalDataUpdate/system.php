@@ -690,7 +690,7 @@ function validateAndGetStructureDomainValue($value, $domain_name, $summary_secti
 				foreach(getSelectQueryResult($query) as $domain_value) $domains_values[$domain_name][strtolower($domain_value['value'])] = $domain_value['value'];
 			}
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name'".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The '$domain_name' Structure Domain (defined as domain of value '$value') does not exist. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Wrong '$domain_name' domain name (list name)".(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The '$domain_name' Structure Domain (defined as domain of value '$value') does not exist. The value will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 			$value = '';
 		}
 	}
@@ -752,12 +752,15 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 	$date = str_replace(' ', '', $date);
 	if(empty($date) || in_array(strtolower($date), $empty_date_time_values)) {
 		return array('', '');
+	} else if(preg_match('/^(19|20)([0-9]{2})$/',$date)) {
+		    recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Warning'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The excel date value '$date' is considered by the migration process as the four digits of a year but please validate. ".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+		    return array($date.'-01-01', 'm');
 	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {
 		//format excel date integer representation
 		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
 		$formated_date = date("Y-m-d", $php_offset + (($date - $xls_offset) * 86400));
 		if(preg_match('/^(19|20)([0-9]{2})$/',$date)) {
-			recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Warning'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The excel date value '$date' is considered by the migration process as an Excel formated date 'xxxx-xx-xx' but please validate it's not just the four digits of a year. Migrated date will be '$formated_date'.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', 'Date Format Warning'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "The excel date value '$date' is considered by the migration process as an Excel formated date '$formated_date' but please validate it's not just the four digits of a year. Migrated date will be '$formated_date'.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 		}
 		return array($formated_date, 'c');
 	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date,$matches)) {
