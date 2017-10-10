@@ -2185,3 +2185,35 @@ INNER JOIN qbcf_tx_breast_diagnostic_events ON id = treatment_master_id
 WHERE modified = @modified AND  modified_by = @modified_by);
 
 UPDATE versions SET branch_build_number = '6707' WHERE version_number = '2.6.8';
+
+-- ----------------------------------------------------------------------------------------------------
+-- 2017-10-10
+-- ----------------------------------------------------------------------------------------------------
+
+UPDATE qbcf_tx_breast_diagnostic_events SET path_tstage = 't1mi' WHERE path_tstage = 'tmi';
+UPDATE qbcf_tx_breast_diagnostic_events_revs SET path_tstage = 't1mi' WHERE path_tstage = 'tmi';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : TNM (pT)');
+UPDATE structure_permissible_values_customs SET value = 't1mi', en = 'T1mi', fr = 'T1mi' WHERE control_id = @control_id AND value = 'tmi';
+
+UPDATE qbcf_dx_breast_progressions SET label = 'uncertain if from other cancer' WHERE label = 'uncertain if mets are from concomitant cancer';
+UPDATE qbcf_dx_breast_progressions_revs SET label = 'uncertain if from other cancer' WHERE label = 'uncertain if mets are from concomitant cancer';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DX : Progressions Labels');
+UPDATE structure_permissible_values_customs SET value = 'uncertain if from other cancer', en = 'Uncertain if from other cancer', fr = '' WHERE control_id = @control_id AND value = 'uncertain if mets are from concomitant cancer';
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qbcf_yes_no_unk_ongoing", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("ongoing", "ongoing");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qbcf_yes_no_unk_ongoing"), (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qbcf_yes_no_unk_ongoing"), (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qbcf_yes_no_unk_ongoing"), (SELECT id FROM structure_permissible_values WHERE value="ongoing" AND language_alias="ongoing"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qbcf_yes_no_unk_ongoing"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "4", "1");
+INSERT INTO i18n (id,en,fr) VALUES ('ongoing', 'Ongoing', '');
+UPDATE structure_fields 
+SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk_ongoing')  
+WHERE model='TreatmentDetail' AND tablename='qbcf_txd_others' AND field='cycles_completed' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk');
+UPDATE structure_fields 
+SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk_ongoing')  
+WHERE model='TreatmentDetail' AND tablename='qbcf_txd_radios' AND field='completed' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qbcf_yes_no_unk');
+
+UPDATE versions SET branch_build_number = '6887' WHERE version_number = '2.6.8';
