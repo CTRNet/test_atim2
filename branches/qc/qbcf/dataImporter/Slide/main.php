@@ -119,6 +119,16 @@ foreach($excel_files_names as $file_data) {
 							//..............................................................................................
 								
 							$qbcf_bank_participant_identifier_to_participant_id[$qbcf_bank_participant_identifier] = $query_data[0]['id'];
+							
+							$query = "SELECT TreatmentMaster.participant_id
+                				FROM treatment_masters AS TreatmentMaster
+                				WHERE TreatmentMaster.deleted <> 1
+                                AND TreatmentMaster.participant_id = ".$query_data[0]['id']."
+				                AND TreatmentMaster.treatment_control_id = ".$atim_controls['treatment_controls']['breast diagnostic event']['id'].";";
+                            $tx_query_data = getSelectQueryResult($query);
+    						if(sizeof($tx_query_data) > 1) {
+    						    recordErrorAndMessage('Block', '@@WARNING@@', "At least one 'Breast diagnostic Event' exists into ATiM for an existing participant. Please link created collection to the good diagnosis event manually after the migration.", "See following participant : $excel_data_references.");
+    						}
 						}
 						
 					} // End search/create participant
