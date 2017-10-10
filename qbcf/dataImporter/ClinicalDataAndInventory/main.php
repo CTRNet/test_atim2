@@ -73,6 +73,7 @@ foreach($excel_files_names as $file_data) {
 		
 		$worksheet_name = 'patient';
 		$summary_section_title = 'Participant Profile - Creation/Update';
+		$duplicated_treatment_check = array();
 		while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 1, $excel_xls_offset)) {
 			if($line_number > 3 && strlen($excel_line_data['Patient # in biobank'])) {
 				$qbcf_bank_participant_identifier = $excel_line_data['Patient # in biobank'];
@@ -421,6 +422,7 @@ foreach($excel_files_names as $file_data) {
 							if($her2_ihc == 'negative') $her_2_status = 'equivocal';
 							break;
 						case 'unknown':
+						case '':
 							if($her2_ihc == 'positive') $her_2_status = 'positive';
 							if($her2_ihc == 'negative') $her_2_status = 'negative';
 					}
@@ -679,6 +681,16 @@ foreach($excel_files_names as $file_data) {
 							recordErrorAndMessage($specific_summary_section_title, '@@ERROR@@', "Breast treatment type not defined or not supported - No excel treatment data will be migrated", "See treatment '".(strlen($excel_treatment_type)? $excel_treatment_type : '(Empty cell)')."' for following participant : $excel_data_references.");
 					
 						} else {
+						    
+                            if($excel_start_date) {
+                                //Forc user to review data when duplicated row
+                                $duplicated_treatment_check_key = "$qbcf_bank_participant_identifier/$type_of_event/$excel_start_date/$excel_treatment_type";
+                                if(in_array($duplicated_treatment_check_key, $duplicated_treatment_check)) {
+                                    recordErrorAndMessage($specific_summary_section_title, '@@WARNING@@', "More than one row exist for the treatment (same participant + start date + treatment type) - Please review migrated data, validate and add correction if required.", "See treatment '".(strlen($excel_treatment_type)? $excel_treatment_type : '(Empty cell)')."' for following participant : $excel_data_references.");
+                                }
+                                $duplicated_treatment_check[$duplicated_treatment_check_key] = $duplicated_treatment_check_key;
+                            }
+						    
 							if(!array_key_exists($excel_treatment_type_to_atim_control_type[$excel_treatment_type], $atim_controls['treatment_controls'])) die('ERR_8983993');
 							$atim_treatment_control_data = $atim_controls['treatment_controls'][$excel_treatment_type_to_atim_control_type[$excel_treatment_type]];
 							$tx_detail_tablename= $atim_treatment_control_data['detail_tablename'];
@@ -1626,6 +1638,7 @@ function formatDrugName($xls_drug_name, $xls_drug_type, $excel_data_references) 
 		"epirubicine" => array("epirubicin", "chemotherapy"),
 		"eribulin" => array("eribulin", "chemotherapy"),
 		"eribuline" => array("eribulin", "chemotherapy"),
+	    "faslodex" => array("fulvestrant", "hormonal"),
 		"aromasin" => array("exemestane", "hormonal"),
 		"exemestane" => array("exemestane", "hormonal"),
 		"fulvestrant" => array("fulvestrant", "hormonal"),
@@ -1638,7 +1651,10 @@ function formatDrugName($xls_drug_name, $xls_drug_type, $excel_data_references) 
 		"leuprolide" => array("leuprolide", "hormonal"),
 		"metformin vs placebo" => array("metformin vs placebo", "other"),
 		"methotrexate" => array("methotrexate", "chemotherapy"),
-		"paclitaxel" => array("paclitaxel", "chemotherapy"),
+		"navelbine" => array("vinorelbine", "chemotherapy"),
+		"xgeva" => array("denosumab", "bone specific"),
+		"prolia" => array("denosumab", "bone specific"),
+	    "paclitaxel" => array("paclitaxel", "chemotherapy"),
 		"taxol" => array("paclitaxel", "chemotherapy"),
 		"pamidronate" => array("pamidronate", "bone specific"),
 		"tamoxifen" => array("tamoxifen", "hormonal"),
