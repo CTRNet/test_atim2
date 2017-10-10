@@ -854,3 +854,30 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='phlebotomy_volume_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='vol (ml)'), '1', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 UPDATE versions SET branch_build_number = '6884' WHERE version_number = '2.6.2';
+
+ALTER TABLE ed_cap_report_colon_rectum_resections 
+  CHANGE qc_hb_intra_mural qc_hb_large_vessel_intra_mural VARCHAR(50) DEFAULT NULL,
+  CHANGE qc_hb_extra_mural qc_hb_large_vessel_extra_mural VARCHAR(50) DEFAULT NULL;
+ALTER TABLE ed_cap_report_colon_rectum_resections_revs 
+  CHANGE qc_hb_intra_mural qc_hb_large_vessel_intra_mural VARCHAR(50) DEFAULT NULL,
+  CHANGE qc_hb_extra_mural qc_hb_large_vessel_extra_mural VARCHAR(50) DEFAULT NULL;
+UPDATE structure_fields SET field = 'qc_hb_large_vessel_intra_mural' WHERE field = 'qc_hb_intra_mural';
+UPDATE structure_fields SET field = 'qc_hb_large_vessel_extra_mural' WHERE field = 'qc_hb_extra_mural';
+ALTER TABLE ed_cap_report_colon_rectum_resections 
+  ADD COLUMN qc_hb_large_vessel VARCHAR(50) DEFAULT NULL;
+ALTER TABLE ed_cap_report_colon_rectum_resections_revs 
+  ADD COLUMN qc_hb_large_vessel VARCHAR(50) DEFAULT NULL;
+UPDATE structure_fields SET `language_label`='' WHERE model='EventDetail' AND tablename='ed_cap_report_colon_rectum_resections' AND field='qc_hb_large_vessel_intra_mural' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='lymph_vascular_invasion');
+DELETE FROM structure_formats 
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field` LIKE 'qc_hb_large_vessel_%');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_cap_report_colon_rectum_resections', 'qc_hb_large_vessel', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='lymph_vascular_invasion') , '0', '', '', '', 'large vessel', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='qc_hb_large_vessel' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lymph_vascular_invasion')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='large vessel' AND `language_tag`=''), '2', '86', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='qc_hb_large_vessel_intra_mural' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lymph_vascular_invasion')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='intra mural'), '2', '86', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_cap_report_colon_rectum_resections' AND `field`='qc_hb_large_vessel_extra_mural' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lymph_vascular_invasion')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='extra mural'), '2', '86', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE versions SET branch_build_number = '6885' WHERE version_number = '2.6.2';
+
+
