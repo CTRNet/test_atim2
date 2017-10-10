@@ -820,3 +820,37 @@ ALTER TABLE ed_cap_report_colon_rectum_resections_revs
   ADD COLUMN qc_hb_intra_mural VARCHAR(50) DEFAULT NULL,
   ADD COLUMN qc_hb_extra_mural VARCHAR(50) DEFAULT NULL;
 UPDATE versions SET branch_build_number = '6881' WHERE version_number = '2.6.2';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-10-10 : New Request 
+-- -----------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE qc_hb_txd_surgery_livers
+	ADD COLUMN phlebotomy char(1) DEFAULT '',
+	ADD COLUMN phlebotomy_volume_ml decimal(6,2);
+ALTER TABLE qc_hb_txd_surgery_livers_revs
+	ADD COLUMN phlebotomy char(1) DEFAULT '',
+	ADD COLUMN phlebotomy_volume_ml decimal(6,2);
+ALTER TABLE qc_hb_txd_surgery_pancreas
+	ADD COLUMN phlebotomy char(1) DEFAULT '',
+	ADD COLUMN phlebotomy_volume_ml decimal(6,2);
+ALTER TABLE qc_hb_txd_surgery_pancreas_revs
+	ADD COLUMN phlebotomy char(1) DEFAULT '',
+	ADD COLUMN phlebotomy_volume_ml decimal(6,2);
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('phlebotomy', 'Phlebotomy', 'Phlebotomie');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'phlebotomy', 'yes_no',  NULL , '0', '', '', '', 'phlebotomy', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'phlebotomy_volume_ml', 'float_positive',  NULL , '0', '', '', '', '', 'vol (ml)');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='phlebotomy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='phlebotomy' AND `language_tag`=''), '1', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='phlebotomy_volume_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='vol (ml)'), '1', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'phlebotomy', 'yes_no',  NULL , '0', '', '', '', 'phlebotomy', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'phlebotomy_volume_ml', 'float_positive',  NULL , '0', '', '', '', '', 'vol (ml)');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='phlebotomy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='phlebotomy' AND `language_tag`=''), '1', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='phlebotomy_volume_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='vol (ml)'), '1', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE versions SET branch_build_number = '6884' WHERE version_number = '2.6.2';
