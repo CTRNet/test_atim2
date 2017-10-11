@@ -733,7 +733,7 @@ function validateAndGetExcelValueFromList($value, $values_matches, $str_to_lower
 // ---- DATE & DATETIME ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 global $empty_date_time_values;
-$empty_date_time_values = array('-', 'n/a', 'x', '??', 'nd');
+$empty_date_time_values = array('-', 'n/a', 'x', '??', 'nd', '?');
 
 /**
  * Test excel value is a date and return the formatted date for database and the accuracy.
