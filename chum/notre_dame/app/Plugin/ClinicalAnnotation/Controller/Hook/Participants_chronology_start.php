@@ -1,40 +1,40 @@
 <?php
 
 // *** Clinical Exam ***
-$lab_marker_types = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+$labMarkerTypes = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
     'Other Lab Marker Types'
 ));
-$lab_marker_types = array_merge($lab_marker_types['defined'], $lab_marker_types['previously_defined']);
-$lab_marker_types[''] = '';
+$labMarkerTypes = array_merge($labMarkerTypes['defined'], $labMarkerTypes['previously_defined']);
+$labMarkerTypes[''] = '';
 
-$genetic_tests = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+$geneticTests = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
     'Genetic Tests'
 ));
-$genetic_tests = array_merge($genetic_tests['defined'], $genetic_tests['previously_defined']);
-$genetic_tests[''] = '';
+$geneticTests = array_merge($geneticTests['defined'], $geneticTests['previously_defined']);
+$geneticTests[''] = '';
 
-$lab_marker_units = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
+$labMarkerUnits = $this->StructurePermissibleValuesCustom->getCustomDropdown(array(
     'Other Lab Marker Units'
 ));
-$lab_marker_units = array_merge($lab_marker_units['defined'], $lab_marker_units['previously_defined']);
-$lab_marker_units[''] = '';
+$labMarkerUnits = array_merge($labMarkerUnits['defined'], $labMarkerUnits['previously_defined']);
+$labMarkerUnits[''] = '';
 
-$estrogen_progestin_receptor_results = $this->Participant->getSardoValues(array(
+$estrogenProgestinReceptorResults = $this->Participant->getSardoValues(array(
     'SARDO : Estrogen/Progestin Receptor Results'
 ));
-$estrogen_progestin_receptor_results[''] = '';
+$estrogenProgestinReceptorResults[''] = '';
 
-$her2_neu_results = $this->Participant->getSardoValues(array(
+$her2NeuResults = $this->Participant->getSardoValues(array(
     'SARDO : HER2/NEU Results'
 ));
-$her2_neu_results[''] = '';
+$her2NeuResults[''] = '';
 
 // *** Diagnosis ***
 
-$icd_o_3_topo_model = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
-$icd_o_3_topo_categories = $icd_o_3_topo_model::getTopoCategoriesCodes();
+$icdO3TopoModel = AppModel::getInstance('CodingIcd', 'CodingIcdo3Topo', true);
+$icdO3TopoCategories = $icdO3TopoModel::getTopoCategoriesCodes();
 
-$sardo_progression_details = $this->Participant->getSardoValues(array(
+$sardoProgressionDetails = $this->Participant->getSardoValues(array(
     'SARDO : Progression Details'
 ));
-$sardo_progression_details[''] = '';
+$sardoProgressionDetails[''] = '';

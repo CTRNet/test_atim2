@@ -15,8 +15,8 @@ class LabTypeLateralityMatchCustom extends InventoryManagementAppModel
             ),
             'fields' => 'DISTINCT selected_type_code',
             'order' => 'selected_type_code'
-        )) as $new_record) {
-            $result[$new_record['LabTypeLateralityMatch']['selected_type_code']] = $new_record['LabTypeLateralityMatch']['selected_type_code'];
+        )) as $newRecord) {
+            $result[$newRecord['LabTypeLateralityMatch']['selected_type_code']] = $newRecord['LabTypeLateralityMatch']['selected_type_code'];
         }
         $result['other'] = __('other');
         $result['unknown'] = __('unknown');
@@ -34,8 +34,8 @@ class LabTypeLateralityMatchCustom extends InventoryManagementAppModel
             ),
             'fields' => 'DISTINCT selected_labo_laterality',
             'order' => 'selected_labo_laterality'
-        )) as $new_record) {
-            $result[$new_record['LabTypeLateralityMatch']['selected_labo_laterality']] = empty($new_record['LabTypeLateralityMatch']['selected_labo_laterality']) ? '' : __('lab laterality ' . $new_record['LabTypeLateralityMatch']['selected_labo_laterality'], true);
+        )) as $newRecord) {
+            $result[$newRecord['LabTypeLateralityMatch']['selected_labo_laterality']] = empty($newRecord['LabTypeLateralityMatch']['selected_labo_laterality']) ? '' : __('lab laterality ' . $newRecord['LabTypeLateralityMatch']['selected_labo_laterality'], true);
         }
         $result['unknown'] = __('unknown');
         
@@ -52,8 +52,8 @@ class LabTypeLateralityMatchCustom extends InventoryManagementAppModel
             ),
             'fields' => 'DISTINCT tissue_source_matching',
             'order' => 'tissue_source_matching'
-        )) as $new_record) {
-            $result[$new_record['LabTypeLateralityMatch']['tissue_source_matching']] = __($new_record['LabTypeLateralityMatch']['tissue_source_matching'], true);
+        )) as $newRecord) {
+            $result[$newRecord['LabTypeLateralityMatch']['tissue_source_matching']] = __($newRecord['LabTypeLateralityMatch']['tissue_source_matching'], true);
         }
         $result['other'] = __('other');
         $result['unknown'] = __('unknown');

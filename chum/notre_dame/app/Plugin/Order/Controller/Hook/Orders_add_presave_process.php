@@ -12,13 +12,13 @@ if (empty($this->request->data['Order']['order_number'])) {
         )
     ));
     
-    $qc_nd_code_suffix = null;
+    $qcNdCodeSuffix = null;
     if ($result) {
         // increment it
-        $qc_nd_code_suffix = substr($result['Order']['order_number'], 5) + 1;
+        $qcNdCodeSuffix = substr($result['Order']['order_number'], 5) + 1;
     } else {
         // first of the year
-        $qc_nd_code_suffix = 1;
+        $qcNdCodeSuffix = 1;
     }
-    $this->request->data['Order']['order_number'] = sprintf('%d-%03d', date('Y'), $qc_nd_code_suffix);
+    $this->request->data['Order']['order_number'] = sprintf('%d-%03d', date('Y'), $qcNdCodeSuffix);
 }

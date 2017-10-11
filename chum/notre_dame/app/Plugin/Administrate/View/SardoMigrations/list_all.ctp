@@ -1,24 +1,24 @@
 <?php
-if ($message_type == 'all') {
+if ($messageType == 'all') {
     
     // Main form
     
     // --------- Summary ----------------------------------------------------------------------------------------------
     
-    $final_atim_structure = array();
-    $final_options = array(
+    $finalAtimStructure = array();
+    $finalOptions = array(
         'type' => 'detail',
         'links' => array(),
         'settings' => array(
             'actions' => false
         )
     );
-    $this->Structures->build($atim_structure, $final_options);
+    $this->Structures->build($atimStructure, $finalOptions);
     
     // --------- Profile & Reproductive History ----------------------------------------------------------------------------------------------
     
-    $final_atim_structure = array();
-    $final_options = array(
+    $finalAtimStructure = array();
+    $finalOptions = array(
         'type' => 'detail',
         'links' => array(),
         'settings' => array(
@@ -27,30 +27,30 @@ if ($message_type == 'all') {
         ),
         'extras' => $this->Structures->ajaxIndex('Administrate/SardoMigrations/listAll/main')
     );
-    $this->Structures->build($final_atim_structure, $final_options);
+    $this->Structures->build($finalAtimStructure, $finalOptions);
     
     // --------- Empty lists ----------------------------------------------------------------------------------------------
     
-    $structure_links = array(
+    $structureLinks = array(
         'bottom' => array(
             'export as CSV file (comma-separated values)' => sprintf("javascript:setCsvPopup('Administrate/SardoMigrations/listAll/csv/');", 0)
         )
     );
     
-    $final_atim_structure = array();
-    $final_options = array(
+    $finalAtimStructure = array();
+    $finalOptions = array(
         'type' => 'detail',
-        'links' => $structure_links,
+        'links' => $structureLinks,
         'settings' => array(
             'header' => __('profile and reproductive history update', null),
             'actions' => true
         ),
         'extras' => $this->Structures->ajaxIndex('Administrate/SardoMigrations/listAll/profile_reproductive')
     );
-    $this->Structures->build($final_atim_structure, $final_options);
-} elseif ($message_type == 'csv') {
+    $this->Structures->build($finalAtimStructure, $finalOptions);
+} elseif ($messageType == 'csv') {
     
-    $this->Structures->build($atim_structure_messages, array(
+    $this->Structures->build($atimStructureMessages, array(
         'type' => 'csv',
         'data' => $this->request->data,
         'settings' => array(
@@ -62,7 +62,7 @@ if ($message_type == 'all') {
     
     // Messages Display (sub-form)
     
-    $final_options = array(
+    $finalOptions = array(
         'type' => 'index',
         'settings' => array(
             'pagination' => true,
@@ -70,5 +70,5 @@ if ($message_type == 'all') {
         ),
         'override' => array()
     );
-    $this->Structures->build($atim_structure_messages, $final_options);
+    $this->Structures->build($atimStructureMessages, $finalOptions);
 }

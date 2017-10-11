@@ -17,8 +17,8 @@ class MiscIdentifierControlCustom extends MiscIdentifierControl
         );
         foreach ($this->find('all', array(
             'conditions' => $conditions
-        )) as $ident_ctrl) {
-            $result[$ident_ctrl['MiscIdentifierControl']['id']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name'], true);
+        )) as $identCtrl) {
+            $result[$identCtrl['MiscIdentifierControl']['id']] = __($identCtrl['MiscIdentifierControl']['misc_identifier_name'], true);
         }
         asort($result);
         

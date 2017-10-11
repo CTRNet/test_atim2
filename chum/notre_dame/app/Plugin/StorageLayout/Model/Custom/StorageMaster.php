@@ -7,12 +7,12 @@ class StorageMasterCustom extends StorageMaster
 
     var $name = 'StorageMaster';
 
-    public function getLabel(array $children_array, $type_key, $label_key)
+    public function getLabel(array $childrenArray, $typeKey, $labelKey)
     {
         // USE THIS TO OVERRIDE THE DEFAULT LABEL
-        if ($type_key == 'AliquotMaster') {
-            $label_key = 'aliquot_label';
+        if ($typeKey == 'AliquotMaster') {
+            $labelKey = 'aliquot_label';
         }
-        return parent::getLabel($children_array, $type_key, $label_key);
+        return parent::getLabel($childrenArray, $typeKey, $labelKey);
     }
 }

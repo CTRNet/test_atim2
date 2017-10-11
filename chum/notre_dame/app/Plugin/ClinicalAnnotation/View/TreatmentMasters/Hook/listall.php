@@ -1,4 +1,4 @@
 <?php
-unset($final_options['links']['bottom']);
-unset($final_options['links']['index']['edit']);
-unset($final_options['links']['index']['delete']);
+unset($finalOptions['links']['bottom']);
+unset($finalOptions['links']['index']['edit']);
+unset($finalOptions['links']['index']['delete']);

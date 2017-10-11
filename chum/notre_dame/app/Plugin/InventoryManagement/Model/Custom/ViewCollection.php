@@ -5,7 +5,7 @@ class ViewCollectionCustom extends ViewCollection
 
     var $name = 'ViewCollection';
 
-    static $table_query = '
+    static $tableQuery = '
 		SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
@@ -40,54 +40,54 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
     public function find($type = 'first', $query = array())
     {
         if ($type == 'all' && isset($query['conditions'])) {
-            $identifier_values = array();
-            $query_conditions = is_array($query['conditions']) ? $query['conditions'] : array(
+            $identifierValues = array();
+            $queryConditions = is_array($query['conditions']) ? $query['conditions'] : array(
                 $query['conditions']
             );
-            foreach ($query_conditions as $key => $new_condition) {
+            foreach ($queryConditions as $key => $newCondition) {
                 if ($key === 'ViewCollection.identifier_value') {
-                    $identifier_values = $new_condition;
+                    $identifierValues = $newCondition;
                     break;
-                } elseif (is_string($new_condition)) {
-                    if (preg_match_all('/ViewCollection\.identifier_value LIKE \'%([0-9]+)%\'/', $new_condition, $matches)) {
-                        $identifier_values = $matches[1];
+                } elseif (is_string($newCondition)) {
+                    if (preg_match_all('/ViewCollection\.identifier_value LIKE \'%([0-9]+)%\'/', $newCondition, $matches)) {
+                        $identifierValues = $matches[1];
                         break;
                     }
                 }
             }
-            if (! empty($identifier_values)) {
-                $misc_identifier_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
-                $result = $misc_identifier_model->find('all', array(
+            if (! empty($identifierValues)) {
+                $miscIdentifierModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
+                $result = $miscIdentifierModel->find('all', array(
                     'conditions' => array(
                         'MiscIdentifier.misc_identifier_control_id' => 6,
-                        'MiscIdentifier.identifier_value' => $identifier_values
+                        'MiscIdentifier.identifier_value' => $identifierValues
                     ),
                     'fields' => 'MiscIdentifier.identifier_value'
                 ));
                 if ($result) {
-                    $all_values = array();
-                    foreach ($result as $new_res)
-                        $all_values[] = $new_res['MiscIdentifier']['identifier_value'];
-                    AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $all_values)));
+                    $allValues = array();
+                    foreach ($result as $newRes)
+                        $allValues[] = $newRes['MiscIdentifier']['identifier_value'];
+                    AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $allValues)));
                 }
             }
         }
         if (isset($query['conditions'])) {
-            $gt_key = array_key_exists('ViewCollection.identifier_value >=', $query['conditions']);
-            $lt_key = array_key_exists('ViewCollection.identifier_value <=', $query['conditions']);
-            if ($gt_key || $lt_key) {
-                $inf_value = $gt_key ? str_replace(',', '.', $query['conditions']['ViewCollection.identifier_value >=']) : '';
-                $sup_value = $lt_key ? str_replace(',', '.', $query['conditions']['ViewCollection.identifier_value <=']) : '';
-                if (strlen($inf_value . $sup_value) && (is_numeric($inf_value) || ! strlen($inf_value)) && (is_numeric($sup_value) || ! strlen($sup_value))) {
+            $gtKey = array_key_exists('ViewCollection.identifier_value >=', $query['conditions']);
+            $ltKey = array_key_exists('ViewCollection.identifier_value <=', $query['conditions']);
+            if ($gtKey || $ltKey) {
+                $infValue = $gtKey ? str_replace(',', '.', $query['conditions']['ViewCollection.identifier_value >=']) : '';
+                $supValue = $ltKey ? str_replace(',', '.', $query['conditions']['ViewCollection.identifier_value <=']) : '';
+                if (strlen($infValue . $supValue) && (is_numeric($infValue) || ! strlen($infValue)) && (is_numeric($supValue) || ! strlen($supValue))) {
                     // Return just numeric
                     $query['conditions']['ViewCollection.identifier_value REGEXP'] = "^[0-9]+([\,\.][0-9]+){0,1}$";
                     // Define range
-                    if ($gt_key) {
-                        $query['conditions']["(REPLACE(ViewCollection.identifier_value, ',','.') * 1) >="] = $inf_value;
+                    if ($gtKey) {
+                        $query['conditions']["(REPLACE(ViewCollection.identifier_value, ',','.') * 1) >="] = $infValue;
                         unset($query['conditions']['ViewCollection.identifier_value >=']);
                     }
-                    if ($lt_key) {
-                        $query['conditions']["(REPLACE(ViewCollection.identifier_value, ',','.') * 1) <="] = $sup_value;
+                    if ($ltKey) {
+                        $query['conditions']["(REPLACE(ViewCollection.identifier_value, ',','.') * 1) <="] = $supValue;
                         unset($query['conditions']['ViewCollection.identifier_value <=']);
                     }
                     // Manage Order
@@ -99,8 +99,8 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.id = Collectio
             }
         }
         if (isset($query['order']) && is_array($query['order']) && array_key_exists('ViewCollection.identifier_value', $query['order'])) {
-            $order_by = $query['order']['ViewCollection.identifier_value'];
-            $query['order']["IF(concat('',REPLACE(ViewCollection.identifier_value, ',', '.') * 1) = REPLACE(ViewCollection.identifier_value, ',', '.'), '0', '1') $order_by, ViewCollection.identifier_value*IF(concat('',REPLACE(ViewCollection.identifier_value, ',', '.') * 1) = REPLACE(ViewCollection.identifier_value, ',', '.'), '1', '') $order_by, ViewCollection.identifier_value $order_by"] = '';
+            $orderBy = $query['order']['ViewCollection.identifier_value'];
+            $query['order']["IF(concat('',REPLACE(ViewCollection.identifier_value, ',', '.') * 1) = REPLACE(ViewCollection.identifier_value, ',', '.'), '0', '1') $orderBy, ViewCollection.identifier_value*IF(concat('',REPLACE(ViewCollection.identifier_value, ',', '.') * 1) = REPLACE(ViewCollection.identifier_value, ',', '.'), '1', '') $orderBy, ViewCollection.identifier_value $orderBy"] = '';
             unset($query['order']['ViewCollection.identifier_value']);
         }
         return parent::find($type, $query);

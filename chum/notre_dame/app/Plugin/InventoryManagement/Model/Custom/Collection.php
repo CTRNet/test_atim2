@@ -7,7 +7,7 @@ class CollectionCustom extends Collection
 
     var $useTable = "collections";
 
-    public function updateCollectionSampleLabels($collection_id, $bank_participant_identifier = null)
+    public function updateCollectionSampleLabels($collectionId, $bankParticipantIdentifier = null)
     {
         if (! isset($this->SampleMaster)) {
             $this->SampleMaster = AppModel::getInstance('InventoryManagement', 'SampleMaster');
@@ -18,16 +18,16 @@ class CollectionCustom extends Collection
         }
         
         // Get bank_participant_identifier
-        if (is_null($bank_participant_identifier)) {
-            $collection_view_data = $this->ViewCollection->find('first', array(
+        if (is_null($bankParticipantIdentifier)) {
+            $collectionViewData = $this->ViewCollection->find('first', array(
                 'conditions' => array(
-                    'ViewCollection.collection_id' => $collection_id
+                    'ViewCollection.collection_id' => $collectionId
                 )
             ));
-            if (empty($collection_view_data)) {
+            if (empty($collectionViewData)) {
                 return; // here via participant add collection
             }
-            $bank_participant_identifier = $collection_view_data['ViewCollection']['identifier_value'];
+            $bankParticipantIdentifier = $collectionViewData['ViewCollection']['identifier_value'];
         }
         
         // Get collection samples list
@@ -39,38 +39,38 @@ class CollectionCustom extends Collection
                 'Collection'
             )
         ));
-        $collection_samples_list = $this->SampleMaster->find('all', array(
+        $collectionSamplesList = $this->SampleMaster->find('all', array(
             'conditions' => array(
-                'SampleMaster.collection_id' => $collection_id
+                'SampleMaster.collection_id' => $collectionId
             ),
             'order' => 'SampleMaster.initial_specimen_sample_id ASC, SampleControl.sample_category ASC'
         ));
         
         // Update collection samples label
-        $specimens_sample_labels_from_id = array();
-        foreach ($collection_samples_list as $new_collection_sample) {
-            $new_sample_label = null;
-            if ($new_collection_sample['SampleControl']['sample_category'] == 'specimen') {
-                $new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier);
-                $specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['id']] = $new_sample_label;
+        $specimensSampleLabelsFromId = array();
+        foreach ($collectionSamplesList as $newCollectionSample) {
+            $newSampleLabel = null;
+            if ($newCollectionSample['SampleControl']['sample_category'] == 'specimen') {
+                $newSampleLabel = $this->SampleMaster->createSampleLabel($collectionId, $newCollectionSample, $bankParticipantIdentifier);
+                $specimensSampleLabelsFromId[$newCollectionSample['SampleMaster']['id']] = $newSampleLabel;
             } else {
-                if (! isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) {
-                    pr($new_collection_sample);
-                    pr($specimens_sample_labels_from_id);
+                if (! isset($specimensSampleLabelsFromId[$newCollectionSample['SampleMaster']['initial_specimen_sample_id']])) {
+                    pr($newCollectionSample);
+                    pr($specimensSampleLabelsFromId);
                     exit();
                     AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
                 }
-                $new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier, $specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']]);
+                $newSampleLabel = $this->SampleMaster->createSampleLabel($collectionId, $newCollectionSample, $bankParticipantIdentifier, $specimensSampleLabelsFromId[$newCollectionSample['SampleMaster']['initial_specimen_sample_id']]);
             }
             
             // Save new label
-            $this->SampleMaster->id = $new_collection_sample['SampleMaster']['id'];
+            $this->SampleMaster->id = $newCollectionSample['SampleMaster']['id'];
             $this->SampleMaster->addWritableField(array(
                 'qc_nd_sample_label'
             ));
             if (! $this->SampleMaster->save(array(
                 'SampleMaster' => array(
-                    'qc_nd_sample_label' => $new_sample_label
+                    'qc_nd_sample_label' => $newSampleLabel
                 )
             ), false)) {
                 AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

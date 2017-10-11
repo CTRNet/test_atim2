@@ -7,14 +7,14 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster
 
     var $name = 'AliquotReviewMaster';
 
-    public function generateLabelOfReviewedAliquot($aliquot_master_id, $aliquot_data = null)
+    public function generateLabelOfReviewedAliquot($aliquotMasterId, $aliquotData = null)
     {
-        if (! ($aliquot_data && isset($aliquot_data['AliquotMaster']))) {
+        if (! ($aliquotData && isset($aliquotData['AliquotMaster']))) {
             if (! isset($this->AliquotMaster)) {
                 $this->AliquotMaster = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
             }
-            $aliquot_data = $this->AliquotMaster->getOrRedirect($aliquot_master_id);
+            $aliquotData = $this->AliquotMaster->getOrRedirect($aliquotMasterId);
         }
-        return $aliquot_data['AliquotMaster']['aliquot_label'] . ' [' . (isset($aliquot_data['AliquotControl']['aliquot_type']) ? __($aliquot_data['AliquotControl']['aliquot_type']) : '') . ' - ' . $aliquot_data['AliquotMaster']['barcode'] . ']';
+        return $aliquotData['AliquotMaster']['aliquot_label'] . ' [' . (isset($aliquotData['AliquotControl']['aliquot_type']) ? __($aliquotData['AliquotControl']['aliquot_type']) : '') . ' - ' . $aliquotData['AliquotMaster']['barcode'] . ']';
     }
 }

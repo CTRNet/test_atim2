@@ -5,7 +5,7 @@ class ViewAliquotCustom extends ViewAliquot
 
     var $name = 'ViewAliquot';
 
-    static $table_query = 'SELECT
+    static $tableQuery = 'SELECT
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id,
@@ -89,54 +89,54 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
     public function find($type = 'first', $query = array())
     {
         if ($type == 'all' && isset($query['conditions'])) {
-            $identifier_values = array();
-            $query_conditions = is_array($query['conditions']) ? $query['conditions'] : array(
+            $identifierValues = array();
+            $queryConditions = is_array($query['conditions']) ? $query['conditions'] : array(
                 $query['conditions']
             );
-            foreach ($query_conditions as $key => $new_condition) {
+            foreach ($queryConditions as $key => $newCondition) {
                 if ($key === 'ViewAliquot.identifier_value') {
-                    $identifier_values = $new_condition;
+                    $identifierValues = $newCondition;
                     break;
-                } elseif (is_string($new_condition)) {
-                    if (preg_match_all('/ViewAliquot\.identifier_value LIKE \'%([0-9]+)%\'/', $new_condition, $matches)) {
-                        $identifier_values = $matches[1];
+                } elseif (is_string($newCondition)) {
+                    if (preg_match_all('/ViewAliquot\.identifier_value LIKE \'%([0-9]+)%\'/', $newCondition, $matches)) {
+                        $identifierValues = $matches[1];
                         break;
                     }
                 }
             }
-            if (! empty($identifier_values)) {
-                $misc_identifier_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
-                $result = $misc_identifier_model->find('all', array(
+            if (! empty($identifierValues)) {
+                $miscIdentifierModel = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
+                $result = $miscIdentifierModel->find('all', array(
                     'conditions' => array(
                         'MiscIdentifier.misc_identifier_control_id' => 6,
-                        'MiscIdentifier.identifier_value' => $identifier_values
+                        'MiscIdentifier.identifier_value' => $identifierValues
                     ),
                     'fields' => 'MiscIdentifier.identifier_value'
                 ));
                 if ($result) {
-                    $all_values = array();
-                    foreach ($result as $new_res)
-                        $all_values[] = $new_res['MiscIdentifier']['identifier_value'];
-                    AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $all_values)));
+                    $allValues = array();
+                    foreach ($result as $newRes)
+                        $allValues[] = $newRes['MiscIdentifier']['identifier_value'];
+                    AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $allValues)));
                 }
             }
         }
         if (isset($query['conditions']) && empty($query['fields'])) {
-            $gt_key = array_key_exists('ViewAliquot.identifier_value >=', $query['conditions']);
-            $lt_key = array_key_exists('ViewAliquot.identifier_value <=', $query['conditions']);
-            if ($gt_key || $lt_key) {
-                $inf_value = $gt_key ? str_replace(',', '.', $query['conditions']['ViewAliquot.identifier_value >=']) : '';
-                $sup_value = $lt_key ? str_replace(',', '.', $query['conditions']['ViewAliquot.identifier_value <=']) : '';
-                if (strlen($inf_value . $sup_value) && (is_numeric($inf_value) || ! strlen($inf_value)) && (is_numeric($sup_value) || ! strlen($sup_value))) {
+            $gtKey = array_key_exists('ViewAliquot.identifier_value >=', $query['conditions']);
+            $ltKey = array_key_exists('ViewAliquot.identifier_value <=', $query['conditions']);
+            if ($gtKey || $ltKey) {
+                $infValue = $gtKey ? str_replace(',', '.', $query['conditions']['ViewAliquot.identifier_value >=']) : '';
+                $supValue = $ltKey ? str_replace(',', '.', $query['conditions']['ViewAliquot.identifier_value <=']) : '';
+                if (strlen($infValue . $supValue) && (is_numeric($infValue) || ! strlen($infValue)) && (is_numeric($supValue) || ! strlen($supValue))) {
                     // Return just numeric
                     $query['conditions']['ViewAliquot.identifier_value REGEXP'] = "^[0-9]+([\,\.][0-9]+){0,1}$";
                     // Define range
-                    if ($gt_key) {
-                        $query['conditions']["(REPLACE(ViewAliquot.identifier_value, ',','.') * 1) >="] = $inf_value;
+                    if ($gtKey) {
+                        $query['conditions']["(REPLACE(ViewAliquot.identifier_value, ',','.') * 1) >="] = $infValue;
                         unset($query['conditions']['ViewAliquot.identifier_value >=']);
                     }
-                    if ($lt_key) {
-                        $query['conditions']["(REPLACE(ViewAliquot.identifier_value, ',','.') * 1) <="] = $sup_value;
+                    if ($ltKey) {
+                        $query['conditions']["(REPLACE(ViewAliquot.identifier_value, ',','.') * 1) <="] = $supValue;
                         unset($query['conditions']['ViewAliquot.identifier_value <=']);
                     }
                     // Manage Order
@@ -148,8 +148,8 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
             }
         }
         if (isset($query['order']) && is_array($query['order']) && array_key_exists('ViewAliquot.identifier_value', $query['order'])) {
-            $order_by = $query['order']['ViewAliquot.identifier_value'];
-            $query['order']["IF(concat('',REPLACE(ViewAliquot.identifier_value, ',', '.') * 1) = REPLACE(ViewAliquot.identifier_value, ',', '.'), '0', '1') $order_by, ViewAliquot.identifier_value*IF(concat('',REPLACE(ViewAliquot.identifier_value, ',', '.') * 1) = REPLACE(ViewAliquot.identifier_value, ',', '.'), '1', '') $order_by, ViewAliquot.identifier_value $order_by"] = '';
+            $orderBy = $query['order']['ViewAliquot.identifier_value'];
+            $query['order']["IF(concat('',REPLACE(ViewAliquot.identifier_value, ',', '.') * 1) = REPLACE(ViewAliquot.identifier_value, ',', '.'), '0', '1') $orderBy, ViewAliquot.identifier_value*IF(concat('',REPLACE(ViewAliquot.identifier_value, ',', '.') * 1) = REPLACE(ViewAliquot.identifier_value, ',', '.'), '1', '') $orderBy, ViewAliquot.identifier_value $orderBy"] = '';
             unset($query['order']['ViewAliquot.identifier_value']);
         }
         return parent::find($type, $query);
