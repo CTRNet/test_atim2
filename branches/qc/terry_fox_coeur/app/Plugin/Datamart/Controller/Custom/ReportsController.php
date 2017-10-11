@@ -131,10 +131,22 @@ class ReportsControllerCustom extends ReportsController
         }
         $conditionsStr = implode(' AND ', $conditions);
         
+        // *********** Get control id ***********
+        // TODO To get from tables
+        
+        $primaryEocDiagnosisControlId = 14;
+        $otherPrimaryDiagnosisControlId = 15;
+        $secondaryReccurenceMetastasisDiagnosisControlId = 16;
+        
+        $eocChemotherapyTreatmentControlId = 14;
+        $eocOvarectomyTreatmentControlId = 20;
+        $eocRadiotherapyTreatmentControlId = 21;
+        
         // *********** Get Participant & Diagnosis & Fst Bcr & TMA data ***********
         
         $sql = "SELECT DISTINCT " . ($searchOnPathoNumber ? 'AliquotDetail.patho_dpt_block_code,' : '') . "Participant.id AS participant_id,
-				Participant.qc_tf_bank_id,
+				Participant.id,
+                Participant.qc_tf_bank_id,
 				Participant.participant_identifier,
 				Participant.qc_tf_bank_identifier,
 				Participant.vital_status,
@@ -142,6 +154,12 @@ class ReportsControllerCustom extends ReportsController
 				Participant.qc_tf_post_chemo,
 				Participant.qc_tf_family_history,
 				Participant.notes,
+				Participant.date_of_death,
+				Participant.date_of_death_accuracy,
+				Participant.date_of_birth,
+				Participant.date_of_birth_accuracy,
+				Participant.qc_tf_last_contact,
+				Participant.qc_tf_last_contact_accuracy,
 				DiagnosisMaster.id AS primary_id,
 				DiagnosisMaster.dx_date,
 				DiagnosisMaster.dx_date_accuracy,
@@ -155,22 +173,38 @@ class ReportsControllerCustom extends ReportsController
 				DiagnosisDetail.ca125_progression_time_in_months,
 				DiagnosisDetail.progression_status,
 				DiagnosisDetail.histopathology,
+				DiagnosisDetail.laterality,
 				DiagnosisDetail.reviewed_histopathology
-			FROM participants AS Participant " . ($searchOnPathoNumber ? 'INNER JOIN collections Collection ON Collection.participant_id = Participant.id INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1 INNER JOIN ad_blocks AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id ' : '') . "LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = 14 AND DiagnosisMaster.deleted <> 1
+			FROM participants AS Participant " . ($searchOnPathoNumber ? 
+			    'INNER JOIN collections Collection ON Collection.participant_id = Participant.id 
+			    INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1 
+			    INNER JOIN ad_blocks AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id ' : 
+			    '') . "
+	        LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = $primaryEocDiagnosisControlId AND DiagnosisMaster.deleted <> 1
 			LEFT JOIN qc_tf_dxd_eocs AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
 			WHERE Participant.deleted <> 1 AND ($conditionsStr)
 			ORDER BY Participant.participant_identifier ASC;";
         $mainResults = $this->Report->tryCatchQuery($sql);
         
-        $eocPrimaryIds = array();
-        $participantIds = array();
+        $eocPrimaryIds = array("'-1'");
+        $participantIds = array('-1');
         foreach ($mainResults as $newParticipant) {
             $participantIds[] = $newParticipant['Participant']['participant_id'];
             if (! empty($newParticipant['DiagnosisMaster']['primary_id']))
                 $eocPrimaryIds[] = $newParticipant['DiagnosisMaster']['primary_id'];
         }
+        $eocPrimaryIdsStrg = implode(',', $eocPrimaryIds);
         
-        // *********** Get first EOC ***********
+        $allEocDiagnosisIdsStrg = '-1';
+        $query = "SELECT GROUP_CONCAT(DISTINCT DiagnosisMaster.id SEPARATOR ',') AS diagnosis_master_ids
+            FROM diagnosis_masters DiagnosisMaster
+            WHERE DiagnosisMaster.primary_id IN  (".implode(',',$eocPrimaryIds).")";
+        $allEocDiagnosisIdsResults = $this->Report->tryCatchQuery($query);
+        if($allEocDiagnosisIdsResults) {
+            $allEocDiagnosisIdsStrg = $allEocDiagnosisIdsResults[0][0]['diagnosis_master_ids'];
+        }
+        
+        // *********** Get first Chemotherapy ***********
         
         $firstEocChemosFromParticipantId = array();
         if ($eocPrimaryIds) {
@@ -183,26 +217,75 @@ class ReportsControllerCustom extends ReportsController
 					TreatmentMaster.participant_id,
 					Drug.generic_name
 				FROM treatment_masters AS TreatmentMaster
-				LEFT JOIN treatment_extend_masters AS TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id
+				LEFT JOIN treatment_extend_masters AS TreatmentExtendMaster ON TreatmentExtendMaster.treatment_master_id = TreatmentMaster.id AND TreatmentExtendMaster.deleted <> 1 
 				LEFT JOIN drugs AS Drug ON Drug.id = TreatmentExtendMaster.drug_id
 				WHERE TreatmentMaster.deleted <> 1 
-                AND TreatmentMaster.diagnosis_master_id IN (" . implode(',', $eocPrimaryIds) . ")
-                AND TreatmentExtendMaster.deleted <> 1 
-                AND TreatmentMaster.treatment_control_id = 14
-				ORDER BY TreatmentMaster.participant_id ASC, TreatmentMaster.finish_date ASC, TreatmentMaster.id ASC;";
+                    AND TreatmentMaster.diagnosis_master_id IN ($allEocDiagnosisIdsStrg)
+                    AND TreatmentMaster.treatment_control_id = $eocChemotherapyTreatmentControlId
+				ORDER BY TreatmentMaster.participant_id ASC, TreatmentMaster.start_date ASC, TreatmentMaster.id ASC;";
             $eocChemoResults = $this->Report->tryCatchQuery($sql);
             foreach ($eocChemoResults as $newRes) {
                 $studiedParticipantId = $newRes['TreatmentMaster']['participant_id'];
                 if (! isset($firstEocChemosFromParticipantId[$studiedParticipantId])) {
                     $firstEocChemosFromParticipantId[$studiedParticipantId] = $newRes;
-                    $firstEocChemosFromParticipantId[$studiedParticipantId]['0']['qc_tf_coeur_chemo_drugs'] = isset($newRes['Drug']['generic_name']) ? array(
-                        $newRes['Drug']['generic_name']
-                    ) : array();
+                    $firstEocChemosFromParticipantId[$studiedParticipantId]['0']['qc_tf_coeur_chemo_drugs'] = isset($newRes['Drug']['generic_name']) ? 
+                        array($newRes['Drug']['generic_name']) : 
+                        array();
                 } else 
                     if ($firstEocChemosFromParticipantId[$studiedParticipantId]['TreatmentMaster']['id'] == $newRes['TreatmentMaster']['id']) {
                         if (isset($newRes['Drug']['generic_name']))
                             $firstEocChemosFromParticipantId[$studiedParticipantId]['0']['qc_tf_coeur_chemo_drugs'][] = $newRes['Drug']['generic_name'];
                     }
+            }
+        }
+        
+        // *********** Get first Ovaerctomy ***********
+        
+        $firstEocOvarectomyFromParticipantId = array();
+        if ($eocPrimaryIds) {
+            $sql = "SELECT
+                    TreatmentMaster.id,
+                    TreatmentMaster.start_date AS start_date,
+                    TreatmentMaster.start_date_accuracy AS start_date_accuracy,
+    				TreatmentMaster.finish_date AS finish_date,
+    				TreatmentMaster.finish_date_accuracy AS finish_date_accuracy,
+    				TreatmentMaster.participant_id
+                FROM treatment_masters AS TreatmentMaster
+                WHERE TreatmentMaster.deleted <> 1
+                    AND TreatmentMaster.diagnosis_master_id IN ($allEocDiagnosisIdsStrg)
+                    AND TreatmentMaster.treatment_control_id = $eocOvarectomyTreatmentControlId
+                ORDER BY TreatmentMaster.participant_id ASC, TreatmentMaster.start_date ASC, TreatmentMaster.id ASC;";
+            $eocOvarectomyResults = $this->Report->tryCatchQuery($sql);
+            foreach ($eocOvarectomyResults as $newRes) {
+                $studiedParticipantId = $newRes['TreatmentMaster']['participant_id'];
+                if (! isset($firstEocOvarectomyFromParticipantId[$studiedParticipantId])) {
+                    $firstEocOvarectomyFromParticipantId[$studiedParticipantId] = $newRes;
+                }
+            }
+        }
+        
+        // *********** Get first Radiotherpay ***********
+        
+        $firstEocRadioFromParticipantId = array();
+        if ($eocPrimaryIds) {
+            $sql = "SELECT
+                    TreatmentMaster.id,
+                    TreatmentMaster.start_date AS start_date,
+                    TreatmentMaster.start_date_accuracy AS start_date_accuracy,
+    				TreatmentMaster.finish_date AS finish_date,
+    				TreatmentMaster.finish_date_accuracy AS finish_date_accuracy,
+    				TreatmentMaster.participant_id
+                FROM treatment_masters AS TreatmentMaster
+                WHERE TreatmentMaster.deleted <> 1
+                    AND TreatmentMaster.diagnosis_master_id IN ($allEocDiagnosisIdsStrg)
+                    AND TreatmentMaster.treatment_control_id = $eocRadiotherapyTreatmentControlId
+                ORDER BY TreatmentMaster.participant_id ASC, TreatmentMaster.start_date ASC, TreatmentMaster.id ASC;";
+            $eocRadioResults = $this->Report->tryCatchQuery($sql);
+            foreach ($eocRadioResults as $newRes) {
+                $studiedParticipantId = $newRes['TreatmentMaster']['participant_id'];
+                if (! isset($firstEocRadioFromParticipantId[$studiedParticipantId])) {
+                    $firstEocRadioFromParticipantId[$studiedParticipantId] = $newRes;
+                }
             }
         }
         
@@ -215,15 +298,24 @@ class ReportsControllerCustom extends ReportsController
 					DiagnosisMaster.primary_id,
 					DiagnosisMaster.participant_id,
 					DiagnosisMaster.dx_date,
-					DiagnosisMaster.dx_date_accuracy
+					DiagnosisMaster.dx_date_accuracy,
+					DiagnosisMaster.qc_tf_progression_detection_method,
+					DiagnosisMaster.qc_tf_tumor_site
 				FROM diagnosis_masters AS DiagnosisMaster
-				WHERE DiagnosisMaster.diagnosis_control_id = 16 AND DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.primary_id <> 1 AND DiagnosisMaster.primary_id IN (" . implode(',', $eocPrimaryIds) . ")
+				WHERE DiagnosisMaster.diagnosis_control_id = $secondaryReccurenceMetastasisDiagnosisControlId 
+				    AND DiagnosisMaster.deleted <> 1 
+				    AND DiagnosisMaster.primary_id <> 1 
+				    AND DiagnosisMaster.primary_id IN ($eocPrimaryIdsStrg)
 				ORDER BY DiagnosisMaster.primary_id ASC, DiagnosisMaster.dx_date ASC";
             $eocProgressionResults = $this->Report->tryCatchQuery($sql);
             foreach ($eocProgressionResults as $newRes) {
                 $studiedParticipantId = $newRes['DiagnosisMaster']['participant_id'];
                 if (! isset($firstProgressionFromParticipantId[$studiedParticipantId])) {
-                    $firstProgressionFromParticipantId[$studiedParticipantId] = $newRes;
+                    $firstProgressionFromParticipantId[$studiedParticipantId] = array('ca125' => null, 'other' => null);
+                }
+                $recurrence_key = ($newRes['DiagnosisMaster']['qc_tf_progression_detection_method'] == 'ca125')? 'ca125' : 'other';
+                if (! isset($firstProgressionFromParticipantId[$studiedParticipantId][$recurrence_key])) {
+                    $firstProgressionFromParticipantId[$studiedParticipantId][$recurrence_key] = $newRes;
                 }
             }
         }
@@ -238,7 +330,7 @@ class ReportsControllerCustom extends ReportsController
 					DiagnosisMaster.dx_date_accuracy,
 					DiagnosisMaster.qc_tf_tumor_site
 				FROM diagnosis_masters AS DiagnosisMaster
-				WHERE DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.diagnosis_control_id = 15 AND DiagnosisMaster.participant_id IN (" . implode(',', $participantIds) . ")
+				WHERE DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.diagnosis_control_id = $otherPrimaryDiagnosisControlId AND DiagnosisMaster.participant_id IN (" . implode(',', $participantIds) . ")
 				ORDER BY DiagnosisMaster.participant_id, DiagnosisMaster.dx_date ASC;";
             $otherDxResults = $this->Report->tryCatchQuery($sql);
             foreach ($otherDxResults as $newRes) {
@@ -257,38 +349,86 @@ class ReportsControllerCustom extends ReportsController
         foreach ($mainResults as &$newParticipant) {
             $studiedParticipantId = $newParticipant['Participant']['participant_id'];
             $newParticipant['0'] = array(
+                'qc_tf_coeur_start_of_first_chemo' => '',
+                'qc_tf_coeur_start_of_first_chemo_accuracy' => '',
                 'qc_tf_coeur_end_of_first_chemo' => '',
                 'qc_tf_coeur_end_of_first_chemo_accuracy' => '',
                 'qc_tf_coeur_chemo_drugs' => '',
                 'qc_tf_coeur_first_progression_date' => '',
+                'qc_tf_coeur_first_progression_date_accuracy' => '',
                 'qc_tf_coeur_first_first_chemo_to_first_progression_months' => '',
                 'qc_tf_coeur_other_dx_tumor_site_1' => '',
                 'qc_tf_coeur_other_dx_tumor_date_1' => '',
+                'qc_tf_coeur_other_dx_tumor_date_1_accuracy' => '',
                 'qc_tf_coeur_other_dx_tumor_site_2' => '',
                 'qc_tf_coeur_other_dx_tumor_date_2' => '',
+                'qc_tf_coeur_other_dx_tumor_date_2_accuracy' => '',
                 'qc_tf_coeur_other_dx_tumor_site_3' => '',
-                'qc_tf_coeur_other_dx_tumor_date_3' => ''
+                'qc_tf_coeur_other_dx_tumor_date_3' => '',
+                'qc_tf_coeur_other_dx_tumor_date_3_accuracy' => '',
+                'qc_tf_coeur_age_at_last_contact' => '',
+                'qc_tf_coeur_age_at_death' => '',
+                'qc_tf_coeur_start_of_first_radio' => '',
+                'qc_tf_coeur_start_of_first_radio_accuracy' => '',
+                'qc_tf_coeur_end_of_first_radio' => '',
+                'qc_tf_coeur_end_of_first_radio_accuracy' => '',
+                'qc_tf_coeur_start_of_ovarectomy' => '',
+                'qc_tf_coeur_start_of_ovarectomy_accuracy' => '',
+                'qc_tf_coeur_first_progression_site' => '',
+                'qc_tf_coeur_start_of_ovarectomy' => '',
+                'qc_tf_coeur_start_of_ovarectomy_accuracy' => '',
+                'qc_tf_coeur_first_ca125_recurrence_date' => '',
+                'qc_tf_coeur_first_ca125_recurrence_date_accuracy' => '',
+                'qc_tf_coeur_first_ca125_recurrence_site' => '',
+                'qc_tf_coeur_first_chemo_to_first_progression_months' => '',
+                'qc_tf_coeur_first_chemo_to_first_ca125_recurrence_months' => ''
             );
             if (isset($firstEocChemosFromParticipantId[$studiedParticipantId])) {
-                $newParticipant['0']['qc_tf_coeur_end_of_first_chemo'] = $this->tmpFormatdate($firstEocChemosFromParticipantId[$studiedParticipantId]['TreatmentMaster']['finish_date'], $firstEocChemosFromParticipantId[$studiedParticipantId]['TreatmentMaster']['finish_date_accuracy']);
+                $newParticipant['0']['qc_tf_coeur_start_of_first_chemo'] = $firstEocChemosFromParticipantId[$studiedParticipantId]['TreatmentMaster']['start_date'];
+                $newParticipant['0']['qc_tf_coeur_start_of_first_chemo_accuracy'] = $firstEocChemosFromParticipantId[$studiedParticipantId]['TreatmentMaster']['start_date_accuracy'];
+                $newParticipant['0']['qc_tf_coeur_end_of_first_chemo'] = $firstEocChemosFromParticipantId[$studiedParticipantId]['TreatmentMaster']['finish_date'];
                 $newParticipant['0']['qc_tf_coeur_end_of_first_chemo_accuracy'] = $firstEocChemosFromParticipantId[$studiedParticipantId]['TreatmentMaster']['finish_date_accuracy'];
                 $newParticipant['0']['qc_tf_coeur_chemo_drugs'] = implode(', ', array_filter($firstEocChemosFromParticipantId[$studiedParticipantId]['0']['qc_tf_coeur_chemo_drugs']));
             }
             if (isset($firstProgressionFromParticipantId[$studiedParticipantId])) {
-                $newParticipant['0']['qc_tf_coeur_first_progression_date'] = $this->tmpFormatdate($firstProgressionFromParticipantId[$studiedParticipantId]['DiagnosisMaster']['dx_date'], $firstProgressionFromParticipantId[$studiedParticipantId]['DiagnosisMaster']['dx_date_accuracy']);
-                if (! empty($newParticipant['0']['qc_tf_coeur_end_of_first_chemo']) && ! empty($firstProgressionFromParticipantId[$studiedParticipantId]['DiagnosisMaster']['dx_date'])) {
-                    if (in_array($newParticipant['0']['qc_tf_coeur_end_of_first_chemo_accuracy'] . $firstProgressionFromParticipantId[$studiedParticipantId]['DiagnosisMaster']['dx_date_accuracy'], array(
-                        'cc'/*, 'cd', 'dc'*/))) {
-                        $firstChemoDate = new DateTime($newParticipant['0']['qc_tf_coeur_end_of_first_chemo']);
-                        $firstProgressionDate = new DateTime($firstProgressionFromParticipantId[$studiedParticipantId]['DiagnosisMaster']['dx_date']);
-                        $interval = $firstChemoDate->diff($firstProgressionDate);
-                        if ($interval->invert) {
-                            $progressionWarnings['unable to calculate first chemo to first progression because dates are not chronological'][] = $newParticipant['Participant']['participant_identifier'];
+                // Progression
+                if(isset($firstProgressionFromParticipantId[$studiedParticipantId]['other'])) {
+                    $newParticipant['0']['qc_tf_coeur_first_progression_date'] = $firstProgressionFromParticipantId[$studiedParticipantId]['other']['DiagnosisMaster']['dx_date'];
+                    $newParticipant['0']['qc_tf_coeur_first_progression_date_accuracy'] = $firstProgressionFromParticipantId[$studiedParticipantId]['other']['DiagnosisMaster']['dx_date_accuracy'];
+                    $newParticipant['0']['qc_tf_coeur_first_progression_site'] = $firstProgressionFromParticipantId[$studiedParticipantId]['other']['DiagnosisMaster']['qc_tf_tumor_site'];
+                    if (! empty($newParticipant['0']['qc_tf_coeur_end_of_first_chemo']) && ! empty( $newParticipant['0']['qc_tf_coeur_first_progression_date'])) {
+                        if (preg_match('/^[dc\ ]{2}$/', $newParticipant['0']['qc_tf_coeur_end_of_first_chemo_accuracy'].$newParticipant['0']['qc_tf_coeur_first_progression_date_accuracy'])) {
+                            $firstChemoDate = new DateTime($newParticipant['0']['qc_tf_coeur_end_of_first_chemo']);
+                            $firstProgressionDate = new DateTime( $newParticipant['0']['qc_tf_coeur_first_progression_date']);
+                            $interval = $firstChemoDate->diff($firstProgressionDate);
+                            if ($interval->invert) {
+                                $progressionWarnings['unable to calculate first chemo to first progression because dates are not chronological'][] = $newParticipant['Participant']['participant_identifier'];
+                            } else {
+                                $newParticipant['0']['qc_tf_coeur_first_first_chemo_to_first_progression_months'] = $interval->y * 12 + $interval->m;
+                            }
                         } else {
-                            $newParticipant['0']['qc_tf_coeur_first_first_chemo_to_first_progression_months'] = $interval->y * 12 + $interval->m;
+                            $progressionWarnings['unable to calculate first chemo to first progression with at least one unaccuracy date'][] = $newParticipant['Participant']['participant_identifier'];
                         }
-                    } else {
-                        $progressionWarnings['unable to calculate first chemo to first progression with at least one unaccuracy date'][] = $newParticipant['Participant']['participant_identifier'];
+                    }
+                }
+                // Ca125 recurrence
+                if(isset($firstProgressionFromParticipantId[$studiedParticipantId]['ca125'])) {
+                    $newParticipant['0']['qc_tf_coeur_first_ca125_recurrence_date'] = $firstProgressionFromParticipantId[$studiedParticipantId]['ca125']['DiagnosisMaster']['dx_date'];
+                    $newParticipant['0']['qc_tf_coeur_first_ca125_recurrence_date_accuracy'] = $firstProgressionFromParticipantId[$studiedParticipantId]['ca125']['DiagnosisMaster']['dx_date_accuracy'];
+                    $newParticipant['0']['qc_tf_coeur_first_ca125_recurrence_site'] = $firstProgressionFromParticipantId[$studiedParticipantId]['ca125']['DiagnosisMaster']['qc_tf_tumor_site'];
+                    if (! empty($newParticipant['0']['qc_tf_coeur_end_of_first_chemo']) && ! empty( $newParticipant['0']['qc_tf_coeur_first_ca125_recurrence_date'])) {
+                        if (preg_match('/^[dc\ ]{2}$/', $newParticipant['0']['qc_tf_coeur_end_of_first_chemo_accuracy'].$newParticipant['0']['qc_tf_coeur_first_ca125_recurrence_date_accuracy'])) {
+                            $firstChemoDate = new DateTime($newParticipant['0']['qc_tf_coeur_end_of_first_chemo']);
+                            $firstProgressionDate = new DateTime( $newParticipant['0']['qc_tf_coeur_first_ca125_recurrence_date']);
+                            $interval = $firstChemoDate->diff($firstProgressionDate);
+                            if ($interval->invert) {
+                                $progressionWarnings['unable to calculate first chemo to first progression because dates are not chronological'][] = $newParticipant['Participant']['participant_identifier'];
+                            } else {
+                                $newParticipant['0']['qc_tf_coeur_first_chemo_to_first_ca125_recurrence_months'] = $interval->y * 12 + $interval->m;
+                            }
+                        } else {
+                            $progressionWarnings['unable to calculate first chemo to first progression with at least one unaccuracy date'][] = $newParticipant['Participant']['participant_identifier'];
+                        }
                     }
                 }
             }
@@ -297,7 +437,31 @@ class ReportsControllerCustom extends ReportsController
                 foreach ($otherDxFromParticipantId[$studiedParticipantId] as $newOtherDx) {
                     $id ++;
                     $newParticipant['0']['qc_tf_coeur_other_dx_tumor_site_' . $id] = $newOtherDx['DiagnosisMaster']['qc_tf_tumor_site'];
-                    $newParticipant['0']['qc_tf_coeur_other_dx_tumor_date_' . $id] = $this->tmpFormatdate($newOtherDx['DiagnosisMaster']['dx_date'], $newOtherDx['DiagnosisMaster']['dx_date_accuracy']);
+                    $newParticipant['0']['qc_tf_coeur_other_dx_tumor_date_' . $id] = $newOtherDx['DiagnosisMaster']['dx_date'];
+                    $newParticipant['0']['qc_tf_coeur_other_dx_tumor_date_' . $id.'_accuracy'] = $newOtherDx['DiagnosisMaster']['dx_date_accuracy'];
+                }
+            }
+            if (isset($firstEocRadioFromParticipantId[$studiedParticipantId])) {
+                $newParticipant['0']['qc_tf_coeur_start_of_first_radio'] = $firstEocRadioFromParticipantId[$studiedParticipantId]['TreatmentMaster']['start_date'];
+                $newParticipant['0']['qc_tf_coeur_start_of_first_radio_accuracy'] = $firstEocRadioFromParticipantId[$studiedParticipantId]['TreatmentMaster']['start_date_accuracy'];
+                $newParticipant['0']['qc_tf_coeur_end_of_first_radio'] = $firstEocRadioFromParticipantId[$studiedParticipantId]['TreatmentMaster']['finish_date'];
+                $newParticipant['0']['qc_tf_coeur_end_of_first_radio_accuracy'] = $firstEocRadioFromParticipantId[$studiedParticipantId]['TreatmentMaster']['finish_date_accuracy'];
+            }
+            if (isset($firstEocOvarectomyFromParticipantId[$studiedParticipantId])) {
+                $newParticipant['0']['qc_tf_coeur_start_of_ovarectomy'] = $firstEocOvarectomyFromParticipantId[$studiedParticipantId]['TreatmentMaster']['start_date'];
+                $newParticipant['0']['qc_tf_coeur_start_of_ovarectomy_accuracy'] = $firstEocOvarectomyFromParticipantId[$studiedParticipantId]['TreatmentMaster']['start_date_accuracy'];
+            }
+            if($newParticipant['Participant']['date_of_birth']) {
+                $birthDate = new DateTime($newParticipant['Participant']['date_of_birth']);
+                if($newParticipant['Participant']['date_of_death']) {
+                    $deathDate = new DateTime($newParticipant['Participant']['date_of_death']);
+                    $interval = $birthDate->diff($deathDate);
+                    $newParticipant['0']['qc_tf_coeur_age_at_death'] = (($interval->invert)? '-':'').$interval->y;
+                }
+                if($newParticipant['Participant']['qc_tf_last_contact']) {
+                    $lastContactDate = new DateTime($newParticipant['Participant']['qc_tf_last_contact']);
+                    $interval = $birthDate->diff($lastContactDate);
+                    $newParticipant['0']['qc_tf_coeur_age_at_last_contact'] = (($interval->invert)? '-':'').$interval->y;
                 }
             }
         }
@@ -340,35 +504,23 @@ class ReportsControllerCustom extends ReportsController
             'header' => array(),
             'data' => $mainResults,
             'columns_names' => null,
-            'error_msg' => null
+            'error_msg' => null,
+            'structure_accuracy' => array(
+                '0' => array(
+                    'qc_tf_coeur_start_of_first_chemo' => 'qc_tf_coeur_start_of_first_chemo_accuracy',
+                    'qc_tf_coeur_end_of_first_chemo' => 'qc_tf_coeur_end_of_first_chemo_accuracy',
+                    'qc_tf_coeur_first_progression_date' => 'qc_tf_coeur_first_progression_date_accuracy',
+                    'qc_tf_coeur_first_ca125_recurrence_date' => 'qc_tf_coeur_first_ca125_recurrence_date_accuracy',
+                    'qc_tf_coeur_start_of_first_radio' => 'qc_tf_coeur_start_of_first_radio_accuracy',
+                    'qc_tf_coeur_end_of_first_radio' => 'qc_tf_coeur_end_of_first_radio_accuracy',
+                    'qc_tf_coeur_start_of_ovarectomy' => 'qc_tf_coeur_start_of_ovarectomy_accuracy',
+                    'qc_tf_coeur_other_dx_tumor_date_1' => 'qc_tf_coeur_other_dx_tumor_date_1_accuracy',
+                    'qc_tf_coeur_other_dx_tumor_date_2' => 'qc_tf_coeur_other_dx_tumor_date_2_accuracy',
+                    'qc_tf_coeur_other_dx_tumor_date_3' => 'qc_tf_coeur_other_dx_tumor_date_3_accuracy',
+                )
+            )
         );
         
         return $arrayToReturn;
-    }
-
-    public function tmpFormatdate($value, $accuracy)
-    {
-        if ($value && $accuracy) {
-            switch ($accuracy) {
-                case 'i':
-                    $value = substr($value, 0, 13);
-                    break;
-                case 'h':
-                    $value = substr($value, 0, 10);
-                    break;
-                case 'd':
-                    $value = substr($value, 0, 7);
-                    break;
-                case 'm':
-                    $value = substr($value, 0, 4);
-                    break;
-                case 'y':
-                    $value = '±' . substr($value, 0, 4);
-                    break;
-                default:
-                    break;
-            }
-        }
-        return $value;
     }
 }
