@@ -45,6 +45,20 @@ function convert($str, $file=null) {
 		return snakeToCamel($matches[0]);	
 	},$str);
 
+	
+    $pattern = 
+		'/'.
+		'<script>'.
+		'/';
+	
+	$m="";
+	preg_match($pattern, $str, $m, PREG_OFFSET_CAPTURE);
+	if (!empty($m) && $k!=1){
+		echo " ******** Pay attention to this file that contain Javascript code. ********** \n";
+		$output.=" ******** Pay attention to this file that contain Javascript code. ********** "."\r\n";
+	}
+	
+	
 	echo "\n";
 	$output.="\r\n";
 
