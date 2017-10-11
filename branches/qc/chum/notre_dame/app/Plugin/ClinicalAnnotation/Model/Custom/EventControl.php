@@ -7,7 +7,7 @@ class EventControlCustom extends EventControl
 
     var $name = "EventControl";
 
-    var $modifiable_event_types = array(
+    var $modifiableEventTypes = array(
         'ca125',
         'ccf follow-up',
         'fides clinic follow-up',
@@ -23,15 +23,15 @@ class EventControlCustom extends EventControl
         'vph'
     );
 
-    public function buildAddLinks($event_ctrl_data, $participant_id, $event_group)
+    public function buildAddLinks($eventCtrlData, $participantId, $eventGroup)
     {
         $links = array();
-        foreach ($event_ctrl_data as $event_ctrl) {
-            if (in_array($event_ctrl['EventControl']['event_type'], $this->modifiable_event_types)) {
+        foreach ($eventCtrlData as $eventCtrl) {
+            if (in_array($eventCtrl['EventControl']['event_type'], $this->modifiableEventTypes)) {
                 $links[] = array(
-                    'order' => $event_ctrl['EventControl']['display_order'],
-                    'label' => __($event_ctrl['EventControl']['event_type']) . (empty($event_ctrl['EventControl']['disease_site']) ? '' : ' - ' . __($event_ctrl['EventControl']['disease_site'])),
-                    'link' => '/ClinicalAnnotation/EventMasters/add/' . $participant_id . '/' . $event_ctrl['EventControl']['id']
+                    'order' => $eventCtrl['EventControl']['display_order'],
+                    'label' => __($eventCtrl['EventControl']['event_type']) . (empty($eventCtrl['EventControl']['disease_site']) ? '' : ' - ' . __($eventCtrl['EventControl']['disease_site'])),
+                    'link' => '/ClinicalAnnotation/EventMasters/add/' . $participantId . '/' . $eventCtrl['EventControl']['id']
                 );
             }
         }

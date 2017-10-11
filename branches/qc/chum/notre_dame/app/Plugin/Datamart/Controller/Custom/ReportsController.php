@@ -10,33 +10,33 @@ class ReportsControllerCustom extends ReportsController
         
         if (isset($parameters['Participant']['id'])) {
             // From databrowser
-            $participant_ids = array_filter($parameters['Participant']['id']);
-            if ($participant_ids)
-                $conditions['MiscIdentifier.participant_id'] = $participant_ids;
+            $participantIds = array_filter($parameters['Participant']['id']);
+            if ($participantIds)
+                $conditions['MiscIdentifier.participant_id'] = $participantIds;
         } else {
             if (isset($parameters['MiscIdentifier']['misc_identifier_control_id'])) {
-                $misc_identifier_control_ids = array_filter($parameters['MiscIdentifier']['misc_identifier_control_id']);
-                if ($misc_identifier_control_ids)
-                    $conditions['MiscIdentifier.misc_identifier_control_id'] = $misc_identifier_control_ids;
+                $miscIdentifierControlIds = array_filter($parameters['MiscIdentifier']['misc_identifier_control_id']);
+                if ($miscIdentifierControlIds)
+                    $conditions['MiscIdentifier.misc_identifier_control_id'] = $miscIdentifierControlIds;
             }
             if (isset($parameters['MiscIdentifier']['identifier_value_start'])) {
-                $identifier_value_start = (! empty($parameters['MiscIdentifier']['identifier_value_start'])) ? $parameters['MiscIdentifier']['identifier_value_start'] : null;
-                $identifier_value_end = (! empty($parameters['MiscIdentifier']['identifier_value_end'])) ? $parameters['MiscIdentifier']['identifier_value_end'] : null;
-                if ($identifier_value_start)
-                    $conditions['MiscIdentifier.identifier_value >='] = $identifier_value_start;
-                if ($identifier_value_end)
-                    $conditions['MiscIdentifier.identifier_value <='] = $identifier_value_end;
+                $identifierValueStart = (! empty($parameters['MiscIdentifier']['identifier_value_start'])) ? $parameters['MiscIdentifier']['identifier_value_start'] : null;
+                $identifierValueEnd = (! empty($parameters['MiscIdentifier']['identifier_value_end'])) ? $parameters['MiscIdentifier']['identifier_value_end'] : null;
+                if ($identifierValueStart)
+                    $conditions['MiscIdentifier.identifier_value >='] = $identifierValueStart;
+                if ($identifierValueEnd)
+                    $conditions['MiscIdentifier.identifier_value <='] = $identifierValueEnd;
             } elseif (isset($parameters['MiscIdentifier']['identifier_value'])) {
-                $identifier_values = array_filter($parameters['MiscIdentifier']['identifier_value']);
-                if ($identifier_values)
-                    $conditions['MiscIdentifier.identifier_value'] = $identifier_values;
+                $identifierValues = array_filter($parameters['MiscIdentifier']['identifier_value']);
+                if ($identifierValues)
+                    $conditions['MiscIdentifier.identifier_value'] = $identifierValues;
             } else {
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
             }
         }
         
-        $misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
-        $participant_ids_tmp = $misc_identifier_model->find('all', array(
+        $miscIdentifierModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+        $participantIdsTmp = $miscIdentifierModel->find('all', array(
             'conditions' => $conditions,
             'order' => array(
                 'MiscIdentifier.participant_id ASC'
@@ -44,13 +44,13 @@ class ReportsControllerCustom extends ReportsController
             'fields' => array(
                 'DISTINCT MiscIdentifier.participant_id'
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
-        $participant_ids = array();
-        foreach ($participant_ids_tmp as $new_record)
-            $participant_ids[$new_record['MiscIdentifier']['participant_id']] = $new_record['MiscIdentifier']['participant_id'];
+        $participantIds = array();
+        foreach ($participantIdsTmp as $newRecord)
+            $participantIds[$newRecord['MiscIdentifier']['participant_id']] = $newRecord['MiscIdentifier']['participant_id'];
         
-        if (sizeof($participant_ids) > Configure::read('databrowser_and_report_results_display_limit')) {
+        if (sizeof($participantIds) > Configure::read('databrowser_and_report_results_display_limit')) {
             return array(
                 'header' => null,
                 'data' => null,
@@ -59,9 +59,9 @@ class ReportsControllerCustom extends ReportsController
             );
         }
         
-        $misc_identifiers = $misc_identifier_model->find('all', array(
+        $miscIdentifiers = $miscIdentifierModel->find('all', array(
             'conditions' => array(
-                'MiscIdentifier.participant_id' => $participant_ids
+                'MiscIdentifier.participant_id' => $participantIds
             ),
             'order' => array(
                 'MiscIdentifier.participant_id ASC'
@@ -69,17 +69,17 @@ class ReportsControllerCustom extends ReportsController
         ));
         $data = array();
         
-        foreach ($misc_identifiers as $new_ident) {
-            $participant_id = $new_ident['Participant']['id'];
-            if (! isset($data[$participant_id])) {
-                $data[$participant_id] = array(
+        foreach ($miscIdentifiers as $newIdent) {
+            $participantId = $newIdent['Participant']['id'];
+            if (! isset($data[$participantId])) {
+                $data[$participantId] = array(
                     'Participant' => array(
-                        'id' => $new_ident['Participant']['id'],
-                        'participant_identifier' => $new_ident['Participant']['participant_identifier'],
-                        'first_name' => $new_ident['Participant']['first_name'],
-                        'last_name' => $new_ident['Participant']['last_name'],
-                        'date_of_birth' => $new_ident['Participant']['date_of_birth'],
-                        'date_of_birth_accuracy' => $new_ident['Participant']['date_of_birth_accuracy']
+                        'id' => $newIdent['Participant']['id'],
+                        'participant_identifier' => $newIdent['Participant']['participant_identifier'],
+                        'first_name' => $newIdent['Participant']['first_name'],
+                        'last_name' => $newIdent['Participant']['last_name'],
+                        'date_of_birth' => $newIdent['Participant']['date_of_birth'],
+                        'date_of_birth_accuracy' => $newIdent['Participant']['date_of_birth_accuracy']
                     ),
                     '0' => array(
                         'ovary_gyneco_bank_no_lab' => null,
@@ -100,7 +100,7 @@ class ReportsControllerCustom extends ReportsController
                     )
                 );
             }
-            $generated_key = str_replace(array(
+            $generatedKey = str_replace(array(
                 ' ',
                 '-',
                 '/'
@@ -108,11 +108,11 @@ class ReportsControllerCustom extends ReportsController
                 '_',
                 '_',
                 '_'
-            ), $new_ident['MiscIdentifierControl']['misc_identifier_name']);
-            if (array_key_exists($generated_key, $data[$participant_id]['0'])) {
-                $data[$participant_id]['0'][$generated_key] = $new_ident['MiscIdentifier']['identifier_value'];
-            } elseif ($new_ident['MiscIdentifier']['study_summary_id']) {
-                $data[$participant_id]['0']['qc_nd_study_misc_identifier_value'] .= $new_ident['StudySummary']['title'] . ' [' . $new_ident['MiscIdentifier']['identifier_value'] . "] ";
+            ), $newIdent['MiscIdentifierControl']['misc_identifier_name']);
+            if (array_key_exists($generatedKey, $data[$participantId]['0'])) {
+                $data[$participantId]['0'][$generatedKey] = $newIdent['MiscIdentifier']['identifier_value'];
+            } elseif ($newIdent['MiscIdentifier']['study_summary_id']) {
+                $data[$participantId]['0']['qc_nd_study_misc_identifier_value'] .= $newIdent['StudySummary']['title'] . ' [' . $newIdent['MiscIdentifier']['identifier_value'] . "] ";
             }
         }
         
@@ -133,36 +133,36 @@ class ReportsControllerCustom extends ReportsController
             'description' => 'n/a'
         );
         
-        $bank_ids = array();
-        foreach ($parameters[0]['bank_id'] as $bank_id)
-            if (! empty($bank_id))
-                $bank_ids[] = $bank_id;
-        if (! empty($bank_ids)) {
+        $bankIds = array();
+        foreach ($parameters[0]['bank_id'] as $bankId)
+            if (! empty($bankId))
+                $bankIds[] = $bankId;
+        if (! empty($bankIds)) {
             $Bank = AppModel::getInstance("Administrate", "Bank", true);
-            $bank_list = $Bank->find('all', array(
+            $bankList = $Bank->find('all', array(
                 'conditions' => array(
-                    'id' => $bank_ids
+                    'id' => $bankIds
                 )
             ));
-            $bank_names = array();
-            foreach ($bank_list as $new_bank)
-                $bank_names[] = $new_bank['Bank']['name'];
-            $header['title'] .= ' (' . __('bank') . ': ' . implode(',', $bank_names) . ')';
+            $bankNames = array();
+            foreach ($bankList as $newBank)
+                $bankNames[] = $newBank['Bank']['name'];
+            $header['title'] .= ' (' . __('bank') . ': ' . implode(',', $bankNames) . ')';
         }
         
         // 2- Search data
         
-        $bank_conditions = empty($bank_ids) ? 'TRUE' : 'col.bank_id IN (' . implode(',', $bank_ids) . ')';
-        $aliquot_type_confitions = $parameters[0]['include_core_and_slide'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('core','slide')";
-        $whatman_paper_confitions = $parameters[0]['include_whatman_paper'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('whatman paper')";
-        $detail_other_count = $parameters[0]['detail_other_count'][0] ? true : false;
-        $include_tissue_storage_details = $parameters[0]['include_tissue_storage_details'][0] ? true : false;
+        $bankConditions = empty($bankIds) ? 'TRUE' : 'col.bank_id IN (' . implode(',', $bankIds) . ')';
+        $aliquotTypeConfitions = $parameters[0]['include_core_and_slide'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('core','slide')";
+        $whatmanPaperConfitions = $parameters[0]['include_whatman_paper'][0] ? 'TRUE' : "ac.aliquot_type NOT IN ('whatman paper')";
+        $detailOtherCount = $parameters[0]['detail_other_count'][0] ? true : false;
+        $includeTissueStorageDetails = $parameters[0]['include_tissue_storage_details'][0] ? true : false;
         
         $data = array();
         
         // **all**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('total'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -177,21 +177,21 @@ class ReportsControllerCustom extends ReportsController
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 			WHERE col.deleted != '1'
-			AND ($bank_conditions)
-			AND ($aliquot_type_confitions)
+			AND ($bankConditions)
+			AND ($aliquotTypeConfitions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **FFPE**
         
-        $tmp_data = array();
+        $tmpData = array();
         $sql = "
 			SELECT count(*) AS nbr, tissue_nature FROM (
 				SELECT DISTINCT  %%id%%, tiss.tissue_nature
@@ -202,32 +202,32 @@ class ReportsControllerCustom extends ReportsController
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				INNER JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ('tissue')
 				AND ac.aliquot_type = 'block'
 				AND blk.block_type = 'paraffin'
 			) AS res GROUP BY tissue_nature;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        foreach ($query_results as $new_res) {
-            $tissue_nature = $new_res['res']['tissue_nature'];
-            $tmp_data[$tissue_nature] = array(
-                'sample_type' => __('FFPE') . ' ' . __($tissue_nature),
-                'cases_nbr' => $new_res[0]['nbr'],
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        foreach ($queryResults as $newRes) {
+            $tissueNature = $newRes['res']['tissue_nature'];
+            $tmpData[$tissueNature] = array(
+                'sample_type' => __('FFPE') . ' ' . __($tissueNature),
+                'cases_nbr' => $newRes[0]['nbr'],
                 'aliquots_nbr' => '',
                 'notes' => ''
             );
         }
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        foreach ($query_results as $new_res) {
-            $tissue_nature = $new_res['res']['tissue_nature'];
-            $tmp_data[$tissue_nature]['aliquots_nbr'] = $new_res[0]['nbr'];
-            $data[] = $tmp_data[$tissue_nature];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        foreach ($queryResults as $newRes) {
+            $tissueNature = $newRes['res']['tissue_nature'];
+            $tmpData[$tissueNature]['aliquots_nbr'] = $newRes[0]['nbr'];
+            $data[] = $tmpData[$tissueNature];
         }
         
         // **frozen tissue**
         
-        if (! $include_tissue_storage_details) {
+        if (! $includeTissueStorageDetails) {
             $sql = "
 				SELECT DISTINCT sc.sample_type,ac.aliquot_type,blk.block_type
 				FROM collections AS col
@@ -237,17 +237,17 @@ class ReportsControllerCustom extends ReportsController
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				LEFT JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ('tissue')
-				AND ($aliquot_type_confitions)
+				AND ($aliquotTypeConfitions)
 				AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin');";
-            $query_results = $this->Report->tryCatchQuery($sql);
+            $queryResults = $this->Report->tryCatchQuery($sql);
             $notes = '';
-            foreach ($query_results as $new_type)
-                $notes .= (empty($notes) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']) . (empty($new_type['blk']['block_type']) ? '' : ' (' . __($new_type['blk']['block_type']) . ')');
+            foreach ($queryResults as $newType)
+                $notes .= (empty($notes) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']) . (empty($newType['blk']['block_type']) ? '' : ' (' . __($newType['blk']['block_type']) . ')');
             
-            $tmp_data = array();
+            $tmpData = array();
             $sql = "
 				SELECT count(*) AS nbr, tissue_nature  FROM (
 					SELECT DISTINCT  %%id%%, tiss.tissue_nature
@@ -257,27 +257,27 @@ class ReportsControllerCustom extends ReportsController
 					INNER JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = sm.id
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
 					AND sc.sample_type IN ('tissue')
-					AND ($aliquot_type_confitions)
+					AND ($aliquotTypeConfitions)
 					AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin')
 				) AS res GROUP BY tissue_nature;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            foreach ($query_results as $new_res) {
-                $tissue_nature = $new_res['res']['tissue_nature'];
-                $tmp_data[$tissue_nature] = array(
-                    'sample_type' => __('frozen tissue') . ' ' . __($tissue_nature),
-                    'cases_nbr' => $new_res[0]['nbr'],
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            foreach ($queryResults as $newRes) {
+                $tissueNature = $newRes['res']['tissue_nature'];
+                $tmpData[$tissueNature] = array(
+                    'sample_type' => __('frozen tissue') . ' ' . __($tissueNature),
+                    'cases_nbr' => $newRes[0]['nbr'],
                     'aliquots_nbr' => '',
                     'notes' => $notes
                 );
             }
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            foreach ($query_results as $new_res) {
-                $tissue_nature = $new_res['res']['tissue_nature'];
-                $tmp_data[$tissue_nature]['aliquots_nbr'] = $new_res[0]['nbr'];
-                $data[] = $tmp_data[$tissue_nature];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            foreach ($queryResults as $newRes) {
+                $tissueNature = $newRes['res']['tissue_nature'];
+                $tmpData[$tissueNature]['aliquots_nbr'] = $newRes[0]['nbr'];
+                $data[] = $tmpData[$tissueNature];
             }
         } else {
             
@@ -292,18 +292,18 @@ class ReportsControllerCustom extends ReportsController
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				LEFT JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ('tissue')
 				AND ac.aliquot_type NOT IN ('tube')
-				AND ($aliquot_type_confitions)
+				AND ($aliquotTypeConfitions)
 				AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin');";
-            $query_results = $this->Report->tryCatchQuery($sql);
+            $queryResults = $this->Report->tryCatchQuery($sql);
             $notes = '';
-            foreach ($query_results as $new_type)
-                $notes .= (empty($notes) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']) . (empty($new_type['0']['block_type']) ? '' : ' (' . __($new_type['0']['block_type']) . ')');
+            foreach ($queryResults as $newType)
+                $notes .= (empty($notes) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']) . (empty($newType['0']['block_type']) ? '' : ' (' . __($newType['0']['block_type']) . ')');
             
-            $tmp_data = array();
+            $tmpData = array();
             $sql = "
 				SELECT count(*) AS nbr, tissue_nature  FROM (
 					SELECT DISTINCT  %%id%%, tiss.tissue_nature
@@ -313,33 +313,33 @@ class ReportsControllerCustom extends ReportsController
 					INNER JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = sm.id
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
 					AND sc.sample_type IN ('tissue')
 					AND ac.aliquot_type NOT IN ('tube')
-					AND ($aliquot_type_confitions)
+					AND ($aliquotTypeConfitions)
 					AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin')
 				) AS res GROUP BY tissue_nature;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            foreach ($query_results as $new_res) {
-                $tissue_nature = $new_res['res']['tissue_nature'];
-                $tmp_data[$tissue_nature] = array(
-                    'sample_type' => __('frozen tissue') . ' ' . __($tissue_nature),
-                    'cases_nbr' => $new_res[0]['nbr'],
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            foreach ($queryResults as $newRes) {
+                $tissueNature = $newRes['res']['tissue_nature'];
+                $tmpData[$tissueNature] = array(
+                    'sample_type' => __('frozen tissue') . ' ' . __($tissueNature),
+                    'cases_nbr' => $newRes[0]['nbr'],
                     'aliquots_nbr' => '',
                     'notes' => $notes
                 );
             }
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            foreach ($query_results as $new_res) {
-                $tissue_nature = $new_res['res']['tissue_nature'];
-                $tmp_data[$tissue_nature]['aliquots_nbr'] = $new_res[0]['nbr'];
-                $data[] = $tmp_data[$tissue_nature];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            foreach ($queryResults as $newRes) {
+                $tissueNature = $newRes['res']['tissue_nature'];
+                $tmpData[$tissueNature]['aliquots_nbr'] = $newRes[0]['nbr'];
+                $data[] = $tmpData[$tissueNature];
             }
             
             // tube
             
-            $tmp_data = array();
+            $tmpData = array();
             $sql = "
 				SELECT count(*) AS nbr, tissue_nature, tmp_storage_solution  FROM (
 					SELECT DISTINCT  %%id%%, tiss.tissue_nature, IFNULL(tb.tmp_storage_solution,'') AS tmp_storage_solution
@@ -350,28 +350,28 @@ class ReportsControllerCustom extends ReportsController
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 					INNER JOIN ad_tubes as tb ON tb.aliquot_master_id = am.id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
 					AND sc.sample_type IN ('tissue')
 					AND ac.aliquot_type IN ('tube')
 				) AS res GROUP BY tissue_nature, tmp_storage_solution;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            foreach ($query_results as $new_res) {
-                $tissue_nature = $new_res['res']['tissue_nature'];
-                $tmp_storage_solution = $new_res['res']['tmp_storage_solution'];
-                $tmp_data[$tissue_nature . $tmp_storage_solution] = array(
-                    'sample_type' => __('frozen tissue tube') . ' ' . __($tissue_nature) . (empty($tmp_storage_solution) ? '' : ' (' . __($tmp_storage_solution) . ')'),
-                    'cases_nbr' => $new_res[0]['nbr'],
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            foreach ($queryResults as $newRes) {
+                $tissueNature = $newRes['res']['tissue_nature'];
+                $tmpStorageSolution = $newRes['res']['tmp_storage_solution'];
+                $tmpData[$tissueNature . $tmpStorageSolution] = array(
+                    'sample_type' => __('frozen tissue tube') . ' ' . __($tissueNature) . (empty($tmpStorageSolution) ? '' : ' (' . __($tmpStorageSolution) . ')'),
+                    'cases_nbr' => $newRes[0]['nbr'],
                     'aliquots_nbr' => '',
                     'notes' => ''
                 );
             }
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            foreach ($query_results as $new_res) {
-                $tissue_nature = $new_res['res']['tissue_nature'];
-                $tmp_storage_solution = $new_res['res']['tmp_storage_solution'];
-                $tmp_data[$tissue_nature . $tmp_storage_solution]['aliquots_nbr'] = $new_res[0]['nbr'];
-                $data[] = $tmp_data[$tissue_nature . $tmp_storage_solution];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            foreach ($queryResults as $newRes) {
+                $tissueNature = $newRes['res']['tissue_nature'];
+                $tmpStorageSolution = $newRes['res']['tmp_storage_solution'];
+                $tmpData[$tissueNature . $tmpStorageSolution]['aliquots_nbr'] = $newRes[0]['nbr'];
+                $data[] = $tmpData[$tissueNature . $tmpStorageSolution];
             }
         }
         
@@ -384,9 +384,9 @@ class ReportsControllerCustom extends ReportsController
         // **dna**
         // **cell culture**
         
-        $sample_types = "'blood', 'pbmc', 'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
+        $sampleTypes = "'blood', 'pbmc', 'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
         
-        $tmp_data = array();
+        $tmpData = array();
         $sql = "
 			SELECT count(*) AS nbr,sample_type, aliquot_type FROM (
 				SELECT DISTINCT  %%id%%, sc.sample_type, ac.aliquot_type
@@ -395,28 +395,28 @@ class ReportsControllerCustom extends ReportsController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
-				AND sc.sample_type IN ($sample_types)
-				AND ($whatman_paper_confitions)
+				AND sc.sample_type IN ($sampleTypes)
+				AND ($whatmanPaperConfitions)
 			) AS res GROUP BY sample_type, aliquot_type;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        foreach ($query_results as $new_res) {
-            $sample_type = $new_res['res']['sample_type'];
-            $aliquot_type = $new_res['res']['aliquot_type'];
-            $tmp_data[$sample_type . $aliquot_type] = array(
-                'sample_type' => __($sample_type) . ' ' . __($aliquot_type),
-                'cases_nbr' => $new_res[0]['nbr'],
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        foreach ($queryResults as $newRes) {
+            $sampleType = $newRes['res']['sample_type'];
+            $aliquotType = $newRes['res']['aliquot_type'];
+            $tmpData[$sampleType . $aliquotType] = array(
+                'sample_type' => __($sampleType) . ' ' . __($aliquotType),
+                'cases_nbr' => $newRes[0]['nbr'],
                 'aliquots_nbr' => '',
                 'notes' => ''
             );
         }
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        foreach ($query_results as $new_res) {
-            $sample_type = $new_res['res']['sample_type'];
-            $aliquot_type = $new_res['res']['aliquot_type'];
-            $tmp_data[$sample_type . $aliquot_type]['aliquots_nbr'] = $new_res[0]['nbr'];
-            $data[] = $tmp_data[$sample_type . $aliquot_type];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        foreach ($queryResults as $newRes) {
+            $sampleType = $newRes['res']['sample_type'];
+            $aliquotType = $newRes['res']['aliquot_type'];
+            $tmpData[$sampleType . $aliquotType]['aliquots_nbr'] = $newRes[0]['nbr'];
+            $data[] = $tmpData[$sampleType . $aliquotType];
         }
         
         // **tissue rna**
@@ -425,9 +425,9 @@ class ReportsControllerCustom extends ReportsController
         
         if ($parameters[0]['display_tissue_derivative_count_split_per_nature'][0]) {
             
-            $sample_types = "'rna', 'dna', 'cell culture'";
+            $sampleTypes = "'rna', 'dna', 'cell culture'";
             
-            $tmp_data = array();
+            $tmpData = array();
             $sql = "
 				SELECT count(*) AS nbr,sample_type, aliquot_type, tissue_nature FROM (
 					SELECT DISTINCT  %%id%%, sc.sample_type, ac.aliquot_type, tiss.tissue_nature
@@ -438,35 +438,35 @@ class ReportsControllerCustom extends ReportsController
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 					INNER JOIN sample_masters AS spec ON sm.initial_specimen_sample_id = spec.id
 					INNER JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = spec.id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
-					AND sc.sample_type IN ($sample_types)
+					AND sc.sample_type IN ($sampleTypes)
 				) AS res GROUP BY sample_type, aliquot_type, tissue_nature;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            foreach ($query_results as $new_res) {
-                $sample_type = $new_res['res']['sample_type'];
-                $aliquot_type = $new_res['res']['aliquot_type'];
-                $tissu_nature = $new_res['res']['tissue_nature'];
-                $tmp_data[$sample_type . $aliquot_type . $tissu_nature] = array(
-                    'sample_type' => __('tissue ' . $sample_type) . ' ' . __($aliquot_type) . ' (' . __('nature') . ': ' . __($tissu_nature) . ')',
-                    'cases_nbr' => $new_res[0]['nbr'],
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            foreach ($queryResults as $newRes) {
+                $sampleType = $newRes['res']['sample_type'];
+                $aliquotType = $newRes['res']['aliquot_type'];
+                $tissuNature = $newRes['res']['tissue_nature'];
+                $tmpData[$sampleType . $aliquotType . $tissuNature] = array(
+                    'sample_type' => __('tissue ' . $sampleType) . ' ' . __($aliquotType) . ' (' . __('nature') . ': ' . __($tissuNature) . ')',
+                    'cases_nbr' => $newRes[0]['nbr'],
                     'aliquots_nbr' => '',
                     'notes' => ''
                 );
             }
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            foreach ($query_results as $new_res) {
-                $sample_type = $new_res['res']['sample_type'];
-                $aliquot_type = $new_res['res']['aliquot_type'];
-                $tissu_nature = $new_res['res']['tissue_nature'];
-                $tmp_data[$sample_type . $aliquot_type . $tissu_nature]['aliquots_nbr'] = $new_res[0]['nbr'];
-                $data[] = $tmp_data[$sample_type . $aliquot_type . $tissu_nature];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            foreach ($queryResults as $newRes) {
+                $sampleType = $newRes['res']['sample_type'];
+                $aliquotType = $newRes['res']['aliquot_type'];
+                $tissuNature = $newRes['res']['tissue_nature'];
+                $tmpData[$sampleType . $aliquotType . $tissuNature]['aliquots_nbr'] = $newRes[0]['nbr'];
+                $data[] = $tmpData[$sampleType . $aliquotType . $tissuNature];
             }
         }
         
         // **Urine**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('urine'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -480,15 +480,15 @@ class ReportsControllerCustom extends ReportsController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type LIKE '%urine%'
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
         $sql = "
 			SELECT DISTINCT sc.sample_type,ac.aliquot_type
@@ -497,18 +497,18 @@ class ReportsControllerCustom extends ReportsController
 			INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-			WHERE col.deleted != '1' AND ($bank_conditions)
+			WHERE col.deleted != '1' AND ($bankConditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type LIKE '%urine%'";
-        $query_results = $this->Report->tryCatchQuery($sql);
-        foreach ($query_results as $new_type)
-            $tmp_data['notes'] .= (empty($tmp_data['notes']) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']);
+        $queryResults = $this->Report->tryCatchQuery($sql);
+        foreach ($queryResults as $newType)
+            $tmpData['notes'] .= (empty($tmpData['notes']) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']);
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **Ascite**
         
-        $tmp_data = array(
+        $tmpData = array(
             'sample_type' => __('ascite'),
             'cases_nbr' => '',
             'aliquots_nbr' => '',
@@ -522,15 +522,15 @@ class ReportsControllerCustom extends ReportsController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type LIKE '%ascite%'
 			) AS res;";
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-        $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+        $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
         
-        $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-        $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+        $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+        $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
         
         $sql = "
 			SELECT DISTINCT sc.sample_type,ac.aliquot_type
@@ -539,22 +539,22 @@ class ReportsControllerCustom extends ReportsController
 			INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-			WHERE col.deleted != '1' AND ($bank_conditions)
+			WHERE col.deleted != '1' AND ($bankConditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type LIKE '%ascite%'";
-        $query_results = $this->Report->tryCatchQuery($sql);
-        foreach ($query_results as $new_type)
-            $tmp_data['notes'] .= (empty($tmp_data['notes']) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']);
+        $queryResults = $this->Report->tryCatchQuery($sql);
+        foreach ($queryResults as $newType)
+            $tmpData['notes'] .= (empty($tmpData['notes']) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']);
         
-        $data[] = $tmp_data;
+        $data[] = $tmpData;
         
         // **other**
         
-        $other_conditions = "sc.sample_type NOT LIKE '%ascite%' AND sc.sample_type NOT LIKE '%urine%' AND sc.sample_type NOT IN ('tissue', $sample_types)";
+        $otherConditions = "sc.sample_type NOT LIKE '%ascite%' AND sc.sample_type NOT LIKE '%urine%' AND sc.sample_type NOT IN ('tissue', $sampleTypes)";
         
-        if ($detail_other_count) {
+        if ($detailOtherCount) {
             
-            $tmp_data = array();
+            $tmpData = array();
             $sql = "
 				SELECT count(*) AS nbr,sample_type, aliquot_type FROM (
 					SELECT DISTINCT  %%id%%, sc.sample_type, ac.aliquot_type
@@ -563,31 +563,31 @@ class ReportsControllerCustom extends ReportsController
 					INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
-					AND ($other_conditions)
+					AND ($otherConditions)
 				) AS res GROUP BY sample_type, aliquot_type;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            foreach ($query_results as $new_res) {
-                $sample_type = $new_res['res']['sample_type'];
-                $aliquot_type = $new_res['res']['aliquot_type'];
-                $tmp_data[$sample_type . $aliquot_type] = array(
-                    'sample_type' => __($sample_type) . ' ' . __($aliquot_type),
-                    'cases_nbr' => $new_res[0]['nbr'],
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            foreach ($queryResults as $newRes) {
+                $sampleType = $newRes['res']['sample_type'];
+                $aliquotType = $newRes['res']['aliquot_type'];
+                $tmpData[$sampleType . $aliquotType] = array(
+                    'sample_type' => __($sampleType) . ' ' . __($aliquotType),
+                    'cases_nbr' => $newRes[0]['nbr'],
                     'aliquots_nbr' => '',
                     'notes' => ''
                 );
             }
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            foreach ($query_results as $new_res) {
-                $sample_type = $new_res['res']['sample_type'];
-                $aliquot_type = $new_res['res']['aliquot_type'];
-                $tmp_data[$sample_type . $aliquot_type]['aliquots_nbr'] = $new_res[0]['nbr'];
-                $data[] = $tmp_data[$sample_type . $aliquot_type];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            foreach ($queryResults as $newRes) {
+                $sampleType = $newRes['res']['sample_type'];
+                $aliquotType = $newRes['res']['aliquot_type'];
+                $tmpData[$sampleType . $aliquotType]['aliquots_nbr'] = $newRes[0]['nbr'];
+                $data[] = $tmpData[$sampleType . $aliquotType];
             }
         } else {
             
-            $tmp_data = array(
+            $tmpData = array(
                 'sample_type' => __('other'),
                 'cases_nbr' => '',
                 'aliquots_nbr' => '',
@@ -601,15 +601,15 @@ class ReportsControllerCustom extends ReportsController
 					INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-					WHERE col.deleted != '1' AND ($bank_conditions)
+					WHERE col.deleted != '1' AND ($bankConditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
-					AND ($other_conditions)
+					AND ($otherConditions)
 				) AS res;";
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
-            $tmp_data['cases_nbr'] = $query_results[0][0]['nbr'];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'col.participant_id', $sql));
+            $tmpData['cases_nbr'] = $queryResults[0][0]['nbr'];
             
-            $query_results = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
-            $tmp_data['aliquots_nbr'] = $query_results[0][0]['nbr'];
+            $queryResults = $this->Report->tryCatchQuery(str_replace('%%id%%', 'am.id', $sql));
+            $tmpData['aliquots_nbr'] = $queryResults[0][0]['nbr'];
             
             $sql = "
 				SELECT DISTINCT sc.sample_type,ac.aliquot_type
@@ -618,33 +618,33 @@ class ReportsControllerCustom extends ReportsController
 				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bankConditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
-				AND ($other_conditions)";
-            $query_results = $this->Report->tryCatchQuery($sql);
-            foreach ($query_results as $new_type)
-                $tmp_data['notes'] .= (empty($tmp_data['notes']) ? '' : ' & ') . __($new_type['sc']['sample_type']) . ' ' . __($new_type['ac']['aliquot_type']);
+				AND ($otherConditions)";
+            $queryResults = $this->Report->tryCatchQuery($sql);
+            foreach ($queryResults as $newType)
+                $tmpData['notes'] .= (empty($tmpData['notes']) ? '' : ' & ') . __($newType['sc']['sample_type']) . ' ' . __($newType['ac']['aliquot_type']);
             
-            $data[] = $tmp_data;
+            $data[] = $tmpData;
         }
         
         // Format data form display
         
-        $final_data = array();
-        foreach ($data as $new_row) {
-            if ($new_row['cases_nbr']) {
-                $final_data[][0] = $new_row;
+        $finalData = array();
+        foreach ($data as $newRow) {
+            if ($newRow['cases_nbr']) {
+                $finalData[][0] = $newRow;
             }
         }
         
-        $array_to_return = array(
+        $arrayToReturn = array(
             'header' => $header,
-            'data' => $final_data,
+            'data' => $finalData,
             'columns_names' => null,
             'error_msg' => null
         );
         
-        return $array_to_return;
+        return $arrayToReturn;
     }
 
     public function getAllSpecimens($parameters)
@@ -656,28 +656,28 @@ class ReportsControllerCustom extends ReportsController
         // Get Parameters
         if (isset($parameters['SampleMaster']['sample_code']) || isset($parameters['SampleMaster']['qc_nd_sample_label'])) {
             // From databrowser
-            $selection_labels = array_filter($parameters['SampleMaster']['sample_code']);
-            if ($selection_labels)
-                $conditions['SampleMaster.sample_code'] = $selection_labels;
-            $selection_labels = array_filter($parameters['SampleMaster']['qc_nd_sample_label']);
-            $selection_labels_statements = array();
-            foreach ($selection_labels as $new_label)
-                $selection_labels_statements[] = "SampleMaster.qc_nd_sample_label LIKE '%" . $new_label . "%'";
-            if ($selection_labels_statements)
-                $conditions[] = '(' . implode(' OR ', $selection_labels_statements) . ')';
+            $selectionLabels = array_filter($parameters['SampleMaster']['sample_code']);
+            if ($selectionLabels)
+                $conditions['SampleMaster.sample_code'] = $selectionLabels;
+            $selectionLabels = array_filter($parameters['SampleMaster']['qc_nd_sample_label']);
+            $selectionLabelsStatements = array();
+            foreach ($selectionLabels as $newLabel)
+                $selectionLabelsStatements[] = "SampleMaster.qc_nd_sample_label LIKE '%" . $newLabel . "%'";
+            if ($selectionLabelsStatements)
+                $conditions[] = '(' . implode(' OR ', $selectionLabelsStatements) . ')';
         } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
             // From databrowser
-            $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
-            if ($sample_master_ids)
-                $conditions['SampleMaster.id'] = $sample_master_ids;
+            $sampleMasterIds = array_filter($parameters['ViewSample']['sample_master_id']);
+            if ($sampleMasterIds)
+                $conditions['SampleMaster.id'] = $sampleMasterIds;
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         // Load Model
-        $view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $viewSampleModel = AppModel::getInstance("InventoryManagement", "ViewSample", true);
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         // Build Res
-        $sample_master_model->unbindModel(array(
+        $sampleMasterModel->unbindModel(array(
             'belongsTo' => array(
                 'Collection'
             ),
@@ -689,7 +689,7 @@ class ReportsControllerCustom extends ReportsController
                 'AliquotMaster'
             )
         ));
-        $tmp_res_count = $sample_master_model->find('count', array(
+        $tmpResCount = $sampleMasterModel->find('count', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -698,9 +698,9 @@ class ReportsControllerCustom extends ReportsController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
-        if ($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+        if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
             return array(
                 'header' => null,
                 'data' => null,
@@ -708,7 +708,7 @@ class ReportsControllerCustom extends ReportsController
                 'error_msg' => 'the report contains too many results - please redefine search criteria'
             );
         }
-        $studied_samples = $sample_master_model->find('all', array(
+        $studiedSamples = $sampleMasterModel->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -717,14 +717,14 @@ class ReportsControllerCustom extends ReportsController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         $res = array();
-        $tmp_initial_specimens = array();
-        foreach ($studied_samples as $new_studied_sample) {
-            $initial_specimen = isset($tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']]) ? $tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']] : $view_sample_model->find('first', array(
+        $tmpInitialSpecimens = array();
+        foreach ($studiedSamples as $newStudiedSample) {
+            $initialSpecimen = isset($tmpInitialSpecimens[$newStudiedSample['SampleMaster']['initial_specimen_sample_id']]) ? $tmpInitialSpecimens[$newStudiedSample['SampleMaster']['initial_specimen_sample_id']] : $viewSampleModel->find('first', array(
                 'conditions' => array(
-                    'ViewSample.sample_master_id' => $new_studied_sample['SampleMaster']['initial_specimen_sample_id']
+                    'ViewSample.sample_master_id' => $newStudiedSample['SampleMaster']['initial_specimen_sample_id']
                 ),
                 'fields' => array(
                     'ViewSample.*, SpecimenDetail.*'
@@ -732,12 +732,12 @@ class ReportsControllerCustom extends ReportsController
                 'order' => array(
                     'ViewSample.sample_code ASC'
                 ),
-                'recursive' => '0'
+                'recursive' => 0
             ));
-            $tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']] = $initial_specimen;
-            if ($initial_specimen) {
-                if (! (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($initial_specimen['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id'])))
-                    $res[] = array_merge($new_studied_sample, $initial_specimen);
+            $tmpInitialSpecimens[$newStudiedSample['SampleMaster']['initial_specimen_sample_id']] = $initialSpecimen;
+            if ($initialSpecimen) {
+                if (! (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($initialSpecimen['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id'])))
+                    $res[] = array_merge($newStudiedSample, $initialSpecimen);
             }
         }
         return array(
@@ -755,28 +755,28 @@ class ReportsControllerCustom extends ReportsController
         // Get Parameters
         if (isset($parameters['SampleMaster']['sample_code']) || isset($parameters['SampleMaster']['qc_nd_sample_label'])) {
             // From databrowser
-            $selection_labels = array_filter($parameters['SampleMaster']['sample_code']);
-            if ($selection_labels)
-                $conditions['SampleMaster.sample_code'] = $selection_labels;
-            $selection_labels = array_filter($parameters['SampleMaster']['qc_nd_sample_label']);
-            $selection_labels_statements = array();
-            foreach ($selection_labels as $new_label)
-                $selection_labels_statements[] = "SampleMaster.qc_nd_sample_label LIKE '%" . $new_label . "%'";
-            if ($selection_labels_statements)
-                $conditions[] = '(' . implode(' OR ', $selection_labels_statements) . ')';
+            $selectionLabels = array_filter($parameters['SampleMaster']['sample_code']);
+            if ($selectionLabels)
+                $conditions['SampleMaster.sample_code'] = $selectionLabels;
+            $selectionLabels = array_filter($parameters['SampleMaster']['qc_nd_sample_label']);
+            $selectionLabelsStatements = array();
+            foreach ($selectionLabels as $newLabel)
+                $selectionLabelsStatements[] = "SampleMaster.qc_nd_sample_label LIKE '%" . $newLabel . "%'";
+            if ($selectionLabelsStatements)
+                $conditions[] = '(' . implode(' OR ', $selectionLabelsStatements) . ')';
         } elseif (isset($parameters['ViewSample']['sample_master_id'])) {
             // From databrowser
-            $sample_master_ids = array_filter($parameters['ViewSample']['sample_master_id']);
-            if ($sample_master_ids)
-                $conditions['SampleMaster.id'] = $sample_master_ids;
+            $sampleMasterIds = array_filter($parameters['ViewSample']['sample_master_id']);
+            if ($sampleMasterIds)
+                $conditions['SampleMaster.id'] = $sampleMasterIds;
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         }
         // Load Model
-        $view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
-        $sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+        $viewSampleModel = AppModel::getInstance("InventoryManagement", "ViewSample", true);
+        $sampleMasterModel = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
         // Build Res
-        $sample_master_model->unbindModel(array(
+        $sampleMasterModel->unbindModel(array(
             'belongsTo' => array(
                 'Collection'
             ),
@@ -788,7 +788,7 @@ class ReportsControllerCustom extends ReportsController
                 'AliquotMaster'
             )
         ));
-        $tmp_res_count = $sample_master_model->find('count', array(
+        $tmpResCount = $sampleMasterModel->find('count', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -797,9 +797,9 @@ class ReportsControllerCustom extends ReportsController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
-        if ($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
+        if ($tmpResCount > Configure::read('databrowser_and_report_results_display_limit')) {
             return array(
                 'header' => null,
                 'data' => null,
@@ -807,7 +807,7 @@ class ReportsControllerCustom extends ReportsController
                 'error_msg' => 'the report contains too many results - please redefine search criteria'
             );
         }
-        $studied_samples = $sample_master_model->find('all', array(
+        $studiedSamples = $sampleMasterModel->find('all', array(
             'conditions' => $conditions,
             'fields' => array(
                 'SampleMaster.*',
@@ -816,18 +816,18 @@ class ReportsControllerCustom extends ReportsController
             'order' => array(
                 'SampleMaster.sample_code ASC'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         $res = array();
-        foreach ($studied_samples as $new_studied_sample) {
-            $all_derivatives_samples = $this->getChildrenSamples($view_sample_model, array(
-                $new_studied_sample['SampleMaster']['id']
+        foreach ($studiedSamples as $newStudiedSample) {
+            $allDerivativesSamples = $this->getChildrenSamples($viewSampleModel, array(
+                $newStudiedSample['SampleMaster']['id']
             ));
-            if ($all_derivatives_samples) {
-                foreach ($all_derivatives_samples as $new_derivative_sample) {
-                    if (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($new_derivative_sample['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id']))
+            if ($allDerivativesSamples) {
+                foreach ($allDerivativesSamples as $newDerivativeSample) {
+                    if (array_key_exists('SelectedItemsForCsv', $parameters) && ! in_array($newDerivativeSample['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id']))
                         continue;
-                    $res[] = array_merge($new_studied_sample, $new_derivative_sample);
+                    $res[] = array_merge($newStudiedSample, $newDerivativeSample);
                 }
             }
         }

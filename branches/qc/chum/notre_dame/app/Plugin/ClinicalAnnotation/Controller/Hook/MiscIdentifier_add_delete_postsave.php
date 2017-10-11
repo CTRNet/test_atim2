@@ -1,31 +1,31 @@
 <?php
-assert(isset($update_collection_sample_labels_with));
+assert(isset($updateCollectionSampleLabelsWith));
 
 // --------------------------------------------------------------------------------
 // Update participant collection sample labels
 // --------------------------------------------------------------------------------
 
 // Get Bank linked to this created identifier
-$bank_model = AppModel::getInstance('Administrate', 'Bank', true);
-$bank = $bank_model->find('first', array(
+$bankModel = AppModel::getInstance('Administrate', 'Bank', true);
+$bank = $bankModel->find('first', array(
     'conditions' => array(
-        'Bank.misc_identifier_control_id' => $misc_identifier_control_id
+        'Bank.misc_identifier_control_id' => $miscIdentifierControlId
     )
 ));
 
 if (! empty($bank)) {
-    $bank_id = $bank['Bank']['id'];
+    $bankId = $bank['Bank']['id'];
     
     // Launch sample labels upgrade process
-    $collection_model = AppModel::getInstance('InventoryManagement', 'Collection', true);
-    $collections = $collection_model->find('all', array(
+    $collectionModel = AppModel::getInstance('InventoryManagement', 'Collection', true);
+    $collections = $collectionModel->find('all', array(
         'conditions' => array(
-            'Collection.participant_id' => $participant_id,
-            'Collection.bank_id' => $bank_id
+            'Collection.participant_id' => $participantId,
+            'Collection.bank_id' => $bankId
         )
     ));
     
-    foreach ($collections as $new_linked_collection) {
-        $collection_model->updateCollectionSampleLabels($new_linked_collection['Collection']['id'], $update_collection_sample_labels_with);
+    foreach ($collections as $newLinkedCollection) {
+        $collectionModel->updateCollectionSampleLabels($newLinkedCollection['Collection']['id'], $updateCollectionSampleLabelsWith);
     }
 }

@@ -3,22 +3,22 @@
 // --------------------------------------------------------------------------------
 // Update Derivatives Sample Labels of an updated Specimen
 // --------------------------------------------------------------------------------
-if ($is_specimen && ($sample_data['SampleMaster']['qc_nd_sample_label'] != $this->data['SampleMaster']['qc_nd_sample_label'])) {
-    $specimen_sample_label = $this->data['SampleMaster']['qc_nd_sample_label'];
+if ($isSpecimen && ($sampleData['SampleMaster']['qc_nd_sample_label'] != $this->data['SampleMaster']['qc_nd_sample_label'])) {
+    $specimenSampleLabel = $this->data['SampleMaster']['qc_nd_sample_label'];
     
     // Get bank_participant_identifier
-    $view_collection_model = AppModel::getInstance('InventoryManagement', 'ViewCollection', true);
+    $viewCollectionModel = AppModel::getInstance('InventoryManagement', 'ViewCollection', true);
     
-    $view_collection = $view_collection_model->find('first', array(
+    $viewCollection = $viewCollectionModel->find('first', array(
         'conditions' => array(
-            'ViewCollection.collection_id' => $collection_id
+            'ViewCollection.collection_id' => $collectionId
         )
     ));
-    if (empty($view_collection)) {
+    if (empty($viewCollection)) {
         $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
     }
     
-    $bank_participant_identifier = $view_collection['ViewCollection']['identifier_value'];
+    $bankParticipantIdentifier = $viewCollection['ViewCollection']['identifier_value'];
     
     // Get specimen derivatives list
     $this->SampleMaster->unbindModel(array(
@@ -33,20 +33,20 @@ if ($is_specimen && ($sample_data['SampleMaster']['qc_nd_sample_label'] != $this
             'AliquotMaster'
         )
     ));
-    $specimen_derivatives_list = $this->SampleMaster->find('all', array(
+    $specimenDerivativesList = $this->SampleMaster->find('all', array(
         'conditions' => array(
-            'SampleMaster.initial_specimen_sample_id' => $sample_master_id,
+            'SampleMaster.initial_specimen_sample_id' => $sampleMasterId,
             'SampleControl.sample_category' => 'derivative'
         )
     ));
     
     // Update derivative samples label
-    foreach ($specimen_derivatives_list as $new_derivative) {
-        $derivative_data_to_save = array();
-        $derivative_data_to_save['SampleMaster']['qc_nd_sample_label'] = $this->SampleMaster->createSampleLabel($collection_id, $new_derivative, $bank_participant_identifier, $specimen_sample_label);
+    foreach ($specimenDerivativesList as $newDerivative) {
+        $derivativeDataToSave = array();
+        $derivativeDataToSave['SampleMaster']['qc_nd_sample_label'] = $this->SampleMaster->createSampleLabel($collectionId, $newDerivative, $bankParticipantIdentifier, $specimenSampleLabel);
         
         $this->SampleMaster->data = array();
-        $this->SampleMaster->id = $new_derivative['SampleMaster']['id'];
-        $this->SampleMaster->save($derivative_data_to_save, false);
+        $this->SampleMaster->id = $newDerivative['SampleMaster']['id'];
+        $this->SampleMaster->save($derivativeDataToSave, false);
     }
 }

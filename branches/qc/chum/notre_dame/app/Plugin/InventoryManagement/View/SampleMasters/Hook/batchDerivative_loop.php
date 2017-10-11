@@ -1,22 +1,22 @@
 <?php
-if (in_array($created_sample_override_data['SampleControl.sample_type'], array(
+if (in_array($createdSampleOverrideData['SampleControl.sample_type'], array(
     'dna',
     'rna'
 ))) {
-    if (isset($final_options_parent['data']['AliquotDetail']['cell_passage_number'])) {
-        $final_options_children['override']['SampleDetail.source_cell_passage_number'] = $final_options_parent['data']['AliquotDetail']['cell_passage_number'];
+    if (isset($finalOptionsParent['data']['AliquotDetail']['cell_passage_number'])) {
+        $finalOptionsChildren['override']['SampleDetail.source_cell_passage_number'] = $finalOptionsParent['data']['AliquotDetail']['cell_passage_number'];
     }
     
-    if (isset($final_options_parent['data']['StorageMaster']['temperature'])) {
-        $final_options_children['override']['SampleDetail.source_temperature'] = $final_options_parent['data']['StorageMaster']['temperature'];
-        $final_options_children['override']['SampleDetail.source_temp_unit'] = $final_options_parent['data']['StorageMaster']['temp_unit'];
+    if (isset($finalOptionsParent['data']['StorageMaster']['temperature'])) {
+        $finalOptionsChildren['override']['SampleDetail.source_temperature'] = $finalOptionsParent['data']['StorageMaster']['temperature'];
+        $finalOptionsChildren['override']['SampleDetail.source_temp_unit'] = $finalOptionsParent['data']['StorageMaster']['temp_unit'];
     }
     
-    if (isset($final_options_parent['data']['AliquotDetail']['tmp_storage_solution'])) {
-        $final_options_children['override']['SampleDetail.tmp_source_milieu'] = $final_options_parent['data']['AliquotDetail']['tmp_storage_solution'];
+    if (isset($finalOptionsParent['data']['AliquotDetail']['tmp_storage_solution'])) {
+        $finalOptionsChildren['override']['SampleDetail.tmp_source_milieu'] = $finalOptionsParent['data']['AliquotDetail']['tmp_storage_solution'];
     }
     
-    if (isset($final_options_parent['data']['AliquotDetail']['tmp_storage_mothod'])) {
-        $final_options_children['override']['SampleDetail.tmp_source_storage_method'] = $final_options_parent['data']['AliquotDetail']['tmp_storage_method'];
+    if (isset($finalOptionsParent['data']['AliquotDetail']['tmp_storage_mothod'])) {
+        $finalOptionsChildren['override']['SampleDetail.tmp_source_storage_method'] = $finalOptionsParent['data']['AliquotDetail']['tmp_storage_method'];
     }
 }

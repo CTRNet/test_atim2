@@ -14,24 +14,24 @@ class EventMasterCustom extends EventMaster
             AppController::addWarningMsg('no event can be linked to a diagnosis because diagnosis data comes from SARDO');
         }
         if (isset($this->data['EventMaster']['event_control_id'])) {
-            $event_control = AppModel::getInstance('ClinicalAnnotation', 'EventControl', true);
-            $event_control_data = $event_control->find('first', array(
+            $eventControl = AppModel::getInstance('ClinicalAnnotation', 'EventControl', true);
+            $eventControlData = $eventControl->find('first', array(
                 'conditions' => array(
                     'id' => $this->data['EventMaster']['event_control_id']
                 )
             ));
-            if (! in_array($event_control_data['EventControl']['event_type'], $event_control->modifiable_event_types)) {
+            if (! in_array($eventControlData['EventControl']['event_type'], $eventControl->modifiableEventTypes)) {
                 // Generate an error in merge process
                 // AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
             }
         } elseif ($this->id) {
-            $event_data = $this->find('first', array(
+            $eventData = $this->find('first', array(
                 'conditions' => array(
                     'EventMaster.id' => $this->id
                 )
             ));
-            $event_control = AppModel::getInstance('ClinicalAnnotation', 'EventControl', true);
-            if (! in_array($event_data['EventControl']['event_type'], $event_control->modifiable_event_types)) {
+            $eventControl = AppModel::getInstance('ClinicalAnnotation', 'EventControl', true);
+            if (! in_array($eventData['EventControl']['event_type'], $eventControl->modifiableEventTypes)) {
                 // Generate an error in merge process
                 // AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
             }
@@ -71,7 +71,7 @@ class EventMasterCustom extends EventMaster
             }
             if (array_key_exists('idc_p_1_intraductal', $this->data['EventDetail'])) {
                 if ($this->data['EventDetail']['idc_p_1_intraductal'] != 'y') {
-                    $idc_fields = array(
+                    $idcFields = array(
                         'idc_p_2_density_1',
                         'idc_p_2_density_1_precision',
                         'idc_p_3_density_2',
@@ -83,11 +83,11 @@ class EventMasterCustom extends EventMaster
                         'idc_p_8_branching',
                         'idc_p_9_streaming'
                     );
-                    $icd_field_completed = false;
-                    foreach ($idc_fields as $new_field)
-                        if (strlen(trim($this->data['EventDetail'][$new_field])))
-                            $icd_field_completed = true;
-                    if ($icd_field_completed) {
+                    $icdFieldCompleted = false;
+                    foreach ($idcFields as $newField)
+                        if (strlen(trim($this->data['EventDetail'][$newField])))
+                            $icdFieldCompleted = true;
+                    if ($icdFieldCompleted) {
                         $this->validationErrors['idc_p_1_intraductal'][] = __("idc-p 1 different than yes : no value has to be enterred for fields icd-p 2 to 9");
                         $result = false;
                     }
@@ -95,9 +95,9 @@ class EventMasterCustom extends EventMaster
                 foreach (array(
                     'idc_p_2_density_1' => 'idc_p_2_density_1_precision',
                     'idc_p_3_density_2' => 'idc_p_3_density_2_precision'
-                ) as $new_field => $new_field_precision) {
-                    if (preg_match('/specify/', $this->data['EventDetail'][$new_field]) && ! strlen(trim($this->data['EventDetail'][$new_field_precision]))) {
-                        $this->validationErrors[$new_field_precision][] = __("precision is requested");
+                ) as $newField => $newFieldPrecision) {
+                    if (preg_match('/specify/', $this->data['EventDetail'][$newField]) && ! strlen(trim($this->data['EventDetail'][$newFieldPrecision]))) {
+                        $this->validationErrors[$newFieldPrecision][] = __("precision is requested");
                         $result = false;
                     }
                 }

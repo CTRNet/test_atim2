@@ -1,7 +1,7 @@
 <?php
-if (isset($default_aliquot_labels[$data['parent']['ViewSample']['sample_master_id']])) {
-    $final_options_children['override']['AliquotMaster.aliquot_label'] = $default_aliquot_labels[$data['parent']['ViewSample']['sample_master_id']];
+if (isset($defaultAliquotLabels[$data['parent']['ViewSample']['sample_master_id']])) {
+    $finalOptionsChildren['override']['AliquotMaster.aliquot_label'] = $defaultAliquotLabels[$data['parent']['ViewSample']['sample_master_id']];
 }
-if (isset($default_in_stocks[$data['parent']['ViewSample']['sample_master_id']])) {
-    $final_options_children['override']['AliquotMaster.in_stock'] = $default_in_stocks[$data['parent']['ViewSample']['sample_master_id']];
+if (isset($defaultInStocks[$data['parent']['ViewSample']['sample_master_id']])) {
+    $finalOptionsChildren['override']['AliquotMaster.in_stock'] = $defaultInStocks[$data['parent']['ViewSample']['sample_master_id']];
 }

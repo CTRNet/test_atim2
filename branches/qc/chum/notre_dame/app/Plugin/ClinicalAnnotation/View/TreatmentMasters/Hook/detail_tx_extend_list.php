@@ -1,5 +1,5 @@
 <?php
-unset($final_options['links']['index']);
-unset($final_options['links']['bottom']['add']);
-unset($structure_links['index']);
-unset($structure_links['bottom']['add']);
+unset($finalOptions['links']['index']);
+unset($finalOptions['links']['bottom']['add']);
+unset($structureLinks['index']);
+unset($structureLinks['bottom']['add']);

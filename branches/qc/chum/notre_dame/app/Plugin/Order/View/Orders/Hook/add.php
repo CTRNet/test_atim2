@@ -1,5 +1,5 @@
 <?php
-foreach ($final_atim_structure['Sfs'] as &$sfs) {
+foreach ($finalAtimStructure['Sfs'] as &$sfs) {
     if ($sfs['field'] == 'order_number') {
         $sfs['setting'] .= ',placeholder=-- auto --';
         break;

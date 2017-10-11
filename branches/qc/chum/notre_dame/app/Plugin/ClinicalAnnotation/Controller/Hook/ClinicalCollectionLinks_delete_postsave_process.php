@@ -1,2 +1,2 @@
 <?php
-$this->Collection->updateCollectionSampleLabels($collection_id, '');
+$this->Collection->updateCollectionSampleLabels($collectionId, '');

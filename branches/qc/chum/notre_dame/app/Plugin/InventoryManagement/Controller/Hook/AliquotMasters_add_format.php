@@ -1,22 +1,22 @@
 <?php
-if ($aliquot_control_id == 54) {
+if ($aliquotControlId == 54) {
     AppController::getInstance()->redirect('/Pages/qc_nd_no_flask', null, true);
 }
 
 // --------------------------------------------------------------------------------
 // Set default aliquot label(s)
 // --------------------------------------------------------------------------------
-$default_aliquot_labels = array();
-$default_in_stocks = array();
-foreach ($samples as $view_sample) {
-    $default_aliquot_label = $this->AliquotMaster->generateDefaultAliquotLabel($view_sample, $aliquot_control);
-    $default_aliquot_labels[$view_sample['ViewSample']['sample_master_id']] = $default_aliquot_label;
-    if (preg_match('/(\-EDB)|(\-SRB)|(\-URI)/', $default_aliquot_label))
-        $default_in_stocks[$view_sample['ViewSample']['sample_master_id']] = 'no';
+$defaultAliquotLabels = array();
+$defaultInStocks = array();
+foreach ($samples as $viewSample) {
+    $defaultAliquotLabel = $this->AliquotMaster->generateDefaultAliquotLabel($viewSample, $aliquotControl);
+    $defaultAliquotLabels[$viewSample['ViewSample']['sample_master_id']] = $defaultAliquotLabel;
+    if (preg_match('/(\-EDB)|(\-SRB)|(\-URI)/', $defaultAliquotLabel))
+        $defaultInStocks[$viewSample['ViewSample']['sample_master_id']] = 'no';
 }
-$this->set('default_aliquot_labels', $default_aliquot_labels);
-$this->set('default_in_stocks', $default_in_stocks);
+$this->set('defaultAliquotLabels', $defaultAliquotLabels);
+$this->set('defaultInStocks', $defaultInStocks);
 
 // remove default storage date
-unset($override_data['AliquotMaster.storage_datetime']);
-$this->set('override_data', $override_data);
+unset($overrideData['AliquotMaster.storage_datetime']);
+$this->set('overrideData', $overrideData);
