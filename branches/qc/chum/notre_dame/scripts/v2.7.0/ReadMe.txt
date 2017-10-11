@@ -15,7 +15,7 @@
 
   mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_full_installation.sql
   
--- ATiM v2.6.8 upgrade
+-- ATiM v2.7.0 upgrade
 -- -------------------
 
   mysql -u {username} -p{password} {atim_database} --default-character-set=utf8 < atim_v2.7.0_upgrade.sql
