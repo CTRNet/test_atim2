@@ -291,7 +291,7 @@ function dislayErrorAndMessage($commit = false, $title = 'Migration Summary') {
 		mysqli_commit($db_connection);
 		$ccl = '& Commited';
 	} else {
-		$ccl = 'But Not Commited';
+		$ccl = '</FONT><FONT COLOR=\"red\"><b>But Not Commited</b></FONT><FONT COLOR=\"blue\">';
 	}
 	echo "<br><FONT COLOR=\"blue\">
 		=====================================================================<br>
@@ -749,6 +749,31 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 	global $import_summary;
 	global $empty_date_time_values;
 	global $xls_offset;
+	$month_to_digit = array(
+	   'jan' => '01',
+	   'january' => '01',
+	   'feb' => '02',
+	   'february' => '02',
+	   'mar' => '03',
+	   'march' => '03',
+	   'apr' => '04',
+	   'april' => '04',
+	   'may' => '05',
+	   'jun' => '06',
+	   'june' => '06',
+	   'jul' => '07',
+	   'july' => '07',
+	   'aug' => '08',
+	   'august' => '08',
+	   'sep' => '09',
+	   'sept' => '09',
+	   'september' => '09',
+	   'oct' => '10',
+	   'october' => '10',
+	   'nov' => '11',
+	   'november' => '11',
+	   'dec' => '12',
+	   'december' => '12');
 	$date = str_replace(' ', '', $date);
 	if(empty($date) || in_array(strtolower($date), $empty_date_time_values)) {
 		return array('', '');
@@ -775,7 +800,49 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 		return array($matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'c');
 	} else if(preg_match('/^([0-3][0-9])\-([01][0-9])\-(19|20)([0-9]{2})$/',$date,$matches)) {
 		return array($matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'c');
-	} else {
+	} else  if(preg_match('/^([1-3]{0,1}[0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
+	    return array($matches[3].$matches[4].'-'.$matches[2].'-'.(strlen($matches[1]) == 1? '0'.$matches[1] : $matches[1]), 'c');
+    } else  if(preg_match('/^([a-z]+)([0-3]{0,1}[0-9]){0,1},(19|20)([0-9]{2})$/',strtolower($date),$matches)) {
+        $year = $matches[3].$matches[4];
+        $month = $matches[1];
+        $day = $matches[2];
+        if(strlen($day) == 1) {
+            $day = '0'.$day;
+        }
+        if(array_key_exists($month, $month_to_digit)) {
+            $month = $month_to_digit[$month];
+            if(strlen($day)) {
+                return array("$year-$month-$day", 'c');
+            } else {
+                return array("$year-$month-01", 'd');
+            }
+        } else {
+            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+            return array('', '');
+        }
+    } else  if(preg_match('/^([0-3]{0,1}[0-9]){0,1}([a-z]+),(19|20)([0-9]{2})$/',strtolower($date),$matches)) {
+        $year = $matches[3].$matches[4];
+        $month = $matches[2];
+        $day = $matches[1];
+        if(strlen($day) == 1) {
+            $day = '0'.$day;
+        }
+        if(array_key_exists($month, $month_to_digit)) {
+            $month = $month_to_digit[$month];
+            if(strlen($day)) {
+                return array("$year-$month-$day", 'c');
+            } else {
+                return array("$year-$month-01", 'd');
+            }
+        } else {
+            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+            return array('', '');
+        }
+    } else  if(preg_match('/^([1-3]{0,1}[0-9])\/([1-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
+         return array($matches[3].$matches[4].'-0'.$matches[2].'-'.(strlen($matches[1]) == 1? '0'.$matches[1] : $matches[1]), 'c');
+	} else  if(preg_match('/^([01][0-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
+	    return array($matches[2].$matches[3].'-'.$matches[1].'-'.'01', 'd');
+    } else {
 		recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 		return array('', '');
 	}

@@ -32,19 +32,11 @@
 //   -  Residual disease
 //   -  CA125 Recurrence
 //   -  Recurrence
-//   -  
 //   -  CA125 progression time (months) [calculated and populated by the migration process]
 //   -  progression time (months) [calculated and populated by the migration process]
 //   -  Follow-up from ovarectomy (months) [calculated and populated by the migration process]
 //   -  Survival from diagnosis (months) [calculated and populated by the migration process]
 //
-
-
-
-
-
-
-
 //  ** Other Diagnosis :
 //   No data 
 //
@@ -56,6 +48,15 @@
 // *******************************************************************************************************************************************************
 
 require_once 'system.php';
+
+$commit_all = true;
+if(isset($argv[1])) {
+    if($argv[1] == 'test') {
+        $commit_all = false;   
+    } else {
+        die('ERR ARG : '.$argv[1].' (should be test or nothing)');
+    }
+}
 
 $excel_file_names = array();
 foreach($bank_excel_files as $new_bank_file) { 
@@ -425,15 +426,27 @@ foreach($bank_excel_files as $new_bank_file) {
                                 array('start_date' => $excel_line_clinical_data['ovarectomy']['start_date']['0'], 'start_date_accuracy' => $excel_line_clinical_data['ovarectomy']['start_date']['2']));
                         } elseif (sizeof($atim_ovarectomy_data) > 1) {
                             $atim_ovarectomy_data_msg = array();
+                            $date_found = false;
                             foreach($atim_ovarectomy_data as $new_ovarectomy) {
                                 $atim_ovarectomy_data_msg[] = $new_ovarectomy['start_date']." (".$new_ovarectomy['start_date_accuracy'].")";
+                                if($new_ovarectomy['start_date'] == $excel_line_clinical_data['ovarectomy']['start_date']['0']) {
+                                    $date_found = true;
+                                }
                             }
                             $atim_ovarectomy_data_msg = implode(' & ', $atim_ovarectomy_data_msg);
-                            recordErrorAndMessage(
-                                'Ovarectomy',
-                                '@@ERROR@@',
-                                "More than one participant ovarectomy already exist into ATiM. The script won't use the excel data to update ovarectomy or create a new one. Please update data manually after the mirgation process.",
-                                "See excel ovarectomy on ".$excel_line_clinical_data['ovarectomy']['start_date']['0']." (".$excel_line_clinical_data['ovarectomy']['start_date']['2'].") and atim ovarectomy on $atim_ovarectomy_data_msg for $participant_identifiers_for_summary in $excel_file_name_and_line_for_summary.");
+                            if(!$date_found) {
+                                recordErrorAndMessage(
+                                    'Ovarectomy',
+                                    '@@ERROR@@',
+                                    "More than one participant ovarectomy already exist into ATiM with no one with the excel date. The script won't use the excel data to update ovarectomy or create a new one. Please update data manually after the mirgation process.",
+                                    "See excel ovarectomy on ".$excel_line_clinical_data['ovarectomy']['start_date']['0']." (".$excel_line_clinical_data['ovarectomy']['start_date']['2'].") and atim ovarectomy on $atim_ovarectomy_data_msg for $participant_identifiers_for_summary in $excel_file_name_and_line_for_summary.");
+                            } else {
+                                recordErrorAndMessage(
+                                    'Ovarectomy',
+                                    '@@WARNING@@',
+                                    "More than one participant ovarectomy already exist into ATiM with at least one date matching the excel date. The script won't use the excel data to update ovarectomy or create a new one. Please update data manually after the mirgation process.",
+                                    "See excel ovarectomy on ".$excel_line_clinical_data['ovarectomy']['start_date']['0']." (".$excel_line_clinical_data['ovarectomy']['start_date']['2'].") and atim ovarectomy on $atim_ovarectomy_data_msg for $participant_identifiers_for_summary in $excel_file_name_and_line_for_summary.");
+                            }
                         } else {
                             // One ATiM Ovarectomy detected
                             if($excel_line_clinical_data['ovarectomy']['start_date']['0'] != $atim_ovarectomy_data[0]['start_date']) {
@@ -569,14 +582,14 @@ foreach($bank_excel_files as $new_bank_file) {
                             } else {
                                 $atim_secondary_diagnosis_data_msg = array();
                                 foreach($atim_secondary_diagnosis_data as $new_atim_secondary_diagnosis_data) {
-                                    $atim_secondary_diagnosis_data_msg[$new_atim_secondary_diagnosis_data['qc_tf_progression_detection_method'].' - '.$new_atim_secondary_diagnosis_data['qc_tf_tumor_site']] =  "detection method = <b>:".$new_atim_secondary_diagnosis_data['qc_tf_progression_detection_method']."</b> site = <b>:".$new_atim_secondary_diagnosis_data['qc_tf_tumor_site'] . "</b>";
+                                    $atim_secondary_diagnosis_data_msg[$new_atim_secondary_diagnosis_data['qc_tf_progression_detection_method'].' - '.$new_atim_secondary_diagnosis_data['qc_tf_tumor_site']] =  "detection method <b>".$new_atim_secondary_diagnosis_data['qc_tf_progression_detection_method']."</b> and site <b>".$new_atim_secondary_diagnosis_data['qc_tf_tumor_site'] . "</b>";
                                 }
-                                $atim_secondary_diagnosis_data_msg = implode(' + ', $atim_secondary_diagnosis_data_msg);
+                                $atim_secondary_diagnosis_data_msg = implode(' <br> ... ', $atim_secondary_diagnosis_data_msg);
                                 recordErrorAndMessage(
                                     'EOC Diagnosis Recurrence',
                                     '@@WARNING@@',
-                                    "More than one EOC diagnosis recurrence with detection method different than 'CA125' exist at the same date into ATiM. No new recurrence will be created. Please clean up data into ATiM manually after the migration.",
-                                    "See ATiM Recurrence on ".$excel_line_clinical_data['recurrence']['recurrence_date']['0']." (".$excel_line_clinical_data['recurrence']['recurrence_date']['2'].") with following properties $atim_secondary_diagnosis_data_msg for $participant_identifiers_for_summary in $excel_file_name_and_line_for_summary.");
+                                    "More than one EOC diagnosis recurrence with detection method different than 'CA125' exist into ATiM at the same date defined into excel. No new recurrence with method and site equal to 'unknown' will be created into ATiM. Please clean up data into ATiM manually after the migration.",
+                                    "See ATiM Recurrence on ".$excel_line_clinical_data['recurrence']['recurrence_date']['0']." (".$excel_line_clinical_data['recurrence']['recurrence_date']['2'].") with following properties <br> ... $atim_secondary_diagnosis_data_msg <br>for $participant_identifiers_for_summary in $excel_file_name_and_line_for_summary.");
                             }
                         }
                     }
@@ -595,7 +608,17 @@ foreach($bank_excel_files as $new_bank_file) {
                             $excel_start_date_for_search = $excel_start_date;
                             $excel_start_date_accuracy = $new_excel_clinical_event_data['start_date'][2];
                             if(strlen($new_excel_clinical_event_data['start_date_accuracy'][0]) && in_array($new_excel_clinical_event_data['start_date_accuracy'][0], array('c', 'm', 'd', 'y'))) {
-                                $excel_start_date_accuracy = str_replace(array('m', 'y'), array('d', 'm'), $new_excel_clinical_event_data['start_date_accuracy'][0]);
+                                $excel_start_date_accuracy_from_accuracy_column = str_replace(array('m', 'y'), array('d', 'm'), $new_excel_clinical_event_data['start_date_accuracy'][0]);
+                                if(($excel_start_date_accuracy == 'd' && in_array($excel_start_date_accuracy_from_accuracy_column, array('c', 'm'))) ||
+                                ($excel_start_date_accuracy == 'm' && $excel_start_date_accuracy_from_accuracy_column == 'c')) {
+                                    recordErrorAndMessage(
+                                        'Participant Treatment/Event',
+                                        '@@WARNING@@',
+                                        "Treatment/Event start date accuracy based on excel field '".$new_excel_clinical_event_data['start_date'][1]."' is less than accuracy defined into excel field '".$new_excel_clinical_event_data['start_date_accuracy'][1]."'. The accuracy of the first field will be used for the data check and update. Please validate and add data manually into ATiM if required.",
+                                        "See kept accuracy '$excel_start_date_accuracy' from date and excel accuracy field value '$excel_start_date_accuracy_from_accuracy_column' for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                } else {
+                                    $excel_start_date_accuracy = $excel_start_date_accuracy_from_accuracy_column;
+                                }
                             }
                             if($excel_start_date_accuracy == 'm') {
                                 $excel_start_date_for_search = substr($excel_start_date_for_search, 0, 4).'%';
@@ -608,28 +631,63 @@ foreach($bank_excel_files as $new_bank_file) {
                             $excel_finish_date = $new_excel_clinical_event_data['finish_date'][0];
                             $excel_finish_date_accuracy = $new_excel_clinical_event_data['finish_date'][2];
                             if(strlen($new_excel_clinical_event_data['finish_date_accuracy'][0]) && in_array($new_excel_clinical_event_data['finish_date_accuracy'][0], array('c', 'm', 'd', 'y'))) {
-                                $excel_finish_date_accuracy = str_replace(array('m', 'y'), array('d', 'm'), $new_excel_clinical_event_data['finish_date_accuracy'][0]);
+                                $excel_finish_date_accuracy_from_accuracy_column = str_replace(array('m', 'y'), array('d', 'm'), $new_excel_clinical_event_data['finish_date_accuracy'][0]);
+                                if(($excel_finish_date_accuracy == 'd' && in_array($excel_finish_date_accuracy_from_accuracy_column, array('c', 'm'))) ||
+                                ($excel_finish_date_accuracy == 'm' && $excel_finish_date_accuracy_from_accuracy_column == 'c')) {
+                                    recordErrorAndMessage(
+                                        'Participant Treatment/Event',
+                                        '@@WARNING@@',
+                                        "Treatment/Event finish date accuracy based on excel field '".$new_excel_clinical_event_data['finish_date'][1]."' is less than accuracy defined into excel field '".$new_excel_clinical_event_data['finish_date_accuracy'][1]."'. The accuracy of the first field will be used for the data check and update. Please validate and add data manually into ATiM if required.",
+                                        "See kept accuracy '$excel_finish_date_accuracy' from date and excel accuracy field value '$excel_finish_date_accuracy_from_accuracy_column' for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                } else {
+                                    $excel_finish_date_accuracy = $excel_finish_date_accuracy_from_accuracy_column;
+                                }
                             }
                             if(!$excel_finish_date_accuracy) {
                                 $excel_finish_date_accuracy = 'c';
                             }
                             if(!strlen($excel_start_date))  {
-                                recordErrorAndMessage(
-                                    'Participant Treatment/Event',
-                                    '@@ERROR@@',
-                                    "Treatment/Event start date is not defined into Excel. No data of the line will be used for the ATiM data update. Please validate and add data manually into ATiM if required.",
-                                    "See $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                $excel_completed_data = array();
+                                $treatment_event_type = 'unknown';
+                                foreach($new_excel_clinical_event_data as $tmp_db_field => $tmp_excel_field_detail) {
+                                    if(strlen($tmp_excel_field_detail[0])) {
+                                        if($tmp_db_field == 'type') {
+                                            $treatment_event_type = $tmp_excel_field_detail[0];
+                                        } else if($tmp_db_field != 'qc_tf_bank_identifier') {
+                                            $excel_completed_data[] = $tmp_excel_field_detail[1]." = '".$tmp_excel_field_detail[0]."'";
+                                        }
+                                    }
+                                }
+                                if(sizeof($excel_completed_data)) {
+                                    $excel_completed_data = implode(' <br> ... ', $excel_completed_data);
+                                    recordErrorAndMessage(
+                                        'Participant Treatment/Event',
+                                        '@@ERROR@@',
+                                        "The '$treatment_event_type' treatment/Event start date is not defined into Excel. No data of the line will be used for the ATiM data update. Please validate and add data manually into ATiM if required.",
+                                        "See line data <br> ... $excel_completed_data <br> for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                }
                             } else {
                                 switch(strtolower($new_excel_clinical_event_data['type'][0])) {
                                     
                                     // Empty type
                                     //---------------------------------------------------------------------------------------
                                     case '':
-                                        recordErrorAndMessage(
-                                            'Participant Treatment/Event',
-                                            '@@ERROR@@',
-                                            "No treatment/event type is not defined into Excel. No data of the line will be used for the ATiM data update. Please validate and add data manually into ATiM if required.",
-                                            "See $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                        $excel_completed_data = array();
+                                        foreach($new_excel_clinical_event_data as $tmp_db_field => $tmp_excel_field_detail) {
+                                            if(strlen($tmp_excel_field_detail[0])) {
+                                                if($tmp_db_field != 'qc_tf_bank_identifier') {
+                                                    $excel_completed_data[] = $tmp_excel_field_detail[1]." = '".$tmp_excel_field_detail[0]."'";
+                                                }
+                                            }
+                                        }
+                                        if(sizeof($excel_completed_data)) {
+                                            $excel_completed_data = implode(' <br> ... ', $excel_completed_data);
+                                            recordErrorAndMessage(
+                                                'Participant Treatment/Event',
+                                                '@@ERROR@@',
+                                                "No treatment/event type is defined into Excel. No data of the line will be used for the ATiM data update. Please validate and add data manually into ATiM if required.",
+                                                "See line data <br> ... $excel_completed_data <br> for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                        }
                                         break;
                                     
                                     // Chemotherapy
@@ -656,10 +714,52 @@ foreach($bank_excel_files as $new_bank_file) {
                                         for($drug_id = 1; $drug_id < 5; $drug_id++) {
                                             $excel_drug = strtolower($new_excel_clinical_event_data["drug_$drug_id"][0]);
                                             if(strlen($excel_drug)) {
+                                                $excel_drug = trim($excel_drug);
+                                                $atim_drug = '';
+                                                switch($excel_drug) {
+                                                    case 'carbo':
+                                                    case 'carboplatin':
+                                                    case 'carbopatinum':
+                                                        $atim_drug = 'carboplatinum';
+                                                        break;
+                                                    case 'doxorubcin':
+                                                    case 'doxo':
+                                                    case 'doxyrubicin':
+                                                        $atim_drug = 'doxorubicin';
+                                                        break;
+                                                    case '':
+                                                        $atim_drug = '';
+                                                        break;
+                                                    case 'cisp':
+                                                    case 'cisplatin':
+                                                    case 'cis':
+                                                        $atim_drug = 'cisplatinum';
+                                                        break;
+                                                    case 'gemcitabin':
+                                                    case 'germcitabine':
+                                                    case 'gem':
+                                                        $atim_drug = 'gemcitabine';
+                                                        break;
+                                                    case 'taxol':
+                                                        $atim_drug = 'paclitaxel';
+                                                        break;
+                                                    case 'topetecan':
+                                                    case 'toptecan':
+                                                        $atim_drug = 'topotecan';
+                                                        break;                                                    
+                                                }
+                                                if($atim_drug) {
+                                                    recordErrorAndMessage(
+                                                        'Participant Treatment/Event',
+                                                        '@@WARNING@@',
+                                                        "Replaced Excel drug name by the ATiM drug name. Please confirme.",
+                                                        "See excel value '$excel_drug' replaced by '$atim_drug'.", $excel_drug.'='.$atim_drug);
+                                                    $excel_drug = $atim_drug;
+                                                }
                                                 if(array_key_exists($excel_drug, $atim_drugs)) {
                                                     $excel_drugs_array[$excel_drug] = $atim_drugs[$excel_drug];
                                                 } else {
-                                                    $wrong_atim_drugs[] = $excel_drug;
+                                                    $wrong_atim_drugs[] = "<b>".$excel_drug."</b>";
                                                }
                                             }
                                         }
@@ -751,7 +851,7 @@ foreach($bank_excel_files as $new_bank_file) {
                                                          array(
                                                             'atim chemo from' => $excel_start_date.' ('.$excel_start_date_accuracy.')',
                                                             'to' => $atim_treatment_data['finish_date'].' ('.$atim_treatment_data['finish_date_accuracy'].')',
-                                                            'with drugs ' => implode(' & ', $atim_drugs_array),
+                                                            'with drugs ' => $atim_drugs_strg,
                                                             'new finishing date' => "$excel_finish_date ($excel_finish_date_accuracy)"));
                                                 }
                                             } else {
@@ -794,12 +894,20 @@ foreach($bank_excel_files as $new_bank_file) {
                                                             }
                                                         }
                                                         if($atim_drugs_not_in_excel_array) {
+                                                            if($created_drugs) {
                                                             //Drug not found into excel
                                                             recordErrorAndMessage(
                                                                 'Participant Treatment/Event',
                                                                 '@@WARNING@@',
                                                                 "System added new drug(s) to an existing EOC chemotherapy but some existing drugs already recorded into ATiM were not listed into the excel. Please validate and clean up data manually into ATiM if required.",
-                                                                "Compare ATiM drugs ".implode(' & ', $atim_drugs_array)." and excel drugs ".implode(' & ', $excel_drugs_array)." for the EOC chemo started on $excel_start_date ($excel_start_date_accuracy) and finished on $excel_finish_date ($excel_finish_date_accuracy) for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                                                "Compare ATiM drugs <b>".implode(' & ', $atim_drugs_array)."</b> and excel drugs <b>".implode(' & ', $excel_drugs_array)."</b> for the EOC chemo started on $excel_start_date ($excel_start_date_accuracy) and finished on $excel_finish_date ($excel_finish_date_accuracy) for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                                            } else {
+                                                                recordErrorAndMessage(
+                                                                    'Participant Treatment/Event',
+                                                                    '@@WARNING@@',
+                                                                    "An existing ATiM EOC chemotherapy matches excel chemotherapy on date but some existing drugs already recorded into ATiM were not listed into the excel. Please validate and clean up data manually into ATiM if required.",
+                                                                    "Compare ATiM drugs <b>".implode(' & ', $atim_drugs_array)."</b> and excel drugs <b>".implode(' & ', $excel_drugs_array)."</b> for the EOC chemo started on $excel_start_date ($excel_start_date_accuracy) and finished on $excel_finish_date ($excel_finish_date_accuracy) for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary."); 
+                                                            }
                                                         }
                                                     }
                                                 } else {
@@ -840,25 +948,26 @@ foreach($bank_excel_files as $new_bank_file) {
                                                     recordErrorAndMessage(
                                                         'Participant Treatment/Event',
                                                         '@@WARNING@@',
-                                                        "Two EOC chemotherapy started at the same date but both finish date and the drugs list are not the exaclty the same. A second EOC chemoatherapy has been created. Please validate that it's not the same chemotherapy and clean up data manually into ATiM if required.",
+                                                        "Both ATim and Excel EOC chemotherapy start at the same date but both finish date and the drugs list are not the exaclty the same. A second EOC chemoatherapy has been created. Please validate that it's not the same chemotherapy and clean up data manually into ATiM if required.",
                                                         "Compare ATiM chemotherapy from $excel_start_date ($excel_start_date_accuracy) to ". (empty($atim_treatment_data['finish_date'])? "unknown finishing date" : ($atim_treatment_data['finish_date'] . " (" . $atim_treatment_data['finish_date_accuracy'] . ")")) . " with drug(s) " . str_replace($drug_strg_separator, ' & ', $atim_treatment_data['drugs']) .
-                                                        " and Excel chemotherapy from same date to " . (empty($excel_finish_date)? "unknown finishing date" : $excel_finish_date ($excel_finish_date_accuracy)) . " with drug(s) " . implode(' & ', $excel_drugs_array) .
+                                                        " and Excel chemotherapy from same date to " . (empty($excel_finish_date)? "unknown finishing date" : "$excel_finish_date ($excel_finish_date_accuracy)") . " with drug(s) " . implode(' & ', $excel_drugs_array) .
                                                         " for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
                                                 }
                                             }
                                         } else {
                                             // Many EOC chemo started at the defined excel date exists into ATiM
-                                            pr('TODO Many EOC diagnosis'.$new_excel_clinical_event_data['type'][0]);
-                                            pr('ATiM Data :');
-                                                    pr('----------------------------------------------------------------------------------');
-                                                    pr($atim_treatment_data);
-                                                     pr('EXcel Data :');
-                                                    pr('----------------------------------------------------------------------------------');
-                                                    pr("Excel Dates : $excel_start_date $excel_start_date_for_search $excel_start_date_accuracy // $excel_finish_date $excel_finish_date_accuracy");
-                                                    pr($excel_drugs_array);
-                                                    pr($treatment_event_excel_file_name_and_line_for_summary);
-                                                    pr($new_excel_clinical_event_data);
-                                                    exit;
+                                            $tmp_atim_tx_strg = array();
+                                            foreach($atim_treatment_data as $tmp_new_atim_treatment) {
+                                                $tmp_atim_tx_strg[] = "from same date to <b>". (empty($tmp_new_atim_treatment['finish_date'])? "unknown finishing date" : ($tmp_new_atim_treatment['finish_date'] . " (" . $tmp_new_atim_treatment['finish_date_accuracy'] . ")")) . "</b> with ".(empty($tmp_new_atim_treatment['drugs'])? 'no drug': "drug(s) <b>" . str_replace($drug_strg_separator, ' & ', $tmp_new_atim_treatment['drugs']).'</b>');
+                                            }
+                                            $tmp_atim_tx_strg = implode(' <br> . . . ', $tmp_atim_tx_strg);
+                                            recordErrorAndMessage(
+                                                'Participant Treatment/Event',
+                                                '@@WARNING@@',
+                                                "Two ATim chemotherapy start at the same date than the Excel EOC chemotherapy. No new EOC chemoatherapy has been created. Please validate that all chemos are not the same chemotherapy and clean up data manually into ATiM if required.",
+                                                "Compare Excel chemotherapy from $excel_start_date ($excel_start_date_accuracy) date to <b>" . (empty($excel_finish_date)? "unknown finishing date" : "$excel_finish_date ($excel_finish_date_accuracy)") . "</b> with ".(empty($excel_drugs_array)? 'no drug' : "drug(s) <b>" . implode(' & ', $excel_drugs_array) . '</b>').
+                                                " and ATiM chemotherapy <br> . . . $tmp_atim_tx_strg ".
+                                                "<br>for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
                                         }
                                         break;
                                     
@@ -907,15 +1016,27 @@ foreach($bank_excel_files as $new_bank_file) {
                                                 array('start_date' => $excel_start_date, 'start_date_accuracy' => $excel_start_date_accuracy));
                                         } elseif (sizeof($atim_ovarectomy_data) > 1) {
                                             $atim_ovarectomy_data_msg = array();
+                                            $date_found = false;
                                             foreach($atim_ovarectomy_data as $new_ovarectomy) {
                                                 $atim_ovarectomy_data_msg[] = $new_ovarectomy['start_date']." (".$new_ovarectomy['start_date_accuracy'].")";
+                                                if($new_ovarectomy['start_date'] == $excel_start_date) {
+                                                    $date_found = true;
+                                                }
                                             }
                                             $atim_ovarectomy_data_msg = implode(' & ', $atim_ovarectomy_data_msg);
-                                            recordErrorAndMessage(
-                                                'Participant Treatment/Event',
-                                                '@@ERROR@@',
-                                                "More than one participant ovarectomy already exist into ATiM. The script won't use the excel data to update ovarectomy or create a new one. Please update data manually after the mirgation process.",
-                                                "See excel ovarectomy on ".$excel_start_date." (".$excel_start_date_accuracy.") and atim ovarectomy on $atim_ovarectomy_data_msg for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                            if(!$date_found) {
+                                                recordErrorAndMessage(
+                                                    'Participant Treatment/Event',
+                                                    '@@ERROR@@',
+                                                    "More than one participant ovarectomy already exist into ATiM with no one with the excel date. The script won't use the excel data to update ovarectomy or create a new one. Please update data manually after the mirgation process if required.",
+                                                    "See excel ovarectomy on ".$excel_start_date." (".$excel_start_date_accuracy.") and atim ovarectomy on $atim_ovarectomy_data_msg for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                            } else {
+                                                recordErrorAndMessage(
+                                                    'Participant Treatment/Event',
+                                                    '@@WARNING@@',
+                                                    "More than one participant ovarectomy already exist into ATiM with at least one date matching the excel date. The script won't use the excel data to update ovarectomy or create a new one. Please update data manually after the mirgation process if required.",
+                                                    "See excel ovarectomy on ".$excel_start_date." (".$excel_start_date_accuracy.") and atim ovarectomy on $atim_ovarectomy_data_msg for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                            }
                                         } else {
                                             // One ATiM Ovarectomy detected
                                             if($excel_start_date != $atim_ovarectomy_data[0]['start_date']) {
@@ -987,12 +1108,20 @@ foreach($bank_excel_files as $new_bank_file) {
                                             "Value of excel field ".$new_excel_clinical_event_data['ca125'][1]." won't be used for the ATiM data update.",
                                             "See $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
                                         if(!strlen($excel_ca125)) {
+                                            if(!strlen($new_excel_clinical_event_data['ca125'][0])) {
                                             recordErrorAndMessage(
                                                 'Participant Treatment/Event',
                                                 '@@WARNING@@',
-                                                "No or wrong CA125 value. The date of the CA125 line won't be used for the ATiM data update. Please validate and add data manually into ATiM if required.",
-                                                "See $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                                "No CA125 value. The date of the CA125 line won't be used for the ATiM data update. Please validate and add data manually into ATiM if required.",
+                                                "See ".(strlen($new_excel_clinical_event_data['ca125'][0])? "value '".$new_excel_clinical_event_data['ca125'][0]."' for " : '')." $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                            }    
                                         } else {
+                                            $query_end = 'TRUE';
+                                            if(in_array($excel_start_date_accuracy, array('m', 'd'))) {
+                                                $query_end = "em.event_date_accuracy = '$excel_start_date_accuracy' AND ed.precision_u = '".str_replace("'", "''", $excel_ca125)."'";
+                                            } else {
+                                                $query_end = "em.event_date_accuracy IN ('c', '')";
+                                            }
                                             $query = "SELECT em.participant_id,
                                                 em.id AS event_master_id,
                                                 em.event_date,
@@ -1001,9 +1130,10 @@ foreach($bank_excel_files as $new_bank_file) {
                                                 FROM event_masters em
                                                 INNER JOIN $ev_detail_tablename ed ON em.id = ed.event_master_id
                                                 WHERE em.deleted <> 1
+                                                AND em.participant_id = $atim_participant_id
                                                 AND em.event_control_id  = $ev_control_id
                                                 AND em.event_date LIKE '$excel_start_date_for_search'
-                                                AND (".(in_array($excel_start_date_accuracy, array('m', 'd'))? "em.event_date_accuracy = '$excel_start_date_accuracy'" : "em.event_date_accuracy IN ('c', '')").");";
+                                                AND ($query_end);";
                                             $atim_event_data = getSelectQueryResult($query);
                                             if(!$atim_event_data) {
                                                 $ca125_data_to_create = array(
@@ -1033,14 +1163,18 @@ foreach($bank_excel_files as $new_bank_file) {
                                                 }
                                             } else {
                                                 $all_ca125s = array();
+                                                $value_found = false;
                                                 foreach($atim_event_data as $new_event_data) {
                                                    $all_ca125s[] = "<b>".$new_event_data['precision_u']."</b>";
+                                                   if($excel_ca125 == $new_event_data['precision_u']) {
+                                                       $value_found = true;
+                                                   }
                                                 }
                                                 $all_ca125s = implode(' & ', $all_ca125s);
                                                 recordErrorAndMessage(
                                                     'Participant Treatment/Event',
                                                     '@@ERROR@@',
-                                                    "More than one participant CA125 already exist into ATiM at the same date. No new CA125 data will be created. Please clean up data manually after the mirgation process.",
+                                                    "More than one participant CA125 already exist into ATiM at the same date ".($value_found? "with at least one value matching the excel value" : "with no value matching the excel value").". No new CA125 data will be created. Please clean up data manually after the mirgation process.",
                                                     "See ca125 on ".$excel_start_date." (".$excel_start_date_accuracy.") with values $all_ca125s in ATiM and excel value <b>$excel_ca125</b> for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
                                             } 
                                         }
@@ -1072,6 +1206,7 @@ foreach($bank_excel_files as $new_bank_file) {
                                             FROM event_masters em
                                             INNER JOIN $ev_detail_tablename ed ON em.id = ed.event_master_id
                                             WHERE em.deleted <> 1
+                                            AND em.participant_id = $atim_participant_id
                                             AND em.event_control_id  = $ev_control_id
                                             AND em.event_date LIKE '$excel_start_date_for_search'
                                             AND (".(in_array($excel_start_date_accuracy, array('m', 'd'))? "em.event_date_accuracy = '$excel_start_date_accuracy'" : "em.event_date_accuracy IN ('c', '')").");";
@@ -1137,6 +1272,7 @@ foreach($bank_excel_files as $new_bank_file) {
                                         INNER JOIN $ev_detail_tablename ed ON em.id = ed.event_master_id
                                         WHERE em.deleted <> 1
                                         AND em.event_control_id  = $ev_control_id
+                                        AND em.participant_id = $atim_participant_id
                                         AND em.event_date LIKE '$excel_start_date_for_search'
                                         AND (".(in_array($excel_start_date_accuracy, array('m', 'd'))? "em.event_date_accuracy = '$excel_start_date_accuracy'" : "em.event_date_accuracy IN ('c', '')").");";
                                     $atim_event_data = getSelectQueryResult($query);
@@ -1157,6 +1293,30 @@ foreach($bank_excel_files as $new_bank_file) {
                                             $treatment_event_excel_file_name_and_line_for_summary,
                                             "Created EOC $scan_initials_for_summary Scan",
                                             array('event_date' => $excel_start_date, 'event_date_accuracy' => $excel_start_date_accuracy, 'scan_precision' => $excel_scan_value));
+                                        //Check other scan
+                                        $event_type_for_check = ($event_type == 'ct scan')? 'pet scan' : 'ct scan';
+                                        $ev_control_id = $atim_controls['event_controls']["EOC-$event_type_for_check"]['id'];
+                                        $ev_detail_tablename = $atim_controls['event_controls']["EOC-$event_type_for_check"]['detail_tablename'];
+                                        $query = "SELECT em.participant_id,
+                                            em.id AS event_master_id,
+                                            em.event_date,
+                                            em.event_date_accuracy,
+                                            ed.scan_precision
+                                            FROM event_masters em
+                                            INNER JOIN $ev_detail_tablename ed ON em.id = ed.event_master_id
+                                            WHERE em.deleted <> 1
+                                            AND em.event_control_id  = $ev_control_id
+                                            AND em.participant_id = $atim_participant_id
+                                            AND em.event_date LIKE '$excel_start_date_for_search'
+                                            AND (".(in_array($excel_start_date_accuracy, array('m', 'd'))? "em.event_date_accuracy = '$excel_start_date_accuracy'" : "em.event_date_accuracy IN ('c', '')").")
+                                            AND ed.scan_precision = '".str_replace("'", "''", $excel_scan_value)."';";
+                                        $atim_event_data = getSelectQueryResult($query);
+                                        if($atim_event_data) {
+                                            recordErrorAndMessage('Participant Treatment/Event',
+                                                '@@WARNING@@',
+                                                "The system just created a $event_type but a $event_type_for_check already exists into ATiM at the same date and with the same result. Please clean up data manually after the mirgation process if required.",
+                                                "See Scans on ".$excel_start_date." (".$excel_start_date_accuracy.") with values $excel_scan_value into ATiM for $participant_identifiers_for_summary in $treatment_event_excel_file_name_and_line_for_summary.");
+                                        }
                                     } else if(sizeof($atim_event_data) == 1) {
                                         if($excel_scan_value && $atim_event_data['0']['scan_precision'] != $excel_scan_value) {
                                             updateTableData(
@@ -1241,7 +1401,7 @@ foreach($bank_excel_files as $new_bank_file) {
                                     case 'radiation':
                                         //Check wrong field completed
                                         $wrong_field_completed = array();
-                                        foreach(array('ct_scan', 'ca125', 'drug_1', 'drug_2', 'drug_3', 'drug_4', 'finish_date') as $wrong_field) {
+                                        foreach(array('ct_scan', 'ca125', 'drug_1', 'drug_2', 'drug_3', 'drug_4') as $wrong_field) {
                                             if(strlen($new_excel_clinical_event_data[$wrong_field][0])) {
                                                 $wrong_field_completed[] = $new_excel_clinical_event_data[$wrong_field][1].' = '.$new_excel_clinical_event_data[$wrong_field][0];
                                             }
@@ -1524,25 +1684,9 @@ foreach($bank_excel_files as $new_bank_file) {
 	$import_summary = array();
 }
 
-
-/*
- 
-SELECT `structure_alias`, `model`, `tablename`, `field`, `structure_value_domain_name`, `flag_add`, `flag_edit`, `flag_detail` FROM `view_structure_formats_simplified` 
-WHERE `structure_alias` = 'participants' AND ( flag_add = '1' OR flag_detail = '1') ORDER BY `display_column`, `display_order`
- */
-
 $import_summary = $creation_update_summary;
 
-dislayErrorAndMessage(false, 'Creation/Update Summary');
-
-
-
-exit;
-
-
-
-
-
+dislayErrorAndMessage($commit_all, 'Creation/Update Summary');
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
@@ -1654,7 +1798,7 @@ function getClinicalEventByGeneralParser($excel_file_name, $file_name_for_summar
         array('Chemotherapy Precision Drug2', 'drug_2', array(), array(), false),
         array('Chemotherapy Precision Drug3', 'drug_3', array(), array(), false),
         array('Chemotherapy Precision Drug4', 'drug_4', array(), array(), false),
-        array('CA125  Precision (U)', 'ca125', array(), array(), false) ,
+        array('CA125 Precision (U)', 'ca125', array(), array(), false) ,
         array('CT Scan Precision', 'ct_scan', array(), array(), false)        
     );
     foreach($excel_field_to_atim_field as $field_properties) {
