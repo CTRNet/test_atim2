@@ -5,6 +5,21 @@ class ReportsControllerCustom extends ReportsController
 
     public function participantIdentifiersSummary($parameters)
     {
+        $empty=array(
+            'header' => null,
+            'data' => array(),
+            'columns_names' => null,
+            'error_msg' => null
+        );
+        if (!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
+            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
+            return $empty;
+        }
+        if (!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
+            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
+            return $empty;
+        }
+        
         $header = null;
         $conditions = array();
         
@@ -124,6 +139,165 @@ class ReportsControllerCustom extends ReportsController
         );
     }
 
+    public function participantIdentifiersRamqError($parameters)
+    {
+        $empty=array(
+            'header' => null,
+            'data' => array(),
+            'columns_names' => null,
+            'error_msg' => null
+        );
+        if (!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')) {
+            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
+            return $empty;
+        }
+        if (!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')) {
+            $this->atimFlashWarning(__('you need privileges to access this page'), 'javascript:history.back()');
+            return $empty;
+        }
+
+        $header = null;
+        $conditions = array();
+     
+        if (isset($parameters['Group']['bank_id'])) {
+            // From databrowser
+            $bankIds = array_filter($parameters['Group']['bank_id']);
+            if ($bankIds){
+                $conditions['Group.bank_id'] = $bankIds;
+            }
+        }
+        
+        $condition=(empty($bankIds)?array():array('Bank.id='.$bankIds[0]));
+        
+        $miscIdentifierModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+        $participantModel = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+        if (!empty($condition)){
+            $joins = array(
+                array(
+                    'table' => 'misc_identifiers',
+                    'alias' => 'MiscIdentifier',
+                    'type' => 'INNER',
+                    'conditions' => array(
+                        'Participant.id = MiscIdentifier.participant_id'
+                    )
+                ),
+                array(
+                    'table' => 'banks',
+                    'alias' => 'Bank',
+                    'type' => 'INNER',
+                    'conditions' => array(
+                        'Bank.misc_identifier_control_id = MiscIdentifier.misc_identifier_control_id'
+                    )
+                )
+            );
+
+            $participantIds=$participantModel->find('list', array('conditions'=>$condition, 'joins' => $joins));
+            $participantIds=array_keys($participantIds);
+
+            $joins = array(
+                array(
+                    'table' => 'misc_identifiers',
+                    'alias' => 'MiscIdentifier',
+                    'type' => 'INNER',
+                    'conditions' => array(
+                        'Participant.id = MiscIdentifier.participant_id'
+                    )
+                )
+            );
+            //'MiscIdentifier.misc_identifier_control_id'=>7 for RAMQ
+            $condition=array('Participant.id'=>$participantIds, 'MiscIdentifier.misc_identifier_control_id'=>7); 
+            $fields=array('Participant.id','Participant.first_name','Participant.last_name','Participant.date_of_birth','Participant.date_of_birth_accuracy','Participant.sex','MiscIdentifier.identifier_value');
+
+            $participantList=$miscIdentifierModel->find('all', array('conditions'=>$condition, 'fields'=>$fields));
+        }else{
+            //'MiscIdentifier.misc_identifier_control_id'=>7 for RAMQ
+            $condition=array('MiscIdentifier.misc_identifier_control_id'=>7); 
+            $fields=array('Participant.id','Participant.first_name','Participant.last_name','Participant.date_of_birth','Participant.date_of_birth_accuracy','Participant.sex','MiscIdentifier.identifier_value');
+            $participantList=$miscIdentifierModel->find('all', array('conditions'=>$condition, 'fields'=>$fields));
+        }
+        
+        
+        $data=array();
+        foreach ($participantList as $item) {
+            $notes=array();
+            $id=$item['Participant']['id'];
+            $firstName=normalizeChars($item['Participant']['first_name']);
+            $lastName=normalizeChars($item['Participant']['last_name']);
+            $dateOfBirth=normalizeChars($item['Participant']['date_of_birth']);
+            $dateOfBirthAccuracy=normalizeChars($item['Participant']['date_of_birth_accuracy']);
+            $sex=normalizeChars($item['Participant']['sex']);
+            $ramq=normalizeChars($item['MiscIdentifier']['identifier_value']);
+            
+            if (strlen($lastName)<3){
+                if (strlen($lastName)==2){
+                    $lastNameRamq=$lastName.'X';
+                }else{
+                    $notes[]=__("Last name missed");
+                }
+            }else{
+                $lastNameRamq=substr($lastName, 0, 3);
+            }
+            
+            if (strlen($firstName)==0){
+                $notes[]=__("First name missed");
+            }else{
+                $firstNameRamq=substr($firstName, 0, 1);
+            }
+
+            if ($sex!='F' && $sex!='M'){
+                $notes[]=__("Undefined Sex");
+                $sexNameRamq=-1;
+            }else{
+                $sexNameRamq=($sex=='F')?50:0;
+            }
+           
+            if (strlen($dateOfBirth)!=8){
+                $notes[]=__("Unknown date of birth");
+            }elseif ($dateOfBirthAccuracy!=='C'){
+                $notes[]=__("Approximate date of birth");
+            }else{
+                $yearRamq=substr($dateOfBirth, 2, 2);
+                if ($sexNameRamq>=0){
+                    $monthRamq=sprintf("%02d", ((int)substr($dateOfBirth, 4, 2)+$sexNameRamq));
+                }
+                $dayRamq=substr($dateOfBirth, 6, 2);
+            }
+            
+            $ramqNumber="";
+            if (empty($notes))
+            {
+                $ramqNumber=$lastNameRamq.$firstNameRamq.$yearRamq.$monthRamq.$dayRamq;
+
+                if (substr($ramq, 0, 10)!=$ramqNumber){
+                    $notes[]=__("Problem in ramq");
+                }
+            }
+            $notes=implode("\n", $notes);
+
+            if (!empty($notes)){
+                $var=array();
+                $var['Participant']['id']=$id;
+                $var['Participant']['first_name']=$item['Participant']['first_name'];
+                $var['Participant']['last_name']=$item['Participant']['last_name'];
+                $var['Participant']['sex']=$item['Participant']['sex'];
+                $var['Participant']['date_of_birth']=$item['Participant']['date_of_birth'];
+                $var['Participant']['date_of_birth_accuracy']=$item['Participant']['date_of_birth_accuracy'];
+                $var['0']['qc_nd_ramq']=$item['MiscIdentifier']['identifier_value'];
+                $var['0']['qc_nd_ramq_generated']=$ramqNumber;
+                $var['0']['qc_nd_notes']=$notes;
+                $data[$id]=$var;
+            }
+        }
+        
+        return array(
+            'header' => $header,
+            'data' => $data,
+            'columns_names' => null,
+            'error_msg' => null
+        );
+    }
+    
+    
     public function ctrnetCatalogueSubmissionFile($parameters)
     {
         
