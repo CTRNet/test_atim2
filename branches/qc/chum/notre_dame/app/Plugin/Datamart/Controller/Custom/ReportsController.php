@@ -222,7 +222,7 @@ class ReportsControllerCustom extends ReportsController
             $notes=array();
             $id=$item['Participant']['id'];
             $firstName=normalizeChars($item['Participant']['first_name']);
-            $lastName=normalizeChars($item['Participant']['last_name']);
+            $lastName=normalizeChars($item['Participant']['last_name'], false);
             $dateOfBirth=normalizeChars($item['Participant']['date_of_birth']);
             $dateOfBirthAccuracy=normalizeChars($item['Participant']['date_of_birth_accuracy']);
             $sex=normalizeChars($item['Participant']['sex']);
@@ -235,7 +235,12 @@ class ReportsControllerCustom extends ReportsController
                     $notes[]=__("Last name missed");
                 }
             }else{
-                $lastNameRamq=substr($lastName, 0, 3);
+                $lastNameWithoutSpace =  strtr($lastName, array(' '=>''));
+                $lastNameSpaceToX =  strtr($lastName, array(' '=>'X'));
+                $lastNameRamq=substr($lastNameWithoutSpace, 0, 3);
+                if ($lastNameRamq!==substr($ramq, 0, 3)){
+                    $lastNameRamq=substr($lastNameSpaceToX, 0, 3);
+                }
             }
             
             if (strlen($firstName)==0){
