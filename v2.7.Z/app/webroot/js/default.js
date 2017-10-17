@@ -2744,6 +2744,10 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
             if (visible) {
                 $("#csvPopup").popup();
             }
+
+            var attention='<ul class="warning"><li><span class="icon16 warning mr5px"></span>'+csvWarning+'</li></ul>'
+            $("#csvPopup h4").after(attention);
+            
         });
     }
     $("#csvPopup").popup();
