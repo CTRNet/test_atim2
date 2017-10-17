@@ -37,7 +37,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				$arr_spent_time = $this->getSpentTime($new_dx['Participant']['date_of_birth'].' 00:00:00', $new_dx['DiagnosisMaster']['dx_date'].' 00:00:00');
 				if($arr_spent_time['message']) {
 					$warnings[$arr_spent_time['message']] = __('unable to calculate age at diagnosis').': '.__($arr_spent_time['message']);
-				} else if($arr_spent_time['years'] != $previous_age_at_dx) {
+				} else {
 					$new_age_at_dx = $arr_spent_time['years'];
 					$new_age_at_dx_precision = 'known';
 					if($new_dx['DiagnosisMaster']['dx_date_accuracy'] == 'y' || $new_dx['Participant']['date_of_birth_accuracy']== 'y') {
@@ -53,6 +53,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		foreach($warnings as $new_warning) AppController::getInstance()->addWarningMsg($new_warning);
 	
 		$this->addWritableField(array('age_at_dx', 'age_at_dx_precision'));
+		
 		foreach($dx_to_update as $dx_data) {
 			if(isset($thid->data)) $thid->data = array();
 			$this->id = $dx_data['DiagnosisMaster']['id'];

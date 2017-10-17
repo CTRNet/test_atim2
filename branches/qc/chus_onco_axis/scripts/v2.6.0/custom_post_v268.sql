@@ -3245,8 +3245,380 @@ VALUES
 
 UPDATE `versions` SET branch_build_number = '6566' WHERE version_number = '2.6.8';
 
-ALTER TABLE `aliquot_masters` CHANGE `storage_coord_x` varchar(11) DEFAULT NULL;
-ALTER TABLE `aliquot_masters` CHANGE `storage_coord_y` varchar(11) DEFAULT NULL;
+ALTER TABLE `aliquot_masters` MODIFY `storage_coord_x` varchar(11) DEFAULT NULL;
+ALTER TABLE `aliquot_masters` MODIFY `storage_coord_y` varchar(11) DEFAULT NULL;
 
 UPDATE `versions` SET branch_build_number = '6646' WHERE version_number = '2.6.8';
+  
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-10-16
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE users SET username = 'system', password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979', flag_active = 0 WHERE username = 'manager';
+UPDATE groups SET name = 'system' WHERE name = 'manager';
+
+-- Event control and menu update
+-- ------------------------------------------------------------------
+
+UPDATE event_controls SET disease_site = '', event_group = 'clinical' WHERE flag_active = 1;
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+UPDATE menus SET use_link = '/ClinicalAnnotation/EventMasters/listall/Clinical/%%Participant.id%%' 
+WHERE use_link like '/ClinicalAnnotation/EventMasters/listall/lab/%%Participant.id%%' AND language_title = 'annotation';
+UPDATE menus SET flag_active = 0 WHERE use_link = '/ClinicalAnnotation/EventMasters/listall/lab/%%Participant.id%%';
+
+UPDATE event_controls SET databrowser_label = event_type WHERE flag_active = 1;
+
+-- Clinical Note
+-- ------------------------------------------------------------------
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) 
+VALUES
+(null, '', 'clinical', 'clinical note', 1, 'chus_ed_clinical_note', 'chus_ed_clinical_notes', 0, 'clinical|clinical note', 0, 1, 1);
+CREATE TABLE `chus_ed_clinical_notes` (
+  `type` varchar(250) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `chus_ed_clinical_notes_revs` (
+  `type` varchar(250) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `chus_ed_clinical_notes`
+  ADD KEY `event_master_id` (`event_master_id`);
+ALTER TABLE `chus_ed_clinical_notes_revs`
+  ADD PRIMARY KEY (`version_id`);
+ALTER TABLE `chus_ed_clinical_notes_revs`
+  MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `chus_ed_clinical_notes`
+  ADD CONSTRAINT `chus_ed_clinical_notes_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('chus_ed_clinical_note');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('chus_ed_clinical_note_types', "StructurePermissibleValuesCustom::getCustomDropdown('Clinical Note Types')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Clinical Note Types', 1, 250, 'clinical - annotation');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'chus_ed_clinical_notes', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_ed_clinical_note_types') , '0', '', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_clinical_note'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '31', '', '0', '1', 'precision', '0', '', '0', '', '0', '', '1', 'rows=1,cols=30', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_clinical_note'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_clinical_notes' AND `field`='type'), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('clinical note', 'Clinical Note', 'Note clinique');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) 
+VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_clinical_notes' AND `field`='type'), 'notEmpty', '');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Family History Diagnosis');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('no radiotherapy prior to this date', 'No radiotherapy prior to this date',  'Pas de radiothérapie avant cette date', '1', @control_id, NOW(), NOW(), 1, 1),
+('no chemotherapy prior to this date', 'No chemotherapy prior to this date',  'Pas de chimiothérapie avant cette date', '1', @control_id, NOW(), NOW(), 1, 1);
+
+-- Fix bug on path report & pathologist unrecorded
+-- ------------------------------------------------------------------
+
+UPDATE structure_fields SET `tablename`='event_masters' WHERE `model`='EventMaster' AND `tablename`='' AND `field`='chus_patho_report_pathologist';
+
+-- Medical History & Medication History
+-- ------------------------------------------------------------------
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT now() FROM users WHERE username = 'system');
+
+ALTER TABLE event_masters
+  ADD COLUMN chus_finish_date date DEFAULT NULL,
+  ADD COLUMN chus_finish_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_status varchar(100) DEFAULT '',
+  ADD COLUMN chus_status_date date DEFAULT NULL,
+  ADD COLUMN chus_status_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE event_masters_revs
+  ADD COLUMN chus_finish_date date DEFAULT NULL,
+  ADD COLUMN chus_finish_date_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN chus_status varchar(100) DEFAULT '',
+  ADD COLUMN chus_status_date date DEFAULT NULL,
+  ADD COLUMN chus_status_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE event_masters
+  ADD COLUMN chus_start_date_unknown tinyint(1) NOT NULL DEFAULT '0';
+ALTER TABLE event_masters_revs
+  ADD COLUMN chus_start_date_unknown tinyint(1) NOT NULL DEFAULT '0';  
+  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'chus_finish_date', 'date',  NULL , '0', '', '', '', 'finish date', ''), 
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'chus_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status') , '0', '', '', '', '', 'or status'), 
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'chus_status_date', 'date',  NULL , '0', '', '', '', '', 'as of date'), 
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'chus_start_date_unknown', 'checkbox',  NULL , '0', '', '', '', '', 'unknown');
+
+-- ... Medication History
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_medication_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medication_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='or status'), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medication_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_status_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='as of date'), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medication_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_start_date_unknown' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='unknown'), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('or status', 'Or Status', 'Ou statut');
+  
+SET @event_control_id = (SELECT id FROM event_controls WHERE event_type = 'medication history');
+
+UPDATE event_masters EventMaster, chus_ed_medication_history EventDetail
+SET EventMaster.chus_finish_date = EventDetail.finish_date,
+EventMaster.chus_finish_date_accuracy = EventDetail.finish_date_accuracy,
+EventMaster.chus_status = EventDetail.status,
+EventMaster.chus_status_date = EventDetail.status_date,
+EventMaster.chus_status_date_accuracy = 'c',
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.id = EventDetail.event_master_id
+AND EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND (EventDetail.finish_date IS NOT NULL OR EventDetail.status <> '' OR EventDetail.status_date IS NOT NULL);
+
+UPDATE event_masters EventMaster
+SET EventMaster.event_date = null,
+EventMaster.event_date_accuracy = '',
+EventMaster.chus_start_date_unknown = '1',
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventMaster.event_date LIKE '1900%'
+AND EventMaster.event_date_accuracy = 'y';
+
+INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
+participant_id, diagnosis_master_id, chus_patho_report_number, chus_patho_report_pathologist, chus_finish_date, chus_finish_date_accuracy, chus_status, chus_status_date, 
+chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, version_created)
+(SELECT id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
+participant_id, diagnosis_master_id, chus_patho_report_number, chus_patho_report_pathologist, chus_finish_date, chus_finish_date_accuracy, chus_status, chus_status_date, 
+chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, modified 
+FROM event_masters 
+WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO chus_ed_medication_history_revs (finish_date, finish_date_accuracy, medication, dose_unit, frequence, route, status,
+status_date, event_master_id, version_created)
+(SELECT finish_date, finish_date_accuracy, medication, dose_unit, frequence, route, status,
+status_date, event_master_id, modified
+FROM event_masters INNER JOIN chus_ed_medication_history ON id = event_master_id
+WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+    
+ALTER TABLE chus_ed_medication_history  
+    CHANGE finish_date obsolete_finish_date date DEFAULT NULL,
+    CHANGE finish_date_accuracy obsolete_finish_date_accuracy char(1) NOT NULL DEFAULT '',
+    CHANGE status obsolete_status varchar(100) DEFAULT NULL,
+    CHANGE status_date obsolete_status_date date DEFAULT NULL;
+ALTER TABLE chus_ed_medication_history_revs  
+    CHANGE finish_date obsolete_finish_date date DEFAULT NULL,
+    CHANGE finish_date_accuracy obsolete_finish_date_accuracy char(1) NOT NULL DEFAULT '',
+    CHANGE status obsolete_status varchar(100) DEFAULT NULL,
+    CHANGE status_date obsolete_status_date date DEFAULT NULL;  
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medication_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='status' AND `language_label`='status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medication_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='status_date' AND `language_label`='' AND `language_tag`='as of date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medication_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='finish_date' AND `language_label`='end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='status' AND `language_label`='status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='status_date' AND `language_label`='' AND `language_tag`='as of date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='status' AND `language_label`='status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='status_date' AND `language_label`='' AND `language_tag`='as of date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE structure_fields 
+SET `type`='autocomplete', `setting`='url=ClinicalAnnotation/EventMasters/autocompleteMedication' 
+WHERE model='EventDetail' AND tablename='chus_ed_medical_history' AND field='medication';
+
+-- ... Medical History
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT now() FROM users WHERE username = 'system');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='or status'), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_status_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='as of date'), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_medical_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_start_date_unknown' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='unknown'), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+  
+SET @event_control_id = (SELECT id FROM event_controls WHERE event_type = 'medical history');
+
+UPDATE event_masters EventMaster, chus_ed_medical_history EventDetail
+SET EventMaster.chus_status = 'prior',
+EventMaster.chus_status_date = EventMaster.modified,
+EventMaster.chus_status_date_accuracy = 'c',
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.id = EventDetail.event_master_id
+AND EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventDetail.ongoing_currently_yes_no = 'n';
+
+UPDATE event_masters EventMaster, chus_ed_medical_history EventDetail
+SET EventMaster.chus_status = 'actual/concomitant',
+EventMaster.chus_status_date = EventMaster.modified,
+EventMaster.chus_status_date_accuracy = 'c',
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.id = EventDetail.event_master_id
+AND EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventDetail.ongoing_currently_yes_no = 'y';
+
+UPDATE event_masters EventMaster
+SET EventMaster.event_date = null,
+EventMaster.event_date_accuracy = '',
+EventMaster.chus_start_date_unknown = '1',
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventMaster.event_date LIKE '1900%'
+AND EventMaster.event_date_accuracy = 'y';
+
+INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
+participant_id, diagnosis_master_id, chus_patho_report_number, chus_patho_report_pathologist, chus_finish_date, chus_finish_date_accuracy, chus_status, chus_status_date, 
+chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, version_created)
+(SELECT id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
+participant_id, diagnosis_master_id, chus_patho_report_number, chus_patho_report_pathologist, chus_finish_date, chus_finish_date_accuracy, chus_status, chus_status_date, 
+chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, modified 
+FROM event_masters 
+WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO chus_ed_medical_history_revs (body_system, disease_code, ongoing_currently_yes_no, finish_date, finish_date_accuracy, event_master_id, version_created)
+(SELECT body_system, disease_code, ongoing_currently_yes_no, finish_date, finish_date_accuracy, event_master_id, modified
+FROM event_masters INNER JOIN chus_ed_medical_history ON id = event_master_id
+WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+
+ALTER TABLE chus_ed_medical_history  
+    CHANGE finish_date obsolete_finish_date date DEFAULT NULL,
+    CHANGE finish_date_accuracy obsolete_finish_date_accuracy char(1) NOT NULL DEFAULT '',
+    CHANGE ongoing_currently_yes_no obsolete_ongoing_currently_yes_no char(1) NOT NULL DEFAULT '';
+ALTER TABLE chus_ed_medical_history_revs  
+    CHANGE finish_date obsolete_finish_date date DEFAULT NULL,
+    CHANGE finish_date_accuracy obsolete_finish_date_accuracy char(1) NOT NULL DEFAULT '',
+    CHANGE ongoing_currently_yes_no obsolete_ongoing_currently_yes_no char(1) NOT NULL DEFAULT '';
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medical_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='finish_date' AND `language_label`='end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medical_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='ongoing_currently_yes_no' AND `language_label`='ongoing/currently' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='finish_date' AND `language_label`='end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='ongoing_currently_yes_no' AND `language_label`='ongoing/currently' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='finish_date' AND `language_label`='end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
+`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='ongoing_currently_yes_no' AND `language_label`='ongoing/currently' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_ed_medical_history') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_medical_history' AND `field`='body_system' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_ed_medical_history_body_system') AND `flag_confidential`='0');
+
+-- ... all
+
+UPDATE structure_fields SET `language_label`='or status',  `language_tag`='' WHERE model='EventMaster' AND tablename='event_masters' AND field='chus_status';
+
+-- Treatment
+-- ------------------------------------------------------------------
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT now() FROM users WHERE username = 'system');
+
+ALTER TABLE treatment_masters
+  ADD COLUMN chus_status varchar(100) DEFAULT '',
+  ADD COLUMN chus_status_date date DEFAULT NULL,
+  ADD COLUMN chus_status_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE treatment_masters_revs
+  ADD COLUMN chus_status varchar(100) DEFAULT '',
+  ADD COLUMN chus_status_date date DEFAULT NULL,
+  ADD COLUMN chus_status_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE treatment_masters
+  ADD COLUMN chus_start_date_unknown tinyint(1) NOT NULL DEFAULT '0';
+ALTER TABLE treatment_masters_revs
+  ADD COLUMN chus_start_date_unknown tinyint(1) NOT NULL DEFAULT '0';  
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'chus_start_date_unknown', 'checkbox',  NULL , '0', '', '', '', '', 'unknown');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='chus_start_date_unknown' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='unknown'), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE treatment_masters TreatmentMaster
+SET TreatmentMaster.start_date = null,
+TreatmentMaster.start_date_accuracy = '',
+TreatmentMaster.chus_start_date_unknown = '1',
+TreatmentMaster.modified = @modified,
+TreatmentMaster.modified_by = @modified_by
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.start_date LIKE '1900%'
+AND TreatmentMaster.start_date_accuracy = 'y';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'chus_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status') , '0', '', '', '', '', 'or status'), 
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'chus_status_date', 'date',  NULL , '0', '', '', '', '', 'as of date');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='chus_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='or status'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='chus_status_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='as of date'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE treatment_masters TreatmentMaster
+SET TreatmentMaster.chus_status = 'prior',
+TreatmentMaster.chus_status_date = TreatmentMaster.modified,
+TreatmentMaster.chus_status_date_accuracy = 'c',
+TreatmentMaster.modified = @modified,
+TreatmentMaster.modified_by = @modified_by
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentMaster.chus_start_date_unknown = '1'
+AND TreatmentMaster.finish_date IS NULL;
+
+INSERT INTO treatment_masters_revs (id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id, 
+participant_id, diagnosis_master_id, chus_status, chus_status_date, chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, version_created)
+(SELECT id, treatment_control_id, tx_intent, target_site_icdo, start_date, start_date_accuracy, finish_date, finish_date_accuracy, information_source, facility, notes, protocol_master_id, 
+participant_id, diagnosis_master_id, chus_status, chus_status_date, chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, modified 
+FROM treatment_masters 
+WHERE deleted <> 1 AND modified = @modified AND  modified_by = @modified_by);
+INSERT INTO chus_txd_digestive_system_surgeries_biopsies_revs (treatment_master_id, patho_report_nedo_adj_tx_response, type, proximal_resection_margin, distal_resection_margin, version_created)
+(SELECT treatment_master_id, patho_report_nedo_adj_tx_response, type, proximal_resection_margin, distal_resection_margin, modified
+FROM treatment_masters INNER JOIN chus_txd_digestive_system_surgeries_biopsies ON id = treatment_master_id
+WHERE deleted <> 1 AND modified = @modified AND  modified_by = @modified_by);
+INSERT INTO chus_txd_systemic_therapies_revs (completed, response, treatment_master_id, reponse_date, reponse_date_accuracy, num_cycles, completed_cycles, frequence, frequence_unit, version_created)
+(SELECT completed, response, treatment_master_id, reponse_date, reponse_date_accuracy, num_cycles, completed_cycles, frequence, frequence_unit, modified
+FROM treatment_masters INNER JOIN chus_txd_systemic_therapies ON id = treatment_master_id
+WHERE deleted <> 1 AND modified = @modified AND  modified_by = @modified_by);
+INSERT INTO chus_txd_digestive_system_radiotherapies_revs (completed, response, treatment_master_id, reponse_date, reponse_date_accuracy, version_created)
+(SELECT completed, response, treatment_master_id, reponse_date, reponse_date_accuracy, modified
+FROM treatment_masters INNER JOIN chus_txd_digestive_system_radiotherapies ON id = treatment_master_id
+WHERE deleted <> 1 AND modified = @modified AND  modified_by = @modified_by);
+
+UPDATE structure_fields SET `language_label`='or status',  `language_tag`='' WHERE model='TreatmentMaster' AND tablename='treatment_masters' AND field='chus_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='chus_medication_status');
+
+-- ... Radiotherapy
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_digestive_system_radiotherapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_digestive_system_radiotherapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ... Systemic Treatment
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_systemic_therapies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Diagnosis
+-- ------------------------------------------------------------------
+
+UPDATE diagnosis_controls SET flag_compare_with_cap = 0;
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  TODO
+  Dans une etude prospective... mettre par defaut in stock a no et shipped et lors de la creation de l'event mettre l'etude et la date de collection...
+  Veullent piour les métastases hépatique pouvoir mettre l'information des lobes et segments. Faut il créer un dx spécifique?
+  Lors d'une hépatectomie, ils veulent savoir si le patient a repondu a la chimio. 
+  Veulent les CAP report Neuro Endocrinien ! ressemble bcp au colo rectal CAP
+  Veulent aussi le CAP - Biomarker Reproting. Cela remplacera les biomarkers qu'ils voulaient lors de l'analyse initiale.
+  Verifier si on autorise un champ note dans les cap reports.
+  Veulent voire plus d'info dans collection tree view... sample collecté. Si tumor, etc
+  
+  Faire un web meeting pour els valeurs par defaut.
+  
+  Voire si il y a un cotnact SARDO. Si oui voire avec AM3 si les sous que nous avaons donnée sont pour el CHUM ou le réseau? Voire si on peut demander une connection.
+  ajouter... un chanp texte pour le cap report dans le formualire chir....
+  
   
