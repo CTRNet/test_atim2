@@ -649,16 +649,22 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
 }
 
     $(scope).find(".jqueryAutocomplete").each(function () {
-//			var element = $(this);
+//        var element = $(this);
+        var url=(root_url == "/" ? "" : root_url) + $(this).attr("url");
         $(this).autocomplete({
             //if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
+//            source: (root_url == "/" ? "" : root_url) + $(this).attr("url"),
                     //alternate source for debugging
-//				source: function(request, response) {
-//					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//						console.log(data);
-//					});
-//				}
+            source: function(request, response) {
+                    $.get(url, request, function(data){
+                        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                            saveSqlLogAjax(ajaxSqlLog);
+                        }                        
+                        response(JSON.parse(data));
+                    });
+            }
         });
     });
 }
