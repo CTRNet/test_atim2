@@ -185,6 +185,12 @@ class SopExtendsController extends SopAppController
             )
         ));
         
+        // MANAGE FORM, MENU AND ACTION BUTTONS
+        $this->set('atimMenuVariables', array(
+            'SopMaster.id' => $sopMasterId,
+            'SopExtend.id' => $sopExtendId
+        ));
+        
         $this->hook();
         
         if (! empty($this->request->data)) {

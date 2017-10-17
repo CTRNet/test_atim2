@@ -377,7 +377,6 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                 }
                 
                 if (isset($this->request->data['Collection']['deleted'])) {
-                    $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
                     $this->redirect('/InventoryManagement/Collections/add/' . $this->Collection->getLastInsertId());
                 } else {
                     $this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participantId . '/' . $this->Collection->id);
@@ -571,7 +570,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController
                     require ($hookLink);
                 }
                 
-                $this->atimFlash(__('your data has been deleted') . '<br>' . __('use inventory management module to delete the entire collection'), '/ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $participantId . '/');
+                $this->atimFlash(__('your data has been deleted') . ' ' . __('use inventory management module to delete the entire collection'), '/ClinicalAnnotation/ClinicalCollectionLinks/listall/' . $participantId . '/');
             } else {
                 $this->atimFlashError(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participantId . '/' . $collectionId . '/');
             }

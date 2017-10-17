@@ -139,7 +139,7 @@ class Order extends OrderAppModel
             'conditions' => array(
                 'OrderItem.order_id' => $orderId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -154,7 +154,7 @@ class Order extends OrderAppModel
             'conditions' => array(
                 'OrderLine.order_id' => $orderId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -169,7 +169,7 @@ class Order extends OrderAppModel
             'conditions' => array(
                 'Shipment.order_id' => $orderId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -198,7 +198,7 @@ class Order extends OrderAppModel
             'fields' => array(
                 'OrderItem.aliquot_master_id'
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         
         if (empty($orderItemData)) {

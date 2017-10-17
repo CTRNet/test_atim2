@@ -47,5 +47,4 @@ if ($hookLink) {
 
 // BUILD FORM
 if ($displayNextForm)
-    $this->Structures->build($finalAtimStructure, $finalOptions);	
-	
+    $this->Structures->build($finalAtimStructure, $finalOptions);

@@ -148,13 +148,15 @@ class TemplateController extends AppController
                 
                 $this->TemplateNode->checkWritableFields = false;
                 foreach ($tree as $node) {
-                    if ($node->nodeId < 0) {
+                    if ($node->nodeId <= 0) {
                         // create the node in Db
                         $parentId = null;
-                        if ($node->parentId < 0) {
-                            $parentId = $nodesMapping[$node->parentId];
-                        } elseif ($node->parentId > 0) {
-                            $parentId = $node->parentId;
+                        if (isset ($node->parentId) && !is_string($node->parentId)){
+                            if ($node->parentId <= 0) {
+                                $parentId = $nodesMapping[$node->parentId];
+                            }elseif ($node->parentId > 0) {
+                                $parentId = $node->parentId;
+                            }
                         }
                         $this->TemplateNode->data = array();
                         $this->TemplateNode->id = null;
@@ -201,7 +203,7 @@ class TemplateController extends AppController
                 return;
             }
         }
-        
+
         // loading tree and setting variables
         $this->Template->id = $templateId;
         $this->request->data = $tmpTemplate;

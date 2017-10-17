@@ -20,7 +20,8 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
     /**
      * @param $participantId
      */
-    public function listall($participantId){
+    public function listall($participantId)
+    {
         // MANAGE DATA
         $participantData = $this->Participant->getOrRedirect($participantId);
         
@@ -56,7 +57,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
                 'ParticipantContact.id' => $participantContactId,
                 'ParticipantContact.participant_id' => $participantId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($participantContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -147,7 +148,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
                 'ParticipantContact.id' => $participantContactId,
                 'ParticipantContact.participant_id' => $participantId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($participantContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -213,7 +214,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController
                 'ParticipantContact.id' => $participantContactId,
                 'ParticipantContact.participant_id' => $participantId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($participantContactData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
