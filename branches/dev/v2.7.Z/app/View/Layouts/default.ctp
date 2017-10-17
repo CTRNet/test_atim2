@@ -92,7 +92,8 @@ if (__('clin_english') == "Anglais") {
 			var STR_BACK = "<?php echo __('back'); ?>";
 			var STR_NODE_SELECTION = "<?php echo __('nodes selection'); ?>";
 			var DEBUG_MODE = "<?php echo Configure::read('debug'); ?>";
-						
+			var csvWarning = "<?php echo __('csv file warning') ?>";
+                        
 		</script>
 <!--[if IE 7]>
 	<?php
