@@ -97,8 +97,7 @@ $headerDescription = __('link to databrowser wiki page %s  + datamart structures
 if (isset($header)) {
     if (! is_array($header)) {
         $headerTitle = $header;
-    } else 
-        if (array_key_exists('title', $header)) {
+    } elseif (array_key_exists('title', $header)) {
             $headerTitle = $header['title'];
             if (array_key_exists('description', $header)) {
                 $headerDescription = $header['description'] . '<br>' . $headerDescription;
@@ -123,7 +122,7 @@ $this->Structures->build($atimStructure, array(
 var datamartActions = true;
 var errorYouMustSelectAnAction = "<?php echo __("you must select an action"); ?>";
 var errorYouNeedToSelectAtLeastOneItem = "<?php echo __("you need to select at least one item"); ?>";
-var menuItems = '<?php echo json_encode(Sanitize::clean($dropdownOptions)); ?>';
+var menuItems = '<?php echo json_encode(stringCorrection(Sanitize::clean($dropdownOptions))); ?>';
 var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
 var STR_BACK = '<?php echo __('back'); ?>';
 var csvMergeData = '<?php echo json_encode(isset($csvMergeData) ? $csvMergeData : array()) ; ?>';

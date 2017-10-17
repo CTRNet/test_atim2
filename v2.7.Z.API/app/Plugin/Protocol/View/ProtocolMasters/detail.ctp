@@ -40,5 +40,3 @@ if ($displayPrecisions) {
     
     $this->Structures->build($finalAtimStructure, $finalOptions);
 }
-
-?>

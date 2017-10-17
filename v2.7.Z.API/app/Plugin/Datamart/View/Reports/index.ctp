@@ -21,4 +21,3 @@ $this->Structures->build($atimStructure, array(
         )
     )
 ));
-?>

@@ -32,4 +32,3 @@ $this->Structures->build($finalAtimStructure, $finalOptions);
 <script type="text/javascript">
 var copyControl = true;
 </script>
-

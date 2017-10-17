@@ -64,6 +64,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
             $searchCriteria['TreatmentMaster.participant_id'] = $participantId;
             $searchCriteria['TreatmentControl.use_detail_form_for_index'] = '0';
             // Set structure
+            $this->set('addLinks', array());
             $this->Structures->set('treatmentmasters');
         } else {
             // 3 - DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
@@ -73,6 +74,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController
             // Set structure
             $controlData = $this->TreatmentControl->getOrRedirect($treatmentControlId);
             $this->Structures->set($controlData['TreatmentControl']['form_alias']);
+            $this->set('addLinks', array());
             self::buildDetailBinding($this->TreatmentMaster, $searchCriteria, $controlData['TreatmentControl']['form_alias']);
         }
         

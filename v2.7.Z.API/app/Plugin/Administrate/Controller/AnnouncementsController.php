@@ -20,26 +20,22 @@ class AnnouncementsController extends AdministrateAppController
 
     /**
      * @param $linkedModel
-     * @param int $bankOrGroupId
-     * @param int $userId
+     * @param int $bankOrUserId
      */
-    public function add($linkedModel, $bankOrGroupId = 0, $userId = 0)
+    public function add($linkedModel, $bankOrUserId = 0)
     {
         if ($linkedModel == 'user') {
             
             // Get user data
             
-            $user = $this->User->getOrRedirect($userId);
-            if ($user['Group']['id'] != $bankOrGroupId) {
-                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+            $user = $this->User->getOrRedirect($bankOrUserId);
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
             $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
             $this->set('atimMenuVariables', array(
                 'Group.id' => $user['Group']['id'],
-                'User.id' => $userId
+                'User.id' => $bankOrUserId
             ));
         } elseif ($linkedModel == 'bank') {
             
@@ -47,7 +43,7 @@ class AnnouncementsController extends AdministrateAppController
             
             $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
             $this->set('atimMenuVariables', array(
-                'Bank.id' => $bankOrGroupId
+                'Bank.id' => $bankOrUserId
             ));
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -64,15 +60,13 @@ class AnnouncementsController extends AdministrateAppController
         if (! empty($this->request->data)) {
             
             if ($linkedModel == 'bank') {
-                $this->request->data['Announcement']['bank_id'] = $bankOrGroupId;
+                $this->request->data['Announcement']['bank_id'] = $bankOrUserId;
                 $this->Announcement->addWritableField(array(
                     'bank_id'
                 ));
             } else {
-                $this->request->data['Announcement']['group_id'] = $bankOrGroupId;
-                $this->request->data['Announcement']['user_id'] = $userId;
+                $this->request->data['Announcement']['user_id'] = $bankOrUserId;
                 $this->Announcement->addWritableField(array(
-                    'group_id',
                     'user_id'
                 ));
             }
@@ -101,10 +95,9 @@ class AnnouncementsController extends AdministrateAppController
 
     /**
      * @param $linkedModel
-     * @param int $bankOrGroupId
-     * @param int $userId
+     * @param int $bankOrUserId
      */
-    public function index($linkedModel, $bankOrGroupId = 0, $userId = 0)
+    public function index($linkedModel, $bankOrUserId = 0)
     {
         $conditions = array();
         
@@ -112,16 +105,12 @@ class AnnouncementsController extends AdministrateAppController
             
             // Get user data
             
-            $user = $this->User->getOrRedirect($userId);
-            if ($user['Group']['id'] != $bankOrGroupId) {
-                $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            }
+            $user = $this->User->getOrRedirect($bankOrUserId);
             
             // Set conditions
             
             $conditions = array(
-                'Announcement.group_id' => $bankOrGroupId,
-                'Announcement.user_id' => $userId
+                'Announcement.user_id' => $bankOrUserId
             );
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
@@ -129,21 +118,21 @@ class AnnouncementsController extends AdministrateAppController
             $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
             $this->set('atimMenuVariables', array(
                 'Group.id' => $user['Group']['id'],
-                'User.id' => $userId
+                'User.id' => $bankOrUserId
             ));
         } elseif ($linkedModel == 'bank') {
             
             // Set conditions
             
             $conditions = array(
-                'Announcement.bank_id' => $bankOrGroupId
+                'Announcement.bank_id' => $bankOrUserId
             );
             
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
             $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
             $this->set('atimMenuVariables', array(
-                'Bank.id' => $bankOrGroupId
+                'Bank.id' => $bankOrUserId
             ));
         } else {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -169,11 +158,13 @@ class AnnouncementsController extends AdministrateAppController
         
         if (isset($this->request->data['Announcement']['user_id'])) {
             
+            $user = $this->User->getOrRedirect($this->request->data['Announcement']['user_id']);
+            
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
             $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
             $this->set('atimMenuVariables', array(
-                'Group.id' => $this->request->data['Announcement']['group_id'],
+                'Group.id' => $user['Group']['id'],
                 'User.id' => $this->request->data['Announcement']['user_id']
             ));
         } else {
@@ -202,11 +193,14 @@ class AnnouncementsController extends AdministrateAppController
         
         if (isset($announcementData['Announcement']['user_id'])) {
             
+            $user = $this->User->getOrRedirect($announcementData['Announcement']['user_id']);
+            
             // MANAGE FORM, MENU AND ACTION BUTTONS
             
             $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/user'));
             $this->set('atimMenuVariables', array(
-                'Group.id' => $announcementData['Announcement']['group_id'],
+                'Announcement.id' => $announcementId,
+                'Group.id' => $user['Group']['id'],
                 'User.id' => $announcementData['Announcement']['user_id']
             ));
         } else {
@@ -215,6 +209,7 @@ class AnnouncementsController extends AdministrateAppController
             
             $this->set('atimMenu', $this->Menus->get('/Administrate/Announcements/index/bank'));
             $this->set('atimMenuVariables', array(
+                'Announcement.id' => $announcementId,
                 'Bank.id' => $announcementData['Announcement']['bank_id']
             ));
         }
@@ -255,7 +250,9 @@ class AnnouncementsController extends AdministrateAppController
         
         $arrAllowDeletion = $this->Announcement->allowDeletion($announcementId);
         
-        $flashUrl = (! empty($announcementData['Announcement']['user_id'])) ? "/Administrate/Announcements/index/user/" . $announcementData['Announcement']['group_id'] . '/' . $announcementData['Announcement']['user_id'] : "/Administrate/Announcements/index/bank/" . $announcementData['Announcement']['bank_id'];
+        $flashUrl = (! empty($announcementData['Announcement']['user_id'])) ? 
+            "/Administrate/Announcements/index/user/" . $announcementData['Announcement']['user_id'] : 
+            "/Administrate/Announcements/index/bank/" . $announcementData['Announcement']['bank_id'];
         
         // CUSTOM CODE
         $hookLink = $this->hook('delete');

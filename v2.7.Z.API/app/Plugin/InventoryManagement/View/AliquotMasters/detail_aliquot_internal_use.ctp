@@ -1,6 +1,6 @@
 <?php
 $structureLinks = array(
-    'top' => NULL,
+    'top' => null,
     'bottom' => array(
         'edit' => '/InventoryManagement/AliquotMasters/editAliquotInternalUse/' . $atimMenuVariables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/',
         'delete' => '/InventoryManagement/AliquotMasters/deleteAliquotInternalUse/' . $atimMenuVariables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/'
@@ -27,5 +27,3 @@ if ($hookLink) {
 
 // BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);
-
-?>

@@ -40,11 +40,19 @@ $title = $this->Shell->pageTitle;
 	
 	<title><?php echo $title ? $title.' &laquo ATiM' : __('core_appname'); ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="Pragma" content="no-cache" />
+<!--<meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Cache-Control"
 	content=" no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0" />
-<meta http-equiv="Expires" content="0" />
-
+<meta http-equiv="Expires" content="0" />-->
+<?php
+// Add this if because the Print and echo functions cause warning in mode debug.
+//https://stackoverflow.com/questions/8028957#answer-8028987
+if(Configure::read('debug')===0){
+    header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+    header("Pragma: no-cache"); // HTTP 1.0.
+    header("Expires: 0"); // Proxies.
+}
+?>
 <link rel="shortcut icon"
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
 	<?php
@@ -80,9 +88,12 @@ if (__('clin_english') == "Anglais") {
 			var STR_LOADING = "<?php echo __('loading'); ?>";
 			var STR_OK = "<?php echo __('ok'); ?>";
 			var STR_CANCEL = "<?php echo __('cancel'); ?>";
+			var STR_LOADING = "<?php echo __('loading'); ?>";
 			var STR_BACK = "<?php echo __('back'); ?>";
 			var STR_NODE_SELECTION = "<?php echo __('nodes selection'); ?>";
-						
+			var DEBUG_MODE = "<?php echo Configure::read('debug'); ?>";
+			var csvWarning = "<?php echo __('csv file warning') ?>";
+                        
 		</script>
 <!--[if IE 7]>
 	<?php
@@ -99,7 +110,8 @@ echo $header;
 echo $this->Session->flash();
 echo $this->Session->flash('auth');
 
-echo $content_for_layout;
+//echo $content_for_layout;
+echo $this->fetch('content');
 
 echo $this->Shell->footer();
 

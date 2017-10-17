@@ -73,5 +73,3 @@ if ($isAliquotReviewDefined) {
     
     $this->Structures->build($finalAtimStructure, $finalOptions);
 }
-
-?>

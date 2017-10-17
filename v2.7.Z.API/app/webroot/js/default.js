@@ -5,12 +5,115 @@ var orgAction = null;
 var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 var sessionTimeout = new Object();
+var checkedData = [];
+var DEBUG_MODE_JS = 0;
+
+//window.alert = function(a){
+//    console.log(a);
+//}
+
+$(document).ready(function () {
+    if (typeof dataLimit !== 'undefined') {
+        if (typeof controller !== 'undefined' && typeof action !== 'undefined') {
+            checkedData = [];
+            checkedData[controller] = [];
+            checkedData[controller][action] = [];
+        }
+        $("#wrapper").find("a[href*='limit:'], a[href*='page:'], a[href*='sort:']").each(function () {
+            if (!$(this).hasClass("submit")) {
+                $(this).attr("data-href", $(this).prop('href'));
+                $(this).prop('href', 'javascript:void(0)');
+            }
+        });
+        $("#wrapper").delegate("a[data-href]", 'click', function () {
+            var url = $(this).attr("data-href");
+            $.ajax({
+                type: "GET",
+                url: url + "/noActions:/",
+                cache: false,
+                success: successFunction,
+                error: errorFunction
+            });
+        });
+
+        function successFunction(data) {
+            if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE > 0) {
+                try {
+                    var myName = arguments.callee.toString();
+                    myName = myName.substr('function '.length);
+                    myName = myName.substr(0, myName.indexOf('('));
+                    console.log (myName);
+                    if (DEBUG_MODE_JS > 0) {
+                        debugger ;
+                    }
+                } catch (ex) {
+                }
+            }
+
+            var domNodes = document.createElement('div');
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
+            $(domNodes).html(data);
+            $(domNodes).find("a[href*=':']").each(function () {
+                if (!$(this).hasClass("submit")) {
+                    $(this).attr("data-href", $(this).prop('href'));
+                    $(this).prop('href', 'javascript:void(0)');
+                }
+            });
+
+            var id;
+            var checkboxes = $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden']");
+            checkedData[controller][action].forEach(function (item) {
+                $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").prop("checked", item.checked);
+                $(domNodes).find("input[name^='data[" + dataIndex + "]'][type!='hidden'][value='" + item.id + "']").closest("tr").addClass("chkLine")
+            });
+
+            $(checkboxes).each(function () {
+                $this = $(this);
+                id = $this.val();
+                checked = $this.is(':checked');
+                index = checkedData[controller][action].findIndex(function (item) {
+                    return item.id === id;
+                });
+                if (index !== -1) {
+                    $this.prop("checked", true);
+                }
+            });
+
+
+            $("#wrapper").children("form").remove();
+            $("#wrapper").prepend($(domNodes).children("form").first());
+            initCheckAll("#wrapper");
+        }
+
+        var errorFunction = function (jqXHR, textStatus, errorThrown) {
+            $(document).remove('#popupError');
+            var popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            popupError = "<div id=\"popupError\"><p>" + jqXHR + "</p><p>" + textStatus + "</p><p>" + errorThrown + "</p></div>";
+            $(document).append(popupError);
+//        $(popupError).popup();
+            if (DEBUG_MODE_JS > 0) {
+                console.log (jqXHR);
+            }
+        };
+    }
+    if (typeof duplicatedSamples !=='undefined'){
+        treeTable=$("div#wrapper.wrapper.plugin_InventoryManagement.controller_Collections.action_detail .this_column_1.total_columns_2 table.columns.tree td ul.tree_root");
+        findDuplicatedSamples(treeTable);
+    }
+});
 
 jQuery.fn.fullWidth = function () {
     return parseInt($(this).width()) + parseInt($(this).css("margin-left")) + parseInt($(this).css("margin-right")) + parseInt($(this).css("padding-left")) + parseInt($(this).css("padding-right")) + parseInt($(this).css("border-left-width")) + parseInt($(this).css("border-right-width"));
 };
 
-var header_total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left;
+if ($("#header div:first").length !== 0) {
+    var header_total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left;
+}
 
 //Slide down animation (show) for action menu
 var actionMenuShow = function () {
@@ -86,6 +189,19 @@ var actionClickDown = function () {
  * @returns false so that the page never scrolls
  */
 function actionMouseweelHandler(event, delta) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if ($(event.currentTarget).find("ul:animated").length == 0) {
         if (delta > 0) {
             $(event.currentTarget).find(".up").click();
@@ -100,6 +216,19 @@ function actionMouseweelHandler(event, delta) {
  * Inits actions bars (main one and ajax loaded ones). Unbind the actions before rebinding them to avoid duplicate bindings
  */
 function initActions() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $('div.actions div.bottom_button').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
     $('div.actions a.down').unbind('click', actionClickDown).click(actionClickDown);
     $('div.actions a.up').unbind('click', actionClickUp).click(actionClickUp);
@@ -107,10 +236,34 @@ function initActions() {
 
     if (window.menuItems) {
         function actionDisplay(data) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
             return '<span class="row" id="' + data.value + '"><span class="cell"><span class="icon16 ' + (data.style ? data.style : 'blank') + '"></span></span><span class="cell" style="padding-left: 5px;">' + data.label + '</span></span>';
         }
 
         function validateSubmit() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
             var errors = new Array();
             if ($("#actionsTarget input[type=hidden]").val() == "") {
                 errors.push(errorYouMustSelectAnAction);
@@ -154,7 +307,7 @@ function initActions() {
             if (validateSubmit()) {
                 var action = null;
                 var actionTargetValue = $("#actionsTarget input[type=hidden]").val();
-                if (actionTargetValue.indexOf('javascript:') == 0) {
+                if (actionTargetValue.indexOf('javascript:') >= 0) {
                     action = actionTargetValue;
                 } else if (isNaN(actionTargetValue[0])) {
                     action = root_url + actionTargetValue;
@@ -180,6 +333,19 @@ function initActions() {
 }
 
 function initDatepicker(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find(".datepicker").each(function () {
         var dateFields = $(this).parent().parent().find('input, select');
         var yearField = null;
@@ -228,7 +394,7 @@ function initDatepicker(scope) {
                     day = "0" + day;
                 }
                 var tmpDate = $(yearField).val() + "-" + month + "-" + day;
-                if (tmpDate.length == 10) {
+                if (tmpDate.length === 10) {
                     $(this).datepicker('setDate', tmpDate);
 
                 }
@@ -237,17 +403,16 @@ function initDatepicker(scope) {
                 //hide the date
                 $(this).val(" ");//space required for Safari and Chome or the button disappears
                 var dateSplit = dateText.split(/-/);
-                if (dateSplit.length == 3) {
+                if (dateSplit.length === 3) {
                     $(yearField).val(dateSplit[0]);
                     $(monthField).val(dateSplit[1]);
                     $(dayField).val(dateSplit[2]);
                 }
             }
         });
-
         //bug fix for Safari and Chrome
         $(this).click(function () {
-            $(this).datepicker('show');
+            showDatePicker(this);
         });
     });
 
@@ -267,7 +432,37 @@ function initDatepicker(scope) {
     });
 }
 
+function showDatePicker(e) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    $(e).datepicker('show');
+}
+
 function setFieldSpan(clickedButton, spanClassToDisplay) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(clickedButton).parent().find("a").show();
     $(clickedButton).hide();
     $(clickedButton).parent().children("span").hide().each(function () {
@@ -288,6 +483,19 @@ function setFieldSpan(clickedButton, spanClassToDisplay) {
  * Advanced controls are search OR options and RANGE buttons
  */
 function initAdvancedControls(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     //for each add or button
     $(scope).find(".btn_add_or").each(function () {
         var $field = $(this).prev();
@@ -334,11 +542,23 @@ function initAdvancedControls(scope) {
         }
     });
 
-    if ($(scope).find(".btn_add_or:first").length == 1) {
+    if ($(scope).find(".btn_add_or:first").length === 1) {
         var tabindex = null;
+        
+        var td, cell, tag;
+        $(scope).find("td.content").each(function(){
+            td=this;
+            $(td).find(">span").each(function(){
+                tag=$(this).find("span.tag");
+                tag.insertBefore($(this));
+                $(this).wrap("<span class='span-content'></span>");
+            });
+        });
+        
         $(scope).find(".range").each(function () {
             //uses .btn_add_or to know if this is a search form and if advanced controls are on
-            var cell = $(this).parent().parent().parent();
+//            cell = $(this).parent().parent().parent();
+            cell = $(this).closest("span.span-content");
             $(cell).append(" <a href='#' class='icon16 range range_btn' title='" + STR_RANGE + "'></a> " +
                     "<a href='#' class='icon16 specific specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
             $(cell).find("span:first").addClass("specific_span");
@@ -350,19 +570,22 @@ function initAdvancedControls(scope) {
                     + STR_TO
                     + " <input type='text' tabindex='" + tabindex + "' name='" + baseName + "_end]'/></span>");
         });
-
+        
         $(scope).find(".file").each(function () {
-            var cell = $(this).parent().parent().parent();
+//            cell = $(this).parent().parent().parent();
+            cell = $(this).closest("span.span-content");
             $(cell).append(" <a href='#' class='icon16 csv_upload file_btn'></a>").data('mode', 'specific');
 
-            if ($(cell).find(".specific_btn").length == 0) {
+            if ($(cell).find(".specific_btn").length === 0) {
                 $(cell).append(" <a href='#' class='icon16 specific specific_btn'></a>").find(".specific_btn").hide();
                 $(cell).find("span:first").addClass("specific_span");
                 tabindex = $(cell).find("input").prop("tabindex");
             }
-            var name = $(cell).find("input:last").prop("name");
+//            var name = $(cell).find("input:last").prop("name");
+            var name = $(this).prop("name");
             name = name.substr(0, name.length - 3) + "_with_file_upload]";
             $(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
+
         });
         //store hidden field names into their data
         $(scope).find("span.range_span input, span.file_span input").each(function () {
@@ -382,42 +605,7 @@ function initAdvancedControls(scope) {
             setFieldSpan(this, "file_span");
             return false;
         });
-        $(scope).find(".file").each(function () {
-            item=$(this).parent().parent();
-            if (item.find(".tag").length>0){
-                tags=item.find(".tag");
-                tags.parent().parent().addClass("specific_span");
-                tags.insertBefore(tags.parent().parent());
-                if (tags.siblings().find('.tag').length === 0) {
-                    rootTD = tags.parents('td').first();
-
-                    for (var i = 0; i < rootTD.children('.specific_span').length - rootTD.children('.specific_btn').length; i++) {
-                        rootTD.append(" <a href='#' class='icon16 specific specific_btn'></a>").find(".specific_btn").hide();
-                    }
-                    $(scope).find(".specific_btn").click(function () {
-                        setFieldSpan(this, "specific_span");
-                        return false;
-                    });
-
-                    var spans = [];
-                    do {
-                        var i = spans.length;
-                        rootTD.append("<span class='span'></span>");
-                        spans[i] = rootTD.children().last();
-                        spans[i].append(rootTD.children(".file_span").first());
-                        spans[i].append(rootTD.children(".specific_span").first());
-                        spans[i].append(rootTD.children(".range_span").first());
-                        spans[i].append(rootTD.children(".file_btn").first());
-                        spans[i].append(rootTD.children(".specific_btn").first());
-                        spans[i].append(rootTD.children(".range_btn").first());
-                        if (rootTD.children(".tag").first().not('.span').length > 0) {
-                            rootTD.children(".tag").first().addClass('span');
-                            spans[i].parent().append(rootTD.children(".tag").first());
-                        }
-                    } while (rootTD.children(':not(.span)').length !== 0);
-                }
-            }
-        });
+        
     }
 }
 
@@ -426,6 +614,19 @@ function initAdvancedControls(scope) {
  * @param element The element contained within the row to remove
  */
 function removeParentRow(element) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     element = $(element).parents("tr:first");
 
     if ($(element)[0].nodeName == "TR") {
@@ -434,22 +635,54 @@ function removeParentRow(element) {
 }
 
 function initAutocomplete(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find(".jqueryAutocomplete").each(function () {
-//			var element = $(this);
+//        var element = $(this);
+        var url=(root_url == "/" ? "" : root_url) + $(this).attr("url");
         $(this).autocomplete({
             //if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-            source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
+//            source: (root_url == "/" ? "" : root_url) + $(this).attr("url"),
                     //alternate source for debugging
-//				source: function(request, response) {
-//					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//						console.log(data);
-//					});
-//				}
+            source: function(request, response) {
+                    $.get(url, request, function(data){
+                        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                            saveSqlLogAjax(ajaxSqlLog);
+                        }                        
+                        response(JSON.parse(data));
+                    });
+            }
         });
     });
 }
 
 function initAliquotVolumeCheck() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var checkFct = function () {
         var fctMod = function (param) {
             return parseFloat(param.replace(/,/g, "."));
@@ -479,10 +712,36 @@ function initAliquotVolumeCheck() {
 }
 
 function refreshTopBaseOnAction() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $("form").prop("action", root_url + actionControl + $("#0Action").val());
 }
 
 function initActionControl(actionControl) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $($(".adv_ctrl.btn_add_or")[1]).parent().parent().find("select").change(function () {
         refreshTopBaseOnAction(actionControl);
     });
@@ -495,16 +754,60 @@ function initActionControl(actionControl) {
  * @param scope The scope where to look for those controls. In a popup, the scope will be the popup box
  */
 function initCheckAll(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find(".checkAll").each(function () {
         var elemParent = $(this).parents("table:first");
         $(this).click(function () {
-            $(elemParent).find('input[type=checkbox]').prop("checked", true);
-            $(elemParent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
+            if (typeof dataLimit !== 'undefined') {
+                var data = $(elemParent).find('input[type=checkbox]');
+                data.each(function () {
+                    if (!$(this).is(":checked")) {
+                        $(this).prop("checked", true);
+                        if (!checkData($(this), dataLimit, null, true)) {
+                            $(this).prop("checked", false);
+                            return false;
+                        }
+                    }
+
+                    $(this).parents("tr:first").addClass("chkLine");
+                });
+            } else {
+                $(elemParent).find('input[type=checkbox]').prop("checked", true);
+                $(elemParent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
+            }
             return false;
         });
         $(elemParent).find(".uncheckAll").click(function () {
+            if (typeof dataLimit !== 'undefined') {
+                $(elemParent).find('input[type=checkbox]').each(function () {
+                    var id, checked, index;
+                    id = $(this).val();
+                    checked = $(this).is(":checked");
+                    if (checked) {
+                        index = checkedData[controller][action].findIndex(function (item) {
+                            return item.id === id;
+                        });
+                        if (index !== -1) {
+                            checkedData[controller][action].splice(index, 1);
+                        }
+                    }
+                });
+            }
             $(elemParent).find('input[type=checkbox]').prop("checked", false);
             $(elemParent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
+
             return false;
         });
     });
@@ -517,6 +820,19 @@ function initCheckAll(scope) {
  * @param buttons Array containing json containing keys icon, label and action
  */
 function buildDialog(id, title, content, buttons) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var buttonsHtml = "";
     if (buttons != null && buttons.length > 0) {
         for (i in buttons) {
@@ -540,11 +856,37 @@ function buildDialog(id, title, content, buttons) {
 }
 
 function buildConfirmDialog(id, question, buttons) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     buildDialog(id, question, null, buttons);
 }
 
 //tool_popup
 function initToolPopup(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find(".tool_popup").click(function () {
         var parent_elem = $(this).parent().children();
         toolTarget = null;
@@ -562,6 +904,12 @@ function initToolPopup(scope) {
             }
         }
         $.get($(this).prop("href"), null, function (data) {
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+            
             $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
             $("#default_popup input[type=text]").first().focus();
         });
@@ -570,6 +918,19 @@ function initToolPopup(scope) {
 }
 
 function initFlyOverCellsLines(newLines) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     totalColspan = $(".floatingBckGrnd").data("totalColspan");
     $(newLines).each(function (index, element) {
         for (var i = 0; i <= totalColspan; ++i) {
@@ -579,6 +940,19 @@ function initFlyOverCellsLines(newLines) {
 }
 
 function initAddLine(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find(".addLineLink").each(function () {
         //get the table row
         var table = $(this).parents("table:first");
@@ -661,6 +1035,12 @@ function initAddLine(scope) {
             } else {
                 $("#frame").html("<div class='loading'></div>");
                 $.get($(this).attr("href") + "?t=" + new Date().getTime(), function (data) {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+                    
                     $("#frame").html(data);
                     $(link).data('cached_result', data);
                     initActions();
@@ -676,6 +1056,19 @@ function initAddLine(scope) {
 }
 
 function resizeFloatingBckGrnd(floatingBckGrnd) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     table = $(floatingBckGrnd).parents("table:first");
     computeSum = function (obj, cssArr) {
         total = 0;
@@ -718,6 +1111,19 @@ function resizeFloatingBckGrnd(floatingBckGrnd) {
 }
 
 function removeLine(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var floatingBckGrnd = $(event.target).parents("table:first").find(".floatingBckGrnd");
     $(event.target).parents("tr:first").remove();
     resizeFloatingBckGrnd(floatingBckGrnd);
@@ -725,6 +1131,19 @@ function removeLine(event) {
 }
 
 function initAjaxClass(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     //ajax controls
     //evals the json within the class of the element and calls the method defined in callback
     //the callback method needs to take this and json as parameters
@@ -741,6 +1160,19 @@ function initAjaxClass(scope) {
 }
 
 function initLabBook(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var fields = new Array();
     var checkbox = null;
     var codeInputField = null;
@@ -787,6 +1219,19 @@ function initLabBook(scope) {
 }
 
 function labBookFieldsToggle(scope, fields, codeInputField, checkbox) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var toggle = false;
     if ($(scope).find(".labBook:visible").length == 0) {
         //current input are visible, see if we need to hide
@@ -806,6 +1251,19 @@ function labBookFieldsToggle(scope, fields, codeInputField, checkbox) {
 }
 
 function initLabBookPopup() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $("div.bottom_button a:not(.not_allowed).add").first().click(function () {
         $.get($(this).prop("href"), labBookPopupAddForm);
         return false;
@@ -813,6 +1271,24 @@ function initLabBookPopup() {
 }
 
 function labBookPopupAddForm(data) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+        saveSqlLogAjax(ajaxSqlLog);
+    }
+
     $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
     initDatepicker("#default_popup");
     initAccuracy("#default_popup");
@@ -842,6 +1318,19 @@ function labBookPopupAddForm(data) {
 }
 
 function initCheckboxes(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find("input[type=checkbox]").each(function () {
         if (!$(this).data("exclusive")) {
             var checkboxes = $(this).parent().find("input[type=checkbox]");
@@ -858,6 +1347,19 @@ function initCheckboxes(scope) {
 }
 
 function initAccuracy(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find(".accuracy_target_blue").click(function () {
         if ($(this).find("input").length == 0) {
             //accuracy going to year
@@ -897,6 +1399,19 @@ function initAccuracy(scope) {
  * will not overlap with the title.
  */
 function flyOverComponents() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		//console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var scrollLeft = $(document).scrollLeft();
     //submit
     $(".flyOverSubmit").each(function () {
@@ -925,6 +1440,19 @@ function flyOverComponents() {
 }
 
 function initAutoHideVolume() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $("input[type=radio]").click(function () {
         if ($.inArray($(this).val(), volumeIds) > -1) {
             $("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", false);
@@ -936,11 +1464,26 @@ function initAutoHideVolume() {
 }
 
 function handleSearchResultLinks() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(".ajax_search_results thead a, .ajax_search_results tfoot a").click(function () {
         $(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
         $.get($(this).attr("href"), function (data) {
             try {
                 data = $.parseJSON(data);
+                saveSqlLogAjax(data);
+                
                 $(".ajax_search_results").html(data.page);
                 history.replaceState(data.page, "foo");//storing result in history
                 handleSearchResultLinks();
@@ -954,11 +1497,37 @@ function handleSearchResultLinks() {
 }
 
 function databrowserToggleSearchBox(cell) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(cell).parent().find("span, a").toggle();
     return false;
 }
 
 function warningMoreInfoClick(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     //only called on the first click of each element, then toggle function handles it
     if ($(event.target).data('opened')) {
         $(this).html("[+]").siblings("pre.warningMoreInfo").hide();
@@ -969,7 +1538,40 @@ function warningMoreInfoClick(event) {
     }
 }
 
+function getTime(){
+    $(function () {
+      $.ajax({
+        type: 'GET',
+        cache: false,
+        url: location.href,
+        complete: function (req, textStatus) {
+          var dateString = req.getResponseHeader('Date');
+          if (dateString.indexOf('GMT') === -1) {
+            dateString += ' GMT';
+          }
+          var date = new Date(dateString);
+        console.log(["server time:", localDate]);
+        }
+      });
+      var localDate = new Date();
+      console.log(["local time:", localDate]);
+    });    
+}
+
 function sessionExpired() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if ($("#loginPopup").length == 0) {
         $("body").append("<div id='loginPopup' class='std_popup'><div class='loading'>--- " + STR_LOADING + " ---</div></div>");
     }
@@ -980,7 +1582,9 @@ function sessionExpired() {
                     //dumb call to refresh cookies
                     $("#loginPopup").popup('close');
                 });
-            } else {
+            } else if (data.indexOf('nok') == 0){
+                window.location = root_url + "Menus";
+            }else {
                 $("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
                 $("#loginPopup").popup();
                 $("#loginPopup a.submit").click(submitFunction);
@@ -991,6 +1595,10 @@ function sessionExpired() {
     };
 
     $.get(root_url + "Users/Login/login:/", function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+        }
+        
         $("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
         $("#loginPopup").popup();
         $("#loginPopup form").submit(submitFunction);
@@ -999,25 +1607,51 @@ function sessionExpired() {
 }
 
 function cookieWatch() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		//console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
     if ($.cookie("session_expiration")) {
-        if (!sessionTimeout.lastRequest || sessionTimeout.lastRequest != $.cookie("last_request")) {
+        if (!sessionTimeout.lastRequest || sessionTimeout.lastRequest !== $.cookie("last_request")+ sessionTimeout.serverOffset) {
             //5 to 1 second earlier expiration (due to 4 secs error margin)
-            sessionTimeout.lastRequest = $.cookie("last_request");
-            sessionTimeout.expirationTime = new Date().getTime() - sessionTimeout.serverOffset + (($.cookie("session_expiration") - $.cookie("last_request") - 5) * 1000);
+
+            sessionTimeout.lastRequest = $.cookie("last_request")+ sessionTimeout.serverOffset;
+            sessionTimeout.expirationTime =  ($.cookie("session_expiration") * 1000)+ sessionTimeout.serverOffset;
         }
-        if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length == 1) {
+        if (sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length === 1) {
             $("#loginPopup").popup('close');
         }
     }
 
-    if (sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length == 0) {
+    if (sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length === 0) {
         sessionExpired();
     }
 
-    setTimeout(cookieWatch, 4000);//4 seconds error margin
+    setTimeout(cookieWatch, 1000);//1 seconds error margin
 }
 
 function initFileOptions(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find("input.fileOption[value=replace]").each(function () {
         // $(this).next("input") is not working, so using next().next()
         $(this).data("browse-html", $(this).next().next()[0].outerHTML);
@@ -1038,6 +1672,19 @@ function initFileOptions(scope) {
 }
 
 function initJsControls() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if (history.replaceState) {
         if (!history.state) {
             history.replaceState(new Object(), "foo");
@@ -1045,7 +1692,7 @@ function initJsControls() {
     }
 
     if (window.storageLayout) {
-        initStorageLayout();
+        initStorageLayout(window.storageLayout);
     }
     if (window.copyControl) {
         initCopyControl();
@@ -1096,7 +1743,8 @@ function initJsControls() {
             successFct = function (data) {
                 try {
                     data = $.parseJSON(data);
-                    $(".ajax_search_results").html(data.page);
+                    saveSqlLogAjax(data);
+                    $(".ajax_search_results").html(data.page)
                     history.replaceState(data.page, "foo");//storing result in history
                     //update the form action
                     $("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
@@ -1109,13 +1757,14 @@ function initJsControls() {
                     $("input.submit").siblings("a").find("span").removeClass('fetching');
                 }
             };
-            console.log($("form").attr("action"));
+
             $("form").ajaxForm({
                 url: $("form").attr("action"),
                 success: successFct,
                 beforeSubmit: beforeSubmitFct,
                 error: function () {
                     console.log("ERROR");
+                    //$("input.submit").siblings("a").find("span").removeClass('fetching');
                 }
             });
         }
@@ -1216,8 +1865,10 @@ function initJsControls() {
             ).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction
             ).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
             ).delegate(".removeLineLink", "click", removeLine
-            ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup);
+            ).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup
+            ).delegate(".minus-button", 'click', closeLog);
 
+    $("p.wraped-text").hover(showHint);
     $(window).bind("pageshow", function (event) {
         //remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
         //don't bother using console.log, console is not ready yet
@@ -1228,6 +1879,8 @@ function initJsControls() {
             //adding date to the request URL to fool IE caching
             $.get(root_url + 'Users/login/1?t=' + (new Date().getTime()), function (data) {
                 data = $.parseJSON(data);
+                saveSqlLogAjax(data);
+                
                 if (data.logged_in == 1) {
                     document.location = root_url;
                 } else {
@@ -1239,7 +1892,6 @@ function initJsControls() {
             });
         }
     });
-
     initFlyOverCells(document);
 
     if ($.cookie("session_expiration")) {
@@ -1248,18 +1900,151 @@ function initJsControls() {
             cookieWatch();
         }
     }
-
     flyOverComponents();
 }
 
+function saveSqlLogAjax(data){
+    if (data.sqlLog && typeof DEBUGKIT !=="undefined"){
+        var debugKit=$("div#debug-kit-toolbar ul#panel-tabs");
+        var logs='';
+        data.sqlLog.forEach(function(log){
+            var infoIndex=log.lastIndexOf('<div id="ajaxSqlLogInformation"');
+            if (infoIndex>-1){
+                info=log.substring(infoIndex, log.indexOf('</div>', infoIndex))+'</div>';
+                var t=new Date().toLocaleTimeString()+' ,'+$(info).text();
+            }else if(typeof data.sqlLogInformations !=='undefined'){
+                var t=new Date().toLocaleTimeString()+' ,'+data.sqlLogInformations;
+            }
+            logs+='<div class="sql-log-panel-query-log cake-debug-output">'+
+                    '<div class="minus-button"><a href="javascript:void(0)" class="debug-button">-</a> '+t+'</div>'+
+                    '<div>'+log+'</div></div>';
+        });
+        if (debugKit.find("div#ajax_sql_log-tab").length>0){
+            var logNode=debugKit.find("div#ajax_sql_log-tab div.panel-content-data").first();
+            if ($(logNode).children("div.sql-log-panel-query-log").length===0){
+                $(logNode).append(logs);
+            }else{
+                $(logNode).children("div.sql-log-panel-query-log").first().before(logs);
+            }
+        }
+    }
+}
+
+function closeLog(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+    event.stopPropagation();
+}
+
+    a = $(this).children("a").first();
+    $(this).siblings().toggle(200);
+    if ($(a).text() === "-") {
+        $(a).text("+");
+    } else if ($(a).text() === "+") {
+        $(a).text("-");
+    }
+}
+
+function showHint(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    if (event.type === "mouseenter") {
+        if (countLines(this) >= 3) {
+            this.title = $(this).text();
+        } else {
+            this.title = $(this).text();
+            this.title = "";
+        }
+    } else if (event.type === "mouseleave") {
+        this.title = "";
+    }
+}
+
+function countLines(item) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    var divHeight = $(item).outerHeight();
+    var lineHeight = parseInt($(item).css("lineHeight"));
+    var lines = Math.round(divHeight / lineHeight);
+    return lines;
+}
+
 function putIntoRelDiv(index, elem) {
-    $(elem).html(
-            "<div class='testScroll'>" +
-            $(elem).html() +
-            "</div>");
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    var temp = $('<div></div>').addClass('testScroll');
+    $(elem).before(temp);
+    while ($(elem).contents().length > 0) {
+        temp.append($(elem).contents()[0]);
+    }
+    $(elem).append(temp);
+
+//$(elem).append($("<div class='testScroll'>" +$(elem).html() +"</div>"));
+
+
+//    $(elem).delegate(".datepicker", "click", showDatePicker);
+//    $(elem).html(
+//            "<div class='testScroll'>" +
+//            $(elem).html() +
+//            "</div>");
 }
 
 function initFlyOverCells(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find("table.structure").each(function () {
         //make cells float
         if ($(this).find("th.floatingCell:first").length == 0) {
@@ -1269,8 +2054,8 @@ function initFlyOverCells(scope) {
 
         var putAndCount = function (index, elem) {
             var colspan = $(elem).attr("colspan");
-            if (colspan == undefined) {
-                ++totalColspan
+            if (colspan === undefined) {
+                ++totalColspan;
             } else {
                 totalColspan += colspan * 1;
             }
@@ -1306,8 +2091,20 @@ function initFlyOverCells(scope) {
     });
 }
 
-
 function globalInit(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if (window.copyControl) {
         initCopyControl();
     }
@@ -1327,6 +2124,19 @@ function globalInit(scope) {
 }
 
 function treeViewNodeClick(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var element = event.currentTarget;
     $(element).removeClass("notFetched").unbind('click');
     var json = $(element).data("json");
@@ -1336,6 +2146,11 @@ function treeViewNodeClick(event) {
         var flat_url = json.url.replace(/\//g, "_");
         if (flat_url.length > 0) {
             $.get(root_url + json.url + "?t=" + new Date().getTime(), function (data) {
+                if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                    ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                    data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                    saveSqlLogAjax(ajaxSqlLog);
+                }
                 $("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
                 if ($("#" + flat_url).find("ul").length == 1) {
                     var currentLi = $(expandButton).parents("li:first");
@@ -1351,8 +2166,67 @@ function treeViewNodeClick(event) {
                 if (window.initTree) {
                     initTree($(currentLi));
                 }
+                currentUl=currentLi.children("ul").first();
+                findDuplicatedSamples(currentUl);
             });
         }
+    }
+}
+
+function findDuplicatedSamples(currentUl){
+    var oldItemsNum=duplicatedSamples.length, url;
+    currentUl.children('li').each(function(index, li){
+        url=($(li).find("div div.rightPart span a.ajax").first().attr('href')!=='undefined'?$(li).find("div div.rightPart span a.ajax").first().attr('href'):"").toLowerCase();
+        $(li).addClass("notHighLightDuplicatedItem");
+        duplicatedSamples.push({item: $(li), url: url, duplicated: []});
+    });
+    for (var i=0; i<oldItemsNum; i++){
+        c=duplicatedSamples[i];
+        for (var j=oldItemsNum; j<duplicatedSamples.length; j++){
+            d=duplicatedSamples[j];
+            if (c.url===d.url){
+                d.duplicated.push(c.item);
+                d.duplicated=d.duplicated.concat(c.duplicated).sort();
+                d.duplicated=d.duplicated.filter(function(value,pos) {return d.duplicated.indexOf(value) === pos;});
+                d.item.data("duplicated", d.duplicated);
+                c.duplicated.push(d.item);
+                c.item.data("duplicated", c.duplicated);
+                d.item.mouseover(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 1);
+                });
+
+                c.item.mouseover(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 1);
+                });
+                
+                d.item.mouseleave(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 0);
+                });
+
+                c.item.mouseleave(function(){
+                    highLightDuplicatedItem($(this), $(this).data("duplicated"), 0);
+                });
+                
+            }
+        }
+    }
+}
+
+function highLightDuplicatedItem($this, duplicated, mode){
+    if (mode===1){
+        $this.addClass('highLightDuplicatedItem');
+        $this.removeClass('notHighLightDuplicatedItem');
+        duplicated.forEach(function(item){
+            item.addClass('highLightDuplicatedItem');
+            item.removeClass('notHighLightDuplicatedItem');
+        });
+    }else if (mode===0){
+        $this.addClass('notHighLightDuplicatedItem');
+        $this.removeClass('highLightDuplicatedItem');
+        duplicated.forEach(function(item){
+            item.addClass('notHighLightDuplicatedItem');
+            item.removeClass('highLightDuplicatedItem');
+        });
     }
 }
 
@@ -1369,6 +2243,12 @@ function set_at_state_in_tree_root(new_at_li, json) {
     $($li).find("div.treeArrow:first").show();
     $("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
     $.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+        
         $("#frame").html(data);
         initActions();
     });
@@ -1380,6 +2260,19 @@ function set_at_state_in_tree_root(new_at_li, json) {
  * @param scope
  */
 function initTreeView(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $("a.reveal.activate").each(function () {
         var matchingUl = $(this).parents("li:first").children().filter("ul").first();
         $(this).click(function () {
@@ -1388,7 +2281,7 @@ function initTreeView(scope) {
     });
 
     var element = $(scope).find(".tree_root input[type=radio]:checked");
-    if (element.length == 1) {
+    if (element.length === 1) {
         var lis = $(element).parents("li");
         lis[0] = null;
         $(lis).find("a.reveal.activate:first").click();
@@ -1396,6 +2289,19 @@ function initTreeView(scope) {
 }
 
 function openDeleteConfirmPopup(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if ($("#deleteConfirmPopup").length == 0) {
         var yes_action = function () {
             document.location = $("#deleteConfirmPopup").data('link');
@@ -1415,8 +2321,23 @@ function openDeleteConfirmPopup(event) {
 }
 
 function openSaveBrowsingStepsPopup(link) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $.get(root_url + link, null, function (data) {
         data = $.parseJSON(data);
+        saveSqlLogAjax(data);
+        
         $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
         $("#default_popup input[type=text]").first().focus();
         $("#default_popup form").attr("action", 'javascript:popupSubmit("' + $("#default_popup form").attr("action") + '");');
@@ -1424,6 +2345,19 @@ function openSaveBrowsingStepsPopup(link) {
 }
 
 function popupSubmit(url) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $.post(url, $("#default_popup form").serialize(), function (data) {
         data = $.parseJSON(data);
         if (data.type == 'form') {
@@ -1446,6 +2380,19 @@ function popupSubmit(url) {
  * Will see if the last_request time has changed in order to stop the rotating beam. Used by CSV download.
  */
 function fetchingBeamCheck() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		//console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if (submitData.lastRequest != $.cookie('last_request')) {
         $(document).find('a.submit span.fetching').removeClass('fetching');
     } else {
@@ -1458,6 +2405,19 @@ function fetchingBeamCheck() {
  */
 
 function sectionCtrl(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     element = event.target;
     if ($(element).hasClass('delete')) {
         //hide the content in the button data
@@ -1489,6 +2449,25 @@ function sectionCtrl(event) {
  * @param orgEvent
  */
 function checkboxIndexFunction(event, orgEvent) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    $this = $(this);
+    if (typeof dataLimit !== 'undefined') {
+        if (!checkData($this, dataLimit)) {
+            return false;
+        }
+    }
     var shiftKey = orgEvent ? false : event.originalEvent.shiftKey;
     if (shiftKey) {
         marking = true;
@@ -1497,6 +2476,13 @@ function checkboxIndexFunction(event, orgEvent) {
             if (marking) {
                 $(this).find("td.checkbox input[type=checkbox]").attr("checked", checked);
                 if (checked) {
+                    if (typeof dataLimit !== 'undefined') {
+                        $this = $(this).find("td.checkbox input[type=checkbox]");
+                        if (!checkData($this, dataLimit, null, true)) {
+                            $(this).find("td.checkbox input[type=checkbox]").attr("checked", false);
+                            return false;
+                        }
+                    }
                     $(this).addClass("chkLine");
                 } else {
                     $(this).removeClass("chkLine");
@@ -1519,7 +2505,45 @@ function checkboxIndexFunction(event, orgEvent) {
     } else {
         $(event.currentTarget).parents("tr:first").removeClass("chkLine");
     }
+    if (typeof dataLimit !== 'undefined') {
+        saveCheckedToArray("#wrapper", checkedData[controller][action]);
+    }
     event.stopPropagation();
+    return true;
+}
+
+/*Save the items that checked in to an array*/
+function saveCheckedToArray(scope, checkedData) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    var checkboxes = $(scope).find("input[name^='data[" + dataIndex + "]'][type!='hidden']");
+    var index, id, checked, $this;
+    checkboxes.each(function () {
+        $this = $(this);
+//        checkedData["ID: "+$(this).val()]=$(this).is(':checked');
+        index = checkedData.findIndex(function (item) {
+            return item.id === $this.val();
+        });
+        id = $this.val();
+        checked = $this.is(':checked');
+        if (index === -1 && checked) {
+            index = checkedData.length;
+            checkedData[index] = {id: id, checked: checked};
+        } else if (index !== -1 && !checked) {
+            checkedData.splice(index, 1);
+        }
+    });
 }
 
 /**
@@ -1527,10 +2551,34 @@ function checkboxIndexFunction(event, orgEvent) {
  * @param event
  */
 function checkboxIndexLineFunction(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if ($(event.currentTarget)[0].nodeName == "TR" && !event.originalEvent.shiftKey && event.target.nodeName != 'A') {
         //line clicked, toggle it's checkbox (don't support shift click, as it is for text selection
-        $(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [event]);
-        event.stopPropagation();
+        if (typeof dataLimit !== 'undefined') {
+            $this = $(this).find('input[type=checkbox]');
+            $(this).prop("checked", !$(this).is(":checked"));
+            if (!checkData($this, dataLimit)) {
+                $(this).prop("checked", false);
+                return false;
+            }
+            $(this).closest("tr").toggleClass("chkLine");
+            return false;
+        } else {
+            $(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [event]);
+            event.stopPropagation();
+        }
     }
 }
 
@@ -1538,13 +2586,45 @@ function checkboxIndexLineFunction(event) {
  * Hides the confirm msgs div, but keeps it in the display to avoid having page content moving. 
  */
 function dataSavedFadeout() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $("ul.confirm").animate({opacity: 0}, 700);
 }
 
 function setCsvPopup(target) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     if ($("#csvPopup").length == 0) {
         buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
         $.get(root_url + 'Datamart/Csv/csv/popup:/', function (data) {
+            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                saveSqlLogAjax(ajaxSqlLog);
+            }
+           
             var visible = $("#csvPopup:visible").length == 1;
             $("#csvPopup:visible").popup('close');
             $("#csvPopup h4 + div").html(data);
@@ -1646,6 +2726,7 @@ function setCsvPopup(target) {
                 $(node).find("span.icon16").css("opacity", 1);
 
                 $("select[name=data\\[0\\]\\[redundancy\\]]").change(function () {
+                    debugger;
                     if ($(this).val() == "same") {
                         lastLine.show();
                     } else {
@@ -1663,6 +2744,10 @@ function setCsvPopup(target) {
             if (visible) {
                 $("#csvPopup").popup();
             }
+
+            var attention='<ul class="warning"><li><span class="icon16 warning mr5px"></span>'+csvWarning+'</li></ul>'
+            $("#csvPopup h4").after(attention);
+            
         });
     }
     $("#csvPopup").popup();
@@ -1670,6 +2755,19 @@ function setCsvPopup(target) {
 }
 
 function selectedItemZonePopup(event) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var button = $(event.currentTarget);
     var popup = null;
     if (!(popup = button.data('popup'))) {
@@ -1686,27 +2784,45 @@ function selectedItemZonePopup(event) {
     popup.popup();
 
     var fctLinksToAjax = function (scope) {
-        $(scope).find("a:not(.detail)").click(function () {
-            if ($(this).attr("href").indexOf("javascript:") == 0) {
+        $scope=$(scope);
+        $(scope).find("a:not(.detail)").click(function(){
+            if ($(this).attr("href").indexOf("javascript:") >= 0 || $(this).attr("href")==="#") {
                 return true;
             }
+            var isSubmit= $(this).hasClass("submit");
+            var method = "GET"
+            var url=$(this).attr("href");
+            var data=undefined;
+            if (isSubmit){
+                var form=$scope.find("form");
+                method=form.attr("method");
+                url=form.attr("action");
+                data=form.serialize();
+            }
+
+
             popup.frame.html("<div class='loading'>---" + STR_LOADING + "---</div>");
             popup.popup('center');
-            $.get($(this).attr("href"), function (data) {
-                if (data.indexOf("{") == 0) {
-                    data = $.parseJSON(data);
-                    popup.frame.html(data.page);
-                } else {
-                    popup.frame.html(data);
+
+            $.ajax({
+                type: method,
+                url: url,
+                data: data, 
+                success: function (data) {
+                    if (data.indexOf("{") == 0) {
+                        data = $.parseJSON(data);
+                        popup.frame.html(data.page);
+                    } else {
+                        popup.frame.html(data);
+                    }
+                    popup.popup('center');
+                    fctLinksToAjax(popup.frame);
                 }
-                popup.popup('center');
-                fctLinksToAjax(popup.frame);
             });
 
-            return false;
+            return false;            
         });
-
-        $(scope).find("a.detail").click(function () {
+        $(scope).find("a.detail").click(function(){
             //selection
             popup.popup('close');
             var targetDiv = button.parents(".selectItemZone:first").find(".selectedItem");
@@ -1715,8 +2831,16 @@ function selectedItemZonePopup(event) {
             $.get(targetHref + '/type:index/noActions:/noHeader:/', function (data) {
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     targetDiv.html(data.page);
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+                    
                     targetDiv.html(data);
                 }
                 targetDiv.append('<input type="hidden" name="' + button.data('name') + '" value="' + targetHref + '"/>');
@@ -1727,16 +2851,23 @@ function selectedItemZonePopup(event) {
     };
 
     $.get(root_url + button.data('url') + '/noActions:', function (data) {
+        if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+            ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+            data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+            saveSqlLogAjax(ajaxSqlLog);
+        }
+        
         popup.frame.html(data);
         initAdvancedControls(popup);
         initDatepicker(popup);
         popup.popup('center');
-
         popup.find("form").submit(function () {
             submitChecks(this);
             $.post(popup.find("form").attr("action") + '/forSelection:/', popup.find("form").serialize(), function (data) {
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     popup.frame.html(data.page);
                 } else {
                     popup.frame.html(data);
@@ -1754,14 +2885,40 @@ function selectedItemZonePopup(event) {
 }
 
 function submitChecks(scope) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     $(scope).find('a.submit span').last().addClass('fetching');
     submitData.lastRequest = $.cookie('last_request');
 }
 
 function initIndexZones(useCache) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var fctLinksToAjax = function (scope) {
         $(scope).find("a:not(.icon16)").click(function () {
-            if ($(this).attr("href").indexOf("javascript:") == 0) {
+            if ($(this).attr("href").indexOf("javascript:") >= 0) {
                 return true;
             }
             scope.html("<div class='loading'>---" + STR_LOADING + "---</div>");
@@ -1769,8 +2926,16 @@ function initIndexZones(useCache) {
                 var page = null;
                 if (data.indexOf("{") == 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
+                    
                     page = data.page;
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }
+
                     page = data;
                 }
                 scope.html(page);
@@ -1800,17 +2965,23 @@ function initIndexZones(useCache) {
             indexZone.html("<div class='loading'>---" + STR_LOADING + "---</div>");
             var successFct = function (data) {
                 var page = null;
-                if (data.indexOf("{") == 0) {
+                if (data.indexOf("{") === 0) {
                     data = $.parseJSON(data);
+                    saveSqlLogAjax(data);
                     page = data.page;
                     indexZone.html(data.page);
                 } else {
+                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }                    
                     page = data;
                 }
                 indexZone.html(page);
                 fctLinksToAjax(indexZone);
 
-                history.state.indexZone[url] = "page";
+                history.state.indexZone[url] = page;
                 history.replaceState(history.state, "foo");
             };
             var errorFct = function (jqXHR, textStatus, errorThrown) {
@@ -1828,13 +2999,152 @@ function initIndexZones(useCache) {
     });
 }
 
+function arrayObjSizeCheck($this, arr, min, max, showAlert)
+{
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    if (undef(min)){
+        min=1;
+    }
+    if (undef(max)){
+        max=null;
+    }
+    if (undef(showAlert)){
+        showAlert=true;
+    }
+
+    if (arr instanceof jQuery) {
+        arr = $.makeArray(arr);
+    } else if (!$.isArray(arr)) {
+        return false;
+    }
+    if ($this === null) {
+        var length = checkedData[controller][action].length;
+        if (min <= length && length <= max) {
+            return true;
+        } else {
+            if (showAlert) {
+                alert("Selected items should be between " + min + " & " + max);
+            }
+            return false;
+        }
+    }
+    var index, id, checked;
+    checked = $this.is(":checked");
+    id = $this.val();
+    index = checkedData[controller][action].findIndex(function (item) {
+        return item.id === id;
+    });
+    if (index !== -1 && !checked) {
+        $this.prop("checked", false);
+        checkedData[controller][action].splice(index, 1);
+        return true;
+    } else if (index !== -1 && checked) {
+        $this.prop("checked", true);
+        return true;
+    } else {
+        length = checkedData[controller][action].length;
+        if ((max === null && length < min) || (min <= length && length < max)) {
+            checkedData[controller][action][length] = {id: id, checked: true};
+            $this.prop("checked", true);
+            return true;
+        } else if (max === null) {
+            max = min;
+            min = 1;
+            $this.prop("checked", false);
+        }
+        if (showAlert) {
+            alert("Selected items should be between " + min + " & " + max);
+        }
+    }
+    return false;
+}
+
+function checkData($this, min, max, showAlert)
+{
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    if (undef(min)){
+        min=1;
+    }
+    if (undef(max)){
+        max=null;
+    }
+    if (undef(showAlert)){
+        showAlert=true;
+    }
+    
+    data = $("input[name^='data[" + dataIndex + "]'][type!='hidden']");
+    if (!arrayObjSizeCheck($this, data, min, max, showAlert)) {
+        return false;
+    }
+    return true;
+}
+
 /**
  * Will popup a confirmation message if defined. If the message is opened
  * or if no message is defined, will submit and replace the disk icon with
  * a rotating beam. Submiting is blocked when the rotating icon is present.
  * @returns {Boolean}
  */
-function standardSubmit() {
+function standardSubmit()
+{
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    if (typeof dataLimit !== 'undefined') {
+        if (!checkData(null, 1, dataLimit)) {
+            return false;
+        }
+        data = $("input[name^='data[" + dataIndex + "]'][type!='hidden']:checked");
+        var checkedDataInOtherPages = [];
+        checkedDataInOtherPages = checkedData[controller][action].filter(function (item) {
+            isInOtherPages = true;
+            data.each(function () {
+                if ($(this).val() === item.id) {
+                    isInOtherPages = false;
+                    return false;
+                }
+            });
+            return isInOtherPages;
+        });
+        checkedDataInOtherPages.forEach(function (item) {
+            $("#wrapper").find("form").append('<input type="hidden" name="data[OrderItem][id][]" value="' + item.id + '">');
+        });
+    }
+
     //submitting form
     var submitButton = $(this).find("a.submit");
     var form = $(this);
@@ -1860,7 +3170,7 @@ function standardSubmit() {
             }
         } else {
             submitChecks(this);
-            submitData.callBack = setTimeout(fetchingBeamCheck, 1000);//check every second (needed for CSV download)
+            submitData.callBack = setTimeout(fetchingBeamCheck, 0);//check every second (needed for CSV download)
             return true;
         }
     }
@@ -1868,7 +3178,20 @@ function standardSubmit() {
 }
 
 function clickSubmitButton() {
-    if ($(this).attr("href").indexOf("javascript:") == 0) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
+    if ($(this).attr("href").indexOf("javascript:") >= 0 || $(this).attr("href")==="#") {
         return true;
     }
 
@@ -1877,6 +3200,19 @@ function clickSubmitButton() {
 }
 
 function miscIdPopup(participant_id, ctrl_id) {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     buildConfirmDialog('miscIdPopup', STR_MISC_IDENTIFIER_REUSE, new Array(
             {label: STR_NEW, action: function () {
                     document.location = root_url + "ClinicalAnnotation/MiscIdentifiers/add/" + participant_id + "/" + ctrl_id + "/";
@@ -1891,6 +3227,26 @@ function miscIdPopup(participant_id, ctrl_id) {
 }
 
 function dataBrowserHelp() {
+if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
+	try{
+		var myName = arguments.callee.toString();
+		myName = myName.substr('function '.length);
+		myName = myName.substr(0, myName.indexOf('('));
+		console.log (myName);
+		if (DEBUG_MODE_JS>0){
+		   debugger ;
+		}
+	}catch(ex){
+	}
+}
+
     var diagram_url = root_url + 'app/webroot/img/dataBrowser/datamart_structures_relationships_' + STR_LANGUAGE + '.png';
-    $("#default_popup").html('<form enctype="multipart/form-data"><div class="descriptive_heading"><h4>' + STR_DATAMART_STRUCTURE_RELATIONSHIPS + '</h4><p></p></div><div style="padding: 10px; background-color: #fff;"><img src="' + diagram_url + '"/></div></form>').popup();
+    $("#default_popup").html('<form enctype="multipart/form-data"><div class="descriptive_heading"><h4>' + STR_DATAMART_STRUCTURE_RELATIONSHIPS + '</h4><p></p></div><div style="padding: 10px; background-color: #fff;"><img src="' + diagram_url + '"/></div></form>');
+    $("#default_popup").find("img").on("load", function () {
+        $("#default_popup").popup();
+    });
+}
+
+function undef(x){
+    return (typeof x === 'undefined');
 }

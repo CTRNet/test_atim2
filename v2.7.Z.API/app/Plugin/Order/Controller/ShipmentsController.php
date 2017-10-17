@@ -108,7 +108,7 @@ class ShipmentsController extends OrderAppController
                     'conditions' => array(
                         'Shipment.id' => $copiedShipmentId
                     ),
-                    'recursive' => '-1'
+                    'recursive' => -1
                 ));
             }
             
@@ -294,7 +294,16 @@ class ShipmentsController extends OrderAppController
      */
     public function addToShipment($orderId, $shipmentId, $orderLineId = null, $offset = null, $limit = null)
     {
-        
+        //Server-side verification (If by JS user send larg amount of batch data)
+        $orderItemsLimit = Configure::read('AddToShipment_processed_items_limit');
+        $data=array();
+        if (!empty($this->request->data) && isset($this->request->data['OrderItem']['id'])){
+            $data= array_filter($this->request->data['OrderItem']['id']);
+        }
+        if(!empty($this->request->data) && count($data)>$orderItemsLimit){
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId, 5);
+            return;
+        }
         // MANAGE DATA
         
         // Check shipment
@@ -306,24 +315,30 @@ class ShipmentsController extends OrderAppController
             'OrderItem.order_id' => $orderId,
             'OrderItem.shipment_id IS NULL'
         );
-        if ($orderLineId)
+        if ($orderLineId){
             $conditions['OrderItem.order_line_id'] = $orderLineId;
+        }
         $availableOrderItems = $this->OrderItem->find('all', array(
             'conditions' => $conditions,
             'order' => 'OrderLine.id, OrderItem.date_added DESC',
             'offset' => $offset,
             'limit' => $limit
         ));
+        
+        $conditions = array(
+            'OrderItem.order_id' => $orderId,
+            'OrderItem.shipment_id IS NULL'
+        );
+        $availableOrderItems = $this->paginate($this->OrderItem, $conditions);
+
         if (empty($availableOrderItems)) {
             $this->atimFlashWarning(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId);
         }
-        
-        $orderItemsLimit = Configure::read('AddToShipment_processed_items_limit');
-        if (sizeof($availableOrderItems) > $orderItemsLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId, 5);
-            return;
-        }
-        
+        $this->set("dataLimit", $orderItemsLimit);
+//        if (sizeof($availableOrderItems) > $orderItemsLimit) {
+//            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$orderItemsLimit). " . __('launch process on order items sub set') . '.', '/Order/Shipments/detail/' . $orderId . '/' . $shipmentId, 5);
+//            return;
+//        }
         $this->set('orderLineId', $orderLineId);
         $this->set('offset', $offset);
         $this->set('limit', $limit);
@@ -342,7 +357,6 @@ class ShipmentsController extends OrderAppController
         if ($hookLink) {
             require ($hookLink);
         }
-        
         if (empty($this->request->data)) {
             $this->request->data = $this->formatDataForShippedItemsSelection($availableOrderItems);
             
@@ -361,7 +375,6 @@ class ShipmentsController extends OrderAppController
                 $submittedDataValidates = false;
                 $this->request->data = $this->formatDataForShippedItemsSelection($availableOrderItems);
             }
-            
             $hookLink = $this->hook('presave_process');
             if ($hookLink) {
                 require ($hookLink);
@@ -553,7 +566,7 @@ class ShipmentsController extends OrderAppController
                 'OrderItem.id' => $orderItemId,
                 'OrderItem.shipment_id' => $shipmentId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($orderItemData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

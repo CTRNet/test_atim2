@@ -95,5 +95,3 @@ if (! $isFromTreeView) {
         $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }
-
-?>
