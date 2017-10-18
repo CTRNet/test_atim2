@@ -3322,7 +3322,16 @@ VALUES
 UPDATE structure_fields SET `tablename`='event_masters' WHERE `model`='EventMaster' AND `tablename`='' AND `field`='chus_patho_report_pathologist';
 
 -- Medical History & Medication History
+--    Add finish date to event_masters
+--    Add status (prior, etc) + status date to event_masters
 -- ------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("never", "never");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_medication_status"), 
+(SELECT id FROM structure_permissible_values WHERE value="never" AND language_alias="never"), "", "1");
+INSERT IGNORE INTO i18n (id,en,fr) VALUES("never", "Never", 'jamais');
 
 SET @modified_by = (SELECT id FROM users WHERE username = 'system');
 SET @modified = (SELECT now() FROM users WHERE username = 'system');
@@ -3351,6 +3360,10 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventMaster', 'event_masters', 'chus_start_date_unknown', 'checkbox',  NULL , '0', '', '', '', '', 'unknown');
 
 -- ... Medication History
+--       Move EventDetail.end_date to EventMaster.finish_date
+--       Move EventDetail.status to EventMaster.status
+--       Move EventDetail.status_date to EventMaster.status_date
+--       Set EventMaster.start_unknown to yes if date = '+/-1900'
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='chus_ed_medication_history'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='chus_finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
@@ -3425,6 +3438,10 @@ SET `type`='autocomplete', `setting`='url=ClinicalAnnotation/EventMasters/autoco
 WHERE model='EventDetail' AND tablename='chus_ed_medical_history' AND field='medication';
 
 -- ... Medical History
+--       Move finish date from Detail table to Master Table
+--       Set event status to 'prior' when ongoing_currently_yes_no = 'n' and date of status equals date of the last modification
+--       Set event status to actual/concomitant' when ongoing_currently_yes_no = 'y' and date of status equals date of the last modification
+--       Set start_date to 'unknown' if the start date = '+/-1900'
 
 SET @modified_by = (SELECT id FROM users WHERE username = 'system');
 SET @modified = (SELECT now() FROM users WHERE username = 'system');
@@ -3470,6 +3487,16 @@ AND EventMaster.event_control_id = @event_control_id
 AND EventMaster.event_date LIKE '1900%'
 AND EventMaster.event_date_accuracy = 'y';
 
+UPDATE event_masters EventMaster, chus_ed_medical_history EventDetail
+SET EventMaster.chus_finish_date = EventDetail.finish_date,
+EventMaster.chus_finish_date_accuracy = EventDetail.finish_date_accuracy,
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.id = EventDetail.event_master_id
+AND EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventDetail.finish_date IS NOT NULL;
+
 INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
 participant_id, diagnosis_master_id, chus_patho_report_number, chus_patho_report_pathologist, chus_finish_date, chus_finish_date_accuracy, chus_status, chus_status_date, 
 chus_status_date_accuracy, chus_start_date_unknown,
@@ -3508,6 +3535,8 @@ UPDATE structure_fields SET `language_label`='or status',  `language_tag`='' WHE
 
 -- Treatment
 -- ------------------------------------------------------------------
+--       Set start_date to 'unknown' if the start date = '+/-1900'
+--       Set event status to 'prior' when ongoing_currently_yes_no = 'n' and date of status equals date of the last modification
 
 SET @modified_by = (SELECT id FROM users WHERE username = 'system');
 SET @modified = (SELECT now() FROM users WHERE username = 'system');
@@ -3595,7 +3624,7 @@ UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM
 
 UPDATE diagnosis_controls SET flag_compare_with_cap = 0;
 
-
+UPDATE `versions` SET branch_build_number = '6902' WHERE version_number = '2.6.8';
 
 
 
