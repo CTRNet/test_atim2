@@ -13,6 +13,15 @@
 			if($chronolgy_data_treatment_finish) $chronolgy_data_treatment_finish['chronology_details'] = implode(', ', $tmps_sites);
 			break;
 		case 'radiotherapy':
+			$tmps_sites = array();
+			foreach($this->TreatmentExtendMaster->find('all', array('conditions' => array('TreatmentExtendMaster.treatment_master_id' => $tx['TreatmentMaster']['id']))) as $tmp_new_tx_extend) {
+				$tmp_icd_description = $this->CodingIcdo3Topo->getDescription($tmp_new_tx_extend['TreatmentExtendDetail']['site']);
+				if($tmp_icd_description) $tmps_sites[$tmp_icd_description] = $tmp_icd_description;
+			}
+			ksort($tmps_sites);
+			if($chronolgy_data_treatment_start) $chronolgy_data_treatment_start['chronology_details'] = implode(', ', $tmps_sites);
+			if($chronolgy_data_treatment_finish) $chronolgy_data_treatment_finish['chronology_details'] = implode(', ', $tmps_sites);
+			break;
 			break;
 		case 'systemic therapy':
 			$drugs = array();
