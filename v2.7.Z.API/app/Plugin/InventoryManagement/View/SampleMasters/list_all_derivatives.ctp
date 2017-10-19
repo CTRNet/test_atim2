@@ -58,3 +58,5 @@ if (isset($derivativesData)) {
     // BUILD FORM
     $this->Structures->build($finalAtimStructure, $finalOptions);
 }
+
+?>

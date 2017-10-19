@@ -422,7 +422,7 @@ class StorageMaster extends StorageLayoutAppModel
                             'StorageCoordinate.dimension' => $coord
                         ),
                         'order' => 'StorageCoordinate.order ASC',
-                        'recursive' => -1
+                        'recursive' => '-1'
                     ));
                     if (! empty($coordinates)) {
                         foreach ($coordinates as $newCoordinate) {
@@ -469,12 +469,11 @@ class StorageMaster extends StorageLayoutAppModel
         if (! isset($this->storageSelectionLabelsAlreadyChecked[$storageLabelAndCode])) {
             $results = array();
             $selectedStorages = array();
-            $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $storageLabelAndCode);
-            if (preg_match_all("/([^\b]+)\ \[([^\[]+)\]/", $term, $matches, PREG_SET_ORDER) > 0) {
+            if (preg_match_all("/([^\b]+)\[([^\[]+)\]/", $storageLabelAndCode, $matches, PREG_SET_ORDER) > 0) {
                 // Auto complete tool has been used
                 $selectedStorages = $this->find('all', array(
                     'conditions' => array(
-                        "StorageMaster.selection_label LIKE "  => '%' . $matches[0][1] . '%',
+                        'StorageMaster.selection_label' => $matches[0][1],
                         'StorageMaster.code' => $matches[0][2]
                     )
                 ));
@@ -482,7 +481,7 @@ class StorageMaster extends StorageLayoutAppModel
                 // consider $storageLabelAndCode contains just seleciton label
                 $selectedStorages = $this->find('all', array(
                     'conditions' => array(
-                        'StorageMaster.selection_label LIKE' => $term
+                        'StorageMaster.selection_label' => $storageLabelAndCode
                     )
                 ));
             }
@@ -634,7 +633,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'StorageMaster.parent_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrChildrenStorages > 0) {
             return array(
@@ -649,7 +648,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'AliquotMaster.storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrStorageAliquots > 0) {
             return array(
@@ -664,7 +663,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlide.tma_block_storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrTmaSlides > 0) {
             return array(
@@ -678,7 +677,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlide.storage_master_id' => $storageMasterId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrChildrenStorages > 0) {
             return array(
@@ -709,7 +708,7 @@ class StorageMaster extends StorageLayoutAppModel
                     'conditions' => array(
                         'StorageMaster.id' => $storageData['StorageMaster']['parent_id']
                     ),
-                    'recursive' => -1
+                    'recursive' => '-1'
                 ));
                 if (empty($parentStorageData)) {
                     AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -748,7 +747,7 @@ class StorageMaster extends StorageLayoutAppModel
             'conditions' => array(
                 'StorageMaster.id' => $storageData['StorageMaster']['parent_id']
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if (empty($parentStorageData)) {
             AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -808,7 +807,7 @@ class StorageMaster extends StorageLayoutAppModel
             
             $childrenStorageToUpdate = $this->find('all', array(
                 'conditions' => $conditions,
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             $newArrStudiedParentsData = array();
             foreach ($childrenStorageToUpdate as $newChildrenToUpdate) {
@@ -912,7 +911,7 @@ class StorageMaster extends StorageLayoutAppModel
             
             $childrenStorageToUpdate = $this->find('all', array(
                 'conditions' => $conditions,
-                'recursive' => 0
+                'recursive' => '0'
             ));
             foreach ($childrenStorageToUpdate as $newChildrenToUpdate) {
                 // New children to update

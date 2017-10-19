@@ -94,7 +94,7 @@ class TreatmentMaster extends ClinicalAnnotationAppModel
                     'TreatmentExtendMaster.treatment_master_id' => $txMasterId,
                     'TreatmentExtendMaster.treatment_extend_control_id' => $data['TreatmentControl']['treatment_extend_control_id']
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             if ($nbrExtends > 0) {
                 return array(

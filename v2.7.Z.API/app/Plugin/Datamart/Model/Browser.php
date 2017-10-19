@@ -312,16 +312,12 @@ class Browser extends DatamartAppModel
             unset($to);
             $stack = array();
             $stack[$currentId] = null;
-            $studySatamartStructureId = null;
             while ($toArr) {
                 $nextToArr = array();
                 foreach ($toArr as $to) {
                     $toVal = $to['val'];
                     $toPath = $to['path'];
                     $toPath[] = $toVal;
-                    if ($browsingStructures[$toVal]['model'] == 'StudySummary') {
-                        $studySatamartStructureId = $browsingStructures[$toVal]['id'];
-                    }
                     if (array_key_exists($toVal, $stack) && count($stack) > 1) {
                         // already treated that, the count is there to allow reentrant
                         // mode to pass by
@@ -329,9 +325,6 @@ class Browser extends DatamartAppModel
                     } elseif (! isset($browsingStructures[$toVal])) {
                         // permissions denied
                         continue;
-                    } elseif ($studySatamartStructureId && $studySatamartStructureId != $browsingStructures[$toVal]['id'] && in_array($studySatamartStructureId, $toPath)) {
-                        // study can not be a 'bridge' between two datamart structures (see issue #3374: Databrowser: From misc identifiers to orders, the system go through Study)
-						continue;
                     }
                     $stack[$toVal] = null;
                     $tmpResult = array(
@@ -1692,7 +1685,7 @@ class Browser extends DatamartAppModel
      * @param $params
      * @return array
      */
-    public function createNode($params)
+    public function createNode($params, $url)
     {
         $dmStructureModel = AppModel::getInstance('Datamart', 'DatamartStructure', true);
         $browsingResultModel = AppModel::getInstance('Datamart', 'BrowsingResult', true);
@@ -1708,7 +1701,8 @@ class Browser extends DatamartAppModel
         $save = array();
         if (! AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])) {
             echo $browsing['DatamartStructure']['index_link'];
-            $controller->atimFlashError(__("You are not authorized to access that location."), 'javascript:history.back()');
+            $controller->atimFlashError(__("You are not authorized to access that location."), $url);
+//            $controller->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
             return false;
         }
         $modelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
@@ -1844,7 +1838,8 @@ class Browser extends DatamartAppModel
             if ($errorModelDisplayName != null) {
                 // example: If 3 tx are owned by the same participant, this error will be displayed.
                 // we do it to make sure the result set is made with 1:1 relationship, thus clear.
-                $controller->atimFlashError(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), 'javascript:history.back()');
+                $controller->atimFlashWarning(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), $url);
+//                $controller->flash(__("a special parameter could not be applied because relations between %s and its children node are shared", __($errorModelDisplayName)), 'javascript:history.back()');
                 return false;
             }
             $orgSearchConditions['adv_search_conditions'] = $advParams['conditions_adv'];
@@ -2027,10 +2022,12 @@ $browsingFilter['attribute']);
             // we have an empty set, bail out! (don't save empty result)
             if ($params['last']) {
                 // go back 1 page
-                $controller->atimFlashError(__("no data matches your search parameters"), "javascript:history.back();");
+                $controller->atimFlashWarning(__("no data matches your search parameters"), $url, 5);
+//                $controller->flash(__("no data matches your search parameters"), "javascript:history.back();", 5);
             } else {
                 // go to the last node
                 $controller->atimFlashWarning(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/" . $nodeId . "/");
+//                $controller->flash(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/" . $nodeId . "/", 5);
             }
             return false;
         }
@@ -2164,3 +2161,4 @@ $browsingFilter['attribute']);
         }
     }
 }
+

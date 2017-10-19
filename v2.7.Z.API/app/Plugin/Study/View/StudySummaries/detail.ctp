@@ -77,3 +77,5 @@ if ($hookLink) {
 
 if ($displayStudyFundings)
     $this->Structures->build($finalAtimStructure, $finalOptions);
+
+?>

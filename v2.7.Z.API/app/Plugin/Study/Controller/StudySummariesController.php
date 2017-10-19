@@ -321,7 +321,7 @@ class StudySummariesController extends StudyAppController
         
         // -- NOTE ----------------------------------------------------------
         //
-        // This function is linked to functions of the StudySummary model
+        // This function is linked to functions of the StorageMaster model
         // called getStudyIdFromStudyDataAndCode() and
         // getStudyDataAndCodeForDisplay().
         //
@@ -336,12 +336,11 @@ class StudySummariesController extends StudyAppController
         Configure::write('debug', 0);
         
         // query the database
-        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
+        $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
         $terms = array();
-        foreach (explode(' ', $term) as $keyWord) {
-        	$terms[] = array("StudySummary.title LIKE" => '%'.$keyWord.'%');
-        }
-		
+        foreach (explode(' ', $term) as $keyWord)
+            $terms[] = "StudySummary.title LIKE '%" . $keyWord . "%'";
+        
         $conditions = array(
             'AND' => $terms
         );
@@ -365,7 +364,7 @@ class StudySummariesController extends StudyAppController
         // build javascript textual array
         $result = "";
         foreach ($data as $dataUnit) {
-            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $this->StudySummary->getStudyDataAndCodeForDisplay($dataUnit)) . '", ';
+            $result .= '"' . $this->StudySummary->getStudyDataAndCodeForDisplay($dataUnit) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

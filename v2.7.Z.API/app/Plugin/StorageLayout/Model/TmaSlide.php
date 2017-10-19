@@ -207,7 +207,7 @@ class TmaSlide extends StorageLayoutAppModel
             'conditions' => array(
                 'TmaSlideUse.tma_slide_id' => $tmaSlideId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrStorageAliquots > 0) {
             return array(
@@ -222,7 +222,7 @@ class TmaSlide extends StorageLayoutAppModel
             'conditions' => array(
                 'OrderItem.tma_slide_id' => $tmaSlideId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrOrderItems > 0) {
             return array(

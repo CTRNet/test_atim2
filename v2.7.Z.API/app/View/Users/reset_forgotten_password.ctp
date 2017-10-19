@@ -9,7 +9,7 @@ $structureLinks = array(
 $structureSettings = array(
     'header' => array(
         'title' => __('reset password'),
-        'description' => __('step %s', $resetForgottenPasswordStep) . ' : ' . (($resetForgottenPasswordStep == '1') ? __('please enter you username') : __('please complete the security questions'))
+        'description' => __('step %s', $resetForgottenPasswordStep) . ' : ' . (($resetForgottenPasswordStep == '1') ? __('please enter you username') : __('please conplete the security questions'))
     )
 );
 

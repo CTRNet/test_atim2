@@ -45,3 +45,4 @@ $this->Structures->build($atimStructure, array(
     'links' => $structureLinks,
     'settings' => $settings
 ));
+?>

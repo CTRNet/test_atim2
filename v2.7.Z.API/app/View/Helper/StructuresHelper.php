@@ -1,12 +1,12 @@
 <?php
-App::uses('Helper', 'View');
+App::uses('HttpSocket', 'Network\http');
 
 /**
  * Class StructuresHelper
  */
 class StructuresHelper extends Helper
 {
-
+    
     public $helpers = array(
         'Csv',
         'Html',
@@ -16,7 +16,7 @@ class StructuresHelper extends Helper
         'Paginator',
         'Session'
     );
-
+    
     // an hidden field will be printed for the following field types if they are in readonly mode
     public $structureAlias = '';
 
@@ -191,14 +191,6 @@ class StructuresHelper extends Helper
     );
 
     /**
-     * @param $x
-     */
-    public function debug12($x){
-        debug($x);
-    }
-
-
-    /**
      * StructuresHelper constructor.
      * @param View $view
      * @param array $settings
@@ -349,24 +341,31 @@ class StructuresHelper extends Helper
     }
 
     /**
-     * @param $tmp
+     * @param $structureSfs
      * @return string
      */
-    private function putInTable($tmp)
+    private function putInTable($structureSfs)
     {
         $htmlResult = "";
-        $temp = array();
-        foreach ($tmp as $key => &$values) {
+        $temp = [];
+        foreach ($structureSfs as $key => &$values) {
             if ($values) {
                 foreach ($values as $alias => $structures) {
-                    $temp[$alias] = $structures;
+                    if (!is_int($alias)){
+                        $temp[$alias] = $structures;
+                    }elseif (isset($structures['Structure'][0]) && isset($structures['Structure'][0]['alias'])){
+                        $temp[$structures['Structure'][0]['alias']] = $structures;
+                    }
+                    else{
+                        $temp[$structures['Structure']['alias']] = $structures;
+                    }
                 }
             }
         }
         $tmp = $temp;
         unset($temp);
         
-        $uniqueStructureAlias = array();
+        $uniqueStructureAlias = [];
         foreach ($tmp as $alias => $structures) {
             $uniqueStructureAlias[] = $alias;
             $htmlResult .= "<h3 class='expandable'>" . $alias . "</h3>\n";
@@ -397,7 +396,7 @@ class StructuresHelper extends Helper
      */
     private function simplifyStructureTable($atimStructure)
     {
-        $unimportantFields = array(
+        $unimportantFields = [
             'id',
             'structure_format_id',
             'structure_field_id',
@@ -405,10 +404,9 @@ class StructuresHelper extends Helper
             'sortable',
             'StructureValueDomain',
             'StructureValidation'
-        );
+        ];
         if (Configure::read('debug')) {
-            //$tmp = array($atimStructure);
-			$tmp=array();
+            $tmp = array($atimStructure);
             if (isset($atimStructure['Structure'][0])) {
                 foreach ($atimStructure['Structure'] as $struct) {
                     if (isset($struct['alias'])) {
@@ -420,7 +418,7 @@ class StructuresHelper extends Helper
                 $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
                 $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
             } else {
-                $possible = array(
+                $possible = [
                     "Collection",
                     "DiagnosisMaster",
                     "TreatmentMaster",
@@ -431,7 +429,7 @@ class StructuresHelper extends Helper
                     "StorageMaster",
                     "AliquotMaster",
                     "SampleMaster"
-                );
+                ];
                 $tmp = $this->getStructure($atimStructure, $possible, $unimportantFields);
                 // $tmp[$atimStructure['Structure']['alias']] = $atimStructure['Sfs'];
                 // $this->remove($tmp[$atimStructure['Structure']['alias']], $unimportantFields);
@@ -446,9 +444,9 @@ class StructuresHelper extends Helper
      * @param array $unimportantFields
      * @return array
      */
-    private function getStructure($atimStructure, $possibles, $unimportantFields = array())
+    private function getStructure($atimStructure, $possibles, $unimportantFields = [])
     {
-        $tmp = array();
+        $tmp = [];
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
                 $tmp[$atimStructure[$possible]['Structure']['alias']] = $atimStructure[$possible]['Sfs'];
@@ -465,7 +463,7 @@ class StructuresHelper extends Helper
      */
     private function getIndexStructure($atimStructure, $possibles)
     {
-        $tmp = array();
+        $tmp = [];
         foreach ($possibles as $possible) {
             if (isset($atimStructure[$possible]['Structure']['alias'])) {
                 $tmp[] = $atimStructure[$possible]['Structure']['alias'];
@@ -496,8 +494,8 @@ class StructuresHelper extends Helper
                     }
                 } elseif (isset($atimStructure['Structure']) && isset($atimStructure['Structure']['alias'])) {
                     $tmp[] = $atimStructure['Structure']['alias'];
-                } elseif ($atimStructure) {
-                    $possible = array(
+                } else if ($atimStructure) {
+                    $possible = [
                         "Collection",
                         "DiagnosisMaster",
                         "TreatmentMaster",
@@ -508,7 +506,7 @@ class StructuresHelper extends Helper
                         "StorageMaster",
                         "AliquotMaster",
                         "SampleMaster"
-                    );
+                    ];
                     $tmp = $this->getIndexStructure($atimStructure, $possible);
                 }
                 // echo "<code>Structure alias: ", implode(", ", $tmp), "</code><br>";
@@ -665,7 +663,7 @@ class StructuresHelper extends Helper
         
         if ($options['type'] != 'csv') {
             $this->updateUnsanitizeList($options, $atimStructure);
-            $sanitizedData = stringCorrection(Sanitize::clean($data));
+            $sanitizedData = Sanitize::clean($data);
             if ($options['settings']['no_sanitization']) {
                 $this->unsanitize($sanitizedData, $data, $options['settings']['no_sanitization']);
             }
@@ -674,8 +672,8 @@ class StructuresHelper extends Helper
         }
         
         $this->updateDataWithAccuracy($data, $atimStructure); // will not update tree view data
-                                                              // run specific TYPE function to build structure (ordered by frequence for performance)
-        $type = $options['type'];
+                                                                  // run specific TYPE function to build structure (ordered by frequence for performance)
+        $type = $options['type'];     
         if (in_array($type, self::$writeModes)) {
             // editable types, convert validation errors
             $this->myValidationErrors = array();
@@ -683,26 +681,16 @@ class StructuresHelper extends Helper
                 $this->myValidationErrors = array_merge($validationErrorArr, $this->myValidationErrors);
             }
         }
-        
+        $tableIndex=null;
         if ($type == 'summary') {
-            $this->buildSummary($atimStructure, $options, $data);
-        } elseif (in_array($type, array(
-            'index',
-            'addgrid',
-            'editgrid'
-        ))) {
+            $this->buildSummary($atimStructure, $options, $data, $tableIndex);
+        } elseif (in_array($type, ['index', 'addgrid', 'editgrid'])) {
             if ($type == 'addgrid' || $type == 'editgrid') {
                 $options['settings']['pagination'] = false;
             }
-            $this->buildTable($atimStructure, $options, $data, $type);
-        } elseif (in_array($type, array(
-            'detail',
-            'add',
-            'edit',
-            'search',
-            'batchedit'
-        ))) {
-            $this->buildDetail($atimStructure, $options, $data);
+            $this->buildTable($atimStructure, $options, $data, $tableIndex);
+        } elseif (in_array($type, ['detail', 'add', 'edit', 'search', 'batchedit'])) {
+            $this->buildDetail($atimStructure, $options, $data, $tableIndex);
         } elseif ($type == 'tree') {
             $options['type'] = 'index';
             $this->buildTree($atimStructure, $options, $data);
@@ -715,9 +703,19 @@ class StructuresHelper extends Helper
             }
             // build detail anyway
             $options['type'] = 'detail';
-            $this->buildDetail($atimStructure, $options, $data);
+            $this->buildDetail($atimStructure, $options, $data, $tableIndex);
         }
         
+        if (isset($options['type']) && !in_array($options['type'], ['index', 'summary'])) {
+            //d('type:  '.$options['type']);
+            if (API::isAPIMode()) {
+                $structure=$this->APIGetStructure($tableIndex, $atimStructure, $options);
+                if ($structure){
+                    API::addToBundle($structure, 'structure');
+                }
+            }
+        }
+
         if (isset($options['extras']['end'])) {
             echo '
 				<div class="extra">' . $options['extras']['end'] . '</div>
@@ -805,11 +803,12 @@ class StructuresHelper extends Helper
     /**
      * Build a structure in a detail format
      *
-     * @param array $atimStructure            
-     * @param array $options            
-     * @param array $dataUnit            
+     * @param array $atimStructure
+     * @param array $options
+     * @param array $dataUnit
+     * @param $tableIndex
      */
-    private function buildDetail(array $atimStructure, array $options, $dataUnit)
+    private function buildDetail(array $atimStructure, array $options, $dataUnit, &$tableIndex)
     {
         $tableIndex = $this->buildStack($atimStructure, $options);
         // display table...
@@ -883,12 +882,7 @@ class StructuresHelper extends Helper
                         
                         // value
                         $currentValue = null;
-                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$rangeTypes) ? array(
-                            "_start",
-                            "_end"
-                        ) : array(
-                            ""
-                        );
+                        $suffixes = $options['type'] == "search" && in_array($tableRowPart['type'], StructuresComponent::$rangeTypes) ? ["_start", "_end"] : [""];
                         foreach ($suffixes as $suffix) {
                             $currentValue = self::getCurrentValue($dataUnit, $tableRowPart, $suffix, $options);
                             if ($manyColumns) {
@@ -1064,7 +1058,6 @@ class StructuresHelper extends Helper
                 if ($options['type'] != "search" && isset(AppModel::$accuracyConfig[$tableRowPart['tablename']][$tableRowPart['field']])) {
                     $display = "<div class='accuracy_target_blue'></div>";
                 }
-                
                 $display .= self::getDateInputs($fieldName, $date, $tableRowPart['settings']);
                 unset($tableRowPart['settings']['required']);
                 $display .= self::getTimeInputs($fieldName, $time, $tableRowPart['settings']);
@@ -1289,9 +1282,9 @@ class StructuresHelper extends Helper
      * @param array $atimStructure
      * @param array $options
      * @param array $data
-     * @param $type
+     * @param $tableIndex
      */
-    private function buildTable(array $atimStructure, array $options, array $data, $type)
+    private function buildTable(array $atimStructure, array $options, array $data, &$tableIndex)
     {
         // attach PER PAGE pagination param to PASSED params array...
         if (isset($this->request->params['named']) && isset($this->request->params['named']['per'])) {
@@ -1299,11 +1292,12 @@ class StructuresHelper extends Helper
         }
         
         $tableStructure = $this->buildStack($atimStructure, $options);
-        
         $structureCount = 0;
         $structureIndex = array(
             1 => $tableStructure
         );
+        
+        //$this->APIStructure=$structureIndex;
         
         $stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" ';
         $class = 'structure ' . $options['type'];
@@ -1402,35 +1396,19 @@ class StructuresHelper extends Helper
                             foreach ($tableColumn as $tableRow) {
                                 foreach ($tableRow as $tableRowPart) {
                                     $currentValue = self::getCurrentValue($dataUnit, $tableRowPart, "", $options);
-                                    $getPrintableField=$this->getPrintableField($tableRowPart, $options, $currentValue, $key, null);
-                                    $hint=strlen($getPrintableField)>100?$getPrintableField:" ";
                                     if (strlen($tableRowPart['label']) || $firstCell) {
-                                        if ($type==='index'){
-                                            if ($firstCell) {
-                                                echo "<td><p class = 'wraped-text'>";
-                                                $firstCell = false;
-                                            } else {
-                                                echo "</p></td><td><p class = 'wraped-text' title='".$hint."'>";
-                                            }
-                                        }
-                                        else{
-                                            if ($firstCell) {
-                                                echo "<td>";
-                                                $firstCell = false;
-                                            } else {
-                                                echo "</td><td>";
-                                            }
+                                        if ($firstCell) {
+                                            echo "<td>";
+                                            $firstCell = false;
+                                        } else {
+                                            echo "</td><td>";
                                         }
                                     }
-                                    echo $getPrintableField;
+                                    echo $this->getPrintableField($tableRowPart, $options, $currentValue, $key, null);
                                 }
                             }
                         }
-                        if ($type==='index'){
-                            echo "</p></td>\n";
-                        }else{
-                            echo "</td>\n";
-                        }
+                        echo "</td>\n";
                         
                         // remove line ctrl
                         if ($removeLineCtrl) {
@@ -1448,14 +1426,21 @@ class StructuresHelper extends Helper
                     if ($options['settings']['pagination']) {
                         echo '<pre>';
                         echo '</pre>';
-                        echo '<tr class="pagination">
-                                <th colspan="', $headerData['count'], '">
-                                    <span class="results">', $this->Paginator->counter(array('format' => '%start%-%end%' . __(' of ') . '%count%')), '</span>
-                                    <span class="links">
-                                            ', $this->Paginator->prev(__('prev'), null, __('prev')), '
-                                            ', $this->Paginator->numbers(), '
-                                            ', $this->Paginator->next(__('next'), null, __('next')), '
-                                    </span>';
+                        echo '
+								<tr class="pagination">
+									<th colspan="', $headerData['count'], '">
+										
+										<span class="results">
+											', $this->Paginator->counter(array(
+                            'format' => '%start%-%end%' . __(' of ') . '%count%'
+                        )), '
+										</span>
+										
+										<span class="links">
+											', $this->Paginator->prev(__('prev'), null, __('prev')), '
+											', $this->Paginator->numbers(), '
+											', $this->Paginator->next(__('next'), null, __('next')), '
+										</span>';
                         $limits = array(
                             5,
                             10,
@@ -1975,7 +1960,7 @@ class StructuresHelper extends Helper
                 $dataJson = array(
                     'url' => isset($options['links']['tree_expand'][$expandKey]) ? $this->strReplaceLink($options['links']['tree_expand'][$expandKey], $dataVal) : ""
                 );
-                if (isset($dataJson['url'][0]) && $dataJson['url'][0] == '/') {
+                if ($dataJson['url'][0] == '/') {
                     $dataJson['url'] = substr($dataJson['url'], 1);
                 }
                 $dataJson = htmlentities(json_encode($dataJson));
@@ -2554,12 +2539,7 @@ class StructuresHelper extends Helper
                         );
                         if ($sfs['type'] == "select") {
                             $addBlank = true;
-                            if (count($sfs['StructureValidation']) > 0 && (in_array($options['type'], array(
-                                'edit',
-                                'editgrid',
-                                'add',
-                                'addgrid'
-                            )))) {
+                            if (count($sfs['StructureValidation']) > 0 && (in_array($options['type'], ['edit', 'editgrid', 'add', 'addgrid']))) {
                                 // check if the field can be empty or not
                                 foreach ($sfs['StructureValidation'] as $validation) {
                                     if ($validation['rule'] == 'notBlank') {
@@ -2803,14 +2783,9 @@ class StructuresHelper extends Helper
                     $htmlAttributes['class'] .= $class;
                     if ($state == 'index') {
                         $htmlAttributes['class'] .= ' icon16';
-                        $linkResults[$linkLabel] = $this->Html->link('&nbsp;', $linkLocation, // url
-$htmlAttributes, // options
-$confirmationMsg); // confirmation message
+                        $linkResults[$linkLabel] = $this->Html->link('&nbsp;', $linkLocation /* url */, $htmlAttributes /* options */, $confirmationMsg /* confirmation message */); 
                     } else {
-                        $linkResults[$linkLabel] = $this->Html->link('<span class="icon16 ' . $class . '"></span>' . __($linkLabel), // title
-$linkLocation, // url
-$htmlAttributes, // options
-$confirmationMsg); // confirmation message
+                        $linkResults[$linkLabel] = $this->Html->link('<span class="icon16 ' . $class . '"></span>' . __($linkLabel) /* title */, $linkLocation /* url */, $htmlAttributes /* options */, $confirmationMsg /* confirmation message */);
                     }
                 } else {
                     // if ACO/ARO permission check fails, display NOt ALLOWED type link
@@ -2827,7 +2802,7 @@ $confirmationMsg); // confirmation message
                 $returnLinks[$linkName] = $linkResults[$linkName];
             } else {
                 $linksAppend = '
-							<a href="#"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
+							<a href="javascript:return false;"><span class="icon16 popup"></span>' . __($linkName, true) . '</a>
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu' . (count($linkResults) > 7 ? ' scroll' : '') . '">
 								
@@ -3290,12 +3265,12 @@ $confirmationMsg); // confirmation message
      */
     private function getRadiolist(array $rawRadiolist, array $data)
     {
-        // debug(AppController::getStackTrace());
-        // die('test');
         $result = '';
         $defaultSettingsWoClass = self::$defaultSettingsArr;
         unset($defaultSettingsWoClass['class']);
         foreach ($rawRadiolist as $radiobuttonName => $radiobuttonValue) {
+            //I changed it because it was a "." between two words and not "\." which caused error in this line.
+            //list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
             list ($tmpModel, $tmpField) = explode(".", $radiobuttonName);
             $radiobuttonValue = $this->strReplaceLink($radiobuttonValue, $data);
             $tmpAttributes = array(
@@ -3384,9 +3359,249 @@ $confirmationMsg); // confirmation message
      */
     public function ajaxIndex($indexUrl)
     {
-        return AppController::checkLinkPermission($indexUrl) ? '
-		<div class="indexZone" data-url="' . $indexUrl . '">
-		</div>
-		' : '<div>' . __('You are not authorized to access that location.') . '</div>';
+        API::addToBundle($indexUrl, 'urls');
+        return AppController::checkLinkPermission($indexUrl) ? 
+            '<div class="indexZone" data-url="' . $indexUrl . '"></div>' : 
+            '<div>' . __('You are not authorized to access that location.') . '</div>';
+    }
+
+    /**
+     * @param $text
+     * @return mixed|string
+     */
+    private function removeHTMLTags($text)
+    {
+        $text=strip_tags($text);
+        $text= trim($text);
+        $text=str_replace('&nbsp;', '', $text);
+        return $text;
+    }
+
+    /**
+     * @param $response
+     * @param $item
+     * @param $suffixes
+     * @param $option
+     */
+    private function APISetField(&$response, $item, $suffixes, $option)
+    {
+        $optionType=$option['type'];
+        $type=$item['type'];
+        $field=null;
+        if($suffixes==null){
+            $response['fields'][$item['field']]['field']=$item['field'];
+            $response['fields'][$item['field']]['name'] = $item['model'] . '[' . $item['field'] . ']';
+            if (in_array($optionType, ["addgrid", "editgrid"])){
+                $response['example'][0][$item['model']][$item['field']] = null;
+                $response['example'][1][$item['model']][$item['field']] = null;
+            }else{
+                $response['example'][$item['model']][$item['field']] = null;
+            }
+            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
+                $response['fields'][$item['field']]['defined'] = $item['settings']['options']['defined'];
+            }
+            $response['fields'][$item['field']]['type'] = $item['type'];
+            $response['fields'][$item['field']]['readonly'] = $item['readonly'];
+            $response['fields'][$item['field']]['flag_confidential'] = $item['flag_confidential'];
+            $response['fields'][$item['field']]['help'] = $this->removeHTMLTags($item['help']);
+            if (isset($item['settings']['required'])) {
+                $response['fields'][$item['field']]['required'] = $item['settings']['required'];
+            }
+            if (isset($item['settings']['url'])) {
+                $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
+            }
+        }else if (is_array($suffixes)){
+            foreach ($suffixes as $suffix){
+                $field=$item['field'].$suffix;
+                $response['fields'][$field]['field']=$field;
+                $response['fields'][$field]['name'] = $item['model'] . '[' . $field. ']';
+                if (in_array($optionType, ["addgrid", "editgrid"])){
+                    $response['example'][0][$item['model']][$field] = null;
+                    $response['example'][1][$item['model']][$field] = null;
+                }else{
+                    $response['example'][$item['model']][$field] = null;
+                }
+                if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
+                    $response['fields'][$field]['defined'] = $item['settings']['options']['defined'];
+                }
+                $response['fields'][$field]['type'] = $item['type'];
+                $response['fields'][$item['field']]['readonly'] = $item['readonly'];
+                $response['fields'][$field]['flag_confidential'] = $item['flag_confidential'];
+                $response['fields'][$field]['help'] = $this->removeHTMLTags($item['help']);
+                if (isset($item['settings']['required'])) {
+                    $response['fields'][$field]['required'] = $item['settings']['required'];
+                }
+                if (isset($item['settings']['url'])) {
+                    $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
+                }
+            }
+        }else{
+            $field=$item['field'];
+            $response['fields'][$item['field']]['field']=$item['field'];
+            $response['fields'][$item['field']]['name'] = $item['model'] . '[' . $item['field'].']'.$suffixes;
+            if (in_array($optionType, ["addgrid", "editgrid"])){
+                $response['example'][0][$item['model']][$field] = ['e1','e2'];
+                $response['example'][1][$item['model']][$field] = ['e1','e2'];
+            }else{
+                $response['example'][$item['model']][$field] = ['e1','e2'];
+            }
+            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
+                $response['fields'][$item['field']]['defined'] = $item['settings']['options']['defined'];
+            }
+            $response['fields'][$item['field']]['type'] = $item['type'];
+            $response['fields'][$item['field']]['readonly'] = $item['readonly'];
+            $response['fields'][$item['field']]['flag_confidential'] = $item['flag_confidential'];
+            $response['fields'][$item['field']]['help'] = $this->removeHTMLTags($item['help']);
+            if (isset($item['settings']['required'])) {
+                $response['fields'][$item['field']]['required'] = $item['settings']['required'];
+            }
+            if (isset($item['settings']['url'])) {
+                $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
+            }
+        }      
+    }
+
+    /**
+     * @param $response
+     * @param $item
+     * @param $suffixes
+     * @param $option
+     * @internal param string $type
+     */
+    private function APISetDate(&$response, $item, $suffixes, $option)
+    {
+        $optionType=$option['type'];
+        $type=$item['type'];
+        if(!$suffixes){
+            $response['fields'][$item['field']]['field']=$item['field'];
+            $response['fields'][$item['field']]['name']['year']['name'] = $item['model'] . '[' . $item['field'] . '][year]';
+            $response['fields'][$item['field']]['name']['year']['defined'] = ['1900..2100'];
+            $response['fields'][$item['field']]['name']['month']['name'] = $item['model'] . '[' . $item['field'] . '][month]';
+            $response['fields'][$item['field']]['name']['month']['defined'] = ['01..12'];
+            $response['fields'][$item['field']]['name']['day']['name'] = $item['model'] . '[' . $item['field'] . '][day]';
+            $response['fields'][$item['field']]['name']['day']['defined'] = ['01..31'];
+            if (in_array($optionType, ["addgrid", "editgrid"])){
+                $response['example'][0][$item['model']][$item['field']] = ['year'=>null, 'month'=>null, 'day'=>null];
+                $response['example'][1][$item['model']][$item['field']] = ['year'=>null, 'month'=>null, 'day'=>null];
+            }else{
+                $response['example'][$item['model']][$item['field']] = ['year'=>null, 'month'=>null, 'day'=>null];
+            }            
+            if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
+                $response['fields'][$item['field']]['defined'] = $item['settings']['options']['defined'];
+            }
+            $response['fields'][$item['field']]['type'] = $item['type'];
+            $response['fields'][$item['field']]['readonly'] = $item['readonly'];
+            $response['fields'][$item['field']]['flag_confidential'] = $item['flag_confidential'];
+            $response['fields'][$item['field']]['help'] = $this->removeHTMLTags($item['help']);
+            if (isset($item['settings']['required'])) {
+                $response['fields'][$item['field']]['required'] = $item['settings']['required'];
+            }
+            if (isset($item['settings']['url'])) {
+                $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
+            }
+        }else{
+            foreach ($suffixes as $suffix){
+                $field=$item['field'].$suffix;
+                $response['fields'][$field]['field']=$field;
+                $response['fields'][$field]['name']['year']['name'] = $item['model'] . '[' . $field . '][year]';
+                $response['fields'][$field]['name']['year']['defined'] = ['1900..2100'];
+                $response['fields'][$field]['name']['month']['name'] = $item['model'] . '[' . $field . '][month]';
+                $response['fields'][$field]['name']['month']['defined'] = ['01..12'];
+                $response['fields'][$field]['name']['day']['name'] = $item['model'] . '[' . $field . '][day]';
+                $response['fields'][$field]['name']['day']['defined'] = ['01..31'];
+                if ($type=='datetime'){
+                    $response['fields'][$field]['name']['hour']['name'] = $item['model'] . '[' . $field . '][hour]';
+                    $response['fields'][$field]['name']['hour']['defined'] = ['00..23'];
+                    $response['fields'][$field]['name']['min']['name'] = $item['model'] . '[' . $field . '][min]';
+                    $response['fields'][$field]['name']['min']['defined'] = ['00..59'];
+                    if (in_array($optionType, ["addgrid", "editgrid"])){
+                        $response['example'][0][$item['model']][$field] = ['year'=>null, 'month'=>null, 'day'=>null, 'hour'=>null, 'min'=>null];
+                        $response['example'][1][$item['model']][$field] = ['year'=>null, 'month'=>null, 'day'=>null, 'hour'=>null, 'min'=>null];
+                    }else{
+                        $response['example'][$item['model']][$field] = ['year'=>null, 'month'=>null, 'day'=>null, 'hour'=>null, 'min'=>null];
+                    }
+                }else if($type=='date'){
+                    if (in_array($optionType, ["addgrid", "editgrid"])){
+                        $response['example'][0][$item['model']][$field] = ['year'=>null, 'month'=>null, 'day'=>null];
+                        $response['example'][0][$item['model']][$field] = ['year'=>null, 'month'=>null, 'day'=>null];
+                    }else{
+                        $response['example'][$item['model']][$field] = ['year'=>null, 'month'=>null, 'day'=>null];
+                    }
+                }
+                if (isset($item['settings']['options']['defined']) && is_array($item['settings']['options']['defined']) && !empty($item['settings']['options']['defined'])) {
+                    $response['fields'][$field]['defined'] = $item['settings']['options']['defined'];
+                }
+                $response['fields'][$field]['type'] = $item['type'];
+                $response['fields'][$item['field']]['readonly'] = $item['readonly'];
+                $response['fields'][$field]['flag_confidential'] = $item['flag_confidential'];
+                $response['fields'][$field]['help'] = $this->removeHTMLTags($item['help']);
+                if (isset($item['settings']['required'])) {
+                    $response['fields'][$field]['required'] = $item['settings']['required'];
+                }
+                if (isset($item['settings']['url'])) {
+                    $response['fields'][$item['field']]['url'] = $item['settings']['url'].'?term=';
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $tableIndex
+     * @param $structures
+     * @param $option
+     * @return array
+     */
+    private function APICreateStructure($tableIndex, $structures, $option)
+    {
+//        API::sendTo($tableIndex);
+        if (empty($tableIndex)){
+            return null;
+        }
+
+        $response=['fields'=>[], 'example'=>[]];
+        foreach ($tableIndex as $columns) {
+            foreach ($columns as $column) {
+                foreach ($column as $item) {
+                    $suffixes=null;
+                    if (API::getAction() == "search") {
+                        $suffixes =in_array($item['type'], StructuresComponent::$rangeTypes) ? ["_start", "_end"] : "[]";
+                    }
+                    if (in_array($item['type'], ['date', 'datetime'])) {
+                        $this->APISetDate($response, $item, $suffixes, $option);
+                    } elseif (in_array($item['type'], ["select", "radio", "checkbox", "yes_no", "y_n_u", "autocomplete", "textarea", "input", "integer", "integer_positive", "float", "float_positive"])) {
+                        $this->APISetField($response, $item, $suffixes, $option);
+                        if (strpos($item['setting'], 'range') && $item['type']=='input'){
+                            $suffixes=["_start", "_end"];
+                            $this->APISetField($response, $item, $suffixes, $option);
+                        }
+                    } else {
+                        //API::sendTo($structures);
+                        continue;
+                    }
+//                    if (in_array($item['field'], ['message_type', 'title', 'date_requested', 'due_date', 'expiry_date', 'done'])) {
+//                        API::sendTo($response);
+//                    }
+                }
+            }
+        }
+        $response['phpArray']= "[".convertJSONtoArray($response['example'])."]";
+        $response['jsArray']= "[".json_encode_js($response['example'])."]";
+        return $response; 
+    }
+
+    /**
+     * @param $tableIndex
+     * @param $structure
+     * @param $option
+     * @return array|null
+     */
+    public function APIGetStructure($tableIndex, $structure, $option)
+    {
+        if (API::isStructMode()){
+            $result=$this->APICreateStructure($tableIndex, $structure, $option);
+            return $result;
+        }else{
+            return null;
+        }
     }
 }

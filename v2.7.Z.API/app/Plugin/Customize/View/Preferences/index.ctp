@@ -9,3 +9,4 @@ $this->Structures->build($atimStructure, array(
     'type' => 'detail',
     'links' => $structureLinks
 ));
+?>

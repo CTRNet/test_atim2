@@ -2,7 +2,7 @@
 $structureLinks = array(
     'top' => '/Sop/SopMasters/edit/' . $atimMenuVariables['SopMaster.id'] . '/',
     'bottom' => array(
-        'cancel' => '/Sop/SopMasters/detail/' . $atimMenuVariables['SopMaster.id'] . '/'
+        'cancel' => '/Sop/SopMasters/detail/%%SopMaster.id%%/'
     )
 );
 

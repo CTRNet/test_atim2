@@ -53,7 +53,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if (empty($participantMesssageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -121,7 +121,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
             'conditions' => array(
                 'Participant.id' => $participantIds
             ),
-            'recursive' => 0
+            'recursive' => '0'
         ));
         if (! $participants)
             $this->atimFlashWarning(__('at least one participant should be selected'), $urlToCancel, 5);
@@ -237,7 +237,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -292,7 +292,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController
                 'ParticipantMessage.id' => $participantMessageId,
                 'ParticipantMessage.participant_id' => $participantId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if (empty($participantMessageData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

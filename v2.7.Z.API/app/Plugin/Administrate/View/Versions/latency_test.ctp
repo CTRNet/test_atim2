@@ -27,12 +27,6 @@ function testLatency(hammer){
 function testLatency2(id){
 	var pingTime = new Date();
 	$.get(root_url + "Administrate/Versions/latencyTest?id=" + id + "&t=" + (new Date()).getTime(), "", function(data){
-            if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
-                data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
-                saveSqlLogAjax(ajaxSqlLog);
-            }
-            
 		var pongTime = new Date();
 		var latency = pongTime.getTime() - pingTime.getTime();
 		$("textarea").append(id + ": " + (latency) + "ms\r");

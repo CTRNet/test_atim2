@@ -40,11 +40,6 @@ $(function(){
 	});
 	$("#default_popup a.cancel").click(function(){
 		$.get($(this).attr("href"), null, function(data){
-                    if ($(data)[$(data).length-1].id==="ajaxSqlLog"){
-                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
-                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
-                        saveSqlLogAjax(ajaxSqlLog);
-                    }
 			$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 			$("#default_popup input[type=text]").first().focus();
 		});

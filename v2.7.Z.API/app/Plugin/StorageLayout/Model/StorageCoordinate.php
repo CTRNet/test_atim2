@@ -36,7 +36,7 @@ class StorageCoordinate extends StorageLayoutAppModel
                 'StorageMaster.parent_id' => $storageMasterId,
                 'StorageMaster.parent_storage_coord_x' => $storageCoordinateData['StorageCoordinate']['coordinate_value']
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrChildrenStorages > 0) {
             return array(
@@ -52,7 +52,7 @@ class StorageCoordinate extends StorageLayoutAppModel
                 'AliquotMaster.storage_master_id' => $storageMasterId,
                 'AliquotMaster.storage_coord_x ' => $storageCoordinateData['StorageCoordinate']['coordinate_value']
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrStorageAliquots > 0) {
             return array(
@@ -88,7 +88,7 @@ class StorageCoordinate extends StorageLayoutAppModel
                 'StorageCoordinate.storage_master_id' => $storageMasterId,
                 'StorageCoordinate.coordinate_value' => $newCoordinateValue
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         
         if ($nbrCoordValues == 0) {
@@ -122,7 +122,7 @@ class StorageCoordinate extends StorageLayoutAppModel
                 'StorageCoordinate.storage_master_id' => $storageMasterId,
                 'StorageCoordinate.order' => $newCoordinateOrder
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         
         if ($nbrCoordValues == 0) {

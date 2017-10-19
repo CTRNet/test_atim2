@@ -34,5 +34,5 @@ $this->Structures->build($finalAtimStructure, $finalOptions);
 
 ?>
 <script>
-var labBookFields = new Array(<?php echo '"'.implode('", "', $labBookFields).'"'; ?>);
+var labBookFields = new Array"<?php echo implode('", "', $labBookFields); ?>");
 </script>

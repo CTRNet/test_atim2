@@ -10,7 +10,7 @@ $structureLinks = array(
 );
 
 $structureSettings = array(
-    'pagination' => true,
+    'pagination' => false,
     'header' => __('add items to shipment', null),
     'actions' => false,
     'form_inputs' => false,
@@ -44,10 +44,5 @@ while ($data = array_shift($this->request->data)) {
     
     $finalOptions['settings']['header'] = array();
 }
+
 ?>
-<script>
-    var dataLimit=<?php echo $dataLimit;?>;
-    var dataIndex="<?php echo "OrderItem";?>";
-    var controller="<?php echo "Shipments";?>"; //Until now not used in Javascript's code
-    var action="<?php echo "addToShipment";?>"; //Until now not used in Javascript's code
-</script>

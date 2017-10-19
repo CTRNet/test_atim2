@@ -131,11 +131,12 @@ while (axisLoopCondition($j, $storageControlData['StorageCtrl']['reverse_y_numbe
             $useValue = $xVal . "_" . $yVal;
             if ($useHeight == 1) {
                 $displayValue = $xVal;
-            } elseif ($useWidth == 1) {
+            } else 
+                if ($useWidth == 1) {
                     $displayValue = $yVal;
-            } else {
-                $displayValue = $xVal . "-" . $yVal;
-            }
+                } else {
+                    $displayValue = $xVal . "-" . $yVal;
+                }
         }
         echo ("<td style='display: table-cell;'><b>" . $displayValue . "</b></td>");
     }
@@ -181,3 +182,4 @@ if ($hookLink) {
 }
 
 $this->Structures->build($emptyStructure, $finalOptions);
+?>

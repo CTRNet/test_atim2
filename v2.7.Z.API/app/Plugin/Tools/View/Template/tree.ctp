@@ -78,7 +78,7 @@ if (isset($isAjax)) {
 <script>
 	var STR_ADD = "<?php echo __('add'); ?>";
 	var modelsData = '<?php echo addslashes(json_encode($jsData)); ?>';
-	var wizardTreeData = '<?php  echo Inflector::variable(json_encode($treeData)); ?>';
+	var wizardTreeData = '<?php echo json_encode($treeData); ?>';
 	var nodeId = 0;
 	var collectionId = <?php echo isset($collectionId) ? $collectionId : null; ?>;
 
@@ -100,7 +100,6 @@ if (isset($isAjax)) {
 			//posting the tree
 			$.post($("form").attr("action"), $("form").serialize(), function(data){
 				data = $.parseJSON(data);
-				saveSqlLogAjax(data);
 				$("body").append("<div class='hidden' id='tmp_add'></div>");
 				$("#tmp_add").html(data.page);
 				$("form:first").attr("action", $("#tmp_add form").attr("action")).find("table:first").replaceWith($("#tmp_add table:first"));
@@ -145,7 +144,7 @@ if (isset($isAjax)) {
 		return !wrong;
 	}
 
-	function bindButtons(scope){     
+	function bindButtons(scope){
 		$(scope).find(".delete").unbind('click').click(function(){
 			var parentLi = $(this).parents("li:first"); 
 			if($(currentNode).data() == $(parentLi).data()){
@@ -162,16 +161,16 @@ if (isset($isAjax)) {
 		});
 		$(scope).find(".add").unbind('click').click(function(){
 			if($("#addDialog").length == 0){
-				buildDialog("addDialog", "", "<select></select><input type='number' size='1' min='1' max='50'></input>", new Array( 
+				buildDialog("addDialog", "", "<select></select><input type='number' size='1' min='1' max='50'></input>", new Array 
 					{ "label" : STR_ADD, "icon" : "add", "action" : function(){
 							if(numberValidation($("#addDialog input"), null)){
 								data = new Object();
-								data.datamartStructureId = $("#addDialog select").val() > 0 ? 5 : 1;
+								data.datamart_structure_id = $("#addDialog select").val() > 0 ? 5 : 1;
 								data.children = new Array();
-								data.controlId = $("#addDialog select").val();
-								data.label =  $("#addDialog select option[value='" + data.controlId + "']").text();
+								data.control_id = $("#addDialog select").val();
+								data.label =  $("#addDialog select option[value='" + data.control_id + "']").text();
 								data.id = 0;
-								data.parentId = typeof $("#addDialog").data("parentId")==='undefined'?"undefined":$("#addDialog").data("parentId");
+								data.parent_id = $("#addDialog").data("parent_id");
 								data.quantity = isNaN(parseInt($("#addDialog input").val())) ? 1 : $("#addDialog input").val();
 								addNode(data , $("#addDialog").data("node"));
 							}
@@ -182,9 +181,9 @@ if (isset($isAjax)) {
 			}
 			li = $(this).parents("li:first");
 			var options = null;
-			if($(li).data("datamartStructureId") == 2){
+			if($(li).data("datamart_structure_id") == 2){
 				options = getDropdownOptions("");
-			}else if($(li).data("datamartStructureId") == 5){
+			}else if($(li).data("datamart_structure_id") == 5){
 				options = getDropdownOptions($(li).data("controlId"));
 			}
 
@@ -199,7 +198,7 @@ if (isset($isAjax)) {
 			$("#addDialog select").html(options).change(updateNumInput);
 			var liParent = $(this).parents("li:first");
 			$("#addDialog").data("node", liParent);
-			$("#addDialog").data("parentId", typeof $(liParent).data("nodeId")==='undefined'?"undefined":$(liParent).data("nodeId"));
+			$("#addDialog").data("parent_id", $(liParent).data("nodeId"));
 			updateNumInput();
 			$("#addDialog").popup();
 			return false;
@@ -207,18 +206,18 @@ if (isset($isAjax)) {
 	}
 	
 	function addNode(treeData, node){
-		addButton = treeData.datamartStructureId != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
+		addButton = treeData.datamart_structure_id != 1 && <?php echo isset($flagSystem) && $flagSystem ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
 		type = null;
 		label = null;
-		if(treeData.datamartStructureId == 2){
+		if(treeData.datamart_structure_id == 2){
 			label = '<?php echo __('collection'); ?>';
 			type = 'collection';
-		}else if(treeData.datamartStructureId == 1){
+		}else if(treeData.datamart_structure_id == 1){
 			type = 'aliquot';
-			label = modelsData.aliquot_controls[Math.abs(treeData.controlId)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>";
+			label = modelsData.aliquot_controls[Math.abs(treeData.control_id)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>";
 		}else{
 			type = 'sample';
-			label = modelsData.sample_controls[treeData.controlId]["SampleControl"]["sample_type"];
+			label = modelsData.sample_controls[treeData.control_id]["SampleControl"]["sample_type"];
 		}
 
 		if($(node)[0].nodeName != "UL"){
@@ -246,41 +245,41 @@ if (isset($isAjax)) {
 			}
 		});
 		$(li).data({
-			"datamartStructureId" : treeData.datamartStructureId, 
-			"controlId" : Math.abs(treeData.controlId), 
-			"nodeId" : treeData.id === 0 ? nodeId -- : treeData.id,
-			"parentId" : treeData.parentId,
+			"datamart_structure_id" : treeData.datamart_structure_id, 
+			"controlId" : Math.abs(treeData.control_id), 
+			"nodeId" : treeData.id == 0 ? nodeId -- : treeData.id,
+			"parent_id" : treeData.parent_id,
 			"quantity" : treeData.quantity
 		}); 
 		bindButtons(li); 
 		return li;
 	}
 
-	function getDropdownOptions(parentId){
+	function getDropdownOptions(parent_id){
 		var options = "";
-		if(parentId != ""){
+		if(parent_id != ""){
 			options += "<optgroup label='<?php echo __('derivative'); ?>'>";
 		}
-		for(i in modelsData.samples_relations[parentId]){
-			sample = modelsData.sample_controls[modelsData.samples_relations[parentId][i]["ParentToDerivativeSampleControl"]["derivative_sample_control_id"]];
+		for(i in modelsData.samples_relations[parent_id]){
+			sample = modelsData.sample_controls[modelsData.samples_relations[parent_id][i]["ParentToDerivativeSampleControl"]["derivative_sample_control_id"]];
 			options += "<option value='" + sample["SampleControl"]["id"] + "'>" + sample["SampleControl"]["sample_type"] + "</option>";
 		}
-		if(parentId != ""){
+		if(parent_id != ""){
 			options += "</optgroup><optgroup label='<?php echo __('aliquot'); ?>'>";
 		}
-		for(i in modelsData.aliquot_relations[parentId]){
-			aliquot = modelsData.aliquot_relations[parentId][i];
+		for(i in modelsData.aliquot_relations[parent_id]){
+			aliquot = modelsData.aliquot_relations[parent_id][i];
 			options += "<option value='" + (-1 * aliquot["AliquotControl"]["id"]) + "'>" + aliquot["AliquotControl"]["aliquot_type"] + "</option>";
 		}
-		if(parentId != ""){
+		if(parent_id != ""){
 			options += "</optgroup>";
 		}
 			
 		return options;
 	}
+
+
 	
-
-
 	var currentNode = null;
 	var templateInitId = null;
 	function initWizardMode(wizard_id){
@@ -290,7 +289,6 @@ if (isset($isAjax)) {
 		setLoading();
 		$.get(root_url + 'InventoryManagement/Collections/templateInit/' + collectionId + '/' + wizard_id + "/noActions:/?t=" + new Date().getTime(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
-			saveSqlLogAjax(data);
 			$(".ajaxContent").html(jsonData.page);
 			globalInit(".ajaxContent");
 			templateInitId = $("input[type=hidden][name=data\\\[template_init_id\\\]]").val();
@@ -307,7 +305,6 @@ if (isset($isAjax)) {
 	function overrideSubmitButton(){
 		$.post($("form").prop("action") + "/noActions:/templateInitId:" + templateInitId + '/', $("form").serialize(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
-			saveSqlLogAjax(jsonData);
 			if(jsonData.goToNext){
 				//update current node display if needed
 				$(currentNode).data("id", jsonData.id);
@@ -360,7 +357,7 @@ if (isset($isAjax)) {
 			$(currentNode).find("div:first").css("font-weight", "bold").find("input").attr("disabled", true);
 			data = $(currentNode).data();
 			url = null;
-			if(data.datamartStructureId == 1){
+			if(data.datamart_structure_id == 1){
 				//aliquot
 				parentLi = $(currentNode).parents("li:first");
 				url = 'InventoryManagement/AliquotMasters/add/' + $(parentLi).data("id") + '/' + data.controlId + '/' + data.quantity + '/';
@@ -369,7 +366,7 @@ if (isset($isAjax)) {
 				parentLi = $(currentNode).parents("li:first");
 				parentLiData = $(parentLi).data();
 				parentId = null;
-				if(parentLiData.datamartStructureId == 5){
+				if(parentLiData.datamart_structure_id == 5){
 					//parent is a sample
 					parentId = parentLiData.id;
 				}else{
@@ -380,7 +377,6 @@ if (isset($isAjax)) {
 
 			$.get(root_url + url + 'noActions:/templateInitId:' + templateInitId + '/', function(jsonData){
 				jsonData = $.parseJSON(jsonData);
-				saveSqlLogAjax(jsonData);
 				try{
 					$(".ajaxContent").html(jsonData.page);
 				}catch(e){
@@ -403,7 +399,7 @@ if (isset($isAjax)) {
 	
 	function confirmReset(){
 		if($("#confirmReset").length == 0){
-			buildConfirmDialog("confirmReset", "<?php echo __('are you sure you want to reset?'); ?>", new Array(
+			buildConfirmDialog("confirmReset", "<?php echo __('are you sure you want to reset?'); ?>", new Array
 				{icon : "detail", label : STR_YES, "action" : function(){ document.location = root_url + "/Tools/Template/edit/<?php echo $templateId; ?>";}},
 				{"icon" : "cancel", label : STR_CANCEL, "action" : function(){ $("#confirmReset").popup('close'); }})
 			);

@@ -20,3 +20,6 @@ if ($hookLink) {
 }
 
 $this->Structures->build($finalAtimStructure, $finalOptions);
+
+?>
+

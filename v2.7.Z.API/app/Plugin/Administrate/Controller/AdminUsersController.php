@@ -204,20 +204,6 @@ class AdminUsersController extends AdministrateAppController
             $arrAllowDeletion['msg'] = 'you cannot delete yourself';
         }
         
-        if ($arrAllowDeletion['allow_deletion']) {
-            $announcementM = AppModel::getInstance('', 'Announcement', true);
-            $announcementConditions = array(
-                'Announcement.user_id' => $userId
-            );
-            $announcements = $announcementM->find('first', array('conditions' => $announcementConditions ));
-            if ($announcements) {
-                $arrAllowDeletion = array(
-                    'allow_deletion' => false,
-                    'msg' => 'at least one announcement is linked to that user'
-                );
-            }
-        }
-        
         $aroM = AppModel::getInstance('', 'Aro', true);
         $aroM->checkWritableFields = false;
         $aroM->pkeySafeguard = false;
@@ -232,7 +218,7 @@ class AdminUsersController extends AdministrateAppController
             $this->User->atimDelete($userId);
             $this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/" . $groupId);
         } else {
-            $this->atimFlashWarning(__($arrAllowDeletion['msg']), "/Administrate/AdminUsers/detail/$groupId/$userId");
+            $this->atimFlashWarning(__($arrAllowDeletion['msg']), 'javascript:history.back()');
         }
     }
 
@@ -288,3 +274,4 @@ class AdminUsersController extends AdministrateAppController
         }
     }
 }
+

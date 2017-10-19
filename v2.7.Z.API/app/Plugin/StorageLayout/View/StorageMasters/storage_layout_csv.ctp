@@ -101,7 +101,8 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                     $useValue = $xVal . "_" . $yVal;
                     if ($useHeight == 1) {
                         $displayValue = $xVal;
-                    } elseif ($useWidth == 1) {
+                    } else 
+                        if ($useWidth == 1) {
                             $displayValue = $yVal;
                         } else {
                             $displayValue = $xVal . "-" . $yVal;
@@ -163,7 +164,8 @@ if (! $errors) {
                 $csvData[1][] = isset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) ? implode(' / ', $xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]) : '';
                 unset($xYValuesToCellContentLabels[$csvLayoutCellData['x_y']]);
             }
-        } elseif (sizeof($csvLayoutData[0]) == 1) {
+        } else 
+            if (sizeof($csvLayoutData[0]) == 1) {
                 // One dimension layout display as a column with only x coordinates tracked
                 foreach ($csvLayoutData as $csvLayoutLineData) {
                     $csvLayoutCellData = $csvLayoutLineData[0];
@@ -227,3 +229,5 @@ foreach ($csvData as $newDataLine)
     $this->Csv->addRow($newDataLine);
 echo $this->Csv->render(true, isset(AppController::getInstance()->csvConfig) ? AppController::getInstance()->csvConfig['define_csv_encoding'] : CSV_ENCODING);
 exit();
+
+?>

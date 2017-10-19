@@ -15,3 +15,4 @@ if (! isset($channel['title'])) :
 endif;
 
 echo $this->Rss->document($this->Rss->channel(array(), $channel, $this->fetch('content')));
+?>

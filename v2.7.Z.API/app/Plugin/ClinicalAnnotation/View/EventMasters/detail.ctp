@@ -84,3 +84,4 @@ if (! $isAjax) {
     if ($displayNextSubForm)
         $this->Structures->build(array(), $finalOptions);
 }
+?>

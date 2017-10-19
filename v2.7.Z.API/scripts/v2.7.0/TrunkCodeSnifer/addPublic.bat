@@ -1,1 +1,0 @@
-php addPublic.php atims/root/app

@@ -122,8 +122,5 @@ if (! $isAjax && ! empty($sampleData)) {
     // BUILD FORM
     $this->Structures->build($finalAtimStructure, $finalOptions);
 }
+
 ?>
-<script>
-    var duplicatedSamples = [];
-    var treeTable = null;
-</script>

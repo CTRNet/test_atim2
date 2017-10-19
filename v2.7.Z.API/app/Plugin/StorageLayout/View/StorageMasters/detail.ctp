@@ -34,14 +34,16 @@ if ($isFromTreeViewOrLayout == 1) {
     $settings = array(
         'header' => __($isTma ? 'TMA-blc' : 'storage')
     );
-} elseif ($isFromTreeViewOrLayout == 2) {
+} else 
+    if ($isFromTreeViewOrLayout == 2) {
         // Display Detail From Storage Layout
         $structureLinks = array();
         $structureLinks['bottom']['access to all data'] = '/StorageLayout/StorageMasters/detail/' . $atimMenuVariables['StorageMaster.id'];
         $settings = array(
             'header' => __($isTma ? 'TMA-blc' : 'storage')
         );
-    } elseif ($isTma) {
+    } else 
+        if ($isTma) {
             // Main TMA Display
             $settings = array(
                 'actions' => false
@@ -132,5 +134,5 @@ var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";
 var detailString = "<?php echo(__("detail")); ?>";
 var loadingStr = "<?php echo __("loading"); ?>";
-var storageLayout = "detail";
+var storageLayout = true;
 </script>

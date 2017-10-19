@@ -75,3 +75,4 @@ $this->Structures->build($finalAtimStructure, $finalOptions);
 if ($displaySearchSection) {
     $this->Structures->build($finalAtimStructure2, $finalOptions2);
 }
+?>

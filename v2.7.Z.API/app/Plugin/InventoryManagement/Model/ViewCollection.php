@@ -67,7 +67,7 @@ class ViewCollection extends InventoryManagementAppModel
                 'conditions' => array(
                     'ViewCollection.collection_id' => $variables['Collection.id']
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             
             $return = array(
@@ -121,7 +121,7 @@ class ViewCollection extends InventoryManagementAppModel
                 'conditions' => array(
                     'ViewCollection.collection_id' => $collection['id']
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
         } else {
             $data = array_key_exists('ViewCollection', $collection['data']) ? array(
@@ -180,3 +180,4 @@ class ViewCollection extends InventoryManagementAppModel
         return $results;
     }
 }
+

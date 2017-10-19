@@ -11,3 +11,4 @@ if (Configure::read('debug') > 0) {
 }
 
 echo $this->Structures->generateContentWrapper($atimContent);
+?>

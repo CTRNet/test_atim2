@@ -149,7 +149,7 @@ class Collection extends InventoryManagementAppModel
             'conditions' => array(
                 'SampleMaster.collection_id' => $collectionId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($returnedNbr > 0) {
             return array(

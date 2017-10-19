@@ -75,7 +75,7 @@ class OrderItemsController extends OrderAppController
                     'OrderLine.id' => $orderLineId,
                     'OrderLine.order_id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             if (empty($orderLineData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -87,7 +87,7 @@ class OrderItemsController extends OrderAppController
                     'Shipment.id' => $shipmentId,
                     'Shipment.order_id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             if (empty($shipmentData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -98,7 +98,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'Order.id' => $orderId
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             if (empty($orderData)) {
                 $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -118,9 +118,8 @@ class OrderItemsController extends OrderAppController
             'pending',
             'shipped',
             'shipped & returned'
-        ))){
+        )))
             $conditions['OrderItem.status'] = $status;
-        }
         $this->request->data = $this->paginate($this->OrderItem, $conditions);
         
         foreach ($this->request->data as &$newItem) {
@@ -303,7 +302,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'AliquotMaster.barcode' => $dataUnit['AliquotMaster']['barcode']
                         ),
-                        'recursive' => -1
+                        'recursive' => '-1'
                     ));
                     if (! $aliquotData) {
                         $errorsTracking['barcode']['barcode is required and should exist'][] = $rowCounter;
@@ -324,7 +323,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'TmaSlide.barcode' => $dataUnit['TmaSlide']['barcode']
                         ),
-                        'recursive' => -1
+                        'recursive' => '-1'
                     ));
                     if (! $slideData) {
                         $errorsTracking['barcode']['a tma slide barcode is required and should exist'][] = $rowCounter;
@@ -508,7 +507,7 @@ class OrderItemsController extends OrderAppController
                 "$objectModelName.id" => $objectIdsToAdd
             )
         ));
-        $displayLimit = Configure::read('AddToOrder_processed_items_limit');
+        $displayLimit = Configure::read('AliquotInternalUseCreation_processed_items_limit');
         if (empty($newItemsData)) {
             $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), $urlToCancel, 5);
             return;
@@ -659,7 +658,7 @@ class OrderItemsController extends OrderAppController
                             'OrderLine.order_id' => $orderId,
                             'OrderLine.id' => $orderLineId
                         ),
-                        'recursive' => -1
+                        'recursive' => '-1'
                     ))) {
                         $submittedDataValidates = false;
                         $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
@@ -669,7 +668,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'Order.id' => $orderId
                         ),
-                        'recursive' => -1
+                        'recursive' => '-1'
                     ))) {
                         $submittedDataValidates = false;
                         $this->OrderItem->validationErrors[][] = __("a valid order or order line has to be selected");
@@ -892,7 +891,7 @@ class OrderItemsController extends OrderAppController
         if ($initialDisplay) {
             $intialOrderItemsData = $this->OrderItem->find('all', array(
                 'conditions' => $criteria,
-                'recursive' => 0
+                'recursive' => '0'
             ));
             if (empty($intialOrderItemsData)) {
                 $this->atimFlashWarning(__('no item to update'), $urlToCancel);
@@ -912,7 +911,7 @@ class OrderItemsController extends OrderAppController
             'fields' => array(
                 'DISTINCT OrderItem.status'
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if (empty($statuses)) {
             // All order items have probably been deleted by another user before we submitted updated data
@@ -985,7 +984,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'OrderItem.id' => $updatedItemIds
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             )) != sizeof($updatedItemIds)) {
                 // In case an order item has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -1142,7 +1141,7 @@ class OrderItemsController extends OrderAppController
                         'conditions' => array(
                             'OrderItem.order_line_id' => $orderLineId
                         ),
-                        'recursive' => -1
+                        'recursive' => '-1'
                     ));
                     if ($orderItemCount != 0) {
                         $orderItemNotShippedCount = $this->OrderItem->find('count', array(
@@ -1151,7 +1150,7 @@ class OrderItemsController extends OrderAppController
                                 'OrderItem.order_line_id' => $orderLineId,
                                 'OrderItem.deleted != 1'
                             ),
-                            'recursive' => -1
+                            'recursive' => '-1'
                         ));
                         if ($orderItemNotShippedCount == 0) {
                             $newStatus = 'shipped';
@@ -1383,7 +1382,7 @@ class OrderItemsController extends OrderAppController
                 'conditions' => array(
                     'OrderItem.id' => $orderItemIds
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             )) != sizeof($orderItemIds)) {
                 // In case an order item has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

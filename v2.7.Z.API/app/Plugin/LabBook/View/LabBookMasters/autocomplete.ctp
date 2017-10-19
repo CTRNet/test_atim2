@@ -4,3 +4,4 @@ if (! empty($result)) {
     echo '"', implode('", "', $result), '"';
 }
 echo ']';
+?>

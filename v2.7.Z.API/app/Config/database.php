@@ -60,14 +60,25 @@
  */
 class DATABASE_CONFIG
 {
-
     public $default = array(
         'datasource' => 'Database/Mysql',
         'persistent' => true,
         'host' => '127.0.0.1',
         'login' => 'root',
         'password' => '',
-        'database' => 'v27z',
+        'database' => 'atimapi',
+        'prefix' => '',
+        'encoding' => 'utf8',
+        'port' => 3306
+    );
+    
+    public $test = array(
+        'datasource' => 'Database/Mysql',
+        'persistent' => true,
+        'host' => '127.0.0.1',
+        'login' => 'root',
+        'password' => '',
+        'database' => 'atimapi_test',
         'prefix' => '',
         'encoding' => 'utf8',
         'port' => 3306

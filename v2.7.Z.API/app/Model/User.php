@@ -103,7 +103,7 @@ class User extends AppModel
     public function getUsersList()
     {
         $allUsersData = $this->find('all', array(
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         $result = array();
         foreach ($allUsersData as $data) {
@@ -241,9 +241,8 @@ class User extends AppModel
     {
         // Test last login results from IP address
         $maxLoginAttemptsFromIP = Configure::read('max_login_attempts_from_IP');
-        if (! $maxLoginAttemptsFromIP){
+        if (! $maxLoginAttemptsFromIP)
             return false;
-        }
         $timeInMinutesBeforeIpIsReactivated = Configure::read('time_mn_IP_disabled');
         
         $modelUserLoginAttempt = ClassRegistry::init('UserLoginAttempt');
@@ -281,10 +280,12 @@ class User extends AppModel
             if ($interval->y || $interval->m || $interval->d) {
                 return false;
             }
+            
             if (($interval->h * 60 + $interval->i) < $timeInMinutesBeforeIpIsReactivated) {
                 return true;
             }
         }
+        
         return false;
     }
 
@@ -310,7 +311,7 @@ class User extends AppModel
                 'User.username' => $userName,
                 'User.flag_active' => '1'
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if (! $userData)
             return false;

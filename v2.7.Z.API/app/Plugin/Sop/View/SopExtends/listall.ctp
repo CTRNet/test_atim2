@@ -16,3 +16,4 @@ $this->Structures->build($atimStructure, array(
     'links' => $structureLinks,
     'override' => $structureOverride
 ));
+?>

@@ -104,7 +104,7 @@ class ProtocolMaster extends ProtocolAppModel
             'conditions' => array(
                 'TreatmentMaster.protocol_master_id' => $protocolMasterId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($nbrTrtMasters > 0) {
             return array(
@@ -147,7 +147,7 @@ class ProtocolMaster extends ProtocolAppModel
                     'ProtocolExtendMaster.protocol_master_id' => $protocolMasterId,
                     'ProtocolExtendMaster.protocol_extend_control_id' => $data['ProtocolControl']['protocol_extend_control_id']
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             if ($nbrExtends > 0) {
                 return array(
