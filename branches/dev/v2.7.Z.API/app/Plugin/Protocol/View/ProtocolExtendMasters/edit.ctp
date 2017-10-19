@@ -1,8 +1,8 @@
 <?php
 $structureLinks = array(
-    'top' => '/Protocol/ProtocolExtendMasters/edit/' . $atimMenuVariables['ProtocolMaster.id'] . '/' . $atimMenuVariables['ProtocolExtendMaster.id'] . '/',
+    'top' => '/Protocol/ProtocolExtendMasters/edit/' . $atimMenuVariables['ProtocolMaster.id'] . '/%%ProtocolExtendMaster.id%%/',
     'bottom' => array(
-        'cancel' => '/Protocol/ProtocolExtendMasters/detail/' . $atimMenuVariables['ProtocolMaster.id'] . '/' . $atimMenuVariables['ProtocolExtendMaster.id'] . '/'
+        'cancel' => '/Protocol/ProtocolExtendMasters/detail/' . $atimMenuVariables['ProtocolMaster.id'] . '/%%ProtocolExtendMaster.id%%/'
     )
 );
 
@@ -24,3 +24,5 @@ if ($hookLink) {
 
 // BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);
+
+?>

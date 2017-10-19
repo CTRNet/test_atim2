@@ -110,7 +110,8 @@ if ($data['parent']['StorageControl']['coord_x_type'] == 'list') {
                 $useValue = $xVal . "_" . $yVal;
                 if ($useHeight == 1) {
                     $displayValue = $xVal;
-                } elseif ($useWidth == 1) {
+                } else 
+                    if ($useWidth == 1) {
                         $displayValue = $yVal;
                     } else {
                         $displayValue = $xVal . "-" . $yVal;
@@ -182,3 +183,4 @@ echo json_encode(array(
     'positions' => $childrenDisplay,
     'check_conflicts' => $data['parent']['StorageControl']['check_conflicts']
 ));
+

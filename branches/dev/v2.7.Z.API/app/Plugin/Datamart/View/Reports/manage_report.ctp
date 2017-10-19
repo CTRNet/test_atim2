@@ -36,14 +36,6 @@ if (isset($searchFormStructure)) {
     // ------------------------------------------
     // DISPLAY RESULT FORM / EXPORT REPORT (CSV)
     // ------------------------------------------
-        
-    if ($resultFormStructureAccuracy) {
-        foreach ($resultFormStructureAccuracy as $structureModel => $structureFieldsData) {
-            foreach ($structureFieldsData as $structureField => $structureFieldAccuracy) {
-                $resultFormStructure['Accuracy'][$structureModel][$structureField] = $structureFieldAccuracy;
-            }
-        }
-    }
     
     if ($csvCreation) {
         
@@ -65,7 +57,8 @@ if (isset($searchFormStructure)) {
             'settings' => $settings
         ));
         exit();
-    } elseif (isset($linkedDatamartStructureModelName) && isset($linkedDatamartStructureKeyName)) {
+    } else 
+        if (isset($linkedDatamartStructureModelName) && isset($linkedDatamartStructureKeyName)) {
             
             // ** DISPLAY REPORT LINKED TO DATAMART STRUCTURE AND ACTIONS **
             
@@ -171,7 +164,7 @@ if (isset($searchFormStructure)) {
 }
 
 if (isset($linkedDatamartStructureActions)) {
-    $linkedDatamartStructureActions = json_encode(stringCorrection(Sanitize::clean($linkedDatamartStructureActions)));
+    $linkedDatamartStructureActions = json_encode(Sanitize::clean($linkedDatamartStructureActions));
 } else {
     $linkedDatamartStructureActions = "";
 }

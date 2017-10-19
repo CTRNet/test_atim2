@@ -102,7 +102,7 @@ class OrdersController extends OrderAppController
             'conditions' => array(
                 'Shipment.order_id' => $orderId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         $this->set('shipmentsList', $shipmentsList);
         

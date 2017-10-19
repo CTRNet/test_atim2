@@ -19,7 +19,8 @@ $structureLinks = array(
 // Clean up based on form type
 if ($isFromTreeViewOrLayout == 1) {
     // Tree view
-} elseif ($isFromTreeViewOrLayout == 2) {
+} else 
+    if ($isFromTreeViewOrLayout == 2) {
         // Storage Layout
         $structureLinks = array();
         $structureLinks['bottom']['access to all data'] = '/StorageLayout/TmaSlides/detail/' . $atimMenuVariables['StorageMaster.id'] . '/' . $atimMenuVariables['TmaSlide.id'];
@@ -101,3 +102,5 @@ if (! $isFromTreeViewOrLayout) {
         $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }
+
+?>

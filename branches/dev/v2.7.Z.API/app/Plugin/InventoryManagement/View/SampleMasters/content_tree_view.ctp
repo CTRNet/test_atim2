@@ -4,13 +4,9 @@
 $structureSettings = array(
     'tree' => array(
         'SampleMaster' => 'SampleMaster',
-        'AliquotMaster' => 'AliquotMaster',
-        'TmaBlock' => 'AliquotMaster',
-        'QualityCtrl' => 'SampleUseForCollectionTreeView',
-        'SpecimenReviewMaster' => 'SampleUseForCollectionTreeView',
+        'AliquotMaster' => 'AliquotMaster'
     )
 );
-$atimStructure['SampleUseForCollectionTreeView']['Accuracy']['Generated']['sample_use_date'] = 'sample_use_date_accuracy';
 
 // LINKS
 $bottom = array();
@@ -51,42 +47,11 @@ $structureLinks = array(
                 'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
                 'icon' => 'detail'
             )
-        ),
-        'TmaBlock' => array(
-            'detail' => array(
-                'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/',
-                'icon' => 'tma block'
-            ),
-            'access to all data' => array(
-                'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
-                'icon' => 'detail'
-            )
-        ),
-        'SpecimenReviewMaster' => array(
-            'detail' => array(
-                'link' => '/InventoryManagement/SpecimenReviews/detail/%%SpecimenReviewMaster.collection_id%%/%%SpecimenReviewMaster.sample_master_id%%/%%SpecimenReviewMaster.id%%/',
-                'icon' => 'specimen review'
-            ),
-            'access to all data' => array(
-                'link' => '/InventoryManagement/SpecimenReviews/detail//%%SpecimenReviewMaster.collection_id%%/%%SpecimenReviewMaster.sample_master_id%%/%%SpecimenReviewMaster.id%%/',
-                'icon' => 'detail'
-            )
-        ),
-        'QualityCtrl' => array(
-            'detail' => array(
-                'link' => '/InventoryManagement/QualityCtrls/detail/%%SampleMaster.collection_id%%/%%QualityCtrl.sample_master_id%%/%%QualityCtrl.id%%/1/',
-                'icon' => 'quality controls'
-            ),
-            'access to all data' => array(
-                'link' => '/InventoryManagement/QualityCtrls/detail/%%SampleMaster.collection_id%%/%%QualityCtrl.sample_master_id%%/%%QualityCtrl.id%%/',
-                'icon' => 'detail'
-            )
         )
     ),
     'tree_expand' => array(
         'SampleMaster' => '/InventoryManagement/SampleMasters/contentTreeView/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/',
-        'AliquotMaster' => '/InventoryManagement/AliquotMasters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/',
-        'TmaBlock' => '/InventoryManagement/AliquotMasters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/'
+        'AliquotMaster' => '/InventoryManagement/AliquotMasters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/'
     ),
     'bottom' => $bottom,
     'ajax' => array(
@@ -123,4 +88,5 @@ if ($hookLink) {
 }
 
 // BUILD FORM
-$this->Structures->build($finalAtimStructure, $finalOptions);
+$this->Structures->build($finalAtimStructure, $finalOptions);	
+	

@@ -40,5 +40,9 @@ echo $this->Html->charset('UTF-8');
         	<br /> <small><?php echo __('click to continue'); ?></small>
 		</a>
 	</div>
+    <?php
+    echo $this->element('sql_dump');
+    ?>
+    
 </body>
 </html>

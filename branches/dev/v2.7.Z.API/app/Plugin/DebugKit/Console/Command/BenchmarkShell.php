@@ -156,3 +156,4 @@ class BenchmarkShell extends Shell {
 		return $parser;
 	}
 }
+

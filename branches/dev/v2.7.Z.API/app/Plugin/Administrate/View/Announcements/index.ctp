@@ -1,11 +1,10 @@
 <?php
 $structureLinks = array(
     'index' => array(
-        'detail' => '/Administrate/Announcements/detail/%%Announcement.id%%/',
-        'delete' => '/Administrate/Announcements/delete/%%Announcement.id%%/'
+        'detail' => '/Administrate/Announcements/detail/%%Announcement.id%%/'
     ),
     'bottom' => array(
-        'add' => "/Administrate/Announcements/add/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id'])
+        'add' => "/Administrate/Announcements/add/$linkedModel/" . (isset($atimMenuVariables['User.id']) ? $atimMenuVariables['Group.id'] . '/' . $atimMenuVariables['User.id'] . '/' : $atimMenuVariables['Bank.id'])
     )
 );
 
@@ -18,3 +17,4 @@ if ($hookLink) {
 $this->Structures->build($atimStructure, array(
     'links' => $structureLinks
 ));
+	

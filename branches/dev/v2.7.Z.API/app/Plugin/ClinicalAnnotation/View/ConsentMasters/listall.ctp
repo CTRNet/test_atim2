@@ -6,7 +6,7 @@ foreach ($consentControlsList as $consentControl) {
 natcasesort($addLinks);
 
 $structureLinks = array(
-    'top' => null,
+    'top' => NULL,
     'index' => array(
         'detail' => '/ClinicalAnnotation/ConsentMasters/detail/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%',
         'edit' => '/ClinicalAnnotation/ConsentMasters/edit/' . $atimMenuVariables['Participant.id'] . '/%%ConsentMaster.id%%',
@@ -32,3 +32,4 @@ if ($hookLink) {
 
 // BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);
+?>

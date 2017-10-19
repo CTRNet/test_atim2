@@ -12,3 +12,4 @@ $this->Structures->build($atimStructure, array(
     'type' => 'search',
     'links' => $structureLinks
 ));
+?>

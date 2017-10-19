@@ -18,7 +18,8 @@ if (isset($search)) {
         'search' => '/StorageLayout/StorageMasters/search',
         'add' => $addLinks
     );
-} elseif (! $isAjax && isset($addLinks)) {
+} else 
+    if (! $isAjax && isset($addLinks)) {
         $bottom = array(
             'add to storage' => $addLinks
         );
@@ -111,3 +112,7 @@ if ($hookLink) {
 
 // BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);
+	
+//	pr($this->data);
+//	pr($finalAtimStructure['TmaBlock']);
+	

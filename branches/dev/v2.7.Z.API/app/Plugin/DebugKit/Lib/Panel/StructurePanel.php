@@ -19,6 +19,13 @@ class StructurePanel extends DebugPanel
 {
 
     /**
+     * Structure
+     *
+     * @var string
+     */
+    public $structure = "test structure";
+
+    /**
      * Constructor
      *
      * @param array $settings

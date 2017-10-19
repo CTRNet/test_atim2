@@ -1,23 +1,4 @@
 <?php
-class AtimDebug{
-    private static $counter=0;
-    
-    /**
-     * @param int $counter after $counter time that this function run, it send $message to API
-     * @param array $message the message that will be send to API after $counter time of execution of this function
-     */
-    public static function stop($counter=1, $message=['message']) 
-    {
-        if (!is_array($message)){
-            $message=[$message];
-        }
-        if (self::$counter==$counter){
-            d(addToBundle($message, 'Stop'));
-        }else{
-            self::$counter++;
-        }
-    }
-}
 
 /**
  * @param $message1
@@ -155,20 +136,4 @@ function json_encode_js($data, $level=3, $formattage=0)
         $s=rtrim($s,",");
     }
     return $s;
-}
-
-function stringCorrection($str)
-{
-    if (empty($str)){
-        return $str;
-    }elseif(is_string($str)){
-        return str_replace("~~~~", "\\", str_replace("\\\\", "~~~~", $str));
-    }elseif (is_array($str)){
-        foreach ($str as &$value) {
-            $value= stringCorrection($value);
-        }
-        return $str;
-    }else{
-        return $str;
-    }
 }

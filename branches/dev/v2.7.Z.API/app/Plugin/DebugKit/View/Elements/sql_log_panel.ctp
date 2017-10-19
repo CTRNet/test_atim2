@@ -35,7 +35,7 @@ if (isset ($_SESSION['query']['previous']) && is_array($_SESSION['query']['previ
         echo($query);
         echo"<hr>";
     }
-    $_SESSION['query']['previous']=array();
+    $_SESSION['query']['previous']=[];
 }
 ?>
 <?php if (!empty($content)) : ?>

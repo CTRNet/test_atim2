@@ -118,16 +118,14 @@ class ClinicalAnnotationAppModel extends AppModel
             }
             if ($participantId) {
                 $participantModel = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
+                $participantModel->checkWritableFields = false;
                 $participantModel->data = array();
                 $participantModel->id = $participantId;
-                $participantModel->addWritableField(array(
-                    'last_modification',
-                    'last_modification_ds_id'
-                ));
-				$participantModel->save(array(
+                $participantModel->save(array(
                     'last_modification' => $this->data[$this->name]['modified'],
                     'last_modification_ds_id' => $datamartStructure['DatamartStructure']['id']
                 ));
+                $participantModel->checkWritableFields = true;
             }
         }
         parent::afterSave($created);

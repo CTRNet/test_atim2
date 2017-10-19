@@ -30,13 +30,13 @@ App::uses('Model', 'Model');
  */
 class AppModel extends Model
 {
-
+    public $resVal='test';
     public $actsAs = array(
         'Revision',
         'SoftDeletable',
         'MasterDetail'
     );
-
+    
     // It's important that MasterDetail be after Revision
     public static $autoValidation = null;
 
@@ -110,15 +110,15 @@ class AppModel extends Model
     public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
         if ($detailTable != null && $baseModelName != null) {
-            $this->hasOne[$baseModelName . 'Detail'] = array(
-                'className' => $detailTable,
-                'foreignKey' => strtolower($baseModelName) . '_master_id',
-                'dependent' => true
-            );
-            if ($previousModel != null) {
-                $this->previousModel = $previousModel;
-            }
+        $this->hasOne[$baseModelName . 'Detail'] = array(
+            'className' => $detailTable,
+            'foreignKey' => strtolower($baseModelName) . '_master_id',
+            'dependent' => true
+        );
+        if ($previousModel != null) {
+            $this->previousModel = $previousModel;
         }
+    }
         parent::__construct($id, $table, $ds);
     }
 
@@ -218,27 +218,53 @@ class AppModel extends Model
      */
     public function save($data = null, $validate = true, $fieldList = array())
     {
-        if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
-            AppController::addWarningMsg('Pkey safeguard on model ' . $this->name, true);
-            AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
-            return false;
+        $modelName= strtolower($this->name);
+        if (API::isAPIMode() && !API::isStructMode() && !in_array($modelName, ['user', 'userlog', 'missingtranslation'])){
+            if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
+                $message=[];
+                $message['message']='Pkey safeguard on model ' . $this->name;
+                $message['action']='/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__;
+                API::addToBundle($message, 'warnings');
+            }
+            if (! $validate && ! isset($data[$this->alias]['__validated__']) && ! isset($data['__validated__']) && ! isset($data[$this->alias]['deleted']) && ! isset($data['deleted']) && Configure::read('debug') > 0) {
+                $message['message']='saving unvalidated data [' . $this->name . ']';
+                API::addToBundle($message, 'warnings');
+            }
+            if ((! isset($data[$this->name]) || empty($data[$this->name])) && isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model'] && isset($data[$this->Behaviors->MasterDetail->__settings[$this->name]['detail_class']])) {
+                $data[$this->name]['-'] = "foo";
+            }
+            $moveFiles = $this->filterMoveFiles($data);
+            $result=parent::save($data, $validate, $fieldList);
+            $message['message']='save_status';
+            $message['action']=$result;
+            API::addToBundle($message, 'actions');
+            $validationErrors=$this->normalizedValidationErrors($this->validationErrors);
+            if (!empty($validationErrors)){
+                API::addToBundle($validationErrors, 'errors');
+            }
+            $this->moveFiles($moveFiles);  
+        }else{
+            if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
+                AppController::addWarningMsg('Pkey safeguard on model ' . $this->name, true);
+                AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
+                return false;
+            }
+
+            if (! $validate && ! isset($data[$this->alias]['__validated__']) && ! isset($data['__validated__']) && ! isset($data[$this->alias]['deleted']) && ! isset($data['deleted']) && Configure::read('debug') > 0) {
+                AppController::addWarningMsg('saving unvalidated data [' . $this->name . ']', true);
+            }
+
+            if ((! isset($data[$this->name]) || empty($data[$this->name])) && isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model'] && isset($data[$this->Behaviors->MasterDetail->__settings[$this->name]['detail_class']])) {
+                // Eventum 2619: When there is no master data, details aren't saved
+                // properly because cake core flushes them out.
+                // NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
+                $data[$this->name]['-'] = "foo";
+            }
+
+            $moveFiles = $this->filterMoveFiles($data);
+            $result = parent::save($data, $validate, $fieldList);
+            $this->moveFiles($moveFiles);
         }
-        
-        if (! $validate && ! isset($data[$this->alias]['__validated__']) && ! isset($data['__validated__']) && ! isset($data[$this->alias]['deleted']) && ! isset($data['deleted']) && Configure::read('debug') > 0) {
-            AppController::addWarningMsg('saving unvalidated data [' . $this->name . ']', true);
-        }
-        
-        if ((! isset($data[$this->name]) || empty($data[$this->name])) && isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model'] && isset($data[$this->Behaviors->MasterDetail->__settings[$this->name]['detail_class']])) {
-            // Eventum 2619: When there is no master data, details aren't saved
-            // properly because cake core flushes them out.
-            // NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
-            $data[$this->name]['-'] = "foo";
-        }
-        
-        $moveFiles = $this->filterMoveFiles($data);
-        $result = parent::save($data, $validate, $fieldList);
-        $this->moveFiles($moveFiles);
-        
         return $result;
     }
 
@@ -462,13 +488,13 @@ class AppModel extends Model
      */
     public function atimDelete($modelId, $cascade = true)
     {
+
         $this->id = $modelId;
         $this->registerModelsToCheck();
         
         // delete DATA as normal
         $this->addWritableField('deleted');
         $this->delete($modelId, $cascade);
-        
         // do a FIND of the same DATA, return FALSE if found or TRUE if not found
         if ($this->read()) {
             return false;
@@ -944,7 +970,6 @@ class AppModel extends Model
         }
         
         $this->checkFloats();
-        
         parent::validates($options);
         if (count($this->validationErrors) == 0) {
             $this->data[$this->alias]['__validated__'] = true;
@@ -1409,11 +1434,22 @@ class AppModel extends Model
     public function getOrRedirect($id)
     {
         $this->id = $id;
-        if ($result = $this->read()) {
+        $result = $this->read();
+        if ($result) {
             return $result;
         }
         $bt = debug_backtrace();
-        AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . $bt[1]['function'] . ',line=' . $bt[0]['line'], null, true);
+        if (!API::isAPIMode()){
+            AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . $bt[1]['function'] . ',line=' . $bt[0]['line'], null, true);
+        }else{
+            $message['message']='save_status';
+            $message['action']=false;
+            API::addToBundle($message, 'errors');
+            $message['message']='identifier';
+            $message['action']=__('error_There are no fields matching ID').': '.$id;
+            API::addToBundle($message, 'errors');
+            API::sendDataAndClear();
+        }
         return null;
     }
 
@@ -1712,7 +1748,7 @@ class AppModel extends Model
     {
         foreach ($this->_schema as $fieldName => $fieldProperties) {
             $tmpType = $fieldProperties['type'];
-            if ($tmpType == "float" || $tmpType == "number" || $tmpType == "float_positive" || $tmpType == "decimal") {
+            if ($tmpType == "float" || $tmpType == "number" || $tmpType == "float_positive") {
                 // Manage float record
                 if (isset($this->data[$this->alias][$fieldName])) {
                     $this->data[$this->alias][$fieldName] = str_replace(",", ".", $this->data[$this->alias][$fieldName]);
@@ -1850,4 +1886,40 @@ class AppModel extends Model
     {
         return (! empty($_SERVER['HTTP_CLIENT_IP'])) ? $_SERVER['HTTP_CLIENT_IP'] : ((! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
     }
+
+    /**
+     * @param string $type
+     * @param array $query
+     * @return array|null
+     */
+    public function find($type = 'first', $query = array())
+    {
+        $return = parent::find($type, $query);
+        if (API::isAPIMode()){// && API::getModelName()==strtolower($this->name)){
+            $message['message']= API::getModelName();
+            $message['action']=$return;
+            //API::addToBundle($message, 'data');
+        }
+        return $return;
+    }
+
+    /**
+     * @param array $errors
+     * @return array
+     */
+    protected function normalizedValidationErrors($errors = []) {
+        $results = [];
+        if ($errors != [] && is_array($errors)) {
+            foreach ($errors as $key => $value) {
+                foreach ($value as $message) {
+                    $results[] = [
+                        'message' => $key,
+                        'action' => $message
+                    ];
+                }
+            }
+        }
+        return $results;
+    }
+        
 }

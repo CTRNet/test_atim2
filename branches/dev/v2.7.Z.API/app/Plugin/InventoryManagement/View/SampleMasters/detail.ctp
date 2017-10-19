@@ -123,7 +123,7 @@ if (! $isFromTreeView) {
                     'pagination' => false,
                     'batchset' => array(
                         'link' => '/InventoryManagement/SampleMasters/detail/' . $atimMenuVariables['Collection.id'] . '/' . $atimMenuVariables['SampleMaster.id'],
-                        'var' => 'aliquotsData',
+                        'var' => 'aliquots_data',
                         'ctrl' => $aliquotControlId
                     )
                 )
@@ -190,3 +190,5 @@ if (! $isFromTreeView) {
         $this->Structures->build($finalAtimStructure, $finalOptions);
     }
 }
+
+?>

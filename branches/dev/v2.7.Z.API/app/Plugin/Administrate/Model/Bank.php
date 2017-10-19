@@ -98,19 +98,6 @@ class Bank extends AdministrateAppModel
             );
         }
         
-        $announcementModel = AppModel::getInstance('', 'Announcement', true);
-        $data = $announcementModel->find('first', array(
-            'conditions' => array(
-                'Announcement.bank_id' => $bankId
-            )
-        ));
-        if ($data) {
-            return array(
-                'allow_deletion' => false,
-                'msg' => 'at least one announcement is linked to that bank'
-            );
-        }
-        
         return array(
             'allow_deletion' => true,
             'msg' => ''

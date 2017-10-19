@@ -64,15 +64,12 @@ class ToolbarComponent extends Component implements CakeEventListener {
  */
 	protected $_defaultPanels = array(
 		'DebugKit.Structure',
-		'DebugKit.DHistory',
-		'DebugKit.LogFile',
 		'DebugKit.History',
 		'DebugKit.Session',
 		'DebugKit.Request',
 		'DebugKit.SqlLog',
 		'DebugKit.Timer',
 		'DebugKit.Log',
-		'DebugKit.AjaxSqlLog',
 		'DebugKit.Variables',
 		'DebugKit.Environment',
 		'DebugKit.Include'
@@ -169,7 +166,7 @@ class ToolbarComponent extends Component implements CakeEventListener {
 		) {
 			$this->_createCacheConfig();
 		}
-		
+
 		$this->_loadPanels($panels, $settings);
 		return false;
 	}
@@ -409,6 +406,7 @@ class ToolbarComponent extends Component implements CakeEventListener {
 	protected function _gatherVars(Controller $controller) {
 		$vars = array('javascript' => array(), 'css' => array());
 		$panels = array_keys($this->panels);
+
 		foreach ($panels as $panelName) {
 			$panel = $this->panels[$panelName];
 			$panelName = Inflector::underscore($panelName);

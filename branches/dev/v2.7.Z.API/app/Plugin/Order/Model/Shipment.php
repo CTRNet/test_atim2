@@ -98,7 +98,7 @@ class Shipment extends OrderAppModel
             'conditions' => array(
                 'OrderItem.shipment_id' => $shipmentId
             ),
-            'recursive' => -1
+            'recursive' => '-1'
         ));
         if ($returnedNbr > 0) {
             return array(

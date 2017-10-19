@@ -8,3 +8,4 @@ if (count($log)) {
 } else {
     echo '<p>Nothing changed.</p>';
 }
+?>

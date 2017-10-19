@@ -21,7 +21,7 @@ class Report extends DatamartAppModel
                 'conditions' => array(
                     'Report.id' => $variables['Report.id']
                 ),
-                'recursive' => -1
+                'recursive' => '-1'
             ));
             $reportData['Report']['name'] = __($reportData['Report']['name']);
             $reportData['Report']['description'] = __($reportData['Report']['description']);

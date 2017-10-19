@@ -44,17 +44,15 @@ class BanksController extends AdministrateAppController
      */
     public function detail($bankId)
     {
-        $this->request->data = $this->Bank->getOrRedirect($bankId);
-        
         $this->set('atimMenuVariables', array(
             'Bank.id' => $bankId
         ));
-        
-        // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hookLink = $this->hook();
-        if ($hookLink) {
-            require ($hookLink);
-        }
+        $this->hook();
+        $this->request->data = $this->Bank->find('first', array(
+            'conditions' => array(
+                'Bank.id' => $bankId
+            )
+        ));
     }
 
     /**
@@ -62,18 +60,11 @@ class BanksController extends AdministrateAppController
      */
     public function edit($bankId)
     {
-        
-        $bankData = $this->Bank->getOrRedirect($bankId);
-        
         $this->set('atimMenuVariables', array(
             'Bank.id' => $bankId
         ));
         
-        // CUSTOM CODE: FORMAT DISPLAY DATA
-        $hookLink = $this->hook();
-        if ($hookLink) {
-            require ($hookLink);
-        }
+        $this->hook();
         
         if (! empty($this->request->data)) {
             $this->Bank->id = $bankId;
@@ -85,7 +76,11 @@ class BanksController extends AdministrateAppController
                 $this->atimFlash(__('your data has been updated'), '/Administrate/Banks/detail/' . $bankId);
             }
         } else {
-            $this->request->data = $bankData;
+            $this->request->data = $this->Bank->find('first', array(
+                'conditions' => array(
+                    'Bank.id' => $bankId
+                )
+            ));
         }
     }
 
@@ -94,8 +89,6 @@ class BanksController extends AdministrateAppController
      */
     public function delete($bankId)
     {
-        $bankData = $this->Bank->getOrRedirect($bankId);
-        
         $arrAllowDeletion = $this->Bank->allowDeletion($bankId);
         
         // CUSTOM CODE

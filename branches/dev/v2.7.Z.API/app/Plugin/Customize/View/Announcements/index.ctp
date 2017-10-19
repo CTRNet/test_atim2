@@ -71,3 +71,5 @@ if (in_array($listType, array(
     if ($displayNextForm)
         $this->Structures->build($finalAtimStructure, $finalOptions);
 }
+
+?>

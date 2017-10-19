@@ -100,7 +100,6 @@ class VersionsController extends AdministrateAppController
         echo '<span id="done"></span>';
         $this->layout = false;
         $this->render(false);
-        $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
     }
 
     public function latencyTest()

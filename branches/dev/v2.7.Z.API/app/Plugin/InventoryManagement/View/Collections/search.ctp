@@ -55,3 +55,5 @@ if (isset($isAjax) && ! isset($isCclAjax)) {
 } else {
     echo $form;
 }
+
+?>

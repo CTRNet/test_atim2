@@ -31,6 +31,7 @@ class StoredItemBehavior extends ModelBehavior
      * @param Model $model
      * @param bool $created
      * @param array $options
+     * @return bool|void
      */
     public function afterSave(Model $model, $created, $options = array())
     {

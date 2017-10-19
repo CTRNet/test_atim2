@@ -16,3 +16,4 @@ if ($_SESSION['Auth']['User']['id'] == $atimMenuVariables['User.id']) {
 $this->Structures->build($atimStructure, array(
     'links' => $structureLinks
 ));
+?>

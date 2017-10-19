@@ -4,14 +4,13 @@
 $structureSettings = array(
     'tree' => array(
         'AliquotMaster' => 'AliquotMaster',
-        'OrderItemReturn' => 'ViewAliquotUse',
-        'OrderItem' => 'ViewAliquotUse',
-        'QualityCtrl' => 'ViewAliquotUse',
-        'SampleMaster' => 'ViewAliquotUse',
-        'Shipment' => 'ViewAliquotUse',
-        'SpecimenReviewMaster' => 'ViewAliquotUse',
-        'AliquotInternalUse' => 'ViewAliquotUse',
-        'TmaBlock' => 'AliquotMaster'
+        'OrderItemReturn' => 'Shipment',
+        'OrderItem' => 'Order',
+        'QualityCtrl' => 'QualityCtrl',
+        'SampleMaster' => 'SampleMaster',
+        'Shipment' => 'Shipment',
+        'SpecimenReviewMaster' => 'SpecimenReviewMaster',
+        'AliquotInternalUse' => 'AliquotInternalUse'
     )
 );
 
@@ -100,22 +99,10 @@ $structureLinks = array(
                 'link' => '/InventoryManagement/AliquotMasters/detailAliquotInternalUse/%%FunctionManagement.url_ids%%/',
                 'icon' => 'detail'
             )
-        ),
-        // *** TmaBlock (Core) ***
-        'TmaBlock' => array(
-            'detail' => array(
-                'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/',
-                'icon' => 'tma block'
-            ),
-            'access to all data' => array(
-                'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
-                'icon' => 'detail'
-            )
         )
     ),
     'tree_expand' => array(
-        'AliquotMaster' => '/InventoryManagement/AliquotMasters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/',
-        'TmaBlock' => '/InventoryManagement/AliquotMasters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/'
+        'AliquotMaster' => '/InventoryManagement/AliquotMasters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/'
     ),
     'bottom' => $bottom,
     'ajax' => array(
@@ -152,4 +139,5 @@ if ($hookLink) {
 }
 
 // BUILD FORM
-$this->Structures->build($finalAtimStructure, $finalOptions);
+$this->Structures->build($finalAtimStructure, $finalOptions);	
+	
