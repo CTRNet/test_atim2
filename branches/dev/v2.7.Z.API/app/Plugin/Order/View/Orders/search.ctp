@@ -42,4 +42,3 @@ if (isset($isAjax)) {
 } else {
     echo $form;
 }
-?>

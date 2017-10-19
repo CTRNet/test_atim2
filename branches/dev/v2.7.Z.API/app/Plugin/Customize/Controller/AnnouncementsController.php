@@ -40,10 +40,9 @@ class AnnouncementsController extends CustomizeAppController
             $conditions = array(
                 'OR' => array(
                     array(
-                        'Announcement.bank_id' => $_SESSION['Auth']['User']['Group']['bank_id']
+                        'Announcement.bank_id' => $_SESSION['Auth']['User']['Group']['bank_id']? $_SESSION['Auth']['User']['Group']['bank_id'] : '-1'
                     ),
                     array(
-                        'Announcement.group_id' => $_SESSION['Auth']['User']['group_id'],
                         'Announcement.user_id' => $_SESSION['Auth']['User']['id']
                     )
                 )

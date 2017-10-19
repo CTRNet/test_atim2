@@ -127,6 +127,11 @@ class SopMastersController extends SopAppController
         // set FORM ALIAS based off VALUE from MASTER table
         $this->Structures->set($thisData['SopControl']['form_alias']);
         
+        // MANAGE FORM, MENU AND ACTION BUTTONS
+        $this->set('atimMenuVariables', array(
+            'SopMaster.id' => $sopMasterId
+        ));
+        
         $hookLink = $this->hook('format');
         if ($hookLink) {
             require ($hookLink);

@@ -1,6 +1,6 @@
 <?php
 $structureLinks = array(
-    'top' => NULL,
+    'top' => null,
     'index' => '/Study/StudyResults/detail/' . $atimMenuVariables['StudySummary.id'] . '/%%StudyResult.id%%',
     'bottom' => array(
         'add' => '/Study/StudyResults/add/' . $atimMenuVariables['StudySummary.id'] . '/'
@@ -22,4 +22,3 @@ if ($hookLink) {
 
 // BUILD FORM
 $this->Structures->build($finalAtimStructure, $finalOptions);
-?>

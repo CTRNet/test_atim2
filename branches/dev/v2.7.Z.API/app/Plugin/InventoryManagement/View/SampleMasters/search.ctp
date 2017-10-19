@@ -44,4 +44,3 @@ if (isset($isAjax)) {
 } else {
     echo $page;
 }
-?>

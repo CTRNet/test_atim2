@@ -17,4 +17,3 @@ $this->Structures->build($atimStructure, array(
         'pagination' => false
     )
 ));
-?>

@@ -63,7 +63,7 @@ class BrowsingResult extends DatamartAppModel
             $controlId = $browsingResult['BrowsingResult']['browsing_structures_sub_id'];
         } elseif ($browsingResult['DatamartStructure']['control_master_model']) {
             $controlForeign = $model->getControlForeign();
-            $data=[];
+            $data=array();
             if (!empty ($browsingResult['BrowsingResult']['id_csv'])){
                 $data = array_unique(array_filter($model->find('list', array(
                     'fields' => array(

@@ -134,7 +134,8 @@ class StudyFundingsController extends StudyAppController
         // MANAGE FORM, MENU AND ACTION BUTTONS
         $this->set('atimMenu', $this->Menus->get('/Study/StudySummaries/detail/'));
         $this->set('atimMenuVariables', array(
-            'StudySummary.id' => $studySummaryId
+            'StudySummary.id' => $studySummaryId,
+            'StudyFunding.id' => $studyFundingId
         ));
         
         // CUSTOM CODE: FORMAT DISPLAY DATA

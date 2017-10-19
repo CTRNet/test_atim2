@@ -33,7 +33,7 @@ $this->Structures->build($atimStructure, array(
     )
 ));
 
-$canDelete = ! empty($this->request->data) && AppController::checkLinkPermission($this->request->data[0]['PermissionPreset']['delete']);
+$canDelete = (! empty($this->request->data) && isset($this->request->data[0]['PermissionsPreset']['delete'])) || AppController::checkLinkPermission($this->request->data[0]['PermissionsPreset']['delete']);
 $this->Structures->build($atimStructure, array(
     'type' => 'index',
     'data' => $this->request->data,
@@ -66,6 +66,11 @@ function deletePreset(id){
 	$("#frame").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$.post(root_url + "Administrate/Permissions/deletePreset/" + id, "", function(data){
 		$.get(root_url + "Administrate/Permissions/loadPreset/", null, function(data){
+                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }                    
 			$("#frame").html(data);
 		});
 	});
@@ -100,8 +105,12 @@ function applyPreset(data){
 		$(".tree_root").find("select").first().val(1);
 	}else{
 		//acos ids operations
-		data.allow = data.allow.split(",");
-		data.deny = data.deny.split(",");
+                if ($.type(data.allow)==="string"){
+                    data.allow = data.allow.split(",");
+                }
+                if ($.type(data.deny)==="string"){
+                    data.deny = data.deny.split(",");
+                }
 
 		$(".tree_root").find("select").val("");
 		for(var i in data.allow){
@@ -121,6 +130,11 @@ function savePresetPopup(){
 		$.get(root_url + "Administrate/Permissions/savePreset/", null, function(data){
 			var isOpened = $("#savePresetPopup:visible").length; 
 			$("#savePresetPopup").popup('close');
+                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }                    
 			$("#savePresetPopup").find("div").first().html(data);
 			if(isOpened){
 				$("#savePresetPopup").popup();
@@ -154,6 +168,11 @@ function savePreset(){
 			$("#savePresetPopup").remove();
 			loadPresetFrame();
 		}else{
+                    if ($(data).length!==0 && $(data)[$(data).length-1].id==="ajaxSqlLog"){
+                        ajaxSqlLog={'sqlLog': [$($(data)[$(data).length-1]).html()]};
+                        data=data.substring(0, data.lastIndexOf('<div id="ajaxSqlLog"'));
+                        saveSqlLogAjax(ajaxSqlLog);
+                    }                    
 			var isVisible = $("#savePresetPopup:visible").length;
 			$("#savePresetPopup").popup('close');
 			$("#savePresetPopup").find("div").first().html(data);

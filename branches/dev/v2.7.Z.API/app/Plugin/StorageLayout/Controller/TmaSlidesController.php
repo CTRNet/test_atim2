@@ -121,7 +121,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'conditions' => array(
                 'StorageMaster.id' => $tmaBlockIds
             ),
-            'recursive' => '0'
+            'recursive' => 0
         ));
         if ($initialDisplay)
             $this->StorageMaster->sortForDisplay($tmaBlocks, $tmaBlockIds);
@@ -588,7 +588,7 @@ class TmaSlidesController extends StorageLayoutAppController
                 'conditions' => array(
                     'TmaSlide.id' => $updatedTmaSlideIds
                 ),
-                'recursive' => '-1'
+                'recursive' => -1
             )) != sizeof($updatedTmaSlideIds)) {
                 // In case a TMA slide has just been deleted by another user before we submitted updated data
                 $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -721,11 +721,11 @@ class TmaSlidesController extends StorageLayoutAppController
         $results = array();
         
         // query the database
-        $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
         $terms = array();
         $termsUses = array();
         foreach (explode(' ', $term) as $keyWord) {
-            $terms[] = "TmaSlide.barcode LIKE '%" . str_replace("'", "''", $keyWord) . "%'";
+            $terms[] = array("TmaSlide.barcode LIKE" => '%' . $keyWord . '%');
         }
         
         $conditions = array(
@@ -746,13 +746,13 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $order,
             'joins' => $joins,
             'limit' => 10,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         
         // build javascript textual array
         $result = "";
         foreach ($results as $dataUnit) {
-            $result .= '"' . $dataUnit['TmaSlide']['barcode'] . '", ';
+            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $dataUnit['TmaSlide']['barcode']) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);
@@ -777,12 +777,12 @@ class TmaSlidesController extends StorageLayoutAppController
         $results = array();
         
         // query the database
-        $term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+        $term = str_replace(array( "\\", '%', '_'), array("\\\\", '\%', '\_'), $_GET['term']);
         $terms = array();
         $termsUses = array();
         foreach (explode(' ', $term) as $keyWord) {
-            $terms[] = "TmaSlide.immunochemistry LIKE '%" . str_replace("'", "''", $keyWord) . "%'";
-            $termsUses[] = "TmaSlideUse.immunochemistry LIKE '%" . str_replace("'", "''", $keyWord) . "%'";
+            $terms[] = array("TmaSlide.immunochemistry LIKE" => '%'.$keyWord.'%');
+            $termsUses[] = array("TmaSlideUse.immunochemistry LIKE" => '%'.$keyWord.'%');
         }
         
         $conditions = array(
@@ -810,7 +810,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $order,
             'joins' => $joins,
             'limit' => 10,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         
         foreach ($data as $dataUnit)
@@ -822,7 +822,7 @@ class TmaSlidesController extends StorageLayoutAppController
             'order' => $orderUses,
             'joins' => $joinsUses,
             'limit' => 10,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         
         foreach ($data as $dataUnit)
@@ -833,7 +833,7 @@ class TmaSlidesController extends StorageLayoutAppController
         // build javascript textual array
         $result = "";
         foreach ($results as $dataUnit) {
-            $result .= '"' . $dataUnit . '", ';
+            $result .= '"' . str_replace(array('\\', '"'), array('\\\\', '\"'), $dataUnit) . '", ';
         }
         if (sizeof($result) > 0) {
             $result = substr($result, 0, - 2);

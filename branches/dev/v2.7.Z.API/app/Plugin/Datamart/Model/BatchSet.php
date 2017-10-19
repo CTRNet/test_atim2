@@ -194,12 +194,12 @@ class BatchSet extends DatamartAppModel
         }
         
         if (! $allowed) {
-            AppController::getInstance()->flash(__('you are not allowed to work on this batchset'), 'javascript:history.back()', 5);
+            AppController::getInstance()->atimFlashError(__('you are not allowed to work on this batchset'), 'javascript:history.back()');
             return false;
         }
         
         if ($mustBeUnlocked && $batchset['BatchSet']['locked']) {
-            AppController::getInstance()->flash(__('this batchset is locked'), 'javascript:history.back()', 5);
+            AppController::getInstance()->atimFlashError(__('this batchset is locked'), 'javascript:history.back()');
             return false;
         }
         
@@ -275,7 +275,7 @@ class BatchSet extends DatamartAppModel
         );
         $batchSet = $this->find('first', array(
             'conditions' => $conditions,
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($batchSet))
             $this->redirect('/Pages/err_plugin_system_error?Bmethod=' . $bt[1]['function'] . ',line=' . $bt[1]['line'], null, true);

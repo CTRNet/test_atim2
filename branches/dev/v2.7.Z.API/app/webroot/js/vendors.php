@@ -40,4 +40,3 @@ if (isset($_GET['file'])) {
     }
 }
 header('HTTP/1.1 404 Not Found');
-?>

@@ -59,6 +59,7 @@ class CsvController extends DatamartAppController
             $this->Structures->set($structureAlias, 'result_structure');
             Configure::write('debug', 0);
             $this->layout = false;
+            $_SESSION['query']['previous'][] = $this->getQueryLogs('default');
         }
     }
 }

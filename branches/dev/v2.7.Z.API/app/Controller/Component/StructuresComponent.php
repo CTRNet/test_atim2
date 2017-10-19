@@ -12,7 +12,7 @@ class StructuresComponent extends Component
 
     private $structureAlias;
 
-    public static $rangeTypes = [
+    public static $rangeTypes = array(
         "date",
         "datetime",
         "time",
@@ -20,7 +20,7 @@ class StructuresComponent extends Component
         "integer_positive",
         "float",
         "float_positive"
-    ];
+    );
 
     /**
      * @param Controller $controller
@@ -85,7 +85,7 @@ $parameters);
                     foreach ($structUnit['structure']['Sfs'] as $sfs) {
                         $tablename = isset($parameters['model_table_assoc'][$sfs['model']]) ? $parameters['model_table_assoc'][$sfs['model']] : $sfs['tablename'];
                         if ($tablename) {
-                            foreach (['add', 'edit', 'addgrid', 'editgrid', 'batchedit'] as $flag) {
+                            foreach (array('add', 'edit', 'addgrid', 'editgrid', 'batchedit') as $flag) {
                                 if ($sfs['flag_' . $flag] && ! $sfs['flag_' . $flag . '_readonly'] && $sfs['type'] != 'hidden') {
                                     AppModel::$writableFields[$tablename][$flag][] = $sfs['field'];
                                     if ($sfs['type'] == 'date' || $sfs['type'] == 'datetime') {

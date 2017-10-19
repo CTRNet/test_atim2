@@ -97,13 +97,29 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
                     if (! isset($query['order'])) {
                         // supperfluou?s
                         $query['order'][] = "(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1)";
-                    } elseif (isset($query['order']['MiscIdentifier.identifier_value'])) {
+                    } elseif (is_array($query['order']) && isset($query['order']['MiscIdentifier.identifier_value'])) {
                         $query['order']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1)"] = $query['order']['MiscIdentifier.identifier_value'];
                         unset($query['order']['MiscIdentifier.identifier_value']);
+                    } elseif (is_string($query['order']) && preg_match('/^MiscIdentifier.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
+                        $orderBy = $matches[1];
+                        $query['order'] = "IF(concat('', REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
                     }
                 }
             }
         }
+        
+        if (isset($query['order'])) {
+            if (is_array($query['order']) && isset($query['order']['MiscIdentifier.identifier_value']) && sizeof($query['order']) == 1) {
+                // Display first numerical values then alphanumerical values
+                $orderBy = $query['order']['MiscIdentifier.identifier_value'];
+                $query['order'][] = "IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
+                unset($query['order']['MiscIdentifier.identifier_value']);
+            } elseif (is_string($query['order']) && preg_match('/^MiscIdentifier.identifier_value\ ([A-Za-z]+)$/', $query['order'], $matches)) {
+                $orderBy = $matches[1];
+                $query['order'] = "IF(concat('', REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '0', '1') $orderBy, MiscIdentifier.identifier_value*IF(concat('',REPLACE(MiscIdentifier.identifier_value, ',', '.') * 1) = REPLACE(MiscIdentifier.identifier_value, ',', '.'), '1', '') $orderBy, MiscIdentifier.identifier_value $orderBy";
+            }
+        }
+        
         return parent::find($type, $query);
     }
 
@@ -231,4 +247,3 @@ class MiscIdentifier extends ClinicalAnnotationAppModel
         return true;
     }
 }
-

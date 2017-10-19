@@ -137,6 +137,6 @@ if ($hookLink) {
     require ($hookLink);
 }
 
-if ($displayNextSubForm)
+if ($displayNextSubForm){
     $this->Structures->build($finalAtimStructure, $finalOptions);
-
+}

@@ -16,6 +16,8 @@ define("DATA", "data");
 
 define("QUEUE", "QUEUE");
 
+$APIGlobalVariable=0;
+
 /**
  * Class API
  */
@@ -27,10 +29,10 @@ class API
      * @param int $counter after $counter time that this function run, it send $message to API
      * @param array $message the message that will be send to API after $counter time of execution of this function
      */
-    public static function stop($counter=1, $message=['message']) 
+    public static function stop($counter=1, $message=array('message')) 
     {
         if (!is_array($message)){
-            $message=[$message];
+            $message=array($message);
         }
         if (self::$counter==$counter){
             self::addToBundle($message, 'Stop');
@@ -56,11 +58,11 @@ class API
             }
             $newMessage = true;
             if (empty($message)){
-                $message = ['This is an empty array.'];
+                $message = array('This is an empty array.');
             }
             $bundle = $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE];
             if (!isset($bundle[$type]) || !is_array($bundle[$type])) {
-                $bundle[$type] = [];
+                $bundle[$type] =array();
             }
             foreach ($bundle[$type] as $model => &$values) {
                 if ($modelName == $model) {
@@ -151,7 +153,7 @@ class API
      * @param array $data 
      * @param string $model
      */
-    public static function checkData(&$data = [], $model = '')
+    public static function checkData(&$data =array(), $model = '')
     {
         if (!empty($data)) {
             if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
@@ -159,14 +161,14 @@ class API
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
                 $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE_STRUCTURE] = isset($data['data_put_options']['mode']) && $data['data_put_options']['mode'] == 'structure';
-                $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = [
-//                    'errors' => [],
-//                    'warnings' => [],
-//                    'informations' => [],
-//                    'actions' => [],
-//                    'confirms' => [],
-//                    'data' => []
-                ];
+                $_SESSION[REST_API][SEND][REST_API_SEND_INFO_BUNDLE] = array(
+//                    'errors' => array(),
+//                    'warnings' => array(),
+//                    'informations' => array(),
+//                    'actions' => array(),
+//                    'confirms' => array(),
+//                    'data' => array()
+                );
                 unset($data['data_put_options']);
             }
         }
@@ -179,8 +181,8 @@ class API
     public static function sendDataToAPI($data) 
     {
         if (self::isAPIMode()) {
-            if (!API::isStructMode() && isset($data) && is_array($data) && in_array(self::getAction(), ['view', 'profile', 'detail', 'listall', 'search'])) {
-                self::addToBundle(['message' => self::getModelName() . ', ' . self::getAction(), 'action' => $data], 'data');
+            if (!API::isStructMode() && isset($data) && is_array($data) && in_array(self::getAction(), array('view', 'profile', 'detail', 'listall', 'search'))) {
+                self::addToBundle(array('message' => self::getModelName() . ', ' . self::getAction(), 'action' => $data), 'data');
             }
             self::sendDataAndClear();
         }

@@ -61,4 +61,3 @@ class CodingIcdo3Morpho extends CodingIcdAppModel
         return self::$singleton;
     }
 }
-

@@ -34,7 +34,7 @@ class StudyReviewsController extends StudyAppController
             'conditions' => array(
                 'StudySummary.id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($studyReviewsData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
@@ -114,7 +114,7 @@ class StudyReviewsController extends StudyAppController
             'conditions' => array(
                 'StudySummary.id' => $studySummaryId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if (empty($studyReviewsData)) {
             $this->redirect('/Pages/err_plugin_no_data?method=' . __METHOD__ . ',line=' . __LINE__, null, true);

@@ -33,14 +33,14 @@ function manageContacts(){
 	$("#manageContactPopup").popup();
 }
 
-public function saveContact(){
+function saveContact(){
 	buildDialog("saveContactPopup", null, null, null);
 	$("#saveContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$("#saveContactPopup").popup();
 	$.post(root_url + "Order/Shipments/saveContact/", $("form").serialize(), function(data){
 		var isVisible = $("#saveContactPopup:visible").length == 1;
 		$("#saveContactPopup").popup('close');
-		buildDialog("saveContactPopup", data, null, new Array{ "label" : STR_OK, "icon" : "detail", "action" : function(){$('#saveContactPopup').popup('close');} }));
+		buildDialog("saveContactPopup", data, null, new Array({ "label" : STR_OK, "icon" : "detail", "action" : function(){$('#saveContactPopup').popup('close');} }));
 		if(isVisible){
 			$("#saveContactPopup").popup();
 		}
@@ -48,7 +48,7 @@ public function saveContact(){
 	});
 }
 
-public function deleteContact(id){
+function deleteContact(id){
 	$("#deleteConfirmPopup").popup('close');
 	$("div.popup_outer:not(:visible)").remove();
 	$("#manageContactPopup").popup('close');
