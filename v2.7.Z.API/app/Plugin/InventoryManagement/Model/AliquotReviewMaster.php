@@ -58,7 +58,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel
             foreach ($this->AliquotMaster->find('all', array(
                 'conditions' => $conditions,
                 'order' => 'AliquotMaster.barcode ASC',
-                'recursive' => '0'
+                'recursive' => 0
             )) as $newAliquot) {
                 $result[$newAliquot['AliquotMaster']['id']] = $this->generateLabelOfReviewedAliquot($newAliquot['AliquotMaster']['id'], $newAliquot);
             }

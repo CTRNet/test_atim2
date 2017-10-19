@@ -195,7 +195,7 @@ class OrderLine extends OrderAppModel
                         'conditions' => array(
                             'OrderItem.order_line_id' => $newOrderLine['OrderLine']['id']
                         ),
-                        'recursive' => '-1'
+                        'recursive' => -1
                     ));
                     if ($itemsCounter)
                         $shippedCounter = $orderItem->find('count', array(
@@ -206,7 +206,7 @@ class OrderLine extends OrderAppModel
                                     'shipped & returned'
                                 )
                             ),
-                            'recursive' => '-1'
+                            'recursive' => -1
                         ));
                 }
                 $newOrderLine['Generated']['order_line_completion'] = empty($itemsCounter) ? 'n/a' : $shippedCounter . '/' . $itemsCounter;
@@ -240,7 +240,7 @@ class OrderLine extends OrderAppModel
             'conditions' => array(
                 'OrderItem.order_line_id' => $orderLineId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(

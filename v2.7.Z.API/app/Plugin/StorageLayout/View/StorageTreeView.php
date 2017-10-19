@@ -34,5 +34,3 @@ class StorageTreeView extends StorageLayoutAppModel
         'Tree'
     );
 }
-
-?>

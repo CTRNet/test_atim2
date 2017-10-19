@@ -31,4 +31,3 @@ $this->json = array(
     'goToNext' => isset($goToNext),
     'page' => $display
 );
-	

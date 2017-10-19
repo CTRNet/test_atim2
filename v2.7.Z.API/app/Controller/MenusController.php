@@ -61,7 +61,6 @@ class MenusController extends AppController
                             'Announcement.bank_id' => $_SESSION['Auth']['User']['Group']['bank_id']
                         ),
                         array(
-                            'Announcement.group_id' => $_SESSION['Auth']['User']['group_id'],
                             'Announcement.user_id' => $_SESSION['Auth']['User']['id']
                         )
                     )

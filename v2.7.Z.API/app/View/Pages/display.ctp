@@ -10,4 +10,3 @@ if (isset($data['err_trace'])) {
 }
 
 echo $this->Structures->generateContentWrapper($atimContent);
-?>

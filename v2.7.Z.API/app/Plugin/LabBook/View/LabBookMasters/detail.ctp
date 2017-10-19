@@ -97,5 +97,3 @@ if ($fullDetailScreen) {
     
     $this->Structures->build($finalAtimStructure, $finalOptions);
 }
-
-?>

@@ -17,4 +17,4 @@
  */
 ?>
 <h2> <?php echo __d('debug_kit', 'Structure Alias'); ?></h2>
-<?php echo $this->Structures->getStructureAlias(); ?>
+<?php echo $this->Structures->getStructureAlias();

@@ -94,6 +94,6 @@ $this->Structures->build($atimStructureForProcess, array(
 var datamartActions = true;
 var errorYouMustSelectAnAction = "<?php echo __("you must select an action"); ?>";
 var errorYouNeedToSelectAtLeastOneItem = "<?php echo __("you need to select at least one item"); ?>";
-var menuItems = '<?php echo json_encode(Sanitize::clean($actions)); ?>';
+var menuItems = '<?php echo json_encode(stringCorrection(Sanitize::clean($actions))); ?>';
 var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
 </script>

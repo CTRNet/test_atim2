@@ -30,13 +30,12 @@ App::uses('Model', 'Model');
  */
 class AppModel extends Model
 {
-    public $resVal='test';
     public $actsAs = array(
         'Revision',
         'SoftDeletable',
         'MasterDetail'
     );
-    
+
     // It's important that MasterDetail be after Revision
     public static $autoValidation = null;
 
@@ -110,15 +109,15 @@ class AppModel extends Model
     public function __construct($id = false, $table = null, $ds = null, $baseModelName = null, $detailTable = null, $previousModel = null)
     {
         if ($detailTable != null && $baseModelName != null) {
-        $this->hasOne[$baseModelName . 'Detail'] = array(
-            'className' => $detailTable,
-            'foreignKey' => strtolower($baseModelName) . '_master_id',
-            'dependent' => true
-        );
-        if ($previousModel != null) {
-            $this->previousModel = $previousModel;
+            $this->hasOne[$baseModelName . 'Detail'] = array(
+                'className' => $detailTable,
+                'foreignKey' => strtolower($baseModelName) . '_master_id',
+                'dependent' => true
+            );
+            if ($previousModel != null) {
+                $this->previousModel = $previousModel;
+            }
         }
-    }
         parent::__construct($id, $table, $ds);
     }
 
@@ -267,6 +266,7 @@ class AppModel extends Model
         }
         return $result;
     }
+
 
     /**
      * Checks Writable fields, sets trackability, manages floats ("," and ".")
@@ -488,7 +488,7 @@ class AppModel extends Model
      */
     public function atimDelete($modelId, $cascade = true)
     {
-
+        
         $this->id = $modelId;
         $this->registerModelsToCheck();
         
@@ -969,7 +969,7 @@ class AppModel extends Model
             }
         }
         
-        $this->checkFloats();
+        $this->checkFloats();        
         parent::validates($options);
         if (count($this->validationErrors) == 0) {
             $this->data[$this->alias]['__validated__'] = true;
@@ -1748,7 +1748,7 @@ class AppModel extends Model
     {
         foreach ($this->_schema as $fieldName => $fieldProperties) {
             $tmpType = $fieldProperties['type'];
-            if ($tmpType == "float" || $tmpType == "number" || $tmpType == "float_positive") {
+            if ($tmpType == "float" || $tmpType == "number" || $tmpType == "float_positive" || $tmpType == "decimal") {
                 // Manage float record
                 if (isset($this->data[$this->alias][$fieldName])) {
                     $this->data[$this->alias][$fieldName] = str_replace(",", ".", $this->data[$this->alias][$fieldName]);
@@ -1907,15 +1907,15 @@ class AppModel extends Model
      * @param array $errors
      * @return array
      */
-    protected function normalizedValidationErrors($errors = []) {
-        $results = [];
-        if ($errors != [] && is_array($errors)) {
+    protected function normalizedValidationErrors($errors =array()) {
+        $results =array();
+        if ($errors !=array() && is_array($errors)) {
             foreach ($errors as $key => $value) {
                 foreach ($value as $message) {
-                    $results[] = [
+                    $results[] = array(
                         'message' => $key,
                         'action' => $message
-                    ];
+                    );
                 }
             }
         }

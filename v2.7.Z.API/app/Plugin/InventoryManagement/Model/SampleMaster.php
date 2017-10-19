@@ -99,7 +99,7 @@ class SampleMaster extends InventoryManagementAppModel
             ));
             $specimenData = $this->find('first', array(
                 'conditions' => $criteria,
-                'recursive' => '0'
+                'recursive' => 0
             ));
             
             $samplePrecision = '';
@@ -159,7 +159,7 @@ class SampleMaster extends InventoryManagementAppModel
             ));
             $derivativeData = $this->find('first', array(
                 'conditions' => $criteria,
-                'recursive' => '0'
+                'recursive' => 0
             ));
             
             // Set summary
@@ -205,7 +205,7 @@ class SampleMaster extends InventoryManagementAppModel
     public function hasChild(array $sampleMasterIds)
     {
         // fetch the sample ids having samples as child
-        $result = array_unique(array_filter($this->find('list', array(
+        $derivativesResult = array_unique(array_filter($this->find('list', array(
             'fields' => array(
                 "SampleMaster.parent_id"
             ),
@@ -213,19 +213,42 @@ class SampleMaster extends InventoryManagementAppModel
                 'SampleMaster.parent_id' => $sampleMasterIds
             )
         ))));
-        
         // fetch the aliquots ids having the remaining samples as parent
         // we can fetch the realiquots too because they imply the presence of a direct child
-        $sampleMasterIds = array_diff($sampleMasterIds, $result);
+        $sampleMasterIds = array_diff($sampleMasterIds, $derivativesResult);
         $aliquotMaster = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-        return array_unique(array_merge($result, array_filter($aliquotMaster->find('list', array(
+        $aliquotResult = array_filter($aliquotMaster->find('list', array(
             'fields' => array(
                 'AliquotMaster.sample_master_id'
             ),
             'conditions' => array(
                 'AliquotMaster.sample_master_id' => $sampleMasterIds
             )
-        )))));
+        )));
+        // fetch the sample quality control not linked to a tested aliquot
+        $sampleMasterIds = array_diff($sampleMasterIds, $aliquotResult);
+        $qualityCtrl = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
+        $qualityCtrlResult = array_filter($qualityCtrl->find('list', array(
+            'fields' => array(
+                'QualityCtrl.sample_master_id'
+            ),
+            'conditions' => array(
+                'QualityCtrl.sample_master_id' => $sampleMasterIds,
+                'QualityCtrl.aliquot_master_id IS NULL'
+            )
+        )));
+        // fetch the sample specimen review not linked to a tested aliquot
+        $sampleMasterIds = array_diff($sampleMasterIds, $qualityCtrlResult);
+        $specimenReviewMaster = AppModel::getInstance("InventoryManagement", "SpecimenReviewMaster", true);
+        $specimenReviewMasterResult = array_filter($specimenReviewMaster->find('list', array(
+            'fields' => array(
+                'SpecimenReviewMaster.sample_master_id'
+            ),
+            'conditions' => array(
+                'SpecimenReviewMaster.sample_master_id' => $sampleMasterIds
+            )
+        )));
+        return array_unique(array_merge($derivativesResult, $aliquotResult, $qualityCtrlResult, $specimenReviewMasterResult));
     }
 
     /**
@@ -311,7 +334,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SampleMaster.parent_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -326,7 +349,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'AliquotMaster.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -343,7 +366,7 @@ class SampleMaster extends InventoryManagementAppModel
         // 'used aliquot' that allows to display all source aliquots used to create
         // the studied sample.
         // $sourceAliquotModel = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-        // $returnedNbr = $sourceAliquotModel->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sampleMasterId), 'recursive' => '-1'));
+        // $returnedNbr = $sourceAliquotModel->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sampleMasterId), 'recursive' => -1));
         // if($returnedNbr > 0) {
         // return array('allow_deletion' => false, 'msg' => 'an aliquot of the parent sample is defined as source aliquot');
         // }
@@ -354,7 +377,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'QualityCtrl.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(
@@ -369,7 +392,7 @@ class SampleMaster extends InventoryManagementAppModel
             'conditions' => array(
                 'SpecimenReviewMaster.sample_master_id' => $sampleMasterId
             ),
-            'recursive' => '-1'
+            'recursive' => -1
         ));
         if ($returnedNbr > 0) {
             return array(

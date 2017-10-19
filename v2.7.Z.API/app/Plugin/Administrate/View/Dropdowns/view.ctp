@@ -18,4 +18,5 @@ $finalOptions = array(
     "links" => $links,
     "settings" => $structureSettings
 );
+
 $this->Structures->build($administrateDropdownValues, $finalOptions);

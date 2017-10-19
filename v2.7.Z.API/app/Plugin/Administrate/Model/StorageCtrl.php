@@ -168,5 +168,4 @@ class StorageCtrl extends AdministrateAppModel
             AppController::addWarningMsg(__('storage control data of the storage type [%s] are not correctly set - please contact your administartor', $storageType));
         }
     }
-}	
-	
+}
