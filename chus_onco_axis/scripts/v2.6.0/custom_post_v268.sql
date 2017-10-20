@@ -3330,7 +3330,7 @@ INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
 VALUES 
 ((SELECT id FROM structure_value_domains WHERE domain_name="chus_medication_status"), 
-(SELECT id FROM structure_permissible_values WHERE value="never" AND language_alias="never"), "", "1");
+(SELECT id FROM structure_permissible_values WHERE value="never" AND language_alias="never"), "1", "1");
 INSERT IGNORE INTO i18n (id,en,fr) VALUES("never", "Never", 'jamais');
 
 SET @modified_by = (SELECT id FROM users WHERE username = 'system');
@@ -3395,7 +3395,7 @@ EventMaster.modified = @modified,
 EventMaster.modified_by = @modified_by
 WHERE EventMaster.deleted <> 1
 AND EventMaster.event_control_id = @event_control_id
-AND EventMaster.event_date LIKE '1900%'
+AND EventMaster.event_date = '1900-01-01'
 AND EventMaster.event_date_accuracy = 'y';
 
 INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
@@ -3484,7 +3484,7 @@ EventMaster.modified = @modified,
 EventMaster.modified_by = @modified_by
 WHERE EventMaster.deleted <> 1
 AND EventMaster.event_control_id = @event_control_id
-AND EventMaster.event_date LIKE '1900%'
+AND EventMaster.event_date = '1900-01-01'
 AND EventMaster.event_date_accuracy = 'y';
 
 UPDATE event_masters EventMaster, chus_ed_medical_history EventDetail
@@ -3566,7 +3566,7 @@ TreatmentMaster.chus_start_date_unknown = '1',
 TreatmentMaster.modified = @modified,
 TreatmentMaster.modified_by = @modified_by
 WHERE TreatmentMaster.deleted <> 1
-AND TreatmentMaster.start_date LIKE '1900%'
+AND TreatmentMaster.start_date = '1900-01-01'
 AND TreatmentMaster.start_date_accuracy = 'y';
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -3625,6 +3625,260 @@ UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM
 UPDATE diagnosis_controls SET flag_compare_with_cap = 0;
 
 UPDATE `versions` SET branch_build_number = '6902' WHERE version_number = '2.6.8';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2017-10-19
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Family History Diagnosis');
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = @control_id AND value IN ('no radiotherapy prior to this date', 'no chemotherapy prior to this date');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('precisions', 'Precisions', 'Précisions');
+
+-- Update search form and view
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=20,class=range file' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_participants_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=20,class=range file' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `type`='input',  `setting`='size=20,class=range file' WHERE model='ViewCollection' AND tablename='' AND field='acquisition_label' AND `type`='input,class=range file' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='input',  `setting`='size=30,class=range file' WHERE model='ViewCollection' AND tablename='' AND field='participant_identifier' AND `type`='input,class=range file' AND structure_value_domain  IS NULL ;
+
+UPDATE structure_formats SET `language_heading`='collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='aliquot' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='sample' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='initial_specimen_sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type_from_id') AND `flag_confidential`='0');
+
+-- Add stool to inventory
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(222, 224, 225);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(68);
+UPDATE realiquoting_controls SET flag_active=true WHERE id IN(71);
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'stool'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1);
+
+-- Treatement Form Update
+
+UPDATE structure_formats SET `display_column`='2' 
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('chus_txd_digestive_system_radiotherapies', 'chus_txd_systemic_therapies')) 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structures(`alias`) VALUES ('chus_tx_generated_detail');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Generated', '', 'chus_tx_extend_summary', 'textarea',  NULL , '0', '', '', '', 'details', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_tx_generated_detail'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='chus_tx_extend_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '1', '90', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- chronology
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chronology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Medical History Clean Up
+--       Set status date to null when modified_by = @modified_by
+--       Then set status date from note like 'Status as of date 2017-04-15.' when modified_by = @modified_by
+--       Set status to 'never' when modified_by = @modified_by and status = 'prior'
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT now() FROM users WHERE username = 'system');
+
+SET @event_control_id = (SELECT id FROM event_controls WHERE event_type = 'medical history');
+
+UPDATE event_masters EventMaster
+SET EventMaster.chus_status_date = null,
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventMaster.modified_by = @modified_by;
+
+UPDATE event_masters EventMaster
+SET EventMaster.chus_status_date = SUBSTR(EventMaster.event_summary, (POSITION('tatus as of date ' IN EventMaster.event_summary)+17), 10),
+EventMaster.chus_status_date_accuracy = 'c',
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventMaster.modified_by = @modified_by
+AND EventMaster.event_summary REGEXP 'tatus as of date [0-9]{4}\-[0-9]{2}\-[0-9]{2}';
+
+UPDATE event_masters EventMaster, chus_ed_medical_history EventDetail
+SET EventMaster.chus_status = 'never',
+EventMaster.modified = @modified,
+EventMaster.modified_by = @modified_by
+WHERE EventMaster.deleted <> 1
+AND EventMaster.event_control_id = @event_control_id
+AND EventMaster.chus_status = 'prior'
+AND EventMaster.modified_by = @modified_by;
+
+INSERT INTO event_masters_revs (id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
+participant_id, diagnosis_master_id, chus_patho_report_number, chus_patho_report_pathologist, chus_finish_date, chus_finish_date_accuracy, chus_status, chus_status_date, 
+chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, version_created)
+(SELECT id, event_control_id, event_status, event_summary, event_date, event_date_accuracy, information_source, urgency, date_required, date_required_accuracy, date_requested, date_requested_accuracy, reference_number, 
+participant_id, diagnosis_master_id, chus_patho_report_number, chus_patho_report_pathologist, chus_finish_date, chus_finish_date_accuracy, chus_status, chus_status_date, 
+chus_status_date_accuracy, chus_start_date_unknown,
+modified_by, modified 
+FROM event_masters 
+WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO chus_ed_medical_history_revs (body_system, disease_code, obsolete_ongoing_currently_yes_no, obsolete_finish_date, obsolete_finish_date_accuracy, event_master_id, version_created)
+(SELECT body_system, disease_code, obsolete_ongoing_currently_yes_no, obsolete_finish_date, obsolete_finish_date_accuracy, event_master_id, modified
+FROM event_masters INNER JOIN chus_ed_medical_history ON id = event_master_id
+WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+
+-- Clinical notes from systemic treatment
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'system');
+SET @modified = (SELECT now() FROM users WHERE username = 'system');
+
+SET @event_control_id = (SELECT id FROM event_controls WHERE event_type = 'clinical note');
+SET @systemic_therapy_treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'systemic therapy' AND flag_active = 1);
+SET @radiotherapy_treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'radiotherapy' AND flag_active = 1);
+
+SET @custom_list_control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Clinical Note Types');
+
+-- ....... 'No neoadjuvant systemic therapy treatment'
+
+SET @treatment_note = 'No neoadjuvant systemic therapy treatment';
+SET @custom_permissible_value = 'no neoadjuvant systemic therapy treatment';
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+(@custom_permissible_value, '',  '', '1', @custom_list_control_id, @modified, @modified, @modified_by, @modified_by);
+
+INSERT INTO event_masters (event_control_id, event_summary, event_date, event_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by)
+(SELECT DISTINCT event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by 
+FROM (
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @systemic_therapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+	UNION ALL 
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @radiotherapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+) AS RES);
+INSERT INTO chus_ed_clinical_notes (event_master_id, type)
+(SELECT id, @custom_permissible_value FROM event_masters WHERE event_control_id = @event_control_id AND event_summary LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%') AND modified = @modified AND modified_by = @modified_by);
+
+-- ....... 'No treatment linked to therapy.'
+
+SET @treatment_note = 'No treatment linked to therapy.';
+SET @custom_permissible_value = 'no treatment linked to therapy';
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+(@custom_permissible_value, '',  '', '1', @custom_list_control_id, @modified, @modified, @modified_by, @modified_by);
+
+INSERT INTO event_masters (event_control_id, event_summary, event_date, event_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by)
+(SELECT DISTINCT event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by 
+FROM (
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @systemic_therapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+	UNION ALL 
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @radiotherapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+) AS RES);
+INSERT INTO chus_ed_clinical_notes (event_master_id, type)
+(SELECT id, @custom_permissible_value FROM event_masters WHERE event_control_id = @event_control_id AND event_summary LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%') AND modified = @modified AND modified_by = @modified_by);
+
+-- ....... 'Neoadjuvant radiochemotherapy.'
+
+SET @treatment_note = 'Neoadjuvant radiochemotherapy.';
+SET @custom_permissible_value = 'neoadjuvant radiochemotherapy';
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+(@custom_permissible_value, '',  '', '1', @custom_list_control_id, @modified, @modified, @modified_by, @modified_by);
+
+INSERT INTO event_masters (event_control_id, event_summary, event_date, event_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by)
+(SELECT DISTINCT event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by 
+FROM (
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @systemic_therapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+	UNION ALL 
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @radiotherapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+) AS RES);
+INSERT INTO chus_ed_clinical_notes (event_master_id, type)
+(SELECT id, @custom_permissible_value FROM event_masters WHERE event_control_id = @event_control_id AND event_summary LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%') AND modified = @modified AND modified_by = @modified_by);
+
+-- ....... 'No Radiotherapy.'
+
+SET @treatment_note = 'No Radiotherapy.';
+SET @custom_permissible_value = 'no Radiotherapy';
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+(@custom_permissible_value, '',  '', '1', @custom_list_control_id, @modified, @modified, @modified_by, @modified_by);
+
+INSERT INTO event_masters (event_control_id, event_summary, event_date, event_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by)
+(SELECT DISTINCT event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, created, created_by, modified, modified_by 
+FROM (
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @systemic_therapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+	UNION ALL 
+	SELECT @event_control_id event_control_id, notes, finish_date, finish_date_accuracy, participant_id, diagnosis_master_id, @modified created, @modified_by created_by, @modified modified, @modified_by modified_by
+	FROM treatment_masters 
+	WHERE treatment_control_id = @radiotherapy_treatment_control_id
+	AND deleted <> 1
+	AND notes LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%')
+) AS RES);
+INSERT INTO chus_ed_clinical_notes (event_master_id, type)
+(SELECT id, @custom_permissible_value FROM event_masters WHERE event_control_id = @event_control_id AND event_summary LIKE CONCAT('%', CAST(@treatment_note AS CHAR CHARACTER SET utf8), '%') AND modified = @modified AND modified_by = @modified_by);
+
+-- ....... revs
+
+INSERT INTO event_masters_revs (id, event_control_id, event_summary, event_date, event_date_accuracy, participant_id, diagnosis_master_id, modified_by,  version_created)
+(SELECT id, event_control_id, event_summary, event_date, event_date_accuracy, participant_id, diagnosis_master_id, modified_by, modified
+FROM event_masters WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO chus_ed_clinical_notes_revs (type, event_master_id, version_created)
+(SELECT type, event_master_id, modified FROM event_masters INNER JOIN chus_ed_clinical_notes ON id = event_master_id
+ WHERE event_control_id = @event_control_id AND modified = @modified AND modified_by = @modified_by);
+ 
+ 
+
+
+UPDATE `versions` SET branch_build_number =  WHERE version_number = '2.6.8';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
