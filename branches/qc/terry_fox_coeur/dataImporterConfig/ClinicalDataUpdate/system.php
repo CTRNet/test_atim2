@@ -802,7 +802,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 		return array($matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'c');
 	} else  if(preg_match('/^([1-3]{0,1}[0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
 	    return array($matches[3].$matches[4].'-'.$matches[2].'-'.(strlen($matches[1]) == 1? '0'.$matches[1] : $matches[1]), 'c');
-    } else  if(preg_match('/^([a-z]+)([0-3]{0,1}[0-9]){0,1},(19|20)([0-9]{2})$/',strtolower($date),$matches)) {
+    } else  if(preg_match('/^([a-z]+)([0-3]{0,1}[0-9]){0,1},{0,1}(19|20)([0-9]{2})$/',strtolower($date),$matches)) {
         $year = $matches[3].$matches[4];
         $month = $matches[1];
         $day = $matches[2];
@@ -817,7 +817,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
                 return array("$year-$month-01", 'd');
             }
         } else {
-            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update. Clean-up data manually after the migration into ATiM if required.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
             return array('', '');
         }
     } else  if(preg_match('/^([0-3]{0,1}[0-9]){0,1}([a-z]+),(19|20)([0-9]{2})$/',strtolower($date),$matches)) {
@@ -835,7 +835,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
                 return array("$year-$month-01", 'd');
             }
         } else {
-            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+            recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
             return array('', '');
         }
     } else  if(preg_match('/^([1-3]{0,1}[0-9])\/([1-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
@@ -843,7 +843,7 @@ function validateAndGetDateAndAccuracy($date, $summary_section_title, $summary_t
 	} else  if(preg_match('/^([01][0-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
 	    return array($matches[2].$matches[3].'-'.$matches[1].'-'.'01', 'd');
     } else {
-		recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date will be erased.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
+		recordErrorAndMessage($summary_section_title, '@@ERROR@@', 'Date Format Error'.(empty($summary_title_add_in)? '' : ' - '.$summary_title_add_in), "Format of the date '$date' is not supported! The date won't be loaded and used for the update.".(empty($summary_details_add_in)? '' : " [$summary_details_add_in]"));
 		return array('', '');
 	}
 }

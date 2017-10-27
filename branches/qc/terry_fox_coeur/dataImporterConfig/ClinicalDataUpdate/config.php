@@ -19,17 +19,31 @@ $windows_xls_offset = 36526;
 $mac_xls_offset = 35064;
 $bank_excel_files = array(
 //     array(
+// 	    'bank' => 'McGill',
+// 		'file' => 'COEUR-Dec2016-McGill2016_nl_revised.xls',
+// 		'worksheets' => array('data', 'treatment'),
+// 		'file_xls_offset' => $windows_xls_offset,
+// 		'parser_function' => 'General'
+// 	),
+//     array(
+//         'bank' => 'MOBP',
+//         'file' => 'COEUR-MOBP-master2016 updated 2017_nl_revised.xls',
+//         'worksheets' => array('data', 'Sheet2'),
+//         'file_xls_offset' => $windows_xls_offset,
+//         'parser_function' => 'General'
+//     ),
+//     array(
 //         'bank' => 'OHRI',
 //         'file' => 'COEUR-OHRI-master2016 corrected_nl_revised.xls',
 //         'worksheets' => array('data', 'treatment'),
 //         'file_xls_offset' => $windows_xls_offset,
 //         'parser_function' => 'General'
-//     ),	
+//     ),
     array(
-	    'bank' => 'McGill',
-		'file' => 'COEUR-Dec2016-McGill2016_nl_revised.xls',
-		'worksheets' => array('data', 'treatment'),
-		'file_xls_offset' => $windows_xls_offset,
-		'parser_function' => 'General'
-	)
+        'bank' => 'OTB',
+        'file' => 'COEUR-OTB-full clinical data report2017.xls',
+        'worksheets' => array('Patients', 'Treatment'),
+        'file_xls_offset' => $windows_xls_offset,
+        'parser_function' => 'Otb'
+    )
 );
