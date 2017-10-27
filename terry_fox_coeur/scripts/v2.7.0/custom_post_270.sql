@@ -238,3 +238,55 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_tf_coeur_summary_results'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '0', '121', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 UPDATE `versions` SET branch_build_number = '6889' WHERE version_number = '2.7.0';
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- 
+-- -------------------------------------------------------------------------------------------------------------------------
+
+SET @otb_bank_id = (select id FROM banks WHERE name = 'OTB');
+
+SET @modified_by = (SELECT id FROM users WHERE username = 'System');
+SET @modified = (SELECT now() FROM users WHERE username = 'System');
+
+UPDATE collections
+SET modified = @modified,
+modified_by = @modified_by,
+collection_datetime_accuracy = 'h',
+collection_notes = CONCAT("Dates accuracy in excel was equals to 'Year'. Migration process changed it to 'Day' to allow system to set automatically the dates of treatments, events, etc based on the 'Number of days from collection' defined into Excel. ", collection_notes) 
+WHERE  participant_id IN (SELECT id FROM participants WHERE deleted <> 1 AND qc_tf_bank_id = @otb_bank_id)
+AND collection_datetime_accuracy = 'm'
+AND collection_datetime IS NOT NULL;
+
+INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, 
+diagnosis_master_id, consent_master_id, treatment_master_id, event_master_id, modified_by, version_created)
+(SELECT id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, 
+diagnosis_master_id, consent_master_id, treatment_master_id, event_master_id, modified_by, modified FROM collections 
+WHERE modified = @modified aND modified_by = @modified_by);
+
+SET @ovarectomy_control_id = (select id FROM treatment_controls WHERE tx_method = 'ovarectomy' AND flag_Active = 1);
+SET @tissue_sample_control_id = (select id FROM sample_controls WHERE sample_type = 'tissue');
+
+UPDATE treatment_masters TM, collections CO, sample_masters SM
+SET TM.start_date = CO.collection_datetime,
+TM.start_date_accuracy = 'c',
+TM.modified = @modified,
+TM.modified_by = @modified_by,
+TM.notes = CONCAT("Dates set by migration process based on tissue collection date. ", IFNULL(collection_notes, '')) 
+WHERE CO.deleted <> 1
+AND TM.deleted <> 1 
+AND SM.deleted <> 1  
+AND TM.start_date IS NULL
+AND TM.treatment_control_id = @ovarectomy_control_id 
+AND TM.participant_id IN (SELECT id FROM participants WHERE deleted <> 1 AND qc_tf_bank_id = @otb_bank_id)
+AND TM.participant_id = CO.participant_id
+AND CO.id = SM.collection_id
+AND SM.sample_control_id = @tissue_sample_control_id;
+
+INSERT INTO treatment_masters_revs (id,treatment_control_id,start_date,start_date_accuracy,finish_date,finish_date_accuracy,notes,modified_by,participant_id,
+diagnosis_master_id,version_created)
+(SELECT id,treatment_control_id,start_date,start_date_accuracy,finish_date,finish_date_accuracy,notes,participant_id,
+diagnosis_master_id,modified_by,modified
+FROM treatment_masters WHERE modified = @modified aND modified_by = @modified_by);
+INSERT INTO qc_tf_tx_empty_revs (treatment_master_id, version_created) (SELECT id,modified FROM treatment_masters WHERE modified = @modified aND modified_by = @modified_by);
+
+UPDATE `versions` SET branch_build_number = '6910' WHERE version_number = '2.7.0';
