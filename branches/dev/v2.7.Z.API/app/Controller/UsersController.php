@@ -20,12 +20,16 @@ class UsersController extends AppController
     public function beforeFilter()
     {
         parent::beforeFilter();
-        if (Configure::read('reset_forgotten_password_feature')) {
-            $this->Auth->allow('login', 'logout', 'resetForgottenPassword');
-        } else {
-            $this->Auth->allow('login', 'logout');
+        if (API::isAPIMode()){
+            $this->AtimAuth->allow('apiInformations');
         }
-        $this->Auth->authenticate = array(
+        
+        if (Configure::read('reset_forgotten_password_feature')) {
+            $this->AtimAuth->allow('login', 'logout', 'resetForgottenPassword');
+        } else {
+            $this->AtimAuth->allow('login', 'logout');
+        }
+        $this->AtimAuth->authenticate = array(
             'Form' => array(
                 'userModel' => 'User',
                 'scope' => array(
@@ -78,11 +82,11 @@ class UsersController extends AppController
         if ($this->User->shouldLoginFromIpBeDisabledAfterFailedAttempts()) {
             // Too many login attempts - froze atim for couple of minutes
             $this->request->data = array();
-            $this->Auth->flash(__('too many failed login attempts - connection to atim disabled temporarily for %s mn', Configure::read('time_mn_IP_disabled')));
+            $this->AtimAuth->flash(__('too many failed login attempts - connection to atim disabled temporarily for %s mn', Configure::read('time_mn_IP_disabled')));
             if (API::isAPIMode()){
                 API::addToBundle(array("status"=>0, 'message'=>__('too many failed login attempts - connection to atim disabled temporarily'), 'data'=>array()), 'errors');
             }
-        } elseif ((! isset($this->passedArgs['login'])) && $this->Auth->login()) {
+        } elseif ((! isset($this->passedArgs['login'])) && $this->AtimAuth->login()) {
             // Log in user
             if ($this->request->data['User']['username']){
                 $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
@@ -96,7 +100,7 @@ class UsersController extends AppController
             if ($this->User->isPasswordResetRequired()) {
                 $this->Session->write('Auth.User.force_password_reset', '1');
                 if (API::isAPIMode()){
-                    API::addToBundle(array("status"=>0, 'message'=>__('force password reset').', '.__('You don\'t have permission to change the password by API.'), 'data'=>array()), 'errors');
+                    API::addToBundle(array("status"=>0, 'message'=>__('force password reset').', '.__('You should change your password by ATiM.'), 'data'=>array()), 'errors');
                     API::sendDataAndClear();
                 }
                 return $this->redirect('/Customize/Passwords/index');
@@ -109,7 +113,9 @@ class UsersController extends AppController
                 return $this->render('ok');
             } else {
                 if (API::isAPIMode()){
-                    //API::addToBundle($_SESSION['Auth']['User'], '2222222');
+                    $this->AtimAuth->allowedActions = array(
+                      'index'
+                    );
                     return;
                 }
                 return $this->redirect('/Menus');
@@ -121,12 +127,12 @@ class UsersController extends AppController
                 AppController::addWarningMsg(__('your username has been disabled - contact your administartor'));
             }
             $this->request->data = array();
-            $this->Auth->flash(__('login failed - invalid username or password or disabled user'));
+            $this->AtimAuth->flash(__('login failed - invalid username or password or disabled user'));
             if (API::isAPIMode()){
                 API::addToBundle(array("status"=>0, 'message'=>__('login failed - invalid username or password or disabled user'), 'data'=>array()), 'errors');
             }
         }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username===$this->request->data['User']['username']){
-            if ($this->Auth->login()) {
+            if ($this->AtimAuth->login()) {
                 // Log in user
                 if ($this->request->data['User']['username']) {
                     $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
@@ -138,7 +144,7 @@ class UsersController extends AppController
                 return $this->render('ok');
             }
         }elseif(isset($this->request->data['User']['username'])&&isset($this->passedArgs['login']) && $username!==$this->request->data['User']['username']){
-            if ($this->Auth->login()) {
+            if ($this->AtimAuth->login()) {
                 // Log in user
                 if ($this->request->data['User']['username']) {
                     $this->UserLoginAttempt->saveSuccessfulLogin($this->request->data['User']['username']);
@@ -194,11 +200,11 @@ class UsersController extends AppController
         
         $this->Acl->flushCache();
         if (API::isAPIMode()){
-            $this->Auth->logout();
+            $this->AtimAuth->logout();
             API::addToBundle(array("status"=>1, 'message'=>__('Logout successful.'), 'data'=>array()), 'informations');
             API::sendDataAndClear();
         }
-        $this->redirect($this->Auth->logout());
+        $this->redirect($this->AtimAuth->logout());
     }
 
     /**
@@ -365,5 +371,9 @@ class UsersController extends AppController
                 $this->request->data['User']['confirm_password'] = '';
             }
         }
+    }
+    
+    public function apiInformations(){
+        die('apiInformations');
     }
 }

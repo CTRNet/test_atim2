@@ -212,7 +212,8 @@ class AliquotMastersController extends InventoryManagementAppController
             } else {
                 // User don't work in batch mode and deleted all aliquot rows
                 if (empty($sampleMasterId)) {
-                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), Router::url( $this->here, true), 5);
+//                    $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
                     return;
                 }
                 $sampleMasterIds = array(
@@ -346,7 +347,8 @@ class AliquotMastersController extends InventoryManagementAppController
             $errors = array();
             $prevData = $this->request->data;
             if (empty($prevData)) {
-                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
                 return;
             }
             $this->request->data = array();
@@ -942,7 +944,8 @@ class AliquotMastersController extends InventoryManagementAppController
             $this->request->data = array();
             
             if (empty($previousData)) {
-                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
                 return;
             }
             
@@ -1986,7 +1989,8 @@ class AliquotMastersController extends InventoryManagementAppController
             } elseif (isset($this->request->data['ViewAliquot'])) {
                 $ids = $this->request->data['ViewAliquot']['aliquot_master_id'];
             } else {
-                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), Router::url( $this->here, true), 5);
+//                $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
                 return;
             }
             if ($ids == 'all' && isset($this->request->data['node'])) {
@@ -2000,7 +2004,8 @@ class AliquotMastersController extends InventoryManagementAppController
             }
             if (! is_array($ids) && strpos($ids, ',')) {
                 // User launched action from databrowser but the number of items was bigger than databrowser_and_report_results_display_limit
-                $this->atimFlashWarning(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("batch init - number of submitted records too big"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
                 return;
             }
             $ids = array_filter($ids);
@@ -2031,7 +2036,8 @@ class AliquotMastersController extends InventoryManagementAppController
         if (count($aliquots) > 1) {
             foreach ($aliquots as $aliquot) {
                 if (($aliquot['AliquotMaster']['aliquot_control_id'] != $aliquotCtrlId) || ($aliquot['SampleMaster']['sample_control_id'] != $sampleCtrlId)) {
-                    $this->atimFlashWarning(__("you cannot realiquot those elements together because they are of different types"), "javascript:history.back();");
+                    $this->atimFlashWarning(__("you cannot realiquot those elements together because they are of different types"), Router::url( $this->here, true));
+//                    $this->atimFlashWarning(__("you cannot realiquot those elements together because they are of different types"), "javascript:history.back();");
                     return;
                 }
             }
@@ -2040,7 +2046,8 @@ class AliquotMastersController extends InventoryManagementAppController
         // Build list of aliquot type that could be created from the sources for display
         $possibleCtrlIds = $this->RealiquotingControl->getAllowedChildrenCtrlId($sampleCtrlId, $aliquotCtrlId);
         if (empty($possibleCtrlIds)) {
-            $this->atimFlashWarning(__("you cannot realiquot those elements"), "javascript:history.back();", 5);
+            $this->atimFlashWarning(__("you cannot realiquot those elements"), Router::url( $this->here, true), 5);
+//            $this->atimFlashWarning(__("you cannot realiquot those elements"), "javascript:history.back();", 5);
             return;
         }
         
@@ -2098,7 +2105,8 @@ class AliquotMastersController extends InventoryManagementAppController
         if (! isset($this->request->data['sample_ctrl_id']) || ! isset($this->request->data['realiquot_from']) || ! isset($this->request->data[0]['realiquot_into']) || ! isset($this->request->data[0]['ids'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } elseif ($this->request->data[0]['realiquot_into'] == '') {
-            $this->atimFlashWarning(__("you must select an aliquot type"), "javascript:history.back();", 5);
+            $this->atimFlashWarning(__("you must select an aliquot type"), Router::url( $this->here, true), 5);
+//            $this->atimFlashWarning(__("you must select an aliquot type"), "javascript:history.back();", 5);
             return;
         }
         
@@ -2168,11 +2176,13 @@ class AliquotMastersController extends InventoryManagementAppController
         $initialDisplay = false;
         $parentAliquotsIds = '';
         if (empty($this->request->data)) {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), Router::url( $this->here, true), 5);
+//            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
             return;
         } elseif (isset($this->request->data[0]) && isset($this->request->data[0]['ids'])) {
             if ($this->request->data[0]['realiquot_into'] == '') {
-                $this->atimFlashWarning(__("you must select an aliquot type"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("you must select an aliquot type"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("you must select an aliquot type"), "javascript:history.back();", 5);
                 return;
             }
             $initialDisplay = true;
@@ -2212,7 +2222,8 @@ class AliquotMastersController extends InventoryManagementAppController
                 $labBookCode = $this->request->data['Realiquoting']['lab_book_master_code'];
                 $syncWithLabBook = $this->request->data['Realiquoting']['sync_with_lab_book'];
             } else {
-                $this->atimFlashWarning(__($syncResponse), "javascript:history.back()", 5);
+                $this->atimFlashWarning(__($syncResponse), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__($syncResponse), "javascript:history.back()", 5);
                 return;
             }
         }
@@ -2343,7 +2354,8 @@ class AliquotMastersController extends InventoryManagementAppController
             unset($this->request->data['AliquotMaster']);
             
             if (empty($this->request->data)) {
-                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
                 return;
             }
             
@@ -2656,11 +2668,13 @@ class AliquotMastersController extends InventoryManagementAppController
         $initialDisplay = false;
         $parentAliquotsIds = array();
         if (empty($this->request->data)) {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), Router::url( $this->here, true), 5);
+//            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
             return;
         } elseif (isset($this->request->data[0]) && isset($this->request->data[0]['ids'])) {
             if ($this->request->data[0]['realiquot_into'] == '') {
-                $this->atimFlashWarning(__("you must select an aliquot type"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("you must select an aliquot type"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("you must select an aliquot type"), "javascript:history.back();", 5);
                 return;
             }
             $initialDisplay = true;
@@ -2669,7 +2683,8 @@ class AliquotMastersController extends InventoryManagementAppController
             $initialDisplay = false;
             $parentAliquotsIds = $this->request->data['ids'];
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), Router::url( $this->here, true), 5);
+//            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
             return;
         }
         $this->set('parentAliquotsIds', $parentAliquotsIds);
@@ -2701,7 +2716,8 @@ class AliquotMastersController extends InventoryManagementAppController
                 $labBookCode = $this->request->data['Realiquoting']['lab_book_master_code'];
                 $syncWithLabBook = $this->request->data['Realiquoting']['sync_with_lab_book'];
             } else {
-                $this->atimFlashWarning(__($syncResponse), "javascript:history.back()", 5);
+                $this->atimFlashWarning(__($syncResponse), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__($syncResponse), "javascript:history.back()", 5);
                 return;
             }
         }
@@ -2851,7 +2867,8 @@ class AliquotMastersController extends InventoryManagementAppController
                 $msg = __('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)') . ': [' . implode(",", $tmpBarcode) . ']';
                 
                 if (empty($this->request->data)) {
-                    $this->atimFlashWarning(__($msg), "javascript:history.back()", 5);
+                    $this->atimFlashWarning(__($msg), Router::url( $this->here, true), 5);
+//                    $this->atimFlashWarning(__($msg), "javascript:history.back()", 5);
                     return;
                 } else {
                     AppController::addWarningMsg($msg);
@@ -2877,7 +2894,8 @@ class AliquotMastersController extends InventoryManagementAppController
             unset($this->request->data['url_to_cancel']);
             
             if (empty($this->request->data)) {
-                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
                 return;
             }
             
@@ -3555,7 +3573,8 @@ class AliquotMastersController extends InventoryManagementAppController
                 }
             }
         } elseif (! isset($this->request->data['ViewAliquot']['aliquot_master_id'])) {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), Router::url( $this->here, true), 5);
+//            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
             return;
         } elseif ($this->request->data['ViewAliquot']['aliquot_master_id'] == 'all' && isset($this->request->data['node'])) {
             $this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
@@ -3681,7 +3700,8 @@ class AliquotMastersController extends InventoryManagementAppController
         ));
         $displayLimit = Configure::read('AliquotBarcodePrint_processed_items_limit');
         if ($aliquotsCount > $displayLimit) {
-            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", "javascript:history.back();", 5);
+            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", Router::url( $this->here, true), 5);
+//            $this->atimFlashWarning(__("batch init - number of submitted records too big") . " (>$displayLimit)", "javascript:history.back();", 5);
             return;
         }
         while ($this->request->data = $this->AliquotMaster->find('all', array(

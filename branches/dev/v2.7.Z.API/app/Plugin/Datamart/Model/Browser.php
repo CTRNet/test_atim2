@@ -2027,7 +2027,8 @@ $browsingFilter['attribute']);
             // we have an empty set, bail out! (don't save empty result)
             if ($params['last']) {
                 // go back 1 page
-                $controller->atimFlashError(__("no data matches your search parameters"), "javascript:history.back();");
+                $controller->atimFlashError(__("no data matches your search parameters"), Router::url( $this->here, true));
+//                $controller->atimFlashError(__("no data matches your search parameters"), "javascript:history.back();");
             } else {
                 // go to the last node
                 $controller->atimFlashWarning(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/" . $nodeId . "/");

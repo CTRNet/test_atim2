@@ -477,7 +477,8 @@ class QualityCtrlsController extends InventoryManagementAppController
                 $this->request->data = $displayData;
             }
         } else {
-            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
+            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), Router::url( $this->here, true), 5);
+//            $this->atimFlashError((__('you have been redirected automatically') . ' (#' . __LINE__ . ')'), "javascript:history.back();", 5);
             return;
         }
         

@@ -347,7 +347,8 @@ class DropdownsController extends AdministrateAppController
                 )
             ));
             if (empty($this->request->data)) {
-                $this->atimFlashWarning(__("you cannot configure an empty list"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("you cannot configure an empty list"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("you cannot configure an empty list"), "javascript:history.back();", 5);
             }
             $this->set('alphaOrder', $this->request->data[0]['StructurePermissibleValuesCustom']['display_order'] == 0);
         } else {

@@ -16,6 +16,8 @@ define("DATA", "data");
 
 define("QUEUE", "QUEUE");
 
+define("SHOW_IN_API", 1);
+
 $APIGlobalVariable=0;
 
 /**
@@ -81,7 +83,7 @@ class API
      * @param $data
      */
     public static function sendTo($data)
-    {
+    {        
         if (self::isAPIMode()) {
             if (ob_get_contents()){
                 ob_end_clean();
@@ -155,8 +157,12 @@ class API
      */
     public static function checkData(&$data =array(), $model = '')
     {
+        if (!(isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api'])){
+            unset($_SESSION[REST_API]);
+        }
         if (!empty($data)) {
             if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
+                Configure::write('debug', 0);
                 $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = strtolower($model);
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
                 $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];
@@ -170,19 +176,19 @@ class API
 //                    'data' => array()
                 );
                 unset($data['data_put_options']);
-            }
+            } 
         }
         $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = isset($_SESSION[REST_API][CONFIG_API][REST_API_MODE]) ? $_SESSION[REST_API][CONFIG_API][REST_API_MODE] : false;
     }
-
+       
     /**
      * @param $data
      */
     public static function sendDataToAPI($data) 
     {
         if (self::isAPIMode()) {
-            if (!API::isStructMode() && isset($data) && is_array($data) && in_array(self::getAction(), array('view', 'profile', 'detail', 'listall', 'search'))) {
-                self::addToBundle(array('message' => self::getModelName() . ', ' . self::getAction(), 'action' => $data), 'data');
+            if (!API::isStructMode() && isset($data) && is_array($data) && !empty($data) && in_array(self::getAction(), array('view', 'profile', 'detail', 'listall', 'search'))) {
+                self::addToBundle(array('Model, Action' => self::getModelName() . ', ' . self::getAction(), $data), 'data');
             }
             self::sendDataAndClear();
         }

@@ -1734,13 +1734,13 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
         if (history.replaceState) {
             //doesn't work for IE < 10
             //TODO: prevent over clicking the submit btn
-            beforeSubmitFct = function () {
+            beforeSubmitFct = function (formData, jqForm, options) {
                 $("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
                 $(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
                 $(".ajax_search_results").parent().show();
                 flyOverComponents();
             };
-            successFct = function (data) {
+            successFct = function (data, statusText, xhr, $form) {
                 try {
                     data = $.parseJSON(data);
                     saveSqlLogAjax(data);
@@ -1764,7 +1764,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 beforeSubmit: beforeSubmitFct,
                 error: function () {
                     console.log("ERROR");
-                    //$("input.submit").siblings("a").find("span").removeClass('fetching');
                 }
             });
         }
@@ -2726,7 +2725,6 @@ if (typeof DEBUG_MODE !=='undefined' && DEBUG_MODE>0){
                 $(node).find("span.icon16").css("opacity", 1);
 
                 $("select[name=data\\[0\\]\\[redundancy\\]]").change(function () {
-                    debugger;
                     if ($(this).val() == "same") {
                         lastLine.show();
                     } else {

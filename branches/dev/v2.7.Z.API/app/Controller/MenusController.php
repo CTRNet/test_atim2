@@ -22,8 +22,8 @@ class MenusController extends AppController
         
         // Don't restrict the index action so that users with NO permissions
         // who have VALID login credentials will not trigger an infinite loop.
-        if ($this->Auth->user()) {
-            $this->Auth->allowedActions = array(
+        if ($this->AtimAuth->user()) {
+            $this->AtimAuth->allowedActions = array(
                 'index'
             );
         }

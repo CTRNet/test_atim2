@@ -436,7 +436,7 @@ class SampleMastersController extends InventoryManagementAppController
         $this->set('parentSampleMasterId', $parentSampleMasterId);
         
         // Set sample data
-        $this->set('sampleMasterData', $sampleData);
+        $this->set('sampleMasterData', $sampleData, SHOW_IN_API);
         $this->request->data = array();
         
         // Set sample aliquot list
@@ -1236,7 +1236,8 @@ class SampleMastersController extends InventoryManagementAppController
         if (! isset($this->request->data['SampleMaster']['ids']) || ! isset($this->request->data['SampleMaster']['sample_control_id']) || ! isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])) {
             $this->redirect('/Pages/err_plugin_system_error?method=' . __METHOD__ . ',line=' . __LINE__, null, true);
         } elseif ($this->request->data['SampleMaster']['sample_control_id'] == '') {
-            $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();", 5);
+            $this->atimFlashWarning(__("you must select a derivative type"), Router::url( $this->here, true), 5);
+//            $this->atimFlashWarning(__("you must select a derivative type"), "javascript:history.back();", 5);
             return;
         }
         
@@ -1468,7 +1469,8 @@ class SampleMastersController extends InventoryManagementAppController
             
             $prevData = $this->request->data;
             if (empty($prevData)) {
-                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
+                $this->atimFlashWarning(__("at least one data has to be created"), Router::url( $this->here, true), 5);
+//                $this->atimFlashWarning(__("at least one data has to be created"), "javascript:history.back();", 5);
                 return;
             }
             $this->request->data = array();
