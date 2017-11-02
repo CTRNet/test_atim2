@@ -19,6 +19,7 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::uses('Controller', 'Controller');
+App::uses('AtimAuthComponent', 'Controller/Component');
 
 /**
  * Application Controller
@@ -57,7 +58,8 @@ class AppController extends Controller
         'Acl',
         'Session',
         'SessionAcl',
-        'Auth',
+//        'Auth',
+        'AtimAuth',
         'Menus',
         'RequestHandler',
         'Structures',
@@ -165,7 +167,7 @@ class AppController extends Controller
             $this->Session->write('Config.language', Configure::read('Config.language'));
         }
         
-        $this->Auth->authorize = 'Actions';
+        $this->AtimAuth->authorize = 'Actions';
         
         // Check password should be reset
         $lowerUrlHere = strtolower($this->request->here);
@@ -237,7 +239,7 @@ class AppController extends Controller
             $this->layout = 'true_json';
         }         
         // Fixe for issue #3396: Msg "You are not authorized to access that location." is not translated
-        $this->Auth->authError = __('You are not authorized to access that location.');
+        $this->AtimAuth->authError = __('You are not authorized to access that location.');
     }
 
     /**
@@ -410,10 +412,12 @@ class AppController extends Controller
                 $this->redirect($url);
             }elseif(false){
             //TODO:: Check if can use javascript functions for blue screen message
-            echo '<script type="text/javascript">',
-                        'javascript:history.back();',
-                        'window.location.reload();',
-                    '</script>';
+$this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
+//$this->Participant->validationErrors['test']=$message;            
+//            echo '<script type="text/javascript">',
+//                        'javascript:history.back();',
+//                        'window.location.reload();',
+//                    '</script>';
             }else{
                 $this->autoRender = false;
                 $this->set('url', Router::url($url));
@@ -793,6 +797,9 @@ class AppController extends Controller
      */
     public static function addWarningMsg($msg, $withTrace = false)
     {
+        if (API::isAPIMode()){
+            API::addToBundle($msg, 'warning');
+        }
         if ($withTrace) {
             $_SESSION['ctrapp_core']['warning_trace_msg'][] = array(
                 'msg' => $msg,
@@ -812,6 +819,9 @@ class AppController extends Controller
      */
     public static function addInfoMsg($msg)
     {
+        if (API::isAPIMode()){
+            API::addToBundle($msg, 'warning');
+        }
         if (isset($_SESSION['ctrapp_core']['info_msg'][$msg])) {
             $_SESSION['ctrapp_core']['info_msg'][$msg] ++;
         } else {
@@ -822,12 +832,19 @@ class AppController extends Controller
     /**
      * @return array
      */
-    public static function getStackTrace()
+    public static function getStackTrace($history=0)
     {
         $bt = debug_backtrace();
         $result = array();
+        $count=0;
         foreach ($bt as $unit) {
             $result[] = (isset($unit['file']) ? $unit['file'] : '?') . ", " . $unit['function'] . " at line " . (isset($unit['line']) ? $unit['line'] : '?');
+            if ($history!==0){
+                $count++;
+                if ($count>=$history){
+                    break;
+                }
+            }
         }
         return $result;
     }
@@ -1329,7 +1346,7 @@ class AppController extends Controller
 
     public function resetPermissions()
     {
-        if ($this->Auth->user()) {
+        if ($this->AtimAuth->user()) {
             $userModel = AppModel::getInstance('', 'User', true);
             $user = $userModel->findById($this->Session->read('Auth.User.id'));
             $this->Session->write('Auth.User.group_id', $user['User']['group_id']);
@@ -2154,15 +2171,22 @@ class AppController extends Controller
      */
     public function set($one, $two = null, $three=null)
     {
-        if (API::isAPIMode() && !API::isStructMode()){
-            return false;
-        }
+        //if (API::isAPIMode() && !API::isStructMode()){
+            //return false;
+            //API::addToBundle($one, 'testtesttest');
+        //}
         parent::set($one, $two);
-        if ($three){
-            $message=array();
-            $message['message']=$two;
-            $message['info']='test';
-//            API::addToBundle($message, 'data');
+        if ($three != null && API::isAPIMode()) {
+            if (is_array($one)) {
+                if (is_array($two)) {
+                    $data = array_combine($one, $two);
+                } else {
+                    $data = $one;
+                }
+            } else {
+                $data = array($one => $two);
+            }
+            API::addToBundle($data, 'data');
         }
     }
     /*

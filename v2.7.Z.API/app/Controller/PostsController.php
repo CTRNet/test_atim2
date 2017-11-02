@@ -16,7 +16,7 @@ class PostsController extends AppController
     public function beforeFilter()
     {
         parent::beforeFilter();
-        $this->Auth->allowedActions = array(
+        $this->AtimAuth->allowedActions = array(
             'index',
             'view'
         );

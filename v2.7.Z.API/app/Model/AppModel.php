@@ -36,6 +36,10 @@ class AppModel extends Model
         'MasterDetail'
     );
 
+    public function setValidationErrors($message){
+        $this->validationErrors['error'.rand(0, 100)]=$message;
+    }
+    
     // It's important that MasterDetail be after Revision
     public static $autoValidation = null;
 
@@ -218,7 +222,9 @@ class AppModel extends Model
     public function save($data = null, $validate = true, $fieldList = array())
     {
         $modelName= strtolower($this->name);
-        if (API::isAPIMode() && !API::isStructMode() && !in_array($modelName, ['user', 'userlog', 'missingtranslation'])){
+
+        //Check the $validate for not consodering Delete function here
+        if (API::isAPIMode() && !API::isStructMode() && !in_array($modelName, ['user', 'userlog', 'missingtranslation']) && $validate){
             if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
                 $message=[];
                 $message['message']='Pkey safeguard on model ' . $this->name;
@@ -241,7 +247,7 @@ class AppModel extends Model
             if (!empty($validationErrors)){
                 API::addToBundle($validationErrors, 'errors');
             }
-            $this->moveFiles($moveFiles);  
+            $this->moveFiles($moveFiles);              
         }else{
             if ($this->pkeySafeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey]) || (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))) {
                 AppController::addWarningMsg('Pkey safeguard on model ' . $this->name, true);
@@ -1438,17 +1444,15 @@ class AppModel extends Model
         if ($result) {
             return $result;
         }
-        $bt = debug_backtrace();
+        $bt = debug_backtrace(1);
         if (!API::isAPIMode()){
             AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method=' . $bt[1]['function'] . ',line=' . $bt[0]['line'], null, true);
         }else{
-            $message['message']='save_status';
-            $message['action']=false;
-            API::addToBundle($message, 'errors');
-            $message['message']='identifier';
+            $message['method']=$bt[1]['function'];
             $message['action']=__('error_There are no fields matching ID').': '.$id;
-            API::addToBundle($message, 'errors');
-            API::sendDataAndClear();
+            //API::addToBundle($message, 'errors');
+            AppController::getInstance()->atimFlashError($message, '/');            
+            //API::sendDataAndClear();
         }
         return null;
     }
@@ -1895,11 +1899,6 @@ class AppModel extends Model
     public function find($type = 'first', $query = array())
     {
         $return = parent::find($type, $query);
-        if (API::isAPIMode()){// && API::getModelName()==strtolower($this->name)){
-            $message['message']= API::getModelName();
-            $message['action']=$return;
-            //API::addToBundle($message, 'data');
-        }
         return $return;
     }
 
