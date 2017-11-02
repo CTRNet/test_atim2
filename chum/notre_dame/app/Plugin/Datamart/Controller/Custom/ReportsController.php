@@ -104,12 +104,16 @@ class ReportsControllerCustom extends ReportsController
                         'head_and_neck_bank_no_lab' => null,
                         'autopsy_bank_no_lab' => null,
                         'melanoma_and_skin_bank_no_lab' => null,
+                        'colorectal_bank_no_lab' => null,
+                        'pulmonary_bank_no_lab' => null,
                         'ramq_nbr' => null,
                         'hotel_dieu_id_nbr' => null,
                         'notre_dame_id_nbr' => null,
                         'saint_luc_id_nbr' => null,
                         'other_center_id_nbr' => null,
                         'old_bank_no_lab' => null,
+                        'old_breast_bank_no_lab' => null,
+                        'old_ovary_bank_no_lab' => null,
                         'code_barre' => null,
                         'qc_nd_study_misc_identifier_value' => ''
                     )
