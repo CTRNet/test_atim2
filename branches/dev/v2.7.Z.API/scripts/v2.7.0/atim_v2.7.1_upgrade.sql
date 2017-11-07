@@ -27,6 +27,24 @@ VALUES
 	("csv file warning", "Please validate the export has correctly been completed checking no error message exists at the end of the file", "Veuillez valider que l'exportation a été correctement complétée en vérifiant qu'il n'y a pas de message d'erreur à la fin du fichier");
 
 -- -------------------------------------------------------------------------------------
+-- Add user_api_keys for saving api_keys
+-- -------------------------------------------------------------------------------------
+CREATE TABLE `user_api_keys` (
+	`id` INT NOT NULL AUTO_INCREMENT , 
+    `user_id` INT NOT NULL , 
+	`created_by` int(10) unsigned DEFAULT NULL,
+	`modified_by` int(10) unsigned DEFAULT NULL,
+    `api_key` VARBINARY(64) NOT NULL , 
+	`created` datetime DEFAULT NULL,
+	`modified` datetime DEFAULT NULL,
+	`flag_active` TINYINT(1) NULL DEFAULT '0',
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',	
+    PRIMARY KEY (`id`),
+	KEY `user_id_index` (`user_id`),
+	FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+	
+) ENGINE = InnoDB COMMENT = 'This tables is used for saving the api keys';
+-- -------------------------------------------------------------------------------------
 -- -------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;

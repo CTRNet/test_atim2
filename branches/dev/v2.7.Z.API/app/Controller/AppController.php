@@ -51,7 +51,9 @@ class AppController extends Controller
 
     public $uses = array(
         'Config',
-        'SystemVar'
+        'SystemVar',
+        'UserApiKey',
+        'User'
     );
 
     public $components = array(
@@ -142,15 +144,36 @@ class AppController extends Controller
         API::sendDataToAPI($this->request->data);
     }
     
+    private function checkApiKey(){
+        $valide=true;
+        if (API::getApiKey()){
+            $condition['UserApiKey.api_key']=API::getApiKey();  
+            $users=$this->UserApiKey->find('all', array('conditions'=>$condition));
+            if (count($users)==1){
+                $user=$this->User->findById($users[0]['UserApiKey']['user_id'])['User'];
+                unset ($users);
+                $this->AtimAuth->login($user);
+            }else{
+                unset ($users);
+                $valide=false;
+            }
+        }
+        return $valide;
+    }
+    
     /**
      * This function is executed before every action in the controller.
-     * It’s a
+     * It's a
      * handy place to check for an active session or inspect user permissions.
      */
     public function beforeFilter()
     {
         parent::beforeFilter(); 
-        API::checkData($this->request->data, $this->modelClass);
+        API::checkData($this->request->data, $this->modelClass);   
+        if (API::isAPIMode()){
+            $this->checkApiKey();
+        }
+
         App::uses('Sanitize', 'Utility');
         AppController::$me = $this;
         if (Configure::read('debug') != 0) {
@@ -2193,7 +2216,7 @@ $this->{$this->modelClass}->setValidationErrors(substr($message, 0, 511));
      * @todo: Check if this is necessary ti change the redirect for API
      */
     public function redirect($url, $status = null, $exit = true) 
-	{
+    {
         if (!API::isAPIMode()){
             parent::redirect($url, $status, $exit);
         }else{

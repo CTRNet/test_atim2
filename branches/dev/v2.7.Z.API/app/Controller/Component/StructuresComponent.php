@@ -120,7 +120,7 @@ $parameters);
         }
         $structureName = Inflector::variable($structureName);
 
-        $this->controller->set($structureName, $structure, 1);
+        $this->controller->set($structureName, $structure);
     }
 
     /**

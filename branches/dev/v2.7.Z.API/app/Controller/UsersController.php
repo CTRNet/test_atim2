@@ -20,10 +20,6 @@ class UsersController extends AppController
     public function beforeFilter()
     {
         parent::beforeFilter();
-        if (API::isAPIMode()){
-            $this->AtimAuth->allow('apiInformations');
-        }
-        
         if (Configure::read('reset_forgotten_password_feature')) {
             $this->AtimAuth->allow('login', 'logout', 'resetForgottenPassword');
         } else {
@@ -371,9 +367,5 @@ class UsersController extends AppController
                 $this->request->data['User']['confirm_password'] = '';
             }
         }
-    }
-    
-    public function apiInformations(){
-        die('apiInformations');
-    }
+    }    
 }
