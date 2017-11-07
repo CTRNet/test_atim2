@@ -6,6 +6,7 @@ define("MODEL_NAME", "modelName");
 define("REST_API_MODE", "APIMode");
 define("REST_API_ACTION", "APIAction");
 define("REST_API_MODE_STRUCTURE", "APISModeStructure");
+define("ATIM_API_KEY", "atimApiKey");
 
 define("RECEIVE", "receive");
 
@@ -151,6 +152,13 @@ class API
         }
     }
 
+    public static function getApiKey(){
+        if (self::isAPIMode()){
+            return $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY];
+        }
+        return null;
+    }
+    
     /**
      * @param array $data 
      * @param string $model
@@ -163,6 +171,8 @@ class API
         if (!empty($data)) {
             if ($data && isset($data['data_put_options']['from_api']) && $data['data_put_options']['from_api']) {
                 Configure::write('debug', 0);
+                $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = strtolower($model);
+                $_SESSION[REST_API][CONFIG_API][ATIM_API_KEY]=$data['data_put_options']['atimApiKey'];
                 $_SESSION[REST_API][CONFIG_API][MODEL_NAME] = strtolower($model);
                 $_SESSION[REST_API][CONFIG_API][REST_API_MODE] = true;
                 $_SESSION[REST_API][CONFIG_API][REST_API_ACTION] = $data['data_put_options']['action'];

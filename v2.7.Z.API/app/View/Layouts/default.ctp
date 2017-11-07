@@ -25,6 +25,15 @@ if (! headers_sent()) {
     AppController::atimSetCookie(isset($skipExpirationCookie) && $skipExpirationCookie);
 }
 ?>
+<?php
+// Add this if because the Print and echo functions cause warning in mode debug.
+//https://stackoverflow.com/questions/8028957#answer-8028987
+if(Configure::read('debug')===0){
+    header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+    header("Pragma: no-cache"); // HTTP 1.0.
+    header("Expires: 0"); // Proxies.
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,15 +53,6 @@ $title = $this->Shell->pageTitle;
 <meta http-equiv="Cache-Control"
 	content=" no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0" />
 <meta http-equiv="Expires" content="0" />-->
-<?php
-// Add this if because the Print and echo functions cause warning in mode debug.
-//https://stackoverflow.com/questions/8028957#answer-8028987
-if(Configure::read('debug')===0){
-    header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    header("Pragma: no-cache"); // HTTP 1.0.
-    header("Expires: 0"); // Proxies.
-}
-?>
 <link rel="shortcut icon"
 	href="<?php echo($this->request->webroot); ?>img/favicon.ico" />
 	<?php
