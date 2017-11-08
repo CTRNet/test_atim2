@@ -232,5 +232,29 @@ VALUES
 
 UPDATE versions SET branch_build_number = '6909' WHERE version_number = '2.7.0';
 
+-- Lung Consent
+
+UPDATE structure_fields SET  `language_label`='tissue' WHERE model='ConsentDetail' AND tablename='' AND field='tissue_for_banking_only' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='3', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_cd_chum_pulmonarys') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_pulmonarys' AND `field`='blood' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1', `language_heading`='agreements' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_cd_chum_pulmonarys') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_pulmonarys' AND `field`='tissue_from_clinical_act' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_cd_chum_pulmonarys') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='' AND `field`='tissue_for_banking_only' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
+UPDATE structure_fields SET  `language_label`='tissue from clinical act',  `language_tag`='' WHERE model='ConsentDetail' AND tablename='qc_nd_cd_chum_pulmonarys' AND field='tissue_from_clinical_act' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='tissue for banking only',  `language_tag`='' WHERE model='ConsentDetail' AND tablename='' AND field='tissue_for_banking_only' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('tissue from clinical act', 'Tissue - From Clinical Act', 'Tissu - D''un acte clinique'),
+('tissue for banking only', 'Tissue - For Banking Only', 'Tissu - Pour la banque seulement');
+  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'qc_nd_cd_chum_pulmonarys', 'contact_for_other_research', 'yes_no',  NULL , '0', '', '', '', 'communicate to participate in other research', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_cd_chum_pulmonarys'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_nd_cd_chum_pulmonarys' AND `field`='contact_for_other_research' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='communicate to participate in other research' AND `language_tag`=''), '2', '10', 'contact', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `tablename`='qc_nd_cd_chum_pulmonarys' WHERE model='ConsentDetail' AND tablename='' AND field='tissue_for_banking_only' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+
+ALTER TABLE `qc_nd_cd_chum_pulmonarys` ADD COLUMN contact_for_other_research char(1) NOT NULL DEFAULT '';
+ALTER TABLE `qc_nd_cd_chum_pulmonarys_revs` ADD COLUMN contact_for_other_research char(1) NOT NULL DEFAULT '';
+ 
+UPDATE versions SET branch_build_number = '6913' WHERE version_number = '2.7.0';
